@@ -1,10 +1,10 @@
 .input {
-  background-color: "transparent";
+  background-color: var(--cBlackV3);
   width: 100%;
   border-radius: var(--bRadiusS);
   border: var(--bWidth) solid var(--cBlackV3);
-  height: 48px;
-  font-size: var(--sMsM);
+  height: 56px;
+  font-size: var(--sL );
   align-items: center;
   position: relative;
   padding-left: var(--spM);
@@ -35,10 +35,11 @@
       top: 0;
       transition: all 0.3s;
       font-size: var(--sM);
-      color: var(--cWhiteV2);
+      color: var(--cWhiteV3);
       /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
       padding-right: var(--spXs);
+      padding-top: var(--spXs);
     }
     & > input:focus + label,
     & > input:not(:placeholder-shown) + label,
@@ -46,9 +47,10 @@
       top: -8px;
       left: -4px;
       font-size: var(--sS);
-      transform: translateY(-100%);
-      background-color: var(--cBlack);
-      color: var(--cBlackV2);
+      transform: translateY(-20%);
+      background-color: transparent;
+      /* color: var(--cBlackV2); */
+      color: var(--cWhiteV1);
     }
     & input[type="number"]::-webkit-inner-spin-button,
     & input[type="number"]::-webkit-outer-spin-button {
@@ -62,17 +64,18 @@
       border: none;
       outline: none;
       padding: 0;
+      padding-top: 8px;
       margin: 0;
       color: var(--cWhite);
     }
   }
 
   &:focus-within {
-    border: var(--bWidth) solid var(--cPrimary);
+    border: var(--bWidth) solid var(--cAccent);
 
     & > div > input:focus + label,
     & > div > input:not(:placeholder-shown) + label {
-      color: var(--cPrimary);
+      color: var(--cPrimary); 
     }
   }
 
