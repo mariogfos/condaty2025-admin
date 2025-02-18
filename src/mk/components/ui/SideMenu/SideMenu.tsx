@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "./Sidemenu.module.css";
+import styles from "./sidemenu.module.css";
 import {
   IconArrowLeft,
   IconArrowRight,
