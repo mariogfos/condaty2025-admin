@@ -29,3 +29,10 @@
 .expanded {
     width: 240px;
 }
+
+
+
+.toggleIcon {
+    background-color: blue;
+    color: white;
+}

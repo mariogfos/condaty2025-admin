@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "./sidemenu.module.css";
+import styles from "./Sidemenu.module.css";
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -34,11 +34,15 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
             <IconArrowRight
               onClick={toggleSidebar}
               className={styles.toggleIcon}
+              style={{background:'var(--cBlackV2)',border:'0.5px solid var(--cAccent)'}}
+              color={'var(--cAccent)'}
             />
           ) : (
             <IconArrowLeft
               onClick={toggleSidebar}
               className={styles.toggleIcon}
+              style={{background:'var(--cBlackV2)',border:'0.5px solid var(--cAccent)'}}
+              color={'var(--cAccent)'}
             />
           ))}
         <section>{children}</section>

@@ -17,10 +17,15 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   return (
     <div className={styles.menuHeader}>
       <div>
-        <IconLogoElekta
-          size={collapsed ? 44 : 148}
-          onClick={() => router.push("/")}
-        />
+      <Avatar
+            src={getUrlImages(
+              "/ADM-" + user?.id + ".png?d=" + user?.updated_at
+            )}
+            name={getFullName(user)}
+            w={collapsed ? 48 : 128}
+            h={collapsed ? 48 : 128}
+           style={{borderRadius:8}}
+          />
       </div>
       {/* <div>
         <Avatar
