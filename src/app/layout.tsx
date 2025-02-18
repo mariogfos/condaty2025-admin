@@ -39,11 +39,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <head>
-        <link rel="icon" href="/public/images/favicon.ico" />
-        <link rel="apple-touch-icon" href="/icon.png" />
-      </head> */}
-      {/* <body className={`${geistSans.variable} ${geistMono.variable}`}> */}
       <body cz-shortcut-listen="false">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>

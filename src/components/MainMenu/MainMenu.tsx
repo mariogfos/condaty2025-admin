@@ -18,7 +18,7 @@ type PropsType = {
   collapsed: boolean;
   setSideBarOpen?: any;
 };
-const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
+// const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
 const MainMenu = ({
   user,
   collapsed,
@@ -27,11 +27,11 @@ const MainMenu = ({
 }: PropsType) => {
   const { isMobile } = useScreenSize();
 
-  const play = () => {
-    sound
-      .play()
-      .catch((err) => console.error("Error al reproducir el audio:", err));
-  };
+  // const play = () => {
+  //   sound
+  //     .play()
+  //     .catch((err) => console.error("Error al reproducir el audio:", err));
+  // };
 
   return (
     <section className={styles.menu}>
@@ -95,7 +95,7 @@ const MainMenu = ({
           <MainmenuItem href="/" label="Eventos" icon={<IconCandidates />} />
         </div>
       )}
-      <div>
+      {/* <div>
         <MainmenuItem
           href="#"
           onclick={() => play()}
@@ -104,7 +104,7 @@ const MainMenu = ({
           icon={<></>}
           collapsed={collapsed}
         />
-      </div>
+      </div> */}
       <div>
         <MainmenuItem
           href="#"
