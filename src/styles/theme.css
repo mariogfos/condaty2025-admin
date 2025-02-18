@@ -2,17 +2,17 @@
 
 :root {
   /* Paleta de colores principales */
-  --cPrimary: #3a9ed9;
-  --cSecondary: #212529;
+  --cPrimary: #00e38c;
+  --cSecondary: #212121;
   --cTerciary: #393c3f;
-  --cAccent: #3a9ed9;
-  --cWhite: #ffffff;
-  --cWhiteV1: #c6c6c6;
-  --cWhiteV2: #858a8f;
+  --cAccent: #00e38c;
+  --cWhite: #FAFAFA;
+  --cWhiteV1: #A7A7A7;
+  --cWhiteV2: #4A4A4A;
   --cWhiteV3: #ffffff0d;
-  --cBlack: #101111;
-  --cBlackV1: #212529;
-  --cBlackV2: #656f78;
+  --cBlack: #212121;
+  --cBlackV1: #292929;
+  --cBlackV2: #333536;
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
@@ -21,10 +21,23 @@
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
   /* Paleta de los toast */
-  --cError: #da5d5d;
-  --cSuccess: #00af90;
-  --cInfo: #39acec;
-  --cWarning: #e1c151;
+  --cError: #E46055;
+  --cSuccess: #34A853;
+  --cInfo: #4285FA;
+  --cWarning: #E9B01E;
+
+
+  ---cBigSidebar:#246950; 
+
+
+  --cCompl1:#FAFF7F;
+  --cCompl2:#A2FAA3;
+  --cCompl3:#B382D9;
+  --cCompl4:#E9B01E;
+  --cCompl5:#F7B267;
+  --cCompl6:#FF7F51;
+
+ 
   /* Paleta de colores Random */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;
