@@ -24,7 +24,7 @@
     background-color: var(--cPrimary);
   }
   &.secondary {
-    border: var(--bWidth) solid var(--cBlackV2);
+    border: var(--bWidth) solid var(--cWhiteV1);
     color: var(--cWhiteV1);
   }
 

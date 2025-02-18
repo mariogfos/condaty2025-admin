@@ -5,6 +5,7 @@ import {
   IconLogout,
   IconNetwork,
   IconCandidates,
+  IconHome,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -40,8 +41,9 @@ const MainMenu = ({
       </div>
       {!isMobile ? (
         <div>
+          <MainmenuItem href="/" label="Inicio" icon={<IconHome />} />
           <MainmenuDropdown
-            label="Red Elekta"
+            label="Finanzas"
             icon={<IconRedffiliates />}
             items={[
               { href: "/", label: "Resumen" },
