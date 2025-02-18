@@ -20,6 +20,7 @@
   --cHoverInfo: #39acec33;
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
+  --cHoverBigSidebar:#1F2D27;
   /* Paleta de los toast */
   --cError: #E46055;
   --cSuccess: #34A853;
@@ -27,7 +28,7 @@
   --cWarning: #E9B01E;
 
 
-  ---cBigSidebar:#246950; 
+  --cBigSidebar:#246950; 
 
 
   --cCompl1:#FAFF7F;

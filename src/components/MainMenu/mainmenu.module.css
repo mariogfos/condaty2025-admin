@@ -5,7 +5,8 @@
   border-right: 1px solid rgba(191, 185, 185, 0.1);
   padding: var(--spM);
   overflow: auto;
-
+  background-color:  var(--cBlackV2);
+  
   & > div:nth-child(2) {
     display: flex;
     flex-direction: column;
@@ -66,7 +67,7 @@
 .menuItem {
   & > a {
     text-decoration: none;
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     display: flex;
     align-items: center;
     gap: var(--spS);
@@ -92,7 +93,7 @@
 
 .menuDropdown {
   position: relative;
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
   cursor: pointer;
   border-radius: var(--bRadiusS);
   padding: 0px;
@@ -100,7 +101,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid var(--cBlack);
+  /* //border: 1px solid var(--cBlack); */
 
   &:hover {
     background-color: rgba(33, 37, 41, 0.5);
@@ -139,12 +140,13 @@
   }
 
   &.isRouteActive {
-    background-color: rgba(33, 37, 41, 0.5);
+    /* background-color: rgba(33, 37, 41, 0.5); */
+    background-color: var(--cHoverBigSidebar);
     color: white;
   }
 
   &.isOpen > div:nth-child(1) {
-    background-color: var(--cBlackV1);
+    /* background-color: var(--cBigSidebar); */
   }
 
   &.collapsed > div:nth-child(1) {
@@ -190,7 +192,7 @@
 
     & > a {
       text-decoration: none;
-      color: var(--cBlackV2);
+      color: var(--cWhiteV1);
       padding: var(--spS);
       border-radius: var(--bRadiusS);
     }
@@ -208,7 +210,7 @@
 
     & > a.active,
     & > a.active:hover {
-      background-color: var(--cBlackV2);
+      background-color: var(--cBigSidebar);
       /* background-color: rgba(245, 149, 28, 0.2); */
     }
   }
