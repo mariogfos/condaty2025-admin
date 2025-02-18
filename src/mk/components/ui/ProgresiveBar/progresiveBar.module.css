@@ -1,0 +1,62 @@
+.progresiveBar {
+  background-color: var(--cBlackV3);
+  width: 100%;
+  height: var(--spXxl);
+  border-radius: var(--bRadiusL);
+  overflow: hidden;
+
+  & > div {
+    background-color: var(--cAccent);
+    height: 100%;
+    border-radius: var(--bRadiusL);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--cBlack);
+    transition: width 0.5s ease-in-out;
+    /* min-width: 1%; */
+  }
+}
+
+.percentageLabels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--cBlackV2);
+  margin-top: var(--spXs);
+  margin-bottom: var(--spXs);
+  & > div {
+    width: 33.3%;
+  }
+  & > div:last-child {
+    text-align: right;
+  }
+  & > div:nth-last-child(2) {
+    text-align: center;
+  }
+}
+.percentageTopLabels {
+  display: flex;
+  flex-direction: column;
+  color: var(--cBlackV2);
+  margin-top: var(--spXs);
+  margin-bottom: var(--spXs);
+}
+
+.lineBar {
+  color: var(--cBlackV2);
+  border-left: 1px solid var(--cSuccess);
+  height: 120%;
+  display: flex;
+  position: absolute;
+
+  bottom: 20px;
+  z-index: 10;
+}
+
+.progresiveBar.V1 {
+  background-color: aquamarine;
+  border-radius: 4px;
+  & > div {
+    border-radius: 4px;
+  }
+}

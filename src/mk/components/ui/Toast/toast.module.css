@@ -1,0 +1,55 @@
+/* toast */
+/* .warning {
+  --colorToast: #ffcd3d;
+  --textToast: var(--cBlack);
+}
+.error {
+  --colorToast: #ea4335;
+}
+.success {
+  --colorToast: #34a853;
+}
+.info {
+  --colorToast: #4285fa;
+} */
+.toast {
+  position: fixed;
+  top: 25%;
+  right: 0;
+  margin: var(--spM);
+  padding: var(--spM);
+  background-color: var(--cWhite);
+  border-radius: var(--bRadius);
+  color: var(--cBlack);
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  min-height: 48px;
+  z-index: 300;
+  transition: all 1s ease-in-out;
+  font-size: var(--sS);
+  opacity: 0;
+  transform: translateX(100%);
+  & > div > p {
+    font-weight: var(--bBold);
+    font-size: var(--sS);
+  }
+  & > div.close {
+    position: absolute;
+    color: var(--cWhite);
+    background-color: var(--cBlack);
+    border-radius: 100%;
+    padding: 4px;
+    top: -8px;
+    right: -6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  &.open {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,11 @@
+.TagLabel{
+    display: flex;
+    gap:4px;
+    background-color: var(--cAccent);
+    padding:var(--spXs) var(--spS);
+    border-radius: var(--bRadius);
+    color:var(--cBlack);
+    width: max-content;
+    margin-top: var(--spL);
+    margin-bottom: -8px;
+}

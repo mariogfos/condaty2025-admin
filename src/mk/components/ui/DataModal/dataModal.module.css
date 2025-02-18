@@ -1,0 +1,68 @@
+.dataModal {
+  backdrop-filter: blur(5px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  & > main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    color: var(--cWhite);
+    background-color: var(--cBlack);
+    border-radius: var(--bRadius);
+    margin: var(--spM);
+    box-shadow: 2px 6px 20px 4px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all 0.3s;
+    width: 85%;
+    max-height: calc(100% - 50px);
+    @media (width>768px) {
+      width: 50%;
+    }
+    &.open {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    &.full {
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      border-radius: 0;
+      max-height: 100%;
+    }
+    & > .head-title > span {
+      cursor: pointer;
+      color: var(--cWhite);
+      &:active {
+        transform: scale(0.9);
+      }
+    }
+    & > section {
+      overflow-y: auto;
+      flex-grow: 1;
+      color: var(--cWhiteV1);
+      padding: var(--spM);
+      padding-top: var(--spL);
+    }
+    & > footer {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+      gap: 8px;
+      padding: var(--spM);
+      padding-top: 0;
+      @media (width>768px) {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+}

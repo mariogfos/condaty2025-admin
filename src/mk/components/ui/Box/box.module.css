@@ -1,0 +1,23 @@
+
+.box {
+  margin-top: var(--spM);
+  margin-bottom: var(--spM);
+  width: 100%;
+  overflow: hidden;
+  & > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spS);
+  }
+  & > section {
+    transition-property: all;
+    transition-duration: 500ms;
+    max-height: 1000px;
+    z-index: 0;
+    &.close {
+      max-height: 0;
+      overflow: hidden;
+    }
+  }
+}

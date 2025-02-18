@@ -1,0 +1,109 @@
+.input {
+  background-color: "transparent";
+  width: 100%;
+  border-radius: var(--bRadiusS);
+  border: var(--bWidth) solid var(--cBlackV3);
+  height: 48px;
+  font-size: var(--sMsM);
+  align-items: center;
+  position: relative;
+  padding-left: var(--spM);
+  padding-right: var(--spM);
+  display: flex;
+  gap: var(--spXs);
+  margin-bottom: calc(var(--spS) * 3);
+  font-weight: var(--bRegular);
+  color: var(--cWhite);
+  & > div > input::placeholder {
+    color: var(--cWhite);
+  }
+  & > span {
+    flex-shrink: 1;
+    display: flex;
+    align-items: center;
+    color: var(--cWhiteV1);
+  }
+
+  & > div {
+    flex-grow: 1;
+    margin: 0;
+    position: relative;
+
+    & > label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transition: all 0.3s;
+      font-size: var(--sM);
+      color: var(--cWhiteV2);
+      /* background-color: var(--cWhite); */
+      padding-left: var(--spXs);
+      padding-right: var(--spXs);
+    }
+    & > input:focus + label,
+    & > input:not(:placeholder-shown) + label,
+    & > input[placeholder]:not([placeholder=""]) + label {
+      top: -8px;
+      left: -4px;
+      font-size: var(--sS);
+      transform: translateY(-100%);
+      background-color: var(--cBlack);
+      color: var(--cBlackV2);
+    }
+    & input[type="number"]::-webkit-inner-spin-button,
+    & input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    & > input {
+      width: 100%;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      padding: 0;
+      margin: 0;
+      color: var(--cWhite);
+    }
+  }
+
+  &:focus-within {
+    border: var(--bWidth) solid var(--cPrimary);
+
+    & > div > input:focus + label,
+    & > div > input:not(:placeholder-shown) + label {
+      color: var(--cPrimary);
+    }
+  }
+
+  &.error {
+    border: var(--bWidth) solid var(--cError);
+
+    & > div > label,
+    & > div > input + label {
+      color: var(--cError) !important;
+    }
+
+    & > p {
+      position: absolute;
+      bottom: calc(var(--spL) * -1);
+      font-size: var(--sXs);
+      color: var(--cError);
+    }
+
+    /* & > div > input[type="number"] {
+      pointer-events: none;
+    } */
+  }
+  & input[type="date"]::-webkit-datetime-edit-text,
+  & input[type="date"]::-webkit-datetime-edit-year-field,
+  & input[type="date"]::-webkit-datetime-edit-month-field,
+  & input[type="date"]::-webkit-datetime-edit-day-field {
+    color: white;
+  }
+  & input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    border-radius: 50%;
+    padding: 4px;
+  }
+}

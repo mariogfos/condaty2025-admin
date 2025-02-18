@@ -1,0 +1,13 @@
+.tooltip {
+    position: absolute;
+    background-color: var(--cWhiteV1);
+    color: var(--cBlackV2);
+    padding: 5px 10px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    z-index: 1000; /* Asegura que el tooltip esté por encima de otros elementos */
+    pointer-events: none; /* Evita que el tooltip interfiera con eventos del mouse */
+    transition: opacity 0.3s ease;
+  }
+  

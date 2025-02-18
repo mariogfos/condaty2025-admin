@@ -1,0 +1,75 @@
+/* .tabsButton {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spM);
+  & > button {
+    width: 100%;
+    position: relative;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+    padding-bottom: 8px;
+    color: var(--cWhiteV1);
+    &.selected {
+      font-weight: var(--bBold);
+      color: var(--cWhite);
+      padding-bottom: var(--spS);
+      border-bottom: var(--bWidth) solid var(--cAccent);
+      transition: color 0.3s ease-in-out;
+    }
+    & > span {
+      position: absolute;
+      background-color: var(--cError);
+      border-radius: 100%;
+      top: -4px;
+      right: 0;
+      font-size: var(--sXxs);
+      padding: 2.5px;
+      width: 13px;
+      height: 13px;
+    }
+  }
+} */
+
+.tabsButton {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 12px;
+  & > button {
+    width: 100%;
+    position: relative;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+    padding: 16px 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: var(--cBlackV2);
+    background-color: var(--cHover);
+    &.selected {
+      font-weight: var(--bBold);
+      color: var(--cWhite);
+      padding-bottom: var(--spS);
+      border: var(--bWidth) solid var(--cAccent);
+      transition: color 0.3s ease-in-out;
+      border-width: 2px 2px 0px 2px;
+      border-style: solid;
+      border-color: var(--cAccent);
+      background-color: transparent;
+    }
+    & > span {
+      position: absolute;
+      background-color: var(--cError);
+      border-radius: 100%;
+      top: -4px;
+      right: 0;
+      font-size: var(--sL);
+      padding: 2.5px;
+      width: 13px;
+      height: 13px;
+    }
+  }
+}

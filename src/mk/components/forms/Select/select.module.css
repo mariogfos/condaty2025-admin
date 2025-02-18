@@ -1,0 +1,111 @@
+.select {
+  position: relative;
+  width: 100%;
+  /* z-index: 30; */
+  /* & > section {
+    background-color: var(--cBlackV2);
+    border: var(--bWidth) solid var(--cWhiteV3);
+    border-radius: var(--bRadius);
+    position: absolute;
+    top: 100px;
+    width: calc(100% - var(--spS) * 2);
+    padding: var(--spS);
+    & > ul {
+      overflow-y: auto;
+      max-height: 250px;
+      padding: var(--spS) var(--spS);
+      & li {
+        list-style: none;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: var(--spS) var(--spS);
+      }
+      & li:hover,
+      & li.selected {
+        background-color: #00e38c0d;
+      }
+    }
+  } */
+
+}
+
+.selectOptions {
+  background-color: var(--cBlackV1);
+  border: var(--bWidth) solid var(--cWhiteV3);
+  border-radius: var(--bRadius);
+  position: fixed;
+  top: 20px;
+  width: calc(100% - var(--spS) * 2);
+  padding: var(--spS);
+  color: var(--cBlackV2);
+
+  &>ul {
+    overflow-y: auto;
+    max-height: 250px;
+    padding: var(--spS) var(--spS);
+
+    & li {
+      list-style: none;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spS) var(--spS);
+    }
+
+    & li:hover,
+    & li.selected {
+      background-color: var(--cWhiteV3);
+      color: var(--cWhite);
+    }
+
+    & div {
+      display: flex;
+    }
+
+  }
+}
+
+
+
+
+
+
+/* 
+.select {
+  position: relative;
+  width: 100%;
+ 
+  & > section {
+  background-color: var(--cBlackV1);
+  color: var(--cBlackV2);
+  border: var(--bWidth) solid var(--cWhiteV3);
+  border-radius: var(--bRadius);
+  position: absolute;
+  top: 100px;
+  width: calc(100% - var(--spS) * 2);
+  padding: var(--spS);
+  & > ul {
+  overflow-y: auto;
+  max-height: 250px;
+  padding: var(--spS) var(--spS);
+  & li {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spS) var(--spS);
+  }
+  & li:hover,
+  & li.selected {
+  background-color: var(--cWhiteV3);
+  color:var(--cWhite)
+  }
+  }
+  }
+  }
+  
+  Reaccionar
+  
+  Responder */

@@ -1,0 +1,95 @@
+.textAreaWrapper {
+  position: relative; /* Permite posicionar elementos relativos */
+  width: 100%;
+}
+.textArea {
+  background-color: "transparent";
+  display: block;
+  outline: none;
+  width: 100%;
+  border-radius: var(--bRadius);
+  padding-left: var(--spM);
+  padding-right: var(--spM);
+  padding-bottom: var(--spS);
+  padding-top: var(--spL);
+  border: var(--bWidth) solid var(--cBlackV2);
+  font-size: var(--sM);
+  resize: none;
+  margin-bottom: calc(var(--spS) * 3);
+  position: relative;
+  & > div > textarea::placeholder {
+    color: var(--cBlackV2);
+  }
+  & > span {
+    flex-shrink: 1;
+    display: flex;
+    align-items: center;
+    color: var(--cWhiteV1);
+  }
+  & > div {
+    flex-grow: 1;
+    margin: 0;
+    position: relative;
+    & > label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transition: all 0.3s;
+      font-size: var(--sM);
+      color: var(--cBlackV2);
+      /* background-color: var(--cWhite); */
+      padding-left: var(--spXs);
+      padding-right: var(--spXs);
+    }
+    & textarea:focus + label,
+    & textarea:not(:placeholder-shown) + label,
+    & textarea[placeholder]:not([placeholder=""]) + label {
+      top: -10px;
+      left: -4px;
+      font-size: var(--sS);
+      transform: translateY(-100%);
+      background-color: var(--cBlack);
+      color: var(--cBlackV2);
+    }
+    & > textarea {
+      width: 100%;
+      background-color: transparent;
+      border: none;
+      font-size: var(--sS);
+      font-family: var(--fPrimary);
+      outline: none;
+      padding: 0;
+      margin: 0;
+      color: var(--cWhite);
+    }
+  }
+  &:focus-within {
+    border: var(--bWidth) solid var(--cPrimary);
+    & > div > textarea:focus + label,
+    & > div > textarea:not(:placeholder-shown) + label {
+      color: var(--cPrimary);
+    }
+  }
+  &.error {
+    border: var(--bWidth) solid var(--cError);
+    & > div > label,
+    & > div > .textarea + label {
+      color: var(--cError) !important;
+    }
+    & > p {
+      position: absolute;
+      bottom: calc(var(--spL) * -1);
+      font-size: var(--sXs);
+      color: var(--cError);
+    }
+    & > div > textarea[type="number"] {
+      pointer-events: none;
+    }
+  }
+}
+.charCounter {
+  /* flex: 1; */
+  font-size: 0.875rem; /* Tamaño de texto */
+  color: #6c757d; /* Color neutro */
+  text-align: right; /* Alineación a la derecha */
+}

@@ -1,0 +1,184 @@
+.table {
+  /* display: grid; */
+  font-size: var(--sM);
+  overflow: auto;
+
+  border-radius: var(--bRadius);
+  @media (width <= 1024px) {
+    background-color: transparent;
+    border: none;
+  }
+
+  & header {
+    width: 100%;
+    display: flex;
+    align-items: stretch; /* Asegura que todas las celdas tengan la misma altura */
+    flex-direction: row;
+    color: var(--cWhite);
+    font-weight: var(--bSemiBold);
+    overflow: auto;
+    background-color: var(--cBlackV2);
+    border-top-left-radius: var(--bRadius);
+    border-top-right-radius: var(--bRadius);
+    overflow: hidden;
+    & > div {
+      padding: var(--spM);
+      padding-bottom: var(--spS);
+      width: 100%;
+      border-left: 1px solid var(--cBlackV1);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center; /* Centra el contenido verticalmente */
+      justify-content: center; /* Centra el contenido horizontalmente */
+      text-align: center; /* Centra el texto */
+      /* white-space: nowrap; */
+    }
+    & > div:first-child {
+      border-left: 0;
+    }
+  }
+  & summary {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    color: var(--cWhite);
+    font-weight: var(--bSemiBold);
+    overflow: auto;
+    & > div {
+      overflow: visible;
+      padding: var(--spM);
+      padding-bottom: var(--spS);
+      height: 100%;
+      align-items: center;
+      width: 100%;
+    }
+    & > div > div {
+      margin-right: -12px;
+      margin-left: -12px;
+      border: 1px solid var(--cWhiteV3);
+      border-bottom-left-radius: var(--bRadius);
+      border-bottom-right-radius: var(--bRadius);
+      margin-top: -12px;
+      padding: 12px;
+      background-color: var(--cWhiteV3);
+      color: var(--cBlackV2);
+      font-size: 16px;
+      color: var(--cWhite);
+    }
+  }
+  /* & summary {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    color: var(--cWhite);
+    font-weight: var(--bSemiBold);
+    overflow: hidden;
+    & > div {
+      overflow: visible;
+      padding: var(--spM);
+      padding-bottom: var(--spS);
+      height: 100%;
+      align-items: center;
+    }
+    & > div > div {
+      background-color: red;
+      margin-right: -12px;
+      margin-left: -12px;
+      border: 1px solid var(--cWhiteV3);
+      border-bottom-left-radius: var(--bRadius);
+      border-bottom-right-radius: var(--bRadius);
+      margin-top: -12px;
+      padding: 12px;
+      background-color: var(--cWhiteV3);
+      color: var(--cBlackV2);
+      font-size: 16px;
+      color: var(--cWhite);
+    }
+  } */
+  & main {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    border-bottom-left-radius: var(--bRadius);
+    border-bottom-right-radius: var(--bRadius);
+    /* border: 1px solid var(--cWhiteV3); */
+    & > div {
+      display: flex;
+      align-items: stretch; /* Hace que todas las celdas tengan la misma altura */
+      gap: 0px;
+      background-color: var(--cBlackV1);
+      color: var(--cBlackV2);
+      /* overflow: hidden; */
+      /* height: 48px; */
+      cursor: pointer;
+      @media (width <= 1024px) {
+        background-color: transparent;
+      }
+      & > span {
+        display: flex;
+        align-items: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: var(--spM);
+        border: 1px solid var(--cWhiteV3);
+        width: 100%;
+        display: flex; /* Permite la alineación del contenido interno */
+        align-items: center; /* Centra verticalmente el contenido */
+        box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
+      }
+    }
+  }
+  & header > div.onlyDesktop,
+  & main > div > span.onlyDesktop {
+    @media (width <= 768px) {
+      display: none;
+    }
+  }
+  & header > div.tablet,
+  & main > div > span.tablet {
+    display: none;
+    @media (width <= 768px) {
+      display: flex;
+    }
+  }
+  & header > div.mobile,
+  & main > div > span.mobile {
+    display: none;
+    @media (width <= 480px) {
+      display: flex;
+    }
+  }
+}
+
+.table.striped {
+  & main {
+    & > div:nth-child(even) {
+      background-color: var(--cWhiteV3);
+      color: var(--cBlackV2);
+      &:hover {
+        background-color: var(--cBlack);
+      }
+    }
+    & > div:nth-child(odd) {
+      background-color: var(--cBlackV1);
+      color: var(--cBlackV2);
+      &:hover {
+        background-color: var(--cBlack);
+      }
+    }
+  }
+}
+
+.table.V1 {
+  @media (width <= 1024px) {
+    border: var(--cWhiteV2) solid 1px;
+  }
+  & header {
+    @media (width <= 1024px) {
+      border: var(--cWhiteV2) solid 1px;
+    }
+  }
+}

@@ -1,0 +1,14 @@
+.check {
+  & > label {
+    display: flex;
+    gap: var(--spM);
+    cursor: pointer;
+    align-items: center;
+    & > input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      display: none;
+      outline: none;
+    }
+  }
+}

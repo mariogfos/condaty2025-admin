@@ -1,0 +1,21 @@
+/* data-search */
+
+.dataSearch {
+  padding-right: 0;
+  width: 100%;
+  background-color: var(--cBlackV1);
+  & > div > input::placeholder {
+    color: var(--cBlackV2);
+  }
+  & > span > svg.error {
+    color: var(--cError);
+  }
+
+  & > span:nth-child(3) {
+    background-color: var(--cPrimary);
+    border-radius: var(--bRadius);
+    margin-top: 0px;
+    margin-right: -2px;
+    height: 50px;
+  }
+}

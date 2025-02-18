@@ -1,0 +1,9 @@
+.list{
+    & > div {
+        color:var(--cWhite);
+        & > div > div > div > div {
+            /* titulo */
+            color:var(--cWhite)
+        }
+    }
+}

@@ -1,0 +1,19 @@
+/* iconos */
+.icon {
+  transition-property: transform;
+  transition-duration: 300ms;
+  &.circle {
+    border-radius: 100%;
+    background-color: var(--cWhite);
+    color: var(--cBlack);
+    padding: var(--spS);
+  }
+  &.responsive {
+    width: 24px;
+    height: 24px;
+    @media (width > 768px) {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
