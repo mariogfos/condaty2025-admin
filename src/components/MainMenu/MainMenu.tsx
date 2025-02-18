@@ -6,6 +6,11 @@ import {
   IconNetwork,
   IconCandidates,
   IconHome,
+  IconPayments,
+  IconMonitorLine,
+  IconGroup,
+  IconComunicationDialog,
+  IconInterrogation,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -44,7 +49,7 @@ const MainMenu = ({
           <MainmenuItem href="/" label="Inicio" icon={<IconHome />} />
           <MainmenuDropdown
             label="Finanzas"
-            icon={<IconRedffiliates />}
+            icon={<IconPayments/>}
             items={[
               { href: "/", label: "Resumen" },
               {
@@ -59,8 +64,8 @@ const MainMenu = ({
             setSideBarOpen={setSideBarOpen}
           />
           <MainmenuDropdown
-            label="Organización"
-            icon={<IconNetwork />}
+            label="Administración"
+            icon={<IconMonitorLine />}
             items={[
               { href: "/partyStructure", label: "Estructura del partido" },
               { href: "/users", label: "Administradores" },
@@ -69,9 +74,19 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
+            <MainmenuDropdown
+              label="Usuarios"
+              icon={<IconGroup/>}
+              items={[
+                { href: "/candidates", label: "Administrar candidatos" },
+                { href: "/typecands", label: "Tipo de candidatos" },
+              ]}
+              collapsed={collapsed}
+              setSideBarOpen={setSideBarOpen}
+            /> 
           <MainmenuDropdown
             label="Comunicación"
-            icon={<IconComunication />}
+            icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
               { href: "/events", label: "Eventos" },
@@ -81,16 +96,7 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-          {/* <MainmenuDropdown
-            label="Candidatos"
-            icon={<IconCandidates />}
-            items={[
-              { href: "/candidates", label: "Administrar candidatos" },
-              { href: "/typecands", label: "Tipo de candidatos" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-          /> */}
+        <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} />
         </div>
       ) : (
         <div>
