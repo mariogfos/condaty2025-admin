@@ -3,7 +3,7 @@
   width: 100%;
 }
 .textArea {
-  background-color: "transparent";
+  background-color: var(--cBlackV3);
   display: block;
   outline: none;
   width: 100%;
@@ -18,7 +18,7 @@
   margin-bottom: calc(var(--spS) * 3);
   position: relative;
   & > div > textarea::placeholder {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
   }
   & > span {
     flex-shrink: 1;
@@ -36,7 +36,7 @@
       top: 0;
       transition: all 0.3s;
       font-size: var(--sM);
-      color: var(--cBlackV2);
+      color: var(--cWhiteV1);
       /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
       padding-right: var(--spXs);
@@ -47,9 +47,9 @@
       top: -10px;
       left: -4px;
       font-size: var(--sS);
-      transform: translateY(-100%);
-      background-color: var(--cBlack);
-      color: var(--cBlackV2);
+      transform: translateY(-20%);
+      background-color: 'transparent';
+      color: var(--cWhiteV1);
     }
     & > textarea {
       width: 100%;
