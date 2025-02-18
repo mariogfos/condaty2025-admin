@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import Image from "next/image";
-import background from "@/../public/images/img_login.png";
-import ForgotPass from "./ForgotPass";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import Button from "@/mk/components/forms/Button/Button";
+import ForgotPass from "./ForgotPass";
+import Logo from "@/components/req/Logo";
 import styles from "./loginView.module.css";
 
 export interface PropsLogin {
@@ -13,6 +15,7 @@ export interface PropsLogin {
   formState: any;
   handleChange: (e: any) => void;
   handleSubmit: () => void;
+  config?: any;
 }
 
 const LoginView = ({
@@ -20,77 +23,108 @@ const LoginView = ({
   formState,
   handleChange,
   handleSubmit,
+  config,
 }: PropsLogin) => {
   const [openModal, setOpenModal] = useState(false);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        height: "100vh",
-      }}
-    >
-      <form>
-        <div className={styles.loginView}>
-          <section>
-            <div>
-              <div>
-                <div className={styles["bgAdmin"]}></div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Image
-                    src={background}
-                    alt=""
-                    priority
-                    style={{ width: 501, height: 429 }}
-                  />
-                </div>
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
+        <div className={styles.imageContainer}>
+          <Image
+            src="/assets/images/Resident2.png"
+            alt="adminDesktop"
+            width={1024}
+            height={768}
+            className={styles.desktopImage}
+            priority
+          />
+          <Image
+            src="/assets/images/adminTablet.png"
+            alt="admTablet"
+            width={768}
+            height={476}
+            className={styles.tabletImage}
+            priority
+          />
+          <Image
+            src="/assets/images/adminLogin.png"
+            alt="admMobile"
+            width={375}
+            height={476}
+            className={styles.mobileImage}
+            priority
+          />
+        </div>
+        
+        <div className={styles.formContainer}>
+          <div className={styles.formWrapper}>
+            <div className={styles.logo}>
+              <Logo width={98}  />
+            </div>
+            
+            <div className={styles.titleSection}>
+              <div className={styles.mobileTitle}>
+                Administrador
               </div>
-              <div>
-                <div
-                  className="tTitle"
-                  style={{ fontSize: 48, marginBottom: "var(--spL)" }}
-                >
-                  La plataforma para <br />
-                  gestión política
-                </div>
-
-                <div>
-                  <Input
-                    label="Cédula de identidad"
-                    name="email"
-                    required
-                    value={formState.email}
-                    onChange={handleChange}
-                    error={errors}
-                    maxLength={11}
-                  />
-                  <InputPassword
-                    label="Contraseña"
-                    required
-                    name="password"
-                    value={formState.password}
-                    onChange={handleChange}
-                    error={errors}
-                    maxLength={10}
-                  />
-                  <Button onClick={() => handleSubmit()}>Ingresar</Button>
-                </div>
-
-                <br />
-                <div className="link" onClick={() => setOpenModal(true)}>
-                  {" "}
-                  Olvidé mi contraseña
-                </div>
-
-                <br />
+              <div className={styles.desktopTitle}>
+                Bienvenido de vuelta
+              </div>
+              <div className={styles.welcomeText}>
+                Bienvenido
+              </div>
+              <div className={styles.adminText}>
+                Administrador
               </div>
             </div>
-            {/* <div className={styles['elektaDescript']}>ELEKTA Plataforma digital de gestión política</div>  */}
-          </section>
+            
+            <form className={styles.form} onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}>
+              <div className={styles.inputContainer}>
+                <Input
+                  required
+                  label={config?.app?.loginLabel || "Carnet de identidad"}
+                  type="number"
+                  name="email"
+                  error={errors}
+                  value={formState.email}
+                  onChange={handleChange}
+                  maxLength={11}
+                />
+              </div>
+              
+              <div className={styles.inputContainer}>
+                <InputPassword
+                  label="Contraseña"
+                  required
+                  name="password"
+                  error={errors}
+                  value={formState.password}
+                  onChange={handleChange}
+                  maxLength={10}
+                />
+              </div>
+              
+              <Button
+                className={styles.button}
+                
+              >
+                Iniciar sesión
+              </Button>
+            </form>
+            
+            <div
+              className={styles.forgotPassword}
+              onClick={() => setOpenModal(true)}
+            >
+              Olvidé mi contraseña
+            </div>
+          </div>
         </div>
-        <ForgotPass mod={"adm"} open={openModal} setOpen={setOpenModal} />
-      </form>
+      </div>
+      <ForgotPass open={openModal} setOpen={setOpenModal} mod="adm" />
     </div>
   );
 };

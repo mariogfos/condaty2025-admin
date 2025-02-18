@@ -1,6 +1,53 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 :root {
+  --accent: #00E38C;
+  --primary: #fff;
+  --secondary: #000;
+  --terciary: #595959;
+  --title: #3B3B3B;
+  --subTitle: #1E1E1E;
+  --textMenu: #4C4C4C;
+  --tBlack: #3b3b3b;
+  --tWhite: #fafafa;
+  --pBlack: #212121;
+  --info: #00E38C;
+  --success: #00E38C;
+  --warning: #FFCD3D;
+  --danger: #FF0000;
+
+  /* Accents */
+  --accentColor: #00E38C;
+  --accentv1: #4EE7AC;
+  --accentv2: #BFFFE7;
+
+  /* Etiquetas */
+  --accentBg: #00E38C26;
+  --errorBg: #EA433526;
+
+  /* Darks */
+  --darkColor: #212121;
+  --darkv1: #292929;
+  --darkv2: #333536;
+
+  /* Lights */
+  --lightColor: #FAFAFA;
+  --lightv1: #EEEEEE;
+  --lightv2: #D8D8D8;
+  --lightv3: #A7A7A7;
+
+  /* Alerts */
+  --hightAlert: #FF5B4D;
+  --mediumAlert: #F37F3D;
+  --lowAlert: #FDD671;
+  --warning: #FBBC05;
+  --error: #EA4335;
+  --success: #34A853;
+  --info: #4285FA;
+
+
+
+
   /* Paleta de colores principales */
   --cPrimary: #00e38c;
   --cSecondary: #212121;
