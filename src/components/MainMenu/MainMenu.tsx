@@ -81,7 +81,7 @@ const MainMenu = ({
                 { href: "/candidates", label: "Guardias" },
                 { href: "/typecands", label: "Residentes" },
                 { href: "/typecands", label: "Propietarios" },
-                { href: "/typecands", label: "Personal Administrativo" },
+                { href: "/users", label: "Personal Administrativo" },
               ]}
               collapsed={collapsed}
               setSideBarOpen={setSideBarOpen}

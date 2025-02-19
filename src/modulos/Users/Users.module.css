@@ -1,0 +1,48 @@
+.users {
+  position: relative;
+
+  .title {
+    font-size: var(--sXl);
+    font-weight: 600;
+    color: var(--cWhite);
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: var(--sL);
+    font-weight: 400;
+    color: var(--cBlackV2);
+  }
+  .avatar {
+    position: absolute;
+    bottom: -60px;
+    left: 24px;
+  }
+  .container {
+    & > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    & > section {
+      padding: 8px;
+      background-color: var(--cBlackV1);
+      border-radius: 8px;
+      margin-top: 8px;
+      & > div {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: var(--sL);
+        & > p:nth-child(odd) {
+          flex: 1;
+          color: var(--cBlackV2);
+        }
+        & > p:nth-child(even) {
+          flex: 1;
+          text-align: right;
+          color: var(--cWhite);
+        }
+      }
+    }
+  }
+}
