@@ -6,8 +6,9 @@
     border: var(--bWidth) solid var(--cBlackV3);
     border-radius: var(--spL);
     padding: var(--spM);
-    background-color: var(--cBlack);
+    background-color: var(--cBlackV2);
     margin-bottom: var(--spM);
+ 
   }
 
   &.V2 {
