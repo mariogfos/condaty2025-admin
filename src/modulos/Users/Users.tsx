@@ -16,20 +16,20 @@ import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 
-const validate = (item: any, user: any) => {
-  if (user.datos.status === "M" && user.role.level > item.level) {
-    return true;
-  }
+// const validate = (item: any, user: any) => {
+//   if (user.datos.status === "M" && user.role.level > item.level) {
+//     return true;
+//   }
 
-  if (user.datos.status === "A" && user.role.level >= item.level) {
-    return true;
-  }
-  if (item.is_main == "M" && user.datos.status === "A") {
-    return true;
-  }
+//   if (user.datos.status === "A" && user.role.level >= item.level) {
+//     return true;
+//   }
+//   if (item.is_main == "M" && user.datos.status === "A") {
+//     return true;
+//   }
 
-  return false;
-};
+//   return false;
+// };
 
 const paramsInitial = {
   perPage: 10,
@@ -65,13 +65,7 @@ const Users = () => {
     // }) => <RenderForm {...props} />,
     extraData: true,
     // hideActions: { add: true },
-    onHideActions: (item: any) => {
-      return {
-        hideEdit: validate(item, user) || user.id == item.id,
-
-        hideDel: validate(item, user) || user.id == item.id,
-      };
-    },
+   
   };
 
 

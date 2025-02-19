@@ -63,12 +63,7 @@ const RenderView = (props: {
           </div>
         </div>
         <section>
-          {props?.item?.level > 1 && (
-            <div>
-              <p>{entidades[props?.item.level]}</p>
-              <p>{getEntidad()}</p>
-            </div>
-          )}
+
           <div>
             <p>Cédula de identidad</p>
             <p>{props.item?.ci}</p>
@@ -78,11 +73,27 @@ const RenderView = (props: {
             <p>{props.item?.email}</p>
           </div>
           <div>
+            <p>Rol</p>
+            <p>{ props.item?.role_id}</p>
+          </div>
+          <div>
             <p>Número de Whatsapp</p>
             <p>
               {(props.item.prefix_phone ? "+" + props.item.prefix_phone : "") +
                 " " +
                 props.item?.phone}
+            </p>
+          </div>
+          <div>
+            <p>Email</p>
+            <p>
+              {props.item.email}
+            </p>
+          </div>
+          <div>
+            <p>Domicilio</p>
+            <p>
+              {props.item.address}
             </p>
           </div>
         </section>
