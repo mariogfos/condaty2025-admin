@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /* eslint-disable @next/next/no-img-element */
 
 "use client";
@@ -37,7 +37,7 @@ interface FormState {
 }
 
 const Profile = () => {
-  const { user, getUser, showToast, setStore, userCan, logout } = useAuth();
+  const { user, getUser, showToast, userCan, logout } = useAuth();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<any>({});
   const [preview, setPreview] = useState<string | null>(null);
@@ -48,14 +48,8 @@ const Profile = () => {
   const [onLogout, setOnLogout] = useState(false);
   const [type, setType] = useState("");
   const [error, setError] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [previewVisible, setPreviewVisible] = useState(false);
 
-  useEffect(() => {
-    setStore({
-      title: "Mi perfil",
-    });
-  }, [setStore]);
 
   useEffect(() => {
     setFormState((prevState: any) => ({ ...prevState, ...user }));

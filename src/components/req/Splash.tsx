@@ -1,9 +1,9 @@
-import { IconLogoElekta } from "../layout/icons/IconsBiblioteca";
+import { IconLogo} from "../layout/icons/IconsBiblioteca";
 
 const Splash = () => {
   return (
     <div className="loader-container">
-      <IconLogoElekta size={156} />
+      <IconLogo className="text-accent" size={156} />
       <div className="loader"></div>
     </div>
   );
