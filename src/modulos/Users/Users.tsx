@@ -16,20 +16,7 @@ import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 
-// const validate = (item: any, user: any) => {
-//   if (user.datos.status === "M" && user.role.level > item.level) {
-//     return true;
-//   }
 
-//   if (user.datos.status === "A" && user.role.level >= item.level) {
-//     return true;
-//   }
-//   if (item.is_main == "M" && user.datos.status === "A") {
-//     return true;
-//   }
-
-//   return false;
-// };
 
 const paramsInitial = {
   perPage: 10,
@@ -212,7 +199,12 @@ const Users = () => {
           optionsExtra: "roles",
           optionLabel: "name",
         },
-        list: { width: "150px" },
+        
+        list: { width: "150px",
+            onRender:(props:any)=>{ 
+              
+              return <div>{props?.item?.role[0]?.description}</div>}
+         },
         filter: {
           label: "Filtrar por Rol",
           width: "200px",
