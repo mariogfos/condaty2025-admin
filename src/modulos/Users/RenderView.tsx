@@ -11,14 +11,7 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  // const { data: typeCant } = useAxios("/typecands", "GET", {
-  //   fullType: "L",
-  //   searchBy: "",
-  // });
 
-  //   console.log(typeCant);
-  // console.log(props.item);
-  // console.log(props?.extraData);
   let entidades = ["", "", "Departamento", "Municipio", "Locallidad", "Barrio"];
 
   const getEntidad = () => {
@@ -50,6 +43,7 @@ const RenderView = (props: {
             )}
             h={100}
             w={100}
+            style={{borderRadius:16}}
             name={getFullName(props.item)}
           />
           <div>
