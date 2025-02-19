@@ -46,19 +46,19 @@ const MainMenu = ({
       </div>
       {!isMobile ? (
         <div>
-          <MainmenuItem href="/" label="Inicio" icon={<IconHome />} />
+          <MainmenuItem href="/" label="Inicio" icon={<IconHome />} collapsed={collapsed}/>
           <MainmenuDropdown
             label="Finanzas"
             icon={<IconPayments/>}
             items={[
-              { href: "/", label: "Resumen" },
+              { href: "/", label: "Balance general" },
               {
                 href: "/affiliateGrowth",
-                label: "Crecimiento de los afiliados",
+                label: "Ingresos",
               },
-              { href: "/directAffiliates", label: "Red de afiliados" },
-              { href: "/affiliates", label: "Afiliados" },
-              { href: "/ranking", label: "Ranking" },
+              { href: "/directAffiliates", label: "Egresos" },
+              { href: "/affiliates", label: "Morosos" },
+              { href: "/ranking", label: "Expensas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -67,9 +67,9 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/partyStructure", label: "Estructura del partido" },
-              { href: "/users", label: "Administradores" },
-              { href: "/roles", label: "Roles y permisos" },
+              { href: "/partyStructure", label: "Casas" },
+              { href: "/users", label: "Actividades" },
+              { href: "/roles", label: "Documentos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -78,8 +78,10 @@ const MainMenu = ({
               label="Usuarios"
               icon={<IconGroup/>}
               items={[
-                { href: "/candidates", label: "Administrar candidatos" },
-                { href: "/typecands", label: "Tipo de candidatos" },
+                { href: "/candidates", label: "Guardias" },
+                { href: "/typecands", label: "Residentes" },
+                { href: "/typecands", label: "Propietarios" },
+                { href: "/typecands", label: "Personal Administrativo" },
               ]}
               collapsed={collapsed}
               setSideBarOpen={setSideBarOpen}
@@ -92,11 +94,12 @@ const MainMenu = ({
               { href: "/events", label: "Eventos" },
               { href: "/activities", label: "Actividades" },
               { href: "/surveys", label: "Encuestas" },
+              { href: "/surveys", label: "Alertas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-        <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} />
+        <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} collapsed={collapsed} />
         </div>
       ) : (
         <div>

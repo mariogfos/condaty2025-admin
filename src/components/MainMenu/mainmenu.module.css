@@ -207,7 +207,7 @@
     & > a:hover {
       /* background-color: rgba(245, 149, 28, 0.2); */
       background-color: var(--cAccent);
-      color: white;
+      color: var(--cBlack);
     }
 
     & > a.active,
