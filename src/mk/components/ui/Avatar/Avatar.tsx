@@ -14,6 +14,7 @@ type PropsType = {
   onClick?: (e: any) => void;
   style?: CSSProperties;
   styleText?: CSSProperties;
+  square?:boolean;
 };
 
 export const Avatar = ({
@@ -27,6 +28,7 @@ export const Avatar = ({
   className,
   styleText,
   style,
+  square
 }: PropsType) => {
   const [imageError, setImageError] = useState(false);
   useEffect(() => {
@@ -34,7 +36,7 @@ export const Avatar = ({
   }, [src]);
   return (
     <div className={styles.avatar + " " + className} onClick={onClick}>
-      <div style={{ width: w, height: h, ...style }}>
+      <div style={{ width: w, height: h,borderRadius:square?"var(--bRadiusS)":"100%",...style }}>
         {src && !imageError ? (
           <img src={src} alt={name} onError={() => setImageError(true)} />
         ) : (

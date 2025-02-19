@@ -18,6 +18,8 @@
     left: 24px;
   }
   .container {
+    /* display: flex; */
+    padding: 16px; 
     & > div {
       display: flex;
       justify-content: center;
@@ -29,13 +31,16 @@
       background-color: var(--cBlackV1);
       border-radius: 8px;
       margin-top: 8px;
+      
       & > div {
         display: flex;
         margin-bottom: 8px;
         font-size: var(--sL);
+        font-size: var(--sM);
         & > p:nth-child(odd) {
           flex: 1;
-          color: var(--cBlackV2);
+          color: var(--cWhiteV1);
+          
         }
         & > p:nth-child(even) {
           flex: 1;
@@ -44,5 +49,25 @@
         }
       }
     }
+  }
+}
+
+.fieldSet {
+  width: 100%;
+  /* background-color: aqua !important; */
+  padding: var(--spM);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  gap: var(--spL);
+  & > div {
+    gap:var(--spL)
+  }
+  & > div:nth-child(1) > div:nth-child(1){
+    color:var(--cWhite);
+    font-size: var(--sL);
+    font-weight: var(--bBold);
+    margin-bottom: var(--spL);
+
   }
 }

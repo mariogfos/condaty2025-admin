@@ -14,6 +14,7 @@ import RenderForm from "./RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
+import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 
 const validate = (item: any, user: any) => {
   if (user.datos.status === "M" && user.role.level > item.level) {
@@ -91,6 +92,7 @@ const Users = () => {
                   "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
+                square
               />
               <div>
                 <p>{getFullName(item?.item)} </p>
@@ -127,6 +129,13 @@ const Users = () => {
           // onRigth: rigthAvatar,
         },
       },
+      password: {
+        rules: ["required"],
+        api: "a",
+        label: "Contraseña",
+        form: false,
+        list: false,
+      },
       ci: {
         rules: ["required"],
         api: "a",
@@ -134,8 +143,9 @@ const Users = () => {
         // form: { type: "text", disabled: true, label: "2222" },
         form:{type:"number" ,label:"Cédula de identidad",
           onRender:(props:any)=>{
+            console.log(props,'propsval')
             return (
-              <div style={{width:"100%"}}>
+              <fieldset className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
                   <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
@@ -143,13 +153,23 @@ const Users = () => {
                   </div>
 
                 </div>
+          <div>
           <Input 
-            name={props.value}
-            value={props.value}
+            name="ci"
+            value={props?.item?.ci}
             onChange={props.onChange}
             label="Carnet de Identidad"
+            error={props.error}
           />
-          </div>)}
+            <InputPassword 
+            name="password"
+            value={props?.item?.password}
+            onChange={props.onChange}
+            label="Contraseña"
+            error={props.error}
+          />
+          </div>
+          </fieldset>)}
         },
         
         list: { width: "120px" },
@@ -171,7 +191,7 @@ const Users = () => {
         api: "ae",
         label: "Segundo nombre",
         form: { type: "text" ,
-          style:{width:"49%"}
+          style:{maxWidth:"49%"}
         },
         list: false,
       },

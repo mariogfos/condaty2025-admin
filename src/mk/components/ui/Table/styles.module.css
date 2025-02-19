@@ -156,17 +156,17 @@
 .table.striped {
   & main {
     & > div:nth-child(even) {
-      background-color: var(--cWhiteV3);
-      color: var(--cBlackV2);
+      background-color: var(--cWhiteV2);
+      color: var(--cWhiteV1);
       &:hover {
         background-color: var(--cBlack);
       }
     }
     & > div:nth-child(odd) {
       background-color: var(--cBlackV1);
-      color: var(--cBlackV2);
+      color: var(--cWhiteV1);
       &:hover {
-        background-color: var(--cBlack);
+        background-color: var(--cHover);
       }
     }
   }
