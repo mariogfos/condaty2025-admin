@@ -1,10 +1,17 @@
-import { IconLogo} from "../layout/icons/IconsBiblioteca";
+import { IconLogo } from "../layout/icons/IconsBiblioteca";
+import styles from "./splash.module.css";
 
 const Splash = () => {
   return (
-    <div className="loader-container">
-      <IconLogo className="text-accent" size={156} />
-      <div className="loader"></div>
+    <div className={styles.absPage}>
+      <div className={styles.flexCenter}>
+        <IconLogo className={styles.logo} size={156} />
+        <div className={styles.spinDot}>.</div>
+        <div className={styles.text}>
+          Ahorra <span className={styles.bold}>tiempo,</span> Vive{" "}
+          <span className={styles.bold}>tranquilo</span>
+        </div>
+      </div>
     </div>
   );
 };
