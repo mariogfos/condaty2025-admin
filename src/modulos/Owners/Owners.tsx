@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import styles from "./Users.module.css";
+import styles from "./Owners.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";

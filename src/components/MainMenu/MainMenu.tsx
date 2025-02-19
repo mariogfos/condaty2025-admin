@@ -79,7 +79,7 @@ const MainMenu = ({
               icon={<IconGroup/>}
               items={[
                 { href: "/candidates", label: "Guardias" },
-                { href: "/typecands", label: "Residentes" },
+                { href: "/owners", label: "Residentes" },
                 { href: "/typecands", label: "Propietarios" },
                 { href: "/users", label: "Personal Administrativo" },
               ]}

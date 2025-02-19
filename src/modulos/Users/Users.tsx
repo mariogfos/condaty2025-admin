@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 import styles from "./Users.module.css";
 import RenderItem from "../shared/RenderItem";
