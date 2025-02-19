@@ -48,13 +48,13 @@ const RenderView = (props: {
           />
           <div>
             <p className={styles.title}>{getFullName(props.item)}</p>
-            <p style={{ color: "var(--cWhiteV1)", fontSize: "var(--sL)" }}>
+            {/* <p style={{ color: "var(--cWhiteV1)", fontSize: "var(--sL)" }}>
               {
                 props.extraData?.roles?.find(
                   (e: any) => e.id == props.item.role_id
                 ).name
               }
-            </p>
+            </p> */}
             {/* {props?.item?.level > 1 && (
               <p style={{ fontSize: 10 }}>
                 {entidades[props?.item.level] + ": " + getEntidad()}
