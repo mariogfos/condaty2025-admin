@@ -12,6 +12,8 @@ import RenderView from "./RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
+import Input from "@/mk/components/forms/Input/Input";
 
 const validate = (item: any, user: any) => {
   if (user.datos.status === "M" && user.role.level > item.level) {
@@ -51,17 +53,17 @@ const Users = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    renderForm: (props: {
-      item: any;
-      setItem: any;
-      extraData: any;
-      open: boolean;
-      onClose: any;
-      user: any;
-      execute: any;
-    }) => <RenderForm {...props} />,
+    // renderForm: (props: {
+    //   item: any;
+    //   setItem: any;
+    //   extraData: any;
+    //   open: boolean;
+    //   onClose: any;
+    //   user: any;
+    //   execute: any;
+    // }) => <RenderForm {...props} />,
     extraData: true,
-    hideActions: { add: true },
+    // hideActions: { add: true },
     onHideActions: (item: any) => {
       return {
         hideEdit: validate(item, user) || user.id == item.id,
@@ -71,27 +73,6 @@ const Users = () => {
     },
   };
 
-  // const _onBlur = async (
-  //   e: any,
-  //   item: any,
-  //   setItem: any,
-  //   error: any,
-  //   setError: any
-  // ) => {
-  //   if (item.email == user?.email) {
-  //     return;
-  //   }
-  //   const { data: response } = await execute("/adm-exist", "GET", {
-  //     searchBy: item.email,
-  //     type: "email",
-  //     cols: "id",
-  //   });
-
-  //   if (response?.data != null) {
-  //     setError({ ...error, email: "El correo electrónico ya existe" });
-  //     showToast("El correo electrónico ya existe", "error");
-  //   }
-  // };
 
   const fields = useMemo(() => {
     return {
@@ -134,35 +115,78 @@ const Users = () => {
         },
         list: true,
       },
+      avatar: {
+        rules: ["requiredFile*a"],
+        api: "a*e*",
+        label: "Suba una Imagen",
+        list: false,
+        form: {
+          type: "imageUpload",
+          prefix: "ADM",
+          style: { width: "100%" },
+          // onRigth: rigthAvatar,
+        },
+      },
+      ci: {
+        rules: ["required"],
+        api: "a",
+        label: "Cédula de identidad",
+        // form: { type: "text", disabled: true, label: "2222" },
+        form:{type:"number" ,label:"Cédula de identidad",
+          onRender:(props)=>{
+            return (
+              <div style={{width:"100%"}}>
+                <div>
+                  <div>Información de acceso</div>
+                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
+                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+                  </div>
 
+                </div>
+          <Input 
+            name={props.value}
+            value={props.value}
+            onChange={props.onChange}
+            label="Carnet de Identidad"
+          />
+          </div>)}
+        },
+        
+        list: { width: "120px" },
+      },
       name: {
         rules: ["required"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
+          style:{width:"49%"}
+        
         },
+       
         list: false,
       },
       middle_name: {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text" },
+        form: { type: "text" ,
+          style:{width:"49%"}
+        },
         list: false,
       },
       last_name: {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text" },
+        form: { type: "text",style:{width:"49%"} },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text" },
+        form: { type: "text", style:{width:"49%"} },
         list: false,
       },
       role_id: {
@@ -192,45 +216,30 @@ const Users = () => {
         },
       },
 
-      ci: {
-        rules: ["required"],
-        api: "a",
-        label: "Cédula de identidad",
-        form: { type: "text", disabled: true, label: "2222" },
-        list: { width: "120px" },
-      },
       email: {
         rules: ["required"],
         api: "ae",
         label: "Correo electrónico",
         form: {
           type: "text",
-          // onBlur: (e: any, { item, setItem, error, setError }: any) =>
-          //   _onBlur(e, item, setItem, error, setError),
+    
         },
         list: { width: "160px" },
       },
-      rep_email: {
-        // rules: ["required"],
-        api: "",
-        label: "Repita el correo electrónico",
-        form: { type: "text" },
-        list: false,
-        style: { width: "500px" },
-      },
-      status: {
-        rules: ["required"],
+      // rep_email: {
+   
+      //   api: "",
+      //   label: "Repita el correo electrónico",
+      //   form: { type: "text" },
+      //   list: false,
+      //   style: { width: "500px" },
+      // },
+      address: {
+        rules: [""],
         api: "ae",
-        label: "Estado",
+        label: "Domicilio",
         form: {
-          type: "select",
-          onHide: () => {
-            return true;
-          },
-          options: [
-            { id: "A", name: "Activo" },
-            { id: "X", name: "Inactivo" },
-          ],
+          type: "text",
         },
         list: { width: "80px" },
       },

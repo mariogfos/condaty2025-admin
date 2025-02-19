@@ -111,7 +111,7 @@ const LeftRigthElement = memo(
 );
 LeftRigthElement.displayName = "LeftRigthElement";
 
-const FormElement = memo(
+const  FormElement = memo(
   ({
     field,
     item,

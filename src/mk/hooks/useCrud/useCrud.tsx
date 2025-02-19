@@ -662,6 +662,7 @@ const useCrud = ({
             : onSave(formStateForm, setErrorForm)
         }
       >
+        <div style={{display:'flex',width:'100%',flexWrap:'wrap',gap:8,justifyContent:"space-between"}}>
         {header.map((field: any, index: number) => (
           <Fragment key={field.key + index}>
             {field.onRender ? (
@@ -704,6 +705,7 @@ const useCrud = ({
             )}
           </Fragment>
         ))}
+        </div>
         {showExtraModal}
       </DataModal>
     );
