@@ -133,7 +133,7 @@ const Users = () => {
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
         form:{type:"number" ,label:"Cédula de identidad",
-          onRender:(props)=>{
+          onRender:(props:any)=>{
             return (
               <div style={{width:"100%"}}>
                 <div>
