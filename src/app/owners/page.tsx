@@ -1,7 +1,8 @@
-// import React from 'react'
+import Owners from '@/modulos/Owners/Owners';
+import React from 'react'
 
-// const owners = () => {
-//   return <Owners />
-// }
+const owners = () => {
+  return <Owners />
+}
 
-// export default owners;
+export default owners;
