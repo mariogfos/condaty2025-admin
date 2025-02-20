@@ -194,8 +194,8 @@ const Guards = () => {
         api: "ae",
         label: "Celular",
         form: { type: "text" },
-        list: true,
-        style: { width: "150px" },
+        list: {width:"110px"},
+        
         },
       email: {
         rules: ["required","email"],
@@ -205,7 +205,7 @@ const Guards = () => {
           type: "text",
     
         },
-        list: { width: "160px" },
+        list: { width: "180px" },
       },
      
       address: {
@@ -215,7 +215,7 @@ const Guards = () => {
         form: {
           type: "text",
         },
-        list: { width: "80px" },
+        list: { width: "180px" },
       },
     };
   }, []);

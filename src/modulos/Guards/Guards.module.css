@@ -22,24 +22,30 @@
   }
 
   .renderView {
-        
+        /* background-color: blue; */
         display: flex; 
         padding: 16px; 
+        gap:var(--spL);
+        align-items: center;
         & > div {
           display: flex;
+          flex-direction: column;
           justify-content: center;
           align-items: center;
-          gap: 16px;
+          gap: var(--spL);
+          
         }
         & > section {
-          padding: 8px;
+          padding: var(--spM);
           background-color: var(--cBlackV1);
           border-radius: 8px;
-          margin-top: 8px;
+          
+          width:500px;
+
           
           & > div {
             display: flex;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
             font-size: var(--sL);
             font-size: var(--sM);
             & > p:nth-child(odd) {

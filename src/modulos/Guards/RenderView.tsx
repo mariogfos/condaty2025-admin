@@ -19,9 +19,10 @@ const RenderView = (props: {
     <DataModal
       open={props.open}
       onClose={props?.onClose}
-      title={"Detalle del Administrador"}
+      title={"Detalle del Guardia"}
       buttonText=""
       buttonCancel=""
+      style={{width:'max-content'}}
     >
       <div className={styles.renderView}>
         <div>
@@ -29,8 +30,8 @@ const RenderView = (props: {
             src={getUrlImages(
               "/GUARD-" + props.item.id + ".webp?d=" + props.item.updated_at
             )}
-            h={100}
-            w={100}
+            h={170}
+            w={170}
             style={{borderRadius:16}}
             name={getFullName(props.item)}
           />
@@ -48,10 +49,10 @@ const RenderView = (props: {
             <p>Correo electrónico</p>
             <p>{props.item?.email}</p>
           </div>
-          <div>
+          {/* <div>
             <p>Rol</p>
             <p>{ props.item?.role_id}</p>
-          </div>
+          </div> */}
           <div>
             <p>Número de Whatsapp</p>
             <p>
