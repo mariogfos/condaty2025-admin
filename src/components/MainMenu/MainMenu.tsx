@@ -80,7 +80,7 @@ const MainMenu = ({
               items={[
                 { href: "/guards", label: "Guardias" },
                 { href: "/owners", label: "Residentes" },
-                { href: "/typecands", label: "Propietarios" },
+                { href: "/homeowners", label: "Propietarios" },
                 { href: "/users", label: "Personal Administrativo" },
               ]}
               collapsed={collapsed}
