@@ -22,7 +22,7 @@
   }
 
   .renderView {
-        /* background-color: blue; */
+   & > div  {   /* background-color: blue; */
         display: flex; 
         padding: 16px; 
         gap:var(--spL);
@@ -60,5 +60,5 @@
             }
           }
         }
-      
+      }
   }

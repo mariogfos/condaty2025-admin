@@ -23,8 +23,9 @@ const RenderView = (props: {
       buttonText=""
       buttonCancel=""
       style={{width:'max-content'}}
+      className={styles.renderView}
     >
-      <div className={styles.renderView}>
+      <div >
         <div>
           <Avatar
             src={getUrlImages(
