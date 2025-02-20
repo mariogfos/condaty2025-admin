@@ -99,6 +99,10 @@ export let lIdeologies = [
   { id: "24", name: "Republicanismo" },
   { id: "25", name: "Herrerismo" },
 ];
+export const lStatusActive:any  = {
+  A:{ name:"Activo" },
+  X:{ name:"Inactivo" },
+}
 export const statusTask: any = {
   P: "Pendiente",
   E: "En curso",
@@ -123,3 +127,5 @@ export const cStatusAc: any = {
   E: "var(--cAccent)",
   F: "var(--cSuccess)",
 };
+
+

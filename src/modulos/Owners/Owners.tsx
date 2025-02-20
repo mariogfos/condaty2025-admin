@@ -13,6 +13,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+import RenderView from "./RenderView";
 
 
 
@@ -24,7 +25,7 @@ const paramsInitial = {
 };
 
 const Owners = () => {
-  const { user } = useAuth();
+
   const mod: ModCrudType = {
     modulo: "owner",
     singular: "Residente",
@@ -32,13 +33,13 @@ const Owners = () => {
     filter: true,
     permiso: "",
     // import: true,
-    // renderView: (props: {
-    //   open: boolean;
-    //   onClose: any;
-    //   item: Record<string, any>;
-    //   onConfirm?: Function;
-    //   extraData?: Record<string, any>;
-    // }) => <RenderView {...props} />,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+    }) => <RenderView {...props} />,
     // renderForm: (props: {
     //   item: any;
     //   setItem: any;
@@ -68,7 +69,7 @@ const Owners = () => {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/OWNER-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
                 square
@@ -109,26 +110,26 @@ const Owners = () => {
         },
       },
       password: {
-        rules: ["required"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
         list: false,
       },
       ci: {
-        rules: ["required"],
+        rules: ["required*add"],
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
         form:{type:"number" ,label:"Cédula de identidad",
           onRender:(props:any)=>{
-            console.log(props,'propsval')
+            console.log(props,'prosososo')
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
                   <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+                    busque automáticamente al residente si el carnet no existe ,continúa con el proceso de registro
                   </div>
 
                 </div>
@@ -139,19 +140,21 @@ const Owners = () => {
             onChange={props.onChange}
             label="Carnet de Identidad"
             error={props.error}
+            disabled={props?.field?.action === 'edit'}
           />
+          { props?.field?.action === 'add' && (
             <InputPassword 
             name="password"
             value={props?.item?.password}
             onChange={props.onChange}
             label="Contraseña"
             error={props.error}
-          />
+          />)}
           </div>
           </fieldset>)}
         },
         
-        list: { width: "120px" },
+        list:false,
       },
       name: {
         rules: ["required"],
@@ -188,32 +191,7 @@ const Owners = () => {
         form: { type: "text", style:{width:"49%"} },
         list: false,
       },
-      role_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Rol",
-        form: {
-          type: "select",
-          optionsExtra: "roles",
-          optionLabel: "name",
-        },
-        list: { width: "150px" },
-        filter: {
-          label: "Filtrar por Rol",
-          width: "200px",
-          options: (extraData: any) => {
-            // console.log(extraData, "extraData");
-            let data: any = [{ id: "T", name: "Todos" }];
-            extraData?.roles?.map((c: any) => {
-              data.push({
-                id: c.id,
-                name: c.name,
-              });
-            });
-            return data;
-          },
-        },
-      },
+     
 
       email: {
         rules: ["required"],
@@ -223,7 +201,7 @@ const Owners = () => {
           type: "text",
     
         },
-        list: { width: "160px" },
+        list: { width: "180px" },
       },
       // rep_email: {
    
@@ -233,15 +211,7 @@ const Owners = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
-      address: {
-        rules: [""],
-        api: "ae",
-        label: "Domicilio",
-        form: {
-          type: "text",
-        },
-        list: { width: "80px" },
-      },
+ 
     };
   }, []);
 

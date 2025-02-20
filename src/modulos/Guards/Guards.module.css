@@ -22,9 +22,9 @@
   }
 
   .renderView {
-   & > div  {   /* background-color: blue; */
+   & > div  {
         display: flex; 
-        padding: 16px; 
+        padding: var(--spL); 
         gap:var(--spL);
         align-items: center;
         @media (max-width: 750px) {
