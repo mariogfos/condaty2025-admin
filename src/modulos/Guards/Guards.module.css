@@ -20,3 +20,39 @@
   
     }
   }
+
+  .renderView {
+        
+        display: flex; 
+        padding: 16px; 
+        & > div {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 16px;
+        }
+        & > section {
+          padding: 8px;
+          background-color: var(--cBlackV1);
+          border-radius: 8px;
+          margin-top: 8px;
+          
+          & > div {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: var(--sL);
+            font-size: var(--sM);
+            & > p:nth-child(odd) {
+              flex: 1;
+              color: var(--cWhiteV1);
+              
+            }
+            & > p:nth-child(even) {
+              flex: 1;
+              text-align: right;
+              color: var(--cWhite);
+            }
+          }
+        }
+      
+  }

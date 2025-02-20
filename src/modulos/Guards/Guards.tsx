@@ -13,6 +13,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+import RenderView from "./RenderView";
 
 
 
@@ -24,7 +25,7 @@ const paramsInitial = {
 };
 
 const Guards = () => {
-  const { user } = useAuth();
+  
   const mod: ModCrudType = {
     modulo: "guard",
     singular: "Guardia",
@@ -32,13 +33,13 @@ const Guards = () => {
     filter: true,
     permiso: "",
     // import: true,
-    // renderView: (props: {
-    //   open: boolean;
-    //   onClose: any;
-    //   item: Record<string, any>;
-    //   onConfirm?: Function;
-    //   extraData?: Record<string, any>;
-    // }) => <RenderView {...props} />,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+    }) => <RenderView {...props} />,
     // renderForm: (props: {
     //   item: any;
     //   setItem: any;
