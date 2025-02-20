@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import styles from "./Owners.module.css";
+import styles from "./Guards.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
@@ -23,12 +23,12 @@ const paramsInitial = {
   searchBy: "",
 };
 
-const Owners = () => {
+const Guards = () => {
   const { user } = useAuth();
   const mod: ModCrudType = {
-    modulo: "owner",
-    singular: "Residente",
-    plural: "Residentes",
+    modulo: "guard",
+    singular: "Guardia",
+    plural: "Guardias",
     filter: true,
     permiso: "",
     // import: true,
@@ -68,7 +68,7 @@ const Owners = () => {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/GUARD-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
                 square
@@ -103,7 +103,7 @@ const Owners = () => {
         list: false,
         form: {
           type: "imageUpload",
-          prefix: "ADM",
+          prefix: "GUARD",
           style: { width: "100%" },
           // onRigth: rigthAvatar,
         },
@@ -188,35 +188,16 @@ const Owners = () => {
         form: { type: "text", style:{width:"49%"} },
         list: false,
       },
-      role_id: {
-        rules: ["required"],
+      phone: {
+        
         api: "ae",
-        label: "Rol",
-        form: {
-          type: "select",
-          optionsExtra: "roles",
-          optionLabel: "name",
+        label: "Celular",
+        form: { type: "text" },
+        list: true,
+        style: { width: "150px" },
         },
-        list: { width: "150px" },
-        filter: {
-          label: "Filtrar por Rol",
-          width: "200px",
-          options: (extraData: any) => {
-            // console.log(extraData, "extraData");
-            let data: any = [{ id: "T", name: "Todos" }];
-            extraData?.roles?.map((c: any) => {
-              data.push({
-                id: c.id,
-                name: c.name,
-              });
-            });
-            return data;
-          },
-        },
-      },
-
       email: {
-        rules: ["required"],
+        rules: ["required","email"],
         api: "ae",
         label: "Correo electrónico",
         form: {
@@ -225,14 +206,7 @@ const Owners = () => {
         },
         list: { width: "160px" },
       },
-      // rep_email: {
-   
-      //   api: "",
-      //   label: "Repita el correo electrónico",
-      //   form: { type: "text" },
-      //   list: false,
-      //   style: { width: "500px" },
-      // },
+     
       address: {
         rules: [""],
         api: "ae",
@@ -306,4 +280,4 @@ const Owners = () => {
   );
 };
 
-export default Owners;
+export default Guards;

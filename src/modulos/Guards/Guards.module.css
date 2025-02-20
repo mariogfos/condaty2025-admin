@@ -1,0 +1,22 @@
+.Guards{
+
+}
+.fieldSet {
+    width: 100%;
+    /* background-color: aqua !important; */
+    padding: var(--spM);
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--bRadiusS);
+    gap: var(--spL);
+    & > div {
+      gap:var(--spL)
+    }
+    & > div:nth-child(1) > div:nth-child(1){
+      color:var(--cWhite);
+      font-size: var(--sL);
+      font-weight: var(--bBold);
+      margin-bottom: var(--spL);
+  
+    }
+  }
