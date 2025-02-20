@@ -67,7 +67,7 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/partyStructure", label: "Casas" },
+              { href: "/dptos", label: "Casas" },
               { href: "/users", label: "Actividades" },
               { href: "/roles", label: "Documentos" },
             ]}
