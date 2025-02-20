@@ -141,14 +141,16 @@ const Users = () => {
             onChange={props.onChange}
             label="Carnet de Identidad"
             error={props.error}
+            disabled={props?.field?.action === 'edit'}
           />
+         { props?.field?.action === 'add' && (
             <InputPassword 
             name="password"
             value={props?.item?.password}
             onChange={props.onChange}
             label="Contraseña"
             error={props.error}
-          />
+          />)}
           </div>
           </fieldset>)}
         },

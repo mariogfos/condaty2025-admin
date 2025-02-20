@@ -123,7 +123,7 @@ const Owners = () => {
         // form: { type: "text", disabled: true, label: "2222" },
         form:{type:"number" ,label:"Cédula de identidad",
           onRender:(props:any)=>{
-            console.log(props,'prosososo')
+           
             return (
               <fieldset className={styles.fieldSet}>
                 <div>

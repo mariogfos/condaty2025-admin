@@ -110,14 +110,14 @@ const Guards = () => {
         },
       },
       password: {
-        rules: ["required"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
         list: false,
       },
       ci: {
-        rules: ["required"],
+        rules: ["required*add"],
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
@@ -129,7 +129,7 @@ const Guards = () => {
                 <div>
                   <div>Información de acceso</div>
                   <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+                    busque automáticamente al guardia si el carnet no existe ,continúa con el proceso de registro
                   </div>
 
                 </div>
@@ -140,14 +140,16 @@ const Guards = () => {
             onChange={props.onChange}
             label="Carnet de Identidad"
             error={props.error}
+            disabled={props?.field?.action === 'edit'}
           />
+       { props?.field?.action === 'add' && (
             <InputPassword 
             name="password"
             value={props?.item?.password}
             onChange={props.onChange}
             label="Contraseña"
             error={props.error}
-          />
+          />)}
           </div>
           </fieldset>)}
         },
