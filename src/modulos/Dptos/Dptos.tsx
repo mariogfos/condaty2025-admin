@@ -8,7 +8,8 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 
 const paramsInitial = {
@@ -95,13 +96,33 @@ const Dptos = () => {
 
       titular: {
         rules: [""],
-        api: "ae",
+        api: "",
         label: "Titular",
         // form: { type: "text" },
         list:
         {
           onRender: (props: any) => {
-            return (getFullName(props?.item?.titular) || 'Sin titular')
+            return (
+              props?.item?.titular ?
+                <div className={styles.titularRow}>
+                    <Avatar
+                      src={
+                        props?.item?.titular?.id && props?.item?.titular?.updated_at
+                          ? getUrlImages(
+                              "/OWN" +
+                                "-" +
+                                props?.item?.titular?.owner_id +
+                                ".png?d=" +
+                                props?.item?.titular?.owner?.updated_at
+                            )
+                          : ""
+                      }
+                      name={getFullName( props?.item?.titular?.owner)}
+                    
+                    />
+              {getFullName(props?.item?.titular) }
+              </div>
+              : 'Sin titular')
           }
         },
       },
