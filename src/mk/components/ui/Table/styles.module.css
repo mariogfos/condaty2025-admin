@@ -109,7 +109,8 @@
       align-items: stretch; /* Hace que todas las celdas tengan la misma altura */
       gap: 0px;
       background-color: var(--cBlackV1);
-      color: var(--cBlackV2);
+      /* background-color: red; */
+      color: var(--cWhiteV2);
       /* overflow: hidden; */
       /* height: 48px; */
       cursor: pointer;
@@ -125,6 +126,7 @@
         padding: var(--spM);
         border: 1px solid var(--cWhiteV3);
         width: 100%;
+        color: var(--cWhiteV1);
         display: flex; /* Permite la alineación del contenido interno */
         align-items: center; /* Centra verticalmente el contenido */
         box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
