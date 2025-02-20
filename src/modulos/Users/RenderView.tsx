@@ -34,15 +34,16 @@ const RenderView = (props: {
       title={"Detalle del Administrador"}
       buttonText=""
       buttonCancel=""
+      className={styles.renderView}
     >
-      <div className={styles.container}>
+      <div>
         <div>
           <Avatar
             src={getUrlImages(
               "/ADM-" + props.item.id + ".webp?d=" + props.item.updated_at
             )}
-            h={100}
-            w={100}
+            h={170}
+            w={170}
             style={{borderRadius:16}}
             name={getFullName(props.item)}
           />

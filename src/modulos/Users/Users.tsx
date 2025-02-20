@@ -230,7 +230,7 @@ const Users = () => {
           type: "text",
     
         },
-        list: { width: "160px" },
+        list: { width: "190px" },
       },
       // rep_email: {
    
@@ -247,7 +247,7 @@ const Users = () => {
         form: {
           type: "text",
         },
-        list: { width: "80px" },
+        list: { width: "200px" },
       },
     };
   }, []);
