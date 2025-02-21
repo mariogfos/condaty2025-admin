@@ -5,7 +5,7 @@
   width: 100%;
   background-color: var(--cBlackV1);
   & > div > input::placeholder {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
   }
   & > span > svg.error {
     color: var(--cError);

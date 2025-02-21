@@ -1,0 +1,44 @@
+.Roles {
+  width: 100%;
+  position: relative;
+  padding-left: var(--spL);
+  padding-right: var(--spL);
+  padding-bottom: 70px;
+  & fieldset {
+    /* border border-[#A7A7A7] rounded-md px-4 mt-2 */
+    border: 1px solid var(--cWhiteV2);
+    border-radius: var(--bRadius);
+    padding: var(--spM);
+    margin-top: var(--spM);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spM);
+    & > legend {
+      font-size: var(--sM);
+      padding: 0 var(--spM);
+    }
+    & > div:nth-child(even) {
+      background-color: var(--cBlackV1);
+    }
+    & > div {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spS);
+      padding: var(--spS);
+
+      & > div {
+        display: flex;
+        gap: var(--spS);
+        justify-content: space-between;
+        & > span {
+          font-size: var(--sM);
+          color: var(--cWhite);
+        }
+        & > div {
+          display: flex;
+          gap: var(--spS);
+        }
+      }
+    }
+  }
+}

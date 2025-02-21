@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import styles from "./styles.module.css";
+import styles from "./Dropdown.module.css";
 import { useRouter, usePathname } from "next/navigation";
 
 type DropdownProps = {

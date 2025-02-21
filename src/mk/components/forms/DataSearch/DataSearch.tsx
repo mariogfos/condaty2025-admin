@@ -68,13 +68,13 @@ const DataSearch = ({
         !value ? (
           <IconSearch
             size={16}
-            color={"var(--cBlackV2)"}
+            color={"var(--cWhiteV1)"}
             style={{ marginRight: "var(--spS)" }}
           />
         ) : (
           <IconX
             onClick={() => onSearch("")}
-            color={"var(--cBlackV2)"}
+            color={"var(--cWhiteV1)"}
             className="error"
           />
         )
