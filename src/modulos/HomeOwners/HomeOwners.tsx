@@ -3,6 +3,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo } from "react";
+import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
 
 const mod = {
@@ -52,7 +53,6 @@ const HomeOwners = () => {
         },
         list: {
           onRender: (props: any) => {
-            console.log("item render", props);
             return getFullName(props.item);
           },
         },
@@ -65,7 +65,7 @@ const HomeOwners = () => {
         list: false,
       },
       last_name: {
-        rules: ["required"],
+        rules: [""],
         api: "ae",
         label: "Apellido paterno",
         form: { type: "text", style: { width: "49%" } },

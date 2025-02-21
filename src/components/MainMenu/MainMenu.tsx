@@ -11,6 +11,8 @@ import {
   IconGroup,
   IconComunicationDialog,
   IconInterrogation,
+  IconGuard,
+  IconBitacora,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -68,9 +70,8 @@ const MainMenu = ({
             icon={<IconMonitorLine />}
             items={[
               { href: "/dptos", label: "Casas" },
-              { href: "/activities", label: "Actividades" },
-              { href: "/roles", label: "Documentos" },
-              { href: "/configs", label: "Configuración" },
+              { href: "/users", label: "Actividades" },
+              { href: "/documents", label: "Documentos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -99,6 +100,8 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
+        <MainmenuItem href="/binnacle" label="Bitácora" icon={<IconBitacora/>} collapsed={collapsed}/>
+
         <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} collapsed={collapsed} />
         </div>
       ) : (

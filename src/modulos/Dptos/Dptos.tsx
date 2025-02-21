@@ -8,8 +8,11 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { useRouter } from "next/navigation";
+
 
 
 const paramsInitial = {
@@ -20,6 +23,7 @@ const paramsInitial = {
 };
 
 const Dptos = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const mod: ModCrudType = {
     modulo: "dptos",
@@ -28,6 +32,13 @@ const Dptos = () => {
     filter: true,
     permiso: "",
     extraData: true,
+    hideActions: {
+      view: true,   
+      add: false,    
+      edit: false,   
+      del: false     
+    }
+    
   };
 
   const fields = useMemo(() => {
@@ -151,6 +162,9 @@ const Dptos = () => {
     onEdit,
     onDel,
   });
+  const handleRowClick = (item: any) => {
+    router.push(`/dashDpto/${item.id}`); 
+  };
 
   const renderItem = (
     item: Record<string, any>,
@@ -172,7 +186,8 @@ const Dptos = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
-      <List onTabletRow={renderItem} />
+      <List onTabletRow={renderItem} 
+      onRowClick={handleRowClick} />
     </div>
   );
 };
