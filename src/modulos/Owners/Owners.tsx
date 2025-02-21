@@ -179,7 +179,24 @@ const Owners = () => {
         list: false,
       },
       last_name: {
-        openTag: { style: { display: "flex" } },
+        openTag: {
+          border: true,
+          onTop: (p: any) => {
+            return (
+              <div>
+                <div>Información de acceso</div>
+                <div>
+                  Ingrese el número de carnet y haga click fuera del campo para
+                  que el sistema busque automáticamente al residente si el
+                  carnet no existe ,continúa con el proceso de registro
+                </div>
+              </div>
+            );
+          },
+          style: {
+            display: "flex",
+          },
+        },
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",

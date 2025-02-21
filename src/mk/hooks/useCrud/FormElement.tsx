@@ -111,7 +111,7 @@ const LeftRigthElement = memo(
 );
 LeftRigthElement.displayName = "LeftRigthElement";
 
-const  FormElement = memo(
+const FormElement = memo(
   ({
     field,
     item,
@@ -189,7 +189,7 @@ const  FormElement = memo(
               iconRight={_field.iconRight}
               placeholder={_field.placeholder}
               className={_field.className}
-              style={_field.style}
+              style={{ ..._field.style }}
               readOnly={_field.readOnly}
               required={_field.required}
               maxLength={_field.maxLength}

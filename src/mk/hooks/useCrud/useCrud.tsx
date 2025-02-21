@@ -33,6 +33,7 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import { wrap } from "module";
 
 export type ModCrudType = {
   modulo: string;
@@ -624,6 +625,7 @@ const useCrud = ({
           action: action,
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
+          style: { ...field.form.style, flex: "1" },
           // tagStyle: field.tagStyle || null,
         };
         if (typeof col.disabled == "function") {
@@ -762,6 +764,7 @@ const useCrud = ({
                   style={{
                     display: "block",
                     justifyContent: "space-around",
+                    flexWrap: "wrap",
                     gap: "var(--spS)",
                     width: "100%",
                     ...(field.openTag?.border
@@ -774,8 +777,15 @@ const useCrud = ({
                     ...field.openTag?.style,
                   }}
                 >
+                  {/* {JSON.stringify(field.openTag)} */}
                   {field.openTag?.onTop && (
-                    <div>
+                    <div
+                      style={{
+                        width: "100%",
+                        flex: "100%",
+                        marginBottom: "var(--spS)",
+                      }}
+                    >
                       {field.openTag.onTop({
                         item: formStateForm,
                         key: field.key,
