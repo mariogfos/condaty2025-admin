@@ -15,8 +15,6 @@ import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView";
 
-
-
 const paramsInitial = {
   perPage: 10,
   page: 1,
@@ -25,7 +23,6 @@ const paramsInitial = {
 };
 
 const Owners = () => {
-
   const mod: ModCrudType = {
     modulo: "owner",
     singular: "Residente",
@@ -51,9 +48,7 @@ const Owners = () => {
     // }) => <RenderForm {...props} />,
     extraData: true,
     // hideActions: { add: true },
-   
   };
-
 
   const fields = useMemo(() => {
     return {
@@ -69,7 +64,10 @@ const Owners = () => {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/OWNER-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/OWNER-" +
+                    item?.item?.id +
+                    ".webp?d=" +
+                    item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
                 square
@@ -121,77 +119,85 @@ const Owners = () => {
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
-        form:{type:"number" ,label:"Cédula de identidad",
-          onRender:(props:any)=>{
-           
+        form: {
+          type: "number",
+          label: "Cédula de identidad",
+          onRender: (props: any) => {
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
-                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al residente si el carnet no existe ,continúa con el proceso de registro
+                  <div>
+                    Ingrese el número de carnet y haga click fuera del campo
+                    para que el sistema busque automáticamente al residente si
+                    el carnet no existe ,continúa con el proceso de registro
                   </div>
-
                 </div>
-          <div>
-          <Input 
-            name="ci"
-            value={props?.item?.ci}
-            onChange={props.onChange}
-            label="Carnet de Identidad"
-            error={props.error}
-            disabled={props?.field?.action === 'edit'}
-          />
-          { props?.field?.action === 'add' && (
-            <InputPassword 
-            name="password"
-            value={props?.item?.password}
-            onChange={props.onChange}
-            label="Contraseña"
-            error={props.error}
-          />)}
-          </div>
-          </fieldset>)}
+                <div>
+                  <Input
+                    name="ci"
+                    value={props?.item?.ci}
+                    onChange={props.onChange}
+                    label="Carnet de Identidad"
+                    error={props.error}
+                    disabled={props?.field?.action === "edit"}
+                  />
+                  {props?.field?.action === "add" && (
+                    <InputPassword
+                      name="password"
+                      value={props?.item?.password}
+                      onChange={props.onChange}
+                      label="Contraseña"
+                      error={props.error}
+                    />
+                  )}
+                </div>
+              </fieldset>
+            );
+          },
         },
-        
-        list:false,
+
+        list: false,
       },
       name: {
+        openTag: { style: { display: "flex" } },
         rules: ["required"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
-          style:{width:"49%"}
-        
         },
-       
+
         list: false,
       },
       middle_name: {
+        closeTag: true,
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text" ,
-          style:{maxWidth:"49%"}
-        },
+        form: { type: "text" },
         list: false,
       },
       last_name: {
+        openTag: {
+          style: {
+            display: "flex",
+          },
+        },
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text",style:{width:"49%"} },
+        form: { type: "text" },
         list: false,
       },
       mother_last_name: {
+        closeTag: true,
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style:{width:"49%"} },
+        form: { type: "text" },
         list: false,
       },
-     
 
       email: {
         rules: ["required"],
@@ -199,19 +205,17 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-    
         },
         list: { width: "180px" },
       },
       // rep_email: {
-   
+
       //   api: "",
       //   label: "Repita el correo electrónico",
       //   form: { type: "text" },
       //   list: false,
       //   style: { width: "500px" },
       // },
- 
     };
   }, []);
 

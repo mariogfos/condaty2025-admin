@@ -2,10 +2,8 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
-import RenderItem from "../shared/RenderItem";
+import { getFullName } from "@/mk/utils/string";
 
 const mod = {
   modulo: "homeowners",
@@ -13,7 +11,6 @@ const mod = {
   plural: "Propietarios",
   permiso: "homeowners",
   extraData: true,
-  // hideActions: { edit: true, del: true, add: true },
 };
 
 const paramsInitial = {
@@ -23,17 +20,6 @@ const paramsInitial = {
   searchBy: "",
 };
 
-// 'name',
-//     'middle_name',
-//     'last_name',
-//     'mother_last_name',
-//     'ci',
-//     'phone',
-//     'email',
-//     'password',
-//     'url_avatar',
-//     'type',
-//     'status',
 const HomeOwners = () => {
   const fields = useMemo(
     () => ({
@@ -51,8 +37,6 @@ const HomeOwners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-          // onBlur: (e: any, { item, setItem, error, setError }: any) =>
-          //   _onBlur(e, item, setItem, error, setError),
         },
         list: { width: "160px" },
       },
@@ -67,7 +51,10 @@ const HomeOwners = () => {
           label: "Primer nombre",
         },
         list: {
-          onRender: (item: any) => item.name + " " + item.last_name,
+          onRender: (props: any) => {
+            console.log("item render", props);
+            return getFullName(props.item);
+          },
         },
       },
       middle_name: {
@@ -112,28 +99,10 @@ const HomeOwners = () => {
     []
   );
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    extraData,
-    findOptions,
-  } = useCrud({
+  const { userCan, List } = useCrud({
     paramsInitial,
     mod,
     fields,
-  });
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

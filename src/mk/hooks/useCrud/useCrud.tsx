@@ -33,6 +33,7 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import { wrap } from "module";
 
 export type ModCrudType = {
   modulo: string;
@@ -560,6 +561,52 @@ const useCrud = ({
   });
   Detail.displayName = "Detail";
 
+  const RenderField = ({
+    field,
+    i,
+    formStateForm,
+    setFormStateForm,
+    onChangeForm,
+    onBlurForm,
+    errorForm,
+    setErrorForm,
+  }: any) => {
+    if (field.onRender) {
+      return field.onRender({
+        field,
+        item: field.prepareData
+          ? field.prepareData(formStateForm, field, field.key, setFormStateForm)
+          : formStateForm,
+        onChange: onChangeForm,
+        onBlur: onBlurForm,
+        error: errorForm,
+        setItem: setFormStateForm,
+        extraData: extraData,
+      });
+    }
+    return (
+      <FormElement
+        field={field}
+        item={
+          field.prepareData
+            ? field.prepareData(
+                formStateForm,
+                field,
+                field.key,
+                setFormStateForm
+              )
+            : formStateForm
+        }
+        i={i}
+        onChange={onChangeForm}
+        onBlur={onBlurForm}
+        error={errorForm}
+        setError={setErrorForm}
+        data={{ user, action, mod, extraData }}
+      />
+    );
+  };
+
   const Form = memo(({ open, onClose, item, i, onConfirm }: PropsDetail) => {
     const getHeader = () => {
       const head: Object[] = [];
@@ -576,6 +623,10 @@ const useCrud = ({
           prepareData: field.form.prepareData || field.prepareData || null,
           onHide: field.form.onHide || field.onHide || null,
           action: action,
+          openTag: field.openTag || null,
+          closeTag: field.closeTag || null,
+          style: { ...field.form.style, flex: "1" },
+          // tagStyle: field.tagStyle || null,
         };
         if (typeof col.disabled == "function") {
           col.disabled = col.disabled(item);
@@ -589,7 +640,40 @@ const useCrud = ({
         head.push(col);
       }
       head.sort((a: any, b: any) => a.order - b.order);
-      return head;
+
+      let renderItems: any[] = [];
+      const headF: any[] = [];
+      let openTag = -1;
+      head.forEach((col: any, i: number) => {
+        console.log("col", col, i);
+        if (col.openTag && openTag == -1) {
+          headF.push({
+            key: "openTag" + i,
+            openTag: col.openTag,
+            // style: col.tagStyle,
+            // className: col.tagClass,
+            items: [],
+          });
+          renderItems = [col];
+          openTag = headF.length - 1;
+          return;
+        }
+        if (openTag > -1) {
+          renderItems.push(col);
+          if (col.closeTag) {
+            headF[openTag].items = renderItems;
+            openTag = -1;
+          }
+        } else {
+          headF.push(col);
+        }
+      });
+      // if (openTag > -1) {
+      //   headF[openTag].items = renderItems;
+      //   openTag = -1;
+      // }
+
+      return headF;
     };
 
     const [formStateForm, setFormStateForm]: any = useState({});
@@ -649,6 +733,7 @@ const useCrud = ({
       },
       [formStateForm]
     );
+
     return (
       <DataModal
         open={open}
@@ -662,49 +747,120 @@ const useCrud = ({
             : onSave(formStateForm, setErrorForm)
         }
       >
-        <div style={{display:'flex',width:'100%',flexWrap:'wrap',gap:8,justifyContent:"space-between"}}>
-        {header.map((field: any, index: number) => (
-          <Fragment key={field.key + index}>
-            {field.onRender ? (
-              field.onRender({
-                field,
-                item: field.prepareData
-                  ? field.prepareData(
-                      formStateForm,
-                      field,
-                      field.key,
-                      setFormStateForm
-                    )
-                  : formStateForm,
-                onChange: onChangeForm,
-                onBlur: onBlurForm,
-                error: errorForm,
-                setItem: setFormStateForm,
-                extraData: extraData,
-              })
-            ) : (
-              <FormElement
-                field={field}
-                item={
-                  field.prepareData
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            flexWrap: "wrap",
+            gap: 8,
+            justifyContent: "space-between",
+          }}
+        >
+          {header.map((field: any, index: number) => (
+            <Fragment key={field.key + index}>
+              {field.items && (
+                <div
+                  className={field.openTag?.className}
+                  style={{
+                    display: "block",
+                    justifyContent: "space-around",
+                    flexWrap: "wrap",
+                    gap: "var(--spS)",
+                    width: "100%",
+                    ...(field.openTag?.border
+                      ? {
+                          border: "1px solid var(--cWhiteV1)",
+                          borderRadius: "var(--bRadiusS)",
+                          padding: "var(--spM)",
+                        }
+                      : {}),
+                    ...field.openTag?.style,
+                  }}
+                >
+                  {/* {JSON.stringify(field.openTag)} */}
+                  {field.openTag?.onTop && (
+                    <div
+                      style={{
+                        width: "100%",
+                        flex: "100%",
+                        marginBottom: "var(--spS)",
+                      }}
+                    >
+                      {field.openTag.onTop({
+                        item: formStateForm,
+                        key: field.key,
+                        extraData: extraData,
+                      })}
+                    </div>
+                  )}
+                  {field.items.map((field: any, index: number) => (
+                    <Fragment key={field.key + index}>
+                      <RenderField
+                        field={field}
+                        i={index}
+                        formStateForm={formStateForm}
+                        setFormStateForm={setFormStateForm}
+                        onChangeForm={onChangeForm}
+                        onBlurForm={onBlurForm}
+                        errorForm={errorForm}
+                        setErrorForm={setErrorForm}
+                      />
+                    </Fragment>
+                  ))}
+                </div>
+              )}
+              {!field.items && (
+                <RenderField
+                  field={field}
+                  i={index}
+                  formStateForm={formStateForm}
+                  setFormStateForm={setFormStateForm}
+                  onChangeForm={onChangeForm}
+                  onBlurForm={onBlurForm}
+                  errorForm={errorForm}
+                  setErrorForm={setErrorForm}
+                />
+              )}
+              {/* {field.onRender ? (
+                field.onRender({
+                  field,
+                  item: field.prepareData
                     ? field.prepareData(
                         formStateForm,
                         field,
                         field.key,
                         setFormStateForm
                       )
-                    : formStateForm
-                }
-                i={i}
-                onChange={onChangeForm}
-                onBlur={onBlurForm}
-                error={errorForm}
-                setError={setErrorForm}
-                data={{ user, action, mod, extraData }}
-              />
-            )}
-          </Fragment>
-        ))}
+                    : formStateForm,
+                  onChange: onChangeForm,
+                  onBlur: onBlurForm,
+                  error: errorForm,
+                  setItem: setFormStateForm,
+                  extraData: extraData,
+                })
+              ) : (
+                <FormElement
+                  field={field}
+                  item={
+                    field.prepareData
+                      ? field.prepareData(
+                          formStateForm,
+                          field,
+                          field.key,
+                          setFormStateForm
+                        )
+                      : formStateForm
+                  }
+                  i={i}
+                  onChange={onChangeForm}
+                  onBlur={onBlurForm}
+                  error={errorForm}
+                  setError={setErrorForm}
+                  data={{ user, action, mod, extraData }}
+                />
+              )} */}
+            </Fragment>
+          ))}
         </div>
         {showExtraModal}
       </DataModal>
