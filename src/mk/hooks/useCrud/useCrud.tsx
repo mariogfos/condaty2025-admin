@@ -625,7 +625,11 @@ const useCrud = ({
           action: action,
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
-          style: { ...field.form.style, flex: "1" },
+          style: { ...field.form.style },
+          // style: {
+          //   ...field.form.style,
+          //   ...(field.openTag ? { flex: "1" } : {}),
+          // },
           // tagStyle: field.tagStyle || null,
         };
         if (typeof col.disabled == "function") {
@@ -796,7 +800,10 @@ const useCrud = ({
                   {field.items.map((field: any, index: number) => (
                     <Fragment key={field.key + index}>
                       <RenderField
-                        field={field}
+                        field={{
+                          ...field,
+                          style: { ...field.style, flex: "1" },
+                        }}
                         i={index}
                         formStateForm={formStateForm}
                         setFormStateForm={setFormStateForm}
