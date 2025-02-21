@@ -70,8 +70,9 @@ const MainMenu = ({
             icon={<IconMonitorLine />}
             items={[
               { href: "/dptos", label: "Casas" },
-              { href: "/users", label: "Actividades" },
+              { href: "/activities", label: "Actividades" },
               { href: "/documents", label: "Documentos" },
+              { href: "/configs", label: "Configuración" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
