@@ -19,7 +19,7 @@ interface PropsType extends PropsTypeInputBase {
   img?: boolean;
   item?: any;
   editor?: boolean | { width: number; height: number };
-  sizePreview?: { width: string; height: string };
+  sizePreview?: { width: string | number; height: string | number };
 }
 export const UploadFile = ({
   className = "",

@@ -2,12 +2,43 @@ import { IconCamera } from '@/components/layout/icons/IconsBiblioteca'
 import Input from '@/mk/components/forms/Input/Input'
 import Select from '@/mk/components/forms/Select/Select'
 import TextArea from '@/mk/components/forms/TextArea/TextArea'
+import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile'
+import { getUrlImages } from '@/mk/utils/string'
 import React from 'react'
 
-const DptoConfig = ({formState,onChange,errors,client_config}:any) => {
+const DptoConfig = ({formState, setFormState, setErrors,errors,client_config}:any) => {
+    // console.log(formState,'fst desde dptoconfg')
+    const onChange = (e:any) => {
+        let value = e?.target?.value;
+        if (e.target.type == "checkbox") {
+          value = e.target.checked ? "Y" : "N";
+        }
+        setFormState({ ...formState, [e.target.name]: value });
+    
+      };
   return (
     <>
             <div className="w-full flex justify-center my-6">
+                 <UploadFile
+                    name="avatar"
+                    onChange={onChange}
+                    value={
+                        formState?.id
+                          ? getUrlImages(
+                               "/CLIENT-" + formState?.id + ".png?" + formState.updated_at
+                            )
+                          : ""
+                      }
+                    
+                    setError={setErrors}
+                    error={errors} 
+                    img={true}
+                    editor={true} 
+                    sizePreview={{ width: "375px", height: "114px" }}
+                    placeholder="Subir imagen del condominio"
+                    ext={["jpg", "png", "jpeg", "webp"]}
+                    item={formState}
+                    />
               {/* <div className="bg-darkv2 w-[375px] h-[114px] relative rounded-md">
                 {(!imageError || preview) && (
                   <img
@@ -113,7 +144,7 @@ const DptoConfig = ({formState,onChange,errors,client_config}:any) => {
               onChange={onChange}
               value={formState?.description}
             />
-            <div className="my-5">
+            <div>
               <p className="text-tWhite">
                 Fecha de inicio de cobro de expensas
               </p>
@@ -176,9 +207,9 @@ const DptoConfig = ({formState,onChange,errors,client_config}:any) => {
               required
               value={formState?.initial_amount}
               onChange={onChange}
-              disabled={
-                client_config?.data[0].initial_amount === null ? false : true
-              }
+               disabled={
+                 client_config?.data[0].initial_amount === null ? false : true
+               }
             />
           </>
   )

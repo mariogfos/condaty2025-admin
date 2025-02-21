@@ -1,0 +1,5 @@
+.Config{
+   & > div:nth-child(1){
+    width: 400px;
+   }
+}

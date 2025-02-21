@@ -2,7 +2,7 @@
 'use client'
 import { getUrlImages } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
-
+import styles from "./Config.module.css"
 import useAxios from "@/mk/hooks/useAxios";
 // import { useRouter } from "next/router";
 import { formatNumber } from "@/mk/utils/numbers";
@@ -15,6 +15,8 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig";
 import DptoConfig from "./DptoConfig";
+import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
@@ -26,7 +28,7 @@ const Config = () => {
   const [typeSearch, setTypeSearch] = useState("C");
   const [imageError, setImageError] = useState(false);
   // const router = useRouter();
-
+ 
   const {
     data: client_config,
     reLoad,
@@ -39,12 +41,13 @@ const Config = () => {
     page: 1,
     searchBy: "client_id,=," + user?.client_id,
   });
-  const onChange = (e) => {
-    let value = e.target.value;
+  const onChange = (e:any) => {
+    let value = e?.target?.value;
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
     setFormState({ ...formState, [e.target.name]: value });
+
   };
   useEffect(() => {
     const ci = formState.payment_transfer_ci;
@@ -117,103 +120,83 @@ const Config = () => {
       }
     }
   };
-  const onSave = async () => {
-    let err: any = {};
-    if (typeSearch == "C") {
-      if (!formState?.name) {
-        err = { ...err, name: "Este campo es requerido" };
-      }
-      if (!formState?.address) {
-        err = { ...err, address: "Este campo es requerido" };
-      }
-      if (!formState?.phone) {
-        err = { ...err, phone: "Este campo es requerido" };
-      }
-      if (!formState?.year) {
-        err = { ...err, year: "Este campo es requerido" };
-      }
-      if (!formState?.month) {
-        err = { ...err, month: "Este campo es requerido" };
-      }
-      if (!formState?.initial_amount) {
-        err = { ...err, initial_amount: "Este campo es requerido" };
-      }
-    }
-    if (typeSearch == "M") {
-      if (!formState?.soft_limit) {
-        err = { ...err, soft_limit: "Este campo es requerido" };
-      }
-      if (!formState?.hard_limit) {
-        err = { ...err, hard_limit: "Este campo es requerido" };
-      }
-      if (!formState?.penalty_percent) {
-        err = { ...err, penalty_percent: "Este campo es requerido" };
-      }
-    }
-    if (typeSearch == "P") {
-      if (errorImage && !formState?.avatarQr) {
-        err = { ...err, avatar: "Este campo es requerido" };
-      }
-      if (!formState?.payment_transfer_bank) {
-        err = { ...err, payment_transfer_bank: "Este campo es requerido" };
-      }
-      if (!formState?.payment_transfer_account) {
-        err = { ...err, payment_transfer_account: "Este campo es requerido" };
-      }
-      if (!formState?.payment_transfer_name) {
-        err = { ...err, payment_transfer_name: "Este campo es requerido" };
-      }
-
-      if (!formState?.payment_office_obs) {
-        err = { ...err, payment_office_obs: "Este campo es requerido" };
-      }
-      const ci = formState?.payment_transfer_ci;
-      if (ci) {
-        if (ci.length < 5) {
-          err = { ...err, payment_transfer_ci: "Mínimo 5 caracteres" };
-        } else if (ci.length > 15) {
-          err = { ...err, payment_transfer_ci: "Máximo 15 caracteres" };
-        }
-      } else {
-        err = { ...err, payment_transfer_ci: "Este campo es requerido" };
-      }
-    }
-
-    if (Object.keys(err).length > 0) {
-      setErrors(err);
-      return;
-    }
-
-    const { data, error } = await execute(
-      "/client-config-actualizar",
-      "PUT",
-      formState
-    );
-
-    if (data?.success == true) {
-      showToast("Datos guardados", "success");
-      // getUser();
-      // router.push("/");
-      setErrors({});
-    } else {
-      showToast(error?.data?.message || error?.message, "error");
-      console.log("error:", error);
-      setErrors(error?.data?.errors);
-    }
-  };
-
-  // const onSaveCon = async () => {
+  // const onSave = async () => {
   //   let err: any = {};
+  //   if (typeSearch == "C") {
+  //     if (!formState?.name) {
+  //       err = { ...err, name: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.address) {
+  //       err = { ...err, address: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.phone) {
+  //       err = { ...err, phone: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.year) {
+  //       err = { ...err, year: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.month) {
+  //       err = { ...err, month: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.initial_amount) {
+  //       err = { ...err, initial_amount: "Este campo es requerido" };
+  //     }
+  //   }
+  //   if (typeSearch == "M") {
+  //     if (!formState?.soft_limit) {
+  //       err = { ...err, soft_limit: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.hard_limit) {
+  //       err = { ...err, hard_limit: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.penalty_percent) {
+  //       err = { ...err, penalty_percent: "Este campo es requerido" };
+  //     }
+  //   }
+  //   if (typeSearch == "P") {
+  //     if (errorImage && !formState?.avatarQr) {
+  //       err = { ...err, avatar: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.payment_transfer_bank) {
+  //       err = { ...err, payment_transfer_bank: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.payment_transfer_account) {
+  //       err = { ...err, payment_transfer_account: "Este campo es requerido" };
+  //     }
+  //     if (!formState?.payment_transfer_name) {
+  //       err = { ...err, payment_transfer_name: "Este campo es requerido" };
+  //     }
+
+  //     if (!formState?.payment_office_obs) {
+  //       err = { ...err, payment_office_obs: "Este campo es requerido" };
+  //     }
+  //     const ci = formState?.payment_transfer_ci;
+  //     if (ci) {
+  //       if (ci.length < 5) {
+  //         err = { ...err, payment_transfer_ci: "Mínimo 5 caracteres" };
+  //       } else if (ci.length > 15) {
+  //         err = { ...err, payment_transfer_ci: "Máximo 15 caracteres" };
+  //       }
+  //     } else {
+  //       err = { ...err, payment_transfer_ci: "Este campo es requerido" };
+  //     }
+  //   }
 
   //   if (Object.keys(err).length > 0) {
   //     setErrors(err);
   //     return;
   //   }
-  //   const { data, error } = await execute("/imageClient", "PUT", formState);
+
+  //   const { data, error } = await execute(
+  //     "/client-config-actualizar",
+  //     "PUT",
+  //     formState
+  //   );
 
   //   if (data?.success == true) {
-  //     showToast("¡GENIAL! Datos guardados", "success");
-  //     router.push("/");
+  //     showToast("Datos guardados", "success");
+  //     // getUser();
+  //     // router.push("/");
   //     setErrors({});
   //   } else {
   //     showToast(error?.data?.message || error?.message, "error");
@@ -221,46 +204,166 @@ const Config = () => {
   //     setErrors(error?.data?.errors);
   //   }
   // };
+
+
+
+ 
+const validate = () => {
+  let errors: any = {};
+
+  if (typeSearch === "C") {
+    errors = checkRules({
+      value: formState.name,
+      rules: ["required"],
+      key: "name",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.email,
+      rules: ["required", "email"],
+      key: "email",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.address,
+      rules: ["required"],
+      key: "address",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.phone,
+      rules: ["required"],
+      key: "phone",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.year,
+      rules: ["required"],
+      key: "year",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.month,
+      rules: ["required"],
+      key: "month",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.initial_amount,
+      rules: ["required"],
+      key: "initial_amount",
+      errors,
+    });
+  }
+
+  if (typeSearch === "M") {
+    errors = checkRules({
+      value: formState.soft_limit,
+      rules: ["required"],
+      key: "soft_limit",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.hard_limit,
+      rules: ["required"],
+      key: "hard_limit",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.penalty_percent,
+      rules: ["required"],
+      key: "penalty_percent",
+      errors,
+    });
+  }
+
+  if (typeSearch === "P") {
+    // Si hay error con la imagen, se valida que el avatarQr sea obligatorio
+    if (errorImage) {
+      errors = checkRules({
+        value: formState.avatarQr,
+        rules: ["required"],
+        key: "avatar",
+        errors,
+      });
+    }
+    errors = checkRules({
+      value: formState.payment_transfer_bank,
+      rules: ["required"],
+      key: "payment_transfer_bank",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.payment_transfer_account,
+      rules: ["required"],
+      key: "payment_transfer_account",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.payment_transfer_name,
+      rules: ["required"],
+      key: "payment_transfer_name",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.payment_office_obs,
+      rules: ["required"],
+      key: "payment_office_obs",
+      errors,
+    });
+    errors = checkRules({
+      value: formState.payment_transfer_ci,
+      rules: ["required", "min:5", "max:15"],
+      key: "payment_transfer_ci",
+      errors,
+    });
+  }
+
+  setErrors(errors);
+  return errors;
+};
+
+// Ahora, el onSave utiliza la función validate para comprobar si hay errores:
+const onSave = async () => {
+  if (hasErrors(validate())) return;
+
+  const { data, error } = await execute(
+    "/client-config-actualizar",
+    "PUT",
+    formState
+  );
+
+  if (data?.success === true) {
+    showToast("Datos guardados", "success");
+    setErrors({});
+    // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
+  } else {
+    showToast(error?.data?.message || error?.message, "error");
+    console.log("error:", error);
+    setErrors(error?.data?.errors);
+  }
+};
+
   useEffect(() => {
     const client = user?.clients?.find((i) => i.id == user?.client_id);
     setFormState({ ...client_config?.data[0], ...client });
   }, [client_config?.data]);
 
-  // useEffect(() => {
-  //   setFormState({ ...formState, ...user?.clients[0] });
-  // }, [user?.clients[0]]);
-
-  // console.log("formState  ", formState);
-  // useEffect(() => {
-  //   let amountFormated = formatNumber(formState?.initial_amount);
-  //   setFormState({ ...formState, initial_amount: amountFormated.toString() });
-  // }, [formState.initial_amount ]);
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="flex gap-8 overflow-x-scroll">
-        <button
-          key={"C"}
-          onClick={() => setTypeSearch("C")}
-          className={typeSearch == "C" ? "text-accent " : " text-lightv3 "}
-        >
-          Condominio
-        </button>
-        <button
-          key={"P"}
-          onClick={() => setTypeSearch("P")}
-          className={typeSearch == "P" ? "text-accent " : " text-lightv3 "}
-        >
-          Pagos
-        </button>
-        <button
-          key={"M"}
-          onClick={() => setTypeSearch("M")}
-          className={typeSearch == "M" ? "text-accent " : " text-lightv3 "}
-        >
-          Morosidad
-        </button>
-      </div>
+    <div className={styles.Config}>
+    
+   <div>
+    <TabsButtons 
+       tabs={[
+        {value:'C',text:'Condominio'},
+        {value:'P',text:'Pagos'},       
+        {value:'M',text:'Moroso'}
+      ]}
+       sel={typeSearch}
+       setSel={setTypeSearch}
+       /> 
+    </div>
       <div className="">
         {typeSearch == "M" && (
           // <div className=" ">
@@ -711,7 +814,7 @@ const Config = () => {
           //     }
           //   />
           // </>
-          <DptoConfig formState={formState} onChange={onChange} errors={errors} client_config={client_config}/>
+          <DptoConfig formState={formState} setFormState={setFormState} onChange={onChange} errors={errors} setErrors={setErrors} client_config={client_config}/>
         )}
         <div className="w-full flex justify-center mb-6">
           <Button
