@@ -38,7 +38,7 @@
   top: 20px;
   width: calc(100% - var(--spS) * 2);
   padding: var(--spS);
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
 
   &>ul {
     overflow-y: auto;

@@ -111,16 +111,16 @@ const Roles = () => {
         list: true,
         form: {
                type: "select",
-               optionsExtra: "areas",               
+               optionsExtra: "role_categories",               
              },
-        onRender:(item:any)=>{
+        // onRender:(item:any)=>{
           
-          const area = item?.extraData?.areas?.find((i:any)=> i.id === item.item.area_id);
-          return area?.name},
-          onRenderView: (i:any)=>{console.log(i,'item area');
-            const area  = i?.extraData?.areas?.find((j:any)=> j.id === i.item.area_id);
-            return <div style={{display:"flex",justifyContent:"center",fontSize:"var(--spM)",gap:8}}><div style={{flex:1,textAlign:"end"}}>Área</div><div style={{flex:1,color:"var(--cWhite)"}}>{area?.name}</div></div>
-          }
+        //   const area = item?.extraData?.areas?.find((i:any)=> i.id === item.item.area_id);
+        //   return area?.name},
+        //   onRenderView: (i:any)=>{console.log(i,'item area');
+        //     const area  = i?.extraData?.areas?.find((j:any)=> j.id === i.item.area_id);
+        //     return <div style={{display:"flex",justifyContent:"center",fontSize:"var(--spM)",gap:8}}><div style={{flex:1,textAlign:"end"}}>Área</div><div style={{flex:1,color:"var(--cWhite)"}}>{area?.name}</div></div>
+        //   }
         },
       abilities: {
         rules: [],
