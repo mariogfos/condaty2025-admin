@@ -70,6 +70,7 @@ const MainMenu = ({
               { href: "/dptos", label: "Casas" },
               { href: "/activities", label: "Actividades" },
               { href: "/roles", label: "Documentos" },
+              { href: "/configs", label: "Configuración" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
