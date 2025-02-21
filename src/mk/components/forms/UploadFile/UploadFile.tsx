@@ -33,6 +33,7 @@ export const UploadFile = ({
 }: PropsType) => {
   const [selectedFiles, setSelectedFiles]: any = useState({});
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isFileError, setIsFileError] = useState(false);
   // console.log(props, "props");
   const { showToast } = useAuth();
 
@@ -73,6 +74,7 @@ export const UploadFile = ({
 
   const onChangeFile = async (e: any) => {
     // props.setError({});
+    setIsFileError(false);
     props.setError({ ...props.error, [props.name]: "" });
     try {
       let file: any = null;
@@ -119,6 +121,7 @@ export const UploadFile = ({
             .replace("data:", "")
             .replace(/^.+,/, "");
           base64String = encodeURIComponent(base64String);
+
           onChange({
             target: {
               name: props.name,
@@ -164,6 +167,7 @@ export const UploadFile = ({
 
   const deleteImg = (del = true) => {
     props.setError({ ...props.error, [props.name]: "" });
+    setIsFileError(false);
 
     // if (!selectedFiles?.name) {
     // console.log("deleteImg", del, selectedFiles?.name, "value:", value, {
@@ -278,7 +282,8 @@ export const UploadFile = ({
                     height: "100px",
                   }}
                 /> */}
-              {(editedImage ||
+              {!isFileError &&
+              (editedImage ||
                 selectedFiles?.type?.startsWith("image/") ||
                 value) &&
               img ? (
@@ -290,6 +295,10 @@ export const UploadFile = ({
                       ? URL.createObjectURL(selectedFiles)
                       : value || "")
                   }
+                  onError={(e) => {
+                    console.log("error imagen", e);
+                    setIsFileError(true);
+                  }}
                   alt={selectedFiles?.name}
                   style={{
                     objectFit: "cover",

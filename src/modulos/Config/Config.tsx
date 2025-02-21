@@ -1,14 +1,16 @@
-
-'use client'
+"use client";
 import { getUrlImages } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
-import styles from "./Config.module.css"
+import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 // import { useRouter } from "next/router";
 import { formatNumber } from "@/mk/utils/numbers";
 import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { IconArrowDown, IconCamera } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowDown,
+  IconCamera,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -28,7 +30,7 @@ const Config = () => {
   const [typeSearch, setTypeSearch] = useState("C");
   const [imageError, setImageError] = useState(false);
   // const router = useRouter();
- 
+
   const {
     data: client_config,
     reLoad,
@@ -41,13 +43,12 @@ const Config = () => {
     page: 1,
     searchBy: "client_id,=," + user?.client_id,
   });
-  const onChange = (e:any) => {
+  const onChange = (e: any) => {
     let value = e?.target?.value;
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
     setFormState({ ...formState, [e.target.name]: value });
-
   };
   useEffect(() => {
     const ci = formState.payment_transfer_ci;
@@ -205,165 +206,160 @@ const Config = () => {
   //   }
   // };
 
+  const validate = () => {
+    let errors: any = {};
 
-
- 
-const validate = () => {
-  let errors: any = {};
-
-  if (typeSearch === "C") {
-    errors = checkRules({
-      value: formState.name,
-      rules: ["required"],
-      key: "name",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.email,
-      rules: ["required", "email"],
-      key: "email",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.address,
-      rules: ["required"],
-      key: "address",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.phone,
-      rules: ["required"],
-      key: "phone",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.year,
-      rules: ["required"],
-      key: "year",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.month,
-      rules: ["required"],
-      key: "month",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.initial_amount,
-      rules: ["required"],
-      key: "initial_amount",
-      errors,
-    });
-  }
-
-  if (typeSearch === "M") {
-    errors = checkRules({
-      value: formState.soft_limit,
-      rules: ["required"],
-      key: "soft_limit",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.hard_limit,
-      rules: ["required"],
-      key: "hard_limit",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.penalty_percent,
-      rules: ["required"],
-      key: "penalty_percent",
-      errors,
-    });
-  }
-
-  if (typeSearch === "P") {
-    // Si hay error con la imagen, se valida que el avatarQr sea obligatorio
-    if (errorImage) {
+    if (typeSearch === "C") {
       errors = checkRules({
-        value: formState.avatarQr,
+        value: formState.name,
         rules: ["required"],
-        key: "avatar",
+        key: "name",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.email,
+        rules: ["required", "email"],
+        key: "email",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.address,
+        rules: ["required"],
+        key: "address",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.phone,
+        rules: ["required"],
+        key: "phone",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.year,
+        rules: ["required"],
+        key: "year",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.month,
+        rules: ["required"],
+        key: "month",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.initial_amount,
+        rules: ["required"],
+        key: "initial_amount",
         errors,
       });
     }
-    errors = checkRules({
-      value: formState.payment_transfer_bank,
-      rules: ["required"],
-      key: "payment_transfer_bank",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.payment_transfer_account,
-      rules: ["required"],
-      key: "payment_transfer_account",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.payment_transfer_name,
-      rules: ["required"],
-      key: "payment_transfer_name",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.payment_office_obs,
-      rules: ["required"],
-      key: "payment_office_obs",
-      errors,
-    });
-    errors = checkRules({
-      value: formState.payment_transfer_ci,
-      rules: ["required", "min:5", "max:15"],
-      key: "payment_transfer_ci",
-      errors,
-    });
-  }
 
-  setErrors(errors);
-  return errors;
-};
+    if (typeSearch === "M") {
+      errors = checkRules({
+        value: formState.soft_limit,
+        rules: ["required"],
+        key: "soft_limit",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.hard_limit,
+        rules: ["required"],
+        key: "hard_limit",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.penalty_percent,
+        rules: ["required"],
+        key: "penalty_percent",
+        errors,
+      });
+    }
 
-// Ahora, el onSave utiliza la función validate para comprobar si hay errores:
-const onSave = async () => {
-  if (hasErrors(validate())) return;
+    if (typeSearch === "P") {
+      // Si hay error con la imagen, se valida que el avatarQr sea obligatorio
+      if (errorImage) {
+        errors = checkRules({
+          value: formState.avatarQr,
+          rules: ["required"],
+          key: "avatar",
+          errors,
+        });
+      }
+      errors = checkRules({
+        value: formState.payment_transfer_bank,
+        rules: ["required"],
+        key: "payment_transfer_bank",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.payment_transfer_account,
+        rules: ["required"],
+        key: "payment_transfer_account",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.payment_transfer_name,
+        rules: ["required"],
+        key: "payment_transfer_name",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.payment_office_obs,
+        rules: ["required"],
+        key: "payment_office_obs",
+        errors,
+      });
+      errors = checkRules({
+        value: formState.payment_transfer_ci,
+        rules: ["required", "min:5", "max:15"],
+        key: "payment_transfer_ci",
+        errors,
+      });
+    }
 
-  const { data, error } = await execute(
-    "/client-config-actualizar",
-    "PUT",
-    formState
-  );
+    setErrors(errors);
+    return errors;
+  };
 
-  if (data?.success === true) {
-    showToast("Datos guardados", "success");
-    setErrors({});
-    // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
-  } else {
-    showToast(error?.data?.message || error?.message, "error");
-    console.log("error:", error);
-    setErrors(error?.data?.errors);
-  }
-};
+  // Ahora, el onSave utiliza la función validate para comprobar si hay errores:
+  const onSave = async () => {
+    if (hasErrors(validate())) return;
+
+    const { data, error } = await execute(
+      "/client-config-actualizar",
+      "PUT",
+      formState
+    );
+
+    if (data?.success === true) {
+      showToast("Datos guardados", "success");
+      setErrors({});
+      // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
+    } else {
+      showToast(error?.data?.message || error?.message, "error");
+      console.log("error:", error);
+      setErrors(error?.data?.errors);
+    }
+  };
 
   useEffect(() => {
-    const client = user?.clients?.find((i) => i.id == user?.client_id);
+    const client = user?.clients?.find((i: any) => i.id == user?.client_id);
     setFormState({ ...client_config?.data[0], ...client });
   }, [client_config?.data]);
 
-
   return (
     <div className={styles.Config}>
-    
-   <div>
-    <TabsButtons 
-       tabs={[
-        {value:'C',text:'Condominio'},
-        {value:'P',text:'Pagos'},       
-        {value:'M',text:'Moroso'}
-      ]}
-       sel={typeSearch}
-       setSel={setTypeSearch}
-       /> 
-    </div>
+      <div>
+        <TabsButtons
+          tabs={[
+            { value: "C", text: "Condominio" },
+            { value: "P", text: "Pagos" },
+            { value: "M", text: "Moroso" },
+          ]}
+          sel={typeSearch}
+          setSel={setTypeSearch}
+        />
+      </div>
       <div className="">
         {typeSearch == "M" && (
           // <div className=" ">
@@ -493,7 +489,11 @@ const onSave = async () => {
           //     </div>
           //   </div>
           // </div>
-          <DefaulterConfig formState={formState} onChange={onChange} errors={errors} />
+          <DefaulterConfig
+            formState={formState}
+            onChange={onChange}
+            errors={errors}
+          />
         )}
         {typeSearch == "P" && (
           // <div className="">
@@ -636,7 +636,11 @@ const onSave = async () => {
           //     </div>
           //   </div>
           // </div>
-          <PaymentsConfig formState={formState} onChange={onChange} errors={errors} />
+          <PaymentsConfig
+            formState={formState}
+            onChange={onChange}
+            errors={errors}
+          />
         )}
         {typeSearch == "C" && (
           // <>
@@ -814,7 +818,14 @@ const onSave = async () => {
           //     }
           //   />
           // </>
-          <DptoConfig formState={formState} setFormState={setFormState} onChange={onChange} errors={errors} setErrors={setErrors} client_config={client_config}/>
+          <DptoConfig
+            formState={formState}
+            setFormState={setFormState}
+            onChange={onChange}
+            errors={errors}
+            setErrors={setErrors}
+            client_config={client_config}
+          />
         )}
         <div className="w-full flex justify-center mb-6">
           <Button
