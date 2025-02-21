@@ -51,7 +51,7 @@ const MainMenu = ({
             label="Finanzas"
             icon={<IconPayments/>}
             items={[
-              { href: "/", label: "Balance general" },
+              { href: "/finanzas", label: "Balance general" },
               {
                 href: "/affiliateGrowth",
                 label: "Ingresos",
@@ -68,7 +68,7 @@ const MainMenu = ({
             icon={<IconMonitorLine />}
             items={[
               { href: "/dptos", label: "Casas" },
-              { href: "/users", label: "Actividades" },
+              { href: "/activities", label: "Actividades" },
               { href: "/roles", label: "Documentos" },
             ]}
             collapsed={collapsed}
@@ -92,9 +92,8 @@ const MainMenu = ({
             items={[
               { href: "/contents", label: "Publicaciones" },
               { href: "/events", label: "Eventos" },
-              { href: "/activities", label: "Actividades" },
               { href: "/surveys", label: "Encuestas" },
-              { href: "/surveys", label: "Alertas" },
+              { href: "/alerts", label: "Alertas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
