@@ -11,6 +11,8 @@ import {
   IconGroup,
   IconComunicationDialog,
   IconInterrogation,
+  IconGuard,
+  IconBitacora,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -99,6 +101,8 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
+        <MainmenuItem href="/binnacle" label="Bitácora" icon={<IconBitacora/>} collapsed={collapsed}/>
+
         <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} collapsed={collapsed} />
         </div>
       ) : (
