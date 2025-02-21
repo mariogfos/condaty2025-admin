@@ -24,7 +24,6 @@ const paramsInitial = {
   searchBy: "",
 };
 
-
 const Documents = () => {
   const fields = useMemo(
     () => ({
@@ -54,7 +53,7 @@ const Documents = () => {
         rules: ["required"],
         api: "ae*",
         label: "Archivo",
-        form: { type: "fileUpload" },
+        form: { type: "fileUpload", style: { width: "100%" } },
         list: { width: "120px" },
       },
       ext: {
@@ -70,7 +69,7 @@ const Documents = () => {
         label: "Posición",
         form: { type: "text" },
         list: { width: "120px" },
-      }
+      },
     }),
     []
   );
