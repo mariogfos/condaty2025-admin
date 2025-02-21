@@ -69,7 +69,7 @@ const MainMenu = ({
             items={[
               { href: "/dptos", label: "Casas" },
               { href: "/users", label: "Actividades" },
-              { href: "/roles", label: "Documentos" },
+              { href: "/documents", label: "Documentos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
