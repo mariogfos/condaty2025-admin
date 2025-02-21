@@ -29,7 +29,7 @@ const Binnacle = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      description: {
+      descrip: {
         rules: ["required"],
         api: "ae",
         label: "Descripción",
