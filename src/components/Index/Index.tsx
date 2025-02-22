@@ -19,7 +19,7 @@ const HomePage = () => {
 
   useEffect(() => {
     setStore({
-      title: "HomePage",
+      title: "Inicio",
     });
   }, []);
 
