@@ -47,8 +47,8 @@
     padding: 16px 8px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    color: var(--cBlackV2);
-    background-color: var(--cHover);
+    color: var(--cWhiteV1);
+    background-color:transparent;
     &.selected {
       font-weight: var(--bBold);
       color: var(--cWhite);
@@ -58,7 +58,7 @@
       border-width: 2px 2px 0px 2px;
       border-style: solid;
       border-color: var(--cAccent);
-      background-color: transparent;
+      background-color: var(--cHoverBigSidebar);
     }
     & > span {
       position: absolute;

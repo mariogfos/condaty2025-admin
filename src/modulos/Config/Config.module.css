@@ -6,10 +6,12 @@
 
 .textTitle {
 color: var(--cWhite);
+font-size: var(--sL);
 
 }
 .textSubtitle {
   color: var(--cWhiteV2);
+  font-size: var(--sM);
 }
 
 .marginY{
