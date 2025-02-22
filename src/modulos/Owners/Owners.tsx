@@ -27,7 +27,6 @@ const Owners = () => {
     plural: "Residentes",
     filter: true,
     permiso: "",
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -35,17 +34,8 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
     extraData: true,
-    // hideActions: { add: true },
+    search: false,
   };
 
   const fields = useMemo(() => {
