@@ -7,11 +7,11 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 
 const mod = {
-  modulo: "barrios",
-  singular: "barrio",
-  plural: "barrios",
-  permiso: "barrios",
-  extraData: true,
+  modulo: "alerts",
+  singular: "alerta",
+  plural: "alertas",
+  permiso: "alerts",
+  extraData: false,
   hideActions: { edit: true, del: true, add: true },
 };
 
@@ -21,8 +21,14 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-
-const Barrios = () => {
+// protected $fillable = [
+//   'level',
+//   'descrip',
+//   'guard_id',
+//   'status',
+//   'client_id',
+// ];
+const Alerts = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -111,4 +117,4 @@ const Barrios = () => {
   );
 };
 
-export default Barrios;
+export default Alerts;
