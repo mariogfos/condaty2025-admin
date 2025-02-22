@@ -60,7 +60,7 @@ const RolesAbilities = () => {
         options: (extraData: any) => {
           let data: any = [];
           // let data: any = [{ id: "T", name: "Todas" }];
-          extraData?.categories?.map((c: any) => {
+          extraData?.role_categories?.map((c: any) => {
             data.push({
               id: c.id,
               name: c.name,
@@ -70,7 +70,7 @@ const RolesAbilities = () => {
         },
         form: {
           type: "select",
-          optionsExtra: "categories",
+          optionsExtra: "role_categories",
           label: "Seleccionar Categoría",
         },
         list: true,
