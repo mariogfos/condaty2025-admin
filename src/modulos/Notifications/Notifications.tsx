@@ -1,3 +1,4 @@
+'use client'
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Notifications.module.css";
