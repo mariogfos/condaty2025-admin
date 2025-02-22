@@ -59,6 +59,7 @@ export type ModCrudType = {
   saveMsg?: { add?: string; edit?: string; del?: string };
   listAndCard?: boolean;
   noWaiting?: boolean;
+  search?: boolean | object;
 };
 
 export type TypeRenderForm = {
@@ -848,15 +849,17 @@ const useCrud = ({
 
       return (
         <nav>
-          <div>
-            {
-              <DataSearch
-                value={searchs.searchBy || ""}
-                name={mod.modulo + "Search"}
-                setSearch={onSearch || setSearchs}
-              />
-            }
-          </div>
+          {mod.search && mod.search.hide ? null : (
+            <div>
+              {
+                <DataSearch
+                  value={searchs.searchBy || ""}
+                  name={mod.modulo + "Search"}
+                  setSearch={onSearch || setSearchs}
+                />
+              }
+            </div>
+          )}
           {menuFilter || null}
           {mod.filter && (
             <>

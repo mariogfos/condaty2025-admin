@@ -8,9 +8,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView";
@@ -24,12 +22,11 @@ const paramsInitial = {
 
 const Owners = () => {
   const mod: ModCrudType = {
-    modulo: "owner",
+    modulo: "owners",
     singular: "Residente",
     plural: "Residentes",
     filter: true,
     permiso: "",
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -37,17 +34,7 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
     extraData: true,
-    // hideActions: { add: true },
   };
 
   const fields = useMemo(() => {
