@@ -24,6 +24,12 @@ const paramsInitial = {
   searchBy: "",
 };
 
+const options = [
+    { id: "O", name: "Residentes" },
+    { id: "G", name: "Guardias" },
+    { id: "A", name: "Todos" },
+  ];
+
 const Documents = () => {
   const fields = useMemo(
     () => ({
@@ -33,20 +39,20 @@ const Documents = () => {
         api: "ae",
         label: "Nombre",
         form: { type: "text" },
-        list: { width: "120px" },
+        list: { width: "240px" },
       },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
         form: { type: "text" },
-        list: { width: "120px" },
+        list: { width: "100%" },
       },
       for_to: {
         rules: ["required"],
         api: "ae*",
-        label: "Para",
-        form: { type: "text" },
+        label: "Destino",
+        form: { type: "select", options: options },
         list: { width: "120px" },
       },
       file: {
@@ -54,21 +60,19 @@ const Documents = () => {
         api: "ae*",
         label: "Archivo",
         form: { type: "fileUpload", style: { width: "100%" } },
-        list: { width: "120px" },
+        
       },
       ext: {
-        rules: ["required"],
+        rules: [""],
         api: "ae*",
         label: "Extensión",
         form: { type: "text" },
-        list: { width: "120px" },
       },
       position: {
         rules: ["required"],
         api: "ae*",
         label: "Posición",
         form: { type: "text" },
-        list: { width: "120px" },
       },
     }),
     []
