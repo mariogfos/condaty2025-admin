@@ -17,7 +17,7 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
       realizar sus pagos de deudas
     </div>
     </section>
-    <div className="border border-[#868686] rounded-lg relative mt-5 laptopL:mx-40 py-7">
+    <div className={styles.borderBox}>
       <section className={styles.marginY}>
       <div className={styles.textTitle}>
         Datos del Qr
@@ -64,7 +64,7 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
         />
       </div>
     </div>
-    <div className="border border-[#868686] rounded-lg relative mt-5 laptopL:mx-40 py-7">
+    <div className={styles.borderBox}>
       <div className={styles.textTitle} style={{marginBottom:'var(--spS)'}}>
         Datos de Transferencia Bancaria
       </div>
@@ -113,7 +113,7 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
         />
       </div>
     </div>
-    <div className="border border-[#868686] rounded-lg relative my-5 laptopL:mx-40 py-7">
+    <div className={styles.borderBox} style={{marginBottom:'var(--spL)'}} >
       <div className={styles.textTitle} style={{marginBottom:'var(--spS)'}}>
         Datos de Pago en oficina
       </div>
