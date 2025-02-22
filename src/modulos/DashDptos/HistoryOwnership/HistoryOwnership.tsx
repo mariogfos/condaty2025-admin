@@ -2,15 +2,15 @@
 import { useState } from "react";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import styles from "./HistoryTitulares.module.css";
+import styles from "./HistoryOwnership.module.css";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import EmptyData from "@/components/NoData/EmptyData";
 
 
-interface HistoryTitularesProps {
-  titularesData: any[];
+interface HistoryOwnershipProps {
+  ownershipData: any[];
   open: boolean;
   close: () => void;
 }
@@ -23,14 +23,14 @@ const modRe = {
   avatarPrefix: "OWN",
 };
 
-const HistoryOwnership = ({ titularesData, open, close }: HistoryTitularesProps) => {
+const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps) => {
   const [openPerfil, setOpenPerfil] = useState(false);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [dataOw, setDataOw] = useState<any>(null);
-  const [filteredData, setFilteredData] = useState(titularesData);
+  const [filteredData, setFilteredData] = useState(ownershipData);
 
   const handleSearch = (searchTerm: string) => {
-    const filtered = titularesData.filter(titular => 
+    const filtered = ownershipData.filter(titular => 
       searchTerm === "" || 
       getFullName(titular?.owner).toUpperCase().includes(searchTerm.toUpperCase())
     );
@@ -53,17 +53,17 @@ const HistoryOwnership = ({ titularesData, open, close }: HistoryTitularesProps)
         </p>
 
         <div className={styles.searchWrapper}>
-            <DataSearch
-                name="search"
-                setSearch={handleSearch}
-                value=""  // Agregar esto
-                textButton="Buscar"
-            />
-            </div>
+          <DataSearch
+            name="search"
+            setSearch={handleSearch}
+            value=""
+            textButton="Buscar"
+          />
+        </div>
 
         <div className={styles.titularesList}>
           {filteredData.length === 0 ? (
-            <EmptyData message="Sin resultados" />
+            <EmptyData message="No existe historial de titulares" />
           ) : (
             filteredData.map((titular, index) => (
               <div
@@ -105,18 +105,22 @@ const HistoryOwnership = ({ titularesData, open, close }: HistoryTitularesProps)
           )}
         </div>
       </div>
-
-      {/*openPerfil && (
+{/*
+      {openPerfil && idPerfil && (
         <ViewPerfil
           id={idPerfil}
           open={openPerfil}
-          onClose={() => setOpenPerfil(false)}
+          onClose={() => {
+            setOpenPerfil(false);
+            setIdPerfil(null);
+          }}
           setData={setDataOw}
+          viewOptions={false}
           data={dataOw}
           mod={modRe}
         />
-      )
-      */}
+      )}
+    */}
     </DataModal>
   );
 };

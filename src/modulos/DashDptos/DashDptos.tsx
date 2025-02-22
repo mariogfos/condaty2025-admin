@@ -55,7 +55,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [dataOw, setDataOw] = useState<any>(null);
 
-  // Obtener datos usando useAxios
+  // Hooks y configuración 
   const { data: dashData, reLoad, execute } = useAxios("/dptos", "GET", {
     fullType: "DET",
     dpto_id: id
@@ -63,7 +63,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
-  // Configuración del módulo para pagos
   const mod = {
     modulo: "payments",
     singular: "Pago",
@@ -126,7 +125,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   return (
     <div className={styles.container}>
-      {/* Panel Izquierdo */}
       <div className={styles.leftPanel}>
         <LoadingScreen className={styles.loadingCard}>
           <div className={styles.infoCard}>
@@ -245,20 +243,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
         </LoadingScreen>
 
-        {/* Historial de Titulares */}
-        {datas?.titularHist && datas.titularHist.length > 0 && (
-          <div className={styles.historySection}>
-            <div className={styles.historyHeader}>
-              <h3 className={styles.historyTitle}>Historial de Titulares</h3>
-              <span 
-                className={styles.viewMore}
-                onClick={() => setOpenTitularHist(true)}
-              >
-                Ver más
-              </span>
-            </div>
-            <div className={styles.historySectionContent}>
-              {datas.titularHist.slice(0, 4).map((titular: any, index: number) => (
+        {/* Historial de Titulares Mini Lista */}
+        <div className={styles.historySection}>
+          <div className={styles.historyHeader}>
+            <h3 className={styles.historyTitle}>Historial de Titulares</h3>
+            <span 
+              className={styles.viewMore}
+              onClick={() => setOpenTitularHist(true)}
+            >
+              Ver más
+            </span>
+          </div>
+          <div className={styles.historySectionContent}>
+            {!datas?.titularHist || datas.titularHist.length === 0 ? (
+              <EmptyData message="No existe historial de titulares para esta unidad" centered={false} />
+            ) : (
+              datas.titularHist.slice(0, 4).map((titular: any, index: number) => (
                 <div 
                   key={index} 
                   className={styles.historyItem}
@@ -285,15 +285,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Panel Derecho */}
       <div className={styles.rightPanel}>
-        {/* Estado de Cuenta */}
+        {/* Estado de Cuenta Mini Lista */}
         <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
             <h3 className={styles.accountTitle}>Estado de cuenta</h3>
@@ -313,47 +312,51 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <div className={styles.centerCell}>Estado</div>
             </div>
             <div className={styles.accountList}>
-              {datas?.payments?.slice(0, 4).map((pago: any, index: number) => (
-                <div 
-                  key={index} 
-                  className={styles.accountRow}
-                  onClick={() => {
-                    if (pago.status === "A") {
-                      setOpenPagar(true);
-                    } else {
-                      setOpenComprobante(true);
-                      setIdPago(pago?.payment?.id);
-                    }
-                  }}
-                >
-                  <div className={styles.cell}>
-                    {getDateStrMes(pago?.paid_at) || "-"}
+              {!datas?.payments || datas.payments.length === 0 ? (
+                <EmptyData message="No existe historial de pagos para esta unidad" centered={false} />
+              ) : (
+                datas.payments.slice(0, 4).map((pago: any, index: number) => (
+                  <div 
+                    key={index} 
+                    className={styles.accountRow}
+                    onClick={() => {
+                      if (pago.status === "A") {
+                        setOpenPagar(true);
+                      } else {
+                        setOpenComprobante(true);
+                        setIdPago(pago?.payment?.id);
+                      }
+                    }}
+                  >
+                    <div className={styles.cell}>
+                      {getDateStrMes(pago?.paid_at) || "-"}
+                    </div>
+                    <div className={styles.cell}>Expensa</div>
+                    <div className={styles.cell}>
+                      {pago?.amount && pago?.penalty_amount
+                        ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
+                        : "-"
+                      }
+                    </div>
+                    <div className={styles.cell}>
+                      {pago?.payment?.type === "Q" ? "Qr" :
+                       pago?.payment?.type === "T" ? "Transferencia" :
+                       pago?.payment?.type === "O" ? "Pago en oficina" :
+                       "Sin pago"}
+                    </div>
+                    <div className={`${styles.cell} ${styles.centerCell}`}>
+                      <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}>
+                        {getStatus(pago?.status)}
+                      </span>
+                    </div>
                   </div>
-                  <div className={styles.cell}>Expensa</div>
-                  <div className={styles.cell}>
-                    {pago?.amount && pago?.penalty_amount
-                      ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
-                      : "-"
-                    }
-                  </div>
-                  <div className={styles.cell}>
-                    {pago?.payment?.type === "Q" ? "Qr" :
-                     pago?.payment?.type === "T" ? "Transferencia" :
-                     pago?.payment?.type === "O" ? "Pago en oficina" :
-                     "Sin pago"}
-                  </div>
-                  <div className={`${styles.cell} ${styles.centerCell}`}>
-                    <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}>
-                      {getStatus(pago?.status)}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        {/* Historial de Visitas */}
+        {/* Historial de Visitas Mini Lista */}
         <div className={styles.visitsSection}>
           <div className={styles.visitsHeader}>
             <h3 className={styles.visitsTitle}>Historial de Visitas</h3>
@@ -372,141 +375,143 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <div>Salida</div>
             </div>
             <div className={styles.visitsList}>
-              {datas?.access?.slice(0, 4).map((visita: any, index: number) => (
-                <div key={index} className={styles.visitRow}>
-                  <div className={styles.visitorInfo}>
-                    <Avatar
-                      name={getFullName(visita.visit)}
-                      w={28}
-                      h={28}
-                      className={styles.visitorAvatar}
-                    />
+              {!datas?.access || datas.access.length === 0 ? (
+                <EmptyData message="No existe historial de visitas para esta unidad" centered={false} />
+              ) : (
+                datas.access.slice(0, 4).map((visita: any, index: number) => (
+                  <div key={index} className={styles.visitRow}>
+                    <div className={styles.visitorInfo}>
+                      <Avatar
+                        name={getFullName(visita.visit)}
+                        w={28}
+                        h={28}
+                        className={styles.visitorAvatar}
+                      />
+                      <div>
+                        <p className={styles.visitorName}>
+                          {getFullName(visita.visit)}
+                        </p>
+                        <p className={styles.visitorCI}>
+                          CI: {visita.visit?.ci}
+                        </p>
+                      </div>
+                    </div>
                     <div>
-                      <p className={styles.visitorName}>
-                        {getFullName(visita.visit)}
-                      </p>
-                      <p className={styles.visitorCI}>
-                        CI: {visita.visit?.ci}
-                      </p>
+                      {visita.type === "P" ? "Pedido" :
+                       visita.type === "I" ? "Individual" :
+                       visita.type === "G" ? "Grupal" :
+                       visita.type === "C" ? "Sin Qr" :
+                       <EmptyData />}
+                    </div>
+                    <div>
+                      {getDateTimeStrMes(visita.in_at) || "Sin fecha"}
+                    </div>
+                    <div>
+                      {getDateTimeStrMes(visita.out_at) || "Sin fecha"}
                     </div>
                   </div>
-                  <div>
-                    {visita.type === "P" ? "Pedido" :
-                     visita.type === "I" ? "Individual" :
-                     visita.type === "G" ? "Grupal" :
-                    visita.type === "C" ? "Sin Qr" :
-                    <EmptyData />}
-                 </div>
-                 <div>
-                   {getDateTimeStrMes(visita.in_at) || "Sin fecha"}
-                 </div>
-                 <div>
-                   {getDateTimeStrMes(visita.out_at) || "Sin fecha"}
-                 </div>
-               </div>
-             ))}
-           </div>
-         </div>
-       </div>
-     </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
-     {/* Modales */}
-     <DataModal
-       title="Cambiar de titular"
-       open={openTitular}
-       onSave={onSave}
-       onClose={() => setOpenTitular(false)}
-       buttonText="Guardar"
-     >
-       <div className={styles.modalContent}>
-         <Select
-           placeholder="Selecciona al nuevo titular"
-           name="owner_id" 
-           error={errorsT.owner_id}
-           required={true}
-           value={formState.owner_id}
-           onChange={(e) => setFormState({...formState, [e.target.name]: e.target.value})}
-           options={[]}
-           iconRight={<IconArrowDown />}
-         />
-       </div>
-     </DataModal>
-     {/* 
-     {/* Modales de Historial 
-     {openTitularHist && (
-       <HistoryOwnership
-         ownershipData={datas?.titularHist || []}
-         open={openTitularHist}
-         close={() => setOpenTitularHist(false)}
-       />
-     )}
-     */}
+      {/* Modales */}
+      <DataModal
+        title="Cambiar de titular"
+        open={openTitular}
+        onSave={onSave}
+        onClose={() => setOpenTitular(false)}
+        buttonText="Guardar"
+      >
+        <div className={styles.modalContent}>
+          <Select
+            placeholder="Selecciona al nuevo titular"
+            name="owner_id" 
+            error={errorsT.owner_id}
+            required={true}
+            value={formState.owner_id}
+            onChange={(e) => setFormState({...formState, [e.target.name]: e.target.value})}
+            options={[]}
+            iconRight={<IconArrowDown />}
+          />
+        </div>
+      </DataModal>
 
-     {openPaymentsHist && (
-       <HistoryPayments
-         paymentsData={datas?.payments || []}
-         open={openPaymentsHist}
-         close={() => setOpenPaymentsHist(false)}
-       />
-     )}
+      {/* Modales de Historial */}
+      {openTitularHist && (
+        <HistoryOwnership
+          ownershipData={datas?.titularHist || []}
+          open={openTitularHist}
+          close={() => setOpenTitularHist(false)}
+        />
+      )}
 
-     {openAccesos && (
-       <HistoryAccess 
-         accessData={datas?.access || []}
-         open={openAccesos}
-         close={() => setOpenAccesos(false)}
-       />
-     )}
+      {openPaymentsHist && (
+        <HistoryPayments
+          paymentsData={datas?.payments || []}
+          open={openPaymentsHist}
+          close={() => setOpenPaymentsHist(false)}
+        />
+      )}
 
-     {/* Modales de Acciones 
-     {openPagar && (
-       <Crud
-         mod={mod}
-         data={true}
-         onExist={() => {}}
-         showToast={showToast}
-         open={openPagar}
-         id={id}
-         onClose={() => setOpenPagar(false)}
-         errors={errorsT}
-         setErrors={setErrorsT}
-         actions=""
-         execute={execute}
-         reLoad={reLoad}
-       />
-     )}
+      {openAccesos && (
+        <HistoryAccess 
+          accessData={datas?.access || []}
+          open={openAccesos}
+          close={() => setOpenAccesos(false)}
+        />
+      )}
 
-     {openComprobante && idPago && (
-       <View
-         id={idPago}
-         open={openComprobante}
-         onClose={() => {
-           setOpenComprobante(false);
-           setIdPago(null);
-         }}
-         mod={mod}
-         reLoad={reLoad}
-       />
-     )}
+      {/* Modales de Acciones 
+      {openPagar && (
+        <Crud
+          mod={mod}
+          data
+          onExist={() => {}}
+          showToast={showToast}
+          open={openPagar}
+          id={id}
+          onClose={() => setOpenPagar(false)}
+          errors={errorsT}
+          setErrors={setErrorsT}
+          actions=""
+          execute={execute}
+          reLoad={reLoad}
+        />
+      )}
 
-     {openPerfil && idPerfil && (
-       <ViewPerfil
-         id={idPerfil}
-         open={openPerfil}
-         onClose={() => {
-           setOpenPerfil(false);
-           setIdPerfil(null);
-         }}
-         setData={setDataOw}
-         viewOptions={false}
-         data={dataOw}
-         mod={modRe}
-       />
+      {openComprobante && idPago && (
+        <View
+          id={idPago}
+          open={openComprobante}
+          onClose={() => {
+            setOpenComprobante(false);
+            setIdPago(null);
+          }}
+          mod={mod}
+          reLoad={reLoad}
+        />
+      )}
 
-     )}
-       */}
-   </div>
- );
+      {openPerfil && idPerfil && (
+        <ViewPerfil
+          id={idPerfil}
+          open={openPerfil}
+          onClose={() => {
+            setOpenPerfil(false);
+            setIdPerfil(null);
+          }}
+          setData={setDataOw}
+          viewOptions={false}
+          data={dataOw}
+          mod={modRe}
+        />
+      )}
+      */} 
+    </div>
+  );
 };
 
 export default DashDptos;
