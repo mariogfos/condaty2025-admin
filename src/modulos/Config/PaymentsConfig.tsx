@@ -1,8 +1,10 @@
 import Input from '@/mk/components/forms/Input/Input';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
+import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import { getUrlImages } from '@/mk/utils/string';
 import React from 'react'
 
-const PaymentsConfig = ({formState,onChange,errors}:any) => {
+const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
   return (
     <div className="">
     <p className="text-2xl text-tWhite">
@@ -65,6 +67,28 @@ const PaymentsConfig = ({formState,onChange,errors}:any) => {
           </label>
         </div>
       </div> */}
+        <UploadFile
+                        name="avatar"
+                        onChange={onChange}
+                        value={
+                        formState?.id
+                            ? getUrlImages(
+                                "/PAYMENTQR-" +
+                                formState?.id +
+                                ".png?" +
+                                formState.updated_at
+                            )
+                            : ""
+                        }
+                        setError={setErrors}
+                        error={errors}
+                        img={true}
+                        // editor={{ width: 720, height: 220 }}
+                        sizePreview={{ width: "375px", height: "114px" }}
+                        placeholder="Subir imagen del condominio"
+                        ext={["jpg", "png", "jpeg", "webp"]}
+                        item={formState}
+                    />
       <div className="px-10">
         <TextArea
           label="Observaciones"

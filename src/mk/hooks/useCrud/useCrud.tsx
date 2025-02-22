@@ -626,7 +626,10 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
-          // style: { ...field.form.style, flex: "1" },
+          // style: {
+          //   ...field.form.style,
+          //   ...(field.openTag ? { flex: "1" } : {}),
+          // },
           // tagStyle: field.tagStyle || null,
         };
         if (typeof col.disabled == "function") {
@@ -797,7 +800,10 @@ const useCrud = ({
                   {field.items.map((field: any, index: number) => (
                     <Fragment key={field.key + index}>
                       <RenderField
-                        field={field}
+                        field={{
+                          ...field,
+                          style: { ...field.style, flex: "1" },
+                        }}
                         i={index}
                         formStateForm={formStateForm}
                         setFormStateForm={setFormStateForm}
@@ -822,44 +828,6 @@ const useCrud = ({
                   setErrorForm={setErrorForm}
                 />
               )}
-              {/* {field.onRender ? (
-                field.onRender({
-                  field,
-                  item: field.prepareData
-                    ? field.prepareData(
-                        formStateForm,
-                        field,
-                        field.key,
-                        setFormStateForm
-                      )
-                    : formStateForm,
-                  onChange: onChangeForm,
-                  onBlur: onBlurForm,
-                  error: errorForm,
-                  setItem: setFormStateForm,
-                  extraData: extraData,
-                })
-              ) : (
-                <FormElement
-                  field={field}
-                  item={
-                    field.prepareData
-                      ? field.prepareData(
-                          formStateForm,
-                          field,
-                          field.key,
-                          setFormStateForm
-                        )
-                      : formStateForm
-                  }
-                  i={i}
-                  onChange={onChangeForm}
-                  onBlur={onBlurForm}
-                  error={errorForm}
-                  setError={setErrorForm}
-                  data={{ user, action, mod, extraData }}
-                />
-              )} */}
             </Fragment>
           ))}
         </div>

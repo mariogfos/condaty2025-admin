@@ -56,138 +56,14 @@ const Config = () => {
     if (ci && ci.length > 15) {
       // Update the formState to only include the first 10 characters
       setErrors({ ...errors, payment_transfer_ci: "Máximo 15 caracteres" });
-      setFormState((prevState) => ({
+      setFormState((prevState:any) => ({
         ...prevState,
         payment_transfer_ci: ci.slice(0, 15),
       }));
     }
   }, [formState.payment_transfer_ci]);
 
-  // const onChangeCon = (e) => {
-  //   let value = e.target.value;
-  //   if (e.target.type == "checkbox") {
-  //     value = e.target.checked ? "Y" : "N";
-  //   }
-  //   setFormStateCon({ ...formStateCon, [e.target.name]: value });
-  // };
-  const onChangeFile = (e) => {
-    if (typeSearch != "C") {
-      setPreviewQr(null);
-      setFormState({ ...formState, avatarQr: "" });
-    } else {
-      setPreview(null);
-      setFormState({ ...formState, avatar: "" });
-    }
-    // setPreview(null);
-    // setFormState({ ...formState, avatar: "" });
-    try {
-      const file = e.target.files[0];
-      if (
-        !["png", "jpg", "jpeg"].includes(
-          file.name
-            .toLowerCase()
-            .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2)
-        )
-      ) {
-        showToast("Solo se permiten imágenes", "error");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const { result }: any = e.target;
-
-        let base64String = result.replace("data:", "").replace(/^.+,/, "");
-        base64String = encodeURIComponent(base64String);
-        if (typeSearch != "C") {
-          setPreviewQr(result);
-        } else {
-          setPreview(result);
-        }
-        if (typeSearch != "C") {
-          setFormState({ ...formState, avatarQr: base64String });
-        } else {
-          setFormState({ ...formState, avatar: base64String });
-        }
-      };
-      reader.onerror = (error) => console.log("reader error", error);
-      reader.readAsDataURL(file);
-    } catch (error) {
-      if (typeSearch != "C") {
-        setPreviewQr(null);
-        setFormState({ ...formState, avatarQr: "" });
-      } else {
-        setPreview(null);
-        setFormState({ ...formState, avatar: "" });
-      }
-    }
-  };
-  // const onSave = async () => {
-  //   let err: any = {};
-  //   if (typeSearch == "C") {
-  //     if (!formState?.name) {
-  //       err = { ...err, name: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.address) {
-  //       err = { ...err, address: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.phone) {
-  //       err = { ...err, phone: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.year) {
-  //       err = { ...err, year: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.month) {
-  //       err = { ...err, month: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.initial_amount) {
-  //       err = { ...err, initial_amount: "Este campo es requerido" };
-  //     }
-  //   }
-  //   if (typeSearch == "M") {
-  //     if (!formState?.soft_limit) {
-  //       err = { ...err, soft_limit: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.hard_limit) {
-  //       err = { ...err, hard_limit: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.penalty_percent) {
-  //       err = { ...err, penalty_percent: "Este campo es requerido" };
-  //     }
-  //   }
-  //   if (typeSearch == "P") {
-  //     if (errorImage && !formState?.avatarQr) {
-  //       err = { ...err, avatar: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.payment_transfer_bank) {
-  //       err = { ...err, payment_transfer_bank: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.payment_transfer_account) {
-  //       err = { ...err, payment_transfer_account: "Este campo es requerido" };
-  //     }
-  //     if (!formState?.payment_transfer_name) {
-  //       err = { ...err, payment_transfer_name: "Este campo es requerido" };
-  //     }
-
-  //     if (!formState?.payment_office_obs) {
-  //       err = { ...err, payment_office_obs: "Este campo es requerido" };
-  //     }
-  //     const ci = formState?.payment_transfer_ci;
-  //     if (ci) {
-  //       if (ci.length < 5) {
-  //         err = { ...err, payment_transfer_ci: "Mínimo 5 caracteres" };
-  //       } else if (ci.length > 15) {
-  //         err = { ...err, payment_transfer_ci: "Máximo 15 caracteres" };
-  //       }
-  //     } else {
-  //       err = { ...err, payment_transfer_ci: "Este campo es requerido" };
-  //     }
-  //   }
-
-  //   if (Object.keys(err).length > 0) {
-  //     setErrors(err);
-  //     return;
-  //   }
-
+ 
   //   const { data, error } = await execute(
   //     "/client-config-actualizar",
   //     "PUT",
