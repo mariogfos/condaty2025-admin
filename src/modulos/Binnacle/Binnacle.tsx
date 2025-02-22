@@ -36,12 +36,13 @@ const Binnacle = () => {
         form: { type: "text" },
         list: { },
       },
-      guard_id: {
-        rules: ["required"],
-        api: "ae",
+      guardia: {
+        rules: [""],
+        api: "",
         label: "Guardia",
-        form: { type: "text" },
-        list: { },
+        list: {
+            onRender: (props: any) => {
+            return getFullName(props.item.guardia); }}
       },
       status: {
         rules: [""],
