@@ -1,6 +1,6 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Alerts.module.css";
+import styles from "./Notifications.module.css";
 import { useMemo } from "react";
 import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
