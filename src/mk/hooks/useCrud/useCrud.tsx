@@ -828,44 +828,6 @@ const useCrud = ({
                   setErrorForm={setErrorForm}
                 />
               )}
-              {/* {field.onRender ? (
-                field.onRender({
-                  field,
-                  item: field.prepareData
-                    ? field.prepareData(
-                        formStateForm,
-                        field,
-                        field.key,
-                        setFormStateForm
-                      )
-                    : formStateForm,
-                  onChange: onChangeForm,
-                  onBlur: onBlurForm,
-                  error: errorForm,
-                  setItem: setFormStateForm,
-                  extraData: extraData,
-                })
-              ) : (
-                <FormElement
-                  field={field}
-                  item={
-                    field.prepareData
-                      ? field.prepareData(
-                          formStateForm,
-                          field,
-                          field.key,
-                          setFormStateForm
-                        )
-                      : formStateForm
-                  }
-                  i={i}
-                  onChange={onChangeForm}
-                  onBlur={onBlurForm}
-                  error={errorForm}
-                  setError={setErrorForm}
-                  data={{ user, action, mod, extraData }}
-                />
-              )} */}
             </Fragment>
           ))}
         </div>
