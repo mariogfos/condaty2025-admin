@@ -1,18 +1,17 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Barrios.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import useCrudUtils from "../shared/useCrudUtils";
+import styles from "./Alerts.module.css";
 import { useMemo } from "react";
-import RenderItem from "../shared/RenderItem";
+import { getFullName } from "@/mk/utils/string";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
 
 const mod = {
   modulo: "alerts",
   singular: "alerta",
   plural: "alertas",
-  permiso: "alerts",
+  permiso: "",
   extraData: false,
-  hideActions: { edit: true, del: true, add: true },
+  hideActions: { edit: true, del: true, add: false },
 };
 
 const paramsInitial = {
@@ -21,98 +20,64 @@ const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
-// protected $fillable = [
-//   'level',
-//   'descrip',
-//   'guard_id',
-//   'status',
-//   'client_id',
-// ];
+
+const lLevels = [
+  { id: 1, name: "Alerta Guardias" },
+  { id: 2, name: "Alerta Administradores" },
+  { id: 3, name: "Alerta Residentes" },
+];
+
 const Alerts = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      dpto_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Departamento",
-        list: { width: "430px" },
-        form: { type: "select", optionsExtra: "dptos" },
+      created_at: {
+        rules: [""],
+        api: "",
+        label: "Fecha",
+        list: { width: "160px" },
+        onRender: (props: any) => {
+          return getDateTimeStrMesShort(props.item.created_at);
+        },
       },
-      mun_id: {
+      level: {
         rules: ["required"],
         api: "ae",
-        label: "Municipio",
-        list: { width: "400px" },
-        form: { type: "select", optionsExtra: "muns" },
+        label: "Nivel de alerta",
+        list: { width: "150px" },
+        form: { type: "select", options: lLevels },
       },
-      // local_id: {
-      //   rules: ["required"],
-      //   api: "ae",
-      //   label: "Localidad",
-      //   list: { width: "400px" },
-      //   form: { type: "select", optionsExtra: "locals" },
-      // },
-      name: {
+      descrip: {
         rules: ["required"],
         api: "ae",
-        label: "Barrio",
+        label: "Descripción",
         list: true,
+        form: { type: "text" },
+      },
+      guard_id: {
+        rules: ["required"],
+        api: "ae",
+        label: "Guardia",
+        list: { width: "250px" },
+        onRender: (props: any) => {
+          return getFullName(props.item.guardia);
+        },
         form: { type: "text" },
       },
     }),
     []
   );
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    extraData,
-    findOptions,
-  } = useCrud({
+  const { userCan, List } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name + " - " + item?.code}
-          subtitle={
-            findOptions(item.dpto_id, extraData?.dptos) +
-            " - " +
-            findOptions(item.local_id, extraData?.locals)
-          }
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.roles}>
-      <List onTabletRow={renderItem} actionsWidth="300px" />
+    <div className={styles.style}>
+      <List />
     </div>
   );
 };

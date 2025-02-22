@@ -1,7 +1,9 @@
+"use client";
+import Alerts from "@/modulos/Alerts/Alerts";
 import React from "react";
 
 const alertPage = () => {
-  return <div></div>;
+  return <Alerts />;
 };
 
 export default alertPage;
