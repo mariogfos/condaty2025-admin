@@ -31,7 +31,7 @@ const DptoConfig = ({
           value={
             formState?.id
               ? getUrlImages(
-                  "/CLIENT-" + formState?.id + ".png?" + formState.updated_at
+                  "/CLIENT-" + formState?.id + ".webp?" + formState.updated_at
                 )
               : ""
           }

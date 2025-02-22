@@ -19,7 +19,7 @@ console.log(user,'usrrr')
       <div>
       <Avatar
             src={getUrlImages(
-              "/CLIENT-" + user?.id + ".png?d=" + user?.updated_at
+              "/CLIENT-" + user?.clients[0]?.id + ".webp?d=" + user?.clients[0]?.updated_at
             )}
             name={getFullName(user)}
             w={collapsed ? 48 : 128}
