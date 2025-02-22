@@ -111,7 +111,7 @@ const Users = () => {
         },
       },
       password: {
-        rules: ["required"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -199,7 +199,7 @@ const Users = () => {
         form: {
           type: "select",
           optionsExtra: "roles",
-          optionLabel: "name",
+          optionLabel: "description",
         },
         
         list: { width: "150px",
