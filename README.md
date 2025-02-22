@@ -9,9 +9,9 @@ npm run dev
 # or
 yarn dev11
 # or
-pnpm deva
+pnpm devaaaa
 # or
-bun dev
+bun devaa
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
