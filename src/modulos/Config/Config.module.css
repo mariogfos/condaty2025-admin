@@ -52,11 +52,11 @@ font-size: var(--sL);
         align-items: center;
         flex-direction: column;
         & > section:nth-child(1){
-          background-color: blue;
+          /* background-color: blue; */
 
         };
         & > div:nth-child(2) {
-          background-color: blueviolet;
+          /* background-color: blueviolet; */
           justify-content: flex-start;
           align-self: flex-start;
           flex-direction: row;

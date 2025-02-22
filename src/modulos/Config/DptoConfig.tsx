@@ -178,7 +178,7 @@ const DptoConfig = ({
         required
         value={formState?.initial_amount}
         onChange={onChange}
-        disabled={client_config?.data[0].initial_amount === null ? false : true}
+        // disabled={client_config?.data[0].initial_amount === null ? false : true}
       />
     </>
   );

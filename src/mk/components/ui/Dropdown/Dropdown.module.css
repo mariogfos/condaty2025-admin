@@ -42,7 +42,7 @@
   }
   
   .dropdownMenu p:hover {
-    background-color: #3a9ed959;
+    background-color: var(--cHoverBigSidebar);
     border-radius: 8px;
   }
   

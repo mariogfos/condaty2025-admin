@@ -19,11 +19,11 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
       Configura las acciones que se tomarán con los mororsos de tu
       comunidad
             </div>
-    <div style={{display:'flex',flexDirection:'column'}}>
+    <div style={{display:'flex',flexDirection:'column',marginTop:16}}>
       <div className={styles.boxDefaulter}>
         <section>                  
-              <div >Pre-aviso</div>
-              <div>
+              <div className={styles.textTitle} >Pre-aviso</div>
+              <div className={styles.textSubtitle}>
               Define la cantidad de expensas una vez que se establece el
               período de soft baneo, los morosos que no paguen sus cuotas
               dentro de ese período recibirán notificaciones en la app
@@ -53,8 +53,8 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
 
       <div className={styles.boxDefaulter}>
       <section> 
-                  <div className="text-tWhite text-base">Bloqueo</div>
-                  <div>
+                  <div className={styles.textTitle}>Bloqueo</div>
+                  <div className={styles.textSubtitle}>
                   Define la cantidad de expensas atrasadas puede tener un moroso
                   para que ya no pueda usar la app esta acción bloqueará el
                   acceso de un moroso a la app Condaty de forma permanente.
@@ -82,8 +82,8 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
       <div >
         <div className={styles.boxDefaulter}>
         <section>
-                  <div>Multas por morosidad </div>
-                  <div>
+                  <div className={styles.textTitle}>Multas por morosidad </div>
+                  <div className={styles.textSubtitle}>
                     Configura las multas por morosidad en Condaty y garantiza el
                     cumplimiento de las cuotas mensuales. Con nuestro sistema,
                     puedes establecer el porcentaje de la multa y el número de
@@ -92,11 +92,11 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
         </section>
         </div>
         <div className={styles.boxDefaulter}>
-          <section>
-              <div>
+          <section style={{alignSelf:'flex-start'}}>
+              <div className={styles.textTitle}>
                  Porcentaje de multa por morosidad
                   </div>
-                    <div>
+                    <div className={styles.textSubtitle}>
                     Establece el porcentaje de la multa que se aplicará por cada
                     mes de morosidad.
                   </div>
@@ -119,23 +119,23 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
         </div>
         </div>
 
-        <div className="mt-10 mb-2">
-                    <div className="text-base text-tWhite">
+        <div className={styles.boxDefaulter}>
+          <section style={{alignSelf:'flex-start'}}>
+                    <div className={styles.textTitle}>
                     Meses para empezar a cobrar la multa
                   </div>
-                    <div>
+                    <div className={styles.textSubtitle}>
                       Establece el número de meses que transcurrirán antes de que
                       se comience a cobrar la multa por morosidad.
                   </div>
+                  </section>
         </div>
         <div className="flex gap-5 items-center ">
-                    <div className="text-tWhite text-sm font-light">
-            Número de meses
-                  </div>
-          <div className={styles.inputBoxDefaulter}>
+      
+          <div className={styles.inputBoxDefaulter} style={{marginBottom:'var(--spL)'}}>
             <Input
               type="text"
-              label=""
+              label="Número de meses"
               className="flex items-center"
               name="penalty_limit"
               error={errors}
