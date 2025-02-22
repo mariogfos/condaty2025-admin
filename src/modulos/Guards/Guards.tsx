@@ -15,8 +15,6 @@ import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView";
 
-
-
 const paramsInitial = {
   perPage: 10,
   page: 1,
@@ -25,9 +23,8 @@ const paramsInitial = {
 };
 
 const Guards = () => {
-  
   const mod: ModCrudType = {
-    modulo: "guard",
+    modulo: "guards",
     singular: "Guardia",
     plural: "Guardias",
     filter: true,
@@ -51,9 +48,7 @@ const Guards = () => {
     // }) => <RenderForm {...props} />,
     extraData: true,
     // hideActions: { add: true },
-   
   };
-
 
   const fields = useMemo(() => {
     return {
@@ -69,7 +64,10 @@ const Guards = () => {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/GUARD-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/GUARD-" +
+                    item?.item?.id +
+                    ".webp?d=" +
+                    item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
                 square
@@ -121,39 +119,45 @@ const Guards = () => {
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
-        form:{type:"number" ,label:"Cédula de identidad",
-          onRender:(props:any)=>{
-            console.log(props,'propsval')
+        form: {
+          type: "number",
+          label: "Cédula de identidad",
+          onRender: (props: any) => {
+            console.log(props, "propsval");
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
-                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al guardia si el carnet no existe ,continúa con el proceso de registro
+                  <div>
+                    Ingrese el número de carnet y haga click fuera del campo
+                    para que el sistema busque automáticamente al guardia si el
+                    carnet no existe ,continúa con el proceso de registro
                   </div>
-
                 </div>
-          <div>
-          <Input 
-            name="ci"
-            value={props?.item?.ci}
-            onChange={props.onChange}
-            label="Carnet de Identidad"
-            error={props.error}
-            disabled={props?.field?.action === 'edit'}
-          />
-       { props?.field?.action === 'add' && (
-            <InputPassword 
-            name="password"
-            value={props?.item?.password}
-            onChange={props.onChange}
-            label="Contraseña"
-            error={props.error}
-          />)}
-          </div>
-          </fieldset>)}
+                <div>
+                  <Input
+                    name="ci"
+                    value={props?.item?.ci}
+                    onChange={props.onChange}
+                    label="Carnet de Identidad"
+                    error={props.error}
+                    disabled={props?.field?.action === "edit"}
+                  />
+                  {props?.field?.action === "add" && (
+                    <InputPassword
+                      name="password"
+                      value={props?.item?.password}
+                      onChange={props.onChange}
+                      label="Contraseña"
+                      error={props.error}
+                    />
+                  )}
+                </div>
+              </fieldset>
+            );
+          },
         },
-        
+
         list: { width: "120px" },
       },
       name: {
@@ -162,54 +166,48 @@ const Guards = () => {
         label: "Primer nombre",
         form: {
           type: "text",
-          style:{width:"49%"}
-        
+          style: { width: "49%" },
         },
-       
+
         list: false,
       },
       middle_name: {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text" ,
-          style:{maxWidth:"49%"}
-        },
+        form: { type: "text", style: { maxWidth: "49%" } },
         list: false,
       },
       last_name: {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text",style:{width:"49%"} },
+        form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style:{width:"49%"} },
+        form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       phone: {
-        
         api: "ae",
         label: "Celular",
         form: { type: "text" },
-        list: {width:"110px"},
-        
-        },
+        list: { width: "110px" },
+      },
       email: {
-        rules: ["required","email"],
+        rules: ["required", "email"],
         api: "ae",
         label: "Correo electrónico",
         form: {
           type: "text",
-    
         },
         list: { width: "180px" },
       },
-     
+
       address: {
         rules: [""],
         api: "ae",
