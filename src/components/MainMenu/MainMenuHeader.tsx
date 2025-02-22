@@ -19,7 +19,7 @@ console.log(user,'usrrr')
       <div>
       <Avatar
             src={getUrlImages(
-              "/ADM-" + user?.id + ".png?d=" + user?.updated_at
+              "/CLIENT-" + user?.id + ".png?d=" + user?.updated_at
             )}
             name={getFullName(user)}
             w={collapsed ? 48 : 128}
@@ -38,9 +38,9 @@ console.log(user,'usrrr')
       </div> */}
       {!collapsed && (
         <div>
-          <p>{getFullName(user)}</p>
-          <p style={{color: "var(--cBlackV2)"}}>{user?.role?.name}</p>
-          <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p>
+          {/* <p>{getFullName(user)}</p> */}
+          <p style={{color: "var(--cWhite)"}}>{user?.clients[0]?.name}</p>
+          {/* <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p> */}
         </div>
       )}
     </div>
