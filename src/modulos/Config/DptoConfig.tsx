@@ -5,6 +5,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages } from "@/mk/utils/string";
 import React from "react";
+import styles from "./Config.module.css"
 
 const DptoConfig = ({
   formState,
@@ -43,36 +44,7 @@ const DptoConfig = ({
           ext={["jpg", "png", "jpeg", "webp"]}
           item={formState}
         />
-        {/* <div className="bg-darkv2 w-[375px] h-[114px] relative rounded-md">
-                {(!imageError || preview) && (
-                  <img
-                    alt="Imagen"
-                    className="rounded-lg object-cover max-w-[375px] max-h-[114px] w-full h-full"
-                    src={
-                      preview ||
-                      getUrlImages(
-                        "/CLIENT-" +
-                          formState?.id +
-                          ".png?d=" +
-                          new Date().toISOString()
-                      )
-                    }
-                    onError={() => setImageError(true)}
-                  />
-                )}
-                <label
-                  htmlFor="imagePerfil"
-                  className="absolute right-5 -bottom-3 tablet:-right-3 rounded-full bg-accent text-tBlack p-2 dark:text-tWhite"
-                >
-                  <IconCamera className="text-tBlack" />
-                </label>
-                <input
-                  type="file"
-                  id="imagePerfil"
-                  className="hidden"
-                  onChange={onChangeFile}
-                />
-              </div> */}
+      
       </div>
       <Input
         label={"Nombre del condominio"}
@@ -95,7 +67,6 @@ const DptoConfig = ({
           { id: "U", name: "Urbanización" },
         ]}
         required
-        //   icon={<IconArrowDown className="text-lightColor" />}
         className="appearance-none"
       ></Select>
       <Select
@@ -111,7 +82,6 @@ const DptoConfig = ({
           { id: "L", name: "Lote" },
         ]}
         required
-        //   icon={<IconArrowDown className="text-lightColor" />}
         className="appearance-none"
       ></Select>
       <Input
@@ -148,12 +118,12 @@ const DptoConfig = ({
         onChange={onChange}
         value={formState?.description}
       />
-      <div>
-        <p className="text-tWhite">Fecha de inicio de cobro de expensas</p>
-        <p className="text-lightv3 text-xs">
+      <div className={styles.marginY}>
+        <p className={styles.textTitle}>Fecha de inicio de cobro de expensas</p>
+        <p className={styles.textSubtitle}>
           ¿Cuándo quieres que empiece el sistema a cobrar las expensas?
         </p>
-        <p className="text-lightv3 text-xs">
+        <p className={styles.textSubtitle}>
           Esta configuración es importante para que el sistema pueda calcular
           correctamente las cuotas adeudadas por los residentes.
         </p>
@@ -179,7 +149,6 @@ const DptoConfig = ({
           { id: "12", name: "Diciembre" },
         ]}
         required
-        //   icon={<IconArrowDown className="text-lightColor" />}
         className="appearance-none"
       ></Select>
 
@@ -196,7 +165,7 @@ const DptoConfig = ({
         <p className="text-tWhite">
           Ingresa el monto con el que inicia el condominio
         </p>
-        <p className="text-lightv3 text-xs">
+        <p className={styles.textSubtitle}>
           Esta configuración es importante para que el sistema pueda tomar en
           cuenta con qué monto ingresa el condominio.
         </p>

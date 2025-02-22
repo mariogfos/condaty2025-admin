@@ -3,3 +3,16 @@
     width: 400px;
    }
 }
+
+.textTitle {
+color: var(--cWhite);
+
+}
+.textSubtitle {
+  color: var(--cWhiteV2);
+}
+
+.marginY{
+    margin-top: var(--spL);
+    margin-bottom: var(--spL);
+}
