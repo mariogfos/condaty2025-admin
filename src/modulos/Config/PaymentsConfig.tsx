@@ -3,70 +3,36 @@ import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
 import { getUrlImages } from '@/mk/utils/string';
 import React from 'react'
+import styles from './Config.module.css'
 
 const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
   return (
     <div className="">
-    <p className="text-2xl text-tWhite">
+   <section className={styles.marginY}>
+    <div className={styles.textTitle}>
       Medios de pagos que podrán usar los residentes
-    </p>
-    <p className="text-sm text-lightv3 mb-9">
+    </div>
+    <div className={styles.textSubtitle}>
       Configura los medios de pago que tendrán tus residentes para
       realizar sus pagos de deudas
-    </p>
-    <div className="border border-[#868686] rounded-lg relative mt-5 laptopL:mx-40 py-7">
-      <p className="text-center absolute text-tWhite bg-[#292929] -top-4 left-4 font-black text-lg">
+    </div>
+    </section>
+    <div className={styles.borderBox}>
+      <section className={styles.marginY}>
+      <div className={styles.textTitle}>
         Datos del Qr
-      </p>
+      </div>
       <div className="px-10 my-6">
         {" "}
-        <p className="text-lightv3 text-xs">
+        <div className={styles.textSubtitle}>
           Te recomendamos subir un código QR en la plataforma sin monto
           específico. Esto facilitará la gestión de pagos y garantizará
           un proceso más eficiente.
-        </p>
-      </div>
-      {/* <div className="flex justify-center mb-4">
-        <div>
-          <div className="w-[160px] h-[160px] bg-slate-950 rounded-lg my-4 relative ">
-            {(!errorImage || previewQr) && (
-              <img
-                alt="Imagen"
-                className="object-contain  w-[160px] h-[160px] rounded-lg"
-                src={
-                  previewQr ||
-                  getUrlImages(
-                    "/PAYMENTQR-" +
-                      user?.client_id +
-                      ".png?d=" +
-                      new Date().toISOString()
-                  )
-                }
-                onError={() => {
-                  setErrorImage(true);
-                }}
-              />
-            )}
-          </div>
-          {errors.avatar != "" && (
-            <p className={`px-2 my-4 text-xs mt-1 text-red-600`}>
-              {errors.avatar}
-            </p>
-          )}
-          <label htmlFor="imagePerfil">
-             <IconCamera className="absolute -top-3 -right-3 w-6 h-6 text-primary rounded-full bg-black p-1 border border-primary/50" /> 
-            <p className="text-center bg-accent rounded-md text-xs py-1 font-semibold">
-              Subir Qr
-            </p>
-            <input
-              type="file"
-              id="imagePerfil"
-              className="hidden"
-              onChange={onChangeFile}
-            />
-          </label>
         </div>
-      </div> */}
+        
+      </div>
+      </section>
+
         <UploadFile
                         name="avatar"
                         onChange={onChange}
@@ -98,10 +64,10 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
         />
       </div>
     </div>
-    <div className="border border-[#868686] rounded-lg relative mt-5 laptopL:mx-40 py-7">
-      <p className="text-center absolute text-tWhite bg-[#292929] -top-4 left-4 font-black text-lg">
+    <div className={styles.borderBox}>
+      <div className={styles.textTitle} style={{marginBottom:'var(--spS)'}}>
         Datos de Transferencia Bancaria
-      </p>
+      </div>
       <div className="mt-5 px-10">
         <Input
           type="text"
@@ -147,10 +113,10 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
         />
       </div>
     </div>
-    <div className="border border-[#868686] rounded-lg relative my-5 laptopL:mx-40 py-7">
-      <p className="text-center absolute text-tWhite bg-[#292929] -top-4 left-4 font-black text-lg">
+    <div className={styles.borderBox} style={{marginBottom:'var(--spL)'}} >
+      <div className={styles.textTitle} style={{marginBottom:'var(--spS)'}}>
         Datos de Pago en oficina
-      </p>
+      </div>
       <div className="mt-5 px-10">
         <TextArea
           label="Detalles y requisitos"

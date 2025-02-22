@@ -161,8 +161,8 @@ const DptoConfig = ({
         value={formState?.year}
         onChange={onChange}
       />
-      <div className="my-5">
-        <p className="text-tWhite">
+      <div className={styles.marginY}>
+        <p className={styles.textTitle}>
           Ingresa el monto con el que inicia el condominio
         </p>
         <p className={styles.textSubtitle}>

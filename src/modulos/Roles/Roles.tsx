@@ -91,36 +91,23 @@ const Roles = () => {
         list: true,
         form: { type: "text" },
       },
-      // level: {
-      //   rules: ["required", "numeric"],
-      //   api: "ae",
-      //   label: "Nivel",
-      //   onRender: levelRender,
-      //   list: { width: "110" },
-      //   form: {
-      //     type: "select",
-      //     order: 2,
-      //     options: arrayToSelect(lLevel, user?.role?.level),
-      //   },
-      // },
+
 
       area_id:{
         rules: [],
         api: "ae",
         label: "Áreas",
-        list: true,
+        list: {
+          onRender:(props:any)=>{
+            // console.log(props.extraData.role_categories[props.item.rolecategory_id].name,'propsssssdasdadds')
+            return props.extraData.role_categories[props.item.rolecategory_id].name
+          }
+        },
         form: {
                type: "select",
                optionsExtra: "role_categories",               
              },
-        // onRender:(item:any)=>{
-          
-        //   const area = item?.extraData?.areas?.find((i:any)=> i.id === item.item.area_id);
-        //   return area?.name},
-        //   onRenderView: (i:any)=>{console.log(i,'item area');
-        //     const area  = i?.extraData?.areas?.find((j:any)=> j.id === i.item.area_id);
-        //     return <div style={{display:"flex",justifyContent:"center",fontSize:"var(--spM)",gap:8}}><div style={{flex:1,textAlign:"end"}}>Área</div><div style={{flex:1,color:"var(--cWhite)"}}>{area?.name}</div></div>
-        //   }
+ 
         },
       abilities: {
         rules: [],
@@ -174,7 +161,7 @@ const Roles = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.roles}>
+    <div className={styles.Roles}>
       <List onTabletRow={renderItem} actionsWidth="300px" />
     </div>
   );
