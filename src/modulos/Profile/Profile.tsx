@@ -89,10 +89,11 @@ const Profile = () => {
   };
 
   const onSave = async () => {
-    if (!userCan("profile", "U")) {
+    /*if (!userCan("profile", "U")) {
       showToast("No tienes permisos para realizar esta acción", "error");
       return;
     }
+    */
     
     if (hasErrors(validate())) return;
 
