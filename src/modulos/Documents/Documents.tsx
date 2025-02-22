@@ -62,16 +62,16 @@ const Documents = () => {
         form: { type: "fileUpload", style: { width: "100%" } },
         
       },
-      ext: {
-        rules: [""],
-        api: "ae*",
-        label: "Extensión",
-        form: { type: "text" },
-      },
+      // ext: {
+      //   rules: [""],
+      //   // api: ,"ae*"
+      //   label: "Extensión",
+      //   // form: { type: "text" },
+      // },
       position: {
         rules: ["required"],
         api: "ae*",
-        label: "Posición",
+        label: "Orden",
         form: { type: "text" },
       },
     }),
