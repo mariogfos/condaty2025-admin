@@ -35,7 +35,6 @@ const Owners = () => {
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
     extraData: true,
-    search: false,
   };
 
   const fields = useMemo(() => {

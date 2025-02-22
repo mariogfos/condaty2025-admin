@@ -849,7 +849,7 @@ const useCrud = ({
 
       return (
         <nav>
-          {!(mod.search === false || mod.search?.hide === true) && (
+          {mod.search && mod.search.hide ? null : (
             <div>
               {
                 <DataSearch
