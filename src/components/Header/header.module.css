@@ -1,92 +1,120 @@
 .header-desktop {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
   align-items: center;
-  background-color: var(--cBlack);
-  height: 75px;
-  padding-top: var(--spS);
-  padding-bottom: var(--spS);
-  padding-right: 24px;
-  padding-left: 24px;
-  gap: var(--spM);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 24px;
-
-  & > div:nth-child(1) {
-    flex-grow: 1;
-
-    & > div {
-      font-size: var(--sXxl);
-      color: var(--cWhite);
-      font-weight: bolder;
-    }
-
-    & > span {
-      font-size: var(--sL);
-      color: var(--cWhiteV3);
-    }
-  }
-
-  & > div:nth-child(2) {
-    flex-shrink: 1;
-  }
-
-  & > div:nth-child(3) {
-    flex-shrink: 1;
-    display: flex;
-    align-items: center;
-  }
+  gap: 1rem;
+  width: 100%;
+  height: 72px; /* Aumentado para dar más espacio vertical */
+  background-color: var(--darkv1, --cBlackV1);
+  padding: 0 2rem; /* Aumentado el padding horizontal también */
 }
 
 .header-title {
-  width: 100%;
-  & > p:nth-child(2) {
-    margin-top: var(--spS);
-    margin-bottom: "var(--spXs)";
-    font-size: "var(--sL)";
-  }
-
-  & > p:nth-child(3) {
-    color: var(--cWhiteV2);
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Contenedor del tooltip */
+.header-title p {
+  color: var(--lightColor,--cWhite);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.header-title p:last-child {
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: var(--lightv3, --cWhiteV1);
+}
+
 .tooltip {
   position: relative;
-  display: inline-block;
 }
 
-/* Texto del tooltip */
-.tooltiptext {
-  visibility: hidden;
-  width: max-content;
-  background-color: var(--cWhite); /* Fondo semitransparente */
-  color: var(--cBlack);
-  text-align: center;
-  padding: 5px 8px;
-  border-radius: 4px;
+.headerRightContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-  /* Posición del tooltip */
+/* Contenedor exterior con fondo oscuro */
+.iconOuterContainer {
+  width: 56px;
+  height: 56px;
+  background-color: var(--darkv2, --cBlackV2);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px; /* Añadido margen horizontal */
+}
+
+/* Estilos para el contenedor de notificaciones */
+.notificationContainer {
+  width: 44px;
+  height: 44px;
+  background-color: var(--lightColor, --cWhite);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor del icono de perfil */
+.profileContainer {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilos para el icono de notificación */
+.notificationIcon {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--darkv2, #1c1c1c);
+  cursor: pointer;
+}
+
+/* Estilos para el indicador de notificaciones */
+.notificationBadge {
   position: absolute;
-  z-index: 1;
-  top: 110%; /* Ajusta el valor según sea necesario */
-  left: 50%;
-  transform: translateX(-50%);
-  
-  /* Efecto de transición */
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Muestra el tooltip al hacer hover */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-.active {
-  background-color: var(--cBlackV1);
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--error, --cError);
   color: white;
-  border-radius: 8px;
+  border-radius: 50%;
+  font-size: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .header-desktop {
+    padding: 0 1rem;
+    height: 64px;
+  }
+
+  .iconOuterContainer {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .notificationContainer, .profileContainer {
+    width: 38px;
+    height: 38px;
+  }
 }

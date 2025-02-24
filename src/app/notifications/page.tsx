@@ -2,7 +2,7 @@ import Notifications from '@/modulos/Notifications/Notifications';
 import React from 'react'
 
 const notifications = () => {
-  return <Notifications />
+  return <Notifications/>
 }
 
 export default notifications;
