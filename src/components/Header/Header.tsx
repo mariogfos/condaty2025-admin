@@ -44,7 +44,7 @@ const Header = ({
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
-    { name: "permisos", route: "/rolesabilities" },
+    { name: "Permisos", route: "/rolesabilities" },
     // { name: "Metas", route: "/goals" },
     // { name: "Gamificación", route: "/gamification" },
   ];
