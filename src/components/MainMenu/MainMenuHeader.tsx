@@ -22,7 +22,7 @@ console.log(user,'usrrr')
               "/CLIENT-" + user?.clients[0]?.id + ".webp?d=" + user?.clients[0]?.updated_at
             )}
             name={getFullName(user)}
-            w={collapsed ? 48 : 128}
+            w={collapsed ? 48 : 210}
             h={collapsed ? 48 : 128}
            style={{borderRadius:8}}
           />
