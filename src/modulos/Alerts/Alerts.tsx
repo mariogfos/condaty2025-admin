@@ -11,7 +11,7 @@ const mod = {
   plural: "alertas",
   permiso: "",
   extraData: false,
-  hideActions: { edit: true, del: true, add: false },
+  hideActions: { edit: true, del: true, add: true },
 };
 
 const paramsInitial = {
