@@ -100,7 +100,7 @@ const Dptos = () => {
         list:
         {
           onRender: (props: any) => {
-            return (getFullName(props?.item?.homeowners) || 'Sin propietario')
+            return (getFullName(props?.item?.homeowner) || 'Sin propietario')
           }
         },
       },

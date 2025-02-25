@@ -419,26 +419,25 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       {/* Modales */}
       <DataModal
-        title="Cambiar de titular"
-        open={openTitular}
-        onSave={onSave}
-        onClose={() => setOpenTitular(false)}
-        buttonText="Guardar"
-      >
-        <div className={styles.modalContent}>
-          <Select
-            placeholder="Selecciona al nuevo titular"
-            name="owner_id" 
-            error={errorsT.owner_id}
-            required={true}
-            value={formState.owner_id}
-            onChange={(e) => setFormState({...formState, [e.target.name]: e.target.value})}
-            options={[]}
-            iconRight={<IconArrowDown />}
-          />
-        </div>
-      </DataModal>
-
+  title="Cambiar de titular"
+  open={openTitular}
+  onSave={onSave}
+  onClose={() => setOpenTitular(false)}
+  buttonText="Guardar"
+>
+  <div className={styles.modalContent}>
+  <Select
+  placeholder="Selecciona al nuevo titular"
+  name="owner_id"
+  error={errorsT.owner_id}
+  required={true}
+  value={formState.owner_id || ''}
+  onChange={(e) => setFormState({...formState, owner_id: e.target.value})}
+  options={datas?.owners || []} // Corregido: datas.owners en lugar de datas.data.owners
+  iconRight={<IconArrowDown />}
+/>
+  </div>
+</DataModal>
       {/* Modales de Historial */}
       {openTitularHist && (
         <HistoryOwnership
