@@ -23,9 +23,9 @@ const paramsInitial = {
 };
 
 const lLevels = [
-  { id: 1, name: "Alerta Guardias" },
-  { id: 2, name: "Alerta Administradores" },
-  { id: 3, name: "Alerta Residentes" },
+  { id: 1, name: "Alto" },
+  { id: 2, name: "Medio" },
+  { id: 3, name: "Bajo" },
 ];
 
 const Alerts = () => {
