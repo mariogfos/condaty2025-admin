@@ -4,41 +4,7 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Documents.module.css";
 import { getUrlImages } from "@/mk/utils/string";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-
-// Definición de tipos para TypeScript
-interface DocumentFile {
-  ext: string;
-}
-
-interface DocumentItem {
-  id: number | string;
-  name: string;
-  descrip: string;
-  for_to: string;
-  doc?: DocumentFile;
-  ext?: string;
-  position: number | string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DetailViewProps {
-  open: boolean;
-  onClose: () => void;
-  item: any;
-  execute: (
-    url: string,
-    method: string,
-    data: any,
-    refresh?: boolean,
-    noWaiting?: boolean
-  ) => Promise<any>;
-  extraData: Record<string, any>;
-  onEdit?: (item: DocumentItem) => void;
-  onDel?: (item: DocumentItem) => void;
-}
 
 const lOptions = [
   { id: "O", name: "Residentes" },
