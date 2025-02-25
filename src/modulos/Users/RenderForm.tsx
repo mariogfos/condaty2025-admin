@@ -4,6 +4,10 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState } from "react";
+import styles from "./Users.module.css"
+import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const RenderForm = ({
   open,
@@ -24,6 +28,7 @@ const RenderForm = ({
 
     setFormState({ ...formState, [e.target.name]: value });
   };
+  
   const validate = () => {
     let errors: any = {};
 
@@ -51,6 +56,12 @@ const RenderForm = ({
       key: "mother_last_name",
       errors,
     });
+    errors = checkRules({
+      value: formState.role_id,
+      rules: ["required"],
+      key: "role_id",
+      errors,
+      });
     errors = checkRules({
       value: formState.ci,
       rules: ["required"],
@@ -125,6 +136,7 @@ const RenderForm = ({
   //   }
   //   console.log(extraData.roles);
   // };
+  console.log(item,'item')
   return (
     <DataModal
       open={open}
@@ -132,6 +144,45 @@ const RenderForm = ({
       title="Editar administrador"
       onSave={onSave}
     >
+
+  
+                <Avatar
+                  src={getUrlImages(
+                    "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  )}
+                  name={getFullName(item.item)}
+                  square
+                />
+
+              
+<fieldset className={styles.fieldSet}>
+                <div>
+                  <div>Información de acceso</div>
+                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
+                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+                  </div>
+
+                </div>
+          <div>
+          <Input 
+            name="ci"
+            value={formState.ci}
+            onChange={handleChange}
+            label="Carnet de Identidad"
+            error={errors}
+            // disabled={props?.field?.action === 'edit'}
+          />
+         {/* { props?.field?.action === 'add' && ( */}
+            <InputPassword 
+            name="password"
+            value={formState.password}
+            onChange={handleChange}
+            label="Contraseña"
+            error={errors}
+          />
+           {/* )} */}
+          </div>
+          </fieldset>
       <Input
         label="Primer nombre"
         name="name"
@@ -165,7 +216,7 @@ const RenderForm = ({
         name="role_id"
         value={formState.role_id}
         options={extraData?.roles}
-        disabled
+        // disabled
         optionLabel="name"
         onChange={handleChange}
         error={errors}

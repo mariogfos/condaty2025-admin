@@ -1,5 +1,7 @@
-'use client'
+"use client";
+import Button from "@/mk/components/forms/Button/Button";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import { Card } from "@/mk/components/ui/Card/Card";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEffect, useState } from "react";
 
@@ -9,6 +11,7 @@ const Permisos = ({
   setItem,
   options = [],
   error = {},
+  extraData = { categories: [{ id: 1, name: "General" }] },
 }: any) => {
   const [permisos, setPermisos]: any = useState([]);
   const { user } = useAuth();
@@ -16,6 +19,22 @@ const Permisos = ({
   const onSelAll = (e: any) => {
     const { name, checked } = e.target;
     setPermisos({ ...permisos, [name]: checked ? "CRUD" : "" });
+  };
+
+  const onSelAllCat = (catId: number) => {
+    const per = permisos;
+    let llenar = "CRUD";
+    options.map((item: any) => {
+      if (item.rolcategory_id == catId && per[item.name]) {
+        llenar = "";
+      }
+    });
+    options.map((item: any) => {
+      if (item.rolcategory_id == catId) {
+        per[item.name] = llenar;
+      }
+    });
+    setPermisos({ ...permisos, ...per });
   };
 
   useEffect(() => {
@@ -62,76 +81,154 @@ const Permisos = ({
     }
     setPermisos({ ...permisos, [perm[0]]: value });
   };
+
+  const isCRUD = (item: any) => {
+    return (
+      (permisos[item.name] + "").indexOf("C") > -1 &&
+      (permisos[item.name] + "").indexOf("R") > -1 &&
+      (permisos[item.name] + "").indexOf("U") > -1 &&
+      (permisos[item.name] + "").indexOf("D") > -1
+    );
+  };
+  console.log(extraData,'extradatattatataat')
   return (
-    <fieldset>
-      <legend>Permisos</legend>
-      {options?.map((item: any) => (
-        <div key={item.name}>
-          <div>
-            <span>{item.description}</span>
+    <div>
+      {/* <legend>Permisos</legend> */}
+
+      {extraData?.categories?.map((cat: any) => (
+        <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              color: "var(--cWhite)",
+              fontWeight: "bold",
+            }}
+          >
+            <div>{cat.name}</div>
             {setItem && (
-              <span>
-                Seleccionar todo{" "}
-                <input
-                  type="checkbox"
-                  className="ml-16 mobileM:ml-28 mobileL:ml-2"
-                  name={item.name}
-                  onClick={onSelAll}
-                  value={1}
-                  checked={permisos[item.name] == "CRUD"}
-                />
-              </span>
+              <div>
+                <Button
+                  small
+                  onClick={() => onSelAllCat(cat.id)}
+                  variant="terciary"
+                >
+                  Todos
+                </Button>
+              </div>
             )}
           </div>
-          <div>
-            <div>
-              Leer
-              <Switch
-                name={item.name + "_R"}
-                checked={(permisos[item.name] + "").indexOf("R") > -1}
-                onChange={onSelItem}
-                optionValue={["Y", "N"]}
-                value={(permisos[item.name] + "").indexOf("R") > -1 ? "Y" : "N"}
-                disabled={setItem ? false : true}
-              />
-            </div>
-            <div>
-              Crear
-              <Switch
-                name={item.name + "_C"}
-                checked={(permisos[item.name] + "").indexOf("C") > -1}
-                onChange={onSelItem}
-                optionValue={["Y", "N"]}
-                value={(permisos[item.name] + "").indexOf("C") > -1 ? "Y" : "N"}
-                disabled={setItem ? false : true}
-              />
-            </div>
-            <div>
-              Modificar
-              <Switch
-                name={item.name + "_U"}
-                checked={(permisos[item.name] + "").indexOf("U") > -1}
-                onChange={onSelItem}
-                optionValue={["Y", "N"]}
-                value={(permisos[item.name] + "").indexOf("U") > -1 ? "Y" : "N"}
-                disabled={setItem ? false : true}
-              />
-            </div>
-            <div>
-              Eliminar
-              <Switch
-                name={item.name + "_D"}
-                checked={(permisos[item.name] + "").indexOf("D") > -1}
-                onChange={onSelItem}
-                optionValue={["Y", "N"]}
-                value={(permisos[item.name] + "").indexOf("D") > -1 ? "Y" : "N"}
-                disabled={setItem ? false : true}
-              />
-            </div>
-          </div>
-        </div>
+          {options
+            ?.filter((o: any) => o.rolcategory_id == cat.id)
+            .map((item: any) => (
+              <Card
+                key={item.id}
+                style={{
+                  backgroundColor: "var(--cBlackV4",
+                  border: "1px solid var(--cWhiteV3)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    justifyItems: "center",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{ color: "var(--cWhite)", marginBottom: "8px" }}
+                    >
+                      {item.description}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        color: "var(cWhiteV2)",
+                      }}
+                    >
+                      <span>
+                        <input
+                          type="checkbox"
+                          name={item.name + "_R"}
+                          checked={(permisos[item.name] + "").indexOf("R") > -1}
+                          onClick={onSelItem}
+                          value={
+                            (permisos[item.name] + "").indexOf("R") > -1
+                              ? "Y"
+                              : "N"
+                          }
+                          disabled={!setItem}
+                        />{" "}
+                        Ver
+                      </span>
+                      <span>
+                        <input
+                          type="checkbox"
+                          name={item.name + "_C"}
+                          checked={(permisos[item.name] + "").indexOf("C") > -1}
+                          onClick={onSelItem}
+                          value={
+                            (permisos[item.name] + "").indexOf("C") > -1
+                              ? "Y"
+                              : "N"
+                          }
+                          disabled={!setItem}
+                        />{" "}
+                        Crear
+                      </span>
+                      <span>
+                        <input
+                          type="checkbox"
+                          name={item.name + "_U"}
+                          checked={(permisos[item.name] + "").indexOf("U") > -1}
+                          onClick={onSelItem}
+                          value={
+                            (permisos[item.name] + "").indexOf("U") > -1
+                              ? "Y"
+                              : "N"
+                          }
+                          disabled={!setItem}
+                        />{" "}
+                        Editar
+                      </span>
+                      <span>
+                        <input
+                          type="checkbox"
+                          name={item.name + "_D"}
+                          checked={(permisos[item.name] + "").indexOf("D") > -1}
+                          onClick={onSelItem}
+                          value={
+                            (permisos[item.name] + "").indexOf("D") > -1
+                              ? "Y"
+                              : "N"
+                          }
+                          disabled={!setItem}
+                        />{" "}
+                        Eliminar
+                      </span>
+                    </div>
+                  </div>
+
+                  {setItem && (
+                    <Switch
+                      name={item.name}
+                      onChange={onSelAll}
+                      optionValue={["Y", "N"]}
+                      value={isCRUD(item) ? "Y" : "N"}
+                      checked={isCRUD(item)}
+                    />
+                  )}
+                </div>
+              </Card>
+            ))}
+        </Card>
       ))}
-    </fieldset>
+      {/* {options?.map((item: any) => (
+
+      ))} */}
+    </div>
   );
 };
 

@@ -93,22 +93,22 @@ const Roles = () => {
       },
 
 
-      area_id:{
-        rules: [],
-        api: "ae",
-        label: "Áreas",
-        list: {
-          onRender:(props:any)=>{
-            // console.log(props.extraData.role_categories[props.item.rolecategory_id].name,'propsssssdasdadds')
-            return props.extraData.role_categories[props.item.rolecategory_id].name
-          }
-        },
-        form: {
-               type: "select",
-               optionsExtra: "role_categories",               
-             },
+      // area_id:{
+      //   rules: [],
+      //   api: "ae",
+      //   label: "Áreas",
+      //   list: {
+      //     onRender:(props:any)=>{
+      //       // console.log(props.extraData.role_categories[props.item.rolecategory_id].name,'propsssssdasdadds')
+      //       return props.extraData.role_categories[props.item.rolecategory_id].name
+      //     }
+      //   },
+      //   form: {
+      //          type: "select",
+      //          optionsExtra: "role_categories",               
+      //        },
  
-        },
+      //   },
       abilities: {
         rules: [],
         api: "ae",
