@@ -181,7 +181,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--lightv3);
+  color: var(--cBlack);
   background-color: var(--darkv2);
   border-radius: 16px;
   height: 40px;
