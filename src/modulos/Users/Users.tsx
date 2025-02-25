@@ -124,7 +124,7 @@ const Users = () => {
         // form: { type: "text", disabled: true, label: "2222" },
         form:{type:"number" ,label:"Cédula de identidad",
           onRender:(props:any)=>{
-            console.log(props,'propsval')
+            // console.log(props,'propsval')
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
@@ -200,28 +200,30 @@ const Users = () => {
           type: "select",
           optionsExtra: "roles",
           optionLabel: "description",
+          optionValue:"id",
+          
         },
         
-        list: { width: "150px",
-            onRender:(props:any)=>{ 
-              
-              return <div>{props?.item?.role[0]?.description}</div>}
-         },
-        filter: {
-          label: "Filtrar por Rol",
-          width: "200px",
-          options: (extraData: any) => {
-            // console.log(extraData, "extraData");
-            let data: any = [{ id: "T", name: "Todos" }];
-            extraData?.roles?.map((c: any) => {
-              data.push({
-                id: c.id,
-                name: c.name,
-              });
-            });
-            return data;
-          },
-        },
+        // list: { width: "150px",
+        //     onRender:(props:any)=>{ 
+        //       return <div>{'pa'}</div>}
+        //  },
+        // filter: {
+        //   label: "Filtrar por Rol",
+        //   width: "200px",
+        //   options: (extraData: any) => {
+        //     // console.log(extraData, "extraData");
+        //     let data: any = [{ id: "T", name: "Todos" }];
+        //     extraData?.roles?.map((c: any) => {
+        //       data.push({
+        //         id: c.id,
+        //         name: c.name,
+        //         description:c.description
+        //       });
+        //     });
+        //     return data;
+        //   },
+        // },
       },
 
       email: {
@@ -249,7 +251,9 @@ const Users = () => {
         form: {
           type: "text",
         },
-        list: { width: "200px" },
+        list: { width: "200px" ,
+        onRender:(props:any)=>{console.log(props,'props address'); return <div>{ props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description || 'Sin domicilio' }</div>}
+        },
       },
     };
   }, []);
