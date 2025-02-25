@@ -1,9 +1,10 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Alerts.module.css";
-import { useMemo } from "react";
+import { use, useEffect, useMemo } from "react";
 import { getFullName } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const mod = {
   modulo: "alerts",
@@ -11,7 +12,7 @@ const mod = {
   plural: "alertas",
   permiso: "",
   extraData: false,
-  hideActions: { edit: true, del: true, add: false },
+  hideActions: { edit: true, del: true, add: true },
 };
 
 const paramsInitial = {
@@ -22,12 +23,17 @@ const paramsInitial = {
 };
 
 const lLevels = [
-  { id: 1, name: "Alerta Guardias" },
-  { id: 2, name: "Alerta Administradores" },
-  { id: 3, name: "Alerta Residentes" },
+  { id: 1, name: "Alto" },
+  { id: 2, name: "Medio" },
+  { id: 3, name: "Bajo" },
 ];
 
 const Alerts = () => {
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: mod.plural.toUpperCase() });
+  }, []);
+
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },

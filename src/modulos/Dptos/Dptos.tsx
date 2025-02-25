@@ -87,7 +87,7 @@ const Dptos = () => {
           options: (items: any) => {
 
             let data: any = [];
-            items?.extraData?.homeowner?.map((c: any) => {
+            items?.extraData?.homeowners?.map((c: any) => {
               // console.log(c,'c')
               data.push({
                 id: c.id,
@@ -100,7 +100,7 @@ const Dptos = () => {
         list:
         {
           onRender: (props: any) => {
-            return (getFullName(props?.item?.homeowner) || 'Sin propietario')
+            return (getFullName(props?.item?.homeowners) || 'Sin propietario')
           }
         },
       },

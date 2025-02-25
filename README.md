@@ -7,7 +7,7 @@ First, run the development server:
 ```bash AZ
 npm run devss
 # or
-yarn dev11s
+yarn dev11sas
 # ors
 pnpm devaaaaa
 # ors
