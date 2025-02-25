@@ -4,8 +4,7 @@
   padding-left: var(--spL);
   padding-right: var(--spL);
   padding-bottom: 70px;
-  &  fieldset {
-    width: 100%;
+  & fieldset {
     /* border border-[#A7A7A7] rounded-md px-4 mt-2 */
     border: 1px solid var(--cWhiteV2);
     border-radius: var(--bRadius);

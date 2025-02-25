@@ -62,14 +62,17 @@ const Roles = () => {
     error,
     extraData,
   }: TypeRenderForm) => {
-    console.log("renderPermisos", extraData);
+    // console.log("renderPermisos", extraData);
     return (
+      <div style={{width:'100%'}}>
       <Permisos
         data={item}
         options={extraData?.abilities || [{ id: 1, name: "CRUD" }]}
         setItem={setItem}
         error={error}
+        extraData={extraData}
       />
+      </div>
     );
   };
 

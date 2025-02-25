@@ -11,7 +11,7 @@ const Permisos = ({
   setItem,
   options = [],
   error = {},
-  extraData = { categories: [{ id: 1, name: "General" }] },
+  extraData = { ability_categories: [{ id: 1, name: "General" }] },
 }: any) => {
   const [permisos, setPermisos]: any = useState([]);
   const { user } = useAuth();
@@ -25,12 +25,12 @@ const Permisos = ({
     const per = permisos;
     let llenar = "CRUD";
     options.map((item: any) => {
-      if (item.rolcategory_id == catId && per[item.name]) {
+      if (item.ability_category_id == catId && per[item.name]) {
         llenar = "";
       }
     });
     options.map((item: any) => {
-      if (item.rolcategory_id == catId) {
+      if (item.ability_category_id == catId) {
         per[item.name] = llenar;
       }
     });
@@ -90,12 +90,12 @@ const Permisos = ({
       (permisos[item.name] + "").indexOf("D") > -1
     );
   };
-  console.log(extraData,'extradatattatataat')
+
   return (
     <div>
       {/* <legend>Permisos</legend> */}
 
-      {extraData?.categories?.map((cat: any) => (
+      {extraData?.ability_categories?.map((cat: any) => (
         <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)" }}>
           <div
             style={{
@@ -119,7 +119,7 @@ const Permisos = ({
             )}
           </div>
           {options
-            ?.filter((o: any) => o.rolcategory_id == cat.id)
+            ?.filter((o: any) => o.ability_category_id == cat.id)
             .map((item: any) => (
               <Card
                 key={item.id}
