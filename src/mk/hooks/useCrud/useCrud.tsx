@@ -650,7 +650,7 @@ const useCrud = ({
       const headF: any[] = [];
       let openTag = -1;
       head.forEach((col: any, i: number) => {
-        console.log("col", col, i);
+        // console.log("col", col, i);
         if (col.openTag && openTag == -1) {
           headF.push({
             key: "openTag" + i,

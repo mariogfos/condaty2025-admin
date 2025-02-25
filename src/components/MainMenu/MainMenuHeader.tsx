@@ -13,7 +13,7 @@ interface MainMenuHeaderProps {
 
 const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
-console.log(user,'usrrr')
+// console.log(user,'usrrr')
   return (
     <div className={styles.menuHeader}>
       <div>
