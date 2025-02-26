@@ -1,0 +1,109 @@
+.WidgetMaps {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  width: 100%;
+  box-sizing: border-box;
+
+  position: relative;
+  border-radius: 16px;
+  background-color: var(--cBlackV1);
+  height: 100%;
+
+  & > div {
+    color: white;
+    font-size: 24px;
+    padding-top: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    width: 100%;
+    font-weight: 600;
+  }
+
+  /* @media (min-width: 768px) {
+    flex-direction: row;
+  } */
+
+  @media (max-width: 1600px) {
+    flex-direction: column;
+  }
+}
+
+.stats {
+  display: flex;
+  flex-direction: row;
+
+  @media (min-width: 481px) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  @media (min-width: 1441px) {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+
+  & > div {
+    margin-top: 0 !important;
+
+    & > p:nth-child(1) {
+      color: #656f78;
+    }
+
+    & > p:nth-child(2) {
+      padding-top: 4px;
+      color: white;
+    }
+  }
+
+  /* @media (min-width: 768px) {
+    width: auto;
+    margin-bottom: 0;
+    align-self: flex-start;
+  }
+
+  @media (max-width: 1441px) {
+    width: 100%;
+    flex-direction: column;
+  } */
+}
+
+.ecuador {
+  position: relative;
+  width: 100%;
+  padding-bottom: 12px;
+  & div:nth-child(1) {
+    & div {
+      width: 200px;
+
+      & div {
+        position: relative;
+        width: auto;
+      }
+    }
+  }
+
+  & div:nth-child(2) {
+    position: absolute;
+    top: 4%;
+    right: 0;
+    width: 40%;
+
+    & > img {
+      position: absolute;
+      right: 4%;
+      width: 100%;
+      /* height: auto; */
+
+      @media (max-width: 480px) {
+        width: 100px;
+        margin-left: 0px;
+      }
+
+      @media (min-width: 768px) {
+        width: 190px;
+      }
+    }
+  }
+}

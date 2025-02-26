@@ -1,0 +1,20 @@
+.widgetBase {
+  background-color: #212529;
+  border-radius: 16px;
+  border: 1px solid #393c3f;
+  padding: 12px 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: var(--spL);
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #656f78;
+  margin-bottom: var(--spL);
+}
