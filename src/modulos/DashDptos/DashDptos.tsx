@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import styles from './DashDptos.module.css';
 import { useRouter } from "next/navigation";
 import HeadTitle from "@/components/HeadTitle/HeadTitle";
@@ -182,15 +182,26 @@ const DashDptos = ({ id }: DashDptosProps) => {
             ) : (
               <div className={styles.titularInfo}>
                 <Avatar
-                  name={getFullName(datas?.titular)}
-                  w={80}
-                  h={80}
-                  onClick={() => {
-                    setIdPerfil(datas?.titular?.id);
-                    setOpenPerfil(true);
-                    setDataOw(datas?.titular);
-                  }}
-                />
+                src={
+                  datas?.titular?.id 
+                    ? getUrlImages(
+                        "/OWNER" +
+                          "-" +
+                          datas?.titular?.id +
+                          ".webp" + 
+                          (datas?.titular?.updated_at ? "?d=" + datas?.titular?.updated_at : "")
+                      )
+                    : ""
+                }
+                name={getFullName(datas?.titular)}
+                w={80}
+                h={80}
+                onClick={() => {
+                  setIdPerfil(datas?.titular?.id);
+                  setOpenPerfil(true);
+                  setDataOw(datas?.titular);
+                }}
+              />
                 <p className={styles.titularName}>
                   {getFullName(datas?.titular)}
                 </p>
@@ -265,6 +276,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   onClick={() => handleOpenPerfil(titular.owner_id)}
                 >
                   <Avatar
+                  src={
+                    datas?.titularHist?.id 
+                      ? getUrlImages(
+                          "/OWNER" +
+                            "-" +
+                            datas?.titularHist?.id +
+                            ".webp" + 
+                            (datas?.titularHist?.updated_at ? "?d=" + datas?.titularHist?.updated_at : "")
+                        )
+                      : ""
+                  }
                     name={getFullName(titular.owner)}
                     w={40}
                     h={40}
@@ -419,26 +441,30 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       {/* Modales */}
       <DataModal
-        title="Cambiar de titular"
-        open={openTitular}
-        onSave={onSave}
-        onClose={() => setOpenTitular(false)}
-        buttonText="Guardar"
-      >
-        <div className={styles.modalContent}>
-          <Select
-            placeholder="Selecciona al nuevo titular"
-            name="owner_id" 
-            error={errorsT.owner_id}
-            required={true}
-            value={formState.owner_id}
-            onChange={(e) => setFormState({...formState, [e.target.name]: e.target.value})}
-            options={[]}
-            iconRight={<IconArrowDown />}
-          />
-        </div>
-      </DataModal>
-
+  title="Cambiar de titular"
+  open={openTitular}
+  onSave={onSave}
+  onClose={() => setOpenTitular(false)}
+  buttonText="Guardar"
+>
+  <div className={styles.modalContent}>
+  <Select
+  placeholder="Selecciona al nuevo titular"
+  name="owner_id"
+  error={errorsT.owner_id}
+  required={true}
+  value={formState.owner_id || ''}
+  onChange={(e) => setFormState({...formState, owner_id: e.target.value})}
+  options={(datas?.owners || []).map((owner:any) => ({
+    ...owner,
+    name: `${getFullName(owner)}`
+  }))}
+  optionLabel="name"
+  optionValue="id"
+  iconRight={<IconArrowDown />}
+/>
+  </div>
+</DataModal>
       {/* Modales de Historial */}
       {openTitularHist && (
         <HistoryOwnership

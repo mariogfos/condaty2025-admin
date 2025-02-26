@@ -111,14 +111,14 @@ const Notifications = () => {
     if (parsedMessage?.info?.act === "newVoucher" || parsedMessage?.info?.act === "newPayment") {
       if (parsedMessage.info?.id) {
         setId(parsedMessage.info.id);
-        // Navegar a la ruta de pagos con el ID en lugar de abrir un modal
+
         router.push(`/payments/${parsedMessage.info.id}`);
       }
     }
     if (parsedMessage?.info?.act === "alerts") {
       if (parsedMessage.info?.id) {
         setId(parsedMessage.info.id);
-        // Navegar a la ruta de alertas con el ID en lugar de abrir un modal
+
         router.push(`/alerts/${parsedMessage.info.id}`);
       }
     }

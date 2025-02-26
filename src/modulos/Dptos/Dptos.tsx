@@ -100,7 +100,7 @@ const Dptos = () => {
         list:
         {
           onRender: (props: any) => {
-            return (getFullName(props?.item?.homeowners) || 'Sin propietario')
+            return (getFullName(props?.item?.homeowner) || 'Sin propietario')
           }
         },
       },
@@ -114,16 +114,16 @@ const Dptos = () => {
         {
           onRender: (props: any) => {
             return (
-              props?.item?.titular ?
+              props?.item?.titular?.owner?
                 <div className={styles.titularRow}>
                     <Avatar
                       src={
-                        props?.item?.titular?.id && props?.item?.titular?.updated_at
+                        props?.item?.titular?.id && props?.item?.titular?.owner?.updated_at
                           ? getUrlImages(
-                              "/OWN" +
+                              "/OWNER" +
                                 "-" +
                                 props?.item?.titular?.owner_id +
-                                ".png?d=" +
+                                ".webp?d=" +
                                 props?.item?.titular?.owner?.updated_at
                             )
                           : ""
@@ -131,7 +131,7 @@ const Dptos = () => {
                       name={getFullName( props?.item?.titular?.owner)}
                     
                     />
-              {getFullName(props?.item?.titular) }
+              {getFullName(props?.item?.titular?.owner) }
               </div>
               : 'Sin titular')
           }
