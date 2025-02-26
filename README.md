@@ -9,7 +9,7 @@ npm run devss
 # or
 yarn dev11sas
 # ors
-pnpm devaaaaa
+pnpm devaaaaaa
 # ors
 bun devaa
 ```
