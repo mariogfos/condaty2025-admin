@@ -114,11 +114,11 @@ const Dptos = () => {
         {
           onRender: (props: any) => {
             return (
-              props?.item?.titular ?
+              props?.item?.titular?.owner?
                 <div className={styles.titularRow}>
                     <Avatar
                       src={
-                        props?.item?.titular?.id && props?.item?.titular?.updated_at
+                        props?.item?.titular?.id && props?.item?.titular?.owner?.updated_at
                           ? getUrlImages(
                               "/OWNER" +
                                 "-" +

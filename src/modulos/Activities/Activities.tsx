@@ -483,11 +483,11 @@ const Activities = () => {
   const getTotalPages = () => {
     let total = 0;
     if (typeSearch === "A")
-      total = Math.ceil((accesses?.total || 1) / (params?.perPage || 1));
+      total = Math.ceil((accesses?.message.total || 1) / (params?.perPage || 1));
     if (typeSearch === "P")
-      total = Math.ceil((pedidos?.total || 1) / (paramsPed?.perPage || 1));
+      total = Math.ceil((pedidos?.message.total || 1) / (paramsPed?.perPage || 1));
     if (typeSearch === "Q")
-      total = Math.ceil((qrs?.total || 1) / (paramsQr?.perPage || 1));
+      total = Math.ceil((qrs?.message.total || 1) / (paramsQr?.perPage || 1));
     return total;
   };
 
@@ -840,10 +840,10 @@ const Activities = () => {
           params={getCurrentParams()}
           total={
             typeSearch === "A" 
-              ? accesses?.total || 0 
+              ? accesses?.message.total || 0 
               : typeSearch === "P" 
-                ? pedidos?.total || 0 
-                : qrs?.total || 0
+                ? pedidos?.message.total || 0 
+                : qrs?.message.total || 0
           }
         />
       </div>
