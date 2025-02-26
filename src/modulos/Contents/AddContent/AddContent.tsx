@@ -109,26 +109,23 @@ const AddContent = ({
   }, [formState.destiny]);
 
   const handleChangeInput = (e: any) => {
-    // if (e.target.name == "avatar") {
-    //   console.log("avatar", formState);
-    //   // return;
-    // }
+
     let value = e.target.value;
     if (e.target?.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
-
+   
     setFormState({ ...formState, [e.target.name]: value });
-    if (e.target.name == "destiny" && value > 0) {
-      setOpenDestiny(true);
-      if (formState.destiny != value) {
-        setFormState({
-          ...formState,
-          lDestiny: [],
-          [e.target.name]: value,
-        });
-      }
-    }
+    // if (e.target.name == "destiny" && value > 0) {
+    //   setOpenDestiny(true);
+    //   if (formState.destiny != value) {
+    //     setFormState({
+    //       ...formState,
+    //       lDestiny: [],
+    //       [e.target.name]: value,
+    //     });
+    //   }
+    // }
   };
   // const getCandidates = () => {
   //   let data: any = [];
@@ -347,7 +344,14 @@ const AddContent = ({
               label="Público objetivo"
               onChange={handleChangeInput}
               value={formState.destiny}
-              options={lDestinies()}
+              options={
+                [
+                  { id: 'T', name: "Público en general" },
+                  { id: 'D', name: "Departamentos" },
+                  { id: 'G', name: "Guardias" },
+                  { id: 'R', name: "Residentes" }
+                ]
+              }
               error={errors}
             />
           </CardContent>

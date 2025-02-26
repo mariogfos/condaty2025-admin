@@ -10,12 +10,14 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 
 import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 type PropsType = {
   formState: any;
   extraData: any;
   action: any;
 };
 const Preview = ({ formState, extraData, action }: PropsType) => {
+  const { user } = useAuth();
   const dataFake = {
     // avatar:
     //   "https://revistaverde.com.uy/wp-content/uploads/2020/03/lacalle-pou-presidente-3-20.jpg",
@@ -52,17 +54,12 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
           left={
             <Avatar
               src={getUrlImages(
-                "/CAND-" + candidate?.id + ".webp?d=" + candidate?.updated_at
+                "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
               )}
-              name={getFullName(candidate) || dataFake.name}
+              name={getFullName(user) || dataFake.name}
             />
           }
-          title={getFullName(candidate) || dataFake.name}
-          subtitle={
-            extraData?.typeCands?.find(
-              (t: any) => t?.id == candidate?.typecand_id
-            )?.name || dataFake.subtitle
-          }
+          title={getFullName(user) || dataFake.name}
         />
         <section
           style={{ flexDirection: formState?.isType == "N" ? "row" : "column" }}
@@ -116,15 +113,15 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       </div>
       <div>
         <div>
-          <IconLike color="var(--cBlackV2)" />
+          <IconLike color="var(--cWhiteV2)" />
           <p>Apoyar</p>
         </div>
         <div>
-          <IconComment color="var(--cBlackV2)" />
+          <IconComment color="var(--cWhiteV2)" />
           <p>Comentar</p>
         </div>
         <div>
-          <IconShare color="var(--cBlackV2)" />
+          <IconShare color="var(--cWhiteV2)" />
           <p>Compartir</p>
         </div>
       </div>

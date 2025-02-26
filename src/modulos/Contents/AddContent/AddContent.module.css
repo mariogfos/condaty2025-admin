@@ -8,7 +8,7 @@
   }
   .subtitle {
     font-size: var(--sM);
-    color: var(--cBlackV2);
+    color: var(--cWhiteV2);
     font-weight: 400;
   }
   .card {
@@ -121,7 +121,7 @@
         align-items: center;
         padding: var(--spS) 0px;
         & > p {
-          color: var(--cBlackV2);
+          color: var(--cWhiteV2);
           font-size: var(--sS);
         }
       }
@@ -135,7 +135,7 @@
     align-items: center;
     border-radius: var(--bRadiusS);
     border: var(--bWidth) solid var(--cBlackV2);
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     font-size: var(--sM);
     gap: var(--spXs);
     cursor: pointer;
