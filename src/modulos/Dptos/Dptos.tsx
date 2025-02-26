@@ -120,10 +120,10 @@ const Dptos = () => {
                       src={
                         props?.item?.titular?.id && props?.item?.titular?.updated_at
                           ? getUrlImages(
-                              "/OWN" +
+                              "/OWNER" +
                                 "-" +
                                 props?.item?.titular?.owner_id +
-                                ".png?d=" +
+                                ".webp?d=" +
                                 props?.item?.titular?.owner?.updated_at
                             )
                           : ""
@@ -131,7 +131,7 @@ const Dptos = () => {
                       name={getFullName( props?.item?.titular?.owner)}
                     
                     />
-              {getFullName(props?.item?.titular) }
+              {getFullName(props?.item?.titular?.owner) }
               </div>
               : 'Sin titular')
           }

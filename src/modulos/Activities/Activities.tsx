@@ -130,6 +130,7 @@ const EmptyItem = ({ text }: { text: string }) => {
     </div>
   );
 };
+ //const { setStore } = useAuth();
 
 const Activities = () => {
   // Estados
@@ -503,6 +504,10 @@ const Activities = () => {
     { value: "Q", text: "QR" },
     { value: "P", text: "Pedidos" },
   ];
+ /* useEffect(() => {
+    setStore({ title: mod.plural.toUpperCase() });
+  }, []);
+  */
 
   // Función para renderizar ítems de accesos
   const renderAccessItem = (access: AccessType) => {
