@@ -1,206 +1,209 @@
-'use client';
-import { useMemo, useEffect, useState } from 'react';
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
 import styles from "./Notifications.module.css";
-import { getFullName } from "@/mk/utils/string";
+import { useMemo } from "react";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getDateStrMes } from "@/mk/utils/date";
-
 import { useRouter } from "next/navigation";
 import {
   IconAlertNotification,
   IconPreRegister,
   IconPaymentCommitment,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { useAuth } from '@/mk/contexts/AuthProvider';
-
-// Definir tipos para ayudar a TypeScript
-type NotificationInfo = {
-  act?: string;
-  id?: number | string;
-  level?: number;
-  guard_name?: string;
-  guard_id?: string;
-  user_id?: string;
-};
-
-type NotificationMessage = {
-  msg?: {
-    title?: string;
-    body?: string;
-  };
-  info?: NotificationInfo;
-};
-
-type NotificationItem = {
-  id: number;
-  message: string;
-  created_at: string;
-};
-
-const mod = {
-  modulo: "notifications",
-  singular: "Notificación",
-  plural: "Notificaciones",
-  permiso: "",
-  extraData: false,
-  hideActions: { edit: true, del: true, add: true, view: false },
-};
+import useCrudUtils from "../shared/useCrudUtils";
+import RenderItem from "../shared/RenderItem";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
 
 const paramsInitial = {
+  fullType: "L",
   perPage: 10,
   page: 1,
-  fullType: "L",
   searchBy: "",
 };
 
 const Notifications = () => {
-  const { user, setStore, store } = useAuth();
   const router = useRouter();
-  const [id, setId] = useState<number | string>(0);
-  const [notificationsView, setNotificationsView] = useState<number[]>(
-    JSON.parse(localStorage.getItem("notificationsView") || "[]")
-  );
+  const { user } = useAuth();
+  
+  const mod: ModCrudType = {
+    modulo: "notifications",
+    singular: "Notificación",
+    plural: "Notificaciones",
+    filter: false,
+    permiso: "",
+    extraData: false,
+    hideActions: {
+      view: true,
+      add: true,
+      edit: true,
+      del: true
+    },
+    search: false
+  };
 
-  useEffect(() => {
-    setStore((old: any) => ({
-      ...old,
-      notif: 0,
-    }));
-  }, [setStore]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "notificationsView",
-      JSON.stringify(notificationsView)
-    );
-  }, [notificationsView]);
-
-  const renderNotificationIcon = (info: NotificationInfo) => {
-    if (info?.act === "alerts") {
+  const renderNotificationIcon = (info: any) => {
+    if (!info) return null;
+    
+    if (info.act === "alerts") {
       return <IconAlertNotification className={styles.alertIcon} />;
     }
-    if (info?.act === "newPreregister") {
+    if (info.act === "newPreregister") {
       return <IconPreRegister className={styles.preregisterIcon} />;
     }
-    if (info?.act === "newVoucher" || info?.act === "newPayment") {
+    if (info.act === "newVoucher" || info.act === "newPayment") {
       return <IconPaymentCommitment className={styles.paymentIcon} />;
     }
     return null;
   };
 
-  const handleNotificationClick = (item: NotificationItem) => {
-    let x = item.message.replace("\\", "");
-    let parsedMessage: NotificationMessage = {};
-    
-    if (typeof x === "string") {
-      try {
-        parsedMessage = JSON.parse(x);
-      } catch (error) {
-        console.error("Error parsing notification message:", error);
-      }
-    }
-    
-    setNotificationsView((prev: number[]) => {
-      if (!prev.includes(item.id)) {
-        return [...prev, item.id];
-      }
-      return prev;
-    });
-
-    if (parsedMessage?.info?.act === "newVoucher" || parsedMessage?.info?.act === "newPayment") {
-      if (parsedMessage.info?.id) {
-        setId(parsedMessage.info.id);
-
-        router.push(`/payments/${parsedMessage.info.id}`);
-      }
-    }
-    if (parsedMessage?.info?.act === "alerts") {
-      if (parsedMessage.info?.id) {
-        setId(parsedMessage.info.id);
-
-        router.push(`/alerts/${parsedMessage.info.id}`);
-      }
-    }
-    if (parsedMessage?.info?.act === "newPreregister") {
-      router.push("/");
-    }
-  };
-
-  const fields = useMemo(
-    () => ({
+  const fields = useMemo(() => {
+    return {
       id: { rules: [], api: "e" },
-      created_at: {
+      
+      message: {
         rules: [""],
         api: "",
-        label: "Fecha",
-        list: { width: "160px" },
-        onRender: (props: { item: NotificationItem }) => {
-          return getDateStrMes(props.item.created_at);
-        },
-      },
-      message: {
-        rules: ["required"],
-        api: "e",
-        label: "Mensaje",
-        list: { width: "auto" },
-        onRender: (props: { item: NotificationItem }) => {
-          let x = props.item.message.replace("\\", "");
-          let parsedMessage: NotificationMessage = {};
-          
-          try {
-            if (typeof x === "string") {
-              parsedMessage = JSON.parse(x);
+        label: "Notificación",
+        list: {
+          width: "100%",
+          onRender: (props: any) => {
+            try {
+              let x = props.item.message.replace(/\\/g, "");
+              const parsedMessage = JSON.parse(x);
+              
+              // Verificar si la notificación está en localStorage
+              const notificationsView = JSON.parse(localStorage.getItem("notificationsView") || "[]");
+              const isRead = notificationsView.includes(props.item.id);
+              
+              return (
+                <div 
+                  className={
+                    isRead 
+                      ? styles.notificationRead 
+                      : styles.notificationUnread
+                  }
+                >
+                  <div className={styles.notificationIcon}>
+                    {parsedMessage.info && renderNotificationIcon(parsedMessage.info)}
+                  </div>
+                  <div className={styles.notificationContent}>
+                    <p className={styles.notificationTitle}>{parsedMessage.msg?.title || "Sin título"}</p>
+                    <p className={styles.notificationBody}>{parsedMessage.msg?.body || "Sin contenido"}</p>
+                    <p className={styles.notificationDate}>
+                      {getDateStrMes(props.item.created_at)}
+                    </p>
+                  </div>
+                </div>
+              );
+            } catch (error) {
+              console.error("Error rendering notification:", error);
+              return <div>Error en formato de notificación</div>;
             }
-          } catch (error) {
-            console.error("Error parsing message:", error);
           }
-          
-          return (
-            <div 
-              className={
-                notificationsView.includes(props.item.id) 
-                  ? styles.notificationRead 
-                  : styles.notificationUnread
-              }
-              onClick={() => handleNotificationClick(props.item)}
-            >
-              <div className={styles.notificationIcon}>
-                {parsedMessage.info && renderNotificationIcon(parsedMessage.info)}
-              </div>
-              <div className={styles.notificationContent}>
-                <p className={styles.notificationTitle}>{parsedMessage.msg?.title}</p>
-                <p className={styles.notificationBody}>{parsedMessage.msg?.body}</p>
-                <p className={styles.notificationDate}>
-                  {getDateStrMes(props.item.created_at)}
-                </p>
-              </div>
-            </div>
-          );
-        },
-      },
-    }),
-    [notificationsView, router]
-  );
+        }
+      }
+    };
+  }, []);
 
-  const { userCan, List, data, reLoad } = useCrud({
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
 
-  useEffect(() => {
-    if (store?.socketCount > 0) {
-      reLoad();
+  const { onLongPress, selItem, searchState } = useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod,
+    onEdit: () => {},
+    onDel: () => {},
+  });
+
+  const handleRowClick = (item: any) => {
+    try {
+      // Agregar a localStorage para marcar como leída
+      const notificationsView = JSON.parse(localStorage.getItem("notificationsView") || "[]");
+      if (!notificationsView.includes(item.id)) {
+        notificationsView.push(item.id);
+        localStorage.setItem("notificationsView", JSON.stringify(notificationsView));
+      }
+
+      // Resetear contador de notificaciones
+      setStore((old: any) => ({
+        ...old,
+        notif: 0,
+      }));
+
+      // Parse message
+      let x = item.message.replace(/\\/g, "");
+      const parsedMessage = JSON.parse(x);
+
+      // Navegar según el tipo de notificación
+      if (parsedMessage?.info?.act === "newVoucher" || parsedMessage?.info?.act === "newPayment") {
+        if (parsedMessage.info?.id) {
+          router.push(`/payments/${parsedMessage.info.id}`);
+        }
+      } else if (parsedMessage?.info?.act === "alerts") {
+        if (parsedMessage.info?.id) {
+          router.push(`/alerts/${parsedMessage.info.id}`);
+        }
+      } else if (parsedMessage?.info?.act === "newPreregister") {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Error processing notification:", error);
     }
-  }, [store?.socketCount, reLoad]);
+  };
+
+  // Siguiendo el patrón de Dptos para renderItem
+  const renderItem = (
+    item: Record<string, any>,
+    i: number,
+    onClick: Function
+  ) => {
+    try {
+      let parsedMessage = { msg: { title: "", body: "" } };
+      try {
+        let x = item.message.replace(/\\/g, "");
+        parsedMessage = JSON.parse(x);
+      } catch (error) {
+        console.error("Error parsing message:", error);
+      }
+
+      return (
+        <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
+          <ItemList
+            title={parsedMessage.msg?.title || "Sin título"}
+            subtitle={parsedMessage.msg?.body || "Sin contenido"}
+            variant="V1"
+            active={selItem && selItem.id === item.id}
+          />
+        </RenderItem>
+      );
+    } catch (error) {
+      console.error("Error in renderItem:", error);
+      return null;
+    }
+  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-
+  
   return (
     <div className={styles.notificationsContainer}>
       <h1 className={styles.title}>Notificaciones</h1>
-      <List />
+      <List 
+        onTabletRow={renderItem}
+        onRowClick={handleRowClick} 
+      />
     </div>
   );
 };
