@@ -59,29 +59,28 @@ const lType = [
   { id: "D", name: "Documento", ext: "pdf,doc,docx" },
 ];
 
-const lDestinies = (data: {
-  key: string;
-  user?: Record<string, any>;
-  item: Record<string, any>;
-}) => {
-  const level = data.user?.role.level;
-  const r = [];
-  if (level == 1 || level == 0) {
-    r.push({ id: 0, name: "Todos" });
-  }
-  if (level == 2) r.push({ id: 0, name: "Mi lista" });
-  if (level == 3) r.push({ id: 0, name: "Mi departamento" });
-  if (level == 4) r.push({ id: 0, name: "Mi municipio" });
-  // if (level == 4) r.push({ id: 0, name: "Mi localidad" });
-  if (level == 5) r.push({ id: 0, name: "Mi barrio" });
+// const lDestinies = (data: {
+//   key: string;
+//   user?: Record<string, any>;
+//   item: Record<string, any>;
+// }) => {
+//   const level = data.user?.role.level;
+//   const r = [];
+//   if (level == 1 || level == 0) {
+//     r.push({ id: 0, name: "Todos" });
+//   }
+//   if (level == 2) r.push({ id: 0, name: "Mi lista" });
+//   if (level == 3) r.push({ id: 0, name: "Mi departamento" });
+//   if (level == 4) r.push({ id: 0, name: "Mi municipio" });
 
-  if (level <= 1) r.push({ id: 2, name: "Lista" });
-  if (level <= 2) r.push({ id: 3, name: "Departamento" });
-  if (level <= 3) r.push({ id: 4, name: "Municipo" });
-  // if (level <= 4) r.push({ id: 5, name: "Localidad" });
-  // if (level <= 5) r.push({ id: 5, name: "Barrio" });
-  return r;
-};
+//   if (level == 5) r.push({ id: 0, name: "Mi barrio" });
+
+//   if (level <= 1) r.push({ id: 2, name: "Lista" });
+//   if (level <= 2) r.push({ id: 3, name: "Departamento" });
+//   if (level <= 3) r.push({ id: 4, name: "Municipo" });
+
+//   return r;
+// };
 
 const rigthFile = (data: {
   key: string;
@@ -133,11 +132,6 @@ const Contents = () => {
     loadView: { fullType: "DET" },
     listAndCard: true,
     // hideActions: { add: true },
-    // buttonExtra: (
-    //   <Button onClick={() => (window.location.href = "/addContent")}>
-    //     Crear noticia
-    //   </Button>
-    // ),
     renderForm: (props: {
       item: any;
       setItem: any;

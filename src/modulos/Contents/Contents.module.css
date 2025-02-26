@@ -93,19 +93,22 @@
   & > div:nth-child(1) {
     display: flex;
     gap: 16px;
+    color: var(--cWhiteV1);
+
     & > div {
       flex: 1;
       background-color: var(--cHover);
       border-radius: 8px;
       padding: 8px 0px;
-      & > p:nth-child(1) {
+      & > div:nth-child(1) {
         text-align: center;
+        color: var(--cWhiteV1);
       }
-      & > p:nth-child(2) {
+      & > div:nth-child(2) {
         display: flex;
         justify-content: center;
         align-items: center;
-        color: var(--cBlackV2);
+        color: var(--cWhiteV);
       }
     }
   }

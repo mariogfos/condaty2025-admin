@@ -31,7 +31,7 @@
       font-weight: 700;
       & > p:nth-child(1) {
         cursor: pointer;
-        color: var(--cBlackV2);
+        color: var(--cWhiteV1);
         font-weight: 600;
         font-size: var(--sL);
       }

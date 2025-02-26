@@ -38,7 +38,7 @@ const RenderView = (props: {
   ];
   const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-
+  console.log(data,'data 41 renderviewcontents')
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const commentList = (item: any) => {
@@ -74,40 +74,40 @@ const RenderView = (props: {
       prevIndex === 0 ? data?.images?.length - 1 : prevIndex - 1
     );
   };
-  const getDestinys = () => {
-    let lEntidad: any = [];
-    data.cdestinies.map((item: any, index: number) => {
-      if (data.destiny == 2) {
-        lEntidad.push({
-          id: item.lista_id,
-          name: extraData.listas.find((lista: any) => lista.id == item.lista_id)
-            ?.name,
-        });
-      }
-      if (data.destiny == 3) {
-        lEntidad.push({
-          id: item.dpto_id,
-          name: extraData.dptos.find((dpto: any) => dpto.id == item.dpto_id)
-            ?.name,
-        });
-      }
-      if (data.destiny == 4) {
-        lEntidad.push({
-          id: item.mun_id,
-          name: extraData.muns.find((mun: any) => mun.id == item.mun_id)?.name,
-        });
-      }
-      if (data.destiny == 5) {
-        lEntidad.push({
-          id: item.barrio_id,
-          name: extraData.barrios?.find(
-            (barrio: any) => barrio.id == item.barrio_id
-          )?.name,
-        });
-      }
-    });
-    return lEntidad;
-  };
+  // const getDestinys = () => {
+  //   let lEntidad: any = [];
+  //   data.cdestinies.map((item: any, index: number) => {
+  //     if (data.destiny == 2) {
+  //       lEntidad.push({
+  //         id: item.lista_id,
+  //         name: extraData.listas.find((lista: any) => lista.id == item.lista_id)
+  //           ?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 3) {
+  //       lEntidad.push({
+  //         id: item.dpto_id,
+  //         name: extraData.dptos.find((dpto: any) => dpto.id == item.dpto_id)
+  //           ?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 4) {
+  //       lEntidad.push({
+  //         id: item.mun_id,
+  //         name: extraData.muns.find((mun: any) => mun.id == item.mun_id)?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 5) {
+  //       lEntidad.push({
+  //         id: item.barrio_id,
+  //         name: extraData.barrios?.find(
+  //           (barrio: any) => barrio.id == item.barrio_id
+  //         )?.name,
+  //       });
+  //     }
+  //   });
+  //   return lEntidad;
+  // };
 
   const getIconTypeFile = (item: any) => {
     if (item === "pdf") {
@@ -184,7 +184,7 @@ const RenderView = (props: {
       >
         <div className={styles.container}>
           <div className={styles.content}>
-            {data?.destiny != 0 && user?.role.level != data?.destiny && (
+            {/* {data?.destiny != 0 && user?.role.level != data?.destiny && (
               <p style={{ marginBottom: 12, color: "var(--cInfo)" }}>
                 Destino:{" "}
                 {entidad[data.destiny] +
@@ -199,23 +199,24 @@ const RenderView = (props: {
                   .map((e: any) => e.name)
                   .join(", ")}
               </p>
-            )}
+            )} */}
             <ItemList
-              title={getFullName(data.candidate)}
+              title={getFullName(user)}
               subtitle={
                 <>
-                  <div>{data?.user?.role1[0]?.name}</div>
-                  <div>{getDateStrMes(props?.item?.data?.created_at)}</div>
+                asass
+                  {/* <div>{data?.user?.role1[0]?.name}</div>
+                  <div>{getDateStrMes(props?.item?.data?.created_at)}</div> */}
                 </>
               }
               left={
                 <Avatar
-                  name={getFullName(data.candidate)}
+                  name={getFullName(user)}
                   src={getUrlImages(
-                    "/CAND-" +
-                      data?.candidate.id +
+                    "/ADM-" +
+                      user?.id +
                       ".webp?d=" +
-                      data?.candidate.updated_at
+                      user?.updated_at
                   )}
                 />
               }
@@ -306,18 +307,7 @@ const RenderView = (props: {
 
               {props?.item?.data?.type == "D" && (
                 <>
-                  {/* <iframe
-                    src={getUrlImages(
-                      "/CONT-" +
-                        data?.id +
-                        "." +
-                        data?.url +
-                        "?d=" +
-                        data?.updated_at
-                    )}
-                    width="500"
-                    height="500"
-                  ></iframe> */}
+              
                   <a
                     style={{ color: "white" }}
                     target="_blank"
@@ -340,68 +330,26 @@ const RenderView = (props: {
                   width="100%"
                   height={480}
                   controls
-                  // config={{
-                  //   youtube: {
-                  //     playerVars: { showinfo: 1 },
-                  //   },
-                  //   facebook: {
-                  //     appId: "12345",
-                  //   },
-                  // }}
                 />
               )}
             </section>
           </div>
           <section className={styles["reactionsSection"]}>
-            {/* <div>
-            <p>Apoyos</p>
-            <div>
-              <IconLike size={40} color="var(--cInfo)" />
-              {props?.item?.data?.likes}
-            </div>
-          </div>
-
-          <div>
-            <p>Comentarios</p>
-            <div>
-              {data?.comments.map((item: any, index: number) => (
-                <div key={index}>
-                  <ItemList
-                    key={index}
-                    style={{ marginLeft: -8 }}
-                    title={getFullName(item.affiliate)}
-                    subtitle={getDateStrMes(item?.created_at)}
-                    left={
-                      <Avatar
-                        name={getFullName(item.affiliate)}
-                        src={getUrlImages(
-                          "/AFF-" +
-                            item?.affiliate.id +
-                            ".webp?d=" +
-                            item?.affiliate.updated_at
-                        )}
-                      />
-                    }
-                  />
-                  <p>{item?.comment}</p>
-                </div>
-              ))}
-            </div>
-          </div> */}
+     
             <div>
               <div>
-                <p>Apoyos</p>
-                <p>
+                <div>Apoyos</div>
+                <div>
                   <IconLike color="var(--cInfo)" />
                   {props?.item?.data?.likes}
-                </p>
+                </div>
               </div>
               <div>
-                <p>Comentarios</p>
-                <p>
+                <div>Comentarios</div>
+                <div>
                   <IconComment />
                   {props?.item?.data?.comments?.length}
-                </p>
+                </div>
               </div>
             </div>
             {props?.item?.data?.comments?.length > 0 && (

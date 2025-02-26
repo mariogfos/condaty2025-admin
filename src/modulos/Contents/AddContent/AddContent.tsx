@@ -195,12 +195,12 @@ const AddContent = ({
       key: "destiny",
       errors,
     });
-    errors = checkRules({
-      value: formState?.candidate_id,
-      rules: ["required"],
-      key: "candidate_id",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState?.candidate_id,
+    //   rules: ["required"],
+    //   key: "candidate_id",
+    //   errors,
+    // });
     if (formState?.isType == "N") {
       errors = checkRules({
         value: formState?.title,
@@ -256,13 +256,13 @@ const AddContent = ({
     }
 
     let method = formState.id ? "PUT" : "POST";
-
+    console.log(formState,'fst 259 addcontent')
     const { data } = await execute(
       "/contents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        candidate_id: formState?.candidate_id,
-        lDestiny: ldestinys,
+        // candidate_id: formState?.candidate_id,
+        // lDestiny: ldestinys,
         destiny: formState?.destiny,
         // affCount: formState.affCount,
         url: formState?.url,
@@ -312,19 +312,19 @@ const AddContent = ({
             <IconArrowLeft />
             <p>Crear nueva publicacion</p>
           </div>
-          <CardContent
+          {/* <CardContent
             title="Publicar como"
             subtitle=" El perfil que selecciones aparecerá como la cuenta creadora del post"
           >a
-            {/* <Select
+            <Select
               name="candidate_id"
               label="Candidato"
               onChange={handleChangeInput}
               value={formState.candidate_id}
               options={getCandidates()}
               error={errors}
-            /> */}
-          </CardContent>
+            /> 
+          </CardContent> */}
 
           <CardContent
             title="Destino"
