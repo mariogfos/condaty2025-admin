@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import styles from './DashDptos.module.css';
+import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
 import HeadTitle from "@/components/HeadTitle/HeadTitle";
 import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
@@ -19,19 +19,18 @@ import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 
-
 interface DashDptosProps {
   id: string | number;
 }
 
 const getStatus = (status: string) => {
   const statusMap: Record<string, string> = {
-    "A": "Por Pagar",
-    "E": "Por subir comprobante",
-    "P": "Pagado",
-    "S": "Por confirmar", 
-    "M": "Moroso",
-    "R": "Rechazado"
+    A: "Por Pagar",
+    E: "Por subir comprobante",
+    P: "Pagado",
+    S: "Por confirmar",
+    M: "Moroso",
+    R: "Rechazado",
   };
   return statusMap[status] || status;
 };
@@ -39,7 +38,7 @@ const getStatus = (status: string) => {
 const DashDptos = ({ id }: DashDptosProps) => {
   const { user, showToast } = useAuth();
   const router = useRouter();
-  
+
   // Estados
   const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
@@ -55,10 +54,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [dataOw, setDataOw] = useState<any>(null);
 
-  // Hooks y configuración 
-  const { data: dashData, reLoad, execute } = useAxios("/dptos", "GET", {
+  // Hooks y configuración
+  const {
+    data: dashData,
+    reLoad,
+    execute,
+  } = useAxios("/dptos", "GET", {
     fullType: "DET",
-    dpto_id: id
+    dpto_id: id,
   });
 
   const datas = dashData?.data || {};
@@ -82,13 +85,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   useEffect(() => {
     if (user?.clients) {
-      const tipo = user.clients.find((item: any) => item.id === user.client_id)?.type_dpto;
+      const tipo = user.clients.find(
+        (item: any) => item.id === user.client_id
+      )?.type_dpto;
       const tipoMap: Record<string, string> = {
-        'D': 'Departamento',
-        'C': 'Casa',
-        'L': 'Lote'
+        D: "Departamento",
+        C: "Casa",
+        L: "Lote",
       };
-      setTipoUnidad(tipoMap[tipo] || '');
+      setTipoUnidad(tipoMap[tipo] || "");
     }
   }, [user]);
 
@@ -99,10 +104,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
 
     try {
-      const { data: response } = await execute("/dptos-change-titular", "POST", {
-        owner_id: formState.owner_id,
-        dpto_id: id,
-      });
+      const { data: response } = await execute(
+        "/dptos-change-titular",
+        "POST",
+        {
+          owner_id: formState.owner_id,
+          dpto_id: id,
+        }
+      );
 
       if (response?.success) {
         showToast("Titular actualizado", "success");
@@ -131,7 +140,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             {/* Cabecera */}
             <div className={styles.cardHeader}>
               <div className={styles.title}>
-                <HeadTitle 
+                <HeadTitle
                   className={styles.backButton}
                   onBack={() => router.push("/dptos")}
                 />
@@ -144,7 +153,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <div className={styles.infoRow}>
                 <span className={styles.label}>Propietario</span>
                 <span className={styles.value}>
-                  {datas?.data?.homeowner 
+                  {datas?.data?.homeowner
                     ? getFullName(datas?.data?.homeowner)
                     : "Sin Propietario"}
                 </span>
@@ -157,9 +166,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               </div>
               <div className={styles.infoRow}>
                 <span className={styles.label}>Dimensiones</span>
-                <span className={styles.value}>
-                  {datas?.data?.dimension} m
-                </span>
+                <span className={styles.value}>{datas?.data?.dimension} m</span>
               </div>
             </div>
 
@@ -182,26 +189,28 @@ const DashDptos = ({ id }: DashDptosProps) => {
             ) : (
               <div className={styles.titularInfo}>
                 <Avatar
-                src={
-                  datas?.titular?.id 
-                    ? getUrlImages(
-                        "/OWNER" +
-                          "-" +
-                          datas?.titular?.id +
-                          ".webp" + 
-                          (datas?.titular?.updated_at ? "?d=" + datas?.titular?.updated_at : "")
-                      )
-                    : ""
-                }
-                name={getFullName(datas?.titular)}
-                w={80}
-                h={80}
-                onClick={() => {
-                  setIdPerfil(datas?.titular?.id);
-                  setOpenPerfil(true);
-                  setDataOw(datas?.titular);
-                }}
-              />
+                  src={
+                    datas?.titular?.id
+                      ? getUrlImages(
+                          "/OWNER" +
+                            "-" +
+                            datas?.titular?.id +
+                            ".webp" +
+                            (datas?.titular?.updated_at
+                              ? "?d=" + datas?.titular?.updated_at
+                              : "")
+                        )
+                      : ""
+                  }
+                  name={getFullName(datas?.titular)}
+                  w={80}
+                  h={80}
+                  onClick={() => {
+                    setIdPerfil(datas?.titular?.id);
+                    setOpenPerfil(true);
+                    setDataOw(datas?.titular);
+                  }}
+                />
                 <p className={styles.titularName}>
                   {getFullName(datas?.titular)}
                 </p>
@@ -218,13 +227,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 {/* Info Titular */}
                 <div className={styles.titularData}>
                   <p className={styles.titularDataLabel}>Carnet de identidad</p>
-                  <p className={styles.titularDataValue}>{datas?.titular?.ci}</p>
-                  
+                  <p className={styles.titularDataValue}>
+                    {datas?.titular?.ci}
+                  </p>
+
                   <p className={styles.titularDataLabel}>Celular</p>
-                  <p className={styles.titularDataValue}>{datas?.titular?.phone}</p>
-                  
+                  <p className={styles.titularDataValue}>
+                    {datas?.titular?.phone}
+                  </p>
+
                   <p className={styles.titularDataLabel}>Correo electrónico</p>
-                  <p className={styles.titularDataValue}>{datas?.titular?.email}</p>
+                  <p className={styles.titularDataValue}>
+                    {datas?.titular?.email}
+                  </p>
                 </div>
 
                 {/* Dependientes */}
@@ -233,18 +248,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     <p className={styles.titularDataLabel}>Dependientes</p>
                     <div className={styles.dependentesGrid}>
                       {datas.titular.dependientes.length > 0 ? (
-                        datas.titular.dependientes.map((dependiente: any, index: number) => (
-                          <Avatar
-                            key={index}
-                            name={getFullName(dependiente.owner)}
-                            w={40}
-                            h={40}
-                            className={styles.dependentAvatar}
-                            onClick={() => handleOpenPerfil(dependiente.owner_id)}
-                          />
-                        ))
+                        datas.titular.dependientes.map(
+                          (dependiente: any, index: number) => (
+                            <Avatar
+                              key={index}
+                              name={getFullName(dependiente.owner)}
+                              w={40}
+                              h={40}
+                              className={styles.dependentAvatar}
+                              onClick={() =>
+                                handleOpenPerfil(dependiente.owner_id)
+                              }
+                            />
+                          )
+                        )
                       ) : (
-                        <p className={styles.emptyMessage}>No tiene dependientes</p>
+                        <p className={styles.emptyMessage}>
+                          No tiene dependientes
+                        </p>
                       )}
                     </div>
                   </div>
@@ -258,7 +279,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.historySection}>
           <div className={styles.historyHeader}>
             <h3 className={styles.historyTitle}>Historial de Titulares</h3>
-            <span 
+            <span
               className={styles.viewMore}
               onClick={() => setOpenTitularHist(true)}
             >
@@ -267,47 +288,52 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
           <div className={styles.historySectionContent}>
             {!datas?.titularHist || datas.titularHist.length === 0 ? (
-              <EmptyData message="No existe historial de titulares para esta unidad" centered={false} />
+              <EmptyData
+                message="No existe historial de titulares para esta unidad"
+                centered={false}
+              />
             ) : (
-              datas.titularHist.slice(0, 4).map((titular: any, index: number) => (
-                <div 
-                  key={index} 
-                  className={styles.historyItem}
-                  onClick={() => handleOpenPerfil(titular.owner_id)}
-                >
-                  <Avatar
-                  src={
-                    datas?.titularHist?.id 
-                      ? getUrlImages(
-                          "/OWNER" +
-                            "-" +
-                            datas?.titularHist?.id +
-                            ".webp" + 
-                            (datas?.titularHist?.updated_at ? "?d=" + datas?.titularHist?.updated_at : "")
-                        )
-                      : ""
-                  }
-                    name={getFullName(titular.owner)}
-                    w={40}
-                    h={40}
-                  />
-                  <div className={styles.historyItemInfo}>
-                    <p className={styles.historyItemName}>
-                      {getFullName(titular.owner)}
-                    </p>
-                    <div className={styles.historyItemDate}>
-                      Desde {getDateStrMes(titular.date_in)}
-                      {titular.date_out ? (
-                        ` Hasta ${getDateStrMes(titular.date_out)}`
-                      ) : (
-                        <span className={styles.currentStatus}>
-                          Titular actual
-                        </span>
-                      )}
+              datas.titularHist
+                .slice(0, 4)
+                .map((titular: any, index: number) => (
+                  <div
+                    key={index}
+                    className={styles.historyItem}
+                    onClick={() => handleOpenPerfil(titular.owner_id)}
+                  >
+                    <Avatar
+                      src={
+                        datas?.titularHist?.id
+                          ? getUrlImages(
+                              "/OWNER" +
+                                "-" +
+                                datas?.titularHist?.id +
+                                ".webp?d=" +
+                                datas?.titularHist?.updated_at
+                            )
+                          : ""
+                      }
+                      name={getFullName(titular.owner)}
+                      w={40}
+                      h={40}
+                    />
+                    <div className={styles.historyItemInfo}>
+                      <p className={styles.historyItemName}>
+                        {getFullName(titular.owner)}
+                      </p>
+                      <div className={styles.historyItemDate}>
+                        Desde {getDateStrMes(titular.date_in)}
+                        {titular.date_out ? (
+                          ` Hasta ${getDateStrMes(titular.date_out)}`
+                        ) : (
+                          <span className={styles.currentStatus}>
+                            Titular actual
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))
             )}
           </div>
         </div>
@@ -318,7 +344,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
             <h3 className={styles.accountTitle}>Estado de cuenta</h3>
-            <span 
+            <span
               className={styles.viewMore}
               onClick={() => setOpenPaymentsHist(true)}
             >
@@ -335,11 +361,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
             </div>
             <div className={styles.accountList}>
               {!datas?.payments || datas.payments.length === 0 ? (
-                <EmptyData message="No existe historial de pagos para esta unidad" centered={false} />
+                <EmptyData
+                  message="No existe historial de pagos para esta unidad"
+                  centered={false}
+                />
               ) : (
                 datas.payments.slice(0, 4).map((pago: any, index: number) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={styles.accountRow}
                     onClick={() => {
                       if (pago.status === "A") {
@@ -356,18 +385,27 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     <div className={styles.cell}>Expensa</div>
                     <div className={styles.cell}>
                       {pago?.amount && pago?.penalty_amount
-                        ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
-                        : "-"
-                      }
+                        ? `Bs ${
+                            parseFloat(pago?.amount) +
+                            parseFloat(pago?.penalty_amount)
+                          }`
+                        : "-"}
                     </div>
                     <div className={styles.cell}>
-                      {pago?.payment?.type === "Q" ? "Qr" :
-                       pago?.payment?.type === "T" ? "Transferencia" :
-                       pago?.payment?.type === "O" ? "Pago en oficina" :
-                       "Sin pago"}
+                      {pago?.payment?.type === "Q"
+                        ? "Qr"
+                        : pago?.payment?.type === "T"
+                        ? "Transferencia"
+                        : pago?.payment?.type === "O"
+                        ? "Pago en oficina"
+                        : "Sin pago"}
                     </div>
                     <div className={`${styles.cell} ${styles.centerCell}`}>
-                      <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}>
+                      <span
+                        className={`${styles.status} ${
+                          styles[`status${pago?.status}`]
+                        }`}
+                      >
                         {getStatus(pago?.status)}
                       </span>
                     </div>
@@ -382,7 +420,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.visitsSection}>
           <div className={styles.visitsHeader}>
             <h3 className={styles.visitsTitle}>Historial de Visitas</h3>
-            <span 
+            <span
               className={styles.viewMore}
               onClick={() => setOpenAccesos(true)}
             >
@@ -398,7 +436,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
             </div>
             <div className={styles.visitsList}>
               {!datas?.access || datas.access.length === 0 ? (
-                <EmptyData message="No existe historial de visitas para esta unidad" centered={false} />
+                <EmptyData
+                  message="No existe historial de visitas para esta unidad"
+                  centered={false}
+                />
               ) : (
                 datas.access.slice(0, 4).map((visita: any, index: number) => (
                   <div key={index} className={styles.visitRow}>
@@ -419,18 +460,20 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       </div>
                     </div>
                     <div>
-                      {visita.type === "P" ? "Pedido" :
-                       visita.type === "I" ? "Individual" :
-                       visita.type === "G" ? "Grupal" :
-                       visita.type === "C" ? "Sin Qr" :
-                       <EmptyData />}
+                      {visita.type === "P" ? (
+                        "Pedido"
+                      ) : visita.type === "I" ? (
+                        "Individual"
+                      ) : visita.type === "G" ? (
+                        "Grupal"
+                      ) : visita.type === "C" ? (
+                        "Sin Qr"
+                      ) : (
+                        <EmptyData />
+                      )}
                     </div>
-                    <div>
-                      {getDateTimeStrMes(visita.in_at) || "Sin fecha"}
-                    </div>
-                    <div>
-                      {getDateTimeStrMes(visita.out_at) || "Sin fecha"}
-                    </div>
+                    <div>{getDateTimeStrMes(visita.in_at) || "Sin fecha"}</div>
+                    <div>{getDateTimeStrMes(visita.out_at) || "Sin fecha"}</div>
                   </div>
                 ))
               )}
@@ -441,30 +484,32 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       {/* Modales */}
       <DataModal
-  title="Cambiar de titular"
-  open={openTitular}
-  onSave={onSave}
-  onClose={() => setOpenTitular(false)}
-  buttonText="Guardar"
->
-  <div className={styles.modalContent}>
-  <Select
-  placeholder="Selecciona al nuevo titular"
-  name="owner_id"
-  error={errorsT.owner_id}
-  required={true}
-  value={formState.owner_id || ''}
-  onChange={(e) => setFormState({...formState, owner_id: e.target.value})}
-  options={(datas?.owners || []).map((owner:any) => ({
-    ...owner,
-    name: `${getFullName(owner)}`
-  }))}
-  optionLabel="name"
-  optionValue="id"
-  iconRight={<IconArrowDown />}
-/>
-  </div>
-</DataModal>
+        title="Cambiar de titular"
+        open={openTitular}
+        onSave={onSave}
+        onClose={() => setOpenTitular(false)}
+        buttonText="Guardar"
+      >
+        <div className={styles.modalContent}>
+          <Select
+            placeholder="Selecciona al nuevo titular"
+            name="owner_id"
+            error={errorsT.owner_id}
+            required={true}
+            value={formState.owner_id || ""}
+            onChange={(e) =>
+              setFormState({ ...formState, owner_id: e.target.value })
+            }
+            options={(datas?.owners || []).map((owner: any) => ({
+              ...owner,
+              name: `${getFullName(owner)}`,
+            }))}
+            optionLabel="name"
+            optionValue="id"
+            iconRight={<IconArrowDown />}
+          />
+        </div>
+      </DataModal>
       {/* Modales de Historial */}
       {openTitularHist && (
         <HistoryOwnership
@@ -483,7 +528,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
       )}
 
       {openAccesos && (
-        <HistoryAccess 
+        <HistoryAccess
           accessData={datas?.access || []}
           open={openAccesos}
           close={() => setOpenAccesos(false)}
@@ -535,7 +580,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           mod={modRe}
         />
       )}
-      */} 
+      */}
     </div>
   );
 };
