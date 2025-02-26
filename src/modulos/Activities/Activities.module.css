@@ -1,273 +1,126 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .searchContainer {
-    position: relative;
-    background-color: var(--darkv1);
-    width: 100%;
-    z-index: 10;
-  }
-  
-  @media (min-width: 768px) {
-    .searchContainer {
-      position: absolute;
-      top: 5px;
-      width: 40%;
-    }
-  }
-  
-  @media (min-width: 1200px) {
-    .searchContainer {
-      width: 35%;
-    }
-  }
-  
-  @media (min-width: 1440px) {
-    .searchContainer {
-      width: 31%;
-    }
-  }
-  
-  .searchRow {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 0.25rem;
-  }
-  
-  .searchInputContainer {
-    position: relative;
-    flex-grow: 1;
-  }
-  
-  .searchButton {
-    background-color: var(--accent);
-    color: var(--tBlack);
-    font-weight: bold;
-    font-size: 0.75rem;
-    position: absolute;
-    right: -6px;
-    top: -29px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportContainer {
+  background-color: var(--darkv2, #1c1c1c);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exportIcon {
+  color: var(--tWhite, #ffffff);
+}
+
+.listWrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Estilos para elementos de Accesos */
+.visitorName {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+/* Estilos para elementos de Invitaciones */
+.invitationTitle {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+.invitationTypeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupIcon {
+  color: var(--info, #3b82f6);
+}
+
+.singleIcon {
+  color: var(--success, #10b981);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.statusA {
+  background-color: var(--success, #10b981);
+  color: white;
+}
+
+.statusX {
+  background-color: var(--error, #ef4444);
+  color: white;
+}
+
+.statusE {
+  background-color: var(--lightv3, #a7a7a7);
+  color: white;
+}
+
+/* Estilos para elementos de Pedidos */
+.pedidoDescripcion {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+/* Estilos para reportes */
+.downloadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.downloadLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: var(--info, #3b82f6);
+  font-weight: 500;
+  gap: 0.5rem;
+}
+
+.downloadIcon {
+  color: var(--info, #3b82f6);
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .container {
     padding: 0.5rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-    box-shadow: none;
   }
-  
-  .actionsContainer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.75rem;
-    color: var(--tWhite);
-  }
-  
-  .filterContainer, .exportContainer {
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .filterDropdown, .exportDropdown {
-    background-color: var(--pBlack);
-    border-radius: 0.5rem;
-    border: 1px solid var(--darkv2);
-    padding: 0.5rem;
-  }
-  
-  .filterDropdown {
-    width: 8rem;
-  }
-  
-  .exportDropdown {
-    width: 5rem;
-  }
-  
-  .filterOption, .exportOption {
-    cursor: pointer;
-    padding: 0.25rem 0;
-    color: var(--tWhite);
-  }
-  
-  .filterOption:hover, .exportOption:hover {
-    color: var(--lightv3);
-  }
-  
-  .filterOption:not(:last-child) {
-    border-bottom: 1px solid var(--darkv2);
-  }
-  
-  .listContainer {
-    height: 100%;
-    overflow: hidden;
-    flex: 1;
-  }
-  
-  .loadingScreen {
-    height: 100%;
-    overflow-y: auto;
-  }
-  
-  .paginationContainer {
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid var(--darkv2);
-    padding-top: 0.5rem;
-  }
-  
-  .downloadContainer {
-    display: grid;
-    place-content: center;
-    padding: 1rem;
-  }
-  
-  .downloadLink {
-    color: var(--accent);
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .downloadIcon {
-    margin: 0 auto;
-  }
-  
-  /* Estilos para la sección de invitaciones */
-  .invitationsContainer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
-  }
-  
-  .invitationsList {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .dateHeader {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .dateTitle {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--tWhite);
-  }
-  
-  .invitationCard {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background-color: var(--darkv2);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .invitationCard:hover {
-    background-color: var(--darkv1);
-  }
-  
-  .invitationIcon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    color: var(--darkv2);
-  }
-  
-  .invitationContent {
-    flex: 1;
-  }
-  
-  .invitationTitle {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--tWhite);
-    margin-bottom: 0.25rem;
-  }
-  
-  .invitationDetails {
-    font-size: 0.75rem;
-    color: var(--lightv3);
-  }
-  
-  .expiredInvitation {
-    color: var(--error);
-  }
-  
-  /* Estilos para los items de accesos y pedidos */
-  .itemCard {
-    background-color: var(--darkv2);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .itemCard:hover {
-    background-color: var(--darkv1);
-  }
-  
-  .itemHeader {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-  
-  .itemTitle {
-    font-weight: 600;
-    color: var(--tWhite);
-  }
-  
-  .itemDate {
-    color: var(--lightv3);
-    font-size: 0.75rem;
-  }
-  
-  .itemContent {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-  
-  .itemField {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .itemLabel {
-    color: var(--lightv3);
-    font-size: 0.75rem;
-  }
-  
-  .itemValue {
-    color: var(--tWhite);
-    font-size: 0.875rem;
-  }
-  
-  /* Estilos para mensaje de vacío */
-  .emptyList {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: var(--lightv3);
-    padding: 2rem;
-    text-align: center;
-  }
+}
