@@ -1043,7 +1043,7 @@ const useCrud = ({
             label: field.filter?.label || field.list?.label || field.label,
             width: field.filter?.width || field.list.width || "300px",
             order:
-              field.filter?.order || field.list.order || field.order || 1000,
+              field.filter?.order || field?.list?.order || field?.order || 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
               : field.filter?.options(extraData) || field.form.options || [],

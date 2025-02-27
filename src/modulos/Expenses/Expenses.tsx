@@ -15,22 +15,50 @@ const mod: ModCrudType = {
     plural: "Expensas",
     // import: true,
     // importRequiredCols:"NAME",
+    filter:true,
     permiso: "",
 
 };
 
 interface Assigned {
     id: number;
-    debtId: string;
+    debt_id: string;
     amount: number;
-    penaltyAmount: number;
+    penalty_amount: number;
+    status: string;
 }
 
 
 type AssignedList = Assigned[];
 
 
+  interface Debt {
+    id: string;
+    clientId: string;
+    amount: number;
+    asignados: AssignedList;
+    begin_at: string | null;
+    categoryId: number;
+    created_at: string;
+    deleted_at: string | null;
+    description: string;
+    due_at: string;
+    month: number;
+    status: string;
+    updated_at: string;
+    year: number;
+  }
+  
+
+
 const Expenses = () => {
+
+        const lAnios: any = [{ id: "", name: "Todos" }];
+        const lastYear = new Date().getFullYear();
+        for (let i = lastYear; i >= 2000; i--) {
+        lAnios.push({ id: i, name: i });
+        }
+
 
     const today = new Date();
     const units = (unidades: AssignedList) => {
@@ -43,19 +71,18 @@ const Expenses = () => {
         });
         return sum;
     };
-    const paidUnits= (unidades:any) => {
+    const paidUnits= (unidades:AssignedList) => {
         let cont = 0;
-        // let c = "";
         unidades.map((uni) => {
-          if (uni.status == "P" && uni.status != "X") {
+                 // && uni.status != "X"
+          if (uni.status == "P") {
             cont = cont + 1;
-            // c = c + "," + uni.status;
           }
         });
-        // return c;
+  
         return cont;
       };
-      const sumPaidUnits = (unidades:any) => {
+      const sumPaidUnits = (unidades:AssignedList) => {
         let sum = 0;
         unidades.map((uni) => {
           if (uni.status == "P") {
@@ -65,7 +92,7 @@ const Expenses = () => {
         return sum;
       };
    
-    const unitsPayable = (unidades:any) => {
+    const unitsPayable = (unidades:AssignedList) => {
         let cont = 0;
         // let c = "";
         unidades.map((uni) => {
@@ -76,10 +103,10 @@ const Expenses = () => {
         // return c;
         return cont;
       };  
-    const isUnitInDefault = (props:any)=>{
+    const isUnitInDefault = (props:Debt)=>{
        return  unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today 
     }
-    const sumPenalty = (unidades:any) => {
+    const sumPenalty = (unidades:AssignedList) => {
         let sum: number = 0;
         unidades.map((uni) => {
           sum = sum + Number(uni.penalty_amount);
@@ -114,6 +141,12 @@ const Expenses = () => {
                 api: "ae",
                 label: "Año",
                 form: { type: "text" },
+                filter: {
+                    label: 'Año',
+                    width: '200px',
+                    options: ()=>lAnios,
+                  },
+
             },
             month: {
                 rules: ["required"],
@@ -126,6 +159,15 @@ const Expenses = () => {
                         name: month,
                     })),
                 },
+                filter:{
+                    label: "Meses",
+                    width: "200px",
+                  
+                    options:()=> MONTHS.map((month, index) => ({
+                        id: index ,
+                        name: month,
+                        })),
+                }
             },
             due_at: {
                 rules: ["required"],
@@ -216,7 +258,7 @@ const Expenses = () => {
                 label:"Unidades a pagar",
                 list:{
                     onRender:(props:any)=>{
-                        return(<div style={{color:isUnitInDefault(props?.item)?'var(--cError)':''}}>Bs. {formatNumber(unitsPayable(props?.item?.asignados))}</div>)}}
+                        return(<div style={{color:isUnitInDefault(props?.item)?'var(--cError)':''}}>{unitsPayable(props?.item?.asignados)}  U</div>)}}
                     },
             payStatus: {
                 rules: [""],
