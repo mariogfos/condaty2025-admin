@@ -60,7 +60,7 @@ const MainMenu = ({
               },
               { href: "/directAffiliates", label: "Egresos" },
               { href: "/affiliates", label: "Morosos" },
-              { href: "/ranking", label: "Expensas" },
+              { href: "/expenses", label: "Expensas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
