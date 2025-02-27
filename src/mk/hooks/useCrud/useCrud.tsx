@@ -366,7 +366,7 @@ const useCrud = ({
       if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
     }
     fil = fil.join("|");
-    setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
+    setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
     setOldFilter(filterBy);
   };
 
