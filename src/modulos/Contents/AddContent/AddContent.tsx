@@ -22,6 +22,7 @@ import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMulti
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import { lComDestinies } from "@/mk/utils/utils";
 
 const AddContent = ({
   onClose,
@@ -344,14 +345,7 @@ const AddContent = ({
               label="Público objetivo"
               onChange={handleChangeInput}
               value={formState.destiny}
-              options={
-                [
-                  { id: 'T', name: "Público en general" },
-                  { id: 'D', name: "Departamentos" },
-                  { id: 'G', name: "Guardias" },
-                  { id: 'R', name: "Residentes" }
-                ]
-              }
+              options={lComDestinies}
               error={errors}
             />
           </CardContent>

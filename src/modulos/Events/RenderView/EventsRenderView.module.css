@@ -47,7 +47,7 @@
 
 }
 .textBlackV2 {
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
   font-size: var(--sM);
   font-weight: var(--bMedium);
 }
@@ -96,7 +96,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        color: var(--cBlackV2);
+        color: var(--cWhiteV1);
       }
     }
   }

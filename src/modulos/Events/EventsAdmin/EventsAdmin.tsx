@@ -20,6 +20,7 @@ import RenderView from "../RenderView/RenderView";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import RenderItem from "@/modulos/shared/RenderItem";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
+import { lComDestinies } from "@/mk/utils/utils";
 
 const paramsInitial = {
   perPage: 10,
@@ -41,29 +42,7 @@ const paramsInitial = {
 //   if (data.key == "barrio_id") return level > 6;
 //   return false;
 // };
-const lDestinies = (data: {
-  key: string;
-  user?: Record<string, any>;
-  item: Record<string, any>;
-}) => {
-  const level = data.user?.role.level;
-  const r = [];
-  if (level == 1 || level == 0) {
-    r.push({ id: 0, name: "Todos" });
-  }
-  if (level == 2) r.push({ id: 0, name: "Mi organización" });
-  if (level == 3) r.push({ id: 0, name: "Mi departamento" });
-  if (level == 4) r.push({ id: 0, name: "Mi municipio" });
-  // if (level == 4) r.push({ id: 0, name: "Mi localidad" });
-  if (level == 5) r.push({ id: 0, name: "Mi barrio" });
 
-  if (level <= 1) r.push({ id: 2, name: "Organización" });
-  if (level <= 2) r.push({ id: 3, name: "Departamento" });
-  if (level <= 3) r.push({ id: 4, name: "Municipo" });
-  // if (level <= 4) r.push({ id: 5, name: "Localidad" });
-  // if (level <= 5) r.push({ id: 5, name: "Barrio" });
-  return r;
-};
 
 const EventsAdmin = () => {
   // const { user } = useAuth();
@@ -196,58 +175,46 @@ const EventsAdmin = () => {
         list: false,
         form: {
           type: "select",
-          options: lDestinies,
+          options: lComDestinies,
           // onLeft: leftDestiny,
           onTop: onTop,
           precarga: 0,
         },
       },
-      lDestiny: {
-        rules: [],
-        api: "ae",
-        label: "",
-        list: false,
-        form: false,
-      },
-      candidate_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Candidato",
-        list: false,
-        form: {
-          type: "select",
-          filter: true,
-          options: ({ extraData }: any) => {
-            let data: any = [];
-            extraData?.candidates.map((c: any) => {
-              if (c.status == "A")
-                data.push({
-                  id: c.id,
-                  name:
-                    getFullName(c) +
-                    " - " +
-                    extraData?.typeCands?.find(
-                      (t: any) => t.id == c.typecand_id
-                    )?.name,
-                });
-            });
-            return data;
-          },
-        },
-      },
-      // sublema_id: {
+      // lDestiny: {
+      //   rules: [],
+      //   api: "ae",
+      //   label: "",
+      //   list: false,
+      //   form: false,
+      // },
+      // candidate_id: {
       //   rules: ["required"],
       //   api: "ae",
-      //   label: "Sublema",
-      //   onHide: isHide,
+      //   label: "Candidato",
       //   list: false,
       //   form: {
       //     type: "select",
-      //     addOptions: [{ id: 0, name: "Todos" }],
-      //     optionsExtra: "sublemas",
-      //     precarga: user.datos?.sublema_id,
+      //     filter: true,
+      //     options: ({ extraData }: any) => {
+      //       let data: any = [];
+      //       extraData?.candidates.map((c: any) => {
+      //         if (c.status == "A")
+      //           data.push({
+      //             id: c.id,
+      //             name:
+      //               getFullName(c) +
+      //               " - " +
+      //               extraData?.typeCands?.find(
+      //                 (t: any) => t.id == c.typecand_id
+      //               )?.name,
+      //           });
+      //       });
+      //       return data;
+      //     },
       //   },
       // },
+  
       date_at: {
         rules: ["required", "date"],
         api: "ae",

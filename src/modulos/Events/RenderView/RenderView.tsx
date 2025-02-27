@@ -16,7 +16,7 @@ import WidgetEducation from "@/components/ Widgets/WidgetEducation/WidgetEducati
 import WidgetAge from "@/components/ Widgets/WidgetAge/WidgetAge";
 import Table from "@/mk/components/ui/Table/Table";
 import HorizontalProgresiveBar from "@/mk/components/ui/HorizontalProgresiveBar/HorizontalProgresiveBar";
-import { RandomsColors } from "@/mk/utils/utils";
+import { lComDestinies, RandomsColors } from "@/mk/utils/utils";
 import {
   GMT,
   getDateStrMes,
@@ -206,41 +206,41 @@ const RenderView = (props: {
     // }));
   };
 
-  const getDestinys = () => {
-    let lEntidad: any = [];
-    data.edestinies.map((item: any, index: number) => {
-      if (data.destiny == 2) {
-        lEntidad.push({
-          id: item.lista_id,
-          name: extraData.listas.find((lista: any) => lista.id == item.lista_id)
-            ?.name,
-        });
-      }
-      if (data.destiny == 3) {
-        lEntidad.push({
-          id: item.dpto_id,
-          name: extraData.dptos.find((dpto: any) => dpto.id == item.dpto_id)
-            ?.name,
-        });
-      }
-      if (data.destiny == 4) {
-        lEntidad.push({
-          id: item.mun_id,
-          name: extraData.muns.find((mun: any) => mun.id == item.mun_id)?.name,
-        });
-      }
-      if (data.destiny == 5) {
-        lEntidad.push({
-          id: item.barrio_id,
-          name: extraData.barrios.find(
-            (barrio: any) => barrio.id == item.barrio_id
-          )?.name,
-        });
-      }
-    });
-    return lEntidad;
-  };
-
+  // const getDestinys = () => {
+  //   let lEntidad: any = [];
+  //   data.edestinies.map((item: any, index: number) => {
+  //     if (data.destiny == 2) {
+  //       lEntidad.push({
+  //         id: item.lista_id,
+  //         name: extraData.listas.find((lista: any) => lista.id == item.lista_id)
+  //           ?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 3) {
+  //       lEntidad.push({
+  //         id: item.dpto_id,
+  //         name: extraData.dptos.find((dpto: any) => dpto.id == item.dpto_id)
+  //           ?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 4) {
+  //       lEntidad.push({
+  //         id: item.mun_id,
+  //         name: extraData.muns.find((mun: any) => mun.id == item.mun_id)?.name,
+  //       });
+  //     }
+  //     if (data.destiny == 5) {
+  //       lEntidad.push({
+  //         id: item.barrio_id,
+  //         name: extraData.barrios.find(
+  //           (barrio: any) => barrio.id == item.barrio_id
+  //         )?.name,
+  //       });
+  //     }
+  //   });
+  //   return lEntidad;
+  // };
+console.log(lComDestinies.find((i:any)=> i.id === data.destiny ),'asas')
   return (
     <DataModal
       open={props.open}
@@ -254,13 +254,7 @@ const RenderView = (props: {
         {data?.destiny != 0 && (
           <p style={{ marginBottom: 12, color: "var(--cInfo)" }}>
             Destino:{" "}
-            {entidad[data.destiny] +
-              `${
-                getDestinys().length > 1 ? (data.destiny == 3 ? "es" : "s") : ""
-              }`}{" "}
-            {getDestinys()
-              .map((e: any) => e.name)
-              .join(", ")}
+            { lComDestinies.find((i:any)=> i.id === data.destiny )?.name}
           </p>
         )}
         <WidgetBase
@@ -350,7 +344,7 @@ const RenderView = (props: {
                     {data?.name}
                   </div>
                   <div
-                    className="tSubtitle"
+                    // className="tSubtitle"
                     style={{
                       marginBottom: 8,
                       maxHeight: "100px",
@@ -517,13 +511,13 @@ const RenderView = (props: {
                     />
                   </div>
                 </section>
-                <WidgetDonut
+                {/* <WidgetDonut
                   title={""}
                   emptyTitle={"No hay estadísticas"}
                   allCountZero={allQrsCountZero}
                   graphData={assistGraphData}
                   style={{ width: "50%", marginTop: 0 }}
-                />
+                /> */}
               </div>
             </div>
           </section>
@@ -532,13 +526,13 @@ const RenderView = (props: {
           style={{ marginTop: 12, display: "flex", flexDirection: "column" }}
         >
           <section style={{ display: "flex", width: "100%", gap: 12 }}>
-            <div style={{ width: "50%" }}>
+            {/* <div style={{ width: "50%" }}>
               <WidgetAge
                 widget2={props?.item?.metrics?.age}
                 title={"Estadística por edad"}
               />
-            </div>
-            <div style={{ width: "50%" }}>
+            </div> */}
+            {/* <div style={{ width: "50%" }}>
               <WidgetBase
                 title={`Cantidad de afiliados que asistieron `}
                 style={{ marginBottom: "var(--sL)" }}
@@ -548,13 +542,13 @@ const RenderView = (props: {
                   header={header}
                   className="striped"
                   sumarize={true}
-                  // onRowClick={(row: any) => handleTableRowClick("prov_id", row.id)}
+                 
                 />
               </WidgetBase>
-            </div>
+            </div> */}
           </section>
 
-          <section style={{ display: "flex", width: "100%", gap: 12 }}>
+          {/* <section style={{ display: "flex", width: "100%", gap: 12 }}>
             <section style={{ display: "flex", width: "50%" }}>
               <WidgetDonut
                 title={"Estadísticas de sexo"}
@@ -572,7 +566,7 @@ const RenderView = (props: {
                 className={style["widgetEducation"]}
               />
             </div>
-          </section>
+          </section> */}
         </div>
       </div>
     </DataModal>

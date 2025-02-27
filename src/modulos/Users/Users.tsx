@@ -255,6 +255,15 @@ const Users = () => {
         onRender:(props:any)=>{console.log(props,'props address'); return <div>{ props?.item?.address || 'Sin domicilio' }</div>}
         },
       },
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          type: "text",
+        },
+        list: { width: "180px" },
+      },
     };
   }, []);
 

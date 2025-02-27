@@ -86,6 +86,14 @@ const Config = () => {
     let errors: any = {};
 
     if (typeSearch === "C") {
+      if (errorImage) {
+        errors = checkRules({
+          value: formState.avatar,
+          rules: ["required"],
+          key: "avatar",
+          errors,
+        });
+      }
       errors = checkRules({
         value: formState.name,
         rules: ["required"],
@@ -157,7 +165,7 @@ const Config = () => {
         errors = checkRules({
           value: formState.avatarQr,
           rules: ["required"],
-          key: "avatar",
+          key: "avatarQr",
           errors,
         });
       }
@@ -230,7 +238,7 @@ const Config = () => {
           tabs={[
             { value: "C", text: "Condominio" },
             { value: "P", text: "Pagos" },
-            { value: "M", text: "Moroso" },
+            { value: "M", text: "Morosidad" },
           ]}
           sel={typeSearch}
           setSel={setTypeSearch}
