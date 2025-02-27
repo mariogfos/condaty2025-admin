@@ -1,0 +1,61 @@
+.surveyMultipleChoice {
+  & > p:nth-child(1) {
+    color: var(--cWhite);
+    font-size: var(--sXl);
+    font-weight: 700;
+  }
+  & > p:nth-child(2) {
+    color: var(--cBlackV2);
+    font-size: var(--sM);
+    font-weight: 400;
+    margin-bottom: var(--spXs);
+  }
+  & > p:nth-child(3) {
+    color: var(--cSuccess);
+    margin-bottom: var(--spXl);
+  }
+  & > section {
+    display: flex;
+    gap: var(--spM);
+    & > div:nth-child(odd) {
+      flex: 2;
+      & > div {
+        background-color: var(--cBlackV1);
+        border-radius: var(--bRadius);
+        padding: var(--spM);
+        margin-bottom: var(--spM);
+        & > p {
+          color: var(--cWhite);
+          font-size: var(--sM);
+          font-weight: 600;
+          margin-bottom: var(--spS);
+        }
+      }
+    }
+    & > div:nth-child(even) {
+      flex: 1;
+      & > div {
+        background-color: var(--cBlackV1);
+        border-radius: var(--bRadius);
+        padding: var(--spM);
+        margin-bottom: var(--spM);
+        & > p:nth-child(odd) {
+          color: var(--cWhite);
+          font-size: var(--sM);
+          font-weight: 600;
+          margin-bottom: var(--spS);
+        }
+        & > p:nth-child(even) {
+          color: var(--cBlackV2);
+          font-size: var(--sM);
+          font-weight: 400;
+          margin-bottom: var(--spS);
+        }
+        & > div {
+          display: flex;
+          gap: var(--spXl);
+        }
+      }
+    }
+  }
+}
