@@ -89,7 +89,7 @@ const Owners = () => {
         list: false,
         form: {
           type: "imageUpload",
-          prefix: "ADM",
+          prefix: "OWNER",
           style: { width: "100%" },
           // onRigth: rigthAvatar,
         },
@@ -203,6 +203,15 @@ const Owners = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          type: "text",
+        },
+        list: { width: "180px" },
+      },
     };
   }, []);
 
