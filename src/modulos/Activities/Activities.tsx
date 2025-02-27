@@ -246,7 +246,7 @@ const Activities = () => {
         api: "",
         label: "Residente",
         list: { 
-         
+          width: "180px",
           onRender: (props: any) => {
             return <div>{props.item.owner ? getFullName(props.item.owner) : "Sin residente"}</div>;
           }
