@@ -34,14 +34,14 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
       </section>
 
         <UploadFile
-                        name="avatar"
+                        name="avatarQr"
                         onChange={onChange}
                         value={
                         formState?.id
                             ? getUrlImages(
                                 "/PAYMENTQR-" +
                                 formState?.id +
-                                ".png?" +
+                                ".webp?" +
                                 formState.updated_at
                             )
                             : ""
@@ -51,7 +51,7 @@ const PaymentsConfig = ({formState,onChange,setErrors,errors}:any) => {
                         img={true}
                         // editor={{ width: 720, height: 220 }}
                         sizePreview={{ width: "375px", height: "114px" }}
-                        placeholder="Subir imagen del condominio"
+                        placeholder="Subir imagen del Qr"
                         ext={["jpg", "png", "jpeg", "webp"]}
                         item={formState}
                     />

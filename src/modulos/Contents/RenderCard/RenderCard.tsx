@@ -23,12 +23,13 @@ type PropsType = {
 
 const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
   const [openDrop, setOpenDrop]: any = useState({ open: false, item: null });
-  const candidate = extraData?.candidates.find(
-    (c: any) => c.id == item?.candidate_id
-  );
-  const typeCand = extraData?.typeCands.find(
-    (t: any) => t.id == candidate?.typecand_id
-  );
+  console.log(item,'item')
+  // const candidate = extraData?.candidates.find(
+  //   (c: any) => c.id == item?.candidate_id
+  // );
+  // const typeCand = extraData?.typeCands.find(
+  //   (t: any) => t.id == candidate?.typecand_id
+  // );
 
   const getDestinys = () => {
     const names: any = [];
@@ -71,9 +72,9 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
         <div>
           <div>
             <Avatar
-              name={getFullName(candidate)}
+              name={getFullName(item?.user)}
               src={getUrlImages(
-                "/CAND-" + candidate?.id + ".webp?d=" + candidate?.updated_at
+                "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
               )}
             />
             <div style={{ flexGrow: 1 }}>
@@ -84,10 +85,10 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                   fontWeight: 600,
                 }}
               >
-                {getFullName(candidate)}
+                {getFullName(item.user)}
               </p>
-              <p style={{ fontSize: 12 }}>{typeCand?.name}</p>
-            </div>
+              
+            </div> 
             <div
               style={{ position: "relative" }}
               onClick={(e) => {

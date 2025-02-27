@@ -1,0 +1,116 @@
+.eventsContainer{
+
+
+}
+.cardEvent {
+  background-color: var(--cHover);
+  border:1px solid var(--cBlackV3);
+  border-radius: var(--bRadius);
+  padding:var(--spS);
+  width: 100%;
+}
+.firstWidget {
+  gap: 12px;
+  /* background-color: aquamarine; */
+  display: flex;
+}
+.flexAndGap{
+  gap: 12px;
+  display: flex;
+}
+.cardEventContainer {
+  /* display: flex;
+  width: 100%;
+  background-color:red;
+  margin-top: var(--spL);
+  padding: var(--spL);
+  border-radius: var(--bRadius);
+  & > div:nth-child(1) {
+    
+    border-radius: var(--bRadius);
+  }
+  & > div:nth-child(2) {
+    gap: 4px;
+    padding-left: var(--spL);
+    padding-right: var(--spL);
+    & > div:nth-child(3) {
+      margin-top: var(--spS);
+    }
+    & > div:nth-child(4) {
+      color: var(--cSuccess);
+    }
+  } */
+   display:flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+
+}
+.textBlackV2 {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+}
+.textWhiteV1 {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+}
+.bigNumber{
+  font-size: 40px;
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+}
+.number{
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+}
+.commentsAndLike {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.titleAndIcon {
+  display:flex;
+  align-items: center;
+}
+
+.interaccionesEventContainer {
+  & > div:nth-child(1) {
+    display: flex;
+    gap: 16px;
+    & > div {
+      flex: 1;
+
+      background-color: var(--cBlackV1);
+      background-color: aquamarine;
+      border-radius: 8px;
+      padding: 8px 0px;
+      & > p:nth-child(1) {
+        text-align: center;
+      }
+      & > p:nth-child(2) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--cWhiteV1);
+      }
+    }
+  }
+  & > h2 {
+    font-size: var(--sM);
+    color: var(--cWhite);
+    margin: var(--spM) 0px;
+  }
+}
+
+.widgetEducation {
+  margin-top:var(--spL);
+}
+
+.cardEventAndImage {
+  background-color: aqua;
+}

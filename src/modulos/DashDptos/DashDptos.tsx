@@ -131,7 +131,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setOpenPerfil(true);
     setDataOw({});
   };
-
+  console.log(datas);
+console.log("pruesdfasdfsdfsdfesd")
   return (
     <div className={styles.container}>
       <div className={styles.leftPanel}>
@@ -303,15 +304,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   >
                     <Avatar
                       src={
-                        datas?.titularHist?.id
-                          ? getUrlImages(
+                   getUrlImages(
                               "/OWNER" +
                                 "-" +
-                                datas?.titularHist?.id +
-                                ".webp?d=" +
-                                datas?.titularHist?.updated_at
+                                titular?.owner?.id +
+                            ".webp" +
+                            
+                              "?d=" + titular?.owner?.updated_at
+                                
                             )
-                          : ""
                       }
                       name={getFullName(titular.owner)}
                       w={40}

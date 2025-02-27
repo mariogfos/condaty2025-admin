@@ -103,6 +103,13 @@ export const lStatusActive:any  = {
   A:{ name:"Activo" },
   X:{ name:"Inactivo" },
 }
+export const lComDestinies:any =[
+    { id: 'T', name: "Todos" },
+    { id: 'D', name: "Departamentos" },
+    { id: 'G', name: "Guardias" },
+    { id: 'R', name: "Residentes" }
+  ]
+
 export const statusTask: any = {
   P: "Pendiente",
   E: "En curso",

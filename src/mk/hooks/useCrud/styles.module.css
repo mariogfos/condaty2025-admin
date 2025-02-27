@@ -59,7 +59,7 @@
 
   & > div {
     padding: 12px;
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     background-color: var(--cBlackV1);
     cursor: pointer;
   }
@@ -73,7 +73,7 @@
   }
   .active {
     border: 1px solid var(--cAccent);
-    background-color: #39acec33;
+    background-color: var(--cHoverSuccess);
   }
 }
 .formDelete {

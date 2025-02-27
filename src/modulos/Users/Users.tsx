@@ -204,10 +204,10 @@ const Users = () => {
           
         },
         
-        // list: { width: "150px",
-        //     onRender:(props:any)=>{ 
-        //       return <div>{'pa'}</div>}
-        //  },
+         list: { width: "150px",
+             onRender:(props:any)=>{ 
+               return <div>{props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description}</div>}
+          },
         // filter: {
         //   label: "Filtrar por Rol",
         //   width: "200px",
@@ -252,8 +252,17 @@ const Users = () => {
           type: "text",
         },
         list: { width: "200px" ,
-        onRender:(props:any)=>{console.log(props,'props address'); return <div>{ props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description || 'Sin domicilio' }</div>}
+        onRender:(props:any)=>{console.log(props,'props address'); return <div>{ props?.item?.address || 'Sin domicilio' }</div>}
         },
+      },
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          type: "text",
+        },
+        list: { width: "180px" },
       },
     };
   }, []);

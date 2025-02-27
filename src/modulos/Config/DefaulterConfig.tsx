@@ -82,7 +82,7 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
       <div >
         <div className={styles.boxDefaulter}>
         <section>
-                  <div className={styles.textTitle}>Multas por morosidad </div>
+                  <div className={styles.textTitle} style={{fontSize:'var(--sXxl)'}}>Multas por morosidad </div>
                   <div className={styles.textSubtitle}>
                     Configura las multas por morosidad en Condaty y garantiza el
                     cumplimiento de las cuotas mensuales. Con nuestro sistema,
@@ -92,7 +92,7 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
         </section>
         </div>
         <div className={styles.boxDefaulter}>
-          <section style={{alignSelf:'flex-start'}}>
+          <section >
               <div className={styles.textTitle}>
                  Porcentaje de multa por morosidad
                   </div>
@@ -103,8 +103,9 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
                   </section>
        
         <div className="flex gap-5 items-center ">
-                    <div className="text-tWhite text-sm font-light">Porcentaje        </div>
+            <div className="text-tWhite text-sm font-light">Porcentaje        </div>
           <div className={styles.inputBoxDefaulter}>
+       
             <Input
               label=""
               className="flex items-center"
@@ -114,13 +115,14 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
               value={formState.penalty_percent}
               onChange={onChange}
             />
+          
           </div>
-                    <div className="text-tWhite">%        </div>
+                    <div className="text-tWhite">% </div>
         </div>
         </div>
 
         <div className={styles.boxDefaulter}>
-          <section style={{alignSelf:'flex-start'}}>
+          <section >
                     <div className={styles.textTitle}>
                     Meses para empezar a cobrar la multa
                   </div>
@@ -129,13 +131,14 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
                       se comience a cobrar la multa por morosidad.
                   </div>
                   </section>
-        </div>
-        <div className="flex gap-5 items-center ">
-      
-          <div className={styles.inputBoxDefaulter} style={{marginBottom:'var(--spL)'}}>
+             <div>     
+            <div >
+             <div className={styles.textTitle}>Número de meses</div>
+            </div>
+            <div className={styles.inputBoxDefaulter}>
             <Input
               type="text"
-              label="Número de meses"
+              label=""
               className="flex items-center"
               name="penalty_limit"
               error={errors}
@@ -143,8 +146,15 @@ const DefaulterConfig = ({formState,onChange,errors}:DefaulterConfigProps) => {
               value={formState?.penalty_limit}
               onChange={onChange}
             />
-          </div>
+            </div>
+            </div>
         </div>
+        {/* <div className="flex gap-5 items-center ">
+      
+          <div className={styles.boxDefaulter} style={{marginBottom:'var(--spL)'}}>
+          
+          </div>
+        </div> */}
       </div>
     </div>
   </div>

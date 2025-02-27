@@ -13,15 +13,16 @@ const DptoConfig = ({
   setErrors,
   errors,
   client_config,
+  onChange
 }: any) => {
   // console.log(formState,'fst desde dptoconfg')
-  const onChange = (e: any) => {
-    let value = e?.target?.value;
-    if (e.target.type == "checkbox") {
-      value = e.target.checked ? "Y" : "N";
-    }
-    setFormState({ ...formState, [e.target.name]: value });
-  };
+  // const onChange = (e: any) => {
+  //   let value = e?.target?.value;
+  //   if (e.target.type == "checkbox") {
+  //     value = e.target.checked ? "Y" : "N";
+  //   }
+  //   setFormState({ ...formState, [e.target.name]: value });
+  // };
   return (
     <>
       <div className="w-full flex justify-center my-6">
