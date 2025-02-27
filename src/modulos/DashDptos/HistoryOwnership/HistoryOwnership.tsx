@@ -20,7 +20,7 @@ const modRe = {
   singular: "residente",
   permiso: "residentes",
   plural: "residentes",
-  avatarPrefix: "OWN",
+  avatarPrefix: "OWNER",
 };
 
 const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps) => {
@@ -78,7 +78,7 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
                 <div className={styles.titularInfo}>
                   <Avatar
                     src={getUrlImages(
-                      `/OWN-${titular?.owner_id}.png?d=${titular?.updated_at}`
+                      `/OWNER-${titular?.owner?.id}.webp?d=${titular?.owner?.updated_at}`
                     )}
                     name={getFullName(titular?.owner)}
                     className={styles.avatar}
