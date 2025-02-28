@@ -10,6 +10,8 @@ import { MONTHS, MONTHS_S } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
 import Check from "@/mk/components/forms/Check/Check";
 import RenderForm from "./RenderForm";
+import RenderView from "./RenderView";
+import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 
 const mod: ModCrudType = {
     modulo: "debts",
@@ -18,8 +20,12 @@ const mod: ModCrudType = {
     // import: true,
     // importRequiredCols:"NAME",
     filter:true,
+
     permiso: "",
     extraData: true,
+    hideActions:{
+        view:true,
+    },
     renderForm: (props: {
         item: any;
         setItem: any;
@@ -51,7 +57,13 @@ const mod: ModCrudType = {
             openList={props.openList}
             setOpenList={props.setOpenList}
           />
-        );}
+        );},
+        // renderView: (props: {
+        //     open: boolean;
+        //     onClose: any;
+        //     item: Record<string, any>;
+        //     onConfirm?: Function;
+        //   }) => <RenderView {...props} />,
 
 };
 
@@ -87,7 +99,9 @@ type AssignedList = Assigned[];
 
 
 const Expenses = () => {
-
+const [openDetail,setOpenDetail]:any= useState(false)
+ 
+   
 
  const getYearOptions = () => {
     const lAnios: any = [{ id: "", name: "Todos" }];
@@ -425,7 +439,7 @@ const Expenses = () => {
         onClick: Function
     ) => {
         return (
-            <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
+            <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
                 <ItemList
                     title={item?.name}
                     subtitle={item?.description}
@@ -435,13 +449,24 @@ const Expenses = () => {
             </RenderItem>
         );
     };
+    const onClickDetail = (row: any) => {
+        // const url = `/detailSurveys?id=${row.id}`;
+    
+        // window.location.href = url;
+        setOpenDetail(true)
+      };
 
     if (!userCan(mod.permiso, "R")) return <NotAccess />;
-    return (
-        <div >
-            <List onTabletRow={renderItem} />
-        </div>
-    );
+
+
+    if(openDetail)return  <ExpensesDetails/> 
+    else return (
+       <div>
+           <List 
+           onTabletRow={renderItem}
+           onRowClick={onClickDetail}  />
+        </div>)
+    
 };
 
 export default Expenses;
