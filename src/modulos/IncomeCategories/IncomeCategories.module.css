@@ -1,6 +1,7 @@
 .container {
   width: 100%;
   padding: 20px;
+  max-width: 100%;
 }
 
 .header {
@@ -8,6 +9,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .headerTitle {
@@ -80,14 +82,15 @@
   margin-bottom: 8px;
 }
 
-/* Estilos para la tarjeta de categoría - modificado para asegurar una por fila */
+/* Estilos para la tarjeta de categoría - arreglado para asegurar ancho completo */
 .categoryCard {
   background-color: var(--cDarkv2, #252525);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 16px;
-  width: 100%; /* Asegurar que tome todo el ancho disponible */
-  display: block; /* Forzar que tome una fila completa */
+  width: 100% !important; /* Forzar ancho completo */
+  display: block;
+  box-sizing: border-box;
 }
 
 .categoryHeader {
@@ -97,7 +100,8 @@
   align-items: center;
   cursor: pointer;
   transition: background-color 0.2s;
-  width: 100%; /* Asegurar ancho completo */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .categoryHeader:hover {
@@ -109,7 +113,7 @@
   align-items: center;
   gap: 8px;
   flex: 1;
-  min-width: 0; /* Permite que los hijos se ajusten si es necesario */
+  min-width: 0;
 }
 
 .categoryTitle h3 {
@@ -135,7 +139,8 @@
 .categoryActions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* No permitir que los botones se encojan */
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .categoryActions button {
@@ -168,26 +173,28 @@
   transform: rotate(0);
   transition: transform 0.3s ease;
   color: var(--cLightv2, #cccccc);
-  flex-shrink: 0; /* Evitar que el ícono se encoja */
+  flex-shrink: 0;
+  cursor: pointer;
+  min-width: 24px;
 }
 
 .arrowIcon.expanded {
   transform: rotate(180deg);
 }
 
-/* Subcategorías - modificado para mantener una por fila */
+/* Subcategorías - ajustes para mejor visualización */
 .subcategoriesContainer {
   background-color: var(--cDarkv1, #1e1e1e);
   padding: 16px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .subcategoriesTitle {
   font-size: 14px;
   font-weight: 600;
   color: var(--cLightv1, #dddddd);
-  margin-top: 0;
-  margin-bottom: 12px;
+  margin: 0 0 12px 0;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--cDarkv3, #333333);
 }
@@ -209,6 +216,7 @@
   cursor: pointer;
   transition: background-color 0.2s;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .subcategoryItem:hover {
@@ -220,7 +228,7 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  min-width: 0; /* Permite que los textos se acorten con ellipsis */
+  min-width: 0;
 }
 
 .subcategoryName {
@@ -242,7 +250,8 @@
 .subcategoryActions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* No permitir que los botones se encojan */
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .subcategoryActions button {
@@ -277,6 +286,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Fix para Table y categorías */
+:global(.striped) {
+  width: 100% !important;
+}
+
+:global(.striped tbody) {
+  width: 100% !important;
+}
+
+:global(.striped tr) {
+  width: 100% !important;
+}
+
+:global(.striped td) {
+  display: table-cell;
 }
 
 /* Estilos para móvil */

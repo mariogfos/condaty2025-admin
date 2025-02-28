@@ -7,8 +7,10 @@ export interface CategoryItem {
     id?: string | number;
     name?: string;
   };
-  subcategories?: CategoryItem[];
+  hijos?: CategoryItem[]; // Para manejar las subcategorías según la API
+  subcategories?: CategoryItem[]; // Mantenido para compatibilidad
   type?: string;
+  fixed?: string;
   [key: string]: any;
 }
 
@@ -16,14 +18,20 @@ export interface CategoryFormProps {
   open: boolean;
   onClose: () => void;
   item: CategoryItem;
-  setItem: (
-    item: CategoryItem | ((prev: CategoryItem) => CategoryItem)
-  ) => void;
+  setItem: (item: CategoryItem | ((prev: CategoryItem) => CategoryItem)) => void;
   errors: Record<string, any>;
   setErrors: (errors: Record<string, any>) => void;
   onSave: (item: CategoryItem) => void;
   extraData: Record<string, any>;
   action: string;
+  execute?: any;
+}
+
+export interface CategoryCardProps {
+  item: CategoryItem;
+  onClick?: (item: CategoryItem) => void; // Opcional para permitir usarlo sin onClick
+  onEdit: (item: CategoryItem) => void;
+  onDel: (item: CategoryItem) => void;
 }
 
 export interface InputEvent {
@@ -31,11 +39,4 @@ export interface InputEvent {
     name: string;
     value: any;
   };
-}
-
-export interface CategoryCardProps {
-  item: CategoryItem;
-  onClick: (item: CategoryItem) => void;
-  onEdit: (item: CategoryItem) => void;
-  onDel: (item: CategoryItem) => void;
 }
