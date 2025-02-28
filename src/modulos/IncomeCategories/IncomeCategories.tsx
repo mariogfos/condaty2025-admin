@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, memo, useCallback } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./IncomeCategories.module.css";
@@ -17,7 +17,7 @@ import Check from "@/mk/components/forms/Check/Check";
 import Select from "@/mk/components/forms/Select/Select";
 import HeadTitle from "@/components/HeadTitle/HeadTitle";
 
-// Interfaces para tipar correctamente
+
 interface CategoryItem {
   id?: string | number;
   name?: string;
@@ -36,7 +36,7 @@ interface CategoryFormProps {
   open: boolean;
   onClose: () => void;
   item: CategoryItem;
-  setItem: (item: CategoryItem) => void;
+  setItem: (item: CategoryItem | ((prev: CategoryItem) => CategoryItem)) => void;
   errors: Record<string, any>;
   setErrors: (errors: Record<string, any>) => void;
   onSave: (item: CategoryItem) => void;
@@ -51,8 +51,8 @@ interface InputEvent {
   };
 }
 
-// Componente para el formulario personalizado
-const CategoryForm: React.FC<CategoryFormProps> = ({
+
+const CategoryForm = memo(({
   open,
   onClose,
   item,
@@ -62,33 +62,41 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
   onSave,
   extraData,
   action
-}) => {
+}: CategoryFormProps) => {
   const [isCateg, setIsCateg] = useState<string>(item.category_id ? "S" : "C");
 
-  // Cuando se carga el formulario, establecer isCateg según si tiene category_id
+
   useEffect(() => {
     setIsCateg(item.category_id ? "S" : "C");
   }, [item.category_id]);
 
+
   const handleChange = (e: InputEvent) => {
     const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
+
+    setItem(prevItem => ({ ...prevItem, [name]: value }));
   };
 
-  // Manejar cambio de tipo (categoría o subcategoría)
+
   const onSelItem = (e: InputEvent) => {
     const selValue = e.target.name; // "C" o "S"
     setIsCateg(selValue);
-    
-    // Si es categoría, eliminar category_id
+
+
     if (selValue === "C") {
-      setItem({
-        ...item,
+      setItem(prevItem => ({
+        ...prevItem,
         category_id: null,
-      });
+      }));
     }
   };
+  const handleSave = useCallback(() => {
+    onSave(item);
+  }, [item, onSave]);
 
+  // Verificar que existan categorías disponibles
+  const categories = extraData?.categories || [];
+  
   return (
     <DataModal
       id="CategoriaForm"
@@ -103,7 +111,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
           : "Guardar cambios"
       }
       buttonCancel=""
-      onSave={() => onSave(item)}
+      onSave={handleSave}
     >
       {action === "add" && (
         <>
@@ -134,14 +142,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
         </>
       )}
 
-      {/* Si es subcategoría, mostrar selector de categoría padre */}
       {isCateg === "S" && (
         <div className={styles.formGroup}>
           <Select
             name="category_id"
             label="Categoría"
             placeholder="Selecciona una categoría"
-            options={extraData?.categories || []}
+            options={categories}
             value={item.category_id || ""}
             onChange={handleChange}
             error={errors}
@@ -182,7 +189,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
         />
       </div>
 
-      {/* Campo oculto para el tipo */}
+   
       <input 
         type="hidden" 
         name="type" 
@@ -190,7 +197,10 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
       />
     </DataModal>
   );
-};
+});
+
+
+CategoryForm.displayName = "CategoryForm";
 
 // Componente para renderizar una categoría con sus subcategorías
 interface CategoryCardProps {
@@ -200,13 +210,14 @@ interface CategoryCardProps {
   onDel: (item: CategoryItem) => void;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDel }) => {
+const CategoryCard = memo(({ item, onClick, onEdit, onDel }: CategoryCardProps) => {
   const hasSubcategories = item.subcategories && item.subcategories.length > 0;
   const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
   
   const toggleSubcategories = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowSubcategories(!showSubcategories);
+    // Usar actualización funcional del estado
+    setShowSubcategories(prev => !prev);
   };
   
   return (
@@ -219,7 +230,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
               onClick={toggleSubcategories}
             />
           )}
-          <h3>{item.name}</h3>
+          <h3>{item.name || "Sin nombre"}</h3>
         </div>
         <div className={styles.categoryDescription}>
           {item.description || "Sin descripción"}
@@ -251,9 +262,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
         <div className={styles.subcategoriesContainer}>
           <h4 className={styles.subcategoriesTitle}>Sub-categorías</h4>
           <div className={styles.subcategoriesList}>
-            {item.subcategories.map((subcat) => (
+            {item.subcategories?.map((subcat) => (
               <div 
-                key={subcat.id} 
+                key={subcat.id || `subcat-${Math.random()}`} 
                 className={styles.subcategoryItem}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -261,7 +272,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
                 }}
               >
                 <div className={styles.subcategoryContent}>
-                  <span className={styles.subcategoryName}>{subcat.name}</span>
+                  <span className={styles.subcategoryName}>{subcat.name || "Sin nombre"}</span>
                   <span className={styles.subcategoryDesc}>{subcat.description || "Sin descripción"}</span>
                 </div>
                 <div className={styles.subcategoryActions}>
@@ -289,16 +300,20 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
       )}
     </div>
   );
-};
+});
 
-// Componente principal
+CategoryCard.displayName = "CategoryCard";
+
+
 const IncomeCategories: React.FC = () => {
-  const mod = {
+
+  const mod = useMemo(() => ({
     modulo: "categories",
     singular: "Categoría",
     plural: "Categorías",
     permiso: "",
     extraData: true,
+    extraDataParams: { type: "I" }, 
     hideActions: {
       view: false,
       add: false,
@@ -310,17 +325,17 @@ const IncomeCategories: React.FC = () => {
       edit: "Categoría actualizada con éxito",
       del: "Categoría eliminada con éxito"
     },
-    // Usar el renderForm personalizado
+   
     renderForm: (props: any) => <CategoryForm {...props} />
-  };
+  }), []);
 
-  const paramsInitial = {
+  const paramsInitial = useMemo(() => ({
     perPage: 10,
     page: 1,
     fullType: "L",
-    type: "I", // Tipo Ingreso
+    type: "I", // Tipo Ingres
     searchBy: "",
-  };
+  }), []);
 
   const fields = useMemo(
     () => ({
@@ -333,7 +348,7 @@ const IncomeCategories: React.FC = () => {
         form: { type: "text" },
         list: { 
           onRender: (props: { item: CategoryItem }) => {
-            return <div className={styles.categoryName}>{props.item.name}</div>;
+            return <div className={styles.categoryName}>{props.item.name || "Sin nombre"}</div>;
           }
         },
       },
@@ -359,7 +374,7 @@ const IncomeCategories: React.FC = () => {
         label: "Tipo",
         form: {
           type: "hidden",
-          precarga: "I" // Tipo Ingreso
+          precarga: "I" // Tipo Ingreso    
         }
       },
       
@@ -376,7 +391,7 @@ const IncomeCategories: React.FC = () => {
           width: "180px",
           onRender: (props: { item: CategoryItem }) => {
             return props.item.category 
-              ? <div>{props.item.category.name}</div>
+              ? <div>{props.item.category.name || "Sin nombre"}</div>
               : <div className={styles.mainCategory}>Categoría Principal</div>;
           }
         },
@@ -399,20 +414,33 @@ const IncomeCategories: React.FC = () => {
     fields,
   });
 
-  // Función para renderizar los elementos de la lista usando el componente CategoryCard
-  const renderCard = (item: CategoryItem, index: number, onClick: (item: CategoryItem) => void) => {
+
+  const handleEdit = useCallback((item: CategoryItem): void => {
+    onEdit(item);
+  }, [onEdit]);
+
+  const handleDelete = useCallback((item: CategoryItem): void => {
+    onDel(item);
+  }, [onDel]);
+  
+
+  const renderCardFunction = (
+    item: CategoryItem, 
+    index: number, 
+    onClick: (item: CategoryItem) => void
+  ) => {
     return (
       <CategoryCard 
-            key={item.id}
-            item={item}
-            onClick={onClick} onEdit={function (item: CategoryItem): void {
-                throw new Error("Function not implemented.");
-            } } onDel={function (item: CategoryItem): void {
-                throw new Error("Function not implemented.");
-            } }   
+        key={item.id || `category-${index}`}
+        item={item}
+        onClick={onClick}
+        onEdit={handleEdit}
+        onDel={handleDelete}
       />
     );
   };
+
+  const renderCard = useMemo(() => renderCardFunction, [handleEdit, handleDelete]);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   
@@ -420,10 +448,7 @@ const IncomeCategories: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <HeadTitle className={styles.headerTitle} />
-        <div className={styles.headerContent}>
-          <h1>Categorías de ingreso</h1>
-          <p>Administre, agregue, elimine y organice todas las categorías de sus ingresos</p>
-        </div>
+     
         <Button 
           className={styles.addButton} 
           onClick={() => onAdd()}
