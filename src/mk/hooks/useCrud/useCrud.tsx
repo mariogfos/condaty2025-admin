@@ -40,7 +40,7 @@ export type ModCrudType = {
   singular: string;
   plural: string;
   permiso: string;
-  extraData?: boolean;
+  extraData?: boolean | Record<string, any>;
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
@@ -366,7 +366,8 @@ const useCrud = ({
       if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
     }
     fil = fil.join("|");
-    setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
+    //setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
+    setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
     setOldFilter(filterBy);
   };
 
@@ -444,6 +445,7 @@ const useCrud = ({
         perPage: -1,
         page: 1,
         fullType: "EXTRA",
+        ...(mod.extraData?.params || {}),
       },
       false,
       mod?.noWaiting
@@ -650,7 +652,7 @@ const useCrud = ({
       const headF: any[] = [];
       let openTag = -1;
       head.forEach((col: any, i: number) => {
-        console.log("col", col, i);
+        // console.log("col", col, i);
         if (col.openTag && openTag == -1) {
           headF.push({
             key: "openTag" + i,
