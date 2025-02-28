@@ -1,0 +1,67 @@
+.container {
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--cWhite, white);
+  }
+  
+  .viewButton {
+    color: var(--cInfo, blue);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .viewButton:hover {
+    opacity: 0.8;
+  }
+  
+  /* Estilos para la tabla */
+  .tableContainer {
+    overflow-x: auto;
+    border-radius: 8px;
+    background-color: var(--cDarkv1, #1e1e1e);
+  }
+  
+  /* Estilos para los estados de pago */
+  .statusPending {
+    background-color: var(--cWarning, orange);
+    color: var(--cDark, black);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .statusCompleted {
+    background-color: var(--cSuccess, green);
+    color: var(--cWhite, white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .statusRejected {
+    background-color: var(--cError, red);
+    color: var(--cWhite, white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  /* Estilos para responsive */
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    
+    .title {
+      font-size: 20px;
+    }
+  }
