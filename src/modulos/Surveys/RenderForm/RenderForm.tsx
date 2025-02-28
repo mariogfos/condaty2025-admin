@@ -77,7 +77,7 @@ const RenderForm = ({
   useEffect(() => {
     setFormState((prevState: any) => ({
       ...prevState,
-      meta: calculatePercentage(prevState.affCount || 0, 10),
+   
     }));
   }, [formState.affCount]);
 
@@ -165,9 +165,7 @@ const RenderForm = ({
   };
 
   const handlePercentaje = () => {
-    // if (e.key === "Enter") {
-    setAff(formState.meta);
-    // }
+
   };
   const validateLevel1 = (field: any = "") => {
     let errors: any = {};
@@ -220,7 +218,7 @@ const RenderForm = ({
           destiny: formState.destiny,
           lDestiny: lDestinys,
           // affCount: formState.affCount,
-          meta: formState.meta,
+   
           begin_at: formState.begin_at,
           end_at: formState.end_at,
           is_mandatory: formState.is_mandatory,
