@@ -4,10 +4,12 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 // import styles from "./Educations.module.css";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import RenderItem from "../shared/RenderItem";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
+import Check from "@/mk/components/forms/Check/Check";
+import RenderForm from "./RenderForm";
 
 const mod: ModCrudType = {
     modulo: "debts",
@@ -17,6 +19,39 @@ const mod: ModCrudType = {
     // importRequiredCols:"NAME",
     filter:true,
     permiso: "",
+    extraData: true,
+    renderForm: (props: {
+        item: any;
+        setItem: any;
+        errors: any;
+        extraData: any;
+        open: boolean;
+        onClose: any;
+        user: any;
+        execute: any;
+        setErrors: any;
+        action: any;
+        openList: any;
+        setOpenList: any;
+        reLoad:any;
+      }) => {
+        return (
+          <RenderForm
+            onClose={props.onClose}
+            open={props.open}
+            item={props.item}
+            setItem={props.setItem}
+            errors={props.errors}
+            extraData={props.extraData}
+            user={props.user}
+            execute={props.execute}
+            setErrors={props.setErrors}
+            reLoad={props.reLoad}
+            action={props.action}
+            openList={props.openList}
+            setOpenList={props.setOpenList}
+          />
+        );}
 
 };
 
@@ -53,12 +88,17 @@ type AssignedList = Assigned[];
 
 const Expenses = () => {
 
-        const lAnios: any = [{ id: "", name: "Todos" }];
-        const lastYear = new Date().getFullYear();
-        for (let i = lastYear; i >= 2000; i--) {
-        lAnios.push({ id: i, name: i });
-        }
 
+ const getYearOptions = () => {
+    const lAnios: any = [{ id: "", name: "Todos" }];
+    const lastYear = new Date().getFullYear();
+    for (let i = lastYear; i >= 2000; i--) {
+      lAnios.push({ id: i, name: i.toString() });
+    }
+    return lAnios;
+  };
+  
+ 
 
     const today = new Date();
     const units = (unidades: AssignedList) => {
@@ -144,7 +184,7 @@ const Expenses = () => {
                 filter: {
                     label: 'Año',
                     width: '200px',
-                    options: ()=>lAnios,
+                    options: ()=>getYearOptions,
                   },
 
             },
@@ -187,33 +227,97 @@ const Expenses = () => {
                 },
 
             },
-            description: {
-                rules: [""],
-                api: "ae",
-                label: "Descripción (Opcional)",
-                form: { type: "textArea" },
-            },
-            asignar: {
-                rules: ["required"],
-                api: "ae",
-                label: "Asignar a",
-                form: {
-                    type: "check",
+            // description: {
+            //     rules: [""],
+            //     api: "ae",
+            //     label: "Descripción (Opcional)",
+            //     form: { type: "textArea" },
+            // },
+            // asignar: {
+            //     rules: ["required"],
+            //     api: "ae",
+            //     label: "Asignar a",
+            //     form: {
+            //         type: "check",
+            //         onRender: (props) =>{
+                          
+            //                 const [assignState,setAssignState]:any = useState('');
 
-                }
-            },
-            dpto_id: {
-                rules: ["required"],
-                api: "ae",
-                label: "Departamento",
-                form: {
-                    type: "select",
-                    options: [
-                        { id: 1, name: 'Ventas' }
-                    ]
-                },
+            //                 const onSelItem = (e) => {
+            //                     setAssignState({
+            //                     ...assignState,
+            //                     asignar: e.target.name,
+            //                     });
 
-            },
+            //                     return;
+            //                 };
+            //             console.log(props,'props desde el form expensas')
+
+            //             return(
+            //             <div className="space-y-3  ">
+            //             <Check
+            //               label="Todas las unidades"
+            //               name={"T"}
+            //               checked={assignState.asignar === "T"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "T" ? "Y" : "N"}
+            //             />
+            
+            //             <Check
+            //               label="Unidades ocupadas"
+            //               name={"O"}
+            //               checked={assignState.asignar === "O"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "O" ? "Y" : "N"}
+            //             />
+            
+            //             <Check
+            //               label="Unidades no ocupadas"
+            //               name={"L"}
+            //               checked={assignState.asignar === "L"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "L" ? "Y" : "N"}
+            //             />
+            //             <Check
+            //               label="Seleccionar"
+            //               name={"S"}
+            //               checked={assignState.asignar === "S"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "S" ? "Y" : "N"}
+            //             />
+            //             {/* {errors["asignar"] && errors["asignar"] !== "" && (
+            //               <p className={`px-2 my-4 text-xs mt-1 text-red-600 text-center`}>
+            //                 {errors["asignar"]}
+            //               </p>
+            //             )} */}
+
+            //             <Select 
+
+            //           </div>)
+            //         }
+
+            //     }
+            // },
+            // dpto_id: {
+            //     rules: ["required"],
+            //     api: "ae",
+            //     label: "Departamento",
+            //     form: {
+            //         type: "select",
+            //         options: [
+            //             { id: 1, name: 'Ventas' }
+            //         ]
+            //     },
+
+            // },
             assignedUnits: {
                 rules: [""],
                 api: "",
