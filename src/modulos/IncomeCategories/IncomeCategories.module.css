@@ -279,30 +279,13 @@
 }
 
 /* Ajuste para asegurar que todos los textos se acorten con puntos suspensivos */
-.categoryName, 
+.categoryName,
 .categoryDescription,
 .subcategoryName,
 .subcategoryDesc {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Fix para Table y categorías */
-:global(.striped) {
-  width: 100% !important;
-}
-
-:global(.striped tbody) {
-  width: 100% !important;
-}
-
-:global(.striped tr) {
-  width: 100% !important;
-}
-
-:global(.striped td) {
-  display: table-cell;
 }
 
 /* Estilos para móvil */
@@ -312,22 +295,22 @@
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .addButton {
     width: 100%;
     justify-content: center;
   }
-  
+
   .categoryHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .categoryActions {
     align-self: flex-end;
   }
-  
+
   .categoryDescription {
     width: 100%;
     padding: 0;
