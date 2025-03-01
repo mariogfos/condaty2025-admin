@@ -1,0 +1,335 @@
+.container {
+  width: 100%;
+  padding: 20px;
+  max-width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.headerTitle {
+  flex: 0 0 auto;
+  margin-right: 16px;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.headerContent h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite, white);
+  margin-bottom: 8px;
+}
+
+.headerContent p {
+  font-size: 14px;
+  color: var(--cLightv3, #aaaaaa);
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--cAccent, #4caf50);
+  color: var(--cDark, black);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+/* Estilos para el formulario */
+.subtitle {
+  color: var(--cLightv3, #aaaaaa);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.optionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.optionLabel {
+  font-weight: 500;
+  color: var(--cWhite, white);
+}
+
+.formGroup {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  color: var(--cWhite, white);
+  margin-bottom: 8px;
+}
+
+/* Estilos para la tarjeta de categoría - arreglado para asegurar ancho completo */
+.categoryCard {
+  background-color: var(--cDarkv2, #252525);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  width: 100% !important; /* Forzar ancho completo */
+  display: block;
+  box-sizing: border-box;
+}
+
+.categoryHeader {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.categoryHeader:hover {
+  background-color: var(--cDarkv3, #333333);
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.categoryTitle h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite, white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryDescription {
+  flex: 2;
+  color: var(--cLightv3, #aaaaaa);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 16px;
+}
+
+.categoryActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.categoryActions button {
+  background-color: transparent;
+  border: none;
+  color: var(--cLightv2, #cccccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.categoryActions button:hover {
+  background-color: var(--cDarkv1, #1e1e1e);
+}
+
+.editButton:hover {
+  color: var(--cAccent, #4caf50);
+}
+
+.deleteButton:hover {
+  color: var(--cError, #ff5252);
+}
+
+.arrowIcon {
+  transform: rotate(0);
+  transition: transform 0.3s ease;
+  color: var(--cLightv2, #cccccc);
+  flex-shrink: 0;
+  cursor: pointer;
+  min-width: 24px;
+}
+
+.arrowIcon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Subcategorías - ajustes para mejor visualización */
+.subcategoriesContainer {
+  background-color: var(--cDarkv1, #1e1e1e);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.subcategoriesTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cLightv1, #dddddd);
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cDarkv3, #333333);
+}
+
+.subcategoriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.subcategoryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--cDarkv2, #252525);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.subcategoryItem:hover {
+  background-color: var(--cDarkv3, #333333);
+}
+
+.subcategoryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.subcategoryName {
+  font-size: 14px;
+  color: var(--cWhite, white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subcategoryDesc {
+  font-size: 12px;
+  color: var(--cLightv3, #aaaaaa);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subcategoryActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.subcategoryActions button {
+  background-color: transparent;
+  border: none;
+  color: var(--cLightv2, #cccccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.subcategoryActions button:hover {
+  background-color: var(--cDarkv1, #1e1e1e);
+}
+
+.mainCategory {
+  font-weight: 500;
+  color: var(--cLightv2, #cccccc);
+  font-style: italic;
+}
+
+/* Ajuste para asegurar que todos los textos se acorten con puntos suspensivos */
+.categoryName, 
+.categoryDescription,
+.subcategoryName,
+.subcategoryDesc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fix para Table y categorías */
+:global(.striped) {
+  width: 100% !important;
+}
+
+:global(.striped tbody) {
+  width: 100% !important;
+}
+
+:global(.striped tr) {
+  width: 100% !important;
+}
+
+:global(.striped td) {
+  display: table-cell;
+}
+
+/* Estilos para móvil */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .categoryHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .categoryActions {
+    align-self: flex-end;
+  }
+  
+  .categoryDescription {
+    width: 100%;
+    padding: 0;
+  }
+}

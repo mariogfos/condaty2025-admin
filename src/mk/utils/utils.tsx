@@ -134,5 +134,106 @@ export const cStatusAc: any = {
   E: "var(--cAccent)",
   F: "var(--cSuccess)",
 };
+export const UnitsType: any = {
+  D: "Departamento",
+  C: "Casa",
+  L: "Lote",
+  O: "Oficina",
+  _D: "Piso",
+  _C: "Calle",
+  _L: "Calle/Mz",
+  _O: "Piso",
+};
+
+export const StatusDetailExpColor:any = {
+  A: "var(--cWhiteV1)", // por cobrar
+  E: "var(--cWhiteV1)", // espera
+  P: "var(--cSuccess)", //pagado
+  S: "var(--cWarning)", 
+  M: "var(--cError)", //
+  R: "var(--cError)", // rechazado
+};
 
 
+//Expensas
+
+interface Assigned {
+  id: number;
+  debt_id: string;
+  amount: number;
+  penalty_amount: number;
+  status: string;
+}
+
+
+type AssignedList = Assigned[];
+interface Debt {
+    id: string;
+    clientId: string;
+    amount: number;
+    asignados: AssignedList;
+    begin_at: string | null;
+    categoryId: number;
+    created_at: string;
+    deleted_at: string | null;
+    description: string;
+    due_at: string;
+    month: number;
+    status: string;
+    updated_at: string;
+    year: number;
+  }
+  
+    const today = new Date();
+    export const units = (unidades: AssignedList) => {
+        return unidades.length;
+    };
+    export const sumExpenses = (unidades: AssignedList) => {
+        let sum = 0;
+        unidades.map((uni) => {
+            sum = sum + Number(uni.amount);
+        });
+        return sum;
+    };
+    export const paidUnits= (unidades:AssignedList) => {
+        let cont = 0;
+        unidades.map((uni) => {
+                 // && uni.status != "X"
+          if (uni.status == "P") {
+            cont = cont + 1;
+          }
+        });
+  
+        return cont;
+      };
+     export const sumPaidUnits = (unidades:AssignedList) => {
+        let sum = 0;
+        unidades.map((uni) => {
+          if (uni.status == "P") {
+            sum += Number(uni.amount) + Number(uni.penalty_amount);
+          }
+        });
+        return sum;
+      };
+   
+    export const unitsPayable = (unidades:AssignedList) => {
+        let cont = 0;
+        // let c = "";
+        unidades.map((uni) => {
+          if (uni.status != "P" && uni.status != "X") {
+            cont = cont + 1;
+          }
+        });
+        // return c;
+        return cont;
+      };  
+    export const isUnitInDefault = (props:Debt)=>{
+       return  unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today 
+    }
+    export const sumPenalty = (unidades:AssignedList) => {
+        let sum: number = 0;
+        unidades.map((uni) => {
+          sum = sum + Number(uni.penalty_amount);
+        });
+        return sum;
+      };  

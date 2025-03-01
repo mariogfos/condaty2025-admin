@@ -1,67 +1,169 @@
 .container {
-    padding: 20px;
-    width: 100%;
+  padding: 20px;
+  width: 100%;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--cWhite, white);
+}
+
+.subtitle {
+  color: var(--cLightv3, #a0a0a0);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.graphButton {
+  background-color: var(--cDarkv2, #2a2a2a) !important;
+  color: white !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+}
+
+.graphButton:hover {
+  opacity: 0.9;
+}
+
+.categoriesButton {
+  border: 1px solid var(--cLightv3, #a0a0a0) !important;
+  color: var(--cLightv3, #a0a0a0) !important;
+  background-color: transparent !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+}
+
+.categoriesButton:hover {
+  background-color: rgba(160, 160, 160, 0.1) !important;
+}
+
+.addButton {
+  background-color: var(--cSuccess, #5cb85c) !important;
+  color: white !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+}
+
+.addButton:hover {
+  opacity: 0.9;
+}
+
+.viewButton {
+  color: var(--cInfo, blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  opacity: 0.8;
+}
+
+/* Estilos para la tabla */
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: var(--cDarkv1, #1e1e1e);
+}
+
+/* Estilos para los estados de pago */
+.statusPending {
+  background-color: var(--cWarning, orange);
+  color: var(--cDark, black);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusCompleted {
+  background-color: var(--cSuccess, green);
+  color: var(--cWhite, white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusRejected {
+  background-color: var(--cError, red);
+  color: var(--cWhite, white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
   }
   
   .title {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--cWhite, white);
+    font-size: 20px;
   }
   
-  .viewButton {
-    color: var(--cInfo, blue);
-    text-decoration: underline;
-    cursor: pointer;
+  .buttonsContainer {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .viewButton:hover {
-    opacity: 0.8;
+  .graphButton, .categoriesButton, .addButton {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .graphButton {
+    width: 32%;
   }
   
-  /* Estilos para la tabla */
-  .tableContainer {
-    overflow-x: auto;
-    border-radius: 8px;
-    background-color: var(--cDarkv1, #1e1e1e);
+  .categoriesButton {
+    width: 32%;
   }
   
-  /* Estilos para los estados de pago */
-  .statusPending {
-    background-color: var(--cWarning, orange);
-    color: var(--cDark, black);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+  .addButton {
+    width: 32%;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .graphButton {
+    width: 15%;
   }
   
-  .statusCompleted {
-    background-color: var(--cSuccess, green);
-    color: var(--cWhite, white);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+  .categoriesButton {
+    width: 25%;
   }
   
-  .statusRejected {
-    background-color: var(--cError, red);
-    color: var(--cWhite, white);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+  .addButton {
+    width: auto;
   }
-  
-  /* Estilos para responsive */
-  @media (max-width: 768px) {
-    .container {
-      padding: 10px;
-    }
-    
-    .title {
-      font-size: 20px;
-    }
-  }
+}

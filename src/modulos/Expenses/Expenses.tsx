@@ -4,10 +4,15 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 // import styles from "./Educations.module.css";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import RenderItem from "../shared/RenderItem";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
+import Check from "@/mk/components/forms/Check/Check";
+import RenderForm from "./RenderForm";
+import RenderView from "./RenderView";
+import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
+import { isUnitInDefault, paidUnits, sumExpenses, sumPaidUnits, sumPenalty, units, unitsPayable } from "@/mk/utils/utils";
 
 const mod: ModCrudType = {
     modulo: "debts",
@@ -16,103 +21,76 @@ const mod: ModCrudType = {
     // import: true,
     // importRequiredCols:"NAME",
     filter:true,
+
     permiso: "",
+    extraData: true,
+    hideActions:{
+        view:true,
+    },
+    renderForm: (props: {
+        item: any;
+        setItem: any;
+        errors: any;
+        extraData: any;
+        open: boolean;
+        onClose: any;
+        user: any;
+        execute: any;
+        setErrors: any;
+        action: any;
+        openList: any;
+        setOpenList: any;
+        reLoad:any;
+      }) => {
+        return (
+          <RenderForm
+            onClose={props.onClose}
+            open={props.open}
+            item={props.item}
+            setItem={props.setItem}
+            errors={props.errors}
+            extraData={props.extraData}
+            user={props.user}
+            execute={props.execute}
+            setErrors={props.setErrors}
+            reLoad={props.reLoad}
+            action={props.action}
+            openList={props.openList}
+            setOpenList={props.setOpenList}
+          />
+        );},
+        // renderView: (props: {
+        //     open: boolean;
+        //     onClose: any;
+        //     item: Record<string, any>;
+        //     onConfirm?: Function;
+        //   }) => <RenderView {...props} />,
 
 };
 
-interface Assigned {
-    id: number;
-    debt_id: string;
-    amount: number;
-    penalty_amount: number;
-    status: string;
-}
 
 
-type AssignedList = Assigned[];
 
-
-  interface Debt {
-    id: string;
-    clientId: string;
-    amount: number;
-    asignados: AssignedList;
-    begin_at: string | null;
-    categoryId: number;
-    created_at: string;
-    deleted_at: string | null;
-    description: string;
-    due_at: string;
-    month: number;
-    status: string;
-    updated_at: string;
-    year: number;
-  }
   
 
 
 const Expenses = () => {
-
-        const lAnios: any = [{ id: "", name: "Todos" }];
-        const lastYear = new Date().getFullYear();
-        for (let i = lastYear; i >= 2000; i--) {
-        lAnios.push({ id: i, name: i });
-        }
-
-
-    const today = new Date();
-    const units = (unidades: AssignedList) => {
-        return unidades.length;
-    };
-    const sumExpenses = (unidades: AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-            sum = sum + Number(uni.amount);
-        });
-        return sum;
-    };
-    const paidUnits= (unidades:AssignedList) => {
-        let cont = 0;
-        unidades.map((uni) => {
-                 // && uni.status != "X"
-          if (uni.status == "P") {
-            cont = cont + 1;
-          }
-        });
-  
-        return cont;
-      };
-      const sumPaidUnits = (unidades:AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-          if (uni.status == "P") {
-            sum += Number(uni.amount) + Number(uni.penalty_amount);
-          }
-        });
-        return sum;
-      };
+const [openDetail,setOpenDetail]:any= useState(false);
+const [detailItem,setDetailItem]:any = useState({})
+ 
    
-    const unitsPayable = (unidades:AssignedList) => {
-        let cont = 0;
-        // let c = "";
-        unidades.map((uni) => {
-          if (uni.status != "P" && uni.status != "X") {
-            cont = cont + 1;
-          }
-        });
-        // return c;
-        return cont;
-      };  
-    const isUnitInDefault = (props:Debt)=>{
-       return  unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today 
+
+ const getYearOptions = () => {
+    const lAnios: any = [{ id: "", name: "Todos" }];
+    const lastYear = new Date().getFullYear();
+    for (let i = lastYear; i >= 2000; i--) {
+      lAnios.push({ id: i, name: i.toString() });
     }
-    const sumPenalty = (unidades:AssignedList) => {
-        let sum: number = 0;
-        unidades.map((uni) => {
-          sum = sum + Number(uni.penalty_amount);
-        });
-        return sum;
-      };  
+    return lAnios;
+  };
+  
+ 
+
 
     const paramsInitial = {
         perPage: -1,
@@ -144,7 +122,7 @@ const Expenses = () => {
                 filter: {
                     label: 'Año',
                     width: '200px',
-                    options: ()=>lAnios,
+                    options: ()=>getYearOptions,
                   },
 
             },
@@ -187,33 +165,97 @@ const Expenses = () => {
                 },
 
             },
-            description: {
-                rules: [""],
-                api: "ae",
-                label: "Descripción (Opcional)",
-                form: { type: "textArea" },
-            },
-            asignar: {
-                rules: ["required"],
-                api: "ae",
-                label: "Asignar a",
-                form: {
-                    type: "check",
+            // description: {
+            //     rules: [""],
+            //     api: "ae",
+            //     label: "Descripción (Opcional)",
+            //     form: { type: "textArea" },
+            // },
+            // asignar: {
+            //     rules: ["required"],
+            //     api: "ae",
+            //     label: "Asignar a",
+            //     form: {
+            //         type: "check",
+            //         onRender: (props) =>{
+                          
+            //                 const [assignState,setAssignState]:any = useState('');
 
-                }
-            },
-            dpto_id: {
-                rules: ["required"],
-                api: "ae",
-                label: "Departamento",
-                form: {
-                    type: "select",
-                    options: [
-                        { id: 1, name: 'Ventas' }
-                    ]
-                },
+            //                 const onSelItem = (e) => {
+            //                     setAssignState({
+            //                     ...assignState,
+            //                     asignar: e.target.name,
+            //                     });
 
-            },
+            //                     return;
+            //                 };
+            //             console.log(props,'props desde el form expensas')
+
+            //             return(
+            //             <div className="space-y-3  ">
+            //             <Check
+            //               label="Todas las unidades"
+            //               name={"T"}
+            //               checked={assignState.asignar === "T"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "T" ? "Y" : "N"}
+            //             />
+            
+            //             <Check
+            //               label="Unidades ocupadas"
+            //               name={"O"}
+            //               checked={assignState.asignar === "O"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "O" ? "Y" : "N"}
+            //             />
+            
+            //             <Check
+            //               label="Unidades no ocupadas"
+            //               name={"L"}
+            //               checked={assignState.asignar === "L"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "L" ? "Y" : "N"}
+            //             />
+            //             <Check
+            //               label="Seleccionar"
+            //               name={"S"}
+            //               checked={assignState.asignar === "S"}
+            //               onChange={onSelItem}
+            //               optionValue={["Y", "N"]}
+            //             //   optionLabel={["", ""]}
+            //               value={assignState.asignar === "S" ? "Y" : "N"}
+            //             />
+            //             {/* {errors["asignar"] && errors["asignar"] !== "" && (
+            //               <p className={`px-2 my-4 text-xs mt-1 text-red-600 text-center`}>
+            //                 {errors["asignar"]}
+            //               </p>
+            //             )} */}
+
+            //             <Select 
+
+            //           </div>)
+            //         }
+
+            //     }
+            // },
+            // dpto_id: {
+            //     rules: ["required"],
+            //     api: "ae",
+            //     label: "Departamento",
+            //     form: {
+            //         type: "select",
+            //         options: [
+            //             { id: 1, name: 'Ventas' }
+            //         ]
+            //     },
+
+            // },
             assignedUnits: {
                 rules: [""],
                 api: "",
@@ -321,7 +363,7 @@ const Expenses = () => {
         onClick: Function
     ) => {
         return (
-            <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
+            <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
                 <ItemList
                     title={item?.name}
                     subtitle={item?.description}
@@ -331,13 +373,25 @@ const Expenses = () => {
             </RenderItem>
         );
     };
+    const onClickDetail = (row: any) => {
+        // const url = `/detailSurveys?id=${row.id}`;
+    
+        // window.location.href = url;
+        setDetailItem(row)
+        setOpenDetail(true)
+      };
 
     if (!userCan(mod.permiso, "R")) return <NotAccess />;
-    return (
-        <div >
-            <List onTabletRow={renderItem} />
-        </div>
-    );
+
+
+    if(openDetail)return  <ExpensesDetails data={detailItem} setOpenDetail={setOpenDetail}/> 
+    else return (
+       <div>
+           <List 
+           onTabletRow={renderItem}
+           onRowClick={onClickDetail}  />
+        </div>)
+    
 };
 
 export default Expenses;

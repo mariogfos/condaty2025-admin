@@ -1,8 +1,8 @@
 import IncomeCategories from "@/modulos/IncomeCategories/IncomeCategories";
 import React from "react";
 
-const incomePage = () => {
+const incomecategories = () => {
   return <IncomeCategories />;
 };
 
-export default incomePage;
+export default incomecategories;
