@@ -134,7 +134,7 @@ const [detailItem,setDetailItem]:any = useState({})
                 form: {
                     type: "select",
                     options: MONTHS.map((month, index) => ({
-                        id: index + 1,
+                        id: index,
                         name: month,
                     })),
                 },
