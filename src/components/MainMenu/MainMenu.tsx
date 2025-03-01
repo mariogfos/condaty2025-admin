@@ -55,7 +55,7 @@ const MainMenu = ({
             items={[
               { href: "/finanzas", label: "Balance general" },
               {
-                href: "/affiliateGrowth",
+                href: "/payments",
                 label: "Ingresos",
               },
               { href: "/directAffiliates", label: "Egresos" },

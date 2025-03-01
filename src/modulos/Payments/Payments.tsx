@@ -1,13 +1,15 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
 import { getUrlImages } from "@/mk/utils/string";
-
-import { getDateStrMes, getDateTimeStrMesShort } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMesShort, getDateDesdeHasta } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
+import { useRouter } from "next/navigation";
+import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngreso/WidgetGrafIngresos";
 
 const mod = {
   modulo: "payments",
@@ -37,10 +39,30 @@ const paramsInitial = {
   searchBy: "",
 };
 
+interface FormStateFilter {
+  filter_date?: string;
+  filter_category?: string | number;
+  filter_mov?: string;
+}
+
 const Payments = () => {
+    const router = useRouter();
+    const [openGraph, setOpenGraph] = useState(false);
+    const [dataGraph, setDataGraph] = useState<any>({});
+    const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
+    
+    // Función para convertir el filtro de fecha
+    const convertFilterDate = () => {
+      let periodo = "m";
+      if (formStateFilter.filter_date === "month") periodo = "m";
+      if (formStateFilter.filter_date === "lmonth") periodo = "lm";
+      if (formStateFilter.filter_date === "year") periodo = "y";
+      if (formStateFilter.filter_date === "lyear") periodo = "ly";
+      return periodo;
+    };
+
   const fields = useMemo(
     () => ({
-
       id: { rules: [], api: "e" },  
       paid_at: {
         rules: [],
@@ -66,7 +88,6 @@ const Payments = () => {
           placeholder: "Seleccione una categoría"
         },
         list: { 
-
           onRender: (props: any) => {
             return <div>{props.item.category?.name || `ID: ${props.item.category_id}`}</div>;
           }
@@ -81,7 +102,6 @@ const Payments = () => {
           type: "select",
           options: (props: any) => props.extraData?.dptos.map((d: any) => ({ id: d.id, name: `${d.nro} - ${d.description}` })),
           placeholder: "Seleccione una unidad"
-
         },
         list: { 
           onRender: (props: any) => {
@@ -95,7 +115,6 @@ const Payments = () => {
         rules: ["required"],
         api: "ae",
         label: "Tipo de pago",
-
         form: {
           type: "select",
           options: [
@@ -105,9 +124,6 @@ const Payments = () => {
           ]
         },
         list: { 
-
-          
-
           onRender: (props: any) => {
             const typeMap: Record<string, string> = {
               "T": "Transferencia",
@@ -127,8 +143,6 @@ const Payments = () => {
           type: "text",
           placeholder: "Ej: EDSFSDFSD"
         },
-
-
       },
       
       voucher: {
@@ -138,9 +152,7 @@ const Payments = () => {
         form: {
           type: "text",
           placeholder: "Ej: c100"
-
-
-
+        },
       },
       
       obs: {
@@ -150,95 +162,62 @@ const Payments = () => {
         form: {
           type: "textarea",
           placeholder: "Ej: descripcion test"
-
         }
-
-        },
       },
       
-file: {
-  rules: [],
-  api: "ae*",
-  label: "Archivo",
-  form: {
-    type: "fileUpload",
-    ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "webp"],
-    style: { width: "100%" },
-  },
-  onRenderView: ({ item, extraData }: any) => {
-    if (!item.ext) return <div>Sin archivo</div>;
-    return (
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <Button 
-          variant="primary" 
-          onClick={() => {
-            window.open(
-              getUrlImages(
+      file: {
+        rules: [],
+        api: "ae*",
+        label: "Archivo",
+        form: {
+          type: "fileUpload",
+          ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "webp"],
+          style: { width: "100%" },
+        },
+        onRenderView: ({ item, extraData }: any) => {
+          if (!item.ext) return <div>Sin archivo</div>;
+          return (
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <Button 
+                variant="primary" 
+                onClick={() => {
+                  window.open(
+                    getUrlImages(
+                      "/DOC-" +
+                        item.id +
+                        "." +
+                        item.ext +
+                        "?d=" +
+                        item.updated_at
+                    ),
+                    "_blank"
+                  );
+                }}
+              >
+                Descargar comprobante
+              </Button>
+            </div>
+          );
+        },
+        onRender: ({ item }: any) => {
+          if (!item.ext) return <div>Sin archivo</div>;
+          return (
+            <a  
+              target="_blank"
+              href={getUrlImages(
                 "/DOC-" +
                   item.id +
                   "." +
                   item.ext +
                   "?d=" +
                   item.updated_at
-              ),
-              "_blank"
-            );
-          }}
-        >
-          Descargar comprobante
-        </Button>
-      </div>
-    );
-  },
-  onRender: ({ item }: any) => {
-    if (!item.ext) return <div>Sin archivo</div>;
-    return (
-    <a  
-      target="_blank"
-        href={getUrlImages(
-          "/DOC-" +
-            item.id +
-            "." +
-            item.ext +
-            "?d=" +
-            item.updated_at
-        )}
-        rel="noopener noreferrer"
-      >
-        <p className={styles.viewButton}>Ver archivo</p>
-      </a>
-    );
-  },
-
-
-        /*  
-        list: { 
->>>>>>> marvin
-          width: "120px",
-          onRender: ({ item }: any) => {
-            if (!item.ext) return <div>Sin archivo</div>;
-            return (
-              <a
-                target="_blank"
-                href={getUrlImages(
-                  "/DOC-" +
-                    item.id +
-                    "." +
-                    item.ext +
-                    "?d=" +
-                    item.updated_at
-                )}
-                rel="noopener noreferrer"
-              >
-                <p className={styles.viewButton}>Ver archivo</p>
-              </a>
-            );
-          },
+              )}
+              rel="noopener noreferrer"
+            >
+              <p className={styles.viewButton}>Ver archivo</p>
+            </a>
+          );
         },
-
-        */
-        
-
       },
       
       status: {
@@ -266,7 +245,6 @@ file: {
         },
       },
       
-
       amount: {
         rules: ["required", "number"],
         api: "ae",
@@ -279,7 +257,6 @@ file: {
           width: "120px",
           onRender: (props: any) => {
             return <div>${props.item.amount}</div>;
-
           }
         },
       },
@@ -294,19 +271,95 @@ file: {
     onEdit,
     onDel,
     reLoad,
-    onAdd
+    onAdd,
+    execute
   } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
 
+  // Función para cargar y mostrar el gráfico
+  const onClickGraph = async () => {
+    try {
+      const periodo = convertFilterDate();
+      const response = await execute(
+        "/balances",
+        "GET",
+        {
+          ...formStateFilter,
+          filter_date: periodo,
+          filter_mov: "I",
+          filter_categ: formStateFilter.filter_category ? [formStateFilter.filter_category] : [],
+        }
+      );
+
+      if (response && response.data) {
+        setDataGraph(response.data);
+        setOpenGraph(true);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos del gráfico:", error);
+    }
+  };
+
+  // Función para navegar a la página de categorías de ingresos
+  const goToCategories = () => {
+    router.push("/incomecategories");
+  };
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Ingresos</h1>
+      <p className={styles.subtitle}>Administre, agregue y elimine todos los ingresos</p>
+      
+      <div className={styles.buttonsContainer}>
+        <Button
+          onClick={onClickGraph}
+          className={styles.graphButton}
+        >
+          Ver gráfica
+        </Button>
+        
+        <Button 
+          onClick={goToCategories} 
+          className={styles.categoriesButton}
+        >
+          Administrar categorías
+        </Button>
+        
+      </div>
+      
       <List />
+      
+      {/* Modal para mostrar el gráfico */}
+      {openGraph && (
+        <DataModal
+          open={openGraph}
+          onClose={() => {
+            setOpenGraph(false);
+          }}
+          title=""
+          buttonText=""
+          buttonCancel=""
+        >
+          <>
+            <WidgetGrafIngresos
+              className="mt-6"
+              ingresos={dataGraph?.ingresosHist}
+              chartTypes={["pie"]}
+              h={360}
+              title={"Resumen de Ingresos por categorías"}
+              subtitle={
+                "Ingresos perteneciente en fecha " +
+                getDateDesdeHasta(convertFilterDate())
+              }
+            />
+          </>
+        </DataModal>
+      )}
     </div>
   );
 };
