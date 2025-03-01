@@ -1,8 +1,8 @@
-import IncomeCategories from '@/modulos/IncomeCategories/IncomeCategories';
-import React from 'react'
+import IncomeCategories from "@/modulos/IncomeCategories/IncomeCategories";
+import React from "react";
 
 const incomecategories = () => {
-  return <IncomeCategories />
-}
+  return <IncomeCategories />;
+};
 
 export default incomecategories;
