@@ -40,7 +40,7 @@ export type ModCrudType = {
   singular: string;
   plural: string;
   permiso: string;
-  extraData?: boolean;
+  extraData?: boolean | Record<string, any>;
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
@@ -444,6 +444,7 @@ const useCrud = ({
         perPage: -1,
         page: 1,
         fullType: "EXTRA",
+        ...(mod.extraData?.params || {}),
       },
       false,
       mod?.noWaiting

@@ -42,11 +42,6 @@ const paramsInitialPedidos = {
   fullType: "L",
   page: 1,
   perPage: 10,
-  sortBy: "created_at",
-  orderBy: "desc",
-  relations: "otherType:id,name|owner:id,name,middle_name,last_name,mother_last_name|access|access.visit:id,name,middle_name,last_name,mother_last_name,ci|access.guardia:id,name,middle_name,last_name,mother_last_name|access.out_guard:id,name,middle_name,last_name,mother_last_name",
-  searchBy: "__!null__accesses.in_at,,,a,," + "|__!null__accesses.out_at,,,a,,",
-  joins: "accesses|owners",
 };
 
 const paramsInitialQR = {
