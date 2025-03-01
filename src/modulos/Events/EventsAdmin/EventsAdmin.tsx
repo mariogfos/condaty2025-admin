@@ -404,16 +404,16 @@ const EventsAdmin = () => {
           label: "Lugar del evento",
         },
       },
-      location: {
-        rules: ["required", "googleMapsLink"],
-        api: "ae",
-        label: "Link de ubicación",
-        list: false,
-        form: {
-          type: "text",
-          label: "Link de ubicación",
-        },
-      },
+      // location: {
+      //   rules: ["required", "googleMapsLink"],
+      //   api: "ae",
+      //   label: "Link de ubicación",
+      //   list: false,
+      //   form: {
+      //     type: "text",
+      //     label: "Link de ubicación",
+      //   },
+      // },
       avatar: {
         rules: ["requiredFile*a"],
         api: "a*e*",
