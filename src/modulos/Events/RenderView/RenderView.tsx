@@ -355,7 +355,7 @@ console.log(lComDestinies.find((i:any)=> i.id === data.destiny ),'asas')
                   >
                     {data?.description}
                   </div>
-                  <div className={style["flexAndGap"]}>
+                  {/* <div className={style["flexAndGap"]}>
                     <IconLocation />
                     <a
                       target="_blank"
@@ -365,7 +365,7 @@ console.log(lComDestinies.find((i:any)=> i.id === data.destiny ),'asas')
                     >
                       {data?.address || data?.location}
                     </a>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
