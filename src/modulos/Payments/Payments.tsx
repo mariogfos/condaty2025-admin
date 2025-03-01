@@ -138,7 +138,7 @@ const Payments = () => {
       nro_id: {
         rules: [],
         api: "ae",
-        label: "Número de Referencia",
+        label: "Número de Departamento",
         form: {
           type: "text",
           placeholder: "Ej: EDSFSDFSD"
@@ -224,14 +224,6 @@ const Payments = () => {
         rules: [],
         api: "ae",
         label: "Estado",
-        form: {
-          type: "select",
-          options: [
-            { id: "P", name: "Pendiente" },
-            { id: "C", name: "Completado" },
-            { id: "R", name: "Rechazado" },
-          ]
-        },
         list: { 
           width: "120px",
           onRender: (props: any) => {
@@ -256,7 +248,7 @@ const Payments = () => {
         list: { 
           width: "120px",
           onRender: (props: any) => {
-            return <div>${props.item.amount}</div>;
+            return <div>Bs.{props.item.amount}</div>;
           }
         },
       },

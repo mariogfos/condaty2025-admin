@@ -121,7 +121,8 @@ const Surveys = () => {
       "T": "Todos",
       "P": "Propietarios",
       "R": "Residentes",
-      "A": "Administradores"
+      "A": "Administradores"    ,
+      "D": "Departamento"
     };
     return destinyMap[destiny] || destiny;
   };
@@ -169,6 +170,58 @@ const Surveys = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      begin_at: {
+        rules: ["validateIf:switch,Y", "required", "greaterDate"],
+        api: "ae",
+        label: "Fecha inicio",
+        form: { 
+          onTop: () => {
+            return (
+              <p style={{ fontSize: 14, color: "var(--cBlackV2)" }}>
+                Define el inicio y final de la encuesta para controlar cuándo
+                estará disponible para los afiliados
+              </p>
+            );
+          },
+          type: "date",
+          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
+          disabled: (item: SurveyItem) => {
+            let hoy = new Date();
+            hoy.setHours(hoy.getHours() - GMT);
+            hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+            return !!(item?.begin_at && new Date(item?.begin_at) <= hoy);
+          },
+        },
+        list: { 
+          
+          onRender: (props: { item: SurveyItem }) => {
+            return <div>{getDateStrMes(props.item.begin_at)}</div>;
+          }
+        },
+      },
+      
+      end_at: {
+        rules: [
+          "validateIf:switch,Y",
+          "greaterDate",
+          "greaterDate:begin_at",
+          "required",
+        ],
+        api: "ae",
+        label: "Fecha fin",
+        form: { 
+          type: "date",
+          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
+          keyLeft: "begin_at",
+          disabled: (item: SurveyItem) => 
+            !!(item.end_at && compareDate(item.end_at, new Date(), "<")),
+        },
+        list: { 
+                  onRender: (props: { item: SurveyItem }) => {
+            return <div>{getDateStrMes(props.item.end_at)}</div>;
+          }
+        },
+      },
       
       name: {
         rules: ["required"],
@@ -213,40 +266,8 @@ const Surveys = () => {
         api: "ae",
         label: "Descripción",
         form: { type: "textarea" },
-        list: { 
-          width: "300px",
-          onRender: (props: { item: SurveyItem }) => {
-            return <div className={styles.surveyDescription}>{props.item.description}</div>;
-          }
-        },
       },
-      
-      status: {
-        rules: ["required"],
-        api: "ae",
-        label: "Estado",
-        form: { 
-          type: "select",
-          options: [
-            { id: "A", name: "Activa" },
-            { id: "I", name: "Inactiva" },
-            { id: "F", name: "Finalizada" },
-            { id: "D", name: "Borrador" }
-          ]
-        },
-        list: { 
-          width: "100px",
-          onRender: (props: { item: SurveyItem }) => {
-            if (!props.item.status) return null;
-            return (
-              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
-                {getStatusLabel(props.item.status)}
-              </div>
-            );
-          }
-        },
-      },
-      
+            
       switch: {
         rules: [],
         api: "ae",
@@ -261,56 +282,14 @@ const Surveys = () => {
         },
       },
       
-      begin_at: {
-        rules: ["validateIf:switch,Y", "required", "greaterDate"],
-        api: "ae",
-        label: "Fecha inicio",
-        form: { 
-          onTop: () => {
-            return (
-              <p style={{ fontSize: 14, color: "var(--cBlackV2)" }}>
-                Define el inicio y final de la encuesta para controlar cuándo
-                estará disponible para los afiliados
-              </p>
-            );
-          },
-          type: "date",
-          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
-          disabled: (item: SurveyItem) => {
-            let hoy = new Date();
-            hoy.setHours(hoy.getHours() - GMT);
-            hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-            return !!(item?.begin_at && new Date(item?.begin_at) <= hoy);
-          },
-        },
+      creator: {
+        rules: [""],
+        api: "",
+        label: "Creado por",
         list: { 
-          width: "120px",
+          
           onRender: (props: { item: SurveyItem }) => {
-            return <div>{getDateStrMes(props.item.begin_at)}</div>;
-          }
-        },
-      },
-      
-      end_at: {
-        rules: [
-          "validateIf:switch,Y",
-          "greaterDate",
-          "greaterDate:begin_at",
-          "required",
-        ],
-        api: "ae",
-        label: "Fecha fin",
-        form: { 
-          type: "date",
-          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
-          keyLeft: "begin_at",
-          disabled: (item: SurveyItem) => 
-            !!(item.end_at && compareDate(item.end_at, new Date(), "<")),
-        },
-        list: { 
-          width: "120px",
-          onRender: (props: { item: SurveyItem }) => {
-            return <div>{getDateStrMes(props.item.end_at)}</div>;
+            return <div>{props.item.user ? getFullName(props.item.user) : "Sin usuario"}</div>;
           }
         },
       },
@@ -325,7 +304,8 @@ const Surveys = () => {
             { id: "T", name: "Todos" },
             { id: "P", name: "Propietarios" },
             { id: "R", name: "Residentes" },
-            { id: "A", name: "Administradores" }
+            { id: "A", name: "Administradores" },
+            { id: "D", name: "Departamento" },
           ]
         },
         list: { 
@@ -361,7 +341,7 @@ const Surveys = () => {
         api: "",
         label: "Preguntas",
         list: { 
-          width: "100px",
+          width: "150px",
           onRender: (props: { item: SurveyItem }) => {
             return <div>{props.item.squestions?.length || 0} preguntas</div>;
           }
@@ -370,22 +350,15 @@ const Surveys = () => {
       
       votes: {
         label: "Votos",
-        list: {
-          width: 180,
-          onRender: (props: { item: SurveyItem }) => {
-            if (props.item?.sanswerscount === 1)
-              return props.item?.sanswerscount + " afiliado votó";
-            return props.item?.sanswerscount + " afiliados votaron";
-          },
-        },
       },
       
       type: {
         label: "Tipo",
-        list: {
+        /*list: {
           width: "100",
           onRender: renderType,
         },
+        */
       },
 
       state: {
@@ -396,14 +369,29 @@ const Surveys = () => {
         },
       },
       
-      creator: {
-        rules: [""],
-        api: "",
-        label: "Creado por",
+ 
+      status: {
+        rules: ["required"],
+        api: "ae",
+        label: "Estado",
+        form: { 
+          type: "select",
+          options: [
+            { id: "A", name: "Activa" },
+            { id: "I", name: "Inactiva" },
+            { id: "F", name: "Finalizada" },
+            { id: "D", name: "Borrador" }
+          ]
+        },
         list: { 
-          width: "180px",
+          width: "100px",
           onRender: (props: { item: SurveyItem }) => {
-            return <div>{props.item.user ? getFullName(props.item.user) : "Sin usuario"}</div>;
+            if (!props.item.status) return null;
+            return (
+              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+                {getStatusLabel(props.item.status)}
+              </div>
+            );
           }
         },
       },
