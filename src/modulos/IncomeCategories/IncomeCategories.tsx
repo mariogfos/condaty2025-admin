@@ -2,12 +2,12 @@
 import { useMemo, useState, useEffect } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./IncomeCategories.module.css";
-import { 
+import styles from "./IncomesCategories.module.css";
+import {
   IconArrowDown,
-  IconEdit, 
+  IconEdit,
   IconTrash,
-  IconSimpleAdd
+  IconSimpleAdd,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
@@ -61,7 +61,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
   setErrors,
   onSave,
   extraData,
-  action
+  action,
 }) => {
   const [isCateg, setIsCateg] = useState<string>(item.category_id ? "S" : "C");
 
@@ -79,7 +79,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
   const onSelItem = (e: InputEvent) => {
     const selValue = e.target.name; // "C" o "S"
     setIsCateg(selValue);
-    
+
     // Si es categoría, eliminar category_id
     if (selValue === "C") {
       setItem({
@@ -110,7 +110,9 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
           <p className={styles.subtitle}>Indica lo que quieras crear hoy</p>
           <div className={styles.optionsContainer}>
             <div className={styles.optionRow}>
-              <p className={styles.optionLabel}>Quiero crear una categoría nueva</p>
+              <p className={styles.optionLabel}>
+                Quiero crear una categoría nueva
+              </p>
               <Check
                 name="C"
                 checked={isCateg === "C"}
@@ -119,9 +121,11 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
                 value={isCateg === "C" ? "Y" : "N"}
               />
             </div>
-            
+
             <div className={styles.optionRow}>
-              <p className={styles.optionLabel}>Quiero registrar una sub-categoría nueva</p>
+              <p className={styles.optionLabel}>
+                Quiero registrar una sub-categoría nueva
+              </p>
               <Check
                 name="S"
                 checked={isCateg === "S"}
@@ -152,8 +156,8 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
 
       <div className={styles.formGroup}>
         <p className={styles.fieldLabel}>
-          {isCateg === "C" 
-            ? "Indica el nombre de tu categoría" 
+          {isCateg === "C"
+            ? "Indica el nombre de tu categoría"
             : "Indica el nombre de tu sub-categoría"}
         </p>
         <Input
@@ -169,8 +173,8 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
 
       <div className={styles.formGroup}>
         <p className={styles.fieldLabel}>
-          {isCateg === "C" 
-            ? "Indica una descripción para tu categoría (opcional)" 
+          {isCateg === "C"
+            ? "Indica una descripción para tu categoría (opcional)"
             : "Indica una descripción para tu sub-categoría (opcional)"}
         </p>
         <TextArea
@@ -183,11 +187,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
       </div>
 
       {/* Campo oculto para el tipo */}
-      <input 
-        type="hidden" 
-        name="type" 
-        value="I" 
-      />
+      <input type="hidden" name="type" value="I" />
     </DataModal>
   );
 };
@@ -200,22 +200,29 @@ interface CategoryCardProps {
   onDel: (item: CategoryItem) => void;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDel }) => {
+const CategoryCard: React.FC<CategoryCardProps> = ({
+  item,
+  onClick,
+  onEdit,
+  onDel,
+}) => {
   const hasSubcategories = item.subcategories && item.subcategories.length > 0;
   const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
-  
+
   const toggleSubcategories = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowSubcategories(!showSubcategories);
   };
-  
+
   return (
     <div className={styles.categoryCard}>
       <div className={styles.categoryHeader} onClick={() => onClick(item)}>
         <div className={styles.categoryTitle}>
           {hasSubcategories && (
-            <IconArrowDown 
-              className={`${styles.arrowIcon} ${showSubcategories ? styles.expanded : ''}`}
+            <IconArrowDown
+              className={`${styles.arrowIcon} ${
+                showSubcategories ? styles.expanded : ""
+              }`}
               onClick={toggleSubcategories}
             />
           )}
@@ -225,7 +232,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
           {item.description || "Sin descripción"}
         </div>
         <div className={styles.categoryActions}>
-          <button 
+          <button
             className={styles.editButton}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
@@ -234,7 +241,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
           >
             <IconEdit />
           </button>
-          <button 
+          <button
             className={styles.deleteButton}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
@@ -245,15 +252,15 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
           </button>
         </div>
       </div>
-      
+
       {/* Mostrar subcategorías si existen y están expandidas */}
       {hasSubcategories && showSubcategories && (
         <div className={styles.subcategoriesContainer}>
           <h4 className={styles.subcategoriesTitle}>Sub-categorías</h4>
           <div className={styles.subcategoriesList}>
-            {item.subcategories.map((subcat) => (
-              <div 
-                key={subcat.id} 
+            {item.subcategories?.map((subcat) => (
+              <div
+                key={subcat.id}
                 className={styles.subcategoryItem}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -262,10 +269,12 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
               >
                 <div className={styles.subcategoryContent}>
                   <span className={styles.subcategoryName}>{subcat.name}</span>
-                  <span className={styles.subcategoryDesc}>{subcat.description || "Sin descripción"}</span>
+                  <span className={styles.subcategoryDesc}>
+                    {subcat.description || "Sin descripción"}
+                  </span>
                 </div>
                 <div className={styles.subcategoryActions}>
-                  <button 
+                  <button
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onEdit(subcat);
@@ -273,7 +282,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ item, onClick, onEdit, onDe
                   >
                     <IconEdit size={16} />
                   </button>
-                  <button 
+                  <button
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onDel(subcat);
@@ -303,15 +312,15 @@ const IncomeCategories: React.FC = () => {
       view: false,
       add: false,
       edit: false,
-      del: false
+      del: false,
     },
     saveMsg: {
       add: "Categoría creada con éxito",
       edit: "Categoría actualizada con éxito",
-      del: "Categoría eliminada con éxito"
+      del: "Categoría eliminada con éxito",
     },
     // Usar el renderForm personalizado
-    renderForm: (props: any) => <CategoryForm {...props} />
+    renderForm: (props: any) => <CategoryForm {...props} />,
   };
 
   const paramsInitial = {
@@ -325,31 +334,33 @@ const IncomeCategories: React.FC = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      
+
       name: {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
         form: { type: "text" },
-        list: { 
+        list: {
           onRender: (props: { item: CategoryItem }) => {
             return <div className={styles.categoryName}>{props.item.name}</div>;
-          }
+          },
         },
       },
-      
+
       description: {
         rules: [],
         api: "ae",
         label: "Descripción",
         form: { type: "textarea" },
-        list: { 
+        list: {
           width: "300px",
           onRender: (props: { item: CategoryItem }) => {
-            return <div className={styles.categoryDescription}>
-              {props.item.description || "Sin descripción"}
-            </div>;
-          }
+            return (
+              <div className={styles.categoryDescription}>
+                {props.item.description || "Sin descripción"}
+              </div>
+            );
+          },
         },
       },
 
@@ -359,10 +370,10 @@ const IncomeCategories: React.FC = () => {
         label: "Tipo",
         form: {
           type: "hidden",
-          precarga: "I" // Tipo Ingreso
-        }
+          precarga: "I", // Tipo Ingreso
+        },
       },
-      
+
       category_id: {
         rules: [],
         api: "ae",
@@ -370,72 +381,69 @@ const IncomeCategories: React.FC = () => {
         form: {
           type: "select",
           optionsExtra: "categories",
-          placeholder: "Seleccione una categoría"
+          placeholder: "Seleccione una categoría",
         },
-        list: { 
+        list: {
           width: "180px",
           onRender: (props: { item: CategoryItem }) => {
-            return props.item.category 
-              ? <div>{props.item.category.name}</div>
-              : <div className={styles.mainCategory}>Categoría Principal</div>;
-          }
+            return props.item.category ? (
+              <div>{props.item.category.name}</div>
+            ) : (
+              <div className={styles.mainCategory}>Categoría Principal</div>
+            );
+          },
         },
       },
     }),
     []
   );
 
-  const {
-    userCan,
-    List,
-    onEdit,
-    onDel,
-    onAdd,
-    onView,
-    extraData
-  } = useCrud({
+  const { userCan, List, onEdit, onDel, onAdd, onView, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
 
   // Función para renderizar los elementos de la lista usando el componente CategoryCard
-  const renderCard = (item: CategoryItem, index: number, onClick: (item: CategoryItem) => void) => {
+  const renderCard = (
+    item: CategoryItem,
+    index: number,
+    onClick: (item: CategoryItem) => void
+  ) => {
     return (
-      <CategoryCard 
-            key={item.id}
-            item={item}
-            onClick={onClick} onEdit={function (item: CategoryItem): void {
-                throw new Error("Function not implemented.");
-            } } onDel={function (item: CategoryItem): void {
-                throw new Error("Function not implemented.");
-            } }   
+      <CategoryCard
+        key={item.id}
+        item={item}
+        onClick={onClick}
+        onEdit={function (item: CategoryItem): void {
+          throw new Error("Function not implemented.");
+        }}
+        onDel={function (item: CategoryItem): void {
+          throw new Error("Function not implemented.");
+        }}
       />
     );
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <HeadTitle className={styles.headerTitle} />
         <div className={styles.headerContent}>
           <h1>Categorías de ingreso</h1>
-          <p>Administre, agregue, elimine y organice todas las categorías de sus ingresos</p>
+          <p>
+            Administre, agregue, elimine y organice todas las categorías de sus
+            ingresos
+          </p>
         </div>
-        <Button 
-          className={styles.addButton} 
-          onClick={() => onAdd()}
-        >
+        <Button className={styles.addButton} onClick={() => onAdd()}>
           <IconSimpleAdd /> Agregar categoría
         </Button>
       </div>
-      
-      <List 
-        onRenderCard={renderCard}
-        onRowClick={onView}
-      />
+
+      <List onRenderCard={renderCard} onRowClick={onView} />
     </div>
   );
 };
