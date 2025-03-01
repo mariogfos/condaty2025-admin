@@ -34,6 +34,7 @@ import AddContent from "./AddContent/AddContent";
 import { get } from "http";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import RenderCard from "./RenderCard/RenderCard";
+import { lComDestinies } from "@/mk/utils/utils";
 
 const paramsInitial = {
   perPage: 10,
@@ -59,28 +60,7 @@ const lType = [
   { id: "D", name: "Documento", ext: "pdf,doc,docx" },
 ];
 
-// const lDestinies = (data: {
-//   key: string;
-//   user?: Record<string, any>;
-//   item: Record<string, any>;
-// }) => {
-//   const level = data.user?.role.level;
-//   const r = [];
-//   if (level == 1 || level == 0) {
-//     r.push({ id: 0, name: "Todos" });
-//   }
-//   if (level == 2) r.push({ id: 0, name: "Mi lista" });
-//   if (level == 3) r.push({ id: 0, name: "Mi departamento" });
-//   if (level == 4) r.push({ id: 0, name: "Mi municipio" });
 
-//   if (level == 5) r.push({ id: 0, name: "Mi barrio" });
-
-//   if (level <= 1) r.push({ id: 2, name: "Lista" });
-//   if (level <= 2) r.push({ id: 3, name: "Departamento" });
-//   if (level <= 3) r.push({ id: 4, name: "Municipo" });
-
-//   return r;
-// };
 
 const rigthFile = (data: {
   key: string;
@@ -225,50 +205,20 @@ const Contents = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      // destiny: {
-      //   rules: ["required"],
-      //   api: "ae",
-      //   label: "Destino",
-      //   list: {
-      //     width: "100px",
-      //     onRender: (item: any) => {
-      //       let destinys = [
-      //         "",
-      //         "",
-      //         "Organización",
-      //         "Departamento",
-      //         "Municipio",
-      //         "Barrio",
-      //       ];
-      //       if (item?.item?.destiny == 0 || item?.item?.destiny == 1) {
-      //         return "Todos";
-      //       }
-      //       if (user?.role.level == 2 && item?.item?.destiny == 2) {
-      //         return "Mi organización";
-      //       }
-      //       if (user?.role.level == 3 && item?.item?.destiny == 3) {
-      //         return "Mi departamento";
-      //       }
-      //       if (user?.role.level == 4 && item?.item?.destiny == 4) {
-      //         return "Mi municipio";
-      //       }
-      //       // if (user?.role.level == 4 && item?.item?.destiny == 4) {
-      //       //   return "Mi localidad";
-      //       // }
-      //       if (user?.role.level == 5 && item?.item?.destiny == 5) {
-      //         return "Mi barrio";
-      //       }
-      //       return destinys[item?.item?.destiny];
-      //     },
-      //   },
-      //   form: {
-      //     type: "select",
-      //     options: lDestinies,
-      //     // onLeft: leftDestiny,
-      //     onTop: onTop,
-      //     precarga: 0,
-      //   },
-      // },
+      destiny: {
+        rules: ["required"],
+        api: "ae",
+        label: "Destino",
+        list: {
+          width: "100px",
+          onRender: (item: any) => {
+          return (
+            lComDestinies.find((i:any)=> i.id==item?.item?.destiny)?.name
+          )
+          },
+        },
+    
+      },
       // lDestiny: {
       //   rules: [],
       //   api: "ae",
@@ -276,50 +226,18 @@ const Contents = () => {
       //   list: false,
       //   form: false,
       // },
-      // candidate_id: {
-      //   rules: ["required"],
-      //   api: "ae",
-      //   label: "Candidato",
-      //   list: {
-      //     width: "250px",
-      //     // optionsExtra: "candidates",
-      //     options: ({ extraData }: any) => {
-      //       let data: any = [];
-      //       extraData?.candidates?.map((c: any) => {
-      //         data.push({
-      //           id: c.id,
-      //           name: getFullName(c),
-      //           img: getUrlImages("/CAND-" + c.id + ".webp?" + c.updated_at),
-      //         });
-      //       });
-      //       return data;
-      //     },
-      //     // options: ({ extraData }: any) => {
-      //     //   console.log(extraData);
-      //     // },
-      //   },
-      //   form: {
-      //     type: "select",
-      //     filter: true,
-      //     options: ({ extraData, item }: any) => {
-      //       let data: any = [];
-      //       extraData?.candidates.map((c: any) => {
-      //         if (c.status == "A") {
-      //           data.push({
-      //             img: getUrlImages("/CAND-" + c.id + ".webp?" + c.updated_at),
-      //             id: c.id,
-      //             name:
-      //               getFullName(c) +
-      //               " - " +
-      //               extraData?.typeCands.find((t: any) => t.id == c.typecand_id)
-      //                 ?.name,
-      //           });
-      //         }
-      //       });
-      //       return data;
-      //     },
-      //   },
-      // },
+       adm_id: {
+        rules: [""],
+        api: "ae",
+        label: "Administrador",
+        list: {
+           
+          onRender:(props:any)=>{
+            return getFullName(props?.item?.user)
+          }
+        },
+      
+      },
       type: {
         rules: ["required"],
         api: "ae",
