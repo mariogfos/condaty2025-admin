@@ -12,6 +12,7 @@ import Check from "@/mk/components/forms/Check/Check";
 import RenderForm from "./RenderForm";
 import RenderView from "./RenderView";
 import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
+import { isUnitInDefault, paidUnits, sumExpenses, sumPaidUnits, sumPenalty, units, unitsPayable } from "@/mk/utils/utils";
 
 const mod: ModCrudType = {
     modulo: "debts",
@@ -67,39 +68,15 @@ const mod: ModCrudType = {
 
 };
 
-interface Assigned {
-    id: number;
-    debt_id: string;
-    amount: number;
-    penalty_amount: number;
-    status: string;
-}
 
 
-type AssignedList = Assigned[];
 
-
-  interface Debt {
-    id: string;
-    clientId: string;
-    amount: number;
-    asignados: AssignedList;
-    begin_at: string | null;
-    categoryId: number;
-    created_at: string;
-    deleted_at: string | null;
-    description: string;
-    due_at: string;
-    month: number;
-    status: string;
-    updated_at: string;
-    year: number;
-  }
   
 
 
 const Expenses = () => {
-const [openDetail,setOpenDetail]:any= useState(false)
+const [openDetail,setOpenDetail]:any= useState(false);
+const [detailItem,setDetailItem]:any = useState({})
  
    
 
@@ -114,59 +91,6 @@ const [openDetail,setOpenDetail]:any= useState(false)
   
  
 
-    const today = new Date();
-    const units = (unidades: AssignedList) => {
-        return unidades.length;
-    };
-    const sumExpenses = (unidades: AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-            sum = sum + Number(uni.amount);
-        });
-        return sum;
-    };
-    const paidUnits= (unidades:AssignedList) => {
-        let cont = 0;
-        unidades.map((uni) => {
-                 // && uni.status != "X"
-          if (uni.status == "P") {
-            cont = cont + 1;
-          }
-        });
-  
-        return cont;
-      };
-      const sumPaidUnits = (unidades:AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-          if (uni.status == "P") {
-            sum += Number(uni.amount) + Number(uni.penalty_amount);
-          }
-        });
-        return sum;
-      };
-   
-    const unitsPayable = (unidades:AssignedList) => {
-        let cont = 0;
-        // let c = "";
-        unidades.map((uni) => {
-          if (uni.status != "P" && uni.status != "X") {
-            cont = cont + 1;
-          }
-        });
-        // return c;
-        return cont;
-      };  
-    const isUnitInDefault = (props:Debt)=>{
-       return  unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today 
-    }
-    const sumPenalty = (unidades:AssignedList) => {
-        let sum: number = 0;
-        unidades.map((uni) => {
-          sum = sum + Number(uni.penalty_amount);
-        });
-        return sum;
-      };  
 
     const paramsInitial = {
         perPage: -1,
@@ -453,13 +377,14 @@ const [openDetail,setOpenDetail]:any= useState(false)
         // const url = `/detailSurveys?id=${row.id}`;
     
         // window.location.href = url;
+        setDetailItem(row)
         setOpenDetail(true)
       };
 
     if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
 
-    if(openDetail)return  <ExpensesDetails/> 
+    if(openDetail)return  <ExpensesDetails data={detailItem} setOpenDetail={setOpenDetail}/> 
     else return (
        <div>
            <List 
