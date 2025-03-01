@@ -122,7 +122,8 @@ const [detailItem,setDetailItem]:any = useState({})
                 filter: {
                     label: 'Año',
                     width: '200px',
-                    options: ()=>getYearOptions,
+                    options: getYearOptions,
+                    optionLabel:'name'
                   },
 
             },
