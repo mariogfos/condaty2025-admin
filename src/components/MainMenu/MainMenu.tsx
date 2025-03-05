@@ -18,6 +18,7 @@ import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
 import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
+import { UnitsType } from "@/mk/utils/utils";
 
 type PropsType = {
   user?: any;
@@ -34,7 +35,7 @@ const MainMenu = ({
   setSideBarOpen,
 }: PropsType) => {
   const { isMobile } = useScreenSize();
-
+  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
   // const play = () => {
   //   sound
   //     .play()
@@ -69,7 +70,7 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/dptos", label: "Casas" },
+              { href: "/dptos", label: UnitsType[client.type_dpto]+"s" },
               { href: "/activities", label: "Actividades" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
