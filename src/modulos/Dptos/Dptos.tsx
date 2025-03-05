@@ -51,7 +51,7 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de casa",
+        label: "Número de " + UnitsType[client.type_dpto],
         form: { type: "text" },
         list: { width: "100px" },
       },
