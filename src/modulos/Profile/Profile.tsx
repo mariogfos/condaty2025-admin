@@ -44,6 +44,12 @@ const Profile = () => {
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [onLogout, setOnLogout] = useState(false);
   const [type, setType] = useState("");
+
+  
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "PERFIL" });
+  }, []);
   
   // Obtenemos la URL del avatar
   const getAvatarUrl = () => {

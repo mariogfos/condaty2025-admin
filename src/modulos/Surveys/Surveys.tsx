@@ -192,14 +192,17 @@ const Surveys = () => {
             return !!(item?.begin_at && new Date(item?.begin_at) <= hoy);
           },
         },
+      },
+      created_at: {
+        rules: [],
+        api: "ae",
+        label: "Fecha creación",
         list: { 
-          
           onRender: (props: { item: SurveyItem }) => {
-            return <div>{getDateStrMes(props.item.begin_at)}</div>;
+            return <div>{getDateStrMes(props.item.created_at)}</div>;
           }
         },
       },
-      
       end_at: {
         rules: [
           "validateIf:switch,Y",
@@ -216,11 +219,7 @@ const Surveys = () => {
           disabled: (item: SurveyItem) => 
             !!(item.end_at && compareDate(item.end_at, new Date(), "<")),
         },
-        list: { 
-                  onRender: (props: { item: SurveyItem }) => {
-            return <div>{getDateStrMes(props.item.end_at)}</div>;
-          }
-        },
+
       },
       
       name: {
