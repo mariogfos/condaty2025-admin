@@ -1,0 +1,39 @@
+.defaultersView {
+    & > div:nth-child(1) {
+        color: var(--cWhiteV1);
+    }
+   & > section:nth-child(2){
+    display: flex;
+    /* background-color: blue; */
+    width: 100%;
+    align-items: center;
+    gap: var(--spL);
+    /* height: 32px; */
+   } 
+   & > section:nth-child(4){
+    /* background-color: aqua; */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spL);
+    & > div:nth-child(1){
+        align-items: center;
+        display: flex;
+        gap: var(--spL);
+        & > div:nth-child(2) {
+         background-color: var(--cBlackV2);
+         justify-content: center;
+         align-items: center;
+         padding: var(--spS);
+         border-radius: var(--bRadiusS);
+         cursor:pointer;
+        }
+
+    }
+   }
+}
+
+
+.datasearch{
+    margin-bottom: 0px !important;
+  
+}

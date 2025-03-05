@@ -1,0 +1,45 @@
+
+
+.container {
+    background-color: var(--darkv2); 
+    border-radius: 0.75rem; 
+    width: 200px;
+    min-height: 140px;
+    align-items: center;
+    padding: var(--spXl); 
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* gap-2 */
+  }
+  
+  .title {
+    color: var(--lightv3);
+    font-size: 0.875rem;
+  }
+  
+  .amount {
+    color: var(--lightColor);
+    margin-top: 1rem; /* mt-4 */
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: bold;
+  }
+  
+  .units {
+    color: var(--lightv3);
+    margin-top: 0.5rem; /* mt-2 */
+    font-size: 0.75rem; /* text-xs */
+  }
+  
+  .emptyUnits {
+    height: 1rem; /* h-4 */
+  }
+  
+  .dot {
+    width: 0.5rem; /* w-2 */
+    height: 0.5rem; /* h-2 */
+    border-radius: 50%; /* rounded-full */
+  }
+  
