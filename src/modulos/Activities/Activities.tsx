@@ -135,11 +135,9 @@ const Activities = () => {
         api: "",
         label: "Visitante",
         list: { 
-          
           onRender: (props: any) => {
-            return <div className={styles.visitorName}>
-              {props.item.visit_id || "Sin visitante"}
-            </div>;
+            return getFullName(props.item.visit);
+            
           }
         },
       },
@@ -187,7 +185,8 @@ const Activities = () => {
         list: { 
           width: "180px",
           onRender: (props: any) => {
-            return <div>{props.item.owner_id || "Sin residente"}</div>;
+            return getFullName(props.item.owner);
+            
           }
         },
       },
@@ -199,7 +198,8 @@ const Activities = () => {
         list: { 
           
           onRender: (props: any) => {
-            return <div>{props.item.guard_id || "Sin guardia"}</div>;
+            return getFullName(props.item.guardia);
+            
           }
         },
       },
