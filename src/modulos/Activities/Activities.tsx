@@ -65,6 +65,11 @@ const Activities = () => {
   const linkDownload = useRef<string>("");
   const { execute } = useAxios("", "GET", {});
 
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "ACTIVIDADES" });
+  }, []);
+
   // Definición de los módulos para cada tipo de datos
   const modAccess: ModCrudType = useMemo(() => {
     return {
@@ -386,7 +391,7 @@ const Activities = () => {
   const {
     userCan: userCanAccess,
     List: ListAccess,
-    setStore: setStoreAccess,
+   
     onSearch: onSearchAccess,
     searchs: searchsAccess,
     data: accessData,
@@ -402,7 +407,7 @@ const Activities = () => {
   const {
     userCan: userCanQR,
     List: ListQR,
-    setStore: setStoreQR,
+  
     onSearch: onSearchQR,
     searchs: searchsQR,
     data: qrData,
@@ -418,7 +423,7 @@ const Activities = () => {
   const {
     userCan: userCanPedidos,
     List: ListPedidos,
-    setStore: setStorePedidos,
+
     onSearch: onSearchPedidos,
     searchs: searchsPedidos,
     data: pedidosData,
@@ -431,33 +436,9 @@ const Activities = () => {
     fields: fieldsPedidos,
   });
 
-  // Utilidades para cada tipo de datos
-  const { onLongPress: onLongPressAccess, selItem: selItemAccess } = useCrudUtils({
-    onSearch: onSearchAccess,
-    searchs: searchsAccess,
-    setStore: setStoreAccess,
-    mod: modAccess,
-    onEdit: () => {},
-    onDel: () => {},
-  });
 
-  const { onLongPress: onLongPressQR, selItem: selItemQR } = useCrudUtils({
-    onSearch: onSearchQR,
-    searchs: searchsQR,
-    setStore: setStoreQR,
-    mod: modQR,
-    onEdit: () => {},
-    onDel: () => {},
-  });
 
-  const { onLongPress: onLongPressPedidos, selItem: selItemPedidos } = useCrudUtils({
-    onSearch: onSearchPedidos,
-    searchs: searchsPedidos,
-    setStore: setStorePedidos,
-    mod: modPedidos,
-    onEdit: () => {},
-    onDel: () => {},
-  });
+
 
   // Manejo de invitaciones
   const handleQRClick = (invitation: any) => {

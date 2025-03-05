@@ -1,18 +1,13 @@
 "use client";
-import useCrud from "@/mk/hooks/useCrud/useCrud";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
+import useCrudUtils from "../shared/useCrudUtils";
 
-const mod = {
-  modulo: "homeowners",
-  singular: "Propietario",
-  plural: "Propietarios",
-  permiso: "homeowners",
-  extraData: true,
-};
+
 
 const paramsInitial = {
   perPage: 10,
@@ -22,8 +17,16 @@ const paramsInitial = {
 };
 
 const HomeOwners = () => {
-  const fields = useMemo(
-    () => ({
+  const mod: ModCrudType = {
+    modulo: "homeowners",
+    singular: "Propietario",
+    plural: "Propietarios",
+    permiso: "",
+    extraData: true,
+  };
+
+  const fields = useMemo(() =>{
+    return {
       id: { rules: [], api: "e" },
       ci: {
         rules: ["required"],
@@ -39,7 +42,7 @@ const HomeOwners = () => {
         form: {
           type: "text",
         },
-        list: { width: "160px" },
+        list: { },
       },
 
       name: {
@@ -95,15 +98,35 @@ const HomeOwners = () => {
         },
         list: { width: "80px" },
       },
-    }),
-    []
-  );
+    };
+  }, []);
 
-  const { userCan, List } = useCrud({
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    showToast,
+    execute,
+    reLoad,
+    getExtraData,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod,
+    onEdit,
+    onDel,
+  });
+
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
