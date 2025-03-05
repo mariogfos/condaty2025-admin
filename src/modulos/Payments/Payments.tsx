@@ -141,7 +141,7 @@ const Payments = () => {
         label: "Número de Departamento",
         form: {
           type: "text",
-          placeholder: "Ej: EDSFSDFSD"
+          
         },
       },
       
