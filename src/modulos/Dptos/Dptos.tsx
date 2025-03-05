@@ -12,6 +12,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
+import { UnitsType } from "@/mk/utils/utils";
 
 
 
@@ -25,10 +26,13 @@ const paramsInitial = {
 const Dptos = () => {
   const router = useRouter();
   const { user } = useAuth();
+  
+  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
+  
   const mod: ModCrudType = {
     modulo: "dptos",
-    singular: "Departamento",
-    plural: "Departamentos",
+    singular: `${UnitsType[client.type_dpto]}`,
+    plural: `${UnitsType[client.type_dpto]}s`,
     filter: true,
     permiso: "",
     extraData: true,
@@ -40,7 +44,6 @@ const Dptos = () => {
     }
     
   };
-
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -182,7 +185,7 @@ const Dptos = () => {
       </RenderItem>
     );
   };
-
+  
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
