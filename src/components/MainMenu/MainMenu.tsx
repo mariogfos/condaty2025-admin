@@ -60,7 +60,7 @@ const MainMenu = ({
                 label: "Ingresos",
               },
               { href: "/directAffiliates", label: "Egresos" },
-              { href: "/affiliates", label: "Morosos" },
+              { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
             ]}
             collapsed={collapsed}
