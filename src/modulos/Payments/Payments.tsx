@@ -9,7 +9,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
 import { useRouter } from "next/navigation";
-import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngreso/WidgetGrafIngresos";
+import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 
 const mod = {
   modulo: "payments",
@@ -339,7 +339,7 @@ const Payments = () => {
         >
           <>
             <WidgetGrafIngresos
-              className="mt-6"
+              
               ingresos={dataGraph?.ingresosHist}
               chartTypes={["pie"]}
               h={360}
