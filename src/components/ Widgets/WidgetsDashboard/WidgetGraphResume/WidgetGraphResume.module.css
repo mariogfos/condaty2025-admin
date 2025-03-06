@@ -1,0 +1,19 @@
+.widgetGraphResume {
+ /* background-color: antiquewhite; */
+ display: flex;
+ flex-direction: column;
+ gap: var(--spL);
+ & > section:nth-child(1) >  p:nth-child(1){
+    color: var(--cWhite);
+    font-size: var(--spL);
+ }
+ & > section:nth-child(1) >  p:nth-child(2){
+    color: var(--cWhiteV1);
+    font-size: var(--spM);
+ }
+}
+
+
+.widgetBase {
+    background-color: var(--cBlackV2) !important;
+  }
