@@ -11,6 +11,8 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes, getNow } from "@/mk/utils/date";
 import WidgetBase from "../ Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../ Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
+import Button from "@/mk/components/forms/Button/Button";
+import WidgetCalculatePenalty from "../ Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
 
 const paramsInitial = {
   fullType: "L",
@@ -18,9 +20,10 @@ const paramsInitial = {
 };
 const HomePage = () => {
   const { setStore, userCan } = useAuth();
-  const { user } = useAuth();
+  const { user ,showToast} = useAuth();
   const [histParams, setHistParams] = useState<any[]>([]);
   const [params, setParams] = useState<any>(paramsInitial);
+
 
   useEffect(() => {
     setStore({
@@ -42,6 +45,8 @@ const HomePage = () => {
   Number(dashboard?.data?.TotalIngresos) -
   Number(dashboard?.data?.TotalEgresos);
   const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
+
+
 
   if (!userCan("home", "R")) return <NotAccess />;
   // if (!loaded) return <WidgetSkeleton />;
@@ -91,6 +96,16 @@ const HomePage = () => {
                   periodo="y"
                 />
  
+   </section>
+   <section >
+    <WidgetCalculatePenalty />
+   
+    <WidgetBase>
+      as
+    </WidgetBase>
+    <WidgetBase>
+      as
+    </WidgetBase>
    </section>
   </div>;
 };
