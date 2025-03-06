@@ -25,6 +25,7 @@ export interface CategoryFormProps {
   extraData: Record<string, any>;
   action: string;
   execute?: any;
+  categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)
 }
 
 export interface CategoryCardProps {
@@ -32,6 +33,7 @@ export interface CategoryCardProps {
   onClick?: (item: CategoryItem) => void; // Opcional para permitir usarlo sin onClick
   onEdit: (item: CategoryItem) => void;
   onDel: (item: CategoryItem) => void;
+  categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)
 }
 
 export interface InputEvent {

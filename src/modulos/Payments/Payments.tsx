@@ -296,8 +296,13 @@ const Payments = () => {
   };
 
   // Función para navegar a la página de categorías de ingresos
-  const goToCategories = () => {
-    router.push("/incomecategories");
+  const goToCategories = (type = "") => {
+    // Si es de ingresos, pasa "I" como parámetro, si no, no pasa nada o pasa vacío
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push("/categories");
+    }
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
@@ -316,7 +321,7 @@ const Payments = () => {
         </Button>
         
         <Button 
-          onClick={goToCategories} 
+          onClick={() => goToCategories("I")}
           className={styles.categoriesButton}
         >
           Administrar categorías
