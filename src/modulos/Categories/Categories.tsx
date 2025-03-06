@@ -2,7 +2,7 @@
 import { useMemo, useState, useEffect, memo, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./IncomeCategories.module.css";
+import styles from "./Categories.module.css";
 import {
   IconArrowDown,
   IconEdit,
@@ -21,7 +21,7 @@ import {
   CategoryFormProps,
   CategoryItem,
   InputEvent,
-} from "./IncomeCategoriesTypes";
+} from "./CategoryType";
 
 const CategoryForm = memo(
   ({
@@ -34,6 +34,7 @@ const CategoryForm = memo(
     onSave,
     extraData,
     action,
+    categoryType,
   }: CategoryFormProps) => {
     const [isCateg, setIsCateg] = useState<string>(
       item.category_id ? "S" : "C"
@@ -66,7 +67,6 @@ const CategoryForm = memo(
     }, []);
 
     const handleSave = useCallback(() => {
-      // Preparar el objeto para guardar - Eliminar propiedades que pueden causar problemas
       const cleanItem = { ..._Item };
 
       // Eliminar subcategorías para evitar conflictos
@@ -84,12 +84,15 @@ const CategoryForm = memo(
       if (cleanItem.category) delete cleanItem.category;
       if (cleanItem.fixed && action === "edit") delete cleanItem.fixed;
 
+      // Establecer tipo según categoryType (I para ingresos, E para egresos)
+      cleanItem.type = categoryType === "I" ? "I" : "E";
+
       // Para debugging
       console.log("Guardando:", cleanItem);
 
       setItem(cleanItem);
       onSave(cleanItem);
-    }, [_Item, onSave, setItem, isCateg, action]);
+    }, [_Item, onSave, setItem, isCateg, action, categoryType]);
 
     // Formatear categorías para el select
     const formattedCategories = useMemo(() => {
@@ -107,7 +110,11 @@ const CategoryForm = memo(
       console.log("Formulario abierto con:", item);
       console.log("Acción:", action);
       console.log("Es categoría:", isCateg);
-    }, [item, action, isCateg]);
+      console.log("Tipo de categoría:", categoryType);
+    }, [item, action, isCateg, categoryType]);
+
+    // Mostrar tipo de categoría según parámetro
+    const categoryTypeText = categoryType === "I" ? "ingresos" : "egresos";
 
     // Evitar renderizados durante cambios de estado local
     if (!open) return null;
@@ -115,7 +122,7 @@ const CategoryForm = memo(
     return (
       <DataModal
         id="CategoriaForm"
-        title="Registro de categorías y sub-categorías de ingresos"
+        title={`Registro de categorías y sub-categorías de ${categoryTypeText}`}
         open={open}
         onClose={onClose}
         buttonText={
@@ -207,7 +214,12 @@ const CategoryForm = memo(
           />
         </div>
 
-        <input type="hidden" name="type" value="I" />
+        {/* Input para type, siempre presente pero con valor según categoryType */}
+        <input 
+          type="hidden" 
+          name="type" 
+          value={categoryType === "I" ? "I" : "E"} 
+        />
       </DataModal>
     );
   }
@@ -217,7 +229,7 @@ CategoryForm.displayName = "CategoryForm";
 
 // Componente para renderizar una categoría con sus subcategorías
 const CategoryCard = memo(
-  ({ item, onClick, onEdit, onDel }: CategoryCardProps) => {
+  ({ item, onClick, onEdit, onDel, categoryType }: CategoryCardProps) => {
     // Usar el array 'hijos' en lugar de 'subcategories'
     const hasSubcategories = item.hijos && item.hijos.length > 0;
     const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
@@ -245,17 +257,15 @@ const CategoryCard = memo(
           editableItem.category_id = null;
         }
 
-        // Si es una categoría padre, asegúrate de que type="I" esté establecido
-        if (!editableItem.type) {
-          editableItem.type = "I";
-        }
+        // Establecer tipo según categoryType (I para ingresos, E para egresos)
+        editableItem.type = categoryType === "I" ? "I" : "E";
 
         // Log para debug
         console.log("Editando:", editableItem);
 
         onEdit(editableItem);
       },
-      [item, onEdit]
+      [item, onEdit, categoryType]
     );
 
     const handleDeleteClick = useCallback(
@@ -306,10 +316,8 @@ const CategoryCard = memo(
                   // Asegurar que el objeto subcategoría tiene los campos requeridos
                   const editableSubcat = { ...subcat };
 
-                  // Asegurar que type="I" está establecido
-                  if (!editableSubcat.type) {
-                    editableSubcat.type = "I";
-                  }
+                  // Establecer tipo según categoryType (I para ingresos, E para egresos)
+                  editableSubcat.type = categoryType === "I" ? "I" : "E";
 
                   console.log("Editando subcategoría:", editableSubcat);
                   onEdit(editableSubcat);
@@ -360,112 +368,145 @@ const CategoryCard = memo(
 
 CategoryCard.displayName = "CategoryCard";
 
-// Configuración para useCrud
-const mod: ModCrudType = {
-  modulo: "categories",
-  singular: "Categoría",
-  plural: "Categorías",
-  permiso: "",
-  extraData: { params: { type: "I" } },
-  hideActions: {
-    view: false,
-    add: false,
-    edit: false,
-    del: false,
-  },
-  saveMsg: {
-    add: "Categoría creada con éxito",
-    edit: "Categoría actualizada con éxito",
-    del: "Categoría eliminada con éxito",
-  },
-  renderForm: (props: any) => <CategoryForm {...props} />,
-};
+// Componente principal que acepta props
+const Categories = ({ type = "" }) => {
+  // Determinar si es ingresos o egresos basado en el parámetro
+  const isIncome = type === "I";
+  const categoryTypeText = isIncome ? "ingresos" : "egresos";
+  
+  // Asegurar que type siempre sea "I" o "E"
+  const typeToUse = isIncome ? "I" : "E";
 
-const paramsInitial = {
-  perPage: 10,
-  page: 1,
-  fullType: "L",
-  type: "I", // Tipo Ingreso
-  searchBy: "",
-};
+  // Configuración para useCrud
+  const mod: ModCrudType = useMemo(
+    () => {
+      // Crear objeto base con tipado explícito para extraData
+      const modConfig: ModCrudType = {
+        modulo: "categories",
+        singular: "Categoría",
+        plural: "Categorías",
+        permiso: "",
+        // Inicializar extraData con params que incluye el tipo (I o E)
+        extraData: {
+          params: { type: typeToUse }
+        } as { params: Record<string, any> },
+        hideActions: {
+          view: false,
+          add: false,
+          edit: false,
+          del: false,
+        },
+        saveMsg: {
+          add: `Categoría de ${categoryTypeText} creada con éxito`,
+          edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
+          del: `Categoría de ${categoryTypeText} eliminada con éxito`,
+        },
+        renderForm: (props: any) => (
+          <CategoryForm {...props} categoryType={typeToUse} />
+        ),
+      };
+      
+      return modConfig;
+    },
+    [typeToUse, categoryTypeText]
+  );
 
-const IncomeCategories: React.FC = () => {
+  const paramsInitial = useMemo(
+    () => {
+      const params: any = {
+        perPage: 10,
+        page: 1,
+        fullType: "L",
+        searchBy: "",
+        type: typeToUse // Siempre incluir type (I o E)
+      };
+      
+      return params;
+    },
+    [typeToUse]
+  );
+
   const fields = useMemo(
-    () => ({
-      id: { rules: [], api: "e" },
+    () => {
+      const fieldsConfig: any = {
+        id: { rules: [], api: "e" },
 
-      name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Nombre",
-        form: { type: "text" },
-        list: {
-          onRender: (props: { item: CategoryItem }) => {
-            return (
-              <div className={styles.categoryName}>
-                {props.item.name || "Sin nombre"}
-              </div>
-            );
+        name: {
+          rules: ["required"],
+          api: "ae",
+          label: "Nombre",
+          form: { type: "text" },
+          list: {
+            onRender: (props: { item: CategoryItem }) => {
+              return (
+                <div className={styles.categoryName}>
+                  {props.item.name || "Sin nombre"}
+                </div>
+              );
+            },
           },
         },
-      },
 
-      description: {
-        rules: [],
-        api: "ae",
-        label: "Descripción",
-        form: { type: "textarea" },
-        list: {
-          width: "300px",
-          onRender: (props: { item: CategoryItem }) => {
-            return (
-              <div className={styles.categoryDescription}>
-                {props.item.description || "Sin descripción"}
-              </div>
-            );
+        description: {
+          rules: [],
+          api: "ae",
+          label: "Descripción",
+          form: { type: "textarea" },
+          list: {
+            width: "300px",
+            onRender: (props: { item: CategoryItem }) => {
+              return (
+                <div className={styles.categoryDescription}>
+                  {props.item.description || "Sin descripción"}
+                </div>
+              );
+            },
           },
         },
-      },
 
-      type: {
-        rules: ["required"],
-        api: "ae",
-        label: "Tipo",
-        form: {
-          type: "hidden",
-          precarga: "I", // Tipo Ingreso
-        },
-      },
-
-      category_id: {
-        rules: [],
-        api: "ae",
-        label: "Categoría Padre",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione una categoría",
-        },
-        list: {
-          width: "180px",
-          onRender: (props: { item: CategoryItem }) => {
-            return props.item.category ? (
-              <div>{props.item.category.name || "Sin nombre"}</div>
-            ) : (
-              <div className={styles.mainCategory}>Categoría Principal</div>
-            );
+        category_id: {
+          rules: [],
+          api: "ae",
+          label: "Categoría Padre",
+          form: {
+            type: "select",
+            optionsExtra: "categories",
+            placeholder: "Seleccione una categoría",
+          },
+          list: {
+            width: "180px",
+            onRender: (props: { item: CategoryItem }) => {
+              return props.item.category ? (
+                <div>{props.item.category.name || "Sin nombre"}</div>
+              ) : (
+                <div className={styles.mainCategory}>Categoría Principal</div>
+              );
+            },
           },
         },
-      },
 
-      // Campo para manejar los hijos/subcategorías
-      hijos: {
-        rules: [],
-        api: "",
-        label: "Subcategorías",
-      },
-    }),
-    []
+        // Campo para manejar los hijos/subcategorías
+        hijos: {
+          rules: [],
+          api: "",
+          label: "Subcategorías",
+        },
+        
+        // Incluir siempre el campo type
+        type: {
+          rules: ["required"],
+          api: "ae",
+          label: "Tipo",
+          form: {
+            type: "hidden",
+            precarga: typeToUse, // I para ingresos, E para egresos
+          },
+        },
+      };
+      
+      return fieldsConfig;
+    },
+    [typeToUse]
   );
 
   const {
@@ -475,7 +516,6 @@ const IncomeCategories: React.FC = () => {
     onDel,
     onAdd,
     onView,
-
     extraData,
     execute,
   } = useCrud({
@@ -490,22 +530,20 @@ const IncomeCategories: React.FC = () => {
       // Preparar el objeto antes de editar
       const editableItem = { ...item };
 
-      // Asegurar que se incluye el tipo (I para ingresos)
-      if (!editableItem.type) {
-        editableItem.type = "I";
-      }
-
       // Para categorías padre, asegurar que category_id es null
       if (!editableItem.category_id) {
         editableItem.category_id = null;
       }
+
+      // Siempre establecer el type como I o E
+      editableItem.type = typeToUse;
 
       // Log para debug
       console.log("Enviando a editar:", editableItem);
 
       onEdit(editableItem);
     },
-    [onEdit]
+    [onEdit, typeToUse]
   );
 
   const handleDelete = useCallback(
@@ -531,11 +569,12 @@ const IncomeCategories: React.FC = () => {
             // onClick={onClick}
             onEdit={handleEdit}
             onDel={handleDelete}
+            categoryType={typeToUse}
           />
         </div>
       );
     },
-    [handleEdit, handleDelete]
+    [handleEdit, handleDelete, typeToUse]
   );
 
   // Memorizar la referencia a la función para evitar recreaciones
@@ -545,7 +584,11 @@ const IncomeCategories: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}></div>
+      <div className={styles.header}>
+        <h2 className={styles.title}>
+          Categorías de {categoryTypeText}
+        </h2>
+      </div>
 
       <List
         onRenderCard={renderCard}
@@ -556,4 +599,4 @@ const IncomeCategories: React.FC = () => {
   );
 };
 
-export default IncomeCategories;
+export default Categories;

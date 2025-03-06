@@ -1,0 +1,14 @@
+.container {
+    width: 100%;
+  }
+  
+  .title {
+    color: var(--t-white);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .subtitle {
+    color: var(--light-v3);
+    font-size: 0.875rem;
+  }
