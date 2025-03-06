@@ -59,7 +59,7 @@ const MainMenu = ({
                 href: "/payments",
                 label: "Ingresos",
               },
-              { href: "/directAffiliates", label: "Egresos" },
+              { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
             ]}

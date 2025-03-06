@@ -40,7 +40,7 @@ const Outlays = () => {
       date_at: { rules: ["required"], 
         api: "ae", 
         label: "Fecha",
-         form: { type: "text" }, 
+         form: { type: "date" }, 
          list: { } }, 
       category_id: { rules: ["required"], 
         api: "ae",
@@ -61,7 +61,7 @@ const Outlays = () => {
           },
           list: {
             onRender: (props: any) => {
-              return props.item.category?.name || `ID: ${props.item.category_id}`;
+              return props.item.category?.padre?.name || `sin datos disponibles`;
             }
            } }, 
       subcategory_id: { rules: [""], 
@@ -69,7 +69,7 @@ const Outlays = () => {
         label: "Subcategoria", 
          list: { 
           onRender: (props: any) => {
-            return props.item.category?.name || `ID: ${props.item.category_id}`;
+            return props.item.category?.name || `sin datos disponibles`;
           }
          } },    
       description: { rules: ["required"], 
@@ -77,11 +77,25 @@ const Outlays = () => {
         label: "Descripción", 
         form: { type: "text" }, 
       },
-      status: { rules: ["required"], 
+      status: { 
+        rules: [""], 
         api: "ae",
-         label: "Estado",
-          
-          list: { } },    
+        label: "Estado",
+        list: { 
+          onRender: (props: any) => {
+            return (
+              <div 
+                style={{ 
+                  color: props.item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
+                  fontWeight: "bold"
+                }}
+              >
+                {props.item.status === "A" ? "Pagado" : "Anulado"}
+              </div>
+            );
+          }
+        } 
+      },
 
       amount: { rules: ["required"], 
         api: "ae", 
@@ -93,15 +107,15 @@ const Outlays = () => {
           }
          } }, 
 
-      client_id: { rules: ["required"], 
+      client_id: { rules: [""], 
         api: "ae", 
         label: "Cliente", 
-        form: { type: "text" }, 
+        
        }, 
-      user_id: { rules: ["required"], 
+      user_id: { rules: [""], 
         api: "ae", 
         label: "Usuario", 
-        form: { type: "text" },
+       
         }, 
       file: {
         rules: ["required"],
@@ -113,10 +127,10 @@ const Outlays = () => {
             style: { width: "100%" },
         },  
       },  
-      ext: { rules: ["required"], 
+      ext: { rules: [""], 
         api: "ae",
          label: "Ext",
-          form: { type: "text" }, 
+          
         }, 
       
     };
