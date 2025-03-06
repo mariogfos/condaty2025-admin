@@ -128,12 +128,12 @@ const ExpensesDetails = ({data,setOpenDetail}:any) => {
          }
         },    
 
-        penalty_ammount:{
+        penalty_amount:{
           rules: [""],
           api:"",
           label: "Multa",
           list: {
-            onRender: (props: any) => {return <div>Bs {formatNumber(props.item?.penalty_ammount)}</div>}
+            onRender: (props: any) => {return <div>Bs {formatNumber(props.item?.penalty_amount)}</div>}
               }},
         statusDetail:{
           rules: [""],
