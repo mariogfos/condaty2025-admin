@@ -56,7 +56,7 @@ const IncomeForm = ({
     () =>
       extraData?.dptos.map((dpto) => {
         return {
-          id: dpto.id,
+          id: dpto.nro,
           name:
             dpto.nro +
             " - " +
@@ -68,10 +68,9 @@ const IncomeForm = ({
     [extraData?.dptos]
   );
 
-  // Añadir esta línea con las otras definiciones de estado
+
   const lastLoadedDeudas = useRef("");
 
-  // Obtener cliente de los props
   const client = useMemo(() => {
     return (
       user.clients?.find((item) => item.id === user.client_id) || {
@@ -95,17 +94,17 @@ const IncomeForm = ({
   };
   const showToast = (message: string, type: ToastType) => {
     setToast({ msg: message, type });
-    // Opcional: Limpiar el toast después de un tiempo (puedes ajustarlo)
+
     setTimeout(() => setToast({ msg: "", type: "info" }), 5000);
   };
-  // Función para cargar deudas por departamento - DEFINIDA ANTES DE SER USADA
+
   const getDeudas = useCallback(
     async (id) => {
       if (!id) return;
 
       setIsLoadingDeudas(true);
       try {
-        // Pasar true como último parámetro para notWaiting
+    
         const { data } = await execute(
           "/payments",
           "GET",
