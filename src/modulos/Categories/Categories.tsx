@@ -107,10 +107,7 @@ const CategoryForm = memo(
 
     // Log para debugging
     useEffect(() => {
-      console.log("Formulario abierto con:", item);
-      console.log("Acción:", action);
-      console.log("Es categoría:", isCateg);
-      console.log("Tipo de categoría:", categoryType);
+
     }, [item, action, isCateg, categoryType]);
 
     // Mostrar tipo de categoría según parámetro
