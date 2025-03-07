@@ -55,10 +55,10 @@ const HomePage = () => {
 
 
     
-    const pagosList = (data) => {
+    const pagosList = (data:any) => {
       console.log(data,'pagoslist')
       // Función para eliminar duplicados
-      const removeDuplicates = (string) => {
+      const removeDuplicates = (string:string) => {
         const uniqueArray = string.split(",").filter((item, index, self) => {
           return self.indexOf(item) === index;
         });
