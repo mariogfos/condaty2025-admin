@@ -15,6 +15,7 @@ const RenderView = (props: {
   item: Record<string, any>;
   onConfirm?: Function;
   extraData?: any;
+
 }) => {
 const [openActive,setOpenActive] = useState(false);
 const [typeActive,setTypeActive] = useState('');
@@ -102,6 +103,8 @@ const openModal = (t:string) => {
      onClose={()=>setOpenActive(false)}
      typeActive={typeActive}
      data={props.item }
+     onCloseOwner={()=>props.onClose()}
+    
      />
      }
     </>

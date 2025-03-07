@@ -9,9 +9,9 @@ import React, { useEffect, useState } from 'react';
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import styles from './ActiveOwner.module.css'
 
-const ActiveOwner = ({ open, onClose, data, typeActive ,reLoad , onCloseOwner }: any) => {
+const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) => {
   const { store, showToast } = useAuth();
-  const { execute } = useAxios();
+  const { execute,reLoad } = useAxios();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -84,6 +84,8 @@ const ActiveOwner = ({ open, onClose, data, typeActive ,reLoad , onCloseOwner }:
         showToast("La cuenta fue activada con éxito", "success");
       }
       onClose();
+      onCloseOwner();
+      reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
