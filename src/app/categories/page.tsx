@@ -1,5 +1,6 @@
 "use client";
 
+
 import Categories from "@/modulos/Categories/Categories";
 import { useSearchParams } from "next/navigation";
 import React from "react";

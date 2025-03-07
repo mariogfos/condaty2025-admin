@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import React, { useState, useMemo } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
@@ -7,37 +7,9 @@ import { getUrlImages } from "@/mk/utils/string";
 import { getDateStrMes, getDateTimeStrMesShort, getDateDesdeHasta } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-
 import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
-
-const mod = {
-  modulo: "payments",
-  singular: "Ingreso",
-  plural: "Ingresos",
-
-  permiso: "",
-
-  extraData: true,
-  hideActions: {
-    view: false,
-    add: false,
-    edit: false,
-    del: false
-  },
-  saveMsg: {
-    add: "Ingreso creado con éxito",
-    edit: "Ingreso actualizado con éxito",
-    del: "Ingreso eliminado con éxito"
-  }
-};
-
-const paramsInitial = {
-  perPage: 10,
-  page: 1,
-  fullType: "L",
-  searchBy: "",
-};
+import IncomeForm from "./PaymentsForm/PaymentsForm";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -46,21 +18,52 @@ interface FormStateFilter {
 }
 
 const Payments = () => {
-    const router = useRouter();
-    const [openGraph, setOpenGraph] = useState(false);
-    const [dataGraph, setDataGraph] = useState<any>({});
-    const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
-    
-    // Función para convertir el filtro de fecha
-    const convertFilterDate = () => {
-      let periodo = "m";
-      if (formStateFilter.filter_date === "month") periodo = "m";
-      if (formStateFilter.filter_date === "lmonth") periodo = "lm";
-      if (formStateFilter.filter_date === "year") periodo = "y";
-      if (formStateFilter.filter_date === "lyear") periodo = "ly";
-      return periodo;
-    };
+  const router = useRouter();
+  const [openGraph, setOpenGraph] = useState<boolean>(false);
+  const [dataGraph, setDataGraph] = useState<any>({});
+  const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
+  
+  // Configuración del módulo
+  const mod = {
+    modulo: "payments",
+    singular: "Ingreso",
+    plural: "Ingresos",
+    permiso: "",
+    extraData: true,
+    // Utilizamos el componente IncomeForm para el formulario personalizado
+    renderForm: IncomeForm,
+    hideActions: {
+      view: false,
+      add: false,
+      edit: true,
+      del: true
+    },
+    saveMsg: {
+      add: "Ingreso creado con éxito",
+      edit: "Ingreso actualizado con éxito",
+      del: "Ingreso eliminado con éxito"
+    }
+  };
 
+  // Parámetros iniciales para el listado
+  const paramsInitial = {
+    perPage: 10,
+    page: 1,
+    fullType: "L",
+    searchBy: "",
+  };
+  
+  // Función para convertir el filtro de fecha
+  const convertFilterDate = () => {
+    let periodo = "m";
+    if (formStateFilter.filter_date === "month") periodo = "m";
+    if (formStateFilter.filter_date === "lmonth") periodo = "lm";
+    if (formStateFilter.filter_date === "year") periodo = "y";
+    if (formStateFilter.filter_date === "lyear") periodo = "ly";
+    return periodo;
+  };
+
+  // Definición de campos para el CRUD
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },  
@@ -100,7 +103,7 @@ const Payments = () => {
         label: "Unidad",
         form: {
           type: "select",
-          options: (props: any) => props.extraData?.dptos.map((d: any) => ({ id: d.id, name: `${d.nro} - ${d.description}` })),
+          options: (props: any) => props.extraData?.dptos?.map((d: any) => ({ id: d.id, name: `${d.nro} - ${d.description}` })) || [],
           placeholder: "Seleccione una unidad"
         },
         list: { 
@@ -111,6 +114,7 @@ const Payments = () => {
           }
         },
       },
+      
       type: {
         rules: ["required"],
         api: "ae",
@@ -128,7 +132,9 @@ const Payments = () => {
             const typeMap: Record<string, string> = {
               "T": "Transferencia",
               "E": "Efectivo",
-              "C": "Cheque"
+              "C": "Cheque",
+              "Q": "QR",
+              "O": "Pago en oficina"
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
           }
@@ -141,7 +147,6 @@ const Payments = () => {
         label: "Número de Departamento",
         form: {
           type: "text",
-          
         },
       },
       
@@ -174,7 +179,7 @@ const Payments = () => {
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "webp"],
           style: { width: "100%" },
         },
-        onRenderView: ({ item, extraData }: any) => {
+        onRenderView: ({ item }: any) => {
           if (!item.ext) return <div>Sin archivo</div>;
           return (
             <div style={{ marginTop: "20px", textAlign: "center" }}>
@@ -228,9 +233,12 @@ const Payments = () => {
           width: "120px",
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
-              "P": "Pendiente",
-              "C": "Completado",
-              "R": "Rechazado"
+              "P": "Pagado",
+              "S": "Por confirmar",
+              "R": "Rechazado",
+              "E": "Por subir comprobante",
+              "A": "Por pagar",
+              "M": "Moroso"
             };
             return <div>{statusMap[props.item.status] || props.item.status}</div>;
           }
@@ -256,6 +264,7 @@ const Payments = () => {
     []
   );
 
+  // Inicialización del hook useCrud con nuestra configuración
   const {
     userCan,
     List,
@@ -305,6 +314,7 @@ const Payments = () => {
     }
   };
 
+  // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   
   return (
@@ -327,6 +337,7 @@ const Payments = () => {
           Administrar categorías
         </Button>
         
+
       </div>
       
       <List />
@@ -344,7 +355,6 @@ const Payments = () => {
         >
           <>
             <WidgetGrafIngresos
-              
               ingresos={dataGraph?.ingresosHist}
               chartTypes={["pie"]}
               h={360}
