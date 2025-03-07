@@ -17,6 +17,8 @@ import { WidgetList } from "../ Widgets/WidgetsDashboard/WidgetList/WidgetList";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import RenderView from "@/modulos/Owners/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -26,6 +28,8 @@ const HomePage = () => {
   const { store,setStore, userCan ,showToast,user } = useAuth();
   const [histParams, setHistParams] = useState<any[]>([]);
   const [params, setParams] = useState<any>(paramsInitial);
+  const [ openActive , setOpenActive ] = useState(false);
+  const [ dataOwner , setDataOwner ]:any = useState({});
 
 
   useEffect(() => {
@@ -51,10 +55,10 @@ const HomePage = () => {
 
 
     
-    const pagosList = (data) => {
+    const pagosList = (data:any) => {
       console.log(data,'pagoslist')
       // Función para eliminar duplicados
-      const removeDuplicates = (string) => {
+      const removeDuplicates = (string:string) => {
         const uniqueArray = string.split(",").filter((item, index, self) => {
           return self.indexOf(item) === index;
         });
@@ -108,8 +112,8 @@ const HomePage = () => {
                     "No tiene permisos para aceptar cuentas pre-registradas",
                     "error"
                   );
-                // setDataActivar(data.owner);
-                // setOpenActivar(true);
+                setDataOwner(data.owner);
+                setOpenActive(true);
               }}
               
             >
@@ -165,7 +169,10 @@ const HomePage = () => {
     };
   if (!userCan("home", "R")) return <NotAccess />;
   // if (!loaded) return <WidgetSkeleton />;
-  return <div className={styles.container}>
+  return <>
+  
+  <div className={styles.container}>
+
 <section>
     <WidgetDashCard
       title="Ingresos"
@@ -240,7 +247,13 @@ const HomePage = () => {
        renderItem={alertasList}
      />                                   
    </section>
-  </div>;
+  </div>
+ <RenderView 
+  open={openActive}
+  onClose={()=>setOpenActive(false)}
+  item={dataOwner}
+ />
+  </>;
 };
 
 export default HomePage;

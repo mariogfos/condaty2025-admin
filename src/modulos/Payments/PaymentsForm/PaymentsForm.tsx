@@ -25,6 +25,8 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
+import { UnitsType } from '@/mk/utils/utils'
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const IncomeForm = ({
   open,
@@ -51,6 +53,7 @@ const IncomeForm = ({
     msg: "",
     type: "info",
   });
+  const {store} = useAuth();
 
   const lDptos = useMemo(
     () =>
@@ -58,15 +61,18 @@ const IncomeForm = ({
         return {
           id: dpto.nro,
           name:
-            dpto.nro +
-            " - " +
-            dpto.description +
-            " - " +
-            getFullName(dpto.titular?.owner),
+          store.UnitsType +
+          " " +
+          dpto.nro +
+          " - " +
+          dpto.description +
+          " - " +
+          getFullName(dpto.titular?.owner),
         };
       }),
     [extraData?.dptos]
   );
+ 
 
 
   const lastLoadedDeudas = useRef("");

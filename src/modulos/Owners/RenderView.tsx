@@ -4,6 +4,7 @@ import { getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName } from "../../mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
+import Button from "@/mk/components/forms/Button/Button";
 
 const RenderView = (props: {
   open: boolean;
@@ -15,7 +16,7 @@ const RenderView = (props: {
 
 
 
-console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
+// console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
   return (
     <DataModal
       open={props.open}
@@ -77,6 +78,11 @@ console.log(props.item.status,lStatusActive[props.item.status]?.name,'status own
           </div>
         </section>
       </div>
+     {props?.item?.status === 'R' && <div>
+        <Button>Activar</Button>
+        <Button variant='secondary'>Rechazar</Button>
+
+      </div>}
     </DataModal>
   );
 };

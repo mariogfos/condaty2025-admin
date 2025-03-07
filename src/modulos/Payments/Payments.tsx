@@ -113,7 +113,14 @@ const Payments = () => {
         list: { 
           onRender: (props: any) => {
             const dpto = props.extraData?.dptos?.find((d: any) => d.id === props.item.dptos);
-            return <div>{dpto ? `${dpto.nro} - ${dpto.description}` : props.item.dptos}</div>;
+            return (
+              <div>
+                {dpto
+                  ? `${dpto.nro} - ${dpto.description}`
+                  : `${props.item.dptos}`.replace(/,/g, "")}
+              </div>
+            );
+            
           }
         }
       },
