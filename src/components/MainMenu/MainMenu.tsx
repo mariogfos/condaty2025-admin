@@ -19,6 +19,8 @@ import MainmenuDropdown from "./MainmenuDropdown";
 import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
 import { UnitsType } from "@/mk/utils/utils";
+import { useEffect } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 type PropsType = {
   user?: any;
@@ -35,12 +37,17 @@ const MainMenu = ({
   setSideBarOpen,
 }: PropsType) => {
   const { isMobile } = useScreenSize();
+  const { setStore } = useAuth();
   const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
   // const play = () => {
   //   sound
   //     .play()
   //     .catch((err) => console.error("Error al reproducir el audio:", err));
   // };
+ 
+    useEffect(()=>{
+      setStore({UnitsType:UnitsType[client.type_dpto]})
+    },[])
 
   return (
     <section className={styles.menu}>
