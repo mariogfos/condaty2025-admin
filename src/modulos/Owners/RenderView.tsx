@@ -1,3 +1,4 @@
+'use client'
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./Owners.module.css";
 import { getUrlImages } from "@/mk/utils/string";
@@ -5,6 +6,8 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName } from "../../mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
 import Button from "@/mk/components/forms/Button/Button";
+import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
+import { useState } from "react";
 
 const RenderView = (props: {
   open: boolean;
@@ -13,12 +16,19 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-
+const [openActive,setOpenActive] = useState(false);
+const [typeActive,setTypeActive] = useState('');
 
 
 // console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
+// console.log(openActive,'openactive')
+
+const openModal = (t:string) => {
+  setOpenActive(true);
+  setTypeActive(t)
+}
   return (
-    <DataModal
+    <>    <DataModal
       open={props.open}
       onClose={props?.onClose}
       title={"Detalle del residente"}
@@ -79,11 +89,23 @@ const RenderView = (props: {
         </section>
       </div>
      {props?.item?.status === 'R' && <div>
-        <Button>Activar</Button>
-        <Button variant='secondary'>Rechazar</Button>
+        <Button onClick={()=>openModal('S')}>Activar</Button>
+        <Button onClick={()=>openModal('R')} variant='secondary'>Rechazar</Button>
 
       </div>}
     </DataModal>
+     
+
+     {openActive && 
+     <ActiveOwner 
+     open={openActive}
+     onClose={()=>setOpenActive(false)}
+     typeActive={typeActive}
+     data={props.item }
+     />
+     }
+    </>
+
   );
 };
 
