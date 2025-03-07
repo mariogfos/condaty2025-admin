@@ -15,7 +15,7 @@ const RenderView = (props: {
 
 
 
-
+console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
   return (
     <DataModal
       open={props.open}

@@ -25,14 +25,18 @@ const paramsInitial = {
 
 const Dptos = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user ,store} = useAuth();
   
   const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
+  useEffect(()=>{
+    setStore({UnitsType:UnitsType[client.type_dpto]})
+  },[])
+
   
   const mod: ModCrudType = {
     modulo: "dptos",
-    singular: `${UnitsType[client.type_dpto]}`,
-    plural: `${UnitsType[client.type_dpto]}s`,
+    singular: `${store?.UnitsType}`,
+    plural: `${store?.UnitsType}s`,
     filter: true,
     permiso: "",
     extraData: true,
@@ -51,7 +55,7 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de " + UnitsType[client.type_dpto],
+        label: "Número de " + store.UnitsType,
         form: { type: "text" },
         list: { width: "100px" },
       },

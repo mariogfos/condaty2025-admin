@@ -84,7 +84,7 @@
 
       & > span {
         font-size: var(--sS);
-        color: var(--cBlackV2);
+        color: var(--cWhiteV1);
       }
     }
   }

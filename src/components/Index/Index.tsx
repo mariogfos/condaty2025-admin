@@ -8,19 +8,22 @@ import styles from "./index.module.css";
 import { WidgetSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 import { WidgetDashCard } from "../ Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes, getNow } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
 import WidgetBase from "../ Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../ Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import Button from "@/mk/components/forms/Button/Button";
 import WidgetCalculatePenalty from "../ Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
+import { WidgetList } from "../ Widgets/WidgetsDashboard/WidgetList/WidgetList";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { getFullName } from "@/mk/utils/string";
+import { UnitsType } from "@/mk/utils/utils";
 
 const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
 const HomePage = () => {
-  const { setStore, userCan } = useAuth();
-  const { user ,showToast} = useAuth();
+  const { store,setStore, userCan ,showToast,user } = useAuth();
   const [histParams, setHistParams] = useState<any[]>([]);
   const [params, setParams] = useState<any>(paramsInitial);
 
@@ -47,7 +50,119 @@ const HomePage = () => {
   const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
 
 
+    
+    const pagosList = (data) => {
+      console.log(data,'pagoslist')
+      // Función para eliminar duplicados
+      const removeDuplicates = (string) => {
+        const uniqueArray = string.split(",").filter((item, index, self) => {
+          return self.indexOf(item) === index;
+        });
+        return uniqueArray.join(" ");
+      };
+  
+  
+      return (
+        <ItemList
+          title={getFullName(data?.owner)}
+          subtitle={store.UnitsType + " " + removeDuplicates(data?.dptos)}
+          right={
+            <Button
+              onClick={() => {
+                if (userCan("inicio", "C") == false)
+                  return showToast(
+                    "No tiene permisos para aceptar pagos",
+                    "error"
+                  );
+                // setDataPago(data);
+                // setOpenPagos(true);
+              }}
+              
+            >
+              Revisar
+            </Button>
+          }
+        >
+          {/* <div className="items-center justify-between gap-4 hidden">
+            <div>Periodos: {data.details?.length}</div>
+            <div>Monto: {data.amount}</div>
+          </div> */}
+        </ItemList>
+      );
+    };
 
+    const registroList = (data:any) => {
+      return (
+        <ItemList
+          title={getFullName({
+            last_name: data.owner.last_name,
+            middle_name: data.owner.middle_name,
+            mother_last_name: data.owner.mother_last_name,
+            name: data.owner.name,
+          })}
+          right={
+            <Button
+              onClick={() => {
+                if (userCan("inicio", "C") == false)
+                  return showToast(
+                    "No tiene permisos para aceptar cuentas pre-registradas",
+                    "error"
+                  );
+                // setDataActivar(data.owner);
+                // setOpenActivar(true);
+              }}
+              
+            >
+              Ver
+            </Button>
+          }
+        ></ItemList>
+      );
+    };
+   
+
+    const alertasList = (data:any) => {
+      return (
+        <div title={""} className={styles.alertsList}>
+         <section> 
+          <div>
+              <div>
+                {getFullName(data?.guardia)}{" "}
+              </div>
+              <div>
+                Descripción: {data.descrip}
+              </div>
+              
+                <div>
+                  {getDateTimeStrMes(data.created_at)}
+                </div>
+          </div>
+            <div className="flex justify-end items-center -mt-6">
+              <div
+                className={`${styles.levelText}  ${
+                  data?.level === 1
+                    ? styles.levelLow
+                    : data.level === 2
+                    ? styles.levelMedium
+                    : styles.levelHigh
+                }`}
+              >
+                <p className="text-xs">
+                  {`Nivel ${
+                    data.level === 1
+                      ? "bajo"
+                      : data.level === 2
+                      ? "medio"
+                      : "alto"
+                  }`}
+                </p>
+              </div>
+            </div>
+          
+          </section>
+        </div>
+      );
+    };
   if (!userCan("home", "R")) return <NotAccess />;
   // if (!loaded) return <WidgetSkeleton />;
   return <div className={styles.container}>
@@ -98,14 +213,32 @@ const HomePage = () => {
  
    </section>
    <section >
-    <WidgetCalculatePenalty />
-   
-    <WidgetBase>
-      as
-    </WidgetBase>
-    <WidgetBase>
-      as
-    </WidgetBase>
+   <div className={styles.widgetsContainer}>
+      <WidgetCalculatePenalty />
+    
+  
+        <WidgetList
+        className={styles.widgetAlerts}
+        title="Solicitudes de pago"
+        message="En este momento no tienes pagos por revisar"
+        data={dashboard?.data?.porConfirmar}
+        renderItem={pagosList}
+        />
+        <WidgetList        
+            className={styles.widgetAlerts}
+            title="Cuentas pre-registro"
+            message="En este momento no tienes cuentas por activar"
+            data={dashboard?.data?.porActivar}
+            renderItem={registroList}
+          />
+    </div>
+    <WidgetList
+       className={styles.widgetAlerts}
+       title="Últimas alertas"
+       message="En este momento no tienes ninguna alerta"
+       data={dashboard?.data?.alertas}
+       renderItem={alertasList}
+     />                                   
    </section>
   </div>;
 };
