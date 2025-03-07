@@ -10,6 +10,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import IncomeForm from "./PaymentsForm/PaymentsForm";
+import DetailPayment from "./PaymentDetail/PaymentDetail";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -32,6 +33,9 @@ const Payments = () => {
     extraData: true,
     // Utilizamos el componente IncomeForm para el formulario personalizado
     renderForm: IncomeForm,
+    renderView: (props: any) => <DetailPayment {...props} />,
+    // Importante: esta configuración le indica a useCrud que debe cargar los datos detallados
+    loadView: { fullType: "DET" },
     hideActions: {
       view: false,
       add: false,
@@ -78,7 +82,7 @@ const Payments = () => {
           onRender: (props: any) => {
             return <div>{ getDateStrMes(props.item.paid_at) || "No pagado"}</div>;
           }
-        },
+        }
       },
 
       category_id: {
@@ -92,9 +96,9 @@ const Payments = () => {
         },
         list: { 
           onRender: (props: any) => {
-            return <div>{props.item.category?.name || `ID: ${props.item.category_id}`}</div>;
+            return <div>{props.item.category?.name}</div>;
           }
-        },
+        }
       },
 
       dptos: {
@@ -112,7 +116,7 @@ const Payments = () => {
             const dpto = props.extraData?.dptos?.find((d: any) => d.id === props.item.dptos);
             return <div>{dpto ? `${dpto.nro} - ${dpto.description}` : `ID: ${props.item.dptos}`}</div>;
           }
-        },
+        }
       },
       
       type: {
@@ -138,7 +142,7 @@ const Payments = () => {
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
           }
-        },
+        }
       },
       
       nro_id: {
@@ -147,7 +151,7 @@ const Payments = () => {
         label: "Número de Departamento",
         form: {
           type: "text",
-        },
+        }
       },
       
       voucher: {
@@ -157,7 +161,7 @@ const Payments = () => {
         form: {
           type: "text",
           placeholder: "Ej: c100"
-        },
+        }
       },
       
       obs: {
@@ -178,31 +182,6 @@ const Payments = () => {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "webp"],
           style: { width: "100%" },
-        },
-        onRenderView: ({ item }: any) => {
-          if (!item.ext) return <div>Sin archivo</div>;
-          return (
-            <div style={{ marginTop: "20px", textAlign: "center" }}>
-              <Button 
-                variant="primary" 
-                onClick={() => {
-                  window.open(
-                    getUrlImages(
-                      "/DOC-" +
-                        item.id +
-                        "." +
-                        item.ext +
-                        "?d=" +
-                        item.updated_at
-                    ),
-                    "_blank"
-                  );
-                }}
-              >
-                Descargar comprobante
-              </Button>
-            </div>
-          );
         },
         onRender: ({ item }: any) => {
           if (!item.ext) return <div>Sin archivo</div>;
@@ -242,7 +221,7 @@ const Payments = () => {
             };
             return <div>{statusMap[props.item.status] || props.item.status}</div>;
           }
-        },
+        }
       },
       
       amount: {
@@ -258,7 +237,7 @@ const Payments = () => {
           onRender: (props: any) => {
             return <div>Bs.{props.item.amount}</div>;
           }
-        },
+        }
       },
     }),
     []
@@ -336,8 +315,6 @@ const Payments = () => {
         >
           Administrar categorías
         </Button>
-        
-
       </div>
       
       <List />
