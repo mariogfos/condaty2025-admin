@@ -35,7 +35,7 @@ const Payments = () => {
     renderForm: IncomeForm,
     renderView: (props: any) => <DetailPayment {...props} />,
     // Importante: esta configuración le indica a useCrud que debe cargar los datos detallados
-    loadView: { fullType: "DET", extraData: 1 },
+    loadView: { fullType: "DET" },
     hideActions: {
       view: false,
       add: false,
