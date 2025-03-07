@@ -35,8 +35,8 @@ const Payments = () => {
     hideActions: {
       view: false,
       add: false,
-      edit: false,
-      del: false
+      edit: true,
+      del: true
     },
     saveMsg: {
       add: "Ingreso creado con éxito",

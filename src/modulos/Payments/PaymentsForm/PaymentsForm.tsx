@@ -11,6 +11,8 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import { IconArrowDown, IconCheckOff, IconCheckSquare, IconDocs, IconPDF } from "@/components/layout/icons/IconsBiblioteca";
+import { ToastType } from "@/mk/hooks/useToast";
+import Toast from "@/mk/components/ui/Toast/Toast";
 
 const IncomeForm = ({
   open,
@@ -33,6 +35,10 @@ const IncomeForm = ({
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: ToastType }>({
+    msg: "",
+    type: "info",
+  });
   // Añadir esta línea con las otras definiciones de estado
 const lastLoadedDeudas = useRef('');
 
@@ -57,35 +63,39 @@ const lastLoadedDeudas = useRef('');
     _L: "Calle/Mz",
     _O: "Piso",
   };
-
+  const showToast = (message: string, type: ToastType) => {
+    setToast({ msg: message, type });
+    // Opcional: Limpiar el toast después de un tiempo (puedes ajustarlo)
+    setTimeout(() => setToast({ msg: "", type: "info" }), 5000);
+  };
   // Función para cargar deudas por departamento - DEFINIDA ANTES DE SER USADA
-  const getDeudas = useCallback(async (id) => {
-    if (!id) return;
-    
-    setIsLoadingDeudas(true);
-    try {
-      // Pasar true como último parámetro para notWaiting
-      const { data } = await execute("/payments", "GET", {
-        perPage: -1,
-        page: 1,
-        fullType: "PDD",
-        searchBy: id,
-      }, false, true); // <-- El último true es para notWaiting
+const getDeudas = useCallback(async (id) => {
+  if (!id) return;
   
-      if (data?.success) {
-        const deudasArray = data?.data?.deudas || [];
-        setDeudas(deudasArray);
-        if (deudasArray.length === 0) {
-          setSelectedPeriodo([]);
-          setSelectPeriodoTotal(0);
-        }
+  setIsLoadingDeudas(true);
+  try {
+    // Pasar true como último parámetro para notWaiting
+    const { data } = await execute("/payments", "GET", {
+      perPage: -1,
+      page: 1,
+      fullType: "PDD",
+      searchBy: id,
+    }, false, true); // <-- El último true es para notWaiting
+
+    if (data?.success) {
+      const deudasArray = data?.data?.deudas || [];
+      setDeudas(deudasArray);
+      if (deudasArray.length === 0) {
+        setSelectedPeriodo([]);
+        setSelectPeriodoTotal(0);
       }
-    } catch (err) {
-      console.error("Error al obtener deudas:", err);
-    } finally {
-      setIsLoadingDeudas(false);
     }
-  }, [execute]);
+  } catch (err) {
+    console.error("Error al obtener deudas:", err);
+  } finally {
+    setIsLoadingDeudas(false);
+  }
+}, [execute]);
   
   // Inicialización y limpieza
   useEffect(() => {
@@ -309,59 +319,72 @@ useEffect(() => {
     return Object.keys(err).length === 0;
   }, [_formState, deudas, setErrors]);
 
-  // Handler para guardar el pago
   const _onSavePago = useCallback(async () => {
     if (!validar()) {
       return;
     }
-
+  
     let params = {
-        type: _formState.type,
-        file: {
-          file: _formState.file,
-          ext: _formState.ext
-        },
-        voucher: _formState.voucher,
-        obs: _formState.obs,
-        category_id: _formState.subcategory_id,
-        nro_id: _formState.dpto_id,
-        user_id: client.id
-      };
-
+      type: _formState.type,
+      file: {
+        file: _formState.file,
+        ext: _formState.ext,
+      },
+      voucher: _formState.voucher,
+      obs: _formState.obs,
+      category_id: _formState.subcategory_id,
+      nro_id: _formState.dpto_id,
+      user_id: client.id,
+    };
+  
     // Verificar si es un pago de expensa y hay deudas seleccionadas
-    if (extraData?.client_config?.cat_expensas === _formState.subcategory_id && selectedPeriodo.length > 0) {
+    if (
+      extraData?.client_config?.cat_expensas === _formState.subcategory_id &&
+      selectedPeriodo.length > 0
+    ) {
       params = {
         ...params,
         asignados: selectedPeriodo,
-        amount: selecPeriodoTotal
+        amount: selecPeriodoTotal,
       };
     } else {
       params = {
         ...params,
-        amount: parseFloat(_formState.amount || "0")
+        amount: parseFloat(_formState.amount || "0"),
       };
     }
-
+  
     try {
       console.log("Enviando datos:", params);
       const { data, error } = await execute("/payments", "POST", params);
-
-      // En el método _onSavePago, modifica la sección de éxito/error
-        if (data?.success) {
-            showToast("Pago agregado con éxito", "success");
-            reLoad();
-            onClose();
-        } else if (error) {
-            console.error("Error al guardar el pago:", error);
-            showToast("Error al guardar el pago", "error");
-            if (error.data && error.data.errors) {
-            setErrors(error.data.errors);
-            }
+  
+      if (data?.success) {
+        showToast("Pago agregado con éxito", "success"); // Usa el toast de éxito
+        reLoad();
+        onClose();
+      } else if (error) {
+        console.error("Error al guardar el pago:", error);
+        showToast("Error al guardar el pago", "error"); // Usa el toast de error
+        if (error.data && error.data.errors) {
+          setErrors(error.data.errors);
         }
+      }
     } catch (err) {
       console.error("Error en _onSavePago:", err);
+      showToast("Error inesperado al guardar el pago", "error"); // Manejo de errores generales
     }
-  }, [_formState, extraData?.client_config?.cat_expensas, selectedPeriodo, selecPeriodoTotal, validar, execute, reLoad, onClose, setErrors]);
+  }, [
+    _formState,
+    extraData?.client_config?.cat_expensas,
+    selectedPeriodo,
+    selecPeriodoTotal,
+    validar,
+    execute,
+    reLoad,
+    onClose,
+    setErrors,
+    showToast, // Añade showToast como dependencia
+  ]);
 
   // Handler para cerrar el modal
   const onCloseModal = useCallback(() => {
@@ -372,6 +395,8 @@ useEffect(() => {
   }, [onClose]);
 
   return (
+    <>
+    <Toast toast={toast} showToast={showToast} />
     <DataModal
       open={open}
       onClose={onCloseModal}
@@ -673,7 +698,10 @@ useEffect(() => {
         </div>
       </div>
     </DataModal>
+    </>
   );
 };
 
 export default IncomeForm;
+
+
