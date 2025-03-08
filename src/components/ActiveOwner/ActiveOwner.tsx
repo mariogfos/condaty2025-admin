@@ -21,7 +21,7 @@ const ActiveOwner = ({
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
 
-  const { data: dptos, execute } = useAxios(
+  const { data: dptos, execute ,reLoad } = useAxios(
     "/dptos",
     "GET",
     {
@@ -91,9 +91,9 @@ const ActiveOwner = ({
       } else {
         showToast("La cuenta fue activada con éxito", "success");
       }
-      // onClose();
-      // onCloseOwner();
-      // reLoad();
+      onClose();
+      onCloseOwner();
+      reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
