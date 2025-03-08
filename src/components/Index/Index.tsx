@@ -193,7 +193,7 @@ const HomePage = () => {
      title="Egresos"
      subtitle={formattedDate}
      data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
-     onClick={()=> window.location.href = "/ingresos"}
+     onClick={()=> window.location.href = "/outlays"}
  
    />
      <WidgetDashCard
