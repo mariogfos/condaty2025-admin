@@ -19,6 +19,7 @@ import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import RenderView from "@/modulos/Owners/RenderView";
+import DetailPayment from "@/modulos/Payments/PaymentDetail/PaymentDetail";
 
 const paramsInitial = {
   fullType: "L",
@@ -29,7 +30,9 @@ const HomePage = () => {
   const [histParams, setHistParams] = useState<any[]>([]);
   const [params, setParams] = useState<any>(paramsInitial);
   const [ openActive , setOpenActive ] = useState(false);
+  const [ openPayment , setOpenPayment ] = useState(false);
   const [ dataOwner , setDataOwner ]:any = useState({});
+  const [ dataPayment , setDataPayment ]:any = useState({});
 
 
   useEffect(() => {
@@ -56,7 +59,7 @@ const HomePage = () => {
 
     
     const pagosList = (data:any) => {
-      console.log(data,'pagoslist')
+      // console.log(data,'pagoslist')
       // Función para eliminar duplicados
       const removeDuplicates = (string:string) => {
         const uniqueArray = string.split(",").filter((item, index, self) => {
@@ -78,8 +81,8 @@ const HomePage = () => {
                     "No tiene permisos para aceptar pagos",
                     "error"
                   );
-                // setDataPago(data);
-                // setOpenPagos(true);
+                 setDataPayment(data);
+                 setOpenPayment(true);
               }}
               
             >
@@ -252,6 +255,11 @@ const HomePage = () => {
   open={openActive}
   onClose={()=>setOpenActive(false)}
   item={dataOwner}
+ />
+ <DetailPayment
+ open={openPayment}
+ onClose={()=>setOpenPayment(false)}
+ item={dataPayment}
  />
   </>;
 };

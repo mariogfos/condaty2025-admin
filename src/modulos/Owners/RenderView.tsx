@@ -7,12 +7,12 @@ import { getFullName } from "../../mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
 import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const RenderView = (props: {
   open: boolean;
   onClose: any;
-  item: Record<string, any>;
+  item: any;
   onConfirm?: Function;
   extraData?: any;
 
@@ -22,14 +22,18 @@ const [typeActive,setTypeActive] = useState('');
 
 
 // console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
-// console.log(openActive,'openactive')
+useEffect(()=>{
+  console.log(props?.item,'openactive a')
+  
+},[openActive])
 
 const openModal = (t:string) => {
   setOpenActive(true);
   setTypeActive(t)
 }
   return (
-    <>    <DataModal
+    <>    
+    <DataModal
       open={props.open}
       onClose={props?.onClose}
       title={"Detalle del residente"}

@@ -21,6 +21,7 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
   });
 
   useEffect(() => {
+    // console.log('entre')
     const lista = dptos?.data
       ?.filter((item: any) => item?.titular === null)
       .map((item: any) => ({
@@ -83,9 +84,9 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
       } else {
         showToast("La cuenta fue activada con éxito", "success");
       }
-      onClose();
-      onCloseOwner();
-      reLoad();
+      // onClose();
+      // onCloseOwner();
+      // reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
