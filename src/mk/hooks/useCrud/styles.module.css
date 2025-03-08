@@ -18,11 +18,15 @@
   & > nav {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--spL);
     overflow: visible;
+    margin-bottom: var(--spL);
     & > div:first-child {
       flex-grow: 1;
+      & > div{
+        margin-bottom: 0px;
+      }
     }
   }
 
