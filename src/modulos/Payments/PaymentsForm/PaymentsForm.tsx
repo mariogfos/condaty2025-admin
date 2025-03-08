@@ -27,6 +27,7 @@ import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { UnitsType } from '@/mk/utils/utils'
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import styles from "./PaymentsForm.module.css"
 
 const IncomeForm = ({
   open,
@@ -68,6 +69,7 @@ const IncomeForm = ({
           dpto.description +
           " - " +
           getFullName(dpto.titular?.owner),
+          dpto_id: dpto.id
         };
       }),
     [extraData?.dptos]
@@ -105,12 +107,16 @@ const IncomeForm = ({
   };
 
   const getDeudas = useCallback(
-    async (id) => {
-      if (!id) return;
+    async (nroDpto) => {
+      if (!nroDpto) return;
 
+      const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === nroDpto);
+      const realDptoId = selectedDpto?.id;
+      
+      if (!realDptoId) return; 
+  
       setIsLoadingDeudas(true);
       try {
-    
         const { data } = await execute(
           "/payments",
           "GET",
@@ -118,12 +124,12 @@ const IncomeForm = ({
             perPage: -1,
             page: 1,
             fullType: "PDD",
-            searchBy: id,
+            searchBy: realDptoId, 
           },
           false,
           true
-        ); // <-- El último true es para notWaiting
-
+        );
+  
         if (data?.success) {
           const deudasArray = data?.data?.deudas || [];
           setDeudas(deudasArray);
@@ -138,7 +144,7 @@ const IncomeForm = ({
         setIsLoadingDeudas(false);
       }
     },
-    [execute]
+    [execute, extraData?.dptos]
   );
 
   // Inicialización y limpieza
@@ -149,13 +155,13 @@ const IncomeForm = ({
     }
 
     if (!isInitialized && open) {
-      // Solo inicializar datos cuando se abre el modal
+
       setIsInitialized(true);
     }
 
     return () => {
       if (!open) {
-        // Limpiar estados al cerrar
+
         setDeudas([]);
         _setFormState({});
         setSelectedPeriodo([]);
@@ -228,26 +234,30 @@ const IncomeForm = ({
     }));
   }, []);
 
-  // Handler para selección de períodos de deuda
-  const handleSelectPeriodo = useCallback((periodo) => {
-    const periodoAmount = Number(periodo.amount) || 0;
-    const periodoPenaltyAmount = Number(periodo.penalty_amount) || 0;
-    const totalAmount = periodoAmount + periodoPenaltyAmount;
+// Handler para selección de períodos de deuda
+const handleSelectPeriodo = useCallback((periodo) => {
+  // El subtotal ya contiene la suma del monto + multa
+  const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
 
-    setSelectedPeriodo((prev) => {
-      const exists = prev.some((item) => item.id === periodo.id);
-
-      if (exists) {
-        // Quitar si ya existe
-        setSelectPeriodoTotal((old) => old - totalAmount);
-        return prev.filter((item) => item.id !== periodo.id);
-      } else {
-        // Agregar si no existe
-        setSelectPeriodoTotal((old) => old + totalAmount);
-        return [...prev, { id: periodo.id, amount: totalAmount }];
-      }
-    });
-  }, []);
+  setSelectedPeriodo((prev) => {
+    const exists = prev.some((item) => item.id === periodo.id);
+    
+    let newSelectedPeriodos;
+    if (exists) {
+      // Quitar si ya existe
+      newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
+    } else {
+      // Agregar si no existe
+      newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
+    }
+    
+    // Recalcular el total basado en los períodos seleccionados
+    const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
+    setSelectPeriodoTotal(newTotal);
+    
+    return newSelectedPeriodos;
+  });
+}, []);
 
   // Handler para manejo de archivos
   const onChangeFile = useCallback(
@@ -468,35 +478,32 @@ const IncomeForm = ({
         buttonText={"Guardar"}
         title={"Estás registrando un nuevo ingreso"}
       >
-        <div className="income-form-container">
-          <p className="form-title">Indica los datos para tu nuevo ingreso</p>
-          <div className="section">
-            <p className="section-title">
+        <div className={styles["income-form-container"]}>
+          <p className={styles["form-title"]}>Indica los datos para tu nuevo ingreso</p>
+          <div className={styles.section}>
+            <p className={styles["section-title"]}>
               Primero selecciona la unidad a la que pertenece este ingreso
             </p>
-            <div className="input-container">
+            <div className={styles["input-container"]}>
               <Select
                 name="dpto_id"
                 required={true}
                 value={_formState.dpto_id}
                 onChange={handleChangeInput}
                 placeholder="Seleccionar la unidad"
-                // options={extraData?.dptos || []}
                 options={lDptos}
-                // optionLabel="nro"
-                // optionValue="id"
                 error={errors.dpto_id}
                 filter={true}
               />
             </div>
           </div>
-
-          <div className="section">
-            <p className="section-title">
+  
+          <div className={styles.section}>
+            <p className={styles["section-title"]}>
               A continuación selecciona la categoría y sub-categoría para este
               ingreso
             </p>
-            <div className="input-container">
+            <div className={styles["input-container"]}>
               <Select
                 name="category_id"
                 value={_formState.category_id}
@@ -510,7 +517,7 @@ const IncomeForm = ({
                 optionValue="id"
               />
             </div>
-            <div className="input-container">
+            <div className={styles["input-container"]}>
               <Select
                 name="subcategory_id"
                 value={_formState.subcategory_id}
@@ -524,7 +531,7 @@ const IncomeForm = ({
                 optionValue="id"
               />
             </div>
-
+  
             {/* Sección para mostrar deudas cuando es categoría de expensas */}
             {_formState.subcategory_id ===
               extraData?.client_config?.cat_expensas && (
@@ -542,76 +549,77 @@ const IncomeForm = ({
                     h={200}
                   />
                 ) : (
-                  <>
-                    <p className="deudas-title">
+                  <div className={styles["deudas-container"]}>
+                    <p className={styles["deudas-title"]}>
                       Seleccione las expensas a pagar:
                     </p>
-                    <div className="deudas-header">
-                      <span className="header-item">Periodo</span>
-                      <span className="header-item">Monto</span>
-                      <span className="header-item">Multa</span>
-                      <span className="header-item">SubTotal</span>
+                    <div className={styles["deudas-header"]}>
+                      <span className={styles["header-item"]}>Periodo</span>
+                      <span className={styles["header-item"]}>Monto</span>
+                      <span className={styles["header-item"]}>Multa</span>
+                      <span className={styles["header-item"]}>SubTotal</span>
+                      <span className={styles["header-item"]}></span>
                     </div>
-
+  
                     {deudas.map((periodo) => (
                       <div
                         key={String(periodo.id)}
                         onClick={() => handleSelectPeriodo(periodo)}
-                        className="deuda-item"
+                        className={styles["deuda-item"]}
                       >
-                        <div className="deuda-row">
-                          <div className="deuda-cell">
+                        <div className={styles["deuda-row"]}>
+                          <div className={styles["deuda-cell"]}>
                             {periodo.debt
                               ? MONTHS_S[periodo.debt.month] +
                                 "/" +
                                 periodo.debt.year
                               : "N/A"}
                           </div>
-                          <div className="deuda-cell">
+                          <div className={styles["deuda-cell"]}>
                             {"Bs " + periodo.amount}
                           </div>
-                          <div className="deuda-cell">
+                          <div className={styles["deuda-cell"]}>
                             {"Bs " + periodo.penalty_amount}
                           </div>
-                          <div className="deuda-cell">
+                          <div className={styles["deuda-cell"]}>
                             {"Bs " +
                               (Number(periodo.amount) +
                                 Number(periodo.penalty_amount))}
                           </div>
-                          <div className="deuda-check">
+                          <div className={styles["deuda-check"]}>
                             {selectedPeriodo.some(
                               (item) => item.id === periodo.id
                             ) ? (
-                              <IconCheckSquare className="check-icon selected" />
+                              <IconCheckSquare className={`${styles["check-icon"]} ${styles.selected}`} />
                             ) : (
-                              <IconCheckOff className="check-icon" />
+                              <IconCheckOff className={styles["check-icon"]} />
                             )}
                           </div>
                         </div>
                       </div>
                     ))}
-                    <div className="total-container">
+                    <div className={styles["total-container"]}>
                       <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
                     </div>
-                  </>
+                  </div>
                 )}
               </>
             )}
-
+  
             {/* Sección de monto y medio de pago - SIEMPRE VISIBLE */}
-            <div className="payment-section">
-              <p className="section-title">
+            <div className={styles["payment-section"]}>
+              <p className={styles["section-title"]}>
                 {_formState.subcategory_id ===
                   extraData?.client_config?.cat_expensas && deudas?.length > 0
                   ? "Seleccione el medio de pago"
                   : "Ahora ingresa el monto y el medio de pago de este ingreso"}
               </p>
-              <div className="payment-inputs">
+              <div className={styles["payment-inputs"]}>
                 {/* El campo de monto se muestra si NO es categoría de expensas O si es pero no hay deudas */}
-                {(_formState.category_id !==
+                {(_formState.subcategory_id !==
                   extraData?.client_config?.cat_expensas ||
-                  deudas?.length === 0) && (
-                  <div className="amount-input">
+                  deudas?.length === 0) ? (
+                  <div className={styles["amount-input"]}>
                     <Input
                       type="number"
                       label="Monto"
@@ -622,9 +630,19 @@ const IncomeForm = ({
                       error={errors.amount || ""}
                     />
                   </div>
+                ) : (
+                  <div className={`${styles["amount-input"]} ${styles["amount-input-disabled"]}`}>
+                    <Input
+                      type="number"
+                      label="Monto (calculado de expensas)"
+                      name="amount"
+                      value={selecPeriodoTotal}
+                      disabled={true}
+                    />
+                  </div>
                 )}
-
-                <div className="payment-type">
+  
+                <div className={styles["payment-type"]}>
                   <Select
                     name="type"
                     value={_formState.type}
@@ -644,14 +662,14 @@ const IncomeForm = ({
                 </div>
               </div>
             </div>
-
+  
             {/* Sección de subir comprobante - SIEMPRE VISIBLE */}
-            <div className="upload-section">
-              <p className="section-title">Subir comprobante</p>
+            <div className={styles["upload-section"]}>
+              <p className={styles["section-title"]}>Subir comprobante</p>
               <div
-                className={`file-upload-area ${
-                  isDraggingFile ? "dragging" : ""
-                } ${errors.file ? "error" : ""}`}
+                className={`${styles["file-upload-area"]} ${
+                  isDraggingFile ? styles.dragging : ""
+                } ${errors.file ? styles.error : ""}`}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onDragEnter={() => setIsDraggingFile(true)}
@@ -661,26 +679,26 @@ const IncomeForm = ({
                   id="file-upload"
                   name="file-upload"
                   type="file"
-                  className="hidden-input"
+                  className={styles["hidden-input"]}
                   onChange={onChangeFile}
                   required
                 />
                 {!_formState.file || _formState.file === "" ? (
-                  <div className="upload-instructions">
-                    <div className="upload-text">
-                      <label htmlFor="file-upload" className="upload-link">
+                  <div className={styles["upload-instructions"]}>
+                    <div className={styles["upload-text"]}>
+                      <label htmlFor="file-upload" className={styles["upload-link"]}>
                         <span>Cargar un archivo</span>
                       </label>
-                      <p className="upload-alternative">o arrastrar y soltar</p>
+                      <p className={styles["upload-alternative"]}>o arrastrar y soltar</p>
                     </div>
-                    <p className="file-types">{extem.join(", ")}</p>
+                    <p className={styles["file-types"]}>{extem.join(", ")}</p>
                     {errors.file && (
-                      <p className="error-message">{errors.file}</p>
+                      <p className={styles["error-message"]}>{errors.file}</p>
                     )}
                   </div>
                 ) : (
-                  <div className="file-preview">
-                    <div className="file-preview-content">
+                  <div className={styles["file-preview"]}>
+                    <div className={styles["file-preview-content"]}>
                       {selectedFiles &&
                       "type" in selectedFiles &&
                       selectedFiles.type ? (
@@ -688,7 +706,7 @@ const IncomeForm = ({
                           <img
                             src={URL.createObjectURL(selectedFiles)}
                             alt="Preview"
-                            className="file-thumbnail"
+                            className={styles["file-thumbnail"]}
                           />
                         ) : selectedFiles.type === "application/pdf" ? (
                           <IconPDF size={70} />
@@ -696,8 +714,8 @@ const IncomeForm = ({
                           <IconDocs size={70} />
                         )
                       ) : null}
-                      <div className="file-info">
-                        <p className="file-name">
+                      <div className={styles["file-info"]}>
+                        <p className={styles["file-name"]}>
                           Archivo seleccionado:{" "}
                           <span>
                             {"name" in selectedFiles ? selectedFiles.name : ""}
@@ -712,7 +730,7 @@ const IncomeForm = ({
                             }
                           }}
                           type="button"
-                          className="edit-file-button"
+                          className={styles["edit-file-button"]}
                         >
                           <span>Editar elemento</span>
                         </button>
@@ -722,13 +740,13 @@ const IncomeForm = ({
                 )}
               </div>
             </div>
-
+  
             {/* Sección de código de comprobante - SIEMPRE VISIBLE */}
-            <div className="voucher-section">
-              <p className="section-title">
+            <div className={styles["voucher-section"]}>
+              <p className={styles["section-title"]}>
                 Por último, agrega el número del comprobante
               </p>
-              <div className="voucher-input">
+              <div className={styles["voucher-input"]}>
                 <Input
                   type="text"
                   label="Código de comprobante"
@@ -739,16 +757,16 @@ const IncomeForm = ({
                 />
               </div>
             </div>
-
+  
             {/* Sección de descripción - SIEMPRE VISIBLE EXCEPTO CUANDO HAY DEUDA SELECCIONADA */}
             {(_formState.subcategory_id !==
               extraData?.client_config?.cat_expensas ||
               deudas?.length === 0) && (
-              <div className="obs-section">
-                <p className="section-title">
+              <div className={styles["obs-section"]}>
+                <p className={styles["section-title"]}>
                   Indica una descripción para este ingreso
                 </p>
-                <div className="obs-input">
+                <div className={styles["obs-input"]}>
                   <TextArea
                     label="Descripción"
                     name="obs"
