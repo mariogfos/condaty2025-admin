@@ -235,3 +235,59 @@
   .obs-input {
     margin-top: 12px;
   }
+ /* Mejoras para la tabla de deudas */
+.deudas-container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.deudas-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+  padding: 12px 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.deuda-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.deuda-item:last-child {
+  border-bottom: none;
+}
+
+.deuda-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+  padding: 12px 16px;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.deuda-cell {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.deuda-check {
+  position: static;
+  display: flex;
+  justify-content: center;
+}
+
+.total-container {
+  background-color: rgba(52, 152, 219, 0.1);
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 500;
+  color: #3498db;
+}
+
+/* Estilos para el monto cuando está deshabilitado */
+.amount-input-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

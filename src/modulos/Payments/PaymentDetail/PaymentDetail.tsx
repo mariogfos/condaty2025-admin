@@ -96,12 +96,7 @@ const DetailPayment = memo((props) => {
           </div>
         </div>
 
-        <div className={styles.detailRow}>
-          <div className={styles.label}>Categoría</div>
-          <div className={styles.value}>
-            {getCategoryName()}
-          </div>
-        </div>
+       
 
         <div className={styles.detailRow}>
           <div className={styles.label}>Unidad</div>
