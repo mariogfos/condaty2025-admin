@@ -57,6 +57,12 @@ const HomePage = () => {
   const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
 
 
+  const paymentProps : any = {
+    open:openPayment,
+    onClose:()=>setOpenPayment(false),
+    item:dataPayment,
+  }
+
     
     const pagosList = (data:any) => {
       // console.log(data,'pagoslist')
@@ -257,9 +263,7 @@ const HomePage = () => {
   item={dataOwner}
  />
  <DetailPayment
- open={openPayment}
- onClose={()=>setOpenPayment(false)}
- item={dataPayment}
+{ ...paymentProps}
  />
   </>;
 };
