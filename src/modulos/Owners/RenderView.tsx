@@ -94,8 +94,8 @@ const openModal = (t:string) => {
         </section>
       </div>
      {props?.item?.status === 'R' && <div>
-        <Button onClick={()=>openModal('S')}>Activar</Button>
         <Button onClick={()=>openModal('R')} variant='secondary'>Rechazar</Button>
+        <Button onClick={()=>openModal('S')}>Activar</Button>
 
       </div>}
     </DataModal>

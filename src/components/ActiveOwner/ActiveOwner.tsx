@@ -116,7 +116,7 @@ const ActiveOwner = ({
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
             El residente indicó que está en la unidad:{" "}
-            <span>{data?.preunidad}</span>
+            <span>{data?.client_owner?.preunidad || 'Sin especificar'}</span>
           </p>
           <div>
             <Select
