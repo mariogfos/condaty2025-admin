@@ -1,48 +1,56 @@
-'use client';
-import Select from '@/mk/components/forms/Select/Select';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import useAxios from '@/mk/hooks/useAxios';
-import { getFullName } from '@/mk/utils/string';
-import React, { useEffect, useState } from 'react';
+"use client";
+import Select from "@/mk/components/forms/Select/Select";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import useAxios from "@/mk/hooks/useAxios";
+import { getFullName } from "@/mk/utils/string";
+import React, { useEffect, useState } from "react";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import styles from './ActiveOwner.module.css'
+import styles from "./ActiveOwner.module.css";
 
-const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) => {
+const ActiveOwner = ({
+  open,
+  onClose,
+  data,
+  typeActive,
+  onCloseOwner,
+}: any) => {
   const { store, showToast } = useAuth();
-  const { execute,reLoad } = useAxios();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
 
-  const { data: dptos } = useAxios("/dptos", "GET", {
-    fullType: 'L'
-  });
+  const { data: dptos } = useAxios(
+    "/dptos",
+    "GET",
+    {
+      fullType: "L",
+    },
+    true
+  );
 
   useEffect(() => {
     // console.log('entre')
-    const lista = dptos?.data
-      ?.filter((item: any) => item?.titular === null)
-      .map((item: any) => ({
-        id: item?.id,
-        nro: item?.nro + " " + store?.UnitsType + " " + item?.description,
-      })) || [];
-  
+    const lista =
+      dptos?.data
+        ?.filter((item: any) => item?.titular === null)
+        .map((item: any) => ({
+          id: item?.id,
+          nro: item?.nro + " " + store?.UnitsType + " " + item?.description,
+        })) || [];
+
     setLdpto(lista);
   }, [dptos]);
-  
 
   const handleChangeInput = (e: any) => {
     const { name, value } = e.target;
     setFormState({ ...formState, [name]: value });
   };
 
- 
   const validate = () => {
     let errs: any = {};
     if (typeActive === "R") {
-  
       errs = checkRules({
         value: formState.obs,
         rules: ["required"],
@@ -50,7 +58,6 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
         errors: errs,
       });
     } else {
-     
       errs = checkRules({
         value: formState.dpto_id,
         rules: ["required"],
@@ -100,7 +107,6 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
       title={typeActive === "R" ? "Rechazar cuenta" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
-    
     >
       {typeActive === "S" ? (
         <div className={styles.activeContainer}>
@@ -109,7 +115,8 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
             <span> {getFullName(data)}</span>
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
-            El residente indicó que está en la unidad: <span>{data?.preunidad}</span>
+            El residente indicó que está en la unidad:{" "}
+            <span>{data?.preunidad}</span>
           </p>
           <div>
             <Select
@@ -119,11 +126,10 @@ const ActiveOwner = ({ open, onClose, data, typeActive , onCloseOwner }: any) =>
               value={formState.dpto_id}
               options={ldpto}
               optionLabel="nro"
-              error={ errors}
+              error={errors}
               optionValue="id"
               onChange={handleChangeInput}
             />
-            
           </div>
         </div>
       ) : (
