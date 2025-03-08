@@ -21,7 +21,7 @@ const ActiveOwner = ({
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
 
-  const { data: dptos } = useAxios(
+  const { data: dptos, execute } = useAxios(
     "/dptos",
     "GET",
     {
