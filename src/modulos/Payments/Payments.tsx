@@ -24,17 +24,14 @@ const Payments = () => {
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
   
-  // Configuración del módulo
   const mod = {
     modulo: "payments",
     singular: "Ingreso",
     plural: "Ingresos",
     permiso: "",
     extraData: true,
-    // Utilizamos el componente IncomeForm para el formulario personalizado
     renderForm: IncomeForm,
     renderView: (props: any) => <DetailPayment {...props} />,
-    // Importante: esta configuración le indica a useCrud que debe cargar los datos detallados
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,
@@ -49,7 +46,6 @@ const Payments = () => {
     }
   };
 
-  // Parámetros iniciales para el listado
   const paramsInitial = {
     perPage: 10,
     page: 1,
@@ -57,7 +53,6 @@ const Payments = () => {
     searchBy: "",
   };
   
-  // Función para convertir el filtro de fecha
   const convertFilterDate = () => {
     let periodo = "m";
     if (formStateFilter.filter_date === "month") periodo = "m";

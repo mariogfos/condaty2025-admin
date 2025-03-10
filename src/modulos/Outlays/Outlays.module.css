@@ -1,0 +1,53 @@
+.outlays {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  
+  .buttonsContainer {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .graphButton, 
+  .categoriesButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .graphButton {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .categoriesButton {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .buttonsContainer {
+      flex-direction: column;
+    }
+    
+    .graphButton,
+    .categoriesButton {
+      width: 100%;
+    }
+  }

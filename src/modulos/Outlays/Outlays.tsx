@@ -14,7 +14,17 @@ import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import { formatNumber } from "@/mk/utils/numbers";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Button from "@/mk/components/forms/Button/Button";
+import { useRouter } from "next/navigation";
+import { getDateDesdeHasta } from "@/mk/utils/date";
+import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 
+interface FormStateFilter {
+  filter_date?: string;
+  filter_category?: string | number;
+  filter_mov?: string;
+}
 
 const paramsInitial = {
   perPage: 10,
@@ -24,6 +34,11 @@ const paramsInitial = {
 };
 
 const Outlays = () => {
+  const router = useRouter();
+  const [openGraph, setOpenGraph] = useState(false);
+  const [dataGraph, setDataGraph] = useState<any>({});
+  const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
+
   const mod: ModCrudType = {
     modulo: "expenses",
     singular: "Egreso",
@@ -32,6 +47,16 @@ const Outlays = () => {
     permiso: "",
     extraData: true,
     // hideActions: { add: true },
+  };
+
+  // Función para convertir el filtro de fecha
+  const convertFilterDate = () => {
+    let periodo = "m";
+    if (formStateFilter.filter_date === "month") periodo = "m";
+    if (formStateFilter.filter_date === "lmonth") periodo = "lm";
+    if (formStateFilter.filter_date === "year") periodo = "y";
+    if (formStateFilter.filter_date === "lyear") periodo = "ly";
+    return periodo;
   };
 
   const fields = useMemo(() => {
@@ -168,13 +193,94 @@ const Outlays = () => {
   });
 
   const [openImport, setOpenImport] = useState(false);
+  
   useEffect(() => {
     setOpenImport(searchState == 3);
   }, [searchState]);
+
+  // Función para cargar y mostrar el gráfico
+  const onClickGraph = async () => {
+    try {
+      const periodo = convertFilterDate();
+      const response = await execute(
+        "/balances",
+        "GET",
+        {
+          ...formStateFilter,
+          filter_date: periodo,
+          filter_mov: "E",
+          filter_categ: formStateFilter.filter_category ? [formStateFilter.filter_category] : [],
+        }
+      );
+
+      if (response && response.data) {
+        setDataGraph(response.data);
+        setOpenGraph(true);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos del gráfico:", error);
+    }
+  };
+
+  // Función para navegar a la página de categorías
+  const goToCategories = (type = "") => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push("/categories");
+    }
+  };
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  
   return (
-    <div className={styles.users}>
+    <div className={styles.outlays}>
+      <h1 className={styles.title}>Egresos</h1>
+      <p className={styles.subtitle}>Administre, agregue y elimine todos los egresos</p>
+      
+      <div className={styles.buttonsContainer}>
+        <Button
+          onClick={onClickGraph}
+          className={styles.graphButton}
+        >
+          Ver gráfica
+        </Button>
+        
+        <Button 
+          onClick={() => goToCategories("E")}
+          className={styles.categoriesButton}
+        >
+          Administrar categorías
+        </Button>
+      </div>
+      
       <List />
+      
+      {/* Modal para mostrar el gráfico */}
+      {openGraph && (
+        <DataModal
+          open={openGraph}
+          onClose={() => {
+            setOpenGraph(false);
+          }}
+          title=""
+          buttonText=""
+          buttonCancel=""
+        >
+          <>
+            <WidgetGrafEgresos
+              egresos={dataGraph?.egresosHist || []}
+              chartTypes={["pie"]}
+              h={360}
+              title={"Resumen de Egresos por categorías"}
+              subtitle={
+                "Egresos perteneciente en fecha " +
+                getDateDesdeHasta(convertFilterDate())
+              }
+            />
+          </>
+        </DataModal>
+      )}
     </div>
   );
 };

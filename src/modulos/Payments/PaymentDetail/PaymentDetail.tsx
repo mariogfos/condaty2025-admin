@@ -1,16 +1,59 @@
 // @ts-nocheck
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo } from "react";
+
+import React, { memo, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getUrlImages } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import styles from "./PaymentDetail.module.css";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+
 
 // eslint-disable-next-line react/display-name
 const DetailPayment = memo((props) => {
   // Aquí, useCrud ya ha cargado los datos detallados con fullType=DET
   const { open, onClose, item, extraData } = props;
+  const [formState, setFormState] = useState({});
+  const [onRechazar, setOnRechazar] = useState(false);
+  const [errors, setErrors] = useState({});
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
+
+
+const handleChangeInput = (e) => {
+  let value = e.target.value;
+  if (e.target.type == "checkbox") {
+    value = e.target.checked ? "Y" : "N";
+  }
+  setFormState({ ...formState, [e.target.name]: value });
+};
+
+const onConfirm = async (rechazado = true) => {
+  setErrors({});
+  if (!rechazado) {
+    if (!formState.confirm_obs) {
+      setErrors({ confirm_obs: "La observación es requerida" });
+      return;
+    }
+  }
+  const { data: payment, error } = await execute("/payment-confirm", "POST", {
+    id: item?.id,
+    confirm: rechazado ? "Y" : "R",
+    confirm_obs: formState.confirm_obs,
+  });
+
+  if (payment?.success == true) {
+    showToast(payment?.message, "success");
+    if (props.reLoad) props.reLoad();
+    setFormState({ confirm_obs: "" });
+    onClose();
+    setOnRechazar(false);
+  } else {
+    showToast(error?.data?.message || error?.message, "error");
+  }
+};
 
   // Función para mapear el tipo de pago
   const getPaymentType = (type) => {
@@ -78,7 +121,7 @@ const DetailPayment = memo((props) => {
         <div className={styles.detailRow}>
           <div className={styles.label}>Titular</div>
           <div className={styles.value}>
-            {item.owner_id ? item.owner_id : "Sin titular"}
+            {getFullName(item.owner) || "Sin titular"}
           </div>
         </div>
 
@@ -118,30 +161,81 @@ const DetailPayment = memo((props) => {
             {item.voucher || "Sin comprobante"}
           </div>
         </div>
-
-        {item.ext && (
-          <div className={styles.buttonContainer}>
-            <Button 
-              variant="primary" 
-              onClick={() => {
-                window.open(
-                  getUrlImages(
-                    "/DOC-" +
-                      item.id +
-                      "." +
-                      item.ext +
-                      "?d=" +
-                      item.updated_at
-                  ),
-                  "_blank"
-                );
-              }}
-              style={{ width: "100%" }}
-            >
-              Descargar comprobante
-            </Button>
+        {item?.details?.length > 0 && (
+  <>
+    <div className={styles.tableHeader}>
+      <div className={styles.headerCell}>Periodo</div>
+      <div className={styles.headerCell}>Unidad</div>
+      <div className={styles.headerCell}>Monto</div>
+      <div className={styles.headerCell}>Multa</div>
+      <div className={styles.headerCell}>SubTotal</div>
+    </div>
+    <div className={styles.tableBody}>
+      {item?.details?.map((periodo) => (
+        <div key={periodo.id} className={styles.tableRow}>
+          <div className={styles.tableCell}>
+            {periodo?.debt_dpto?.debt?.month}/{periodo?.debt_dpto?.debt?.year}
           </div>
-        )}
+          <div className={styles.tableCell}>
+            {periodo?.debt_dpto?.dpto?.nro}
+          </div>
+          <div className={styles.tableCell}>
+            Bs {periodo?.debt_dpto?.amount}
+          </div>
+          <div className={styles.tableCell}>
+            Bs {periodo?.debt_dpto?.penalty_amount}
+          </div>
+          <div className={styles.tableCell}>
+            Bs {periodo?.amount}
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+)}
+        {item.ext && (
+  <div className={styles.buttonContainer}>
+    <Button 
+      variant="primary" 
+      onClick={() => {
+        window.open(
+          getUrlImages(
+            "/DOC-" +
+              item.id +
+              "." +
+              item.ext +
+              "?d=" +
+              item.updated_at
+          ),
+          "_blank"
+        );
+      }}
+      style={{ width: "100%" }}
+    >
+      Descargar comprobante
+    </Button>
+  </div>
+)}
+
+{item?.status == "S" && (
+  <div className={styles.buttonContainer}>
+    <Button
+      variant="secondary"
+      onClick={() => {
+        setOnRechazar(true);
+      }}
+      style={{ marginRight: "10px" }}
+    >
+      Rechazar pago
+    </Button>
+    <Button
+      variant="primary"
+      onClick={() => onConfirm(true)}
+    >
+      Confirmar pago
+    </Button>
+  </div>
+)}
       </div>
     </DataModal>
   );
