@@ -85,3 +85,11 @@
   color: var(--cWhiteV1);
   font-size: var(--sM);
 }
+
+
+.addButton {
+  /* //padding: var(--spS); */
+  height: 56px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}

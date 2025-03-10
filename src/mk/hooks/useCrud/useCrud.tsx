@@ -900,7 +900,7 @@ const useCrud = ({
           )}
           {mod.hideActions?.add ? null : (
             <div>
-              <Button onClick={onClick || onAdd}>
+              <Button className={styles.addButton} onClick={onClick || onAdd}>
                 {"Crear " + mod.singular}
               </Button>
             </div>
