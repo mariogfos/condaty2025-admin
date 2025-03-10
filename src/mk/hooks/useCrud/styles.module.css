@@ -22,6 +22,9 @@
     gap: var(--spL);
     overflow: visible;
     margin-bottom: var(--spL);
+    & > div > div > div {
+      margin-bottom: 0px;
+    }
     & > div:first-child {
       flex-grow: 1;
       & > div{

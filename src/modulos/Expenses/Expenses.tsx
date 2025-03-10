@@ -283,7 +283,7 @@ const [detailItem,setDetailItem]:any = useState({})
                 label:"Unidades pagadas",
                 list:{
                     onRender:(props:any)=>{
-                        return(<div>Bs. {formatNumber(paidUnits(props?.item?.asignados))}</div>)}}
+                        return(<div>{paidUnits(props?.item?.asignados)} U</div>)}}
         },
             ammountsCollected: {
                 rules: [""],
