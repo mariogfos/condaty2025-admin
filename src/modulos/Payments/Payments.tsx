@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import IncomeForm from "./PaymentsForm/PaymentsForm";
 import DetailPayment from "./PaymentDetail/PaymentDetail";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -300,6 +301,11 @@ const Payments = () => {
       router.push("/categories");
     }
   };
+
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "INGRESOS" });
+  }, []);
 
   // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
