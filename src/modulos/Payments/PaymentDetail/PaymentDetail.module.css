@@ -38,3 +38,50 @@
     display: flex;
     justify-content: center;
   }
+  .tableHeader {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerCell {
+  font-weight: 500;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.tableBody {
+  margin-bottom: 16px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 12px 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.tableCell {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .tableHeader, .tableRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .headerCell:nth-child(4),
+  .headerCell:nth-child(5),
+  .tableCell:nth-child(4),
+  .tableCell:nth-child(5) {
+    display: none;
+  }
+}
