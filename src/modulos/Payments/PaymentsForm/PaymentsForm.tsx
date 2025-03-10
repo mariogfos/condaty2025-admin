@@ -374,9 +374,6 @@ const handleSelectPeriodo = useCallback((periodo) => {
       if (!_formState.amount) {
         err.amount = "Este campo es requerido";
       }
-      if (!_formState.obs) {
-        err.obs = "Este campo es requerido";
-      }
     }
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
@@ -769,10 +766,9 @@ const handleSelectPeriodo = useCallback((periodo) => {
                 <div className={styles["obs-input"]}>
                   <TextArea
                     label="Descripción"
+                    placeholder="Escribe una descripción(Opcional)"
                     name="obs"
                     onChange={handleChangeInput}
-                    required
-                    error={errors.obs}
                     value={_formState.obs}
                   />
                 </div>
