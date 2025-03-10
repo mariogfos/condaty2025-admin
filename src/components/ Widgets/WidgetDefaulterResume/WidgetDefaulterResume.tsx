@@ -6,7 +6,7 @@ interface PropsType {
   title: string;
   pointColor?: string;
   amount: string;
-  units: string;
+  units?: string;
 }
 
 const WidgetDefaulterResume = ({ title, pointColor = "", units, amount }: PropsType) => {
@@ -22,7 +22,9 @@ const WidgetDefaulterResume = ({ title, pointColor = "", units, amount }: PropsT
         {formatNumber(amount)} Bs
       </p>
       <p className={`${styles.units} ${!units ? styles.emptyUnits : ""}`}>
-        {units ? units + " Unidades" : "Sin unidades" }
+        {units ? units + " Unidades" 
+        : units === ''? 
+        "Sin unidades" :''}
       </p>
     </div>
   );

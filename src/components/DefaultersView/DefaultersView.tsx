@@ -146,7 +146,7 @@ const DefaultersView = () => {
               <WidgetDefaulterResume
               title={"Total de morosidad "}
               amount={defaulters?.data?.porCobrarExpensa + defaulters?.data?.porCobrarMulta}
-              units={""}
+               
             />
         </section>
 
