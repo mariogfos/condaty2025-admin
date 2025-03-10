@@ -91,33 +91,7 @@
   background-color: var(--cDarkv1, #1e1e1e);
 }
 
-/* Estilos para los estados de pago */
-.statusPending {
-  background-color: var(--cWarning, orange);
-  color: var(--cDark, black);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
 
-.statusCompleted {
-  background-color: var(--cSuccess, green);
-  color: var(--cWhite, white);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.statusRejected {
-  background-color: var(--cError, red);
-  color: var(--cWhite, white);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
 
 /* Estilos para responsive */
 @media (max-width: 768px) {
@@ -166,4 +140,43 @@
   .addButton {
     width: auto;
   }
+}
+.statusBadge {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.statusP {
+  color: var(--cSuccess);
+
+
+}
+
+.statusS {
+  color: var(--cWarning, #ffc107);
+
+}
+
+.statusR {
+  color: var(--cError);
+
+}
+
+.statusE {
+  color: var(--cInfo, #17a2b8);
+
+
+}
+
+.statusA {
+  color: var(--cPrimary, #007bff);
+
+
+}
+
+.statusM {
+  color: var(--cDanger, #dc3545);
+
 }

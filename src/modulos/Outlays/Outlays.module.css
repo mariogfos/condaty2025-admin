@@ -1,53 +1,110 @@
 .outlays {
-    width: 100%;
-    padding: 20px;
+  padding: 20px;
+  width: 100%;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--cWhite, white);
+}
+
+.subtitle {
+  color: var(--cLightv3, #a0a0a0);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.graphButton {
+  background-color: var(--cDarkv2, #2a2a2a) !important;
+  color: white !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+}
+
+.graphButton:hover {
+  opacity: 0.9;
+}
+
+.categoriesButton {
+  border: 1px solid var(--cLightv3, #a0a0a0) !important;
+  color: var(--cLightv3, #a0a0a0) !important;
+  background-color: transparent !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+}
+
+.categoriesButton:hover {
+  background-color: rgba(160, 160, 160, 0.1) !important;
+}
+
+.viewButton {
+  color: var(--cInfo, blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  opacity: 0.8;
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .outlays {
+    padding: 10px;
   }
   
   .title {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-  }
-  
-  .subtitle {
-    font-size: 16px;
-    color: var(--text-secondary);
-    margin-bottom: 24px;
+    font-size: 20px;
   }
   
   .buttonsContainer {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .graphButton, 
-  .categoriesButton {
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .graphButton, .categoriesButton {
+    width: 100%;
+    margin-bottom: 10px;
   }
-  
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
   .graphButton {
-    background-color: var(--primary-color);
-    color: white;
+    width: 32%;
   }
   
   .categoriesButton {
-    background-color: var(--secondary-color);
-    color: white;
+    width: 32%;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .graphButton {
+    width: 15%;
   }
   
-  @media (max-width: 768px) {
-    .buttonsContainer {
-      flex-direction: column;
-    }
-    
-    .graphButton,
-    .categoriesButton {
-      width: 100%;
-    }
+  .categoriesButton {
+    width: 25%;
   }
+}

@@ -269,7 +269,7 @@ const Outlays = () => {
         >
           <>
             <WidgetGrafEgresos
-              egresos={dataGraph?.egresosHist || []}
+              egresos={dataGraph?.data?.egresosHist || []}
               chartTypes={["pie"]}
               h={360}
               title={"Resumen de Egresos por categorías"}

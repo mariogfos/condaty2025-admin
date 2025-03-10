@@ -25,7 +25,7 @@ const DetailPayment = memo((props) => {
 const handleChangeInput = (e) => {
   let value = e.target.value;
   if (e.target.type == "checkbox") {
-    value = e.target.checked ? "Y" : "N";
+    value = e.target.checked ? "P" : "N";
   }
   setFormState({ ...formState, [e.target.name]: value });
 };
@@ -40,7 +40,7 @@ const onConfirm = async (rechazado = true) => {
   }
   const { data: payment, error } = await execute("/payment-confirm", "POST", {
     id: item?.id,
-    confirm: rechazado ? "Y" : "R",
+    confirm: rechazado ? "P" : "R",
     confirm_obs: formState.confirm_obs,
   });
 

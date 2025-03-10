@@ -220,7 +220,12 @@ const Payments = () => {
               "A": "Por pagar",
               "M": "Moroso"
             };
-            return <div>{statusMap[props.item.status] || props.item.status}</div>;
+            
+            return (
+              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+                {statusMap[props.item.status] || props.item.status}
+              </div>
+            );
           }
         }
       },
@@ -278,6 +283,8 @@ const Payments = () => {
       if (response && response.data) {
         setDataGraph(response.data);
         setOpenGraph(true);
+        console.log("====================================");
+        console.log("response", response.data);
       }
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -333,7 +340,7 @@ const Payments = () => {
         >
           <>
             <WidgetGrafIngresos
-              ingresos={dataGraph?.ingresosHist}
+              ingresos={dataGraph?.data?.ingresosHist || []}
               chartTypes={["pie"]}
               h={360}
               title={"Resumen de Ingresos por categorías"}
