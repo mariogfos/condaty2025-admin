@@ -13,6 +13,7 @@ const RenderView = (props: {
   open: boolean;
   onClose: any;
   item: any;
+  reLoad?: any;
   onConfirm?: Function;
   extraData?: any;
 
@@ -22,10 +23,10 @@ const [typeActive,setTypeActive] = useState('');
 
 
 // console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
-useEffect(()=>{
-  console.log(props?.item,'openactive a')
+// useEffect(()=>{
+//   console.log(props?.item,'openactive a')
   
-},[openActive])
+// },[openActive])
 
 const openModal = (t:string) => {
   setOpenActive(true);
@@ -110,6 +111,7 @@ const openModal = (t:string) => {
      typeActive={typeActive}
      data={props.item }
      onCloseOwner={()=>props.onClose()}
+     reLoad={props.reLoad}
     
      />
      }

@@ -261,6 +261,7 @@ const HomePage = () => {
   open={openActive}
   onClose={()=>setOpenActive(false)}
   item={dataOwner}
+  reLoad={reLoad}
  />
  <DetailPayment
 { ...paymentProps}

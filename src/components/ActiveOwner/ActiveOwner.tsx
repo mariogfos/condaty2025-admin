@@ -15,13 +15,14 @@ const ActiveOwner = ({
   data,
   typeActive,
   onCloseOwner,
+  reLoad
 }: any) => {
   const { store, showToast } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
 
-  const { data: dptos, execute ,reLoad } = useAxios(
+  const { data: dptos, execute  } = useAxios(
     "/dptos",
     "GET",
     {
