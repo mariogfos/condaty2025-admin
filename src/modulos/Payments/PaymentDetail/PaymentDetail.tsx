@@ -90,9 +90,17 @@ const onConfirm = async (rechazado = true) => {
 
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData || !extraData.dptos) return item.dptos || "No especificada";
-    const dpto = extraData.dptos.find(d => d.id === item.dptos);
-    return dpto ? `${dpto.nro} - ${dpto.description}` : item.dptos || "No especificada";
+    if (!extraData || !extraData.dptos) return (item.dptos || "No especificada").replace(/,/g, "");
+    
+    const dpto = extraData.dptos.find(d => d.id === item.dpto_id || d.id === item.dptos);
+    
+    if (dpto) {
+      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
+      const descSinComa = dpto.description ? dpto.description.replace(/,/g, "") : "";
+      return `${nroSinComa} - ${descSinComa}`;
+    } else {
+      return (item.dptos || "No especificada").replace(/,/g, "");
+    }
   };
 
   return (
