@@ -37,7 +37,7 @@ const ActiveOwner = ({
         ?.filter((item: any) => item?.titular === null)
         .map((item: any) => ({
           id: item?.id,
-          nro: item?.nro + " " + store?.UnitsType + " " + item?.description,
+          nro: store?.UnitsType + " "  + item?.nro + " - " + item?.description,
         })) || [];
 
     setLdpto(lista);
