@@ -88,7 +88,9 @@ const openModal = (t:string) => {
           <div>
             <p>Número de casa</p>
             <p>
-              {props?.item?.dpto[0]?.nro ||  'Sin número de casa'}
+              {props?.item?.dpto?.length > 0 ?
+              props?.item?.dpto[0]?.nro  : 
+              props?.item?.client_owner?.preunidad||  'Sin número de casa'}
             </p>
           </div>
         </section>
