@@ -185,7 +185,16 @@ const Owners = () => {
         form: { type: "text" },
         list: false,
       },
-
+      units:{
+      rules:[''],
+      api: '',
+      label: 'Unidades',
+      form:false,
+      list:{
+        onRender:(props:any)=>{return props?.item?.dpto[0]?.nro || 'Sin datos'},
+        width:"90px"
+      }
+      },
       email: {
         rules: ["required"],
         api: "ae",
