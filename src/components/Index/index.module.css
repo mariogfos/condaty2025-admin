@@ -87,6 +87,7 @@
   font-size: var(--sM); 
   padding: var(--spL);
   border-radius: var(--bRadiusS);
+  width:112px;
 }
 
 
