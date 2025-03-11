@@ -1,24 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Outlays.module.css";
-import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
-import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { getDateDesdeHasta } from "@/mk/utils/date";
 import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
+import RenderForm from "./RenderForm/RenderForm";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -46,7 +39,12 @@ const Outlays = () => {
     filter: true,
     permiso: "",
     extraData: true,
-    // hideActions: { add: true },
+    renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
+    saveMsg: {
+      add: "Egreso creado con éxito",
+      edit: "Egreso actualizado con éxito",
+      del: "Egreso eliminado con éxito"
+    }
   };
 
   // Función para convertir el filtro de fecha
@@ -62,42 +60,54 @@ const Outlays = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      date_at: { rules: ["required"], 
+      date_at: { 
+        rules: ["required"], 
         api: "ae", 
         label: "Fecha",
-         form: { type: "date" }, 
-         list: { } }, 
-      category_id: { rules: ["required"], 
+        form: { type: "date" }, 
+        list: { } 
+      }, 
+      category_id: { 
+        rules: ["required"], 
         api: "ae",
-         label: "Categoria",          
+        label: "Categoria",          
         form: {
-            type: "select", 
-            options: (items: any) => {
-  
-              let data: any = [];
-              items?.extraData?.categories?.map((c: any) => {
-                data.push({
-                  id: c.id,
-                  name: c.name,
-                });
+          type: "select", 
+          options: (items: any) => {
+            let data: any = [];
+            // Filtrar solo categorías padres
+            items?.extraData?.categories?.filter((c: { padre_id: any; }) => !c.padre_id)?.map((c: any) => {
+              data.push({
+                id: c.id,
+                name: c.name,
               });
-              return data;
-            },
+            });
+            return data;
           },
-          list: {
-            onRender: (props: any) => {
-              return props.item.category?.padre?.name || `sin datos disponibles`;
-            }
-           } }, 
-      subcategory_id: { rules: [""], 
-        api: "", 
-        label: "Subcategoria", 
-         list: { 
+        },
+        list: {
+          onRender: (props: any) => {
+            return props.item.category?.padre?.name || `sin datos disponibles`;
+          }
+        } 
+      }, 
+      subcategory_id: { 
+        rules: ["required"], 
+        api: "ae", 
+        label: "Subcategoria",
+        form: {
+          type: "select",
+          disabled: (formState: { category_id: any; }) => !formState.category_id,
+          options: () => [], // Lo manejamos en el OutlaysForm
+        },
+        list: { 
           onRender: (props: any) => {
             return props.item.category?.name || `sin datos disponibles`;
           }
-         } },    
-      description: { rules: ["required"], 
+        } 
+      },    
+      description: { 
+        rules: ["required"], 
         api: "ae", 
         label: "Descripción", 
         form: { type: "text" }, 
@@ -121,45 +131,44 @@ const Outlays = () => {
           }
         } 
       },
-
-      amount: { rules: ["required"], 
+      amount: { 
+        rules: ["required"], 
         api: "ae", 
         label: "Monto",
         form: { type: "number" },
-         list: { 
+        list: { 
           onRender: (props: any) => {
             return "Bs " + formatNumber(props.item.amount);
           }
-         } }, 
-
-      client_id: { rules: [""], 
+        } 
+      }, 
+      client_id: { 
+        rules: [""], 
         api: "ae", 
         label: "Cliente", 
-        
-       }, 
-      user_id: { rules: [""], 
+      }, 
+      user_id: { 
+        rules: [""], 
         api: "ae", 
         label: "Usuario", 
-       
-        }, 
+      }, 
       file: {
         rules: ["required"],
         api: "ae*",
         label: "Archivo",
         form: {
-            type: "fileUpload",
-            ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
-            style: { width: "100%" },
+          type: "fileUpload",
+          ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
+          style: { width: "100%" },
         },  
       },  
-      ext: { rules: [""], 
+      ext: { 
+        rules: [""], 
         api: "ae",
-         label: "Ext",
-          
-        }, 
-      
+        label: "Ext",
+      }, 
     };
-  }, []);
+  }, []); // Ya no dependemos de subcategories, lo manejamos en el OutlaysForm
 
   const onImport = () => {
     setOpenImport(true);
@@ -177,12 +186,15 @@ const Outlays = () => {
     execute,
     reLoad,
     getExtraData,
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
     _onImport: onImport,
+    // Ya no necesitamos _onChange, lo manejamos en OutlaysForm
   });
+  
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
