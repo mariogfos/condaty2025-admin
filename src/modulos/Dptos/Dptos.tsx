@@ -55,7 +55,7 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de " + store.UnitsType,
+        label: "Número de " + store?.UnitsType,
         form: { type: "text" },
         list: { width: "100px" },
       },

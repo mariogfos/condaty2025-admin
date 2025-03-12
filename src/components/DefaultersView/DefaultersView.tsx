@@ -12,6 +12,7 @@ import { formatNumber } from '@/mk/utils/numbers'
 import { useAuth } from '@/mk/contexts/AuthProvider'
 import DataSearch from '@/mk/components/forms/DataSearch/DataSearch'
 import { IconExport } from '../layout/icons/IconsBiblioteca'
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen'
 
 const DefaultersView = () => {
     const { data: defaulters, reLoad } = useAxios("/defaulters", "GET", {
@@ -93,7 +94,8 @@ const DefaultersView = () => {
 
 
   return (
-    <div className={styles.defaultersView}>
+    <LoadingScreen >    
+      <div className={styles.defaultersView}>
         <div>
         En esta sección tendrás una visión clara y detallada del estado financiero. <br/>
         Podrás mantener un control sobre los pagos atrasados de los residentes y tomar medidas para garantizar la estabilidad financiera de tu condominio
@@ -176,6 +178,8 @@ const DefaultersView = () => {
 
       </section>
     </div>
+    </LoadingScreen>
+ 
   )
 }
 
