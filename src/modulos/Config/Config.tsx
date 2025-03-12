@@ -19,6 +19,7 @@ import PaymentsConfig from "./PaymentsConfig";
 import DptoConfig from "./DptoConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
@@ -219,6 +220,7 @@ const Config = () => {
       showToast("Datos guardados", "success");
       setErrors({});
       // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
+      reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
@@ -244,6 +246,7 @@ const Config = () => {
           setSel={setTypeSearch}
         />
       </div>
+      <LoadingScreen>
       <div className="">
         {typeSearch == "M" && (
       
@@ -283,6 +286,7 @@ const Config = () => {
           </Button>
         </div>
       </div>
+      </LoadingScreen> 
     </div>
   );
 };
