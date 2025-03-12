@@ -15,10 +15,10 @@ interface FormattedValue {
   values: number[];
 }
 
-// New interface for pie chart data format
+// Interface for pie chart data format
 interface PieChartValue {
   name: string;
-  value: number;
+  values: number[];
 }
 
 type PropsType = {
@@ -39,13 +39,16 @@ const WidgetGrafIngresos = ({
   className,
 }: PropsType) => {
   const getMonths = (data: Transaction[] | undefined) => {
-    const uniqueMonths = data?.reduce(
+    // Verificar que data no sea undefined antes de usar reduce
+    if (!data || data.length === 0) return [];
+    
+    const uniqueMonths = data.reduce(
       (acc: string[], curr) =>
         acc.includes(MONTHS_S[curr.mes - 1]) ? acc : [...acc, MONTHS_S[curr.mes - 1]],
       []
     );
     
-    return uniqueMonths || [];
+    return uniqueMonths;
   };
 
   const getValuesIngresos = (ingresosHist: Transaction[] | undefined, chartType: ChartType): FormattedValue[] | PieChartValue[] => {
@@ -61,14 +64,14 @@ const WidgetGrafIngresos = ({
         if (!categoryTotals[transaction.categoria]) {
           categoryTotals[transaction.categoria] = 0;
         }
-        categoryTotals[transaction.categoria] += parseFloat(transaction.ingresos);
+        categoryTotals[transaction.categoria] += parseFloat(transaction.ingresos || '0');
       });
       
       // Convert to array of objects with name and value
       for (const categoria in categoryTotals) {
         pieData.push({
           name: categoria,
-          value: categoryTotals[categoria]
+          values: [categoryTotals[categoria]]  // Ahora values es un array de un elemento
         });
       }
       
@@ -99,7 +102,7 @@ const WidgetGrafIngresos = ({
           (transaction) => transaction.mes === month
         );
         formattedValues.push(
-          matchingTransaction ? parseFloat(matchingTransaction.ingresos) : 0
+          matchingTransaction ? parseFloat(matchingTransaction.ingresos || '0') : 0
         );
       });
       
@@ -111,10 +114,6 @@ const WidgetGrafIngresos = ({
   
   // Determine the primary chart type (first in the array)
   const primaryChartType = chartTypes[0] || "bar";
-  
-  console.log("====================================");
-  console.log("values ingresos", getValuesIngresos(ingresos, primaryChartType));
-  console.log("====================================");
   
   return (
     <div className={`${styles.container} ${className || ''}`}>

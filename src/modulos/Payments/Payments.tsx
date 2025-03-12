@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import IncomeForm from "./PaymentsForm/PaymentsForm";
 import DetailPayment from "./PaymentDetail/PaymentDetail";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -220,7 +221,12 @@ const Payments = () => {
               "A": "Por pagar",
               "M": "Moroso"
             };
-            return <div>{statusMap[props.item.status] || props.item.status}</div>;
+            
+            return (
+              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+                {statusMap[props.item.status] || props.item.status}
+              </div>
+            );
           }
         }
       },
@@ -278,6 +284,8 @@ const Payments = () => {
       if (response && response.data) {
         setDataGraph(response.data);
         setOpenGraph(true);
+        console.log("====================================");
+        console.log("response", response.data);
       }
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -293,6 +301,11 @@ const Payments = () => {
       router.push("/categories");
     }
   };
+
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "INGRESOS" });
+  }, []);
 
   // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
@@ -333,7 +346,7 @@ const Payments = () => {
         >
           <>
             <WidgetGrafIngresos
-              ingresos={dataGraph?.ingresosHist}
+              ingresos={dataGraph?.data?.ingresosHist || []}
               chartTypes={["pie"]}
               h={360}
               title={"Resumen de Ingresos por categorías"}

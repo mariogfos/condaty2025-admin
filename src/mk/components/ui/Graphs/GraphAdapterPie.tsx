@@ -1,11 +1,18 @@
+const GraphAdapterPie = (data: any, options: any, oDef: any = {}) => {
+  // Validar que data y data.values existan y sean un array
+  if (!data || !data.values || !Array.isArray(data.values) || data.values.length === 0) {
+    return { options: {}, data: [] };
+  }
 
-const GraphAdapterPie = (data:any, options:any, oDef: any = {}) => {
   const xLabels: any = [];
   let totalRadial = 0;
-  data.values.map((v:any) => {
-    xLabels.push(v.name);
+  
+  data.values.forEach((v: any) => {
+    if (v && v.name) {
+      xLabels.push(v.name);
+    }
   });
-  // console.log("xLabels", xLabels);
+
   const p = {
     plotOptions: {
       pie: {
@@ -14,9 +21,8 @@ const GraphAdapterPie = (data:any, options:any, oDef: any = {}) => {
     },
     dataLabels: {
       ...oDef.dataLabels,
-      formatter: function (val:any, opts:any) {
+      formatter: function (val: any, opts: any) {
         if (val !== 0)
-          //return " ";
           return Number(val).toFixed(1) + "%";
       },
       style: {
@@ -30,7 +36,6 @@ const GraphAdapterPie = (data:any, options:any, oDef: any = {}) => {
         borderRadius: 2,
         borderWidth: 1,
         borderColor: "#fff",
-        // opacity: 0.9,
         dropShadow: {
           enabled: false,
           top: 1,
@@ -45,25 +50,40 @@ const GraphAdapterPie = (data:any, options:any, oDef: any = {}) => {
     tooltip: {
       ...oDef.tooltip,
       y: {
-        formatter: function (val:any) {
-          return val + " %"; // Personaliza el modal cuando hacen hover
+        formatter: function (val: any) {
+          return val + " %";
         },
       },
     },
   };
+
   const d: any = [];
   const d1: any = [];
-  data.values.map((e: any) => {
-    let total = e.values.reduce((a:any, b:any) => a + b, 0);
-    d.push(total);
+  
+  data.values.forEach((e: any) => {
+    // Validar que e.values exista y sea un array
+    if (e && e.values && Array.isArray(e.values)) {
+      let total = e.values.reduce((a: any, b: any) => a + b, 0);
+      d.push(total);
+    } else {
+      // Si e.values no existe o no es un array, agregar un valor por defecto
+      d.push(0);
+    }
   });
-  let totalRa = d.reduce((a:any, b:any) => a + b, 0);
-  totalRadial = totalRa;
-  d.map((v:any) => {
-    // d1.push(Math.round((v / totalRadial) * 100));
-    d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
-    // console.log('redondeo',v,totalRadial,v / totalRadial,(v / totalRadial) * 100,((v / totalRadial) * 100).toFixed(1));
-  });
+
+  // Validar que d tenga elementos antes de usar reduce
+  if (d.length > 0) {
+    let totalRa = d.reduce((a: any, b: any) => a + b, 0);
+    totalRadial = totalRa;
+
+    d.forEach((v: any) => {
+      if (totalRadial !== 0) {
+        d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
+      } else {
+        d1.push(0);
+      }
+    });
+  }
 
   return { options: p, data: d1 };
 };

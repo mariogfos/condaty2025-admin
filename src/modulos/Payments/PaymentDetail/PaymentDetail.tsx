@@ -25,7 +25,7 @@ const DetailPayment = memo((props) => {
 const handleChangeInput = (e) => {
   let value = e.target.value;
   if (e.target.type == "checkbox") {
-    value = e.target.checked ? "Y" : "N";
+    value = e.target.checked ? "P" : "N";
   }
   setFormState({ ...formState, [e.target.name]: value });
 };
@@ -40,7 +40,7 @@ const onConfirm = async (rechazado = true) => {
   }
   const { data: payment, error } = await execute("/payment-confirm", "POST", {
     id: item?.id,
-    confirm: rechazado ? "Y" : "R",
+    confirm: rechazado ? "P" : "R",
     confirm_obs: formState.confirm_obs,
   });
 
@@ -90,9 +90,17 @@ const onConfirm = async (rechazado = true) => {
 
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData || !extraData.dptos) return item.dptos || "No especificada";
-    const dpto = extraData.dptos.find(d => d.id === item.dptos);
-    return dpto ? `${dpto.nro} - ${dpto.description}` : item.dptos || "No especificada";
+    if (!extraData || !extraData.dptos) return (item.dptos || "No especificada").replace(/,/g, "");
+    
+    const dpto = extraData.dptos.find(d => d.id === item.dpto_id || d.id === item.dptos);
+    
+    if (dpto) {
+      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
+      const descSinComa = dpto.description ? dpto.description.replace(/,/g, "") : "";
+      return `${nroSinComa} - ${descSinComa}`;
+    } else {
+      return (item.dptos || "No especificada").replace(/,/g, "");
+    }
   };
 
   return (
