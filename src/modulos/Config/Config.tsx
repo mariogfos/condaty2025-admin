@@ -21,7 +21,7 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
-const Config = () => {
+const Config = () => { 
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
   const [preview, setPreview]: any = useState(null);
