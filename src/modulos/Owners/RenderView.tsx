@@ -111,7 +111,7 @@ const openModal = (t:string) => {
      typeActive={typeActive}
      data={props.item }
      onCloseOwner={()=>props.onClose()}
-     reLoad={props.reLoad}
+     reLoad={()=>props.reLoad()}
     
      />
      }

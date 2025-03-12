@@ -14,7 +14,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 // eslint-disable-next-line react/display-name
 const DetailPayment = memo((props) => {
   // Aquí, useCrud ya ha cargado los datos detallados con fullType=DET
-  const { open, onClose, item, extraData } = props;
+  const { open, onClose, item, extraData  } = props;
   const [formState, setFormState] = useState({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState({});

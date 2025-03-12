@@ -61,6 +61,7 @@ const HomePage = () => {
     open:openPayment,
     onClose:()=>setOpenPayment(false),
     item:dataPayment,
+    reLoad:reLoad
   }
 
     
