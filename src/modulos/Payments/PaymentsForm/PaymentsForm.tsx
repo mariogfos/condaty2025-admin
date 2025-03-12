@@ -198,29 +198,50 @@ const IncomeForm = ({
       const selectedCategory = extraData.categories.find(
         (category) => category.id === _formState.category_id
       );
-
+  
       // Actualizar el estado del formulario con la subcategoría adecuada
       if (selectedCategory && selectedCategory.hijos) {
-        _setFormState((prev) => ({
-          ...prev,
-          subcategories: selectedCategory.hijos || [],
-        }));
-      }
-
-      // Si cambia a otra categoría que no es expensas, limpiar deudas
-      if (
-        _formState.subcategory_id !== extraData?.client_config?.cat_expensas
-      ) {
-        setDeudas([]);
-        setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
+        // Verificar si entre los hijos está cat_expensas
+        const catExpensasChild = selectedCategory.hijos.find(
+          (hijo) => hijo.id === extraData?.client_config?.cat_expensas
+        );
+  
+        if (catExpensasChild) {
+          // Auto-seleccionar cat_expensas y actualizar el formulario
+          _setFormState((prev) => ({
+            ...prev,
+            subcategories: selectedCategory.hijos || [],
+            subcategory_id: extraData?.client_config?.cat_expensas,
+            isSubcategoryLocked: true // Agregar este flag para bloquear el input
+          }));
+          
+          // Si tenemos dpto_id, cargar las deudas
+          if (_formState.dpto_id) {
+            getDeudas(_formState.dpto_id);
+          }
+        } else {
+          // No tiene cat_expensas como hijo, comportamiento normal
+          _setFormState((prev) => ({
+            ...prev,
+            subcategories: selectedCategory.hijos || [],
+            isSubcategoryLocked: false
+          }));
+          
+          // Limpiar deudas si hay cambio de categoría
+          setDeudas([]);
+          setSelectedPeriodo([]);
+          setSelectPeriodoTotal(0);
+        }
       }
     }
   }, [
     _formState.category_id,
+    _formState.dpto_id,
     extraData?.categories,
     extraData?.client_config?.cat_expensas,
+    getDeudas
   ]);
+  
 
   // Handler para cambio de campos del formulario
   const handleChangeInput = useCallback((e) => {
@@ -515,19 +536,25 @@ const handleSelectPeriodo = useCallback((periodo) => {
               />
             </div>
             <div className={styles["input-container"]}>
-              <Select
-                name="subcategory_id"
-                value={_formState.subcategory_id}
-                placeholder="Seleccionar sub-categoría"
-                label="Subcategoría"
-                onChange={handleChangeInput}
-                options={_formState.subcategories || []}
-                error={errors.subcategory_id}
-                required
-                optionLabel="name"
-                optionValue="id"
-              />
-            </div>
+            <Select
+              name="subcategory_id"
+              value={_formState.subcategory_id}
+              placeholder="Seleccionar sub-categoría"
+              label="Subcategoría"
+              onChange={handleChangeInput}
+              options={_formState.subcategories || []}
+              error={errors.subcategory_id}
+              required
+              optionLabel="name"
+              optionValue="id"
+              disabled={_formState.isSubcategoryLocked}
+            />
+            {_formState.isSubcategoryLocked && (
+              <p className={styles["locked-message"]}>
+                Esta subcategoría se ha seleccionado automáticamente
+              </p>
+            )}
+          </div>
   
             {/* Sección para mostrar deudas cuando es categoría de expensas */}
             {_formState.subcategory_id ===
