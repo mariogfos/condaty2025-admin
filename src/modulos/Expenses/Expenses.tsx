@@ -26,6 +26,8 @@ const mod: ModCrudType = {
     extraData: true,
     hideActions:{
         view:true,
+        edit:true,
+        del:true,
     },
     renderForm: (props: {
         item: any;
