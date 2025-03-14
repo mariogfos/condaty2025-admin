@@ -55,6 +55,7 @@ const IncomeForm = ({
     type: "info",
   });
   const {store} = useAuth();
+  
 
   const lDptos = useMemo(
     () =>
@@ -414,6 +415,8 @@ const handleSelectPeriodo = useCallback((periodo) => {
     if (!validar()) {
       return;
     }
+    const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === _formState.dpto_id);
+    const owner_id = selectedDpto?.titular?.owner?.id;
 
     let params = {
       type: _formState.type,
@@ -425,7 +428,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
       obs: _formState.obs,
       category_id: _formState.subcategory_id,
       nro_id: _formState.dpto_id,
-      user_id: client.id,
+      owner_id: owner_id,
     };
 
     // Verificar si es un pago de expensa y hay deudas seleccionadas
@@ -783,24 +786,20 @@ const handleSelectPeriodo = useCallback((periodo) => {
             </div>
   
             {/* Sección de descripción - SIEMPRE VISIBLE EXCEPTO CUANDO HAY DEUDA SELECCIONADA */}
-            {(_formState.subcategory_id !==
-              extraData?.client_config?.cat_expensas ||
-              deudas?.length === 0) && (
-              <div className={styles["obs-section"]}>
-                <p className={styles["section-title"]}>
-                  Indica una descripción para este ingreso
-                </p>
-                <div className={styles["obs-input"]}>
-                  <TextArea
-                    label="Descripción"
-                    placeholder="Escribe una descripción(Opcional)"
-                    name="obs"
-                    onChange={handleChangeInput}
-                    value={_formState.obs}
-                  />
-                </div>
+            <div className={styles["obs-section"]}>
+              <p className={styles["section-title"]}>
+                Indica una descripción para este ingreso
+              </p>
+              <div className={styles["obs-input"]}>
+                <TextArea
+                  label="Descripción"
+                  placeholder="Escribe una descripción(Opcional)"
+                  name="obs"
+                  onChange={handleChangeInput}
+                  value={_formState.obs}
+                />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </DataModal>
