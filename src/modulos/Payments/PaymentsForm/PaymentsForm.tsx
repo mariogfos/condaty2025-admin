@@ -428,7 +428,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
       obs: _formState.obs,
       category_id: _formState.subcategory_id,
       nro_id: _formState.dpto_id,
-      owner_id: owner.id,
+      owner_id: owner_id,
     };
 
     // Verificar si es un pago de expensa y hay deudas seleccionadas
