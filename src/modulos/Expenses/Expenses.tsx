@@ -14,6 +14,7 @@ import RenderView from "./RenderView";
 import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 import { isUnitInDefault, paidUnits, sumExpenses, sumPaidUnits, sumPenalty, units, unitsPayable } from "@/mk/utils/utils";
 
+
 const mod: ModCrudType = {
     modulo: "debts",
     singular: "Expensa",
@@ -24,11 +25,18 @@ const mod: ModCrudType = {
 
     permiso: "",
     extraData: true,
-    hideActions:{
-        view:true,
-        edit:true,
-        del:true,
-    },
+    // hideActions:{
+    //     view:true,
+    //     edit:true,
+    //     del:true,
+    // },
+    onHideActions: (item: any) => {
+
+        return {
+          hideEdit: paidUnits(item?.asignados) > 0,
+          hideDel:  paidUnits(item?.asignados) > 0,
+        };
+      },
     renderForm: (props: {
         item: any;
         setItem: any;
@@ -69,7 +77,6 @@ const mod: ModCrudType = {
         //   }) => <RenderView {...props} />,
 
 };
-
 
 
 
