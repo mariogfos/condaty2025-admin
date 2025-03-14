@@ -23,6 +23,7 @@ import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGra
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import WidgetGrafBalance from "@/components/ Widgets/WidgetGrafBalance/WidgetGrafBalance";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 // Interfaces
 interface CategoryOption {
   id: string | number;
@@ -140,6 +141,10 @@ const BalanceGeneral: React.FC = () => {
     "GET",
     {}
   );
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "BALANCE" });
+  }, []);
 
   useEffect(() => {
     if (!filtered) {
