@@ -1,0 +1,41 @@
+/* BinnacleDetail.module.css */
+.container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .detailRow {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+  
+  .label {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--cGrayLight);
+    margin-bottom: 4px;
+  }
+  
+  .value {
+    font-size: 16px;
+    color: var(--cWhiteV2);
+  }
+  
+  @media (min-width: 768px) {
+    .detailRow {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    
+    .label {
+      width: 180px;
+      margin-bottom: 0;
+    }
+    
+    .value {
+      flex: 1;
+    }
+  }
