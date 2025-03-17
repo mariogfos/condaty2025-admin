@@ -1,8 +1,9 @@
 import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import styles from "./BinnacleDetail.module.css";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // Definir la interfaz para las props
 interface BinnacleDetailProps {
@@ -14,7 +15,7 @@ interface BinnacleDetailProps {
 
 // eslint-disable-next-line react/display-name
 const BinnacleDetail = memo((props: BinnacleDetailProps) => {
-  const { open, onClose, item, extraData } = props;
+  const { open, onClose, item } = props;
 
   return (
     <DataModal
@@ -25,28 +26,40 @@ const BinnacleDetail = memo((props: BinnacleDetailProps) => {
       buttonCancel=""
     >
       <div className={styles.container}>
-        <div className={styles.detailRow}>
-          <div className={styles.label}>Fecha</div>
-          <div className={styles.value}>
-            {getDateTimeStrMesShort(item.created_at)}
-          </div>
+        <div className={styles.imageContainer}>
+          <Avatar
+            src={getUrlImages(
+              "/GNEWS-" + item.id + ".webp?d=" + item.updated_at
+            )}
+            h={170}
+            w={170}
+            style={{ borderRadius: 16 }}
+            name={getFullName(item)}
+          />
         </div>
 
-        <div className={styles.detailRow}>
-          <div className={styles.label}>Guardia</div>
-          <div className={styles.value}>
-            {item.guard_id || "Sin guardia asignado"}
+        <div className={styles.detailsContainer}>
+          <div className={styles.detailRow}>
+            <div className={styles.label}>Fecha</div>
+            <div className={styles.value}>
+              {getDateTimeStrMesShort(item.created_at)}
+            </div>
+          </div>
+
+          <div className={styles.detailRow}>
+            <div className={styles.label}>Guardia</div>
+            <div className={styles.value}>
+              {getFullName(item.guardia) || "Sin guardia asignado"}
+            </div>
+          </div>
+
+          <div className={styles.detailRow}>
+            <div className={styles.label}>Descripción</div>
+            <div className={styles.value}>
+              {item.descrip || "Sin descripción"}
+            </div>
           </div>
         </div>
-
-        <div className={styles.detailRow}>
-          <div className={styles.label}>Descripción</div>
-          <div className={styles.value}>
-            {item.descrip || "Sin descripción"}
-          </div>
-        </div>
-
-        {/* Si hay más campos en la bitácora, agrégalos aquí según necesites */}
       </div>
     </DataModal>
   );
