@@ -29,7 +29,7 @@ const BinnacleDetail = memo((props: BinnacleDetailProps) => {
         <div className={styles.imageContainer}>
           <Avatar
             src={getUrlImages(
-              "/GNEWS-" + item.id + ".webp?d=" + item.updated_at
+              "/GNEW-" + item.id + ".webp?d=" + item.updated_at
             )}
             h={170}
             w={170}
