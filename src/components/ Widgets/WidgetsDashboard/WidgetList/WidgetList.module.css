@@ -1,0 +1,10 @@
+.WidgetList {
+   
+    & > div:nth-child(1){
+       color: var(--cWhite);
+       font-size: var(--sM);
+    }
+    & > p {
+        color:'red'
+    }
+}

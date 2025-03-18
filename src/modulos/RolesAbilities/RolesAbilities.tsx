@@ -25,7 +25,7 @@ const mod: ModCrudType = {
 
 const RolesAbilities = () => {
   const paramsInitial = {
-    perPage: -1,
+    perPage: 10,
     page: 1,
     fullType: "L",
     searchBy: "",
@@ -41,12 +41,7 @@ const RolesAbilities = () => {
         list: true,
         form: { type: "text" },
       },
-      client_id: {
-        rules: [],
-        api: "ae",
-        form: false,
-        list: false,
-      },
+    
       description: {
         rules: [],
         api: "ae",
@@ -54,24 +49,27 @@ const RolesAbilities = () => {
         form: { type: "text" },
         list: true,
       },
-      rolcategory_id: {
+      ability_category_id: {
+        rules: [],
+        api: "ae",
         label: "Categoría",
         width: "200px",
-        options: (extraData: any) => {
-          let data: any = [];
-          // let data: any = [{ id: "T", name: "Todas" }];
-          extraData?.categories?.map((c: any) => {
-            data.push({
-              id: c.id,
-              name: c.name,
-            });
-          });
-          return data;
-        },
+        // options: (extraData: any) => {
+        //   let data: any = [];
+        //   // let data: any = [{ id: "T", name: "Todas" }];
+        //   extraData?.ability_categories?.map((c: any) => {
+        //     data.push({
+        //       id: c.id,
+        //       name: c.name,
+        //     });
+        //   });
+        //   return data;
+        // },
         form: {
           type: "select",
-          optionsExtra: "categories",
+          optionsExtra: "ability_categories",
           label: "Seleccionar Categoría",
+          optionValue:"id"
         },
         list: true,
       },

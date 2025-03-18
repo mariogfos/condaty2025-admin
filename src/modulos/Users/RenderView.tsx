@@ -12,21 +12,7 @@ const RenderView = (props: {
   extraData?: any;
 }) => {
 
-  let entidades = ["", "", "Departamento", "Municipio", "Locallidad", "Barrio"];
-
-  const getEntidad = () => {
-    let entidad = ["", "", "dpto", "mun", "local", "barrio"];
-    let data: any = [];
-    if (props.item?.level) {
-      data =
-        props?.extraData[
-          entidad[props.item.level] + `${props.item.level == 4 ? "es" : "s"}`
-        ];
-    }
-    return data?.find(
-      (e: any) => e.id == props.item?.[entidad[props.item.level] + "_id"]
-    )?.name;
-  };
+ console.log('extraDatasaassasa')
   return (
     <DataModal
       open={props.open}
@@ -75,7 +61,7 @@ const RenderView = (props: {
           </div>
           <div>
             <p>Rol</p>
-            <p>{ props.item?.role_id}</p>
+            <p>{ props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description }</p>
           </div>
           <div>
             <p>Número de Whatsapp</p>

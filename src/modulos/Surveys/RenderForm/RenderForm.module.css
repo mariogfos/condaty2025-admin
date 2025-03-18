@@ -1,0 +1,99 @@
+.renderFormLevel1 {
+  & > section:nth-child(1) {
+    & > div:nth-child(1) {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    /* & > div:nth-child(2) {
+      background-color: var(--cSuccess);
+      height: 1px;
+    } */
+    & > div:nth-child(3) {
+      display: flex;
+      justify-content: space-between;
+      & > section {
+        display: flex;
+        gap: 4px;
+      }
+      & div {
+        cursor: pointer;
+      }
+    }
+  }
+  & > section:nth-child(2) {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spS);
+    & > div {
+      background-color: var(--cBlackV1);
+      padding: var(--spM);
+      border-radius: var(--bRadius);
+      /* display: flex;
+      justify-content: space-between; */
+    }
+  }
+  .title {
+    font-size: var(--sL);
+    font-weight: var(--bBold);
+    color: var(--cWhite);
+  }
+  .subtitle {
+    color: var(--cBlackV2);
+    font-weight: 400;
+    font-size: var(--sL);
+    padding-top: 4px;
+  }
+  .metas {
+    display: flex;
+    gap: var(--spS);
+    align-items: center;
+    cursor: pointer;
+    & > div {
+      border: 1px solid var(--cBlackV3);
+      border-radius: var(--bRadius);
+      padding: 8px;
+      flex-grow: 1;
+      & > p:nth-child(even) {
+        margin-top: 4px;
+      }
+    }
+    & > div:last-child {
+      flex-grow: 3;
+      border: none;
+      padding: 0;
+    }
+  }
+}
+
+.renderFormLevel2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  & > section {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--spL);
+    gap: var(--spS);
+  }
+}
+.titleDate {
+  color: var(--cBlackV2);
+  font-size: var(--sS);
+}
+.titleFormLv2 {
+  font-size: var(--sXl);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  display: flex;
+  & > div:nth-child(2) {
+    margin-left: var(--spL);
+    color: var(--cError);
+  }
+}
+.subtitleFormLv2 {
+  color: var(--cBlackV2);
+  font-size: var(--sM);
+}

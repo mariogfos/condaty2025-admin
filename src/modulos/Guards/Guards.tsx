@@ -57,7 +57,7 @@ const Guards = () => {
       fullName: {
         // rules: ["required"],
         api: "ae",
-        label: "Nombre del residente",
+        label: "Nombre del guardia",
         form: false,
         onRender: (item: any) => {
           return (

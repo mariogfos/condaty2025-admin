@@ -7,6 +7,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
+import BinnacleDetail from "./BinnacleDetail";
 
 const mod = {
   modulo: "guardnews",
@@ -15,6 +16,8 @@ const mod = {
   permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true, add: true },
+  renderView: (props: any) => <BinnacleDetail {...props} />,
+  loadView: { fullType: "DET" } // Esto cargará los detalles completos al hacer clic
 };
 
 const paramsInitial = {
@@ -36,16 +39,13 @@ const Binnacle = () => {
         form: { type: "text" },
         list: { },
       },
-      guard_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Guardia",
-        form: { type: "text" },
-        list: { },
-      },
-      status: {
+      guardia: {
         rules: [""],
-        api: "ae",
+        api: "",
+        label: "Guardia",
+        list: {
+            onRender: (props: any) => {
+            return getFullName(props.item.guardia); }}
       },      
     }),
     []

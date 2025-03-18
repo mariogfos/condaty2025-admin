@@ -27,7 +27,6 @@ const Owners = () => {
     plural: "Residentes",
     filter: true,
     permiso: "",
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -90,7 +89,7 @@ const Owners = () => {
         list: false,
         form: {
           type: "imageUpload",
-          prefix: "ADM",
+          prefix: "OWNER",
           style: { width: "100%" },
           // onRigth: rigthAvatar,
         },
@@ -186,7 +185,16 @@ const Owners = () => {
         form: { type: "text" },
         list: false,
       },
-
+      units:{
+      rules:[''],
+      api: '',
+      label: 'Unidades',
+      form:false,
+      list:{
+        onRender:(props:any)=>{return props?.item?.dpto[0]?.nro || 'Sin datos'},
+        width:"90px"
+      }
+      },
       email: {
         rules: ["required"],
         api: "ae",
@@ -204,6 +212,15 @@ const Owners = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          type: "text",
+        },
+        list: { width: "180px" },
+      },
     };
   }, []);
 

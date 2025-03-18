@@ -68,6 +68,9 @@
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
   --cHoverBigSidebar:#1F2D27;
+  --cHightAlertHover: #FF5B4D33;  
+  --cMediumAlertHover:#F37F3D33;  
+  --cLowAlertHover:   #FDD67133;
   /* Paleta de los toast */
   --cError: #E46055;
   --cSuccess: #34A853;
@@ -106,6 +109,9 @@
   --cRandom17: #fdf0d5;
   --cRandom18: #f7b267;
   --cRandom19: #b8c0ff;
+  --cHightAlert: "#FF5B4D";
+  --cMediumAlert: "#F37F3D";
+  --cLowAlert: "#FDD671";
 
   /* Tamaños de los textos fluido */
   --sXxl: 24px;

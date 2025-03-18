@@ -1,0 +1,16 @@
+.container {
+    width: 100%;
+  }
+  
+  .title {
+    color: var(--text-white, #ffffff);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+  }
+  
+  .subtitle {
+    color: var(--light-v3, #8A8A8A);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }

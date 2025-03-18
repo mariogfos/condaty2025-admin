@@ -41,6 +41,7 @@ export type ModCrudType = {
   plural: string;
   permiso: string;
   extraData?: boolean | Record<string, any>;
+  extraData?: boolean | Record<string, any>;
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
@@ -901,7 +902,7 @@ const useCrud = ({
           )}
           {mod.hideActions?.add ? null : (
             <div>
-              <Button onClick={onClick || onAdd}>
+              <Button className={styles.addButton} onClick={onClick || onAdd}>
                 {"Crear " + mod.singular}
               </Button>
             </div>
@@ -1045,7 +1046,7 @@ const useCrud = ({
             label: field.filter?.label || field.list?.label || field.label,
             width: field.filter?.width || field.list.width || "300px",
             order:
-              field.filter?.order || field.list.order || field.order || 1000,
+              field.filter?.order || field?.list?.order || field?.order || 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
               : field.filter?.options(extraData) || field.form.options || [],
@@ -1086,7 +1087,7 @@ const useCrud = ({
           {openList && (
             <>
               <section style={{}}>
-                {data?.data.length > 0 ? (
+                {data?.data?.length > 0 ? (
                   <Table
                     data={data?.data}
                     onRowClick={

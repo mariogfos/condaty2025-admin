@@ -18,11 +18,18 @@
   & > nav {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--spL);
     overflow: visible;
+    margin-bottom: var(--spL);
+    & > div > div > div {
+      margin-bottom: 0px;
+    }
     & > div:first-child {
       flex-grow: 1;
+      & > div{
+        margin-bottom: 0px;
+      }
     }
   }
 
@@ -59,7 +66,7 @@
 
   & > div {
     padding: 12px;
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     background-color: var(--cBlackV1);
     cursor: pointer;
   }
@@ -73,11 +80,19 @@
   }
   .active {
     border: 1px solid var(--cAccent);
-    background-color: #39acec33;
+    background-color: var(--cHoverSuccess);
   }
 }
 .formDelete {
   display: flex;
   color: var(--cWhiteV1);
   font-size: var(--sM);
+}
+
+
+.addButton {
+  /* //padding: var(--spS); */
+  height: 56px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }

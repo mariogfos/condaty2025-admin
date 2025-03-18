@@ -1,0 +1,64 @@
+.surveysContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .title {
+    color: var(--tWhite, #ffffff);
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  
+  .surveyName {
+    font-weight: 500;
+    color: var(--tWhite, #ffffff);
+  }
+  
+  .surveyDescription {
+    font-size: 0.875rem;
+    color: var(--lightv3, #a7a7a7);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .statusBadge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .statusA {
+    background-color: var(--success, #10b981);
+    color: white;
+  }
+  
+  .statusI {
+    background-color: var(--warning, #f59e0b);
+    color: white;
+  }
+  
+  .statusF {
+    background-color: var(--info, #3b82f6);
+    color: white;
+  }
+  
+  .statusD {
+    background-color: var(--lightv3, #a7a7a7);
+    color: white;
+  }
+  
+  /* Estilos para la vista móvil */
+  @media (max-width: 768px) {
+    .surveysContainer {
+      padding: 0.5rem;
+    }
+  }

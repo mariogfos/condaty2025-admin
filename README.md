@@ -4,13 +4,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
-```bash AZ
-npm run dev
+```bash AZHH
+npm run devss
 # or
-yarn dev11
-# or
-pnpm devaaaa
-# or
+yarn dev11sas
+# ors
+pnpm devaaaaaa
+# ors
 bun devaa
 ```
 

@@ -32,7 +32,7 @@ const Radio = ({ checked, label, subtitle, onChange, disabled }: PropsType) => {
           <IconRatioOff
             onClick={handleClick}
             style={{ cursor: "pointer" }}
-            color={"var(--cBlackV2)"}
+            color={"var(--cWhiteV1)"}
           />
         )}
         <div>

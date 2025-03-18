@@ -13,15 +13,16 @@ const DptoConfig = ({
   setErrors,
   errors,
   client_config,
+  onChange
 }: any) => {
   // console.log(formState,'fst desde dptoconfg')
-  const onChange = (e: any) => {
-    let value = e?.target?.value;
-    if (e.target.type == "checkbox") {
-      value = e.target.checked ? "Y" : "N";
-    }
-    setFormState({ ...formState, [e.target.name]: value });
-  };
+  // const onChange = (e: any) => {
+  //   let value = e?.target?.value;
+  //   if (e.target.type == "checkbox") {
+  //     value = e.target.checked ? "Y" : "N";
+  //   }
+  //   setFormState({ ...formState, [e.target.name]: value });
+  // };
   return (
     <>
       <div className="w-full flex justify-center my-6">
@@ -31,7 +32,7 @@ const DptoConfig = ({
           value={
             formState?.id
               ? getUrlImages(
-                  "/CLIENT-" + formState?.id + ".png?" + formState.updated_at
+                  "/CLIENT-" + formState?.id + ".webp?" + formState.updated_at
                 )
               : ""
           }
@@ -161,8 +162,8 @@ const DptoConfig = ({
         value={formState?.year}
         onChange={onChange}
       />
-      <div className="my-5">
-        <p className="text-tWhite">
+      <div className={styles.marginY}>
+        <p className={styles.textTitle}>
           Ingresa el monto con el que inicia el condominio
         </p>
         <p className={styles.textSubtitle}>
@@ -178,7 +179,7 @@ const DptoConfig = ({
         required
         value={formState?.initial_amount}
         onChange={onChange}
-        disabled={client_config?.data[0].initial_amount === null ? false : true}
+        // disabled={client_config?.data[0].initial_amount === null ? false : true}
       />
     </>
   );

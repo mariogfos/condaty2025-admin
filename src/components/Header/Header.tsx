@@ -2,9 +2,12 @@
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
-import { IconMenu, IconSetting } from "../layout/icons/IconsBiblioteca";
+import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import HeadTitle from "../HeadTitle/HeadTitle";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 type PropsType = {
   isTablet: boolean;
@@ -36,10 +39,12 @@ const Header = ({
   },
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
+  const { store } = useAuth();
+  
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
-    { name: "permisos", route: "/rolesabilities" },
+    { name: "Permisos", route: "/rolesabilities" },
     // { name: "Metas", route: "/goals" },
     // { name: "Gamificación", route: "/gamification" },
   ];
@@ -56,6 +61,42 @@ const Header = ({
         />
         <p>{getFullName(user)}</p>
         <p>{client?.name}</p>
+      </div>
+    );
+  };
+
+  const NotificationIcon = () => {
+    return (
+      <div className={styles.iconOuterContainer}>
+        <div className={styles.notificationContainer}>
+          <Link href="/notifications">
+            <div className={styles.notificationIcon}>
+              <IconNotification />
+              {store?.notif > 0 && (
+                <div className={styles.notificationBadge}>
+                  {store?.notif || 0}
+                </div>
+              )}
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  };
+
+  const ProfileIcon = () => {
+    return (
+      <div className={styles.iconOuterContainer}>
+        <div className={styles.profileContainer}>
+          <Avatar
+            name={getFullName(user)}
+            src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
+            onClick={() => {
+              router.push("/profile");
+            }}
+            
+          />
+        </div>
       </div>
     );
   };
@@ -77,10 +118,13 @@ const Header = ({
           }
           right={
             path == "/" ? (
-              <Dropdown
-                trigger={<IconSetting circle size={32} />}
-                items={menuItems}
-              />
+              <div className={styles.headerRightContainer}>
+                <NotificationIcon />
+                <Dropdown
+                  trigger={<IconSetting circle size={32} />}
+                  items={menuItems}
+                />
+              </div>
             ) : (
               right()
             )
@@ -113,16 +157,9 @@ const Header = ({
           items={menuItems}
         />
       </div>
-
-      <div style={{ cursor: "pointer" }}>
-        <Avatar
-          name={getFullName(user)}
-          src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
-          onClick={() => {
-            router.push("/profile");
-          }}
-        />
-      </div>
+      
+      <NotificationIcon />
+      <ProfileIcon />
     </div>
   );
 };

@@ -314,9 +314,13 @@ export const UploadFile = ({
                     <span>{selectedFiles.name}</span>
                   </p>
                 </>
-              ) : (
-                <IconDocs size={80} color={"var(--cWhite)"} />
-              )}
+              ) : 
+                img ? (
+                  <IconImage size={40} color={"var(--cWhite)"} />
+                ) : (
+                  <IconDocs size={40} color={"var(--cWhite)"} />
+                )
+              }
               {/* <p>
                 Archivo seleccionado: <span>{selectedFiles.name}</span>
               </p>

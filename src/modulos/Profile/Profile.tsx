@@ -1,6 +1,4 @@
-
 /* eslint-disable @next/next/no-img-element */
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,7 +16,6 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import Button from "@/mk/components/forms/Button/Button";
 import Authentication from "./Authentication";
-/*import Input from "@/mk/components/forms/Input/Input"; */
 import styles from "./profile.module.css";
 
 interface FormState {
@@ -47,9 +44,22 @@ const Profile = () => {
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [onLogout, setOnLogout] = useState(false);
   const [type, setType] = useState("");
-  const [error, setError] = useState(false);
-  const [previewVisible, setPreviewVisible] = useState(false);
 
+  
+  const { setStore } = useAuth();
+  useEffect(() => {
+    setStore({ title: "PERFIL" });
+  }, []);
+  
+  // Obtenemos la URL del avatar
+  const getAvatarUrl = () => {
+    // Si hay una vista previa (al subir nueva imagen), usamos esa
+    if (preview) {
+      return preview;
+    }
+    // Si no, generamos la URL con la función getUrlImages
+    return getUrlImages(`/ADM-${user?.id}.webp?d=${user?.updated_at}`);
+  };
 
   useEffect(() => {
     setFormState((prevState: any) => ({ ...prevState, ...user }));
@@ -89,11 +99,6 @@ const Profile = () => {
   };
 
   const onSave = async () => {
-    if (!userCan("profile", "U")) {
-      showToast("No tienes permisos para realizar esta acción", "error");
-      return;
-    }
-    
     if (hasErrors(validate())) return;
 
     const newUser = {
@@ -133,8 +138,6 @@ const Profile = () => {
   };
 
   const onChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPreview(null);
-    setFormState({ ...formState, avatar: "" });
     try {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -180,12 +183,10 @@ const Profile = () => {
         <div className={styles.profileGrid}>
           <div className={styles.imageSection}>
             <div className={styles.imageContainer}>
-              <div 
-                className={styles.mobileAvatarWrapper}
-                onClick={() => setPreviewVisible(true)}
-              >
+              {/* Avatar para móvil */}
+              <div className={styles.mobileAvatarWrapper}>
                 <Avatar
-                  src={preview || getUrlImages(`/ADM-${user?.id}.png?d=${user?.updated_at}`)}
+                  src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={112}
                   h={112}
@@ -202,35 +203,24 @@ const Profile = () => {
                 </Avatar>
               </div>
 
-              <div 
-                className={styles.desktopImageContainer}
-                onClick={() => setPreviewVisible(true)}
-              >
-                {!error ? (
-                  <img
-                    alt="Perfil"
-                    className={styles.avatarImage}
-                    src={preview || getUrlImages(`/ADM-${user?.id}.png?d=${user?.updated_at}`)}
-                    onError={() => setError(true)}
-                  />
-                ) : (
-                  <Avatar
-                    src={preview || getUrlImages(`/ADM-${user?.id}.png?d=${user?.updated_at}`)}
-                    name={getFullName(user)}
-                    w={350}
-                    h={350}
-                    className={styles.avatar}
-                  />
-                )}
-
-                {editProfile && (
-                  <label
-                    htmlFor="imagePerfil"
-                    className={styles.cameraButton}
-                  >
-                    <IconCamera className={styles.cameraIcon} size={16} />
-                  </label>
-                )}
+              {/* Avatar para desktop */}
+              <div className={styles.desktopImageContainer}>
+                <Avatar
+                  src={getAvatarUrl()}
+                  name={getFullName(user)}
+                  w={350}
+                  h={350}
+                  className={styles.avatar}
+                >
+                  {editProfile && (
+                    <label
+                      htmlFor="imagePerfil"
+                      className={styles.cameraButton}
+                    >
+                      <IconCamera className={styles.cameraIcon} size={16} />
+                    </label>
+                  )}
+                </Avatar>
               </div>
             </div>
 
@@ -335,6 +325,7 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Modal para editar perfil */}
       <DataModal
         open={openProfileModal}
         onClose={onCancel}
@@ -346,7 +337,7 @@ const Profile = () => {
         <div className={styles.profileModal}>
           <Avatar
             name={getFullName(user)}
-            src={preview || getUrlImages(`/ADM-${user?.id}.png?d=${user?.updated_at}`)}
+            src={getAvatarUrl()}
             w={100}
             h={100}
             className={styles.modalAvatar}
@@ -380,19 +371,21 @@ const Profile = () => {
         </div>
       </DataModal>
 
+      {/* Modal para cerrar sesión */}
       <DataModal
-          open={onLogout}
-          title="Cerrar sesión"
-          onClose={() => setOnLogout(false)}
-          buttonText="Cerrar sesión"
-          buttonCancel="Cancelar"
-          onSave={() => logout()}
-        >
+        open={onLogout}
+        title="Cerrar sesión"
+        onClose={() => setOnLogout(false)}
+        buttonText="Cerrar sesión"
+        buttonCancel="Cancelar"
+        onSave={() => logout()}
+      >
         <p className={styles.modalLogout}>
           ¿Estás seguro de que deseas cerrar sesión?
         </p>
       </DataModal>
 
+      {/* Modal para autenticación */}
       {openAuthModal && (
         <Authentication
           open={openAuthModal}

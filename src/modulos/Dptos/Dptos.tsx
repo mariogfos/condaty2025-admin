@@ -12,6 +12,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
+import { UnitsType } from "@/mk/utils/utils";
 
 
 
@@ -24,11 +25,18 @@ const paramsInitial = {
 
 const Dptos = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user ,store} = useAuth();
+  
+  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
+  useEffect(()=>{
+    setStore({UnitsType:UnitsType[client.type_dpto]})
+  },[])
+
+  
   const mod: ModCrudType = {
     modulo: "dptos",
-    singular: "Departamento",
-    plural: "Departamentos",
+    singular: `${store?.UnitsType}`,
+    plural: `${store?.UnitsType}s`,
     filter: true,
     permiso: "",
     extraData: true,
@@ -40,7 +48,6 @@ const Dptos = () => {
     }
     
   };
-
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -48,7 +55,7 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de casa",
+        label: "Número de " + store?.UnitsType,
         form: { type: "text" },
         list: { width: "100px" },
       },
@@ -87,7 +94,7 @@ const Dptos = () => {
           options: (items: any) => {
 
             let data: any = [];
-            items?.extraData?.homeowner?.map((c: any) => {
+            items?.extraData?.homeowners?.map((c: any) => {
               // console.log(c,'c')
               data.push({
                 id: c.id,
@@ -114,16 +121,16 @@ const Dptos = () => {
         {
           onRender: (props: any) => {
             return (
-              props?.item?.titular ?
+              props?.item?.titular?.owner?
                 <div className={styles.titularRow}>
                     <Avatar
                       src={
-                        props?.item?.titular?.id && props?.item?.titular?.updated_at
+                        props?.item?.titular?.id && props?.item?.titular?.owner?.updated_at
                           ? getUrlImages(
-                              "/OWN" +
+                              "/OWNER" +
                                 "-" +
                                 props?.item?.titular?.owner_id +
-                                ".png?d=" +
+                                ".webp?d=" +
                                 props?.item?.titular?.owner?.updated_at
                             )
                           : ""
@@ -131,7 +138,7 @@ const Dptos = () => {
                       name={getFullName( props?.item?.titular?.owner)}
                     
                     />
-              {getFullName(props?.item?.titular) }
+              {getFullName(props?.item?.titular?.owner) }
               </div>
               : 'Sin titular')
           }
@@ -182,7 +189,7 @@ const Dptos = () => {
       </RenderItem>
     );
   };
-
+  
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>

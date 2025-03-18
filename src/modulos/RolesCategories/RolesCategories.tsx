@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 
 const mod: ModCrudType = {
-  modulo: "rolecategories",
+  modulo: "abilitycategories",
   singular: "Categoría",
   plural: "Categorías",
   // import: true,
@@ -26,7 +26,7 @@ const RolesCategories = () => {
 
 
   const paramsInitial = {
-    perPage: -1,
+    perPage: 10,
     page: 1,
     fullType: "L",
     searchBy: "",
@@ -43,12 +43,7 @@ const RolesCategories = () => {
         list: true,
         form: { type: "text" },
       },
-      client_id: {
-        rules: [],
-        api: "ae",
-        form: false,
-        list: false,
-      },
+  
     //   description: {
     //     rules: [],
     //     api: "ae",

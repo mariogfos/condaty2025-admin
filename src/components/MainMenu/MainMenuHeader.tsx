@@ -13,16 +13,16 @@ interface MainMenuHeaderProps {
 
 const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   const router = useRouter();
-console.log(user,'usrrr')
+// console.log(user,'usrrr')
   return (
     <div className={styles.menuHeader}>
       <div>
       <Avatar
             src={getUrlImages(
-              "/ADM-" + user?.id + ".png?d=" + user?.updated_at
+              "/CLIENT-" + user?.clients[0]?.id + ".webp?d=" + user?.clients[0]?.updated_at
             )}
             name={getFullName(user)}
-            w={collapsed ? 48 : 128}
+            w={collapsed ? 48 : 210}
             h={collapsed ? 48 : 128}
            style={{borderRadius:8}}
           />
@@ -38,9 +38,9 @@ console.log(user,'usrrr')
       </div> */}
       {!collapsed && (
         <div>
-          <p>{getFullName(user)}</p>
-          <p style={{color: "var(--cBlackV2)"}}>{user?.role?.name}</p>
-          <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p>
+          {/* <p>{getFullName(user)}</p> */}
+          <p style={{color: "var(--cWhite)"}}>{user?.clients[0]?.name}</p>
+          {/* <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p> */}
         </div>
       )}
     </div>
