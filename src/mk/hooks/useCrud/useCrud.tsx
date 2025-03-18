@@ -41,7 +41,6 @@ export type ModCrudType = {
   plural: string;
   permiso: string;
   extraData?: boolean | Record<string, any>;
-  extraData?: boolean | Record<string, any>;
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
