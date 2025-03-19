@@ -11,9 +11,10 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { getFormattedDate } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const Layout = ({ children }: any) => {
-  const { user, logout, store } = useAuth();
+  const { user, logout, store, showToast } = useAuth();
   const { isTablet, isDesktop } = useScreenSize();
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -28,6 +29,11 @@ const Layout = ({ children }: any) => {
       setClient(client);
     }
   }, [user]);
+
+  useEvent("onNewNotif", (e: any) => {
+    showToast(e.payload.title, "info");
+    console.log("*******1111******", e);
+  });
 
   const layoutClassName = `${styles.layout} ${
     isDesktop && !sideMenuOpen ? styles.layoutExpanded : ""
