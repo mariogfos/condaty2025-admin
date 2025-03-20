@@ -7,6 +7,7 @@ import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ChatBotLLm from "./chatBot/ChatBotLLm";
+import { getFullName } from "@/mk/utils/string";
 
 export default function ChatInstantDb() {
   const {
@@ -27,7 +28,7 @@ export default function ChatInstantDb() {
   const [open, setOpen] = useState(false);
   const [typeSearch, setTypeSearch]: any = useState(roomGral);
   const [_rooms, set_rooms] = useState([]);
-  const { dispatch } = useEvent("onNewChatMsg");
+  const { dispatch: newMsg } = useEvent("onChatNewMsg");
 
   useEffect(() => {
     if (
@@ -80,7 +81,10 @@ export default function ChatInstantDb() {
           count: (cM[roomGral]?.count || 0) + 1,
         },
       };
-      dispatch(chats?.messages[chats?.messages?.length - 1]);
+      newMsg({
+        data: chats?.messages[chats?.messages?.length - 1],
+        type: "newMsg",
+      });
       showToast(
         <>
           <div>
@@ -120,6 +124,7 @@ export default function ChatInstantDb() {
       _r.push({ ...r, numero: countMsg[idUser]?.count });
     });
     set_rooms(_r);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countMsg, rooms]);
 
   const [botActive, setBotActive] = useState(false);
@@ -186,7 +191,7 @@ export default function ChatInstantDb() {
                 }
                 onClick={() => _openNewChat(u.id, u.name)}
               >
-                {u.name}
+                {getFullName(u, "NmLo")}
                 {countMsg[u.id]?.count > 0 && (
                   <span style={{ position: "relative" }}>
                     <div
@@ -238,20 +243,7 @@ export default function ChatInstantDb() {
 
       <div style={{ color: "white" }}>
         {botActive && <ChatBotLLm />}
-        {/* {JSON.stringify(chats)} */}
-        {/* {Intl.DateTimeFormat(navigator.language, {
-          timeZone: "America/La_Paz",
-          hourCycle: "h24",
-          dateStyle: "full",
-          timeStyle: "full",
-          // year: "numeric",
-          // month: "2-digit",
-          // day: "2-digit",
-          // hour: "2-digit",
-          // minute: "2-digit",
-          // second: "2-digit",
-          // timeZoneName: "shortOffset",
-        }).format(new Date())} */}
+        {/* {JSON.stringify(usersChat)} */}
       </div>
     </div>
   );

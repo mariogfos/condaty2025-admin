@@ -13,7 +13,7 @@ export const capitalizeWords = (s: any) => {
   if (typeof s !== "string") return "";
   const words = (s.toLowerCase() + " ").split(" ");
   let result = "";
-  words.map((word) => {
+  words.forEach((word) => {
     result += capitalize(word) + " ";
   });
   return result.trim();
@@ -30,26 +30,50 @@ export const getUrlImages = (url: string) => {
   return newUrl;
 };
 
-export const getFullName = (data: any): string => {
+export const getFullName = (
+  data: {
+    name?: string;
+    middle_name?: string;
+    last_name?: string;
+    mother_last_name?: string;
+  },
+  format: string = "NMLO"
+): string => {
   if (!data) {
     return "";
   }
   const { name, middle_name, last_name, mother_last_name } = data;
   let fullName = "";
-  if (name) {
+  if (name && format.indexOf("N") > -1) {
     fullName += name + " ";
   }
-  if (middle_name) {
+  if (name && format.indexOf("n") > -1) {
+    fullName += name.slice(0, 1).toUpperCase() + ". ";
+  }
+
+  if (middle_name && format.indexOf("M") > -1) {
     fullName += middle_name + " ";
   }
-  if (last_name) {
+  if (middle_name && format.indexOf("m") > -1) {
+    fullName += middle_name.slice(0, 1).toUpperCase() + ". ";
+  }
+
+  if (last_name && format.indexOf("L") > -1) {
     fullName += last_name + " ";
   }
-  if (mother_last_name) {
+  if (last_name && format.indexOf("l") > -1) {
+    fullName += last_name.slice(0, 1).toUpperCase() + ". ";
+  }
+
+  if (mother_last_name && format.indexOf("O") > -1) {
     fullName += mother_last_name + " ";
+  }
+  if (mother_last_name && format.indexOf("o") > -1) {
+    fullName += mother_last_name.slice(0, 1).toUpperCase() + ". ";
   }
   return fullName.trim();
 };
+
 export const displayObjectAsHtml = (obj: Record<string, any>): JSX.Element => {
   return (
     <ul

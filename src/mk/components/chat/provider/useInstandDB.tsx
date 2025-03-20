@@ -5,7 +5,9 @@ import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
+import { useEvent } from "@/mk/hooks/useEvents";
 
+let initToken = false;
 const roomGral: string = process.env
   .NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX as string;
 let db: any = null;
@@ -18,11 +20,10 @@ export const initSocket = () => {
     });
     room = db.room("chat", roomGral);
     console.log("iniciando conexion a InstantDB");
-    return db;
   } else {
     console.log("recuperando conexion a InstantDB");
-    return db;
   }
+  return db;
 };
 
 initSocket();
@@ -45,12 +46,13 @@ type useInstantDbType = {
   error: any;
   roomGral: string;
   typing: any;
-  // engine?: any;
 };
 
 const useInstandDB = (): useInstantDbType => {
   const { user, showToast } = useAuth();
-  // const { engine, messages, sendMessageBot } = useChatBotLLM();
+  const { dispatch: newRoomEvent } = useEvent("onChatNewRoom");
+  const { dispatch: closeRoomEvent } = useEvent("onChatCloseRoom");
+  const { dispatch: sendMsgEvent } = useEvent("onChatSendMsg");
   const [rooms, setRooms]: any = useState([
     {
       value: roomGral,
@@ -61,9 +63,32 @@ const useInstandDB = (): useInstantDbType => {
       lastMsg: "",
     },
   ]);
+
+  const onChatCloseRoom = useCallback(async (payload: any) => {
+    if (payload.indexOf("chatBot") > -1) {
+      const del: any[] = [];
+      const query = {
+        messages: {
+          $: {
+            where: {
+              roomId: payload,
+            },
+          },
+        },
+      };
+      const { data: _chats } = await db.queryOnce(query);
+      _chats.messages.forEach((e: any) => {
+        del.push(db.tx.messages[e.id].delete());
+      });
+
+      if (del.length > 0) db.transact(del);
+    }
+  }, []);
+  useEvent("onChatCloseRoom", onChatCloseRoom);
+
   const { data: usersChat } = useAxios("users", "GET", {
     perPage: -1,
-    cols: "id,name",
+    cols: "id,name,middle_name,last_name,mother_last_name",
   });
 
   const { user: me, peers, publishPresence } = db.rooms.usePresence(room);
@@ -84,7 +109,10 @@ const useInstandDB = (): useInstantDbType => {
   };
 
   useEffect(() => {
-    if (!token) connectDB();
+    if (!token && !initToken) {
+      initToken = true;
+      connectDB();
+    }
     return () => {
       publishPresence(undefined);
     };
@@ -189,36 +217,23 @@ const useInstandDB = (): useInstantDbType => {
     async (text: string, roomId: string, file?: File) => {
       if (text.trim()) {
         const _id = id();
-        await db.transact(
-          db.tx.messages[_id].update({
-            text,
-            sender: user.id,
-            roomId,
-            timestamp: Date.now(),
-          })
-        );
+        const now = Date.now();
+        const msg = {
+          text,
+          sender: user.id,
+          roomId,
+          created_at: now,
+        };
+        await db.transact(db.tx.messages[_id].update(msg));
         if (file) {
           await uploadImageInstantDB(file, roomId, _id);
         }
-
-        if (roomId.indexOf("chatBot") > -1) {
-          await db.transact(
-            db.tx.chatbot[id()].update({
-              text,
-              sender: user.id,
-              roomId,
-              msgId: _id,
-              created_at: Date.now(),
-              status: "N",
-            })
-          );
-        }
-
+        sendMsgEvent({ ...msg, msgId: _id });
         return _id;
       }
       return false;
     },
-    [user?.id]
+    [sendMsgEvent, user.id]
   );
 
   const sendEmoticon: SendEmoticonType = useCallback(
@@ -233,7 +248,7 @@ const useInstandDB = (): useInstantDbType => {
       }
       return false;
     },
-    [user?.id]
+    []
   );
 
   const getNameRoom = useCallback(
@@ -248,21 +263,11 @@ const useInstandDB = (): useInstantDbType => {
   );
 
   const getChats = () => chats;
-  const closeRoom = (roomIdDel: any) => {
+  const closeRoom = useCallback((roomIdDel: any) => {
     setRooms(rooms.filter((r: any) => r.value != roomIdDel));
-    //if chatBot
-    // console.log("eliminar room", roomIdDel);
-    if (roomIdDel.indexOf("chatBot") > -1) {
-      const del: any[] = [];
-      const _chats = getChats();
-      _chats.messages.forEach((e: any) => {
-        // console.log("seborrara", e.id);
-        del.push(db.tx.messages[e.id].delete());
-      });
-
-      if (del.length > 0) db.transact(del);
-    }
-  };
+    closeRoomEvent(roomIdDel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const openNewChat = useCallback(
     (userAppId: string, name: string) => {
@@ -283,6 +288,7 @@ const useInstandDB = (): useInstantDbType => {
           { value: newRoomId, text: name, closeRoom: _name },
         ]);
       }
+      newRoomEvent(newRoomId);
       return newRoomId;
     },
     [rooms, getNameRoom, closeRoom]
@@ -300,11 +306,11 @@ const useInstandDB = (): useInstantDbType => {
       user,
       usersChat: [
         ...(usersChat?.data || []),
-        { id: "chatBot", name: "FOSito" },
+        { id: "chatBot", name: "Soporte" },
       ],
       uniquePresence: [
         ...(uniquePresence || []),
-        { name: "FOSito", userapp_id: "chatBot", peerId: "chatBot" },
+        { name: "Soporte", userapp_id: "chatBot", peerId: "chatBot" },
       ],
       rooms,
       me,
@@ -313,7 +319,6 @@ const useInstandDB = (): useInstantDbType => {
       roomGral,
       showToast,
       typing,
-      // bot,
     }),
     [
       getNameRoom,
@@ -332,7 +337,6 @@ const useInstandDB = (): useInstantDbType => {
       error,
       showToast,
       typing,
-      // bot,
     ]
   );
 

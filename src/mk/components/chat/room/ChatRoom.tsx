@@ -27,7 +27,6 @@ type ChatRoomPropsType = {
   chats: any;
   typing: any;
   readMessage: Function;
-  // bot?: any;
 };
 
 const ChatRoom = ({
@@ -40,8 +39,7 @@ const ChatRoom = ({
   chats,
   typing,
   readMessage,
-}: // bot,
-ChatRoomPropsType) => {
+}: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
 
   const cancelUpload = () => {
@@ -180,7 +178,7 @@ ChatRoomPropsType) => {
       )}
       <div className={styles.chatContainer} ref={chatRef}>
         {messages?.map((msg: any, i: number) => {
-          const date = getDateStr(new Date(msg.timestamp).toISOString());
+          const date = getDateStr(new Date(msg.created_at).toISOString());
           renderDate = false;
           if (oldDate != date) {
             oldDate = date;
@@ -190,7 +188,7 @@ ChatRoomPropsType) => {
             <Fragment key={i + msg.sender}>
               {renderDate && (
                 <div className={styles.dateMarker}>
-                  {getDateStr(new Date(msg.timestamp).toISOString())}
+                  {getDateStr(new Date(msg.created_at).toISOString())}
                 </div>
               )}
               <div
@@ -240,7 +238,7 @@ ChatRoomPropsType) => {
                     )}
                     {msg.text}
                     <div className={styles.messageHour}>
-                      {getTimePMAM(msg.timestamp)}{" "}
+                      {getTimePMAM(msg.created_at)}{" "}
                       {msg.sender === user.id && !msg.received_at && (
                         <IconCheck size={12} />
                       )}

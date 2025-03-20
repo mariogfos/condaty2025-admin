@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./layout.module.css";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -30,10 +30,13 @@ const Layout = ({ children }: any) => {
     }
   }, [user]);
 
-  useEvent("onNewNotif", (e: any) => {
-    showToast(e.payload.title, "info");
+  const onNotif = useCallback((e: any) => {
+    showToast(e.payload?.title, "info");
     console.log("*******1111******", e);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEvent("onNotif", onNotif);
 
   const layoutClassName = `${styles.layout} ${
     isDesktop && !sideMenuOpen ? styles.layoutExpanded : ""

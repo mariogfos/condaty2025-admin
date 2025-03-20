@@ -6,8 +6,11 @@ interface AppEvent<PayloadType = unknown> extends Event {
 
 export interface CustomWindowEventMap extends WindowEventMap {
   /* Custom Event */
-  onNewNotif: AppEvent<string>;
-  onNewChatMsg: AppEvent<string>;
+  onNotif: AppEvent<string>;
+  onChatNewMsg: AppEvent<string>;
+  onChatSendMsg: AppEvent<string>;
+  onChatNewRoom: AppEvent<string>;
+  onChatCloseRoom: AppEvent<string>;
 }
 
 export const useEvent = <PayloadType = unknown,>(
@@ -22,7 +25,6 @@ export const useEvent = <PayloadType = unknown,>(
     const listener = ((event: AppEvent<PayloadType>) => {
       callback(event.detail); // Use `event.detail` for custom payloads
     }) as EventListener;
-
     window.addEventListener(eventName, listener);
     return () => {
       window.removeEventListener(eventName, listener);
@@ -36,8 +38,6 @@ export const useEvent = <PayloadType = unknown,>(
     },
     [eventName]
   );
-
-  // Return a function to dispatch the event
   return { dispatch };
 };
 

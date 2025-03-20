@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { ChatCompletionMessageParam, MLCEngine } from "@mlc-ai/web-llm";
 import { initSocket } from "../provider/useInstandDB";
 import { id } from "@instantdb/react";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const db: any = initSocket();
 const userBot = "chatBot";
@@ -14,65 +15,91 @@ const _context: ChatCompletionMessageParam[] = [
   {
     role: "system",
     content:
-      "Eres un asistente de la App CONDATY, que es una plataforma de administracion de condominios, hablas en español, eres una mujer, llamada FOSito",
+      "Eres un asistente de soporte para la App CONDATY, que es una plataforma de administracion de condominios, hablas en español, eres una mujer, llamada CONDATITA",
   },
 ];
 
 const useChatBotLLM = () => {
-  const [model, setModel] = useState<any>(null);
   const [engine, setEngine] = useState<any>(null);
-  // const [botStatus, setBotStatus]: any = useState(null);
+  const [progress, setProgress] = useState<any>(null);
 
-  const initProgressCallback = (initProgress: any) => {
-    console.log(initProgress);
-    // if (initProgress.progress == 1) setBotStatus(initProgress);
-  };
+  // const onChatCloseRoom = useCallback(async (payload: any) => {
+  //   if (payload.indexOf("chatBot") > -1) {
+  //     const del: any[] = [];
+  //     const query = {
+  //       messages: {
+  //         $: {
+  //           where: {
+  //             roomId: payload,
+  //           },
+  //         },
+  //       },
+  //     };
+  //     const { data: _chats } = await db.queryOnce(query);
+  //     _chats.messages.forEach((e: any) => {
+  //       del.push(db.tx.messages[e.id].delete());
+  //     });
 
-  const initBot = async () => {
-    const _engine = new MLCEngine({ initProgressCallback });
-    if (!model) {
-      const m = await _engine.reload(selectedModel);
-      setModel(true);
+  //     if (del.length > 0) db.transact(del);
+  //   }
+  // }, []);
+
+  const onChatSendMsg = useCallback(async (payload: any) => {
+    if (payload?.roomId.indexOf("chatBot") > -1) {
+      await db.transact(
+        db.tx.chatbot[id()].update({ ...payload, status: "N" })
+      );
     }
-    setEngine((old: any) => _engine);
-  };
-
-  useEffect(() => {
-    initBot();
   }, []);
 
-  // useEffect(() => {
-  //   console.log("effect engine", engine);
-  // }, [engine]);
+  useEvent("onChatSendMsg", onChatSendMsg);
+  // useEvent("onChatCloseRoom", onChatCloseRoom);
 
-  const sendMessageBot = async (
-    input: string,
-    engine: MLCEngine,
-    _messages?: ChatCompletionMessageParam[]
-  ) => {
-    if (!engine || input.trim() === "") {
-      // console.log("engine", input, engine);
-      return "No se pudo responder tu consulta... intenta en 1 minuto";
+  const initProgressCallback = (initProgress: any) => {
+    // console.log(initProgress);
+
+    // if (progress === null) setProgress(() => 0);
+    setProgress(() => initProgress);
+    if (initProgress?.progress === 1) {
+      setProgress(() => 1);
     }
-
-    const userMessage: ChatCompletionMessageParam = {
-      role: "user",
-      content: input,
-    };
-
-    const reply = await engine.chat.completions.create({
-      model: selectedModel,
-      temperature: 1,
-      messages: [...(_messages || []), userMessage],
-    });
-    // setMessages([
-    //   ...(_messages || messages),
-    //   userMessage,
-    //   reply.choices[0].message,
-    // ]);
-    // // setInput("");
-    return reply.choices[0].message.content;
   };
+
+  const initBot = useCallback(async () => {
+    const _engine = new MLCEngine({ initProgressCallback });
+    await _engine.reload(selectedModel);
+    setEngine(() => _engine);
+  }, []);
+
+  useEffect(() => {
+    console.log("useeffect useCHatBotLLM");
+    initBot();
+  }, [initBot]);
+
+  const sendMessageBot = useCallback(
+    async (
+      input: string,
+      engine: MLCEngine,
+      _messages?: ChatCompletionMessageParam[]
+    ) => {
+      if (!engine || input.trim() === "") {
+        return "No se pudo responder tu consulta... intenta en 1 minuto";
+      }
+
+      const userMessage: ChatCompletionMessageParam = {
+        role: "user",
+        content: input,
+      };
+
+      const reply = await engine.chat.completions.create({
+        model: selectedModel,
+        temperature: 1,
+        messages: [...(_messages || []), userMessage],
+      });
+      return reply.choices[0].message.content;
+    },
+    []
+  );
 
   // instantDb
   const query = {
@@ -89,7 +116,7 @@ const useChatBotLLM = () => {
     },
   };
 
-  const { isLoading, error, data } = db.useQuery(query);
+  const { data } = db.useQuery(query);
 
   const getRoomName = (userAppId: string) => {
     let newRoomId = userBot + "--" + userAppId;
@@ -103,7 +130,6 @@ const useChatBotLLM = () => {
   const sendReply = async (msg: any) => {
     if (lastMessage === msg.id) return;
     lastMessage = msg.id;
-    // const msg=data?.chatbot[0];
     await db.transact([
       db.tx.messages[msg.msgId].update({
         received_at: Date.now(),
@@ -136,7 +162,7 @@ const useChatBotLLM = () => {
         text: reply,
         sender: userBot,
         roomId,
-        timestamp: Date.now(),
+        created_at: Date.now(),
       }),
       db.tx.chatbot[msg.id].update({
         status: "R",
@@ -147,13 +173,12 @@ const useChatBotLLM = () => {
       }),
     ]);
   };
+
   const [lastMsg, setLastMsg] = useState("");
   useEffect(() => {
-    // console.log("useeffect chat", data);
     if (data?.chatbot && data?.chatbot.length > 0) {
       if (lastMsg == data?.chatbot[0].id) return;
       setLastMsg(data?.chatbot[0].id);
-      // console.log("useeffect chat procesar", data?.chatbot[0]);
       sendReply(data?.chatbot[0]);
     }
   }, [data?.chatbot]);
@@ -163,8 +188,9 @@ const useChatBotLLM = () => {
       sendMessageBot,
       engine,
       initBot,
+      progress,
     }),
-    [sendMessageBot, engine, initBot]
+    [sendMessageBot, engine, initBot, progress]
   );
   return result;
 };

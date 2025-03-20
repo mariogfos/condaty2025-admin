@@ -1,4 +1,3 @@
-
 "use client";
 import styles from "./Users.module.css";
 import RenderItem from "../shared/RenderItem";
@@ -15,8 +14,6 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-
-
 
 const paramsInitial = {
   perPage: 10,
@@ -52,9 +49,7 @@ const Users = () => {
     // }) => <RenderForm {...props} />,
     extraData: true,
     // hideActions: { add: true },
-   
   };
-
 
   const fields = useMemo(() => {
     return {
@@ -122,39 +117,45 @@ const Users = () => {
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
-        form:{type:"number" ,label:"Cédula de identidad",
-          onRender:(props:any)=>{
+        form: {
+          type: "number",
+          label: "Cédula de identidad",
+          onRender: (props: any) => {
             // console.log(props,'propsval')
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
-                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+                  <div>
+                    Ingrese el número de carnet y haga click fuera del campo
+                    para que el sistema busque automáticamente al administrador
+                    si el carnet no existe ,continúa con el proceso de registro
                   </div>
-
                 </div>
-          <div>
-          <Input 
-            name="ci"
-            value={props?.item?.ci}
-            onChange={props.onChange}
-            label="Carnet de Identidad"
-            error={props.error}
-            disabled={props?.field?.action === 'edit'}
-          />
-         { props?.field?.action === 'add' && (
-            <InputPassword 
-            name="password"
-            value={props?.item?.password}
-            onChange={props.onChange}
-            label="Contraseña"
-            error={props.error}
-          />)}
-          </div>
-          </fieldset>)}
+                <div>
+                  <Input
+                    name="ci"
+                    value={props?.item?.ci}
+                    onChange={props.onChange}
+                    label="Carnet de Identidad"
+                    error={props.error}
+                    disabled={props?.field?.action === "edit"}
+                  />
+                  {props?.field?.action === "add" && (
+                    <InputPassword
+                      name="password"
+                      value={props?.item?.password}
+                      onChange={props.onChange}
+                      label="Contraseña"
+                      error={props.error}
+                    />
+                  )}
+                </div>
+              </fieldset>
+            );
+          },
         },
-        
+
         list: { width: "120px" },
       },
       name: {
@@ -163,33 +164,30 @@ const Users = () => {
         label: "Primer nombre",
         form: {
           type: "text",
-          style:{width:"49%"}
-        
+          style: { width: "49%" },
         },
-       
+
         list: false,
       },
       middle_name: {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text" ,
-          style:{maxWidth:"49%"}
-        },
+        form: { type: "text", style: { maxWidth: "49%" } },
         list: false,
       },
       last_name: {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text",style:{width:"49%"} },
+        form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style:{width:"49%"} },
+        form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       role_id: {
@@ -200,14 +198,23 @@ const Users = () => {
           type: "select",
           optionsExtra: "roles",
           optionLabel: "description",
-          optionValue:"id",
-          
+          optionValue: "id",
         },
-        
-         list: { width: "150px",
-             onRender:(props:any)=>{ 
-               return <div>{props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description}</div>}
+
+        list: {
+          width: "150px",
+          onRender: (props: any) => {
+            return (
+              <div>
+                {
+                  props?.extraData?.roles.find(
+                    (i: any) => i.id === props.item.role_id
+                  )?.description
+                }
+              </div>
+            );
           },
+        },
         // filter: {
         //   label: "Filtrar por Rol",
         //   width: "200px",
@@ -232,12 +239,11 @@ const Users = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-    
         },
         list: { width: "190px" },
       },
       // rep_email: {
-   
+
       //   api: "",
       //   label: "Repita el correo electrónico",
       //   form: { type: "text" },
@@ -251,8 +257,11 @@ const Users = () => {
         form: {
           type: "text",
         },
-        list: { width: "200px" ,
-        onRender:(props:any)=>{console.log(props,'props address'); return <div>{ props?.item?.address || 'Sin domicilio' }</div>}
+        list: {
+          width: "200px",
+          onRender: (props: any) => (
+            <div>{props?.item?.address || "Sin domicilio"}</div>
+          ),
         },
       },
       phone: {
