@@ -208,7 +208,8 @@ const onConfirm = async (rechazado = true) => {
       onClick={() => {
         window.open(
           getUrlImages(
-            "/DOC-" +
+            //marcelo fixed
+            "/PAYMENT-" +
               item.id +
               "." +
               item.ext +
