@@ -141,8 +141,8 @@ export default function ChatInstantDb() {
     <div
       className={
         open
-          ? styles.chatContainer
-          : styles.chatContainer + " close " + styles.close
+          ? styles.chatContainer + " close " + styles.close
+          : styles.chatContainer
       }
     >
       <div
@@ -243,7 +243,7 @@ export default function ChatInstantDb() {
 
       <div style={{ color: "white" }}>
         {botActive && <ChatBotLLm />}
-        {/* {JSON.stringify(usersChat)} */}
+        {/* {JSON.stringify(user)} */}
       </div>
     </div>
   );

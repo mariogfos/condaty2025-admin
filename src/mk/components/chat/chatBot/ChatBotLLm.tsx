@@ -5,8 +5,7 @@ const ChatBotLLm = () => {
   const getBotStatus = () => {
     if (progress === null) return "No Activo!";
     if (progress === 1) return "Activado.";
-    return JSON.stringify(progress);
-    return "Activandose...";
+    return progress?.text;
   };
 
   return <div>Chat Bot: {getBotStatus()}</div>;

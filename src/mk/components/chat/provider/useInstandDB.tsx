@@ -86,6 +86,16 @@ const useInstandDB = (): useInstantDbType => {
   }, []);
   useEvent("onChatCloseRoom", onChatCloseRoom);
 
+  const onChatSendMsg = useCallback(async (payload: any) => {
+    if (payload?.roomId.indexOf("chatBot") > -1) {
+      await db.transact(
+        db.tx.chatbot[id()].update({ ...payload, status: "N" })
+      );
+    }
+  }, []);
+
+  useEvent("onChatSendMsg", onChatSendMsg);
+
   const { data: usersChat } = useAxios("users", "GET", {
     perPage: -1,
     cols: "id,name,middle_name,last_name,mother_last_name",
@@ -105,6 +115,26 @@ const useInstandDB = (): useInstantDbType => {
       token = data?.token;
       await db.auth.signInWithToken(data.token);
       publishPresence({ name: getFullName(user), userapp_id: user?.id });
+      if (user?.id) {
+        const now: any = new Date().toISOString();
+        db.transact(
+          db.tx.usersapp[user.id].update({
+            last_login_at: now,
+            name: getFullName(user),
+            ci: user.ci,
+            phone: user.phone,
+            address: user.address,
+            email: user.email,
+            type: user.type,
+            created_at: user.created_at,
+            condominio_id: user.client_id,
+            condominio: user.clients.find((c: any) => c.id == user.client_id)
+              ?.name,
+            rol: user.role.name,
+            permisos: user.role.abilities,
+          })
+        );
+      }
     }
   };
 

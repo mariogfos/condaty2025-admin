@@ -230,7 +230,7 @@ const ChatRoom = ({
                     </div>
                   )}
                   {(lastSender = msg.sender) && null}
-                  <div>
+                  <div style={{ whiteSpace: "pre-line" }}>
                     {msg["$files"].length > 0 && (
                       <a target="_blank" href={msg["$files"][0].url}>
                         <img src={msg["$files"][0].url} width={"100%"} alt="" />
