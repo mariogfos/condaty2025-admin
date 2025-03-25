@@ -59,7 +59,7 @@ const useNotifInstandDB = (
   const { isLoading, error, data } = db.useQuery(query);
 
   const [lastNotif, setLastNotif] = useState(null);
-  const { dispatch } = useEvent("onNewNotif");
+  const { dispatch } = useEvent("onNotif");
   useEffect(() => {
     if (data?.notif?.length > 0) {
       // if (lastNotif && lastNotif < data?.notif?.length) {
