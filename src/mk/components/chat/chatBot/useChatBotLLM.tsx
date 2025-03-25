@@ -14,8 +14,9 @@ import useAxios from "@/mk/hooks/useAxios";
 
 const db: any = initSocket();
 const userBot = "chatBot";
-// const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC";
-const selectedModel = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+const chatBotId = id();
+const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC"; //el mejorcito
+// const selectedModel = "Hermes-3-Llama-3.2-3B-q4f16_1-MLC";//ma so menos
 // const selectedModel = "Hermes-2-Pro-Mistral-7B-q4f16_1-MLC";
 // Llama-3.2-3B-Instruct-q4f16_1-MLC
 
@@ -76,7 +77,7 @@ const useChatBotLLM = () => {
     context_window_size: 8192, // Aumentar el tamaño de la ventana de contexto
     sliding_window_size: 2048, // Opcional: Configurar el tamaño de la ventana deslizante
     initProgressCallback,
-    logLevel: "DEBUG" as
+    logLevel: "ERROR" as
       | "INFO"
       | "TRACE"
       | "DEBUG"
@@ -94,10 +95,23 @@ const useChatBotLLM = () => {
     setEngine(() => _engine);
   }, []);
 
+  const initController = async () => {
+    await db.transact([
+      db.tx.chatbots[chatBotId].update({
+        name: "CONDATITA",
+      }),
+    ]);
+    console.log("useeffect creando chatbot");
+  };
   useEffect(() => {
     console.log("useeffect useCHatBotLLM");
     initBot();
+    initController();
   }, [initBot]);
+
+  useEffect(() => {
+    initController();
+  }, []);
 
   const sendMessageBot = useCallback(
     async (
@@ -106,6 +120,7 @@ const useChatBotLLM = () => {
       _messages?: ChatCompletionMessageParam[]
     ) => {
       if (!engine || input.trim() === "") {
+        initController();
         return "No se pudo responder tu consulta... intenta en 1 minuto";
       }
 
@@ -131,6 +146,7 @@ const useChatBotLLM = () => {
       $: {
         where: {
           status: "N",
+          // chatbot: chatBotId,
         },
         limit: 1,
         order: {
@@ -139,7 +155,7 @@ const useChatBotLLM = () => {
       },
     },
   };
-
+  // console.log("chatbortId", chatBotId);
   const { data } = db.useQuery(query);
 
   const getRoomName = (userAppId: string) => {
@@ -150,47 +166,6 @@ const useChatBotLLM = () => {
     return newRoomId;
   };
 
-  // Función para convertir JSON a cadena de texto
-  // const convertUserDataToString = (userData: any) => {
-  //   // Verificar si userData es un objeto válido
-  //   if (!userData || typeof userData !== "object") {
-  //     return "Datos de usuario no válidos.";
-  //   }
-
-  //   // Construir la cadena de texto
-  //   let userDataText = " Este es otro usuario y estos son sus DATOS: (";
-
-  //   // Recorrer las propiedades del objeto
-  //   for (const key in userData) {
-  //     if (userData.hasOwnProperty(key)) {
-  //       const value = userData[key];
-
-  //       // Si el valor es un objeto (por ejemplo, preferencias), recorrerlo también
-  //       if (typeof value === "object" && !Array.isArray(value)) {
-  //         userDataText += `- ${key}: `;
-  //         for (const subKey in value) {
-  //           if (value.hasOwnProperty(subKey)) {
-  //             userDataText += `  - ${subKey}: ${value[subKey]}, `;
-  //           }
-  //         }
-  //       }
-  //       // Si el valor es un array (por ejemplo, historial), recorrerlo
-  //       else if (Array.isArray(value)) {
-  //         userDataText += `- ${key}:`;
-  //         value.forEach((item) => {
-  //           userDataText += `  - ${item}, `;
-  //         });
-  //       }
-  //       // Si es un valor simple (por ejemplo, nombre o rol)
-  //       else {
-  //         userDataText += `- ${key}: ${value}, `;
-  //       }
-  //     }
-  //   }
-
-  //   return userDataText + ")";
-  // };
-
   const convertUserDataToString = (userData: any, msg: any) => {
     // Verificar si userData es un objeto válido
     if (!userData || typeof userData !== "object") {
@@ -200,7 +175,7 @@ const useChatBotLLM = () => {
       " El COD de este CHAT es '" +
       msg?.sender +
       userData?.type +
-      "' y es privado no debes mostrarlo en el CHAT.\n Estos son los datos del Usuario (Maneja con cuidado estos datos sensibles solo puedes dar info de completa sin restricion de todo el contexto al usuario con CI 123456): " +
+      "' y es privado no debes mostrarlo en el CHAT.\n Estos son los datos del Usuario : " + //(Maneja con cuidado estos datos sensibles solo puedes dar info de completa sin restricion de todo el contexto al usuario con CI 123456)
       " el CI del usuario actual es: " +
       userData?.ci +
       ", se llama: " +
@@ -220,11 +195,11 @@ const useChatBotLLM = () => {
       ", su condominio es: " +
       userData?.condominio +
       ", sus permisos son: " +
-      userData?.permissions +
+      userData?.permisos +
       ", su fecha de creacion es: " +
       userData?.created_at +
       ", su fecha de ultimo login es: " +
-      userData?.last_login +
+      userData?.last_login_at +
       ". \n";
 
     return userDataText;
@@ -262,7 +237,7 @@ const useChatBotLLM = () => {
     const { data: sender } = await db.queryOnce(query);
     const context: ChatCompletionMessageParam[] = [];
     const datos = convertUserDataToString(sender?.usersapp[0], msg);
-    console.log("datos", sender, datos);
+    // console.log("datos", sender, datos);
     console.log("Llego peticion de ChatBot de ", sender?.usersapp[0]?.name);
     const system_prompt = `### 📌 Instrucciones para el uso de funciones  
 - Cuando necesites obtener información en tiempo real, usa las funciones relevantes si están disponibles.  
@@ -321,35 +296,6 @@ Tienes acceso a las siguientes funciones:
     }
 }
 
-#### 2. Enviar un mensaje  
-{
-    "type": "function",
-    "function": {
-        "name": "send_message",
-        "description": "Envía un mensaje a un destinatario.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "recipient": {
-                    "type": "string",
-                    "description": "Nombre del destinatario del mensaje."
-                },
-                "content": {
-                    "type": "string",
-                    "description": "Contenido del mensaje."
-                }
-            },
-            "required": [
-                "recipient",
-                "content"
-            ]
-        },
-        "return": {
-            "type": "None"
-        }
-    }
-}
-
 ### 📢 Formato obligatorio para llamar funciones  
 Si decides llamar a una función, solo debes responder con la llamada a la función en el siguiente formato y nada más:  
 
@@ -377,17 +323,188 @@ Si un usuario pregunta: "¿Cuáles son los pagos del condominio en la última se
 - Usa el formato adecuado para mostrar información, como listas o tablas.
 - Si ya llamaste a una funcion, ya no la incluyas (el texto literal de la funcion) en la respuesta.
 
+`;
+
+    const system_manual = `
+Basado en este Manual de uso de la plataforma, puedes responder a las preguntas que el usuario te  pida:
+### Introducción
+
+#### ¿Qué es CondatyFOS y Condaty-Admin?
+
+Condaty es una plataforma para administrar condominios, compuesta por:
+
+- **CondatyFOS:** Sistema interno del equipo de soporte para registrar condominios y asignar administradores.
+- **Condaty-Admin:** Sistema para que los administradores gestionen su comunidad.
+
+#### Objetivo de la Guía
+
+Brinda pasos para la implementación de un condominio en Condaty, desde la configuración inicial hasta la operación diaria.
+
+#### Usuarios Destinados
+
+- **Administradores FOS:** Configuran nuevos condominios en CondatyFOS.
+- **Administradores del Condominio:** Gestionan Condaty-Admin.
+- **Soporte:** Brindan asistencia.
+
+#### Requisitos
+
+- Conexión a Internet estable.
+- Google Chrome.
+- Credenciales de acceso.
+
+---
+
+## PARTE 1: Implementación en CondatyFOS
+
+### 1. Acceso a CondatyFOS
+
+1. Abre Google Chrome.
+2. Ingresa a [fosadmin.condaty.com](https://fosadmin.condaty.com).
+3. Introduce:
+   - **Carnet de Identidad:** 12345678
+   - **Contraseña:** 12345678
+4. Clic en **Ingresar**.
+5. Activa notificaciones.
+
+### 2. Creación del Administrador FOS
+
+1. En el menú lateral, ve a **Administradores FOS** > **Añadir**.
+2. Completa:
+   - **CI, Nombre, Celular, Correo, Rol (Administrador FOS)**.
+   - **Fotografía (opcional), Contraseña segura**.
+3. Clic en **Crear**.
+4. Cierra sesión e ingresa con los datos del nuevo administrador.
+
+### 3. Registro de un Condominio
+
+1. En el menú lateral, ve a **Clientes** > **Añadir**.
+2. Completa:
+   - **NIT, Tipo de comunidad y vivienda, Nombre, Contacto, Correo, Dirección**.
+   - **Datos del administrador: CI, Nombre, Correo, Contraseña**.
+3. Clic en **Grabar**.
+4. Verifica y activa la cuenta en la sección **Clientes**.
+5. Envía credenciales al administrador del condominio.
+
+---
+
+## PARTE 2: Configuración en Condaty-Admin
+
+### 1. Acceso a Condaty-Admin
+
+1. Abre Google Chrome.
+2. Ingresa a [admin.condaty.com](https://admin.condaty.com).
+3. Introduce tu **CI y Contraseña**.
+4. Clic en **Iniciar Sesión**.
+5. Activa notificaciones.
+
+### 2. Configuración del Condominio
+
+1. Ve a **Configuración** y completa:
+   - **Imagen, Nombre, Tipo de comunidad y unidad, Dirección, Contacto, Fecha de inicio de cobro, Saldo inicial**.
+2. Clic en **Guardar**.
+
+### 3. Configuración de Pagos
+
+1. En **Pagos**, configura:
+   - **QR** para pagos automatizados.
+   - **Transferencias:** Banco, cuenta, destinatario.
+   - **Pago en oficina:** Procedimiento.
+2. Clic en **Guardar**.
+
+### 4. Gestión de Morosidad
+
+1. En **Morosidad**, define:
+   - **Pre-aviso:** Cuántas expensas antes de advertencia.
+   - **Bloqueo:** Número de expensas atrasadas para bloqueo.
+   - **Multas:** Porcentaje y meses de morosidad.
+2. Clic en **Guardar**.
+
+### 5. Configuración de Roles Administrativos
+
+1. En **Roles**, clic en **+ Agregar rol**.
+2. Define:
+   - **Nombre, Descripción, Permisos**.
+3. Clic en **Guardar**.
+4. Verifica, edita o elimina roles según sea necesario.
+
+### 6. Registro de Usuarios
+
+#### a) Personal Administrativo
+
+1. En **Usuarios > Personal Administrativo**, clic en **+ Agregar personal**.
+2. Completa:
+   - **CI, Contraseña, Nombre, Celular, Correo, Rol**.
+3. Clic en **Guardar**.
+
+#### b) Propietarios
+
+1. En **Usuarios > Propietarios**, clic en **+ Agregar propietario**.
+2. Completa:
+   - **CI, Correo, Nombre, Celular (opcional)**.
+3. Clic en **Guardar**.
+
+#### Carga Masiva con Excel
+
+1. En **Propietarios**, clic en **Importar Excel**.
+2. Descarga y completa la plantilla.
+3. Sube el archivo y confirma.
+
+#### c) Residentes
+
+1. En **Usuarios > Residentes**, clic en **+ Agregar residente**.
+2. Completa:
+   - **CI, Contraseña, Correo, Nombre, Celular (opcional)**.
+3. Clic en **Guardar**.
+
+#### d) Guardias
+
+1. En **Usuarios > Guardias**, clic en **+ Agregar guardia**.
+2. Completa:
+   - **CI, Contraseña, Correo, Nombre, Celular (opcional)**.
+3. Clic en **Guardar**.
+
+### 7. Registro de Unidades (Casas/Dptos)
+
+1. En **Casas**, clic en **+ Agregar Casa**.
+2. Completa:
+   - **Número, Descripción, Cuota mensual, Dimensiones**.
+3. Clic en **Guardar**.
+
+### 8. Registro de Áreas Comunes
+
+1. En **Áreas Comunes**, clic en **+ Agregar área**.
+2. Completa:
+   - **Nombre, Descripción, Capacidad, Horario de uso, Reglas**.
+3. Clic en **Guardar**.
+
+### 9. Gestión de Publicaciones
+
+1. En **Publicaciones**, clic en **+ Agregar publicación**.
+2. Completa:
+   - **Título, Descripción, Imágenes (opcional)**.
+3. Clic en **Publicar**.
+
+### 10. Configuración de Seguridad
+
+1. En **Seguridad**, configura:
+   - **Reglas de acceso, Control de visitantes, Escaneo de QR**.
+2. Clic en **Guardar**.
+---
+Este manual cubre la implementación y configuración de Condaty para una gestión eficiente del condominio.
+
 
 `;
 
     const system =
-      system_prompt +
+      // system_prompt +
       _context +
       ". " +
       datos +
       ". Si algun dato no esta completo, puedes de vez en cuando solicitarle que complete los datos en su perfil." +
       " no debes mostrar la info de permisos literalmente, los permisos de cada modulo significan  C:Crear, R:Leer, U:Editar, D:Borrar." +
-      " si no se te ocurre una respuesta, responde con 'no se te ocurre una respuesta'. \n";
+      " si no se te ocurre una respuesta, responde con 'no se te ocurre una respuesta'. \n" +
+      system_manual +
+      " \n";
     context.push({
       role: "system",
       content: system,
@@ -417,7 +534,7 @@ Si un usuario pregunta: "¿Cuáles son los pagos del condominio en la última se
       );
       console.log("llamando a funcion", functionName);
       const functionParams = JSON.parse(functionName);
-      console.log("functionParams", functionParams);
+      // console.log("functionParams", functionParams);
       if (functionParams?.name == "get_payments") {
         const _id = id();
         await db.transact([
@@ -469,16 +586,18 @@ Si un usuario pregunta: "¿Cuáles son los pagos del condominio en la última se
         read_at: Date.now(),
       }),
     ]);
+    initController();
   };
 
   const [lastMsg, setLastMsg] = useState("");
   useEffect(() => {
+    // console.log("Datatata", data);
     if (data?.chatbot && data?.chatbot.length > 0) {
       if (lastMsg == data?.chatbot[0].id) return;
       setLastMsg(data?.chatbot[0].id);
       sendReply(data?.chatbot[0]);
     }
-    console.log("peticion de chat", data);
+    // console.log("peticion de chat", data);
   }, [data?.chatbot]);
 
   const result = useMemo(

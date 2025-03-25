@@ -8,6 +8,7 @@ import useInstandDB from "./provider/useInstandDB";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ChatBotLLm from "./chatBot/ChatBotLLm";
 import { getFullName } from "@/mk/utils/string";
+import ChatBotLLmCont from "./chatBot/ChatBotLLmCont";
 
 export default function ChatInstantDb() {
   const {
@@ -128,10 +129,15 @@ export default function ChatInstantDb() {
   }, [countMsg, rooms]);
 
   const [botActive, setBotActive] = useState(false);
+  const [botActiveController, setBotActiveController] = useState(false);
   const _sendMsg = async (text: string, roomId: string, file?: File) => {
     if (roomId.indexOf("chatBot") > -1) {
       if (text == "_activate_") {
         setBotActive(true);
+        return;
+      }
+      if (text == "_controller_") {
+        setBotActiveController(true);
         return;
       }
     }
@@ -243,7 +249,8 @@ export default function ChatInstantDb() {
 
       <div style={{ color: "white" }}>
         {botActive && <ChatBotLLm />}
-        {/* {JSON.stringify(user)} */}
+        {/* {botActiveController && <ChatBotLLmCont />} */}
+        {/* {JSON.stringify(db)} */}
       </div>
     </div>
   );
