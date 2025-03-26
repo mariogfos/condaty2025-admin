@@ -98,7 +98,7 @@ const useInstandDB = (): useInstantDbType => {
 
   const { data: usersChat, reLoad } = useAxios("users", "GET", {
     perPage: -1,
-    cols: "id,name,middle_name,last_name,mother_last_name",
+    cols: "id,name,middle_name,last_name,mother_last_name,updated_at",
   });
 
   const onNotif = useCallback((e: any) => {

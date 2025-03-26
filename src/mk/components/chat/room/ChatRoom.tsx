@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./chatroom.module.css";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStr, getTimePMAM } from "@/mk/utils/date1";
 import {
   IconCheck,
@@ -9,8 +9,9 @@ import {
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
-import { Avatar } from "../../ui/Avatar/Avatar";
+
 import EmojiPicker from "emoji-picker-react";
+import { Avatar } from "../../ui/Avatar/Avatar";
 
 interface SelectedFile {
   file: File;
@@ -74,8 +75,10 @@ const ChatRoom = ({
 
   // Auto-scroll al último mensaje
   const chatRef = useRef<HTMLDivElement>(null);
+  let ultSize = useRef<number>(0);
   useEffect(() => {
-    if (chatRef.current) {
+    if (ultSize.current != messages?.length && chatRef.current) {
+      ultSize.current = messages?.length;
       chatRef.current.scrollTo({
         top: chatRef.current.scrollHeight,
         behavior: "smooth",
@@ -178,6 +181,7 @@ const ChatRoom = ({
       )}
       <div className={styles.chatContainer} ref={chatRef}>
         {messages?.map((msg: any, i: number) => {
+          const userMsg = users?.find((e: any) => e.id === msg.sender);
           const date = getDateStr(new Date(msg.created_at).toISOString());
           renderDate = false;
           if (oldDate != date) {
@@ -205,12 +209,12 @@ const ChatRoom = ({
                 >
                   {msg.sender !== user.id && lastSender !== msg.sender ? (
                     <Avatar
+                      src={getUrlImages(
+                        "/ADM-" + userMsg?.id + ".webp?d=" + userMsg?.updated_at
+                      )}
                       w={32}
                       h={32}
-                      name={
-                        users?.find((e: any) => e.id === msg.sender)?.name ||
-                        getFullName(user)
-                      }
+                      name={userMsg?.name || getFullName(user)}
                     />
                   ) : null}
                 </div>
@@ -225,12 +229,16 @@ const ChatRoom = ({
                   )}
                   {msg.sender !== user.id && lastSender !== msg.sender && (
                     <div className={styles.messageUser}>
-                      {users?.find((e: any) => e.id === msg.sender)?.name ||
-                        getFullName(user)}
+                      {userMsg?.name || getFullName(user)}
                     </div>
                   )}
                   {(lastSender = msg.sender) && null}
-                  <div style={{ whiteSpace: "pre-line" }}>
+                  <div
+                    style={{
+                      whiteSpace: "pre-line",
+                      overflowWrap: "anywhere",
+                    }}
+                  >
                     {msg["$files"].length > 0 && (
                       <a target="_blank" href={msg["$files"][0].url}>
                         <img src={msg["$files"][0].url} width={"100%"} alt="" />
