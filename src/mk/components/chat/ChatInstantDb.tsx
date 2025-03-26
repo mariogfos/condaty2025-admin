@@ -1,15 +1,22 @@
 "use client";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import styles from "./chat.module.css";
-import { IconMessage } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconAlert,
+  IconBellAlert,
+  IconBellAlertOff,
+  IconMessage,
+} from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
 import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
-import { useEvent } from "@/mk/hooks/useEvents";
 import ChatBotLLm from "./chatBot/ChatBotLLm";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
 import Logo from "@/components/req/Logo";
+import { useEvent } from "@/mk/hooks/useEvents";
+
+const soundBell = new Audio("/sounds/bellding.mp3");
 
 export default function ChatInstantDb() {
   const {
@@ -31,6 +38,7 @@ export default function ChatInstantDb() {
   const [typeSearch, setTypeSearch]: any = useState(roomGral);
   const [_rooms, set_rooms] = useState([]);
   const { dispatch: newMsg } = useEvent("onChatNewMsg");
+  const [notifAudio, setNotifAudio] = useState(true);
 
   useEffect(() => {
     if (
@@ -87,6 +95,7 @@ export default function ChatInstantDb() {
         data: chats?.messages[chats?.messages?.length - 1],
         type: "newMsg",
       });
+      if (notifAudio) soundBell.play();
       showToast(
         <>
           <div>
@@ -144,6 +153,16 @@ export default function ChatInstantDb() {
     }
     return await sendMessage(text, roomId, file);
   };
+
+  const onNotif = useCallback((e: any) => {
+    if (notifAudio)
+      soundBell
+        .play()
+        .catch((err) => console.error("Error al reproducir el audio:", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEvent("onNotif", onNotif);
   return (
     <div
       className={
@@ -266,7 +285,36 @@ export default function ChatInstantDb() {
         })}
       </div>
 
-      <div style={{ color: "white" }}>
+      <div
+        style={{
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
+        Notificaciones audio:
+        {notifAudio ? (
+          <>
+            {" "}
+            Encendido
+            <IconBellAlert
+              color="var(--cPrimary)"
+              reverse
+              onClick={() => setNotifAudio(false)}
+            />
+          </>
+        ) : (
+          <>
+            {" "}
+            Apagado
+            <IconBellAlertOff
+              color="var(--cPrimary)"
+              reverse
+              onClick={() => setNotifAudio(true)}
+            />
+          </>
+        )}
         {botActive && <ChatBotLLm />}
         {/* {botActiveController && <ChatBotLLmCont />} */}
         {/* {JSON.stringify(db)} */}

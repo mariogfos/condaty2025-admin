@@ -13,6 +13,8 @@ import { getFormattedDate } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 
+// const soundBell = new Audio("/sounds/bellding.mp3");
+
 const Layout = ({ children }: any) => {
   const { user, logout, store, showToast } = useAuth();
   const { isTablet, isDesktop } = useScreenSize();
@@ -32,6 +34,10 @@ const Layout = ({ children }: any) => {
 
   const onNotif = useCallback((e: any) => {
     showToast(e.payload?.title, "info");
+    // soundBell
+    //   .play()
+    //   .catch((err) => console.error("Error al reproducir el audio:", err));
+
     console.log("*******1111******", e);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
