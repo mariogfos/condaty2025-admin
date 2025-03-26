@@ -315,6 +315,8 @@ export default function ChatInstantDb() {
             />
           </>
         )}
+      </div>
+      <div style={{ color: "white" }}>
         {botActive && <ChatBotLLm />}
         {/* {botActiveController && <ChatBotLLmCont />} */}
         {/* {JSON.stringify(db)} */}
