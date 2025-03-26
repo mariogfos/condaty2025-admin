@@ -7,7 +7,9 @@ import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ChatBotLLm from "./chatBot/ChatBotLLm";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "../ui/Avatar/Avatar";
+import Logo from "@/components/req/Logo";
 
 export default function ChatInstantDb() {
   const {
@@ -194,9 +196,32 @@ export default function ChatInstantDb() {
                     ? styles.onlineUser
                     : styles.offlineUser
                 }
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 onClick={() => _openNewChat(u.id, u.name)}
               >
-                {getFullName(u, "NmLo")}
+                {u.id == "chatBot" ? (
+                  <Logo width={32} />
+                ) : (
+                  <Avatar
+                    src={getUrlImages(
+                      "/ADM-" + u?.id + ".webp?d=" + u?.updated_at
+                    )}
+                    w={32}
+                    h={32}
+                    name={u?.name || getFullName(user)}
+                  />
+                )}
+                <div>
+                  {getFullName(u, "NmLo")}
+                  <br />
+                  {countMsg[u.id]?.msg?.text && (
+                    <div style={{ color: "var(--cWhiteV1", fontSize: "9px" }}>
+                      {(countMsg[u.id]?.msg?.text as string).substring(0, 50)}
+                      {(countMsg[u.id]?.msg?.text as string).length > 50 &&
+                        "..."}
+                    </div>
+                  )}
+                </div>
                 {countMsg[u.id]?.count > 0 && (
                   <span style={{ position: "relative" }}>
                     <div
@@ -233,12 +258,7 @@ export default function ChatInstantDb() {
                       ...esta escribiendo...
                     </span>
                   )}
-                {countMsg[u.id]?.msg?.text && (
-                  <div style={{ color: "var(--cWhiteV1", fontSize: "9px" }}>
-                    {(countMsg[u.id]?.msg?.text as string).substring(0, 50)}
-                    {(countMsg[u.id]?.msg?.text as string).length > 50 && "..."}
-                  </div>
-                )}
+
                 {/* {JSON.stringify(countMsg[u.id]?.msg)} */}
               </div>
             </Fragment>
