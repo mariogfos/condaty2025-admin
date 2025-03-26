@@ -116,7 +116,7 @@
   transition: opacity 0.2s ease;
 }
 
-.messageBubble:hover .emojiIcon {
+.messageContainer:hover .emojiIcon {
   display: inline-block;
   opacity: 1;
   position: absolute;

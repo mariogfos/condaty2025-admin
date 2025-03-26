@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { init, id } from "@instantdb/react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
@@ -96,10 +96,19 @@ const useInstandDB = (): useInstantDbType => {
 
   useEvent("onChatSendMsg", onChatSendMsg);
 
-  const { data: usersChat } = useAxios("users", "GET", {
+  const { data: usersChat, reLoad } = useAxios("users", "GET", {
     perPage: -1,
     cols: "id,name,middle_name,last_name,mother_last_name",
   });
+
+  const onNotif = useCallback((e: any) => {
+    console.log("*******2222******", e);
+    if (e.event == "newAdmin") {
+      reLoad();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEvent("onNotif", onNotif);
 
   const { user: me, peers, publishPresence } = db.rooms.usePresence(room);
   const typing = db.rooms.useTypingIndicator(room, "chat");
@@ -146,6 +155,7 @@ const useInstandDB = (): useInstantDbType => {
     return () => {
       publishPresence(undefined);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [uniquePresence, setUniquePresence] = useState([]);
@@ -163,7 +173,7 @@ const useInstandDB = (): useInstantDbType => {
 
     const uniquePeersArray: any = Object.values(uniquePeers);
     setUniquePresence(uniquePeersArray);
-  }, [peers]);
+  }, [peers, user?.id]);
 
   const query = {
     messages: {
@@ -292,12 +302,13 @@ const useInstandDB = (): useInstantDbType => {
     [user?.id]
   );
 
-  const getChats = () => chats;
-  const closeRoom = useCallback((roomIdDel: any) => {
-    setRooms(rooms.filter((r: any) => r.value != roomIdDel));
-    closeRoomEvent(roomIdDel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const closeRoom = useCallback(
+    (roomIdDel: any) => {
+      setRooms(rooms.filter((r: any) => r.value !== roomIdDel));
+      closeRoomEvent(roomIdDel);
+    },
+    [closeRoomEvent, rooms]
+  );
 
   const openNewChat = useCallback(
     (userAppId: string, name: string) => {
@@ -321,7 +332,7 @@ const useInstandDB = (): useInstantDbType => {
       newRoomEvent(newRoomId);
       return newRoomId;
     },
-    [rooms, getNameRoom, closeRoom]
+    [getNameRoom, rooms, newRoomEvent, closeRoom]
   );
 
   const result = useMemo(

@@ -8,7 +8,6 @@ import useInstandDB from "./provider/useInstandDB";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ChatBotLLm from "./chatBot/ChatBotLLm";
 import { getFullName } from "@/mk/utils/string";
-import ChatBotLLmCont from "./chatBot/ChatBotLLmCont";
 
 export default function ChatInstantDb() {
   const {
@@ -235,7 +234,7 @@ export default function ChatInstantDb() {
                     </span>
                   )}
                 {countMsg[u.id]?.msg?.text && (
-                  <div style={{ color: "var(--cWhiteV2", fontSize: "9px" }}>
+                  <div style={{ color: "var(--cWhiteV1", fontSize: "9px" }}>
                     {(countMsg[u.id]?.msg?.text as string).substring(0, 50)}
                     {(countMsg[u.id]?.msg?.text as string).length > 50 && "..."}
                   </div>

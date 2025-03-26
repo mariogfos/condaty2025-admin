@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { id } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
@@ -15,9 +15,6 @@ const db: any = initSocket();
 export type NotifType = {
   user: Record<string, any>;
   notifs: Record<string, any>[];
-  isLoading: boolean;
-  error: any;
-  channelGral: string;
   showToast: Function;
   sendNotif: (channel: string, event: string, payload: any) => any;
   lastNotif: number | null;
@@ -56,37 +53,24 @@ const useNotifInstandDB = (
       },
     },
   };
-  const { isLoading, error, data } = db.useQuery(query);
+  const { data } = db.useQuery(query);
 
   const [lastNotif, setLastNotif] = useState(null);
   const { dispatch } = useEvent("onNotif");
   useEffect(() => {
     if (data?.notif?.length > 0) {
-      // if (lastNotif && lastNotif < data?.notif?.length) {
       if (lastNotif && lastNotif < data?.notif[0].created_at) {
-        // showToast("Lllego notificacion", "info");
-
         dispatch(data?.notif[0]);
         last = data?.notif[0].created_at;
         localStorage.setItem("lastNotifInstantDB", last);
       }
-      //  else {
-      //   last = data?.notif[data?.notif?.length - 1].created_at;
-      //   localStorage.setItem("lastNotifInstantDB", last);
-      // }
-
-      // setLastNotif(data?.notif?.length);
       setLastNotif(last);
     }
-    // console.log("llego notivccc", data?.notif[data?.notif?.length - 1], last);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.notif]);
 
   useEffect(() => {
-    console.log("last", last);
     setLastNotif(last);
-    return () => {
-      // publishPresence(null);
-    };
   }, []);
 
   const sendNotif = async (channel: string, event: string, payload: any) => {
@@ -101,16 +85,21 @@ const useNotifInstandDB = (
     );
   };
 
-  return {
-    user,
-    notifs: data?.notif,
-    isLoading,
-    error,
-    channelGral,
-    showToast,
-    sendNotif,
-    lastNotif,
-  };
+  const result = useMemo(
+    () => {
+      return {
+        user,
+        notifs: data?.notif,
+        showToast,
+        sendNotif,
+        lastNotif,
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data?.notif, user, lastNotif]
+  );
+
+  return result;
 };
 
 export default useNotifInstandDB;
