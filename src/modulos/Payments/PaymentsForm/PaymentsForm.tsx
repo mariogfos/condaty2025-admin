@@ -642,10 +642,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   : "Ahora ingresa el monto y el medio de pago de este ingreso"}
               </p>
               <div className={styles["payment-inputs"]}>
-                {/* El campo de monto se muestra si NO es categoría de expensas O si es pero no hay deudas */}
-                {(_formState.subcategory_id !==
-                  extraData?.client_config?.cat_expensas ||
-                  deudas?.length === 0) ? (
+              {(_formState.subcategory_id !== extraData?.client_config?.cat_expensas) ? (
                   <div className={styles["amount-input"]}>
                     <Input
                       type="number"
@@ -661,32 +658,33 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   <div className={`${styles["amount-input"]} ${styles["amount-input-disabled"]}`}>
                     <Input
                       type="number"
-                      label="Monto (calculado de expensas)"
+                      label={deudas?.length > 0 ? "Monto (calculado de expensas)" : "Monto (no hay deudas)"}
                       name="amount"
-                      value={selecPeriodoTotal}
+                      value={deudas?.length > 0 ? selecPeriodoTotal : 0}
                       disabled={true}
                     />
                   </div>
                 )}
   
                 <div className={styles["payment-type"]}>
-                  <Select
-                    name="type"
-                    value={_formState.type}
-                    placeholder="Seleccionar tipo de pago"
-                    label="Pago por:"
-                    onChange={handleChangeInput}
-                    options={[
-                      { id: "Q", name: "Qr simple" },
-                      { id: "T", name: "Transferencia bancaria" },
-                      { id: "O", name: "Pago en efectivo" },
-                    ]}
-                    error={errors.type}
-                    required
-                    optionLabel="name"
-                    optionValue="id"
-                  />
-                </div>
+                <Select
+                  name="type"
+                  value={_formState.type}
+                  placeholder="Seleccionar tipo de pago"
+                  label="Pago por:"
+                  onChange={handleChangeInput}
+                  options={[
+                    { id: "Q", name: "Qr simple" },
+                    { id: "T", name: "Transferencia bancaria" },
+                    { id: "O", name: "Pago en efectivo" },
+                  ]}
+                  error={errors.type}
+                  required
+                  optionLabel="name"
+                  optionValue="id"
+                  disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length === 0}
+                />
+              </div>
               </div>
             </div>
   
