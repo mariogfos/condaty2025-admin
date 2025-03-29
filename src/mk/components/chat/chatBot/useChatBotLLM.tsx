@@ -7,9 +7,6 @@ import {
 } from "@mlc-ai/web-llm";
 import { initSocket } from "../provider/useInstandDB";
 import { id } from "@instantdb/react";
-import { useEvent } from "@/mk/hooks/useEvents";
-import { getFullName } from "@/mk/utils/string";
-import { log } from "console";
 import useAxios from "@/mk/hooks/useAxios";
 
 const db: any = initSocket();
@@ -63,19 +60,15 @@ const useChatBotLLM = () => {
   // useEvent("onChatCloseRoom", onChatCloseRoom);
 
   const initProgressCallback = (initProgress: any) => {
-    // console.log(initProgress);
-
-    // if (progress === null) setProgress(() => 0);
     setProgress(() => initProgress);
     if (initProgress?.progress === 1) {
       setProgress(() => 1);
     }
   };
 
-  // Configuración del modelo
   const config = {
-    context_window_size: 8192, // Aumentar el tamaño de la ventana de contexto
-    sliding_window_size: 2048, // Opcional: Configurar el tamaño de la ventana deslizante
+    // context_window_size: 8192, // Aumentar el tamaño de la ventana de contexto
+    // sliding_window_size: 2048, // Opcional: Configurar el tamaño de la ventana deslizante
     initProgressCallback,
     logLevel: "ERROR" as
       | "INFO"
@@ -104,7 +97,6 @@ const useChatBotLLM = () => {
     console.log("useeffect creando chatbot");
   };
   useEffect(() => {
-    console.log("useeffect useCHatBotLLM");
     initBot();
     initController();
   }, [initBot]);
