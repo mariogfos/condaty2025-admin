@@ -15,7 +15,7 @@ interface PropsType extends PropsTypeInputBase {
     | "file"
     | "search"
     | "checkbox"
-    | "currency"; // Tipo "currency" para formato con puntos y comas
+    | "currency"; // Tipo "currency" para formato con comas y puntos
   min?: number;
   max?: number;
 }
@@ -32,8 +32,8 @@ const Input = (props: PropsType) => {
     readOnly = false,
     className = "",
     style = {},
-    onBlur = (e: any) => {}, // Especificar que acepta un evento
-    onFocus = (e: any) => {}, // Especificar que acepta un evento
+    onBlur = (e: any) => {}, 
+    onFocus = (e: any) => {}, 
     onKeyDown = (e: any) => {},
     checked = false,
     maxLength,
@@ -48,43 +48,45 @@ const Input = (props: PropsType) => {
   
   // Función para formatear números mientras se escribe
   // Esta función conserva los decimales solo si se ingresaron
+  // Usa COMA para miles y PUNTO para decimales
   const formatCurrencyInput = (inputValue: string) => {
     // Si está vacío, devolver vacío
     if (!inputValue) return "";
     
-    // Quitamos todos los puntos y convertimos comas en puntos para poder procesar
-    let cleanValue = inputValue.replace(/\./g, '');
+    // Quitamos todas las comas y convertimos puntos en comas para poder procesar
+    let cleanValue = inputValue.replace(/,/g, '');
     
-    // Si hay una coma, separamos en parte entera y decimal
-    let hasDecimal = cleanValue.includes(',');
-    let wholePart = hasDecimal ? cleanValue.split(',')[0] : cleanValue;
-    let decimalPart = hasDecimal ? cleanValue.split(',')[1] : '';
+    // Si hay un punto, separamos en parte entera y decimal
+    let hasDecimal = cleanValue.includes('.');
+    let wholePart = hasDecimal ? cleanValue.split('.')[0] : cleanValue;
+    let decimalPart = hasDecimal ? cleanValue.split('.')[1] : '';
     
     // Si la parte entera está vacía, usamos 0
     if (wholePart === '') wholePart = '0';
     
-    // Formateamos la parte entera con puntos para miles
+    // Formateamos la parte entera con comas para miles
     let formattedWhole = '';
     for (let i = wholePart.length - 1, count = 0; i >= 0; i--, count++) {
       if (count > 0 && count % 3 === 0) {
-        formattedWhole = '.' + formattedWhole;
+        formattedWhole = ',' + formattedWhole;
       }
       formattedWhole = wholePart[i] + formattedWhole;
     }
     
     // Reconstruimos el valor con decimal solo si se ingresó
-    return hasDecimal ? formattedWhole + ',' + decimalPart : formattedWhole;
+    return hasDecimal ? formattedWhole + '.' + decimalPart : formattedWhole;
   };
   
   // Función para formatear al perder el foco (agrega 2 decimales)
+  // Usa COMA para miles y PUNTO para decimales
   const formatCurrencyBlur = (value: any) => {
     if (!value && value !== 0) return "";
     
     // Si es string, necesitamos convertirlo a número
     let numValue: number;
     if (typeof value === 'string') {
-      // Quitamos puntos y cambiamos coma por punto para convertir
-      const cleanValue = value.replace(/\./g, '').replace(',', '.');
+      // Quitamos comas y usamos el punto para decimales para convertir
+      const cleanValue = value.replace(/,/g, '');
       numValue = parseFloat(cleanValue);
     } else {
       numValue = parseFloat(String(value));
@@ -93,10 +95,21 @@ const Input = (props: PropsType) => {
     if (isNaN(numValue)) return "";
     
     // Formateamos con 2 decimales fijos al perder el foco
-    return numValue.toLocaleString('es-ES', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    // y usando coma para miles y punto para decimales
+    const parts = numValue.toFixed(2).split('.');
+    const wholePart = parts[0];
+    const decimalPart = parts[1] || '00';
+    
+    // Formato de miles con coma
+    let formattedWhole = '';
+    for (let i = wholePart.length - 1, count = 0; i >= 0; i--, count++) {
+      if (count > 0 && count % 3 === 0) {
+        formattedWhole = ',' + formattedWhole;
+      }
+      formattedWhole = wholePart[i] + formattedWhole;
+    }
+    
+    return formattedWhole + '.' + decimalPart;
   };
 
   // Actualizar el valor formateado cuando cambia el prop value
@@ -108,7 +121,7 @@ const Input = (props: PropsType) => {
         setFormattedValue(formatCurrencyBlur(value));
       }
     }
-  }, [value, type]);
+  }, [value, type, formattedValue]);
 
   const inputRef: any = useRef(null);
 
@@ -144,7 +157,7 @@ const Input = (props: PropsType) => {
     const inputValue = e.target.value;
     const input = e.target;
     
-    // Permitir solo dígitos, comas y puntos
+    // Permitir solo dígitos, comas (miles) y puntos (decimales)
     if (!/^[0-9.,]*$/.test(inputValue)) {
       return;
     }
@@ -154,7 +167,7 @@ const Input = (props: PropsType) => {
     
     // Contar cuántos caracteres hay antes del cursor
     const valueBeforeCursor = inputValue.substring(0, cursorPos);
-    const dotCountBeforeCursor = (valueBeforeCursor.match(/\./g) || []).length;
+    const commaCountBeforeCursor = (valueBeforeCursor.match(/,/g) || []).length;
     
     // Formatear el valor mientras se escribe
     const newFormattedValue = formatCurrencyInput(inputValue);
@@ -165,17 +178,17 @@ const Input = (props: PropsType) => {
     setTimeout(() => {
       if (inputRef.current) {
         const newValueBeforeCursor = newFormattedValue.substring(0, cursorPos + 1);
-        const newDotCountBeforeCursor = (newValueBeforeCursor.match(/\./g) || []).length;
-        const dotDifference = newDotCountBeforeCursor - dotCountBeforeCursor;
+        const newCommaCountBeforeCursor = (newValueBeforeCursor.match(/,/g) || []).length;
+        const commaDifference = newCommaCountBeforeCursor - commaCountBeforeCursor;
         
-        const newCursorPos = cursorPos + dotDifference;
+        const newCursorPos = cursorPos + commaDifference;
         cursorPositionRef.current = newCursorPos;
         inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
       }
     }, 0);
     
-    // Eliminar puntos y cambiar coma por punto para convertir a número
-    const numericString = inputValue.replace(/\./g, '').replace(',', '.');
+    // Eliminar comas y usar el punto para decimales para convertir a número
+    const numericString = inputValue.replace(/,/g, '');
     const numericValue = parseFloat(numericString);
     
     // Crear un evento sintético para mantener la compatibilidad con el onChange original
