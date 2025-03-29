@@ -84,7 +84,7 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/dptos", label: UnitsType[client.type_dpto] + "s" },
+              { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/activities", label: "Actividades" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },

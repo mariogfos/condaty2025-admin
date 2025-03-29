@@ -89,20 +89,20 @@ const useChatBotLLM = () => {
   }, []);
 
   const initController = async () => {
-    await db.transact([
-      db.tx.chatbots[chatBotId].update({
-        name: "CONDATITA",
-      }),
-    ]);
-    console.log("useeffect creando chatbot");
+    // await db.transact([
+    //   db.tx.chatbots[chatBotId].update({
+    //     name: "CONDATITA",
+    //   }),
+    // ]);
+    // console.log("useeffect creando chatbot");
   };
   useEffect(() => {
     initBot();
-    initController();
+    // initController();
   }, [initBot]);
 
   useEffect(() => {
-    initController();
+    // initController();
   }, []);
 
   const sendMessageBot = useCallback(
@@ -112,7 +112,7 @@ const useChatBotLLM = () => {
       _messages?: ChatCompletionMessageParam[]
     ) => {
       if (!engine || input.trim() === "") {
-        initController();
+        // initController();
         return "No se pudo responder tu consulta... intenta en 1 minuto";
       }
 
@@ -578,7 +578,7 @@ Este manual cubre la implementación y configuración de Condaty para una gesti�
         read_at: Date.now(),
       }),
     ]);
-    initController();
+    // initController();
   };
 
   const [lastMsg, setLastMsg] = useState("");
