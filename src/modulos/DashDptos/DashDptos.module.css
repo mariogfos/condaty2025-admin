@@ -190,6 +190,10 @@
     border-radius: 0.75rem;
     margin-bottom: 0.5rem;
   }
+  .historyItem:hover {
+    border-color: var(--accentColor);
+    box-shadow: 0 0 8px rgba(0, 227, 140, 0.3);
+  }
   
   .historyItemInfo {
     flex: 1;
@@ -346,4 +350,49 @@
   .accountList::-webkit-scrollbar-thumb:hover,
   .visitsList::-webkit-scrollbar-thumb:hover {
     background: var(--light-color);
+  }
+  .dependentesSection {
+    margin-top: 1rem;
+  }
+  
+  .dependentesGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  
+  .dependentAvatar {
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%; /* Asegura que el avatar y su borde sean redondos */
+  }
+  
+  .dependentAvatar:hover {
+    border-color: var(--accentColor);
+    box-shadow: 0 0 8px var(--accentColor);
+    /* No es necesario un border-radius adicional aquí si ya está en el selector anterior */
+  }
+  
+  .historyItem {
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .historyItem:hover {
+    border-color: var(--accentColor);
+    box-shadow: 0 0 8px rgba(0, 227, 140, 0.3);
+  }
+  
+  .accountRow {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+  
+  .accountRow:hover {
+    border-color: var(--accentColor);
+    box-shadow: 0 0 8px rgba(0, 227, 140, 0.2);
   }

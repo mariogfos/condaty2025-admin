@@ -56,6 +56,11 @@ const IncomeForm = ({
   });
   const {store} = useAuth();
   
+  // Verificamos si estamos en el caso de expensas sin deudas
+  const isExpensasWithoutDebt = _formState.subcategory_id === extraData?.client_config?.cat_expensas && 
+                              deudas?.length === 0 && 
+                              !isLoadingDeudas && 
+                              _formState.dpto_id;
 
   const lDptos = useMemo(
     () =>
@@ -76,8 +81,6 @@ const IncomeForm = ({
     [extraData?.dptos]
   );
  
-
-
   const lastLoadedDeudas = useRef("");
 
   const client = useMemo(() => {
@@ -156,13 +159,11 @@ const IncomeForm = ({
     }
 
     if (!isInitialized && open) {
-
       setIsInitialized(true);
     }
 
     return () => {
       if (!open) {
-
         setDeudas([]);
         _setFormState({});
         setSelectedPeriodo([]);
@@ -172,6 +173,7 @@ const IncomeForm = ({
       }
     };
   }, [open]);
+  
   // Efecto específico para cargar deudas cuando cambia dpto_id
   useEffect(() => {
     // Simple condición para evitar cargas innecesarias o cuando no hay datos suficientes
@@ -386,19 +388,25 @@ const handleSelectPeriodo = useCallback((periodo) => {
   const validar = useCallback(() => {
     let err = {};
 
-    if (!_formState.type) {
-      err.type = "Tiene que asignar un tipo de pago";
+    // Si es expensas sin deudas, bloqueamos completamente el guardado
+    if (isExpensasWithoutDebt) {
+      err.general = "No se puede registrar un pago de expensas cuando no hay deudas pendientes";
+      setErrors(err);
+      return false;
     }
+
+    // Si es expensas con deudas pero ninguna seleccionada, también bloqueamos
+    if (_formState.subcategory_id === extraData?.client_config?.cat_expensas && 
+        deudas?.length > 0 && 
+        selectedPeriodo.length === 0) {
+      err.general = "Debe seleccionar al menos una deuda para pagar";
+      setErrors(err);
+      return false;
+    }
+
+    // Validaciones básicas siempre presentes
     if (!_formState.dpto_id) {
       err.dpto_id = "Este campo es requerido";
-    }
-    if (deudas?.length === 0) {
-      if (!_formState.amount) {
-        err.amount = "Este campo es requerido";
-      }
-    }
-    if (!_formState.file) {
-      err.file = "El comprobante es requerido";
     }
     if (!_formState.category_id) {
       err.category_id = "Este campo es requerido";
@@ -407,14 +415,45 @@ const handleSelectPeriodo = useCallback((periodo) => {
       err.subcategory_id = "Este campo es requerido";
     }
 
+    // Validamos los demás campos
+    if (!_formState.type) {
+      err.type = "Tiene que asignar un tipo de pago";
+    }
+    
+    if (deudas?.length === 0 && _formState.subcategory_id !== extraData?.client_config?.cat_expensas) {
+      if (!_formState.amount) {
+        err.amount = "Este campo es requerido";
+      }
+    }
+    
+    if (!_formState.file) {
+      err.file = "El comprobante es requerido";
+    }
+
     setErrors(err);
     return Object.keys(err).length === 0;
-  }, [_formState, deudas, setErrors]);
+  }, [_formState, deudas, setErrors, isExpensasWithoutDebt, selectedPeriodo, extraData?.client_config?.cat_expensas]);
 
   const _onSavePago = useCallback(async () => {
+    // Validar y salir temprano si hay errores
     if (!validar()) {
+      // Si es el caso de expensas sin deudas, mostrar un mensaje al usuario
+      if (isExpensasWithoutDebt) {
+        showToast("No se puede registrar un pago de expensas cuando no hay deudas pendientes", "error");
+        return;
+      }
+      
+      // Si es expensas con deudas pero ninguna seleccionada
+      if (_formState.subcategory_id === extraData?.client_config?.cat_expensas && 
+          deudas?.length > 0 && 
+          selectedPeriodo.length === 0) {
+        showToast("Debe seleccionar al menos una deuda para pagar", "error");
+        return;
+      }
+      
       return;
     }
+    
     const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === _formState.dpto_id);
     const owner_id = selectedDpto?.titular?.owner?.id;
 
@@ -453,19 +492,19 @@ const handleSelectPeriodo = useCallback((periodo) => {
       const { data, error } = await execute("/payments", "POST", params);
 
       if (data?.success) {
-        showToast("Pago agregado con éxito", "success"); // Usa el toast de éxito
+        showToast("Pago agregado con éxito", "success");
         reLoad();
         onClose();
       } else if (error) {
         console.error("Error al guardar el pago:", error);
-        showToast("Error al guardar el pago", "error"); // Usa el toast de error
+        showToast("Error al guardar el pago", "error");
         if (error.data && error.data.errors) {
           setErrors(error.data.errors);
         }
       }
     } catch (err) {
       console.error("Error en _onSavePago:", err);
-      showToast("Error inesperado al guardar el pago", "error"); // Manejo de errores generales
+      showToast("Error inesperado al guardar el pago", "error");
     }
   }, [
     _formState,
@@ -477,7 +516,8 @@ const handleSelectPeriodo = useCallback((periodo) => {
     reLoad,
     onClose,
     setErrors,
-    showToast, // Añade showToast como dependencia
+    showToast,
+    isExpensasWithoutDebt
   ]);
 
   // Handler para cerrar el modal
@@ -497,6 +537,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
         onSave={_onSavePago}
         buttonCancel=""
         buttonText={"Guardar"}
+        disabled={isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0)}
         title={"Estás registrando un nuevo ingreso"}
       >
         <div className={styles["income-form-container"]}>
@@ -572,7 +613,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   <EmptyData message="Cargando deudas..." h={200} />
                 ) : deudas?.length === 0 ? (
                   <EmptyData
-                    message="Esta unidad no tiene deudas pendientes"
+                    message="Esta unidad no tiene deudas pendientes. No se puede registrar un pago."
                     h={200}
                   />
                 ) : (
@@ -627,179 +668,184 @@ const handleSelectPeriodo = useCallback((periodo) => {
                     ))}
                     <div className={styles["total-container"]}>
                       <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
+                      {selectedPeriodo.length === 0 && (
+                        <p className={styles["error-message"]}>Debe seleccionar al menos una deuda para pagar</p>
+                      )}
                     </div>
                   </div>
                 )}
               </>
             )}
   
-            {/* Sección de monto y medio de pago - SIEMPRE VISIBLE */}
-            <div className={styles["payment-section"]}>
-              <p className={styles["section-title"]}>
-                {_formState.subcategory_id ===
-                  extraData?.client_config?.cat_expensas && deudas?.length > 0
-                  ? "Seleccione el medio de pago"
-                  : "Ahora ingresa el monto y el medio de pago de este ingreso"}
-              </p>
-              <div className={styles["payment-inputs"]}>
-                {/* El campo de monto se muestra si NO es categoría de expensas O si es pero no hay deudas */}
-                {(_formState.subcategory_id !==
-                  extraData?.client_config?.cat_expensas ||
-                  deudas?.length === 0) ? (
-                  <div className={styles["amount-input"]}>
-                    <Input
-                      type="number"
-                      label="Monto"
-                      name="amount"
+            {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
+            {!isExpensasWithoutDebt && (
+              <>
+                {/* Sección de monto y medio de pago */}
+                <div className={styles["payment-section"]}>
+                  <p className={styles["section-title"]}>
+                    {_formState.subcategory_id ===
+                      extraData?.client_config?.cat_expensas && deudas?.length > 0
+                      ? "Seleccione el medio de pago"
+                      : "Ahora ingresa el monto y el medio de pago de este ingreso"}
+                  </p>
+                  <div className={styles["payment-inputs"]}>
+                  {(_formState.subcategory_id !== extraData?.client_config?.cat_expensas) ? (
+                      <div className={styles["amount-input"]}>
+                        <Input
+                          type="number"
+                          label="Monto"
+                          name="amount"
+                          onChange={handleChangeInput}
+                          value={_formState.amount}
+                          required={true}
+                          error={errors.amount || ""}
+                        />
+                      </div>
+                    ) : (
+                      <div className={`${styles["amount-input"]} ${styles["amount-input-disabled"]}`}>
+                        <Input
+                          type="number"
+                          label="Monto (calculado de expensas)"
+                          name="amount"
+                          value={selecPeriodoTotal}
+                          disabled={true}
+                        />
+                      </div>
+                    )}
+    
+                    <div className={styles["payment-type"]}>
+                    <Select
+                      name="type"
+                      value={_formState.type}
+                      placeholder="Seleccionar tipo de pago"
+                      label="Pago por:"
                       onChange={handleChangeInput}
-                      value={_formState.amount}
-                      required={true}
-                      error={errors.amount || ""}
+                      options={[
+                        { id: "Q", name: "Qr simple" },
+                        { id: "T", name: "Transferencia bancaria" },
+                        { id: "O", name: "Pago en efectivo" },
+                      ]}
+                      error={errors.type}
+                      required
+                      optionLabel="name"
+                      optionValue="id"
                     />
                   </div>
-                ) : (
-                  <div className={`${styles["amount-input"]} ${styles["amount-input-disabled"]}`}>
-                    <Input
-                      type="number"
-                      label="Monto (calculado de expensas)"
-                      name="amount"
-                      value={selecPeriodoTotal}
-                      disabled={true}
-                    />
                   </div>
-                )}
-  
-                <div className={styles["payment-type"]}>
-                  <Select
-                    name="type"
-                    value={_formState.type}
-                    placeholder="Seleccionar tipo de pago"
-                    label="Pago por:"
-                    onChange={handleChangeInput}
-                    options={[
-                      { id: "Q", name: "Qr simple" },
-                      { id: "T", name: "Transferencia bancaria" },
-                      { id: "O", name: "Pago en efectivo" },
-                    ]}
-                    error={errors.type}
-                    required
-                    optionLabel="name"
-                    optionValue="id"
-                  />
                 </div>
-              </div>
-            </div>
-  
-            {/* Sección de subir comprobante - SIEMPRE VISIBLE */}
-            <div className={styles["upload-section"]}>
-              <p className={styles["section-title"]}>Subir comprobante</p>
-              <div
-                className={`${styles["file-upload-area"]} ${
-                  isDraggingFile ? styles.dragging : ""
-                } ${errors.file ? styles.error : ""}`}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragEnter={() => setIsDraggingFile(true)}
-                onDragLeave={handleDragLeave}
-              >
-                <input
-                  id="file-upload"
-                  name="file-upload"
-                  type="file"
-                  className={styles["hidden-input"]}
-                  onChange={onChangeFile}
-                  required
-                />
-                {!_formState.file || _formState.file === "" ? (
-                  <div className={styles["upload-instructions"]}>
-                    <div className={styles["upload-text"]}>
-                      <label htmlFor="file-upload" className={styles["upload-link"]}>
-                        <span>Cargar un archivo</span>
-                      </label>
-                      <p className={styles["upload-alternative"]}>o arrastrar y soltar</p>
-                    </div>
-                    <p className={styles["file-types"]}>{extem.join(", ")}</p>
-                    {errors.file && (
-                      <p className={styles["error-message"]}>{errors.file}</p>
+    
+                {/* Sección de subir comprobante */}
+                <div className={styles["upload-section"]}>
+                  <p className={styles["section-title"]}>Subir comprobante</p>
+                  <div
+                    className={`${styles["file-upload-area"]} ${
+                      isDraggingFile ? styles.dragging : ""
+                    } ${errors.file ? styles.error : ""}`}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onDragEnter={() => setIsDraggingFile(true)}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      className={styles["hidden-input"]}
+                      onChange={onChangeFile}
+                      required
+                    />
+                    {!_formState.file || _formState.file === "" ? (
+                      <div className={styles["upload-instructions"]}>
+                        <div className={styles["upload-text"]}>
+                          <label htmlFor="file-upload" className={styles["upload-link"]}>
+                            <span>Cargar un archivo</span>
+                          </label>
+                          <p className={styles["upload-alternative"]}>o arrastrar y soltar</p>
+                        </div>
+                        <p className={styles["file-types"]}>{extem.join(", ")}</p>
+                        {errors.file && (
+                          <p className={styles["error-message"]}>{errors.file}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={styles["file-preview"]}>
+                        <div className={styles["file-preview-content"]}>
+                          {selectedFiles &&
+                          "type" in selectedFiles &&
+                          selectedFiles.type ? (
+                            selectedFiles.type.startsWith("image/") ? (
+                              <img
+                                src={URL.createObjectURL(selectedFiles)}
+                                alt="Preview"
+                                className={styles["file-thumbnail"]}
+                              />
+                            ) : selectedFiles.type === "application/pdf" ? (
+                              <IconPDF size={70} />
+                            ) : (
+                              <IconDocs size={70} />
+                            )
+                          ) : null}
+                          <div className={styles["file-info"]}>
+                            <p className={styles["file-name"]}>
+                              Archivo seleccionado:{" "}
+                              <span>
+                                {"name" in selectedFiles ? selectedFiles.name : ""}
+                              </span>
+                            </p>
+                            <button
+                              onClick={() => {
+                                const fileUpload =
+                                  document.getElementById("file-upload");
+                                if (fileUpload) {
+                                  fileUpload.click();
+                                }
+                              }}
+                              type="button"
+                              className={styles["edit-file-button"]}
+                            >
+                              <span>Editar elemento</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
-                ) : (
-                  <div className={styles["file-preview"]}>
-                    <div className={styles["file-preview-content"]}>
-                      {selectedFiles &&
-                      "type" in selectedFiles &&
-                      selectedFiles.type ? (
-                        selectedFiles.type.startsWith("image/") ? (
-                          <img
-                            src={URL.createObjectURL(selectedFiles)}
-                            alt="Preview"
-                            className={styles["file-thumbnail"]}
-                          />
-                        ) : selectedFiles.type === "application/pdf" ? (
-                          <IconPDF size={70} />
-                        ) : (
-                          <IconDocs size={70} />
-                        )
-                      ) : null}
-                      <div className={styles["file-info"]}>
-                        <p className={styles["file-name"]}>
-                          Archivo seleccionado:{" "}
-                          <span>
-                            {"name" in selectedFiles ? selectedFiles.name : ""}
-                          </span>
-                        </p>
-                        <button
-                          onClick={() => {
-                            const fileUpload =
-                              document.getElementById("file-upload");
-                            if (fileUpload) {
-                              fileUpload.click();
-                            }
-                          }}
-                          type="button"
-                          className={styles["edit-file-button"]}
-                        >
-                          <span>Editar elemento</span>
-                        </button>
-                      </div>
-                    </div>
+                </div>
+    
+                {/* Sección de código de comprobante */}
+                <div className={styles["voucher-section"]}>
+                  <p className={styles["section-title"]}>
+                    Por último, agrega el número del comprobante
+                  </p>
+                  <div className={styles["voucher-input"]}>
+                    <Input
+                      type="text"
+                      label="Código de comprobante"
+                      name="voucher"
+                      onChange={handleChangeInput}
+                      value={_formState.voucher}
+                      error={errors.voucher || ""}
+                    />
                   </div>
-                )}
-              </div>
-            </div>
-  
-            {/* Sección de código de comprobante - SIEMPRE VISIBLE */}
-            <div className={styles["voucher-section"]}>
-              <p className={styles["section-title"]}>
-                Por último, agrega el número del comprobante
-              </p>
-              <div className={styles["voucher-input"]}>
-                <Input
-                  type="text"
-                  label="Código de comprobante"
-                  name="voucher"
-                  onChange={handleChangeInput}
-                  value={_formState.voucher}
-                  error={errors.voucher || ""}
-                />
-              </div>
-            </div>
-  
-            {/* Sección de descripción - SIEMPRE VISIBLE EXCEPTO CUANDO HAY DEUDA SELECCIONADA */}
-            <div className={styles["obs-section"]}>
-              <p className={styles["section-title"]}>
-                Indica una descripción para este ingreso
-              </p>
-              <div className={styles["obs-input"]}>
-                <TextArea
-                  label="Descripción"
-                  placeholder="Escribe una descripción(Opcional)"
-                  name="obs"
-                  onChange={handleChangeInput}
-                  value={_formState.obs}
-                />
-              </div>
-            </div>
+                </div>
+    
+                {/* Sección de descripción */}
+                <div className={styles["obs-section"]}>
+                  <p className={styles["section-title"]}>
+                    Indica una descripción para este ingreso
+                  </p>
+                  <div className={styles["obs-input"]}>
+                    <TextArea
+                      label="Descripción"
+                      placeholder="Escribe una descripción(Opcional)"
+                      name="obs"
+                      onChange={handleChangeInput}
+                      value={_formState.obs}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </DataModal>

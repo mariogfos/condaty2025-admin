@@ -206,7 +206,7 @@ console.log("extraData", extraData);
   // Form validation
   const validar = useCallback(() => {
     let err = {};
-
+  
     if (!_formState.date_at) {
       err.date_at = "Este campo es requerido";
     }
@@ -216,14 +216,16 @@ console.log("extraData", extraData);
     if (!_formState.subcategory_id) {
       err.subcategory_id = "Este campo es requerido";
     }
-
+    if (!_formState.description) {
+      err.description = "Este campo es requerido";
+    }
     if (!_formState.amount) {
       err.amount = "Este campo es requerido";
     }
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
-
+  
     setErrors(err);
     return Object.keys(err).length === 0;
   }, [_formState, setErrors]);
@@ -345,7 +347,8 @@ console.log("extraData", extraData);
                 placeholder="Escribe una descripción detallada"
                 value={_formState.description || ""}
                 onChange={handleChangeInput}
-             
+                error={errors.description}
+                required
               />
             </div>
             <div className={styles["input-container"]}>

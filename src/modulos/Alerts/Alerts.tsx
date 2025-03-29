@@ -23,9 +23,9 @@ const paramsInitial = {
 };
 
 const lLevels = [
-  { id: 1, name: "Alto" },
+  { id: 3, name: "Alto" },
   { id: 2, name: "Medio" },
-  { id: 3, name: "Bajo" },
+  { id: 1, name: "Bajo" },
 ];
 
 const Alerts = () => {
@@ -64,7 +64,7 @@ const Alerts = () => {
         rules: ["required"],
         api: "ae",
         label: "Guardia",
-        list: { width: "250px" },
+        list: { },
         onRender: (props: any) => {
           return getFullName(props.item.guardia);
         },

@@ -18,6 +18,8 @@ import HistoryAccess from "./HistoryAccess/HistoryAccess";
 import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
+import DetailPayment from "../Payments/PaymentDetail/PaymentDetail";
+import RenderView from "../Owners/RenderView";
 
 interface DashDptosProps {
   id: string | number;
@@ -127,12 +129,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
 
   const handleOpenPerfil = (owner_id: string) => {
+    // Remove the console.log
     setIdPerfil(owner_id);
     setOpenPerfil(true);
-    setDataOw({});
+    // Fetch the dependent's data to populate the modal
+    const dependentData = datas.titular.dependientes.find(
+      (dep: any) => dep.owner_id === owner_id
+    );
+    setDataOw(dependentData?.owner || {});
   };
-  console.log(datas);
-console.log("pruesdfasdfsdfsdfesd")
+  
   return (
     <div className={styles.container}>
       <div className={styles.leftPanel}>
@@ -536,52 +542,39 @@ console.log("pruesdfasdfsdfsdfesd")
         />
       )}
 
-      {/* Modales de Acciones 
-      {openPagar && (
-        <Crud
-          mod={mod}
-          data
-          onExist={() => {}}
-          showToast={showToast}
-          open={openPagar}
-          id={id}
-          onClose={() => setOpenPagar(false)}
-          errors={errorsT}
-          setErrors={setErrorsT}
-          actions=""
-          execute={execute}
-          reLoad={reLoad}
-        />
-      )}
 
-      {openComprobante && idPago && (
-        <View
-          id={idPago}
-          open={openComprobante}
-          onClose={() => {
-            setOpenComprobante(false);
-            setIdPago(null);
-          }}
-          mod={mod}
-          reLoad={reLoad}
-        />
-      )}
+  {openComprobante && idPago && (
+    <DetailPayment
+      open={openComprobante}
+      onClose={() => {
+        setOpenComprobante(false);
+        setIdPago(null);
+      }}
+      item={datas.payments?.find(
+        (pago: any) => pago?.payment?.id === idPago
+      )?.payment || {}}
+      extraData={datas}
+    />
+  )}
 
       {openPerfil && idPerfil && (
-        <ViewPerfil
-          id={idPerfil}
+        <RenderView
           open={openPerfil}
           onClose={() => {
             setOpenPerfil(false);
             setIdPerfil(null);
           }}
-          setData={setDataOw}
-          viewOptions={false}
-          data={dataOw}
-          mod={modRe}
+          item={
+            idPerfil === datas?.titular?.id
+              ? datas?.titular
+              : datas?.titular?.dependientes?.find(
+                  (dep: any) => dep.owner_id === idPerfil
+                )?.owner || {}
+          }
+          reLoad={reLoad}
         />
       )}
-      */}
+      
     </div>
   );
 };
