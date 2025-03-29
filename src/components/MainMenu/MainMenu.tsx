@@ -92,7 +92,7 @@ const MainMenu = ({
                 { href: "/guards", label: "Guardias" },
                 { href: "/owners", label: "Residentes" },
                 { href: "/homeowners", label: "Propietarios" },
-                { href: "/users", label: "Personal Administrativo" },
+                { href: "/users", label: "Administradores" },
               ]}
               collapsed={collapsed}
               setSideBarOpen={setSideBarOpen}
