@@ -229,6 +229,9 @@ console.log("extraData", extraData);
     if (!_formState.description) {
       err.description = "Este campo es requerido";
     }
+    if (!_formState.description) {
+      err.description = "Este campo es requerido";
+    }
     if (!_formState.amount) {
       err.amount = "Este campo es requerido";
     }
