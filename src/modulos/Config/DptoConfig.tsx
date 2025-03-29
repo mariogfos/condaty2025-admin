@@ -5,7 +5,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages } from "@/mk/utils/string";
 import React from "react";
-import styles from "./Config.module.css"
+import styles from "./Config.module.css";
 
 const DptoConfig = ({
   formState,
@@ -13,7 +13,7 @@ const DptoConfig = ({
   setErrors,
   errors,
   client_config,
-  onChange
+  onChange,
 }: any) => {
   // console.log(formState,'fst desde dptoconfg')
   // const onChange = (e: any) => {
@@ -45,7 +45,6 @@ const DptoConfig = ({
           ext={["jpg", "png", "jpeg", "webp"]}
           item={formState}
         />
-      
       </div>
       <Input
         label={"Nombre del condominio"}

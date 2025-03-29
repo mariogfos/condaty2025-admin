@@ -57,6 +57,12 @@ const Documents = () => {
         form: { type: "select", options: lOptions },
         list: { width: "120px" },
       },
+      position: {
+        rules: ["required"],
+        api: "ae*",
+        label: "Posición",
+        form: { type: "text" },
+      },
       doc: {
         rules: ["required"],
         api: "ae*",
@@ -85,12 +91,7 @@ const Documents = () => {
           );
         },
       },
-      position: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Posición",
-        form: { type: "text" },
-      },
+   
     }),
     []
   );

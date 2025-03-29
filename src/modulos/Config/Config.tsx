@@ -21,7 +21,7 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
-const Config = () => { 
+const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
   const [preview, setPreview]: any = useState(null);
@@ -40,7 +40,7 @@ const Config = () => {
     perPage: -1,
     orderBy: "asc",
     sortBy: "",
-    relation: "",
+    relations: "client",
     page: 1,
     // searchBy: "client_id,=," + user?.client_id,
   });
@@ -57,14 +57,13 @@ const Config = () => {
     if (ci && ci.length > 15) {
       // Update the formState to only include the first 10 characters
       setErrors({ ...errors, payment_transfer_ci: "Máximo 15 caracteres" });
-      setFormState((prevState:any) => ({
+      setFormState((prevState: any) => ({
         ...prevState,
         payment_transfer_ci: ci.slice(0, 15),
       }));
     }
   }, [formState.payment_transfer_ci]);
 
- 
   //   const { data, error } = await execute(
   //     "/client-config-actualizar",
   //     "PUT",
@@ -229,8 +228,23 @@ const Config = () => {
   };
 
   useEffect(() => {
-    const client = user?.clients?.find((i: any) => i.id == user?.client_id);
-    setFormState({ ...client_config?.data[0], ...client });
+    // const client = user?.clients?.find((i: any) => i.id == user?.client_id);
+    // const client = await = execute('/clients', 'GET', {id: user?.client_id)
+    //setFormState({ ...client_config?.data[0], ...client });
+
+    setFormState({
+      ...client_config?.data[0],
+      client: undefined,
+      deleted_at: undefined,
+      created_at: undefined,
+      remember_token: undefined,
+      ...client_config?.data[0]?.client,
+      // updated_at:
+      //   client_config?.data[0]?.updated_at >
+      //   client_config?.data[0]?.client?.updated_at
+      //     ? client_config?.data[0]?.updated_at
+      //     : client_config?.data[0]?.client?.updated_at,
+    });
   }, [client_config?.data]);
 
   return (
@@ -247,46 +261,46 @@ const Config = () => {
         />
       </div>
       <LoadingScreen>
-      <div className="">
-        {typeSearch == "M" && (
-      
-          <DefaulterConfig
-            formState={formState}
-            onChange={onChange}
-            errors={errors}
-          />
-        )}
-        {typeSearch == "P" && (
- 
-          <PaymentsConfig
-            formState={formState}
-            onChange={onChange}
-            errors={errors}
-          />
-        )}
-        {typeSearch == "C" && (
-      
-          <DptoConfig
-            formState={formState}
-            setFormState={setFormState}
-            onChange={onChange}
-            errors={errors}
-            setErrors={setErrors}
-            client_config={client_config}
-          />
-        )}
-        <div className="w-full flex justify-center mb-6">
-          <Button
-            className={
-              typeSearch == "P" ? "w-[68%] btn btn-primary" : "btn btn-primary"
-            }
-            onClick={() => onSave()}
-          >
-            Guardar
-          </Button>
+        <div className="">
+          {typeSearch == "M" && (
+            <DefaulterConfig
+              formState={formState}
+              onChange={onChange}
+              errors={errors}
+            />
+          )}
+          {typeSearch == "P" && (
+            <PaymentsConfig
+              formState={formState}
+              onChange={onChange}
+              errors={errors}
+              setErrors={setErrors}
+            />
+          )}
+          {typeSearch == "C" && (
+            <DptoConfig
+              formState={formState}
+              setFormState={setFormState}
+              onChange={onChange}
+              errors={errors}
+              setErrors={setErrors}
+              client_config={client_config}
+            />
+          )}
+          <div className="w-full flex justify-center mb-6">
+            <Button
+              className={
+                typeSearch == "P"
+                  ? "w-[68%] btn btn-primary"
+                  : "btn btn-primary"
+              }
+              onClick={() => onSave()}
+            >
+              Guardar
+            </Button>
+          </div>
         </div>
-      </div>
-      </LoadingScreen> 
+      </LoadingScreen>
     </div>
   );
 };

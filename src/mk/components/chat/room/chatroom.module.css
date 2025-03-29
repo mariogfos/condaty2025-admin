@@ -1,0 +1,151 @@
+.dateMarker {
+  position: sticky;
+  top: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 2;
+  margin-bottom: 10px;
+}
+
+.chatContainer {
+  height: 400px;
+  overflow: hidden;
+  overflow-y: auto;
+  padding: 12px;
+  padding-top: 0;
+  position: relative;
+}
+
+.messageContainer {
+  display: flex;
+  /* align-items: flex-end; */
+  margin-bottom: 10px;
+  align-items: flex-start;
+  background-color: "red";
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  /* background-color: #ccc; Color de placeholder para el avatar */
+  margin-right: 10px;
+}
+
+.messageUser {
+  color: var(--cAccent);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.messageBubble {
+  max-width: 70%;
+  padding: 10px;
+  padding-bottom: 0;
+  border-radius: 10px;
+  position: relative;
+  background-color: #dcf8c6; /* Color de fondo de la burbuja de chat */
+  transition: background-color 0.2s ease;
+}
+.messageBubble:hover {
+  background-color: #c8e8b4; /* Cambia el color al pasar el mouse */
+}
+
+.messageBubble::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-right-color: #dcf8c6; /* Color de la punta de la burbuja */
+  border-left: 0;
+  margin-top: 10px;
+  transition: border-color 0.2s ease;
+}
+.otherSameMessage .messageBubble::after {
+  left: auto;
+  right: -10px;
+  border-right-color: transparent;
+  border-left-color: #ece5dd; /* Color de la punta para los mensajes propios */
+}
+
+.messageHour {
+  color: var(--cWhiteV1);
+  font-size: 9px;
+  text-align: right;
+}
+
+.myMessage {
+  flex-direction: row-reverse;
+}
+
+.myMessage .messageBubble {
+  background-color: #ece5dd; /* Color de fondo para los mensajes propios */
+}
+
+.myMessage .messageBubble:hover {
+  background-color: #d8d1c9; /* Cambia el color al pasar el mouse */
+}
+
+.myMessage .messageBubble::after {
+  left: auto;
+  right: -10px;
+  border-right-color: transparent;
+  border-left-color: #ece5dd; /* Color de la punta para los mensajes propios */
+}
+
+.myMessage .avatar {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.emojiIcon {
+  display: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  right: -26px;
+  top: 0px;
+  transition: opacity 0.2s ease;
+}
+
+.messageContainer:hover .emojiIcon {
+  display: inline-block;
+  opacity: 1;
+  position: absolute;
+}
+
+.emojiPicker {
+  position: absolute;
+  /* bottom: 100%; */
+  top: 88px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.2s ease;
+  z-index: 20;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

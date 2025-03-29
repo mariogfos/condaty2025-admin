@@ -2,7 +2,6 @@
 import { CSSProperties, useEffect, useState } from "react";
 import { initialsName } from "../../../utils/string";
 import styles from "./avatar.module.css";
-import { IconUser } from "@/components/layout/icons/IconsBiblioteca";
 type PropsType = {
   src?: string;
   name?: string;
@@ -14,7 +13,7 @@ type PropsType = {
   onClick?: (e: any) => void;
   style?: CSSProperties;
   styleText?: CSSProperties;
-  square?:boolean;
+  square?: boolean;
 };
 
 export const Avatar = ({
@@ -28,7 +27,7 @@ export const Avatar = ({
   className,
   styleText,
   style,
-  square
+  square,
 }: PropsType) => {
   const [imageError, setImageError] = useState(false);
   useEffect(() => {
@@ -36,8 +35,16 @@ export const Avatar = ({
   }, [src]);
   return (
     <div className={styles.avatar + " " + className} onClick={onClick}>
-      <div style={{ width: w, height: h,borderRadius:square?"var(--bRadiusS)":"100%",...style }}>
+      <div
+        style={{
+          width: w,
+          height: h,
+          borderRadius: square ? "var(--bRadiusS)" : "100%",
+          ...style,
+        }}
+      >
         {src && !imageError ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt={name} onError={() => setImageError(true)} />
         ) : (
           <div style={{ ...styleText }}>{initialsName(name)}</div>
