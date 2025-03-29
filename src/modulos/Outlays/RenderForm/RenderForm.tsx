@@ -35,7 +35,17 @@ const RenderForm = ({
   reLoad,
   user,
 }) => {
-  const [_formState, _setFormState] = useState(item || {});
+  const [_formState, _setFormState] = useState(() => {
+    // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    
+    return {
+      ...item || {},
+      // Si no hay fecha en 'item', usa la fecha actual
+      date_at: (item && item.date_at) || formattedDate
+    };
+  });
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState({});
   const [fileUploaded, setFileUploaded] = useState(false);
