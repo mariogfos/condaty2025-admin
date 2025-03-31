@@ -397,7 +397,7 @@ const useCrud = ({
 
   type ExportType = "pdf" | "xls" | "csv";
   const onExport = async (
-    type: ExportType = "pdf",
+    type?: string,
     callBack: (url: string) => void = (url: string) => {}
   ) => {
     if (!userCan(mod.permiso, "R"))
@@ -407,18 +407,19 @@ const useCrud = ({
       "GET",
       {
         ...params,
-        _export: type,
+        fullType: "L",
+        _export: type ?? "pdf",
         // exportCols: mod?.exportCols || params.cols || "",
         // exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
         // exportTitulos: mod?.exportTitulos || "",
         // exportAnchos: mod?.exportAnchos || "",
       },
       false,
-      mod?.noWaiting
+      true
     );
     if (file?.success) {
-      callBack(getUrlImages("/" + file.data.path));
-      // window.open(getUrlImages("/" + file.data.path));
+      // callBack(getUrlImages("/" + file.data.path));
+      window.open(getUrlImages("/" + file.data.path));
     } else {
       showToast(file?.message, "error Export");
       logError("Error onExport:", file);
@@ -888,7 +889,7 @@ const useCrud = ({
           )}
           {mod.export && (
             <div style={{ marginTop: "12px" }} onClick={onImport}>
-              <IconExport onClick={onExport} />
+              <IconExport onClick={() => onExport("pdf")} />
             </div>
           )}
           {mod.listAndCard && (
