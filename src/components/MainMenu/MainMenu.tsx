@@ -38,16 +38,16 @@ const MainMenu = ({
 }: PropsType) => {
   const { isMobile } = useScreenSize();
   const { setStore } = useAuth();
-  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
+  const client = user?.clients?.filter((item:any) => item?.id === user?.client_id)[0];
   // const play = () => {
   //   sound
   //     .play()
   //     .catch((err) => console.error("Error al reproducir el audio:", err));
   // };
- 
-    useEffect(()=>{
-      setStore({UnitsType:UnitsType[client.type_dpto]})
-    },[])
+
+  useEffect(() => {
+    setStore({ UnitsType: UnitsType[client.type_dpto] });
+  }, []);
 
   return (
     <section className={styles.menu}>
@@ -56,10 +56,15 @@ const MainMenu = ({
       </div>
       {!isMobile ? (
         <div>
-          <MainmenuItem href="/" label="Inicio" icon={<IconHome />} collapsed={collapsed}/>
+          <MainmenuItem
+            href="/"
+            label="Inicio"
+            icon={<IconHome />}
+            collapsed={collapsed}
+          />
           <MainmenuDropdown
             label="Finanzas"
-            icon={<IconPayments/>}
+            icon={<IconPayments />}
             items={[
               { href: "/balance", label: "Balance general" },
               {
@@ -77,7 +82,7 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/dptos", label: UnitsType[client.type_dpto]+"s" },
+              { href: "/dptos", label: UnitsType[client?.type_dpto]+"s" },
               { href: "/activities", label: "Actividades" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
@@ -85,18 +90,18 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-            <MainmenuDropdown
-              label="Usuarios"
-              icon={<IconGroup/>}
-              items={[
-                { href: "/guards", label: "Guardias" },
-                { href: "/owners", label: "Residentes" },
-                { href: "/homeowners", label: "Propietarios" },
-                { href: "/users", label: "Personal Administrativo" },
-              ]}
-              collapsed={collapsed}
-              setSideBarOpen={setSideBarOpen}
-            /> 
+          <MainmenuDropdown
+            label="Usuarios"
+            icon={<IconGroup />}
+            items={[
+              { href: "/guards", label: "Guardias" },
+              { href: "/owners", label: "Residentes" },
+              { href: "/homeowners", label: "Propietarios" },
+              { href: "/users", label: "Personal Administrativo" },
+            ]}
+            collapsed={collapsed}
+            setSideBarOpen={setSideBarOpen}
+          />
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}
@@ -109,9 +114,19 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-        <MainmenuItem href="/binnacle" label="Bitácora" icon={<IconBitacora/>} collapsed={collapsed}/>
+          <MainmenuItem
+            href="/binnacle"
+            label="Bitácora"
+            icon={<IconBitacora />}
+            collapsed={collapsed}
+          />
 
-        <MainmenuItem href="/ev" label="Soporte y ATC" icon={<IconInterrogation />} collapsed={collapsed} />
+          <MainmenuItem
+            href="/ev"
+            label="Soporte y ATC"
+            icon={<IconInterrogation />}
+            collapsed={collapsed}
+          />
         </div>
       ) : (
         <div>

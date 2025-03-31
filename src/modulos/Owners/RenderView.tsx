@@ -9,114 +9,120 @@ import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
 
-const RenderView = (props: {
-  open: boolean;
-  onClose: any;
-  item: any;
-  reLoad?: any;
-  onConfirm?: Function;
-  extraData?: any;
+const RenderView = (props:any) => {
+  const {
+    open,
+    onClose,
+    item,
+    reLoad,
+    onConfirm,
+    extraData
+  } = props;
 
-}) => {
-const [openActive,setOpenActive] = useState(false);
-const [typeActive,setTypeActive] = useState('');
+  const [openActive, setOpenActive] = useState(false);
+  const [typeActive, setTypeActive] = useState('');
 
+  const openModal = (t:any) => {
+    setOpenActive(true);
+    setTypeActive(t);
+  }
 
-// console.log(props.item.status,lStatusActive[props.item.status]?.name,'status owner rendervw')
-// useEffect(()=>{
-//   console.log(props?.item,'openactive a')
-  
-// },[openActive])
+  if (!item) {
+    return (
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title={"Detalle del residente"}
+        buttonText=""
+        buttonCancel=""
+        style={{width:'max-content'}}
+        className={styles.renderView}
+      >
+        <div className="flex justify-center items-center h-40">
+          <span>No se encontró información del residente</span>
+        </div>
+      </DataModal>
+    );
+  }
 
-const openModal = (t:string) => {
-  setOpenActive(true);
-  setTypeActive(t)
-}
   return (
     <>    
-    <DataModal
-      open={props.open}
-      onClose={props?.onClose}
-      title={"Detalle del residente"}
-      buttonText=""
-      buttonCancel=""
-      style={{width:'max-content'}}
-      className={styles.renderView}
-    >
-      <div >
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title={"Detalle del residente"}
+        buttonText=""
+        buttonCancel=""
+        style={{width:'max-content'}}
+        className={styles.renderView}
+      >
         <div>
-          <Avatar
-            src={getUrlImages(
-              "/OWNER-" + props.item.id + ".webp?d=" + props.item.updated_at
-            )}
-            h={170}
-            w={170}
-            style={{borderRadius:16}}
-            name={getFullName(props.item)}
-          />
           <div>
-            <p className={styles.title}>{getFullName(props.item)}</p>
+            <Avatar
+              src={getUrlImages(
+                "/OWNER-" + item.id + ".webp?d=" + item.updated_at
+              )}
+              h={170}
+              w={170}
+              style={{borderRadius:16}}
+              name={getFullName(item)}
+            />
+            <div>
+              <p className={styles.title}>{getFullName(item)}</p>
+            </div>
           </div>
+          <section>
+            <div>
+              <p>Cédula de identidad</p>
+              <p>{item?.ci || "No disponible"}</p>
+            </div>
+            <div>
+              <p>Correo electrónico</p>
+              <p>{item?.email || "No disponible"}</p>
+            </div>
+            <div>
+              <p>Número de Whatsapp</p>
+              <p>
+                {(item.prefix_phone ? "+" + item.prefix_phone : "") +
+                  " " +
+                  (item?.phone || "No disponible")}
+              </p>
+            </div>
+            <div>
+              <p>Estado</p>
+              <p>
+                {lStatusActive[item.status]?.name || item.status || "No disponible"}
+              </p>
+            </div>
+            <div>
+              <p>Número de casa</p>
+              <p>
+                {item?.dpto?.length > 0 ?
+                item?.dpto[0]?.nro : 
+                item?.client_owner?.preunidad || 'Sin número de casa'}
+              </p>
+            </div>
+          </section>
         </div>
-        <section>
-
+        {item?.status === 'R' && (
           <div>
-            <p>Cédula de identidad</p>
-            <p>{props.item?.ci}</p>
+            <Button onClick={() => openModal('R')} className="btn-cancel">Rechazar</Button>
+            <Button onClick={() => openModal('S')} className="btn btn-primary">Activar</Button>
           </div>
-          <div>
-            <p>Correo electrónico</p>
-            <p>{props.item?.email}</p>
-          </div>
-          {/* <div>
-            <p>Rol</p>
-            <p>{ props.item?.role_id}</p>
-          </div> */}
-          <div>
-            <p>Número de Whatsapp</p>
-            <p>
-              {(props.item.prefix_phone ? "+" + props.item.prefix_phone : "") +
-                " " +
-                props.item?.phone}
-            </p>
-          </div>
-          <div>
-            <p>Estado</p>
-            <p>
-              {lStatusActive[props.item.status]?.name}
-            </p>
-          </div>
-          <div>
-            <p>Número de casa</p>
-            <p>
-              {props?.item?.dpto?.length > 0 ?
-              props?.item?.dpto[0]?.nro  : 
-              props?.item?.client_owner?.preunidad||  'Sin número de casa'}
-            </p>
-          </div>
-        </section>
-      </div>
-     {props?.item?.status === 'R' && <div>
-        <Button onClick={()=>openModal('R')} variant='secondary'>Rechazar</Button>
-        <Button onClick={()=>openModal('S')}>Activar</Button>
-
-      </div>}
-    </DataModal>
+        )}
+      </DataModal>
      
-
-     {openActive && 
-     <ActiveOwner 
-     open={openActive}
-     onClose={()=>setOpenActive(false)}
-     typeActive={typeActive}
-     data={props.item }
-     onCloseOwner={()=>props.onClose()}
-     reLoad={()=>props.reLoad()}
-    
-     />
-     }
+      {openActive && (
+        <ActiveOwner 
+          open={openActive}
+          onClose={() => setOpenActive(false)}
+          typeActive={typeActive}
+          data={item}
+          onCloseOwner={() => onClose()}
+          reLoad={() => reLoad && reLoad()}
+        />
+      )}
     </>
-
   );
 };
 

@@ -92,7 +92,7 @@ const Payments = () => {
         },
         list: { 
           onRender: (props: any) => {
-            return <div>{props.item.category?.name}</div>;
+            return <div>{props.item.category?.padre.name}</div>;
           }
         }
       },

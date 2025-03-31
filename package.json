@@ -17,7 +17,11 @@
     "react-dom": "^19.0.0",
     "react-easy-crop": "^5.2.0",
     "react-player": "^2.16.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@instantdb/admin": "^0.17.12",
+    "@instantdb/react": "^0.17.31",
+    "@mlc-ai/web-llm": "^0.2.78",
+    "emoji-picker-react": "^4.12.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
