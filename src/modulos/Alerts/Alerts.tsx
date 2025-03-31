@@ -13,6 +13,7 @@ const mod = {
   permiso: "",
   extraData: false,
   hideActions: { edit: true, del: true, add: true },
+  export: true,
 };
 
 const paramsInitial = {
@@ -64,7 +65,7 @@ const Alerts = () => {
         rules: ["required"],
         api: "ae",
         label: "Guardia",
-        list: { },
+        list: {},
         onRender: (props: any) => {
           return getFullName(props.item.guardia);
         },

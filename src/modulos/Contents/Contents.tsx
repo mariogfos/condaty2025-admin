@@ -60,8 +60,6 @@ const lType = [
   { id: "D", name: "Documento", ext: "pdf,doc,docx" },
 ];
 
-
-
 const rigthFile = (data: {
   key: string;
   user?: Record<string, any>;
@@ -96,6 +94,7 @@ const Contents = () => {
     plural: "Publicaciones",
     permiso: "contents",
     // import: true,
+    export: true,
     extraData: true,
     saveMsg: {
       add: "Publicación creada con éxito",
@@ -212,12 +211,10 @@ const Contents = () => {
         list: {
           width: "100px",
           onRender: (item: any) => {
-          return (
-            lComDestinies.find((i:any)=> i.id==item?.item?.destiny)?.name
-          )
+            return lComDestinies.find((i: any) => i.id == item?.item?.destiny)
+              ?.name;
           },
         },
-    
       },
       // lDestiny: {
       //   rules: [],
@@ -226,17 +223,15 @@ const Contents = () => {
       //   list: false,
       //   form: false,
       // },
-       adm_id: {
+      adm_id: {
         rules: [""],
         api: "ae",
         label: "Administrador",
         list: {
-           
-          onRender:(props:any)=>{
-            return getFullName(props?.item?.user)
-          }
+          onRender: (props: any) => {
+            return getFullName(props?.item?.user);
+          },
         },
-      
       },
       type: {
         rules: ["required"],
@@ -501,9 +496,9 @@ const Contents = () => {
     );
   };
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
+  // const onImport = () => {
+  //   setOpenImport(true);
+  // };
 
   const {
     userCan,
@@ -524,7 +519,7 @@ const Contents = () => {
     mod,
     fields,
     _onChange,
-    _onImport: onImport,
+    // _onImport: onImport,
   });
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
@@ -536,10 +531,10 @@ const Contents = () => {
     title: "Publicaciones",
   });
 
-  const [openImport, setOpenImport] = useState(false);
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
+  // const [openImport, setOpenImport] = useState(false);
+  // useEffect(() => {
+  //   setOpenImport(searchState == 3);
+  // }, [searchState]);
 
   const renderItem = (
     item: Record<string, any>,
@@ -594,7 +589,7 @@ const Contents = () => {
         actionsWidth="140px"
         onRenderCard={openCard ? renderCard : null}
       />
-      {openImport && (
+      {/* {openImport && (
         <ImportDataModal
           open={openImport}
           onClose={() => {
@@ -608,7 +603,7 @@ const Contents = () => {
           getExtraData={getExtraData}
           // requiredCols="DEPARTAMENTO, HABITANTES, HABILITADOS, ESCANOS, CODE"
         />
-      )}
+      )} */}
     </div>
   );
 };

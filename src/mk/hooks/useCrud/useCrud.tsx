@@ -415,13 +415,13 @@ const useCrud = ({
         // exportAnchos: mod?.exportAnchos || "",
       },
       false,
-      true
+      mod?.noWaiting
     );
     if (file?.success) {
       // callBack(getUrlImages("/" + file.data.path));
       window.open(getUrlImages("/" + file.data.path));
     } else {
-      showToast(file?.message, "error Export");
+      showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
     }
   };

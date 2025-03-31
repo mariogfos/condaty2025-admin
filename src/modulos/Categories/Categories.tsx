@@ -106,9 +106,7 @@ const CategoryForm = memo(
     }, [extraData?.categories]);
 
     // Log para debugging
-    useEffect(() => {
-
-    }, [item, action, isCateg, categoryType]);
+    useEffect(() => {}, [item, action, isCateg, categoryType]);
 
     // Mostrar tipo de categoría según parámetro
     const categoryTypeText = categoryType === "I" ? "ingresos" : "egresos";
@@ -212,10 +210,10 @@ const CategoryForm = memo(
         </div>
 
         {/* Input para type, siempre presente pero con valor según categoryType */}
-        <input 
-          type="hidden" 
-          name="type" 
-          value={categoryType === "I" ? "I" : "E"} 
+        <input
+          type="hidden"
+          name="type"
+          value={categoryType === "I" ? "I" : "E"}
         />
       </DataModal>
     );
@@ -370,156 +368,140 @@ const Categories = ({ type = "" }) => {
   // Determinar si es ingresos o egresos basado en el parámetro
   const isIncome = type === "I";
   const categoryTypeText = isIncome ? "ingresos" : "egresos";
-  
+
   // Asegurar que type siempre sea "I" o "E"
   const typeToUse = isIncome ? "I" : "E";
 
   // Configuración para useCrud
-  const mod: ModCrudType = useMemo(
-    () => {
-      // Crear objeto base con tipado explícito para extraData
-      const modConfig: ModCrudType = {
-        modulo: "categories",
-        singular: "Categoría",
-        plural: "Categorías",
-        permiso: "",
-        // Inicializar extraData con params que incluye el tipo (I o E)
-        extraData: {
-          params: { type: typeToUse }
-        } as { params: Record<string, any> },
-        hideActions: {
-          view: false,
-          add: false,
-          edit: false,
-          del: false,
-        },
-        saveMsg: {
-          add: `Categoría de ${categoryTypeText} creada con éxito`,
-          edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
-          del: `Categoría de ${categoryTypeText} eliminada con éxito`,
-        },
-        renderForm: (props: any) => (
-          <CategoryForm {...props} categoryType={typeToUse} />
-        ),
-      };
-      
-      return modConfig;
-    },
-    [typeToUse, categoryTypeText]
-  );
+  const mod: ModCrudType = useMemo(() => {
+    // Crear objeto base con tipado explícito para extraData
+    const modConfig: ModCrudType = {
+      modulo: "categories",
+      singular: "Categoría",
+      plural: "Categorías",
+      permiso: "",
+      // Inicializar extraData con params que incluye el tipo (I o E)
+      export: true,
+      extraData: {
+        params: { type: typeToUse },
+      } as { params: Record<string, any> },
+      hideActions: {
+        view: false,
+        add: false,
+        edit: false,
+        del: false,
+      },
+      saveMsg: {
+        add: `Categoría de ${categoryTypeText} creada con éxito`,
+        edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
+        del: `Categoría de ${categoryTypeText} eliminada con éxito`,
+      },
+      renderForm: (props: any) => (
+        <CategoryForm {...props} categoryType={typeToUse} />
+      ),
+    };
 
-  const paramsInitial = useMemo(
-    () => {
-      const params: any = {
-        perPage: 10,
-        page: 1,
-        fullType: "L",
-        searchBy: "",
-        type: typeToUse // Siempre incluir type (I o E)
-      };
-      
-      return params;
-    },
-    [typeToUse]
-  );
+    return modConfig;
+  }, [typeToUse, categoryTypeText]);
 
-  const fields = useMemo(
-    () => {
-      const fieldsConfig: any = {
-        id: { rules: [], api: "e" },
+  const paramsInitial = useMemo(() => {
+    const params: any = {
+      perPage: 10,
+      page: 1,
+      fullType: "L",
+      searchBy: "",
+      type: typeToUse, // Siempre incluir type (I o E)
+    };
 
-        name: {
-          rules: ["required"],
-          api: "ae",
-          label: "Nombre",
-          form: { type: "text" },
-          list: {
-            onRender: (props: { item: CategoryItem }) => {
-              return (
-                <div className={styles.categoryName}>
-                  {props.item.name || "Sin nombre"}
-                </div>
-              );
-            },
+    return params;
+  }, [typeToUse]);
+
+  const fields = useMemo(() => {
+    const fieldsConfig: any = {
+      id: { rules: [], api: "e" },
+
+      name: {
+        rules: ["required"],
+        api: "ae",
+        label: "Nombre",
+        form: { type: "text" },
+        list: {
+          onRender: (props: { item: CategoryItem }) => {
+            return (
+              <div className={styles.categoryName}>
+                {props.item.name || "Sin nombre"}
+              </div>
+            );
           },
         },
+      },
 
-        description: {
-          rules: [],
-          api: "ae",
-          label: "Descripción",
-          form: { type: "textarea" },
-          list: {
-            width: "300px",
-            onRender: (props: { item: CategoryItem }) => {
-              return (
-                <div className={styles.categoryDescription}>
-                  {props.item.description || "Sin descripción"}
-                </div>
-              );
-            },
+      description: {
+        rules: [],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "textarea" },
+        list: {
+          width: "300px",
+          onRender: (props: { item: CategoryItem }) => {
+            return (
+              <div className={styles.categoryDescription}>
+                {props.item.description || "Sin descripción"}
+              </div>
+            );
           },
         },
+      },
 
-        category_id: {
-          rules: [],
-          api: "ae",
-          label: "Categoría Padre",
-          form: {
-            type: "select",
-            optionsExtra: "categories",
-            placeholder: "Seleccione una categoría",
-          },
-          list: {
-            width: "180px",
-            onRender: (props: { item: CategoryItem }) => {
-              return props.item.category ? (
-                <div>{props.item.category.name || "Sin nombre"}</div>
-              ) : (
-                <div className={styles.mainCategory}>Categoría Principal</div>
-              );
-            },
-          },
+      category_id: {
+        rules: [],
+        api: "ae",
+        label: "Categoría Padre",
+        form: {
+          type: "select",
+          optionsExtra: "categories",
+          placeholder: "Seleccione una categoría",
         },
-
-        // Campo para manejar los hijos/subcategorías
-        hijos: {
-          rules: [],
-          api: "",
-          label: "Subcategorías",
-        },
-        
-        // Incluir siempre el campo type
-        type: {
-          rules: ["required"],
-          api: "ae",
-          label: "Tipo",
-          form: {
-            type: "hidden",
-            precarga: typeToUse, // I para ingresos, E para egresos
+        list: {
+          width: "180px",
+          onRender: (props: { item: CategoryItem }) => {
+            return props.item.category ? (
+              <div>{props.item.category.name || "Sin nombre"}</div>
+            ) : (
+              <div className={styles.mainCategory}>Categoría Principal</div>
+            );
           },
         },
-      };
-      
-      return fieldsConfig;
-    },
-    [typeToUse]
-  );
+      },
 
-  const {
-    userCan,
-    List,
-    onEdit,
-    onDel,
-    onAdd,
-    onView,
-    extraData,
-    execute,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-  });
+      // Campo para manejar los hijos/subcategorías
+      hijos: {
+        rules: [],
+        api: "",
+        label: "Subcategorías",
+      },
+
+      // Incluir siempre el campo type
+      type: {
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo",
+        form: {
+          type: "hidden",
+          precarga: typeToUse, // I para ingresos, E para egresos
+        },
+      },
+    };
+
+    return fieldsConfig;
+  }, [typeToUse]);
+
+  const { userCan, List, onEdit, onDel, onAdd, onView, extraData, execute } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
 
   // Funciones para manejar edición y eliminación
   const handleEdit = useCallback(
@@ -582,9 +564,7 @@ const Categories = ({ type = "" }) => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>
-          Categorías de {categoryTypeText}
-        </h2>
+        <h2 className={styles.title}>Categorías de {categoryTypeText}</h2>
       </div>
 
       <List
