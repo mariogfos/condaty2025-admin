@@ -38,9 +38,7 @@ const MainMenu = ({
 }: PropsType) => {
   const { isMobile } = useScreenSize();
   const { setStore } = useAuth();
-  const client = user?.clients?.filter(
-    (item: any) => item.id === user.client_id
-  )[0];
+  const client = user?.clients?.filter((item:any) => item?.id === user?.client_id)[0];
   // const play = () => {
   //   sound
   //     .play()
@@ -84,7 +82,7 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
+              { href: "/dptos", label: UnitsType[client?.type_dpto]+"s" },
               { href: "/activities", label: "Actividades" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },

@@ -17,9 +17,10 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
   return (
     <div className={styles.menuHeader}>
       <div>
+        
       <Avatar
             src={getUrlImages(
-              "/CLIENT-" + user?.clients[0]?.id + ".webp?d=" + user?.clients[0]?.updated_at
+              "/CLIENT-" + user?.clients?.[0]?.id + ".webp?d=" + user?.clients?.[0]?.updated_at
             )}
             name={getFullName(user)}
             w={collapsed ? 48 : 210}
@@ -39,7 +40,7 @@ const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
       {!collapsed && (
         <div>
           {/* <p>{getFullName(user)}</p> */}
-          <p style={{color: "var(--cWhite)"}}>{user?.clients[0]?.name}</p>
+          <p style={{color: "var(--cWhite)"}}>{user?.clients?.[0]?.name}</p>
           {/* <p style={{color: "var(--cBlackV2)"}}>{user?.entidad?.name}</p> */}
         </div>
       )}

@@ -83,7 +83,7 @@ const HomePage = () => {
           right={
             <Button
               onClick={() => {
-                if (userCan("inicio", "C") == false)
+                if (userCan("home", "C") == false)
                   return showToast(
                     "No tiene permisos para aceptar pagos",
                     "error"
@@ -117,7 +117,7 @@ const HomePage = () => {
           right={
             <Button
               onClick={() => {
-                if (userCan("inicio", "C") == false)
+                if (userCan("home", "C") == false)
                   return showToast(
                     "No tiene permisos para aceptar cuentas pre-registradas",
                     "error"
