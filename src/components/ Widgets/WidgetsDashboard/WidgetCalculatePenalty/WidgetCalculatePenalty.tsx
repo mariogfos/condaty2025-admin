@@ -10,7 +10,7 @@ const WidgetCalculatePenalty = () => {
   const { showToast,  userCan} = useAuth();
 
     const calculatePenalty = async () => {
-        if (userCan("inicio", "C") == false)
+        if (userCan("home", "C") == false)
           return showToast("No tiene permisos para calcular multas", "error");
         const { data: multas, error } = await execute(
           "/setmultas",
