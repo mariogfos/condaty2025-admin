@@ -75,36 +75,46 @@ const BalanceGeneral: React.FC = () => {
     if (search === true) return "";
     return "|search:" + search;
   };
-  
+
   const [filter, setFilter] = useState<FilterType>({});
-  
+
   const getFilter = (
     opt: { opt?: string; value?: string | boolean } | string = "",
     firstDay = "",
     lastDay = "",
     _searchBy = ""
   ) => {
-    if (typeof opt === 'object' && opt?.value === true) return "";
-    
+    if (typeof opt === "object" && opt?.value === true) return "";
+
     let searchBy = "";
     Object.keys(filter).forEach((key) => {
-      if (typeof opt === 'object' && key !== opt.opt && filter[key] && filter[key] !== "") {
+      if (
+        typeof opt === "object" &&
+        key !== opt.opt &&
+        filter[key] &&
+        filter[key] !== ""
+      ) {
         searchBy += filter[key];
       }
     });
 
     let _search = "";
 
-    if (typeof opt === 'object' && opt?.opt && opt?.value && opt?.value !== "") {
+    if (
+      typeof opt === "object" &&
+      opt?.opt &&
+      opt?.value &&
+      opt?.value !== ""
+    ) {
       _search += "|" + opt.opt + ":" + opt.value;
     }
 
     searchBy += _search;
-    
-    if (typeof opt === 'object' && opt?.opt) {
+
+    if (typeof opt === "object" && opt?.opt) {
       setFilter({ ...filter, [opt.opt]: _search });
     }
-    
+
     return searchBy;
   };
 
@@ -114,8 +124,8 @@ const BalanceGeneral: React.FC = () => {
     filter_categ: "",
   });
   const [filtered, setFiltered] = useState(true);
-  const [charType, setCharType] = useState<ChartTypeState>({ 
-    filter_charType: "bar" as ChartType 
+  const [charType, setCharType] = useState<ChartTypeState>({
+    filter_charType: "bar" as ChartType,
   });
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
@@ -128,14 +138,14 @@ const BalanceGeneral: React.FC = () => {
     page: 1,
     fullType: "OC", //OC = only categories
   });
-  
+
   const { data: categoriesI } = useAxios("/categories", "GET", {
     perPage: -1,
     page: 1,
     fullType: "OC", //lista de categorias con hijos
     type: "I",
   });
-  
+
   const { data: finanzas, reLoad: reLoadFinanzas } = useAxios(
     "/balances",
     "GET",
@@ -161,7 +171,7 @@ const BalanceGeneral: React.FC = () => {
       setCharType({ filter_charType: "bar" as ChartType });
       setLchars([
         { id: "bar" as ChartType, name: "Barra" },
-        { id: "line" as ChartType, name: "Linea" }
+        { id: "line" as ChartType, name: "Linea" },
       ]);
     } else {
       if (formStateFilter.filter_mov === "I") {
@@ -173,7 +183,7 @@ const BalanceGeneral: React.FC = () => {
       setLchars([
         { id: "bar" as ChartType, name: "Barra" },
         { id: "pie" as ChartType, name: "Torta" },
-        { id: "line" as ChartType, name: "Linea" }
+        { id: "line" as ChartType, name: "Linea" },
       ]);
     }
   }, [formStateFilter, categoriesI, categories]);
@@ -189,7 +199,7 @@ const BalanceGeneral: React.FC = () => {
   const exportar = () => {
     reLoadFinanzas({ ...formStateFilter, exportar: true });
   };
-  
+
   useEffect(() => {
     if (finanzas?.success === true && finanzas?.data?.export) {
       window.open(getUrlImages("/" + finanzas.data.export.path), "_blank");
@@ -212,7 +222,11 @@ const BalanceGeneral: React.FC = () => {
         date_fin: "La fecha de fin es obligatoria",
       };
     }
-    if (formState.date_inicio && formState.date_fin && formState.date_inicio > formState.date_fin) {
+    if (
+      formState.date_inicio &&
+      formState.date_fin &&
+      formState.date_inicio > formState.date_fin
+    ) {
       err = {
         ...err,
         date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
@@ -222,18 +236,18 @@ const BalanceGeneral: React.FC = () => {
       setErrors(err);
       return;
     }
-    
+
     if (formState.date_inicio && formState.date_fin) {
       setFormStateFilter({
         ...formStateFilter,
         filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
       });
     }
-    
+
     setOpenCustomFilter(false);
     setErrors({});
   };
-  
+
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -282,7 +296,7 @@ const BalanceGeneral: React.FC = () => {
               iconLeft={<IconArrowDown />}
             />
           </div>
-          
+
           <div className={styles.filterItem}>
             <div className={styles.relativeContainer}>
               {formStateFilter.filter_mov === "T" && (
@@ -327,7 +341,7 @@ const BalanceGeneral: React.FC = () => {
             />
           </div>
         </div>
-        
+
         <div className={styles.loadingContainer}>
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && finanzas?.data?.ingresos && (
@@ -346,18 +360,15 @@ const BalanceGeneral: React.FC = () => {
                     periodo={formStateFilter?.filter_date}
                   />
                 </div>
-                
+
                 <div className={styles.exportButtonContainer}>
-                  <Button 
-                    className={styles.exportButton}
-                    onClick={exportar}
-                  >
+                  <Button className={styles.exportButton} onClick={exportar}>
                     Exportar tablas
                   </Button>
                 </div>
-                
+
                 <div className={styles.divider} />
-                
+
                 <TableIngresos
                   title="Ingresos"
                   title2="Total"
@@ -369,9 +380,9 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                 />
-                
+
                 <div className={styles.divider} />
-                
+
                 <TableEgresos
                   title="Egresos"
                   title2="Total"
@@ -383,9 +394,9 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                 />
-                
+
                 <div className={styles.divider} />
-                
+
                 <TableResumenGeneral
                   subcategoriasE={finanzas?.data?.egresos}
                   subcategoriasI={finanzas?.data?.ingresos}
@@ -396,7 +407,7 @@ const BalanceGeneral: React.FC = () => {
                 />
               </>
             )}
-            
+
             {formStateFilter.filter_mov === "I" && finanzas?.data?.ingresos && (
               <>
                 <div className={styles.chartContainer}>
@@ -411,18 +422,15 @@ const BalanceGeneral: React.FC = () => {
                     }
                   />
                 </div>
-                
+
                 <div className={styles.exportButtonContainer}>
-                  <Button 
-                    className={styles.exportButton}
-                    onClick={exportar}
-                  >
+                  <Button className={styles.exportButton} onClick={exportar}>
                     Exportar tabla
                   </Button>
                 </div>
-                
+
                 <div className={styles.divider} />
-                
+
                 <TableIngresos
                   title="Ingresos"
                   title2="Total"
@@ -437,7 +445,7 @@ const BalanceGeneral: React.FC = () => {
                 />
               </>
             )}
-            
+
             {formStateFilter.filter_mov === "E" && finanzas?.data?.egresos && (
               <>
                 <div className={styles.chartContainer}>
@@ -452,18 +460,15 @@ const BalanceGeneral: React.FC = () => {
                     }
                   />
                 </div>
-                
+
                 <div className={styles.exportButtonContainer}>
-                  <Button 
-                    className={styles.exportButton}
-                    onClick={exportar}
-                  >
+                  <Button className={styles.exportButton} onClick={exportar}>
                     Exportar tabla
                   </Button>
                 </div>
-                
+
                 <div className={styles.divider} />
-                
+
                 <TableEgresos
                   title="Egresos"
                   title2="Total"
@@ -481,7 +486,7 @@ const BalanceGeneral: React.FC = () => {
           </LoadingScreen>
         </div>
       </div>
-      
+
       <DataModal
         open={openCustomFilter}
         title="Personalizar"

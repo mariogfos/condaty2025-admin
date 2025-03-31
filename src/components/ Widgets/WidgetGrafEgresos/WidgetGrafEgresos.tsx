@@ -36,15 +36,19 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   const getMonths = (data: Transaction[] | undefined) => {
     const uniqueMonths = data?.reduce(
       (acc: string[], curr) =>
-        acc.includes(MONTHS_S[curr.mes - 1]) ? acc : [...acc, MONTHS_S[curr.mes - 1]],
+        acc.includes(MONTHS_S[curr.mes - 1])
+          ? acc
+          : [...acc, MONTHS_S[curr.mes - 1]],
       []
     );
     return uniqueMonths || [];
   };
 
-  const getValuesEgresos = (egresosHist: Transaction[] | undefined): FormattedValue[] => {
+  const getValuesEgresos = (
+    egresosHist: Transaction[] | undefined
+  ): FormattedValue[] => {
     if (!egresosHist || egresosHist.length === 0) return [];
-    
+
     let values: FormattedValue[] = [];
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
@@ -79,10 +83,8 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   };
 
   return (
-    <div className={`${styles.container} ${className || ''}`}>
-      <p className={styles.title}>
-        {title || "Resumen de egresos"}
-      </p>
+    <div className={`${styles.container} ${className || ""}`}>
+      <p className={styles.title}>{title || "Resumen de egresos"}</p>
       <p className={styles.subtitle}>
         {subtitle ||
           "Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías"}
@@ -92,6 +94,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
           labels: getMonths(egresos),
           values: getValuesEgresos(egresos),
         }}
+        downloadPdf
         chartTypes={chartTypes}
         options={{
           title: "",
