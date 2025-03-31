@@ -23,6 +23,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import {
   IconAdmin,
   IconEdit,
+  IconExport,
   IconGrilla,
   IconImport,
   IconMenu,
@@ -44,6 +45,7 @@ export type ModCrudType = {
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
+  export?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -406,16 +408,17 @@ const useCrud = ({
       {
         ...params,
         _export: type,
-        exportCols: mod?.exportCols || params.cols || "",
-        exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
-        exportTitulos: mod?.exportTitulos || "",
-        exportAnchos: mod?.exportAnchos || "",
+        // exportCols: mod?.exportCols || params.cols || "",
+        // exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
+        // exportTitulos: mod?.exportTitulos || "",
+        // exportAnchos: mod?.exportAnchos || "",
       },
       false,
       mod?.noWaiting
     );
     if (file?.success) {
       callBack(getUrlImages("/" + file.data.path));
+      // window.open(getUrlImages("/" + file.data.path));
     } else {
       showToast(file?.message, "error Export");
       logError("Error onExport:", file);
@@ -881,6 +884,11 @@ const useCrud = ({
           {mod.import && (
             <div style={{ marginTop: "12px" }} onClick={onImport}>
               <IconImport />
+            </div>
+          )}
+          {mod.export && (
+            <div style={{ marginTop: "12px" }} onClick={onImport}>
+              <IconExport onClick={onExport} />
             </div>
           )}
           {mod.listAndCard && (
