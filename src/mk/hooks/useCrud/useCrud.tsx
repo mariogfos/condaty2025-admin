@@ -33,7 +33,6 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
-import { wrap } from "module";
 
 export type ModCrudType = {
   modulo: string;

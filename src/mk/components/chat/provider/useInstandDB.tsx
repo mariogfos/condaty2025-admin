@@ -46,10 +46,12 @@ type useInstantDbType = {
   error: any;
   roomGral: string;
   typing: any;
+  sending: boolean;
 };
 
 const useInstandDB = (): useInstantDbType => {
   const { user, showToast } = useAuth();
+  const [sending, setSending] = useState(false);
   const { dispatch: newRoomEvent } = useEvent("onChatNewRoom");
   const { dispatch: closeRoomEvent } = useEvent("onChatCloseRoom");
   const { dispatch: sendMsgEvent } = useEvent("onChatSendMsg");
@@ -255,7 +257,8 @@ const useInstandDB = (): useInstantDbType => {
   };
   const sendMessage: SendMessageType = useCallback(
     async (text: string, roomId: string, file?: File) => {
-      if (text.trim()) {
+      if (text.trim() || file) {
+        setSending(true);
         const _id = id();
         const now = Date.now();
         const msg = {
@@ -269,8 +272,10 @@ const useInstandDB = (): useInstantDbType => {
           await uploadImageInstantDB(file, roomId, _id);
         }
         sendMsgEvent({ ...msg, msgId: _id });
+        setSending(false);
         return _id;
       }
+      setSending(false);
       return false;
     },
     [sendMsgEvent, user.id]
@@ -360,6 +365,7 @@ const useInstandDB = (): useInstantDbType => {
       roomGral,
       showToast,
       typing,
+      sending,
     }),
     [
       getNameRoom,
@@ -378,6 +384,7 @@ const useInstandDB = (): useInstantDbType => {
       error,
       showToast,
       typing,
+      sending,
     ]
   );
 
