@@ -25,7 +25,6 @@ export default function ChatInstantDb() {
     usersChat,
     sendMessage,
     sendEmoticon,
-    getNameRoom,
     readMessage,
     openNewChat,
     chats,
@@ -33,6 +32,7 @@ export default function ChatInstantDb() {
     uniquePresence,
     showToast,
     typing,
+    sending,
   } = useInstandDB();
   const [open, setOpen] = useState(false);
   const [typeSearch, setTypeSearch]: any = useState(roomGral);
@@ -201,6 +201,7 @@ export default function ChatInstantDb() {
         readMessage={readMessage}
         users={usersChat}
         typing={typing}
+        sending={sending}
         isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
       />
       <h4 className={styles.onlineUsersTitle}>Usuarios en línea:</h4>

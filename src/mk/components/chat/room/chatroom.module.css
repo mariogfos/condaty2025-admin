@@ -19,6 +19,7 @@
   padding: 12px;
   padding-top: 0;
   position: relative;
+  color: black;
 }
 
 .messageContainer {
@@ -51,6 +52,8 @@
   position: relative;
   background-color: #dcf8c6; /* Color de fondo de la burbuja de chat */
   transition: background-color 0.2s ease;
+  line-height: 1.2;
+  white-space: pre-line;
 }
 .messageBubble:hover {
   background-color: #c8e8b4; /* Cambia el color al pasar el mouse */
@@ -124,7 +127,6 @@
 
 .emojiPicker {
   position: absolute;
-  /* bottom: 100%; */
   top: 88px;
   left: 0;
   width: 100%;
@@ -137,6 +139,32 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.2s ease;
   z-index: 20;
+}
+
+.chatInput {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  line-height: 1;
+  white-space: pre-line;
+  resize: none;
+  outline: none;
+}
+
+.chatInput:focus {
+  border-color: var(--cAccent);
+}
+
+.chatButton {
+  color: var(--cPrimary);
+  opacity: 0.8;
+  cursor: pointer;
+  align-self: center;
+}
+
+.chatButton:hover {
+  opacity: 1;
 }
 
 @keyframes fadeIn {

@@ -6,6 +6,7 @@ import {
   IconCheck,
   IconImage,
   IconReadMessage,
+  IconSend,
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
@@ -27,6 +28,7 @@ type ChatRoomPropsType = {
   sendEmoticon: SendEmoticonType;
   chats: any;
   typing: any;
+  sending: boolean;
   readMessage: Function;
 };
 
@@ -39,6 +41,7 @@ const ChatRoom = ({
   sendEmoticon,
   chats,
   typing,
+  sending,
   readMessage,
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
@@ -60,6 +63,7 @@ const ChatRoom = ({
       sendMessage(newMessage, roomId);
     }
     setNewMessage("");
+    typing.inputProps.onBlur();
   };
 
   // Filtrar mensajes de la sala actual
@@ -124,6 +128,18 @@ const ChatRoom = ({
     });
     sendEmoticon(JSON.stringify(emojis), showEmojiPicker.id);
     setShowEmojiPicker(null);
+  };
+
+  const onKeyUp = (e: any) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) {
+        // Si se presiona Shift + Enter, agrega un salto de línea
+        setNewMessage(newMessage + "\n");
+      } else {
+        // Si no se presiona Shift + Enter, envía el mensaje
+        handleSendMessage();
+      }
+    }
   };
 
   return (
@@ -295,20 +311,30 @@ const ChatRoom = ({
         <IconImage
           color="var(--cWhite)"
           onClick={() => fileInputRef.current?.click()}
+          style={{ cursor: "pointer" }}
         />
-        <input
-          type="text"
+        <textarea
+          // type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           className={styles.chatInput}
           placeholder="Escribe un mensaje..."
           onBlur={typing.inputProps.onBlur}
           onKeyDown={typing.inputProps.onKeyDown}
-          style={{ width: "100%" }}
+          onKeyUp={onKeyUp}
+          // style={{ width: "100%", lineHeight: "0.5", padding: "8px" }}
         />
-        <button onClick={handleSendMessage} className={styles.chatButton}>
+        <div
+          className={styles.chatButton}
+          onClick={() => {
+            if (!sending) handleSendMessage();
+          }}
+        >
+          <IconSend size={32} />
+        </div>
+        {/* <button onClick={handleSendMessage} className={styles.chatButton}>
           Enviar
-        </button>
+        </button> */}
       </div>
     </div>
   );

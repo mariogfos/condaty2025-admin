@@ -10,6 +10,7 @@
   height: 100%;
   top: 0;
   right: -400px;
+  color: white;
   &.close {
     right: 0px;
   }
@@ -23,11 +24,6 @@
 }
 
 .chatMessages {
-  /* height: 300px;
-  overflow-y: auto;
-  border: 1px solid var(--cBlack);
-  padding: 8px;
-  border-radius: 4px; */
   flex: 1;
   background-color: var(--cBlackV2);
   overflow-y: auto;
@@ -35,43 +31,6 @@
   max-height: 400px;
   border-radius: 8px;
   position: relative;
-}
-
-.chatMessageName {
-  color: var(--cWhiteV1);
-  display: block;
-}
-.chatMessage {
-  margin-bottom: 8px;
-  padding: 4px;
-  border-bottom: 1px solid var(--cBlack);
-
-  color: var(--cWhite);
-  & span {
-    font-size: 8px;
-    /* display: block; */
-  }
-}
-
-.chatInput {
-  width: calc(100% - 80px);
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.chatButton {
-  width: 70px;
-  padding: 8px;
-  background-color: var(--cPrimary);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.chatButton:hover {
-  background-color: #0056b3;
 }
 
 .onlineUsersTitle {
@@ -95,18 +54,4 @@
 .offlineUser {
   padding: 4px;
   color: grey;
-}
-
-.dateMarker {
-  position: sticky;
-  top: 0;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  text-align: center;
-  z-index: 10;
-  margin-bottom: 10px;
 }
