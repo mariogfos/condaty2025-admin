@@ -1,14 +1,60 @@
 .useCrud {
   gap: 1px;
 }
+
 .formDelete {
   display: flex;
   color: var(--cWhiteV1);
   font-size: var(--sM);
 }
 
+/* Estilo mejorado para el botón de añadir */
 .addButton {
-  padding: var(--spS);
-  cursor: pointer;
-  transition: background-color 0.3s;
+  height: 48px !important; /* Forzar altura */
+  min-height: 48px !important;
+  max-height: 48px !important;
+  box-sizing: border-box !important;
+  padding: 0 var(--spL) !important; /* Usar el padding horizontal definido en button.module.css */
+}
+
+/* Asegurar que los contenedores no añadan altura adicional */
+.useCrud nav > div:last-child {
+  height: 48px;
+  line-height: 1;
+}
+
+/* Estilos para los botones extras */
+.extraButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-right: 10px;
+  height: 48px; /* Asegurar que el contenedor tenga la misma altura */
+}
+
+/* Estilos para los botones dentro de extraButtons */
+.extraButtons button {
+  height: 48px !important;
+}
+
+/* Actualizar el estilo de nav para asegurar que los elementos se alineen correctamente */
+.useCrud nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .useCrud nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .extraButtons {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }

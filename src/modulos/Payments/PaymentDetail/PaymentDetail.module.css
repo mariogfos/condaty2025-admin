@@ -1,87 +1,214 @@
 .container {
-    padding: 20px 0;
-    background-color: var(--cBlack);
-    border-radius: 8px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .detailRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    width: 100%;
-  }
-  
-  .label {
-    font-size: var(--sM);
-    color: var(--cWhiteV2);
-    text-align: right;
-    width: 45%;
-    padding-right: 24px;
-  }
-  
-  .value {
-    font-size: var(--sM);
-    color: var(--cWhite);
-    text-align: left;
-    width: 55%;
-    font-weight: 500;
-  }
-  
-  .buttonContainer {
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-  .tableHeader {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  background-color: #212121;
+  border-radius: 12px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* Sección para mostrar el monto total y la fecha */
+.totalAmountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.totalAmount {
+  color: #fbfbfb;
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: -1px;
+  text-align: center;
+  width: 100%;
+}
+
+.paymentDate {
+  color: #a6a6a6;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Separador horizontal */
+.divider {
+  height: 1px;
+  background-color: #a6a6a6;
+  width: 100%;
+  margin: 8px 0;
+}
+
+/* Contenedor para la información detallada */
+.detailsContainer {
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.label {
+  color: #a6a6a6;
+  font-size: 16px;
+  flex: 1;
+  margin-top: -1px;
+}
+
+.value {
+  color: #fafafa;
+  font-size: 16px;
+  flex: 1;
+  text-align: right;
+  margin-top: -1px;
+}
+
+.successValue {
+  color: #00e38c;
+  font-size: 16px;
+  flex: 1;
+  text-align: right;
+  margin-top: -1px;
+}
+
+/* Botón de Revisar comprobante */
+.buttonContainer {
+  display: flex;
+  width: 100%;
   margin-top: 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-color);
+}
+
+.downloadButton {
+  width: 100%;
+  color: #00e38c !important;
+  background-color: transparent !important;
+  font-size: 16px !important;
+  padding: 12px 16px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.downloadButton:hover {
+  background-color: rgba(0, 227, 140, 0.1) !important;
+}
+
+.buttonActions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Sección de periodos pagados */
+.periodsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.periodsHeader {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+}
+
+.periodsTitle {
+  color: #a6a6a6;
+  font-size: 14px;
+  flex: 1;
+  margin-top: -1px;
+}
+
+.totalPaid {
+  color: #a6a6a6;
+  font-size: 14px;
+  white-space: nowrap;
+  margin-top: -1px;
+}
+
+.totalPaidAmount {
+  color: #fafafa;
+}
+
+/* Tabla de periodos */
+.tableContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableHeader {
+  display: flex;
+  width: 100%;
 }
 
 .headerCell {
-  font-weight: 500;
-  color: var(--text-light);
+  flex: 1;
+  background-color: #3f3f3f;
+  color: #a6a6a6;
+  padding: 12px;
   text-align: center;
+  font-size: 14px;
+}
+
+.headerCellLeft {
+  border-radius: 16px 0 0 0;
+}
+
+.headerCellRight {
+  border-radius: 0 16px 0 0;
 }
 
 .tableBody {
-  margin-bottom: 16px;
+  width: 100%;
 }
 
 .tableRow {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  padding: 12px 8px;
-  background-color: var(--bg-secondary);
-  border-radius: 8px;
-  margin-bottom: 8px;
+  display: flex;
+  width: 100%;
 }
 
 .tableCell {
-  font-size: 14px;
-  color: var(--text-secondary);
+  flex: 1;
+  background-color: #2e2e2e;
+  color: #fafafa;
+  padding: 20px 12px;
   text-align: center;
+  font-size: 14px;
+}
+
+.tableRowEven .tableCell {
+  background-color: #3f3f3f;
+}
+
+.tableLastRow .tableCellLeft {
+  border-radius: 0 0 0 16px;
+}
+
+.tableLastRow .tableCellRight {
+  border-radius: 0 0 16px 0;
 }
 
 @media (max-width: 768px) {
-  .tableHeader, .tableRow {
-    grid-template-columns: repeat(3, 1fr);
+  .detailsContainer {
+    padding: 0 16px;
   }
   
-  .headerCell:nth-child(4),
-  .headerCell:nth-child(5),
-  .tableCell:nth-child(4),
-  .tableCell:nth-child(5) {
-    display: none;
+  .tableHeader, .tableRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
   }
 }

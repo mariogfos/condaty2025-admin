@@ -92,7 +92,7 @@
 
 .addButton {
   /* //padding: var(--spS); */
-  height: 56px;
+  height: 48px;
   cursor: pointer;
   transition: background-color 0.3s;
 }

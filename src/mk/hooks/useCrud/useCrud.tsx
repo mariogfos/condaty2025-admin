@@ -79,6 +79,7 @@ type PropsType = {
   _onChange?: Function;
   _onImport?: Function;
   menuFilter?: any;
+  extraButtons?: React.ReactNode[];
 };
 
 type PropsDetail = {
@@ -151,6 +152,7 @@ const useCrud = ({
   _onChange,
   _onImport,
   menuFilter = null,
+  extraButtons = [],
 }: PropsType): UseCrudType => {
   const { user, showToast, userCan, store, setStore } = useAuth();
   const [formState, setFormState]: any = useState({});
@@ -841,14 +843,22 @@ const useCrud = ({
   Form.displayName = "Form";
   const [filterSel, setFilterSel]: any = useState({});
   const AddMenu = memo(
-    ({ filters, onClick }: { filters?: any; onClick?: (e?: any) => void }) => {
+    ({ 
+      filters, 
+      onClick, 
+      extraButtons 
+    }: { 
+      filters?: any; 
+      onClick?: (e?: any) => void;
+      extraButtons?: React.ReactNode[]; 
+    }) => {
       if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
-
+  
       const onChange = (e: any) => {
         setFilterSel({ ...filterSel, [e.target.name]: e.target.value });
         onFilter(e.target.name, e.target.value);
       };
-
+  
       return (
         <nav>
           {mod.search && mod.search.hide ? null : (
@@ -899,9 +909,24 @@ const useCrud = ({
               </div>
             </div>
           )}
+          
+          {/* Renderizar los botones extras */}
+          {extraButtons && extraButtons.length > 0 && (
+            <div className={styles.extraButtons}>
+              {extraButtons.map((button, index) => (
+                <div key={`extra-button-${index}`}>{button}</div>
+              ))}
+            </div>
+          )}
+          
           {mod.hideActions?.add ? null : (
             <div>
-              <Button className={styles.addButton} onClick={onClick || onAdd}>
+              <Button 
+                className={styles.addButton} 
+                onClick={onClick || onAdd}
+                style={{ height: 48 }} // Asegurar la altura con estilo inline
+                variant="primary" // Asegurar que estamos usando el estilo correcto
+              >
                 {"Crear " + mod.singular}
               </Button>
             </div>
@@ -1081,7 +1106,7 @@ const useCrud = ({
     }, [fields]);
     return (
       <div className={styles.useCrud}>
-        {openList && <AddMenu filters={lFilter} />}
+        {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
             <>
