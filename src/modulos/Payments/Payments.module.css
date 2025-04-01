@@ -16,14 +16,7 @@
   margin-bottom: 20px;
 }
 
-.buttonsContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+
 
 .graphButton {
   background-color: var(--cDarkv2, #2a2a2a) !important;

@@ -12,6 +12,7 @@ import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetG
 import IncomeForm from "./PaymentsForm/PaymentsForm";
 import DetailPayment from "./PaymentDetail/PaymentDetail";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import dptos from "@/app/dptos/page";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -73,6 +74,9 @@ const Payments = () => {
     { id: "A", name: "Por pagar" },
     { id: "M", name: "Moroso" }
   ];
+  const removeCommas = (text: string | number): string => {
+    return String(text).replace(/[,]/g, '');
+  };
 
   const paramsInitial = {
     perPage: 10,
@@ -110,6 +114,15 @@ const Payments = () => {
           label: "Periodo",
           width: "150px",
           options: getPeriodOptions // Referencia a la función, no llamada a la función
+        }
+      },
+      dptos: {
+        api: "ae",
+        label: "Unidad",
+        list: { 
+          onRender: (props: any) => {
+            return <div>{removeCommas(props.item.dptos)}</div>;
+          }
         }
       },
   

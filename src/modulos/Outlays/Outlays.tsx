@@ -57,6 +57,35 @@ const Outlays = () => {
     return periodo;
   };
 
+  // Función para navegar a la página de categorías
+  const goToCategories = (type = "") => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push("/categories");
+    }
+  };
+
+  // Opciones para los filtros
+  const getPeriodOptions = () => [
+    { id: "", name: "Todos" },
+    { id: "month", name: "Este mes" },
+    { id: "lmonth", name: "Mes anterior" },
+    { id: "year", name: "Este año" },
+    { id: "lyear", name: "Año anterior" }
+  ];
+  
+  const getCategoryOptions = () => [
+    { id: "", name: "Todos" },
+    // Aquí se podrían agregar dinámicamente las categorías desde extraData
+  ];
+  
+  const getStatusOptions = () => [
+    { id: "", name: "Todos" },
+    { id: "A", name: "Pagado" },
+    { id: "C", name: "Anulado" }
+  ];
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -65,7 +94,12 @@ const Outlays = () => {
         api: "ae", 
         label: "Fecha",
         form: { type: "date" }, 
-        list: { } 
+        list: { },
+        filter: {
+          label: "Periodo",
+          width: "150px",
+          options: getPeriodOptions
+        }
       }, 
       category_id: { 
         rules: ["required"], 
@@ -89,7 +123,12 @@ const Outlays = () => {
           onRender: (props: any) => {
             return props.item.category?.padre?.name || `sin datos disponibles`;
           }
-        } 
+        },
+        filter: {
+          label: "Categoría",
+          width: "150px",
+          options: getCategoryOptions
+        }
       }, 
       subcategory_id: { 
         rules: ["required"], 
@@ -119,17 +158,17 @@ const Outlays = () => {
         list: { 
           onRender: (props: any) => {
             return (
-              <div 
-                style={{ 
-                  color: props.item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
-                  fontWeight: "bold"
-                }}
-              >
+              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
                 {props.item.status === "A" ? "Pagado" : "Anulado"}
               </div>
             );
           }
-        } 
+        },
+        filter: {
+          label: "Estado del egreso",
+          width: "180px",
+          options: getStatusOptions
+        }
       },
       amount: { 
         rules: ["required"], 
@@ -168,11 +207,22 @@ const Outlays = () => {
         label: "Ext",
       }, 
     };
-  }, []); // Ya no dependemos de subcategories, lo manejamos en el OutlaysForm
+  }, []);
 
   const onImport = () => {
     setOpenImport(true);
   };
+
+  // Definición de botones extras para enviar al useCrud
+  const extraButtons = [
+    <Button 
+      key="categories-button"
+      onClick={() => goToCategories("E")}
+      className={styles.categoriesButton}
+    >
+      Categorías
+    </Button>
+  ];
 
   const {
     userCan,
@@ -192,7 +242,7 @@ const Outlays = () => {
     mod,
     fields,
     _onImport: onImport,
-    // Ya no necesitamos _onChange, lo manejamos en OutlaysForm
+    extraButtons // Pasando los botones extras al hook
   });
   
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
@@ -234,22 +284,13 @@ const Outlays = () => {
     }
   };
 
-  // Función para navegar a la página de categorías
-  const goToCategories = (type = "") => {
-    if (type) {
-      router.push(`/categories?type=${type}`);
-    } else {
-      router.push("/categories");
-    }
-  };
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   
   return (
     <div className={styles.outlays}>
       <h1 className={styles.title}>Egresos</h1>
       <p className={styles.subtitle}>Administre, agregue y elimine todos los egresos</p>
-      
+     {/*  
       <div className={styles.buttonsContainer}>
         <Button
           onClick={onClickGraph}
@@ -257,14 +298,7 @@ const Outlays = () => {
         >
           Ver gráfica
         </Button>
-        
-        <Button 
-          onClick={() => goToCategories("E")}
-          className={styles.categoriesButton}
-        >
-          Administrar categorías
-        </Button>
-      </div>
+      </div> */}
       
       <List />
       
