@@ -1,6 +1,6 @@
 .useCrud {
   gap: 1px;
-  & > section {
+  & > div > section {
     height: calc(100vh - 280px);
     overflow-y: auto;
     & > section {
@@ -27,7 +27,7 @@
     }
     & > div:first-child {
       flex-grow: 1;
-      & > div{
+      & > div {
         margin-bottom: 0px;
       }
     }
@@ -88,7 +88,6 @@
   color: var(--cWhiteV1);
   font-size: var(--sM);
 }
-
 
 .addButton {
   /* //padding: var(--spS); */
