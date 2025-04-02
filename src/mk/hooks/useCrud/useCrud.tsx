@@ -1092,8 +1092,20 @@ const useCrud = ({
         {openList && <AddMenu filters={lFilter} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
-            <>
-              <section style={{}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "var(--spM)",
+              }}
+            >
+              <section
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
                 {data?.data?.length > 0 ? (
                   <Table
                     data={data?.data}
@@ -1125,26 +1137,27 @@ const useCrud = ({
                     <p>No existen datos en este momento.</p>
                   </section>
                 )}
-              </section>
-              {/* {((data?.data.length == params.perPage &&
+                {/* {((data?.data.length == params.perPage &&
                 data?.message?.total > data?.data.length) ||
                 params.page > 1) && ( */}
-              <div>
-                <Pagination
-                  currentPage={params.page}
-                  onPageChange={onChangePage}
-                  setParams={setParams}
-                  params={params}
-                  totalPages={Math.ceil(
-                    (data?.message?.total || 1) / (params.perPage || 1)
-                  )}
-                  previousLabel=""
-                  nextLabel=""
-                  total={data?.message?.total || 0}
-                />
-              </div>
-              {/* )} */}
-            </>
+                <div>
+                  <Pagination
+                    currentPage={params.page}
+                    onPageChange={onChangePage}
+                    setParams={setParams}
+                    params={params}
+                    totalPages={Math.ceil(
+                      (data?.message?.total || 1) / (params.perPage || 1)
+                    )}
+                    previousLabel=""
+                    nextLabel=""
+                    total={data?.message?.total || 0}
+                  />
+                </div>
+                {/* )} */}
+              </section>
+              {props.renderRight ? props.renderRight() : null}
+            </div>
           )}
 
           {openView && (
