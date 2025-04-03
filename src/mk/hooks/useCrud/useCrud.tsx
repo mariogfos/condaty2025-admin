@@ -17,7 +17,7 @@ import DataModal from "../../components/ui/DataModal/DataModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
 import useScreenSize from "../useScreenSize";
-import styles from "./styles.module.css";
+import styles from "./useCrud.module.css";
 import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import {
@@ -28,6 +28,7 @@ import {
   IconMenu,
   IconTableEmpty,
   IconTrash,
+  IconExport,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
@@ -44,6 +45,7 @@ export type ModCrudType = {
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
+  export?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -396,8 +398,9 @@ const useCrud = ({
   };
 
   type ExportType = "pdf" | "xls" | "csv";
+
   const onExport = async (
-    type: ExportType = "pdf",
+    type?: string, // Cambiar el tipo a string opcional
     callBack: (url: string) => void = (url: string) => {}
   ) => {
     if (!userCan(mod.permiso, "R"))
@@ -407,7 +410,8 @@ const useCrud = ({
       "GET",
       {
         ...params,
-        _export: type,
+        fullType: "L", // Agregar fullType: "L"
+        _export: type ?? "pdf", // Usar ?? para valor por defecto
         exportCols: mod?.exportCols || params.cols || "",
         exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
         exportTitulos: mod?.exportTitulos || "",
@@ -417,13 +421,13 @@ const useCrud = ({
       mod?.noWaiting
     );
     if (file?.success) {
-      callBack(getUrlImages("/" + file.data.path));
+      window.open(getUrlImages("/" + file.data.path)); // Abrir directamente en lugar de usar callback
+      callBack(getUrlImages("/" + file.data.path)); // Mantener callback por compatibilidad
     } else {
-      showToast(file?.message, "error Export");
+      showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
     }
   };
-
   const onExportItem = (
     item: Record<string, any>,
     type: ExportType = "pdf"
@@ -893,6 +897,11 @@ const useCrud = ({
               <IconImport />
             </div>
           )}
+          {mod.export && (
+            <div style={{ marginTop: "12px" }}>
+              <IconExport onClick={() => onExport("pdf")} />
+            </div>
+          )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
               <div
@@ -1061,7 +1070,7 @@ const useCrud = ({
     const getHeader = () => {
       const head: Object[] = [];
       const lFilter: Object[] = [];
-
+  
       for (const key in fields) {
         const field = fields[key];
         if (field.filter) {
@@ -1097,7 +1106,7 @@ const useCrud = ({
       setLfilter(lFilter);
       return head;
     };
-
+  
     const [header, setHeader]: any = useState([]);
     const [lFilter, setLfilter]: any = useState([]);
     useEffect(() => {
@@ -1109,8 +1118,20 @@ const useCrud = ({
         {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
-            <>
-              <section style={{}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "var(--spM)",
+              }}
+            >
+              <section
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
                 {data?.data?.length > 0 ? (
                   <Table
                     data={data?.data}
@@ -1129,7 +1150,6 @@ const useCrud = ({
                         : onButtonActions
                     }
                     className="striped"
-                    // actionsWidth={props.actionsWidth}
                     actionsWidth={"170px"}
                     sumarize={props.sumarize}
                     extraData={extraData}
@@ -1142,28 +1162,25 @@ const useCrud = ({
                     <p>No existen datos en este momento.</p>
                   </section>
                 )}
+                <div>
+                  <Pagination
+                    currentPage={params.page}
+                    onPageChange={onChangePage}
+                    setParams={setParams}
+                    params={params}
+                    totalPages={Math.ceil(
+                      (data?.message?.total || 1) / (params.perPage || 1)
+                    )}
+                    previousLabel=""
+                    nextLabel=""
+                    total={data?.message?.total || 0}
+                  />
+                </div>
               </section>
-              {/* {((data?.data.length == params.perPage &&
-                data?.message?.total > data?.data.length) ||
-                params.page > 1) && ( */}
-              <div>
-                <Pagination
-                  currentPage={params.page}
-                  onPageChange={onChangePage}
-                  setParams={setParams}
-                  params={params}
-                  totalPages={Math.ceil(
-                    (data?.message?.total || 1) / (params.perPage || 1)
-                  )}
-                  previousLabel=""
-                  nextLabel=""
-                  total={data?.message?.total || 0}
-                />
-              </div>
-              {/* )} */}
-            </>
+              {props.renderRight ? props.renderRight() : null}
+            </div>
           )}
-
+  
           {openView && (
             <>
               {mod.renderView ? (

@@ -1,12 +1,12 @@
 // @ts-nocheck
-/* eslint-disable react-hooks/exhaustive-deps */
+ 
 
 import React, { memo, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import styles from "./PaymentDetail.module.css";
+import styles from "./RenderView.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -21,7 +21,7 @@ interface DetailPaymentProps {
 }
 
 // eslint-disable-next-line react/display-name
-const DetailPayment: React.FC<DetailPaymentProps> = memo((props) => {
+const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const { open, onClose, item, extraData, reLoad } = props;
   const [formState, setFormState] = useState<{confirm_obs?: string}>({});
   const [onRechazar, setOnRechazar] = useState(false);
@@ -333,4 +333,4 @@ const DetailPayment: React.FC<DetailPaymentProps> = memo((props) => {
   );
 });
 
-export default DetailPayment;
+export default RenderView;

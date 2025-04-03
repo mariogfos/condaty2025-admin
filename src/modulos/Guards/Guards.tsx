@@ -13,7 +13,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import RenderView from "./RenderView";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 10,

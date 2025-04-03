@@ -9,8 +9,8 @@ import RenderItem from "../shared/RenderItem";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
 import Check from "@/mk/components/forms/Check/Check";
-import RenderForm from "./RenderForm";
-import RenderView from "./RenderView";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 import { isUnitInDefault, paidUnits, sumExpenses, sumPaidUnits, sumPenalty, units, unitsPayable } from "@/mk/utils/utils";
 
@@ -19,17 +19,18 @@ const mod: ModCrudType = {
     modulo: "debts",
     singular: "Expensa",
     plural: "Expensas",
+    export: true,
     // import: true,
     // importRequiredCols:"NAME",
     filter:true,
 
     permiso: "",
     extraData: true,
-    // hideActions:{
-    //     view:true,
+    hideActions:{
+        view:true,
     //     edit:true,
     //     del:true,
-    // },
+     },
     onHideActions: (item: any) => {
 
         return {

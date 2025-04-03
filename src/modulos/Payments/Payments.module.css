@@ -4,31 +4,29 @@
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
   margin-bottom: 5px;
-  color: var(--cWhite, white);
+  color: var(--cWhite);
 }
 
 .subtitle {
-  color: var(--cLightv3, #a0a0a0);
-  font-size: 14px;
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
   margin-bottom: 20px;
 }
 
-
-
 .graphButton {
-  background-color: var(--cDarkv2, #2a2a2a) !important;
-  color: white !important;
-  font-size: 14px;
-  padding: 8px 16px !important;
-  border-radius: 16px !important;
+  background-color: var(--cBlackV2) !important;
+  color: var(--cWhite) !important;
+  font-size: var(--sM);
+  padding: var(--spS) var(--spL) !important;
+  border-radius: var(--bRadiusM) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 150px;
-  height: 48px !important; /* Corregido a 48px */
+  height: 48px !important;
 }
 
 .graphButton:hover {
@@ -36,28 +34,28 @@
 }
 
 .categoriesButton {
-  border: 1px solid var(--cLightv3, #a0a0a0) !important;
-  color: var(--cLightv3, #a0a0a0) !important;
+  border: 1px solid var(--cWhiteV1) !important;
+  color: var(--cWhiteV1) !important;
   background-color: transparent !important;
-  font-size: 14px;
-  padding: 8px 16px !important;
-  border-radius: 12px !important;
+  font-size: var(--sM);
+  padding: var(--spS) var(--spL) !important;
+  border-radius: var(--bRadius) !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px; /* Más adecuado para el texto "Categorías" */
-  height: 48px !important; /* Corregido a 48px */
+  width: 120px;
+  height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
   margin: 0 !important;
 }
 
 .categoriesButton:hover {
-  background-color: rgba(160, 160, 160, 0.1) !important;
+  background-color: var(--cHover) !important;
 }
 
 .viewButton {
-  color: var(--cInfo, blue);
+  color: var(--cInfo);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -69,8 +67,8 @@
 /* Estilos para la tabla */
 .tableContainer {
   overflow-x: auto;
-  border-radius: 8px;
-  background-color: var(--cDarkv1, #1e1e1e);
+  border-radius: var(--bRadiusS);
+  background-color: var(--cBlackV1);
 }
 
 /* Estilos para responsive */
@@ -80,7 +78,7 @@
   }
   
   .title {
-    font-size: 20px;
+    font-size: var(--sXl);
   }
   
   .buttonsContainer {
@@ -104,10 +102,10 @@
   }
 }
 
-/* Estilo general para los badges de estado - ahora con fondos semitransparentes */
+/* Estilo general para los badges de estado */
 .statusBadge {
-  font-weight: 500;
-  padding: 6px 12px;
+  font-weight: var(--bMedium);
+  padding: 6px var(--spM);
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
@@ -120,31 +118,31 @@
 
 /* Estilos para cada estado con fondos semitransparentes y texto coloreado */
 .statusP {
-  background-color: rgba(0, 227, 140, 0.2); /* Verde semitransparente */
-  color: #00e38c; /* Verde brillante */
+  background-color: var(--accentBg);
+  color: var(--cPrimary);
 }
 
 .statusS {
-  background-color: rgba(225, 193, 81, 0.2); /* Amarillo semitransparente */
-  color: #e9b01e; /* Amarillo brillante */
+  background-color: var(--cHoverWarning);
+  color: var(--cWarning);
 }
 
 .statusR {
-  background-color: rgba(218, 93, 93, 0.2); /* Rojo semitransparente */
-  color: #e46055; /* Rojo brillante */
+  background-color: var(--cHoverError);
+  color: var(--cError);
 }
 
 .statusE {
-  background-color: rgba(23, 162, 184, 0.2); /* Azul info semitransparente */
-  color: #17a2b8; /* Azul info brillante */
+  background-color: var(--cHoverInfo);
+  color: var(--cInfo);
 }
 
 .statusA {
-  background-color: rgba(0, 123, 255, 0.2); /* Azul primario semitransparente */
-  color: #0d8aff; /* Azul primario brillante */
+  background-color: rgba(0, 123, 255, 0.2);
+  color: var(--info);
 }
 
 .statusM {
-  background-color: rgba(242, 126, 61, 0.2); /* Naranja semitransparente */
-  color: #f27e3d; /* Naranja brillante */
+  background-color: var(--cMediumAlertHover);
+  color: var(--cMediumAlert);
 }

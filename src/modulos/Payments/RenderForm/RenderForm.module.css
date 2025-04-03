@@ -1,0 +1,310 @@
+/* IncomeForm.css */
+
+.income-form-container {
+  color: var(--cWhite);
+  font-family: var(--fPrimary);
+}
+
+.form-title {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-top: var(--spXl);
+}
+
+.section-title {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  margin-bottom: var(--spM);
+}
+
+.check-icon {
+  color: var(--cWhite);
+}
+
+.check-icon.selected {
+  color: var(--cPrimary);
+}
+
+.total-container {
+  text-align: right;
+  margin: var(--spM) 0;
+}
+
+.payment-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spM);
+}
+
+.amount-input {
+  width: 315px;
+}
+
+.payment-type {
+  width: 331px;
+}
+
+.upload-section {
+  margin-top: var(--spM);
+}
+
+.file-upload-area {
+  margin-top: var(--spS);
+  display: flex;
+  justify-content: center;
+  border-radius: var(--bRadiusS);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  padding: var(--spXl);
+}
+
+.file-upload-area.dragging {
+  border-color: var(--cInfo);
+}
+
+.file-upload-area.error {
+  border-color: var(--cError);
+}
+
+.hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.upload-instructions {
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.upload-text {
+  margin-top: var(--spL);
+  display: flex;
+  font-size: var(--sM);
+  line-height: 1.5;
+  color: var(--cWhiteV2);
+}
+
+.upload-link {
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: var(--bSemibold);
+  color: var(--cPrimary);
+}
+
+.upload-alternative {
+  padding-left: var(--spXs);
+  color: var(--cWhiteV1);
+}
+
+.file-types {
+  font-size: var(--sS);
+  line-height: 1.25;
+}
+
+.error-message {
+  margin-top: var(--spS);
+  color: var(--cError);
+  font-size: var(--sM);
+}
+
+.file-preview {
+  margin-top: var(--spS);
+}
+
+.file-preview-content {
+  margin-top: var(--spS);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-thumbnail {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+.file-info {
+  padding-left: var(--spL);
+}
+
+.file-name {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+}
+
+.file-name span {
+  color: var(--cWhite);
+}
+
+.edit-file-button {
+  color: var(--cPrimary);
+}
+
+.voucher-section {
+  margin-top: var(--spM);
+}
+
+.voucher-input {
+  margin-top: var(--spM);
+}
+
+.obs-section {
+  margin-top: var(--spM);
+}
+
+.obs-input {
+  margin-top: var(--spM);
+}
+
+.deudas-container {
+  margin-top: var(--spL);
+  overflow: hidden;
+}
+
+.deudas-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spS);
+}
+
+.deudas-title {
+  font-size: var(--sM);
+  margin: 0;
+  color: var(--cWhiteV1);
+}
+
+.select-all-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.select-all-text {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  margin-right: var(--spS);
+}
+
+.check-icon {
+  color: var(--cWhite);
+}
+
+.check-icon.selected {
+  color: var(--cPrimary);
+}
+
+.deudas-table {
+  border-radius: var(--bRadiusS);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.deudas-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  padding: var(--spM) var(--spL);
+  justify-items: start;
+  text-align: left;
+}
+
+.header-item {
+  font-size: var(--sM);
+  text-align: left;
+  width: 100%;
+}
+
+.deuda-item {
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.deuda-item:last-child {
+  border-bottom: none;
+}
+
+/* Estilo intercalado (alternando colores) */
+.deuda-item:nth-child(odd) {
+  background-color: var(--cBlackV1);
+}
+
+.deuda-item:nth-child(even) {
+  background-color: var(--cBlack);
+}
+
+.deuda-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  padding: var(--spM) var(--spL);
+  align-items: center;
+  height: auto;
+  border-radius: 0;
+  background-color: transparent;
+  margin-bottom: 0;
+}
+
+.deuda-row:hover {
+  background-color: var(--cHover);
+}
+
+.deuda-cell {
+  font-size: var(--sM);
+  color: var(--cWhite);
+  padding: 0;
+  margin: 0;
+}
+
+.deuda-check {
+  display: flex;
+  justify-content: center;
+  position: static;
+}
+
+.total-container {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--cWhite);
+  padding: var(--spM) var(--spL);
+  font-weight: var(--bMedium);
+}
+
+.error-message {
+  color: var(--cError);
+  font-size: var(--sM);
+  margin-top: var(--spS);
+}
+
+/* Estilos para el monto cuando está deshabilitado */
+.amount-input-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.input-row {
+  display: flex;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.input-half {
+  flex: 1;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: var(--spS) 0;
+}

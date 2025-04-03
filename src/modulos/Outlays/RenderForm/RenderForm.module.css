@@ -44,30 +44,25 @@
   flex: 1;
   min-width: 0; /* Prevent flex items from overflowing */
 }
+.upload-section {
+  margin-top: 12px;
+}
 
-/* File upload styles */
 .file-upload-area {
-  width: 100%;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 2rem 1rem;
+  margin-top: 8px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background-color: var(--cWhiteV2);
-  margin-top: 0.5rem;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  padding: 24px;
 }
 
 .file-upload-area.dragging {
-  background-color: var(--cWhiteV2);
-  border-color: var(--cPrimary);
+  border-color: #3498db; /* El color de acento */
 }
 
 .file-upload-area.error {
-  border-color: var(--cError);
+  border-color: #e74c3c;
 }
 
 .hidden-input {
@@ -170,4 +165,10 @@
   .file-info {
     margin-top: 0.5rem;
   }
+}
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: 8px 0;
 }

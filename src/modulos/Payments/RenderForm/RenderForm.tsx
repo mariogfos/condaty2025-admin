@@ -27,9 +27,9 @@ import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { UnitsType } from '@/mk/utils/utils'
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import styles from "./PaymentsForm.module.css"
+import styles from "./RenderForm.module.css"
 
-const IncomeForm = ({
+const RenderForm = ({
   open,
   onClose,
   item,
@@ -41,7 +41,18 @@ const IncomeForm = ({
   reLoad,
   user,
 }) => {
-  const [_formState, _setFormState] = useState(item || {});
+  const [_formState, _setFormState] = useState(() => {
+    // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    
+    return {
+      ...item || {},
+      // Si no hay fecha en 'item', usa la fecha actual
+      paid_at: (item && item.paid_at) || formattedDate,
+      payment_method: (item && item.payment_method) || "" 
+    };
+  });
   const [deudas, setDeudas] = useState([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState([]);
   const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
@@ -429,6 +440,18 @@ const handleSelectPeriodo = useCallback((periodo) => {
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
+    if (!_formState.paid_at) {
+      err.paid_at = "Este campo es requerido";
+    } else {
+      // Validar que la fecha no sea futura
+      const selectedDate = new Date(_formState.paid_at);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetear la hora para comparar solo fechas
+      
+      if (selectedDate > today) {
+        err.paid_at = "No se permiten fechas futuras";
+      }
+    }
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -458,6 +481,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
     const owner_id = selectedDpto?.titular?.owner?.id;
 
     let params = {
+      paid_at: _formState.paid_at, 
       type: _formState.type,
       file: {
         file: _formState.file,
@@ -542,6 +566,21 @@ const handleSelectPeriodo = useCallback((periodo) => {
       >
           <div className={styles.divider}></div>
         <div className={styles["income-form-container"]}>
+          {/* Fecha de pago */}
+          <div className={styles.section}>
+            <div className={styles["input-container"]}>
+              <Input
+                type="date"
+                name="paid_at"
+                label="Fecha de pago*"
+                required={true}
+                value={_formState.paid_at || ""}
+                onChange={handleChangeInput}
+                error={errors.paid_at}
+                max={new Date().toISOString().split('T')[0]} // Impide seleccionar fechas futuras
+              />
+            </div>
+          </div>
           
           <div className={styles.section}>
             <div className={styles["input-container"]}>
@@ -869,4 +908,4 @@ const handleSelectPeriodo = useCallback((periodo) => {
   );
 };
 
-export default IncomeForm;
+export default RenderForm;

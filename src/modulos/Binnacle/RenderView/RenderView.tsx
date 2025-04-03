@@ -14,7 +14,7 @@ interface BinnacleDetailProps {
 }
 
 // eslint-disable-next-line react/display-name
-const BinnacleDetail = memo((props: BinnacleDetailProps) => {
+const RenderView = memo((props: BinnacleDetailProps) => {
   const { open, onClose, item } = props;
 
   return (
@@ -65,4 +65,4 @@ const BinnacleDetail = memo((props: BinnacleDetailProps) => {
   );
 });
 
-export default BinnacleDetail;
+export default RenderView;

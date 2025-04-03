@@ -7,7 +7,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
-import BinnacleDetail from "./BinnacleDetail";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "guardnews",
@@ -16,7 +16,7 @@ const mod = {
   permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true, add: true },
-  renderView: (props: any) => <BinnacleDetail {...props} />,
+  renderView: (props: any) => <RenderView {...props} />,
   loadView: { fullType: "DET" } // Esto cargará los detalles completos al hacer clic
 };
 

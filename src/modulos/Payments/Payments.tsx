@@ -9,8 +9,8 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
-import IncomeForm from "./PaymentsForm/PaymentsForm";
-import DetailPayment from "./PaymentDetail/PaymentDetail";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import dptos from "@/app/dptos/page";
 
@@ -32,8 +32,8 @@ const Payments = () => {
     plural: "Ingresos",
     permiso: "",
     extraData: true,
-    renderForm: IncomeForm,
-    renderView: (props: any) => <DetailPayment {...props} />,
+    renderForm: RenderForm,
+    renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,

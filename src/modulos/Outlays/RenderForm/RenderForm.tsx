@@ -310,6 +310,7 @@ const RenderForm = ({
         buttonText={"Registrar egreso"}
         title={"Estás registrando un nuevo egreso"}
       >
+        <div className={styles.divider}></div>
         <div className={styles["outlays-form-container"]}>
           {/* Fecha de pago */}
           <div className={styles.section}>

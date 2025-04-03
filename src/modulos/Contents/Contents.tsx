@@ -23,7 +23,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Check from "@/mk/components/forms/Check/Check";
-import RenderView from "./RenderView";
+import RenderView from "./RenderView/RenderView";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { formatNumber } from "@/mk/utils/numbers";

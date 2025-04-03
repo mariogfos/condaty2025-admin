@@ -18,8 +18,8 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import RenderView from "@/modulos/Owners/RenderView";
-import DetailPayment from "@/modulos/Payments/PaymentDetail/PaymentDetail";
+import OwnersRender from "@/modulos/Owners/RenderView";
+import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -258,13 +258,13 @@ const HomePage = () => {
      />                                   
    </section>
   </div>
- <RenderView 
+ <OwnersRender 
   open={openActive}
   onClose={()=>setOpenActive(false)}
   item={dataOwner}
   reLoad={reLoad}
  />
- <DetailPayment
+ <OwnersRender
 { ...paymentProps}
  />
   </>;

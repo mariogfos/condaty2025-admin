@@ -15,6 +15,10 @@
 .headerTitle {
   flex: 0 0 auto;
   margin-right: 16px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--cWhite, white);
+  margin: 0 0 8px 0;
 }
 
 .headerContent {
@@ -288,7 +292,225 @@
   white-space: nowrap;
 }
 
-/* Estilos para móvil */
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cAccent, #4caf50);
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.backLink svg {
+  width: 20px;
+  height: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite, white);
+  margin: 0;
+}
+
+.headerWrapper {
+  width: 100%;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--cDarkv3, #333333);
+  padding-bottom: 16px;
+}
+
+.headerDescription {
+  font-size: 16px;
+  color: var(--cLightv2, #cccccc);
+  margin: 0;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.addSubcategoryContainer {
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px dashed var(--cDarkv3, #333333);
+  width: 100%;
+}
+
+.addSubcategoryButton {
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cAccent, #4caf50);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.addSubcategoryButton:hover {
+  background-color: var(--cDarkv2, #252525);
+}
+
+/* Estilos para el formulario modal */
+.formModalContent {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+}
+
+
+
+.fieldContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  color: #a7a7a7;
+  margin-bottom: 4px;
+}
+
+.subcategoryOption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.subcategoryText {
+  display: flex;
+  flex-direction: column;
+}
+
+.subcategoryTitle {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.subcategoryDescription {
+  font-size: 14px;
+  color: #a7a7a7;
+}
+
+/* Estilos para los componentes de formulario */
+.customInput {
+  background-color: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  padding: 4px 0 !important;
+  width: 100% !important;
+}
+
+.customInput:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.customTextarea {
+  background-color: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  padding: 4px 0 !important;
+  min-height: 80px !important;
+  resize: none !important;
+  width: 100% !important;
+}
+
+.customTextarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.customSelect {
+  background-color: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  width: 100% !important;
+}
+
+.customSelect:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.customCheck {
+  background-color: #a7a7a7 !important;
+  border-radius: 16px !important;
+  width: 46px !important;
+  height: 24px !important;
+}
+
+/* Sobrescribir estilos del DataModal */
+:global(.dataModal main) {
+  background-color: #212121 !important;
+  border-radius: 12px !important;
+  max-width: 883px !important;
+}
+
+:global(.dataModal main header) {
+  border-bottom: 1px solid #a7a7a7 !important;
+  padding: 16px !important;
+}
+
+:global(.dataModal main header h1) {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+}
+
+:global(.dataModal main footer) {
+  padding: 16px !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+:global(.dataModal main footer button:first-child) {
+  background-color: #00e38c !important;
+  border: none !important;
+  color: #212121 !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  flex: 2 !important;
+}
+
+:global(.dataModal main footer button:last-child) {
+  background-color: transparent !important;
+  border: 1px solid #a7a7a7 !important;
+  color: #a7a7a7 !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  flex: 1 !important;
+}
+
+/* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -315,4 +537,128 @@
     width: 100%;
     padding: 0;
   }
+  
+  .headerTitle {
+    font-size: 24px;
+  }
+  
+  .headerDescription {
+    font-size: 14px;
+  }
+  
+  :global(.dataModal main footer) {
+    flex-direction: column !important;
+  }
+}
+/* Estilos para toggle switch */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #a7a7a7;
+  -webkit-transition: .3s;
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #212121;
+  -webkit-transition: .3s;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background-color: #00e38c;
+}
+
+.toggleSwitch input:checked + .toggleSlider:before {
+  -webkit-transform: translateX(22px);
+  -ms-transform: translateX(22px);
+  transform: translateX(22px);
+}
+/* Estilos adicionales para la información de categoría padre */
+.parentCategoryInfo {
+  background-color: #333333;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 4px;
+}
+
+.parentCategoryName {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.parentCategoryDescription {
+  display: block;
+  font-size: 14px;
+  color: #a7a7a7;
+}
+
+/* Estilo para separar visualmente las secciones */
+.subcategorySeparator {
+  width: 100%;
+  height: 1px;
+  background-color: #333333;
+  margin: 16px 0;
+}
+
+/* Modificar el ancho del formField para que se ajuste mejor al contenido */
+.formField {
+  background-color: #4a4a4a;
+  border-radius: 8px;
+  padding: 12px; /* Incrementado de 8px a 12px */
+  width: 100%;
+  margin-bottom: 12px; /* Añadir espacio entre campos */
+}
+
+/* Mejorar los estilos para campos de solo lectura */
+.formField.readOnly {
+  background-color: #3a3a3a;
+}
+
+/* Estilo para mostrar que la categoría padre está seleccionada */
+.selectedParentLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.selectedParentLabel:before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #00e38c;
+  border-radius: 50%;
 }
