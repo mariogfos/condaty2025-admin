@@ -29,6 +29,7 @@ const Guards = () => {
     plural: "Guardias",
     filter: true,
     permiso: "",
+    export: true,
     // import: true,
     renderView: (props: {
       open: boolean;

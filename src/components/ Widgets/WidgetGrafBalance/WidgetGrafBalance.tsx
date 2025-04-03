@@ -72,7 +72,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       ingresos.forEach((item) => {
         if (item.mes > mesI) mesI = item.mes;
         if (item.mes < mesF) mesF = item.mes;
-        
+
         lista.ingresos[item.mes - 1] =
           lista.ingresos[item.mes - 1] + Number(item.ingresos);
 
@@ -121,19 +121,17 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         lmeses.splice(0, mesI - 1);
       }
     }
-    
+
     setMeses(lmeses);
     setBalance(lista);
   }, [ingresos, egresos, saldoInicial, periodo]);
 
   const today = getNow();
   const formattedTodayDate = getDateStrMes(today);
-  
+
   return (
-    <div className={`${styles.container} ${className || ''}`}>
-      <p className={styles.title}>
-        {title || "Resumen general"}
-      </p>
+    <div className={`${styles.container} ${className || ""}`}>
+      <p className={styles.title}>{title || "Resumen general"}</p>
       <p className={styles.subtitle}>
         {subtitle ||
           `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
@@ -149,6 +147,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           ],
         }}
         chartTypes={chartTypes}
+        downloadPdf
         options={{
           height: h,
           colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],

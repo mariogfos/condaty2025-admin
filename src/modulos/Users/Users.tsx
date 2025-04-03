@@ -30,6 +30,7 @@ const Users = () => {
     plural: "Administradores",
     filter: true,
     permiso: "",
+    export: true,
     // import: true,
     renderView: (props: {
       open: boolean;

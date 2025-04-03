@@ -7,8 +7,6 @@ import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
 import useCrudUtils from "../shared/useCrudUtils";
 
-
-
 const paramsInitial = {
   perPage: 10,
   page: 1,
@@ -23,9 +21,10 @@ const HomeOwners = () => {
     plural: "Propietarios",
     permiso: "",
     extraData: true,
+    export: true,
   };
 
-  const fields = useMemo(() =>{
+  const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
       ci: {
@@ -42,7 +41,7 @@ const HomeOwners = () => {
         form: {
           type: "text",
         },
-        list: { },
+        list: {},
       },
 
       name: {
@@ -127,7 +126,6 @@ const HomeOwners = () => {
     onDel,
   });
 
-
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
@@ -137,4 +135,3 @@ const HomeOwners = () => {
 };
 
 export default HomeOwners;
- 

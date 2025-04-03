@@ -12,7 +12,7 @@ import useAxios from "@/mk/hooks/useAxios";
 const db: any = initSocket();
 const userBot = "chatBot";
 const chatBotId = id();
-const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC"; //el mejorcito
+const selectedModel = "Llama-3.1-8B-Instruct-q4f16_1-MLC"; //el mejorcito
 // const selectedModel = "Hermes-3-Llama-3.2-3B-q4f16_1-MLC";//ma so menos
 // const selectedModel = "Hermes-2-Pro-Mistral-7B-q4f16_1-MLC";
 // Llama-3.2-3B-Instruct-q4f16_1-MLC

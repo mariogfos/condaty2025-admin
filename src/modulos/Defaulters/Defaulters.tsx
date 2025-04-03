@@ -40,7 +40,6 @@ const Defaulters = () => {
     return {
       id: { rules: [], api: "e" },
 
-  
       // rep_email: {
 
       //   api: "",

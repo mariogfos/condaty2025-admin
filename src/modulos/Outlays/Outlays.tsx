@@ -37,14 +37,15 @@ const Outlays = () => {
     singular: "Egreso",
     plural: "Egresos",
     filter: true,
+    export: true,
     permiso: "",
     extraData: true,
     renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
     saveMsg: {
       add: "Egreso creado con éxito",
       edit: "Egreso actualizado con éxito",
-      del: "Egreso eliminado con éxito"
-    }
+      del: "Egreso eliminado con éxito",
+    },
   };
 
   // Función para convertir el filtro de fecha
@@ -60,98 +61,103 @@ const Outlays = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      date_at: { 
-        rules: ["required"], 
-        api: "ae", 
-        label: "Fecha",
-        form: { type: "date" }, 
-        list: { } 
-      }, 
-      category_id: { 
-        rules: ["required"], 
+      date_at: {
+        rules: ["required"],
         api: "ae",
-        label: "Categoria",          
+        label: "Fecha",
+        form: { type: "date" },
+        list: {},
+      },
+      category_id: {
+        rules: ["required"],
+        api: "ae",
+        label: "Categoria",
         form: {
-          type: "select", 
+          type: "select",
           options: (items: any) => {
             let data: any = [];
             // Filtrar solo categorías padres
-            items?.extraData?.categories?.filter((c: { padre_id: any; }) => !c.padre_id)?.map((c: any) => {
-              data.push({
-                id: c.id,
-                name: c.name,
+            items?.extraData?.categories
+              ?.filter((c: { padre_id: any }) => !c.padre_id)
+              ?.map((c: any) => {
+                data.push({
+                  id: c.id,
+                  name: c.name,
+                });
               });
-            });
             return data;
           },
         },
         list: {
           onRender: (props: any) => {
             return props.item.category?.padre?.name || `sin datos disponibles`;
-          }
-        } 
-      }, 
-      subcategory_id: { 
-        rules: ["required"], 
-        api: "ae", 
+          },
+        },
+      },
+      subcategory_id: {
+        rules: ["required"],
+        api: "ae",
         label: "Subcategoria",
         form: {
           type: "select",
-          disabled: (formState: { category_id: any; }) => !formState.category_id,
+          disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [], // Lo manejamos en el OutlaysForm
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
             return props.item.category?.name || `sin datos disponibles`;
-          }
-        } 
-      },    
-      description: { 
-        rules: ["required"], 
-        api: "ae", 
-        label: "Descripción", 
-        form: { type: "text" }, 
+          },
+        },
       },
-      status: { 
-        rules: [""], 
+      description: {
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
+      },
+      status: {
+        rules: [""],
         api: "ae",
         label: "Estado",
-        list: { 
+        list: {
           onRender: (props: any) => {
             return (
-              <div 
-                style={{ 
-                  color: props.item.status === "A" ? "var(--cSuccess)" : "var(--cError)",
-                  fontWeight: "bold"
+              <div
+                style={{
+                  color:
+                    props.item.status === "A"
+                      ? "var(--cSuccess)"
+                      : "var(--cError)",
+                  fontWeight: "bold",
                 }}
               >
                 {props.item.status === "A" ? "Pagado" : "Anulado"}
               </div>
             );
-          }
-        } 
+          },
+        },
       },
-      amount: { 
-        rules: ["required"], 
-        api: "ae", 
+      amount: {
+        rules: ["required"],
+        api: "ae",
         label: "Monto",
         form: { type: "number" },
-        list: { 
+        list: {
           onRender: (props: any) => {
             return "Bs " + formatNumber(props.item.amount);
-          }
-        } 
-      }, 
-      client_id: { 
-        rules: [""], 
-        api: "ae", 
-        label: "Cliente", 
-      }, 
-      user_id: { 
-        rules: [""], 
-        api: "ae", 
-        label: "Usuario", 
-      }, 
+          },
+        },
+      },
+      client_id: {
+        rules: [""],
+        api: "ae",
+        label: "Cliente",
+      },
+      user_id: {
+        rules: [""],
+        api: "ae",
+        label: "Usuario",
+      },
       file: {
         rules: ["required"],
         api: "ae*",
@@ -160,13 +166,13 @@ const Outlays = () => {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
           style: { width: "100%" },
-        },  
-      },  
-      ext: { 
-        rules: [""], 
+        },
+      },
+      ext: {
+        rules: [""],
         api: "ae",
         label: "Ext",
-      }, 
+      },
     };
   }, []); // Ya no dependemos de subcategories, lo manejamos en el OutlaysForm
 
@@ -194,7 +200,7 @@ const Outlays = () => {
     _onImport: onImport,
     // Ya no necesitamos _onChange, lo manejamos en OutlaysForm
   });
-  
+
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
@@ -205,7 +211,7 @@ const Outlays = () => {
   });
 
   const [openImport, setOpenImport] = useState(false);
-  
+
   useEffect(() => {
     setOpenImport(searchState == 3);
   }, [searchState]);
@@ -214,16 +220,14 @@ const Outlays = () => {
   const onClickGraph = async () => {
     try {
       const periodo = convertFilterDate();
-      const response = await execute(
-        "/balances",
-        "GET",
-        {
-          ...formStateFilter,
-          filter_date: periodo,
-          filter_mov: "E",
-          filter_categ: formStateFilter.filter_category ? [formStateFilter.filter_category] : [],
-        }
-      );
+      const response = await execute("/balances", "GET", {
+        ...formStateFilter,
+        filter_date: periodo,
+        filter_mov: "E",
+        filter_categ: formStateFilter.filter_category
+          ? [formStateFilter.filter_category]
+          : [],
+      });
 
       if (response && response.data) {
         setDataGraph(response.data);
@@ -244,30 +248,29 @@ const Outlays = () => {
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  
+
   return (
     <div className={styles.outlays}>
       <h1 className={styles.title}>Egresos</h1>
-      <p className={styles.subtitle}>Administre, agregue y elimine todos los egresos</p>
-      
+      <p className={styles.subtitle}>
+        Administre, agregue y elimine todos los egresos
+      </p>
+
       <div className={styles.buttonsContainer}>
-        <Button
-          onClick={onClickGraph}
-          className={styles.graphButton}
-        >
+        <Button onClick={onClickGraph} className={styles.graphButton}>
           Ver gráfica
         </Button>
-        
-        <Button 
+
+        <Button
           onClick={() => goToCategories("E")}
           className={styles.categoriesButton}
         >
           Administrar categorías
         </Button>
       </div>
-      
+
       <List />
-      
+
       {/* Modal para mostrar el gráfico */}
       {openGraph && (
         <DataModal

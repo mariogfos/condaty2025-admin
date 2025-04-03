@@ -4,7 +4,11 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
 import { getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes, getDateTimeStrMesShort, getDateDesdeHasta } from "@/mk/utils/date";
+import {
+  getDateStrMes,
+  getDateTimeStrMesShort,
+  getDateDesdeHasta,
+} from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useRouter } from "next/navigation";
@@ -24,13 +28,14 @@ const Payments = () => {
   const [openGraph, setOpenGraph] = useState<boolean>(false);
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
-  
+
   const mod = {
     modulo: "payments",
     singular: "Ingreso",
     plural: "Ingresos",
     permiso: "",
     extraData: true,
+    export: true,
     renderForm: IncomeForm,
     renderView: (props: any) => <DetailPayment {...props} />,
     loadView: { fullType: "DET" },
@@ -38,13 +43,13 @@ const Payments = () => {
       view: false,
       add: false,
       edit: true,
-      del: true
+      del: true,
     },
     saveMsg: {
       add: "Ingreso creado con éxito",
       edit: "Ingreso actualizado con éxito",
-      del: "Ingreso eliminado con éxito"
-    }
+      del: "Ingreso eliminado con éxito",
+    },
   };
 
   const paramsInitial = {
@@ -53,7 +58,7 @@ const Payments = () => {
     fullType: "L",
     searchBy: "",
   };
-  
+
   const convertFilterDate = () => {
     let periodo = "m";
     if (formStateFilter.filter_date === "month") periodo = "m";
@@ -66,7 +71,7 @@ const Payments = () => {
   // Definición de campos para el CRUD
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },  
+      id: { rules: [], api: "e" },
       paid_at: {
         rules: [],
         api: "ae",
@@ -74,11 +79,13 @@ const Payments = () => {
         form: {
           type: "date",
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
-            return <div>{ getDateStrMes(props.item.paid_at) || "No pagado"}</div>;
-          }
-        }
+            return (
+              <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
+            );
+          },
+        },
       },
 
       category_id: {
@@ -88,13 +95,13 @@ const Payments = () => {
         form: {
           type: "select",
           optionsExtra: "categories",
-          placeholder: "Seleccione una categoría"
+          placeholder: "Seleccione una categoría",
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
             return <div>{props.item.category?.padre.name}</div>;
-          }
-        }
+          },
+        },
       },
 
       dptos: {
@@ -103,12 +110,18 @@ const Payments = () => {
         label: "Unidad",
         form: {
           type: "select",
-          options: (props: any) => props.extraData?.dptos?.map((d: any) => ({ id: d.id, name: `${d.nro} - ${d.description}` })) || [],
-          placeholder: "Seleccione una unidad"
+          options: (props: any) =>
+            props.extraData?.dptos?.map((d: any) => ({
+              id: d.id,
+              name: `${d.nro} - ${d.description}`,
+            })) || [],
+          placeholder: "Seleccione una unidad",
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
-            const dpto = props.extraData?.dptos?.find((d: any) => d.id === props.item.dptos);
+            const dpto = props.extraData?.dptos?.find(
+              (d: any) => d.id === props.item.dptos
+            );
             return (
               <div>
                 {dpto
@@ -116,11 +129,10 @@ const Payments = () => {
                   : `${props.item.dptos}`.replace(/,/g, "")}
               </div>
             );
-            
-          }
-        }
+          },
+        },
       },
-      
+
       type: {
         rules: ["required"],
         api: "ae",
@@ -131,72 +143,77 @@ const Payments = () => {
             { id: "T", name: "Transferencia" },
             { id: "E", name: "Efectivo" },
             { id: "C", name: "Cheque" },
-          ]
+          ],
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
             const typeMap: Record<string, string> = {
-              "T": "Transferencia",
-              "E": "Efectivo",
-              "C": "Cheque",
-              "Q": "QR",
-              "O": "Pago en oficina"
+              T: "Transferencia",
+              E: "Efectivo",
+              C: "Cheque",
+              Q: "QR",
+              O: "Pago en oficina",
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
-          }
-        }
+          },
+        },
       },
-      
+
       nro_id: {
         rules: [],
         api: "ae",
         label: "Número de Departamento",
         form: {
           type: "text",
-        }
+        },
       },
-      
+
       voucher: {
         rules: [],
         api: "ae",
         label: "Comprobante",
         form: {
           type: "text",
-          placeholder: "Ej: c100"
-        }
+          placeholder: "Ej: c100",
+        },
       },
-      
+
       obs: {
         rules: [],
         api: "ae",
         label: "Observaciones",
         form: {
           type: "textarea",
-          placeholder: "Ej: descripcion test"
-        }
+          placeholder: "Ej: descripcion test",
+        },
       },
-      
+
       file: {
         rules: [],
         api: "ae*",
         label: "Archivo",
         form: {
           type: "fileUpload",
-          ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "webp"],
+          ext: [
+            "pdf",
+            "doc",
+            "docx",
+            "xls",
+            "xlsx",
+            "jpg",
+            "jpeg",
+            "png",
+            "webp",
+          ],
           style: { width: "100%" },
         },
         onRender: ({ item }: any) => {
           if (!item.ext) return <div>Sin archivo</div>;
           return (
-            <a  
+            <a
               target="_blank"
               href={getUrlImages(
-                "/DOC-" +
-                  item.id +
-                  "." +
-                  item.ext +
-                  "?d=" +
-                  item.updated_at
+                "/DOC-" + item.id + "." + item.ext + "?d=" + item.updated_at
               )}
               rel="noopener noreferrer"
             >
@@ -205,81 +222,75 @@ const Payments = () => {
           );
         },
       },
-      
+
       status: {
         rules: [],
         api: "ae",
         label: "Estado",
-        list: { 
+        list: {
           width: "120px",
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
-              "P": "Pagado",
-              "S": "Por confirmar",
-              "R": "Rechazado",
-              "E": "Por subir comprobante",
-              "A": "Por pagar",
-              "M": "Moroso"
+              P: "Pagado",
+              S: "Por confirmar",
+              R: "Rechazado",
+              E: "Por subir comprobante",
+              A: "Por pagar",
+              M: "Moroso",
             };
-            
+
             return (
-              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+              <div
+                className={`${styles.statusBadge} ${
+                  styles[`status${props.item.status}`]
+                }`}
+              >
                 {statusMap[props.item.status] || props.item.status}
               </div>
             );
-          }
-        }
+          },
+        },
       },
-      
+
       amount: {
         rules: ["required", "number"],
         api: "ae",
         label: "Monto Total",
-        form: { 
+        form: {
           type: "number",
-          placeholder: "Ej: 100.00"
+          placeholder: "Ej: 100.00",
         },
-        list: { 
+        list: {
           width: "120px",
           onRender: (props: any) => {
             return <div>Bs.{props.item.amount}</div>;
-          }
-        }
+          },
+        },
       },
     }),
     []
   );
 
   // Inicialización del hook useCrud con nuestra configuración
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-  });
+  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
 
   // Función para cargar y mostrar el gráfico
   const onClickGraph = async () => {
     try {
       const periodo = convertFilterDate();
-      const response = await execute(
-        "/balances",
-        "GET",
-        {
-          ...formStateFilter,
-          filter_date: periodo,
-          filter_mov: "I",
-          filter_categ: formStateFilter.filter_category ? [formStateFilter.filter_category] : [],
-        }
-      );
+      const response = await execute("/balances", "GET", {
+        ...formStateFilter,
+        filter_date: periodo,
+        filter_mov: "I",
+        filter_categ: formStateFilter.filter_category
+          ? [formStateFilter.filter_category]
+          : [],
+      });
 
       if (response && response.data) {
         setDataGraph(response.data);
@@ -309,30 +320,29 @@ const Payments = () => {
 
   // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>Administre, agregue y elimine todos los ingresos</p>
-      
+      <p className={styles.subtitle}>
+        Administre, agregue y elimine todos los ingresos
+      </p>
+
       <div className={styles.buttonsContainer}>
-        <Button
-          onClick={onClickGraph}
-          className={styles.graphButton}
-        >
+        <Button onClick={onClickGraph} className={styles.graphButton}>
           Ver gráfica
         </Button>
-        
-        <Button 
+
+        <Button
           onClick={() => goToCategories("I")}
           className={styles.categoriesButton}
         >
           Administrar categorías
         </Button>
       </div>
-      
+
       <List />
-      
+
       {/* Modal para mostrar el gráfico */}
       {openGraph && (
         <DataModal

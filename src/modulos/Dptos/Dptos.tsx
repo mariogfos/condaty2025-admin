@@ -14,8 +14,6 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
 
-
-
 const paramsInitial = {
   fullType: "L",
   perPage: 10,
@@ -25,28 +23,29 @@ const paramsInitial = {
 
 const Dptos = () => {
   const router = useRouter();
-  const { user ,store} = useAuth();
-  
-  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
-  useEffect(()=>{
-    setStore({UnitsType:UnitsType[client.type_dpto]})
-  },[])
+  const { user, store } = useAuth();
 
-  
+  const client = user.clients.filter(
+    (item: any) => item.id === user.client_id
+  )[0];
+  useEffect(() => {
+    setStore({ UnitsType: UnitsType[client.type_dpto] });
+  }, []);
+
   const mod: ModCrudType = {
     modulo: "dptos",
     singular: `${store?.UnitsType}`,
     plural: `${store?.UnitsType}s`,
     filter: true,
     permiso: "",
+    export: true,
     extraData: true,
     hideActions: {
-      view: true,   
-      add: false,    
-      edit: false,   
-      del: false     
-    }
-    
+      view: true,
+      add: false,
+      edit: false,
+      del: false,
+    },
   };
   const fields = useMemo(() => {
     return {
@@ -92,7 +91,6 @@ const Dptos = () => {
           // optionLabel:`lastMotherName` ,
 
           options: (items: any) => {
-
             let data: any = [];
             items?.extraData?.homeowners?.map((c: any) => {
               // console.log(c,'c')
@@ -104,11 +102,10 @@ const Dptos = () => {
             return data;
           },
         },
-        list:
-        {
+        list: {
           onRender: (props: any) => {
-            return (getFullName(props?.item?.homeowner) || 'Sin propietario')
-          }
+            return getFullName(props?.item?.homeowner) || "Sin propietario";
+          },
         },
       },
 
@@ -117,49 +114,43 @@ const Dptos = () => {
         api: "",
         label: "Titular",
         // form: { type: "text" },
-        list:
-        {
+        list: {
           onRender: (props: any) => {
-            return (
-              props?.item?.titular?.owner?
-                <div className={styles.titularRow}>
-                    <Avatar
-                      src={
-                        props?.item?.titular?.id && props?.item?.titular?.owner?.updated_at
-                          ? getUrlImages(
-                              "/OWNER" +
-                                "-" +
-                                props?.item?.titular?.owner_id +
-                                ".webp?d=" +
-                                props?.item?.titular?.owner?.updated_at
-                            )
-                          : ""
-                      }
-                      name={getFullName( props?.item?.titular?.owner)}
-                    
-                    />
-              {getFullName(props?.item?.titular?.owner) }
+            return props?.item?.titular?.owner ? (
+              <div className={styles.titularRow}>
+                <Avatar
+                  src={
+                    props?.item?.titular?.id &&
+                    props?.item?.titular?.owner?.updated_at
+                      ? getUrlImages(
+                          "/OWNER" +
+                            "-" +
+                            props?.item?.titular?.owner_id +
+                            ".webp?d=" +
+                            props?.item?.titular?.owner?.updated_at
+                        )
+                      : ""
+                  }
+                  name={getFullName(props?.item?.titular?.owner)}
+                />
+                {getFullName(props?.item?.titular?.owner)}
               </div>
-              : 'Sin titular')
-          }
+            ) : (
+              "Sin titular"
+            );
+          },
         },
       },
     };
   }, []);
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-  });
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
+    {
+      paramsInitial,
+      mod,
+      fields,
+    }
+  );
 
   const { onLongPress, selItem, searchState } = useCrudUtils({
     onSearch,
@@ -170,7 +161,7 @@ const Dptos = () => {
     onDel,
   });
   const handleRowClick = (item: any) => {
-    router.push(`/dashDpto/${item.id}`); 
+    router.push(`/dashDpto/${item.id}`);
   };
 
   const renderItem = (
@@ -189,12 +180,11 @@ const Dptos = () => {
       </RenderItem>
     );
   };
-  
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
-      <List onTabletRow={renderItem} 
-      onRowClick={handleRowClick} />
+      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
     </div>
   );
 };

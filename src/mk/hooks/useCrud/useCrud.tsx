@@ -23,6 +23,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import {
   IconAdmin,
   IconEdit,
+  IconExport,
   IconGrilla,
   IconImport,
   IconMenu,
@@ -33,7 +34,6 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
-import { wrap } from "module";
 
 export type ModCrudType = {
   modulo: string;
@@ -44,6 +44,7 @@ export type ModCrudType = {
   renderView?: Function;
   renderForm?: Function;
   renderDel?: Function;
+  export?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -395,7 +396,7 @@ const useCrud = ({
 
   type ExportType = "pdf" | "xls" | "csv";
   const onExport = async (
-    type: ExportType = "pdf",
+    type?: string,
     callBack: (url: string) => void = (url: string) => {}
   ) => {
     if (!userCan(mod.permiso, "R"))
@@ -405,19 +406,21 @@ const useCrud = ({
       "GET",
       {
         ...params,
-        _export: type,
-        exportCols: mod?.exportCols || params.cols || "",
-        exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
-        exportTitulos: mod?.exportTitulos || "",
-        exportAnchos: mod?.exportAnchos || "",
+        fullType: "L",
+        _export: type ?? "pdf",
+        // exportCols: mod?.exportCols || params.cols || "",
+        // exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
+        // exportTitulos: mod?.exportTitulos || "",
+        // exportAnchos: mod?.exportAnchos || "",
       },
       false,
       mod?.noWaiting
     );
     if (file?.success) {
-      callBack(getUrlImages("/" + file.data.path));
+      // callBack(getUrlImages("/" + file.data.path));
+      window.open(getUrlImages("/" + file.data.path));
     } else {
-      showToast(file?.message, "error Export");
+      showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
     }
   };
@@ -883,6 +886,11 @@ const useCrud = ({
               <IconImport />
             </div>
           )}
+          {mod.export && (
+            <div style={{ marginTop: "12px" }} onClick={onImport}>
+              <IconExport onClick={() => onExport("pdf")} />
+            </div>
+          )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
               <div
@@ -1084,8 +1092,20 @@ const useCrud = ({
         {openList && <AddMenu filters={lFilter} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
-            <>
-              <section style={{}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "var(--spM)",
+              }}
+            >
+              <section
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
                 {data?.data?.length > 0 ? (
                   <Table
                     data={data?.data}
@@ -1117,26 +1137,27 @@ const useCrud = ({
                     <p>No existen datos en este momento.</p>
                   </section>
                 )}
-              </section>
-              {/* {((data?.data.length == params.perPage &&
+                {/* {((data?.data.length == params.perPage &&
                 data?.message?.total > data?.data.length) ||
                 params.page > 1) && ( */}
-              <div>
-                <Pagination
-                  currentPage={params.page}
-                  onPageChange={onChangePage}
-                  setParams={setParams}
-                  params={params}
-                  totalPages={Math.ceil(
-                    (data?.message?.total || 1) / (params.perPage || 1)
-                  )}
-                  previousLabel=""
-                  nextLabel=""
-                  total={data?.message?.total || 0}
-                />
-              </div>
-              {/* )} */}
-            </>
+                <div>
+                  <Pagination
+                    currentPage={params.page}
+                    onPageChange={onChangePage}
+                    setParams={setParams}
+                    params={params}
+                    totalPages={Math.ceil(
+                      (data?.message?.total || 1) / (params.perPage || 1)
+                    )}
+                    previousLabel=""
+                    nextLabel=""
+                    total={data?.message?.total || 0}
+                  />
+                </div>
+                {/* )} */}
+              </section>
+              {props.renderRight ? props.renderRight() : null}
+            </div>
           )}
 
           {openView && (

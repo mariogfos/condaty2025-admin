@@ -43,7 +43,6 @@ const paramsInitial = {
 //   return false;
 // };
 
-
 const EventsAdmin = () => {
   // const { user } = useAuth();
   const mod: ModCrudType = {
@@ -52,6 +51,7 @@ const EventsAdmin = () => {
     plural: "Eventos",
     permiso: "events",
     extraData: true,
+    export: true,
     onHideActions: (item: any) => {
       return {
         hideEdit: item?.attendance_count > 0,
@@ -214,7 +214,7 @@ const EventsAdmin = () => {
       //     },
       //   },
       // },
-  
+
       date_at: {
         rules: ["required", "date"],
         api: "ae",
@@ -609,9 +609,9 @@ const EventsAdmin = () => {
     );
   };
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
+  // const onImport = () => {
+  //   setOpenImport(true);
+  // };
 
   const {
     userCan,
@@ -632,7 +632,7 @@ const EventsAdmin = () => {
     mod,
     fields,
     _onChange,
-    _onImport: onImport,
+    // _onImport: onImport,
   });
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
@@ -644,10 +644,10 @@ const EventsAdmin = () => {
     title: "Eventos",
   });
 
-  const [openImport, setOpenImport] = useState(false);
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
+  // const [openImport, setOpenImport] = useState(false);
+  // useEffect(() => {
+  //   setOpenImport(searchState == 3);
+  // }, [searchState]);
 
   const renderItem = (
     item: Record<string, any>,
@@ -687,7 +687,7 @@ const EventsAdmin = () => {
     <div className={styles.roles}>
       {/* <IconLike onClick={() => onResponse()} /> */}
       <List onTabletRow={renderItem} actionsWidth="300px" />
-      {openImport && (
+      {/* {openImport && (
         <ImportDataModal
           open={openImport}
           onClose={() => {
@@ -701,7 +701,7 @@ const EventsAdmin = () => {
           getExtraData={getExtraData}
           // requiredCols="DEPARTAMENTO, HABITANTES, HABILITADOS, ESCANOS, CODE"
         />
-      )}
+      )} */}
     </div>
   );
 };
