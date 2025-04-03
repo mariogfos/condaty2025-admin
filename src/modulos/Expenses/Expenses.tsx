@@ -25,11 +25,11 @@ const mod: ModCrudType = {
 
     permiso: "",
     extraData: true,
-    // hideActions:{
-    //     view:true,
+     hideActions:{
+        view:true,
     //     edit:true,
     //     del:true,
-    // },
+     },
     onHideActions: (item: any) => {
 
         return {
