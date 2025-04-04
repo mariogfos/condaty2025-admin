@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { id } from "@instantdb/react";
+import { useEffect, useMemo, useState } from "react";
+import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { initSocket } from "../../chat/provider/useInstandDB";
+// import { initSocket } from "../../chat/provider/useInstandDB";
 
 let last: any = 0;
 try {
@@ -11,7 +11,23 @@ try {
   last = 0;
 }
 
-const db: any = initSocket();
+let db: any = null;
+export const initSocket = () => {
+  if (!db) {
+    db = init({
+      appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
+    });
+    console.log("iniciando conexion a InstantDB");
+  } else {
+    console.log("recuperando conexion a InstantDB");
+  }
+  return db;
+};
+
+initSocket();
+
+// const db: any = initSocket();
+
 export type NotifType = {
   user: Record<string, any>;
   notifs: Record<string, any>[];

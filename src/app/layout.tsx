@@ -7,6 +7,7 @@ import AuthProvider from "@/mk/contexts/AuthProvider";
 import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
+import NotifInstantDb from "@/mk/components/notif/NotifInstantDb";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -53,6 +54,7 @@ export default function RootLayout({
               }}
             ></div>
             <Layout>{children}</Layout>
+            <NotifInstantDb />
             <ChatInstantDb />
           </AuthProvider>
         </AxiosInstanceProvider>

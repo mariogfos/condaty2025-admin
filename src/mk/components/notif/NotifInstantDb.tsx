@@ -13,7 +13,7 @@ export default function NotifInstantDb() {
   useEffect(() => {
     if (lastNotif && notifs) {
       showToast(notifs[lastNotif - 1]?.payload?.title, "info");
-      console.log("showtoast", notifs[lastNotif - 1]);
+      console.log("new Notificascion", notifs[lastNotif - 1]);
     }
     console.log("useeffect last notif", lastNotif);
   }, [lastNotif, notifs]);
