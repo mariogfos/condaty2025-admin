@@ -38,6 +38,21 @@ const Owners = () => {
     extraData: true,
   };
 
+  const onBlurCi = (e: any, setItem: Function) => {
+    // console.log("onBlurCi", e.target.value);
+    const { data, error } = execute("/owners?", "GET", {
+      _exist: 1,
+      ci: e.target.value,
+    });
+    if (data?.data?.success && data?.data?.lenght > 0) {
+      //relleno datos
+      showToast("El residente ya existe, vincular?", "warning");
+      //setItem()
+    } else {
+      //no existe
+    }
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -128,6 +143,7 @@ const Owners = () => {
                     onChange={props.onChange}
                     label="Carnet de Identidad"
                     error={props.error}
+                    onBlur={(e: any) => onBlurCi(e, props.setItem)}
                     disabled={props?.field?.action === "edit"}
                   />
                   {props?.field?.action === "add" && (
