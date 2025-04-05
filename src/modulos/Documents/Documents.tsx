@@ -61,7 +61,10 @@ const Documents = () => {
         rules: ["required"],
         api: "ae*",
         label: "Posición",
-        form: { type: "text" },
+        form: { 
+          type: "text" ,
+          label: "Introduce un número del 0 al 5 para ordenar el documento",
+        },
       },
       doc: {
         rules: ["required"],

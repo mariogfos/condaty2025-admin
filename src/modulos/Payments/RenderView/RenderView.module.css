@@ -1,0 +1,214 @@
+.container {
+  background-color: var(--cBlack);
+  border-radius: var(--bRadius);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  padding: var(--spL);
+}
+
+/* Sección para mostrar el monto total y la fecha */
+.totalAmountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.totalAmount {
+  color: var(--cWhite);
+  font-size: var(--sXxl);
+  font-weight: var(--bBold);
+  margin-top: -1px;
+  text-align: center;
+  width: 100%;
+}
+
+.paymentDate {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  line-height: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Separador horizontal */
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: var(--spS) 0;
+}
+
+/* Contenedor para la información detallada */
+.detailsContainer {
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--spM);
+}
+
+.label {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  flex: 1;
+  margin-top: -1px;
+}
+
+.value {
+  color: var(--tWhite);
+  font-size: var(--sL);
+  flex: 1;
+  text-align: right;
+  margin-top: -1px;
+}
+
+.successValue {
+  color: var(--cPrimary);
+  font-size: var(--sL);
+  flex: 1;
+  text-align: right;
+  margin-top: -1px;
+}
+
+/* Botón de Revisar comprobante */
+.buttonContainer {
+  display: flex;
+  width: 100%;
+  margin-top: var(--spL);
+}
+
+.downloadButton {
+  width: 100%;
+  color: var(--cPrimary) !important;
+  background-color: transparent !important;
+  font-size: var(--sL) !important;
+  padding: var(--spM) var(--spL) !important;
+  border-width: var(--bWidth) !important;
+  border-style: solid !important;
+  border-radius: var(--bRadiusS) !important;
+  text-align: center !important;
+  font-weight: var(--bMedium) !important;
+  transition: all 0.2s ease !important;
+}
+
+.downloadButton:hover {
+  background-color: var(--cHoverAccent) !important;
+}
+
+.buttonActions {
+  display: flex;
+  gap: var(--spM);
+  width: 100%;
+}
+
+/* Sección de periodos pagados */
+.periodsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.periodsHeader {
+  display: flex;
+  width: 100%;
+  gap: var(--spM);
+}
+
+.periodsTitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  flex: 1;
+  margin-top: -1px;
+}
+
+.totalPaid {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  white-space: nowrap;
+  margin-top: -1px;
+}
+
+.totalPaidAmount {
+  color: var(--cWhite);
+}
+
+/* Tabla de periodos */
+.tableContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableHeader {
+  display: flex;
+  width: 100%;
+}
+
+.headerCell {
+  flex: 1;
+  background-color: var(--cBlackV2);
+  color: var(--cWhiteV1);
+  padding: var(--spM);
+  text-align: center;
+  font-size: var(--sM);
+}
+
+.headerCellLeft {
+  border-radius: var(--bRadiusM) 0 0 0;
+}
+
+.headerCellRight {
+  border-radius: 0 var(--bRadiusM) 0 0;
+}
+
+.tableBody {
+  width: 100%;
+}
+
+.tableRow {
+  display: flex;
+  width: 100%;
+}
+
+.tableCell {
+  flex: 1;
+  background-color: var(--cBlackV1);
+  color: var(--cWhite);
+  padding: 20px var(--spM);
+  text-align: center;
+  font-size: var(--sM);
+}
+
+.tableRowEven .tableCell {
+  background-color: var(--cBlackV2);
+}
+
+.tableLastRow .tableCellLeft {
+  border-radius: 0 0 0 var(--bRadiusM);
+}
+
+.tableLastRow .tableCellRight {
+  border-radius: 0 0 var(--bRadiusM) 0;
+}
+
+@media (max-width: 768px) {
+  .detailsContainer {
+    padding: 0 var(--spL);
+  }
+  
+  .tableHeader, .tableRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

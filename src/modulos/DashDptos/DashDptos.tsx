@@ -18,7 +18,7 @@ import HistoryAccess from "./HistoryAccess/HistoryAccess";
 import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
-import DetailPayment from "../Payments/PaymentDetail/PaymentDetail";
+import RenderView from "../Payments/RenderView/RenderView";
 import RenderView from "../Owners/RenderView";
 
 interface DashDptosProps {
@@ -544,7 +544,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
 
   {openComprobante && idPago && (
-    <DetailPayment
+    <RenderView
       open={openComprobante}
       onClose={() => {
         setOpenComprobante(false);

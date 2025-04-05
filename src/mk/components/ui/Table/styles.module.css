@@ -4,6 +4,7 @@
   overflow: auto;
 
   border-radius: var(--bRadius);
+  border: 0.5px solid var(--cWhiteV1);
   @media (width <= 1024px) {
     background-color: transparent;
     border: none;
@@ -21,17 +22,19 @@
     border-top-left-radius: var(--bRadius);
     border-top-right-radius: var(--bRadius);
     overflow: hidden;
+    min-height: 55px;
     & > div {
       padding: var(--spM);
       padding-bottom: var(--spS);
       width: 100%;
-      border-left: 1px solid var(--cBlackV1);
+      /* border-left: 1px solid var(--cBlackV1); */
       box-sizing: border-box;
       display: flex;
       align-items: center; /* Centra el contenido verticalmente */
-      justify-content: center; /* Centra el contenido horizontalmente */
-      text-align: center; /* Centra el texto */
+      justify-content: left; /* Centra el contenido horizontalmente */
+      text-align: left; /* Centra el texto */
       /* white-space: nowrap; */
+      
     }
     & > div:first-child {
       border-left: 0;
@@ -124,12 +127,14 @@
         white-space: nowrap;
         overflow: hidden;
         padding: var(--spM);
-        border: 1px solid var(--cWhiteV3);
+        /* border: 1px solid var(--cWhiteV3); */
         width: 100%;
         color: var(--cWhiteV1);
         display: flex; /* Permite la alineación del contenido interno */
         align-items: center; /* Centra verticalmente el contenido */
         box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
+        border-top: 1px solid var(--cWhiteV3);
+        border-bottom: 1px solid var(--cWhiteV3);
       }
     }
   }

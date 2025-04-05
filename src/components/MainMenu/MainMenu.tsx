@@ -90,18 +90,18 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-          <MainmenuDropdown
-            label="Usuarios"
-            icon={<IconGroup />}
-            items={[
-              { href: "/guards", label: "Guardias" },
-              { href: "/owners", label: "Residentes" },
-              { href: "/homeowners", label: "Propietarios" },
-              { href: "/users", label: "Personal Administrativo" },
-            ]}
-            collapsed={collapsed}
-            setSideBarOpen={setSideBarOpen}
-          />
+            <MainmenuDropdown
+              label="Usuarios"
+              icon={<IconGroup/>}
+              items={[
+                { href: "/guards", label: "Guardias" },
+                { href: "/owners", label: "Residentes" },
+                { href: "/homeowners", label: "Propietarios" },
+                { href: "/users", label: "Administradores" },
+              ]}
+              collapsed={collapsed}
+              setSideBarOpen={setSideBarOpen}
+            /> 
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}

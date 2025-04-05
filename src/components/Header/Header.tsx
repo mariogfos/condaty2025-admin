@@ -94,6 +94,7 @@ const Header = ({
             onClick={() => {
               router.push("/profile");
             }}
+            square={true} 
             
           />
         </div>
@@ -133,35 +134,31 @@ const Header = ({
       </>
     );
 
-  return (
-    <div className={styles["header-desktop"]}>
-      <div>
-        <div>{title}</div>
+    return (
+      <div className={styles["header-desktop"]}>
+        <div className={styles["header-greeting"]}>
+          <h1>¡Hola {getFullName(user)}!</h1>
+          <p>Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente jornada laboral</p>
+        </div>
+
+        <div className={styles["header-controls"]}>
+          <NotificationIcon />
+          <div className={styles.tooltip}>
+          <div className={styles.iconOuterContainer}>
+            <div className={styles.settingContainer}>
+              <Dropdown
+                trigger={<IconSetting style={{ cursor: "pointer" }} />}
+                items={menuItems}
+              />
+            </div>
+          </div>
+          </div>
+          
+
+          <ProfileIcon />
+        </div>
       </div>
-      <div
-        style={{
-          marginTop: "var(--spL)",
-        }}
-      >
-        {/* <DataSearch
-          placeholder="Buscar"
-          value=""
-          onChange={() => {}}
-          setSearch={() => {}}
-          name="search"
-        /> */}
-      </div>
-      <div className={styles.tooltip}>
-        <Dropdown
-          trigger={<IconSetting style={{ cursor: "pointer" }} />}
-          items={menuItems}
-        />
-      </div>
-      
-      <NotificationIcon />
-      <ProfileIcon />
-    </div>
-  );
+    );
 };
 
 export default Header;

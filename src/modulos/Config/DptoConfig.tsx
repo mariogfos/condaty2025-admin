@@ -171,7 +171,7 @@ const DptoConfig = ({
         </p>
       </div>
       <Input
-        type="number"
+        type="currency"
         label="Saldo"
         name="initial_amount"
         error={errors}
