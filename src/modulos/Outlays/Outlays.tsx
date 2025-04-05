@@ -130,7 +130,7 @@ const Outlays = () => {
         filter: {
           label: "Categoría",
           width: "150px",
-          options: getCategoryOptions
+          extraData: "categories",  
         }
       }, 
       subcategory_id: { 
