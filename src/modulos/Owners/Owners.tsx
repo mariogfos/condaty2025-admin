@@ -68,6 +68,7 @@ const Owners = () => {
       showToast("El residente ya existe, vincular?", "warning");
       //setItem()
     } else {
+      setDisabled(false);
       //no existe
     }
   };
