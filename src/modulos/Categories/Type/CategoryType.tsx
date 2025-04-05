@@ -34,6 +34,7 @@ export interface CategoryCardProps {
   onEdit: (item: CategoryItem) => void;
   onDel: (item: CategoryItem) => void;
   categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)
+  onAddSubcategory: (categoryId: string) => void;
 }
 
 export interface InputEvent {

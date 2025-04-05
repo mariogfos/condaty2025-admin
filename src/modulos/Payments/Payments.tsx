@@ -13,9 +13,10 @@ import Button from "@/mk/components/forms/Button/Button";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useRouter } from "next/navigation";
 import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
-import IncomeForm from "./PaymentsForm/PaymentsForm";
-import DetailPayment from "./PaymentDetail/PaymentDetail";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import dptos from "@/app/dptos/page";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -35,9 +36,8 @@ const Payments = () => {
     plural: "Ingresos",
     permiso: "",
     extraData: true,
-    export: true,
-    renderForm: IncomeForm,
-    renderView: (props: any) => <DetailPayment {...props} />,
+    renderForm: RenderForm,
+    renderView: (props: any) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,
@@ -45,11 +45,41 @@ const Payments = () => {
       edit: true,
       del: true,
     },
+    filter: true,
     saveMsg: {
       add: "Ingreso creado con éxito",
       edit: "Ingreso actualizado con éxito",
-      del: "Ingreso eliminado con éxito",
-    },
+      del: "Ingreso eliminado con éxito"
+    }
+  };
+  const getPeriodOptions = () => [
+    { id: "", name: "Todos" },
+    { id: "month", name: "Este mes" },
+    { id: "lmonth", name: "Mes anterior" },
+    { id: "year", name: "Este año" },
+    { id: "lyear", name: "Año anterior" }
+  ];
+  
+  const getPaymentTypeOptions = () => [
+    { id: "", name: "Todos" },
+    { id: "T", name: "Transferencia" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
+    { id: "Q", name: "QR" },
+    { id: "O", name: "Pago en oficina" }
+  ];
+  
+  const getStatusOptions = () => [
+    { id: "", name: "Todos" },
+    { id: "P", name: "Pagado" },
+    { id: "S", name: "Por confirmar" },
+    { id: "R", name: "Rechazado" },
+    { id: "E", name: "Por subir comprobante" },
+    { id: "A", name: "Por pagar" },
+    { id: "M", name: "Moroso" }
+  ];
+  const removeCommas = (text: string | number): string => {
+    return String(text).replace(/[,]/g, '');
   };
 
   const paramsInitial = {
@@ -81,13 +111,25 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
-            return (
-              <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
-            );
-          },
+            return <div>{ getDateStrMes(props.item.paid_at) || "No pagado"}</div>;
+          }
         },
+        filter: {
+          label: "Periodo",
+          width: "150px",
+          options: getPeriodOptions // Referencia a la función, no llamada a la función
+        }
       },
-
+      dptos: {
+        api: "ae",
+        label: "Unidad",
+        list: { 
+          onRender: (props: any) => {
+            return <div>{removeCommas(props.item.dptos)}</div>;
+          }
+        }
+      },
+  
       category_id: {
         rules: ["required"],
         api: "ae",
@@ -100,39 +142,11 @@ const Payments = () => {
         list: {
           onRender: (props: any) => {
             return <div>{props.item.category?.padre.name}</div>;
-          },
-        },
+          }
+        }
+        
       },
-
-      dptos: {
-        rules: ["required"],
-        api: "ae",
-        label: "Unidad",
-        form: {
-          type: "select",
-          options: (props: any) =>
-            props.extraData?.dptos?.map((d: any) => ({
-              id: d.id,
-              name: `${d.nro} - ${d.description}`,
-            })) || [],
-          placeholder: "Seleccione una unidad",
-        },
-        list: {
-          onRender: (props: any) => {
-            const dpto = props.extraData?.dptos?.find(
-              (d: any) => d.id === props.item.dptos
-            );
-            return (
-              <div>
-                {dpto
-                  ? `${dpto.nro} - ${dpto.description}`
-                  : `${props.item.dptos}`.replace(/,/g, "")}
-              </div>
-            );
-          },
-        },
-      },
-
+  
       type: {
         rules: ["required"],
         api: "ae",
@@ -155,80 +169,20 @@ const Payments = () => {
               O: "Pago en oficina",
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
-          },
+          }
         },
-      },
-
-      nro_id: {
-        rules: [],
-        api: "ae",
-        label: "Número de Departamento",
-        form: {
-          type: "text",
-        },
-      },
-
-      voucher: {
-        rules: [],
-        api: "ae",
-        label: "Comprobante",
-        form: {
-          type: "text",
-          placeholder: "Ej: c100",
-        },
-      },
-
-      obs: {
-        rules: [],
-        api: "ae",
-        label: "Observaciones",
-        form: {
-          type: "textarea",
-          placeholder: "Ej: descripcion test",
-        },
-      },
-
-      file: {
-        rules: [],
-        api: "ae*",
-        label: "Archivo",
-        form: {
-          type: "fileUpload",
-          ext: [
-            "pdf",
-            "doc",
-            "docx",
-            "xls",
-            "xlsx",
-            "jpg",
-            "jpeg",
-            "png",
-            "webp",
-          ],
-          style: { width: "100%" },
-        },
-        onRender: ({ item }: any) => {
-          if (!item.ext) return <div>Sin archivo</div>;
-          return (
-            <a
-              target="_blank"
-              href={getUrlImages(
-                "/DOC-" + item.id + "." + item.ext + "?d=" + item.updated_at
-              )}
-              rel="noopener noreferrer"
-            >
-              <p className={styles.viewButton}>Ver archivo</p>
-            </a>
-          );
-        },
+        filter: {
+          label: "Tipo de pago",
+          width: "150px",
+          options: getPaymentTypeOptions
+        }
       },
 
       status: {
         rules: [],
         api: "ae",
         label: "Estado",
-        list: {
-          width: "120px",
+        list: { 
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
               P: "Pagado",
@@ -248,10 +202,14 @@ const Payments = () => {
                 {statusMap[props.item.status] || props.item.status}
               </div>
             );
-          },
+          }
         },
+        filter: {
+          label: "Estado del ingreso",
+          width: "180px",
+          options: getStatusOptions
+        }
       },
-
       amount: {
         rules: ["required", "number"],
         api: "ae",
@@ -260,8 +218,7 @@ const Payments = () => {
           type: "number",
           placeholder: "Ej: 100.00",
         },
-        list: {
-          width: "120px",
+        list: { 
           onRender: (props: any) => {
             return <div>Bs.{props.item.amount}</div>;
           },
@@ -270,14 +227,6 @@ const Payments = () => {
     }),
     []
   );
-
-  // Inicialización del hook useCrud con nuestra configuración
-  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-    });
 
   // Función para cargar y mostrar el gráfico
   const onClickGraph = async () => {
@@ -295,8 +244,7 @@ const Payments = () => {
       if (response && response.data) {
         setDataGraph(response.data);
         setOpenGraph(true);
-        console.log("====================================");
-        console.log("response", response.data);
+        
       }
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -318,18 +266,45 @@ const Payments = () => {
     setStore({ title: "INGRESOS" });
   }, []);
 
+  // Definición de botones extras
+  const extraButtons = [
+    <Button 
+      key="categories-button"
+      onClick={() => goToCategories("I")}
+      className={styles.categoriesButton}
+    >
+      Categorías
+    </Button>
+  ];
+  // Uso del hook useCrud con los botones extras
+  const {
+    userCan,
+    List,
+    onView,
+    onEdit,
+    onDel,
+    reLoad,
+    onAdd,
+    execute
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    extraButtons // Pasando los botones extras al hook
+  });
   // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>
-        Administre, agregue y elimine todos los ingresos
-      </p>
-
-      <div className={styles.buttonsContainer}>
-        <Button onClick={onClickGraph} className={styles.graphButton}>
+      <p className={styles.subtitle}>Administre, agregue y elimine todos los ingresos</p>
+      
+      {/* <div className={styles.buttonsContainer}>
+        <Button
+          onClick={onClickGraph}
+          className={styles.graphButton}
+        >
           Ver gráfica
         </Button>
 
@@ -339,8 +314,8 @@ const Payments = () => {
         >
           Administrar categorías
         </Button>
-      </div>
-
+      </div> */}
+      
       <List />
 
       {/* Modal para mostrar el gráfico */}

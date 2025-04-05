@@ -1,0 +1,82 @@
+.container {
+  padding: 20px;
+  width: 100%;
+}
+
+.title {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: 5px;
+  color: var(--cWhite);
+}
+
+.subtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  margin-bottom: 20px;
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.exportButton {
+  background-color: var(--cBlackV2);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+  cursor: pointer;
+}
+
+/* Estilos para el panel derecho */
+.rightPanel {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  padding-left: var(--spL);
+  background-color: var(--cBlackV1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: var(--bRadiusL);
+  border: 0.5px solid var(--cWhiteV1);
+}
+
+.graphPanel {
+  padding: var(--spM);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spM);
+}
+
+.widgetsPanel {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spM);
+  padding: var(--spM);
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 1200px) {
+  .rightPanel {
+    width: 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .rightPanel {
+    width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rightPanel {
+    width: 100%;
+    padding-left: 0;
+    margin-top: var(--spL);
+  }
+}

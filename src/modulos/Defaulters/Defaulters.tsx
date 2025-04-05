@@ -26,13 +26,6 @@ const Defaulters = () => {
     plural: "Morosos",
     filter: true,
     permiso: "",
-    // renderView: (props: {
-    //   open: boolean;
-    //   onClose: any;
-    //   item: Record<string, any>;
-    //   onConfirm?: Function;
-    //   extraData?: Record<string, any>;
-    // }) => <RenderView {...props} />,
     extraData: true,
   };
 

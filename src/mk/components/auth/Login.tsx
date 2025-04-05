@@ -62,9 +62,7 @@ const Login = () => {
             email: "Datos incorrectos",
           });
         }
-        logError("====================================");
-        logError("Error Login", errors, data?.errors);
-        logError("====================================");
+       
       }
       return;
     });
