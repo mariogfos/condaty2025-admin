@@ -38,14 +38,20 @@ const Owners = () => {
     extraData: true,
   };
 
-  const onBlurCi = (e: any, setItem: Function) => {
-    // console.log("onBlurCi", e.target.value);
-    const { data, error } = execute("/owners?", "GET", {
+  const onBlurCi = async(e: any, setItem: Function) => {
+    console.log("onBlurCi", e.target.value);
+    const { data, error } =  await execute("/owners?", "GET", {
       _exist: 1,
       ci: e.target.value,
-    });
-    if (data?.data?.success && data?.data?.lenght > 0) {
+    }
+    ,false,true);
+    
+  
+    console.log(setItem,'sasa');
+    if (data?.success && data?.data?.length > 0) {
       //relleno datos
+     
+      
       showToast("El residente ya existe, vincular?", "warning");
       //setItem()
     } else {
@@ -143,7 +149,7 @@ const Owners = () => {
                     onChange={props.onChange}
                     label="Carnet de Identidad"
                     error={props.error}
-                    onBlur={(e: any) => onBlurCi(e, props.setItem)}
+                    onBlur={(e: any) => onBlurCi(e, props)}
                     disabled={props?.field?.action === "edit"}
                   />
                   {props?.field?.action === "add" && (
