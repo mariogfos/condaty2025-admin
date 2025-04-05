@@ -37,8 +37,8 @@ const Owners = () => {
     }) => <RenderView {...props} />,
     extraData: true,
   };
-
-  const onBlurCi = async(e: any, setItem: Function) => {
+  const [ disabled, setDisabled ] = useState(false);
+  const onBlurCi = async(e:any,{setItem, item,}:any)  => {
     console.log("onBlurCi", e.target.value);
     const { data, error } =  await execute("/owners?", "GET", {
       _exist: 1,
@@ -47,18 +47,27 @@ const Owners = () => {
     ,false,true);
     
   
-    console.log(setItem,'sasa');
+
     if (data?.success && data?.data?.length > 0) {
+      const dataFilter = data.data.filter((item: any) => item.ci === e.target.value);
       //relleno datos
-     
-      
+      console.log(dataFilter,'dataFilter')
+     setItem({
+      ...item,
+      ci: dataFilter[0].ci,
+      name: dataFilter[0].name,
+      middle_name: dataFilter[0].middle_name,
+      last_name: dataFilter[0].last_name,
+      mother_last_name: dataFilter[0].mother_last_name,
+      email: dataFilter[0].email,
+      phone: dataFilter[0].phone,
+  
+     })
+      setDisabled(true);
       showToast("El residente ya existe, vincular?", "warning");
-      //setItem()
-    } else {
-      //no existe
     }
   };
-
+ console.log("disabled", disabled)
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -150,9 +159,9 @@ const Owners = () => {
                     label="Carnet de Identidad"
                     error={props.error}
                     onBlur={(e: any) => onBlurCi(e, props)}
-                    disabled={props?.field?.action === "edit"}
+                    disabled={props?.field?.action === "edit" }
                   />
-                  {props?.field?.action === "add" && (
+                  {props?.field?.action === "add"   && (
                     <InputPassword
                       name="password"
                       value={props?.item?.password}
@@ -176,6 +185,7 @@ const Owners = () => {
         label: "Primer nombre",
         form: {
           type: "text",
+          disabled: true,
         },
 
         list: false,
@@ -197,7 +207,10 @@ const Owners = () => {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text" },
+        form: { 
+          type: "text",
+          disabled: disabled 
+        },
         list: false,
       },
       mother_last_name: {
@@ -205,7 +218,10 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text" },
+        form: { 
+          type: "text",
+          disabled: disabled 
+        },
         list: false,
       },
       units: {
@@ -226,6 +242,7 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
+          disabled: disabled
         },
         list: { width: "180px" },
       },
@@ -243,6 +260,7 @@ const Owners = () => {
         label: "Celular (Opcional)",
         form: {
           type: "text",
+          disabled: disabled
         },
         list: { width: "180px" },
       },
