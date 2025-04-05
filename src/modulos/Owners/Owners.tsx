@@ -49,25 +49,26 @@ const Owners = () => {
   
 
     if (data?.success && data?.data?.length > 0) {
-      const dataFilter = data.data.filter((item: any) => item.ci === e.target.value);
       //relleno datos
-      console.log(dataFilter,'dataFilter')
      setItem({
       ...item,
-      ci: dataFilter[0].ci,
-      name: dataFilter[0].name,
-      middle_name: dataFilter[0].middle_name,
-      last_name: dataFilter[0].last_name,
-      mother_last_name: dataFilter[0].mother_last_name,
-      email: dataFilter[0].email,
-      phone: dataFilter[0].phone,
+      ci: data.data[0].ci,
+      name: data.data[0].name,
+      middle_name: data.data[0].middle_name,
+      last_name: data.data[0].last_name,
+      mother_last_name: data.data[0].mother_last_name,
+      email: data.data[0].email,
+      phone: data.data[0].phone,
   
      })
       setDisabled(true);
       showToast("El residente ya existe, vincular?", "warning");
+      //setItem()
+    } else {
+      //no existe
     }
   };
- console.log("disabled", disabled)
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -195,7 +196,7 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text" },
+        form: { type: "text", disabled },
         list: false,
       },
       last_name: {
@@ -207,10 +208,7 @@ const Owners = () => {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { 
-          type: "text",
-          disabled: disabled 
-        },
+        form: { type: "text", disabled },
         list: false,
       },
       mother_last_name: {
@@ -218,10 +216,7 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { 
-          type: "text",
-          disabled: disabled 
-        },
+        form: { type: "text", disabled },
         list: false,
       },
       units: {
@@ -242,7 +237,7 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-          disabled: disabled
+          disabled
         },
         list: { width: "180px" },
       },
@@ -260,7 +255,7 @@ const Owners = () => {
         label: "Celular (Opcional)",
         form: {
           type: "text",
-          disabled: disabled
+          disabled
         },
         list: { width: "180px" },
       },
