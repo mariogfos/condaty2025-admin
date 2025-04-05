@@ -50,15 +50,18 @@ const Owners = () => {
 
     if (data?.success && data?.data?.length > 0) {
       //relleno datos
+      const filteredData = data.data.filter((item: any) => {
+        return item.ci === e.target.value;
+      })
      setItem({
       ...item,
-      ci: data.data[0].ci,
-      name: data.data[0].name,
-      middle_name: data.data[0].middle_name,
-      last_name: data.data[0].last_name,
-      mother_last_name: data.data[0].mother_last_name,
-      email: data.data[0].email,
-      phone: data.data[0].phone,
+      ci: filteredData[0].ci,
+      name: filteredData[0].name,
+      middle_name: filteredData[0].middle_name,
+      last_name: filteredData[0].last_name,
+      mother_last_name: filteredData[0].mother_last_name,
+      email: filteredData[0].email,
+      phone: filteredData[0].phone,
   
      })
       setDisabled(true);
@@ -119,15 +122,14 @@ const Owners = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: {
+        form: disabled ? false : {
           type: "imageUpload",
           prefix: "OWNER",
           style: { width: "100%" },
-          // onRigth: rigthAvatar,
         },
       },
       password: {
-        rules: ["required*add"],
+        rules: disabled ? [] : ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
