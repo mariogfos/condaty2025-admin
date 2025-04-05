@@ -7,7 +7,7 @@ import AuthProvider from "@/mk/contexts/AuthProvider";
 import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
-import NotifInstantDb from "@/mk/components/notif/NotifInstantDb";
+import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -44,6 +44,7 @@ export default function RootLayout({
       <body cz-shortcut-listen="false">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>
+            <NotifInstantDb />
             <div
               id="portal-root"
               style={{
@@ -54,7 +55,6 @@ export default function RootLayout({
               }}
             ></div>
             <Layout>{children}</Layout>
-            <NotifInstantDb />
             <ChatInstantDb />
           </AuthProvider>
         </AxiosInstanceProvider>
