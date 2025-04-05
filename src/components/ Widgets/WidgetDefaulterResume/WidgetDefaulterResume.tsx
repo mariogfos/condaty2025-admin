@@ -7,25 +7,51 @@ interface PropsType {
   pointColor?: string;
   amount: string;
   units?: string;
+  icon?: React.ReactNode;
+  backgroundColor?: string;
+  textColor?: string;
+  iconColor?: string;
 }
 
-const WidgetDefaulterResume = ({ title, pointColor = "", units, amount }: PropsType) => {
+const WidgetDefaulterResume = ({ 
+  title, 
+  pointColor = "", 
+  units, 
+  amount,
+  icon,
+  backgroundColor,
+  textColor,
+  iconColor
+}: PropsType) => {
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        {pointColor && (
-          <div className={styles.dot} style={{backgroundColor:pointColor}}/>
+    <div 
+      className={styles.container}
+      style={{
+        backgroundColor: backgroundColor || 'var(--darkv2)'
+      }}
+    >
+      <div className={styles.contentWrapper}>
+        <div className={styles.textContent}>
+          <div className={styles.titleContainer}>
+            <p className={styles.title} style={{color: textColor || 'var(--lightv3)'}}>
+              {title}
+            </p>
+          </div>
+          <p className={styles.amount} style={{color: textColor || 'var(--lightColor)'}}>
+            {amount}
+          </p>
+        </div>
+        {icon && (
+          <div 
+            className={styles.iconContainer} 
+            style={{
+              backgroundColor: `${backgroundColor || 'var(--darkv2)'}`
+            }}
+          >
+            {icon}
+          </div>
         )}
-        <p className={styles.title}>{title}</p>
       </div>
-      <p className={styles.amount}>
-        {formatNumber(amount)} Bs
-      </p>
-      <p className={`${styles.units} ${!units ? styles.emptyUnits : ""}`}>
-        {units ? units + " Unidades" 
-        : units === ''? 
-        "Sin unidades" :''}
-      </p>
     </div>
   );
 };

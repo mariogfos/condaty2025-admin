@@ -8,11 +8,10 @@ import { useMemo, useState } from "react";
 import RenderItem from "../shared/RenderItem";
 import { MONTHS, MONTHS_S } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
-import Check from "@/mk/components/forms/Check/Check";
 import RenderForm from "./RenderForm/RenderForm";
-import RenderView from "./RenderView/RenderView";
-import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 import { isUnitInDefault, paidUnits, sumExpenses, sumPaidUnits, sumPenalty, units, unitsPayable } from "@/mk/utils/utils";
+import styles from "./Expenses.module.css";
+import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 
 
 const mod: ModCrudType = {
@@ -28,11 +27,10 @@ const mod: ModCrudType = {
     extraData: true,
     hideActions:{
         view:true,
-    //     edit:true,
-    //     del:true,
+        edit:true,
+        del:true,
      },
     onHideActions: (item: any) => {
-
         return {
           hideEdit: paidUnits(item?.asignados) > 0,
           hideDel:  paidUnits(item?.asignados) > 0,
@@ -230,8 +228,16 @@ const [detailItem,setDetailItem]:any = useState({})
                 label: "Estado",
                 list: { 
                     onRender: (props: any) => {
-                        return (isUnitInDefault(props?.item)? <div style={{color:'var(--cError)'}}>En mora</div> : <div>Vigente</div>)
-                } }
+                        const isInDefault = isUnitInDefault(props?.item);
+                        const statusClass = `${styles.statusBadge} ${isInDefault ? styles.statusMora : styles.statusDefault}`;
+                        
+                        return (
+                            <div className={statusClass}>
+                                {isInDefault ? "En mora" : "Vigente"}
+                            </div>
+                        );
+                    }
+                }
             },
            sumPenalty: {
             rules: [""],

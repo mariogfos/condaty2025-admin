@@ -65,10 +65,10 @@
       overflow: hidden;
     }
     & div:first-child {
-      color: var(--cWarning);
+      color: var(--cWhiteV1);
     }
     & div:last-child {
-      color: var(--cError);
+      color: var(--cWhiteV1);
     }
   }
 }
