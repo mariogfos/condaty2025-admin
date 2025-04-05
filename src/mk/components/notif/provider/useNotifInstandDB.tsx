@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
-// import { initSocket } from "../../chat/provider/useInstandDB";
 
 let last: any = 0;
 try {

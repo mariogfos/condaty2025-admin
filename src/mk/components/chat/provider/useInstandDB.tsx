@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { init, id } from "@instantdb/react";
+import { id } from "@instantdb/react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -15,20 +15,6 @@ let db: any = await initSocket();
 
 let room: any = db.room("chat", roomGral);
 let token: null | string = null;
-// export const initSocket = () => {
-//   if (!db) {
-//     db = init({
-//       appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
-//     });
-//     room = db.room("chat", roomGral);
-//     console.log("iniciando conexion a InstantDB");
-//   } else {
-//     console.log("recuperando conexion a InstantDB");
-//   }
-//   return db;
-// };
-
-// initSocket();
 
 type useInstantDbType = {
   getNameRoom: Function;
