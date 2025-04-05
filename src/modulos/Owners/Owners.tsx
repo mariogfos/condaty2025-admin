@@ -37,38 +37,47 @@ const Owners = () => {
     }) => <RenderView {...props} />,
     extraData: true,
   };
-  const [ disabled, setDisabled ] = useState(false);
-  const onBlurCi = async(e:any,{setItem, item,}:any)  => {
+  const [disabled, setDisabled] = useState(false);
+  const onBlurCi = async (e: any, { setItem, item }: any) => {
     console.log("onBlurCi", e.target.value);
-    const { data, error } =  await execute("/owners?", "GET", {
-      _exist: 1,
-      ci: e.target.value,
-    }
-    ,false,true);
-    
-  
+    const { data, error } = await execute(
+      "/owners?",
+      "GET",
+      {
+        _exist: 1,
+        ci: e.target.value,
+      },
+      false,
+      true
+    );
 
     if (data?.success && data?.data?.length > 0) {
       //relleno datos
       const filteredData = data.data.filter((item: any) => {
         return item.ci === e.target.value;
-      })
-     setItem({
-      ...item,
-      ci: filteredData[0].ci,
-      name: filteredData[0].name,
-      middle_name: filteredData[0].middle_name,
-      last_name: filteredData[0].last_name,
-      mother_last_name: filteredData[0].mother_last_name,
-      email: filteredData[0].email,
-      phone: filteredData[0].phone,
-  
-     })
-      setDisabled(true);
-      showToast("El residente ya existe, vincular?", "warning");
+      });
+      setItem({
+        ...item,
+        ci: filteredData[0].ci,
+        name: filteredData[0].name,
+        middle_name: filteredData[0].middle_name,
+        last_name: filteredData[0].last_name,
+        mother_last_name: filteredData[0].mother_last_name,
+        email: filteredData[0].email,
+        phone: filteredData[0].phone,
+        _disabled: true,
+      });
+      // setDisabled(true);
+      showToast(
+        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
       //setItem()
     } else {
-      setDisabled(false);
+      setItem({
+        ...item,
+        _disabled: false,
+      });
       //no existe
     }
   };
@@ -123,11 +132,13 @@ const Owners = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: disabled ? false : {
-          type: "imageUpload",
-          prefix: "OWNER",
-          style: { width: "100%" },
-        },
+        form: disabled
+          ? false
+          : {
+              type: "imageUpload",
+              prefix: "OWNER",
+              style: { width: "100%" },
+            },
       },
       password: {
         rules: disabled ? [] : ["required*add"],
@@ -150,9 +161,10 @@ const Owners = () => {
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al residente si
-                    el carnet no existe ,continúa con el proceso de registro
+                    ({JSON.stringify(disabled)}) Ingrese el número de carnet y
+                    haga click fuera del campo para que el sistema busque
+                    automáticamente al residente si el carnet no existe
+                    ,continúa con el proceso de registro
                   </div>
                 </div>
                 <div>
@@ -163,9 +175,9 @@ const Owners = () => {
                     label="Carnet de Identidad"
                     error={props.error}
                     onBlur={(e: any) => onBlurCi(e, props)}
-                    disabled={props?.field?.action === "edit" }
+                    disabled={props?.field?.action === "edit"}
                   />
-                  {props?.field?.action === "add"   && (
+                  {props?.field?.action === "add" && (
                     <InputPassword
                       name="password"
                       value={props?.item?.password}
@@ -189,7 +201,7 @@ const Owners = () => {
         label: "Primer nombre",
         form: {
           type: "text",
-          disabled: true,
+          disabled: disabled,
         },
 
         list: false,
@@ -240,7 +252,7 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-          disabled
+          disabled,
         },
         list: { width: "180px" },
       },
@@ -258,7 +270,7 @@ const Owners = () => {
         label: "Celular (Opcional)",
         form: {
           type: "text",
-          disabled
+          disabled,
         },
         list: { width: "180px" },
       },
