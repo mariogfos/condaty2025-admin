@@ -2,7 +2,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import styles from "./Contents.module.css";
+import styles from "../Contents.module.css";
 import {
   IconArrowLeft,
   IconArrowRight,

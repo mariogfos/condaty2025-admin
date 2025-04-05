@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import styles from "./BinnacleDetail.module.css";
+import styles from "./RenderView.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // Definir la interfaz para las props

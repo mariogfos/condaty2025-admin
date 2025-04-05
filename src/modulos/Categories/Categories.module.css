@@ -468,47 +468,6 @@
   height: 24px !important;
 }
 
-/* Sobrescribir estilos del DataModal */
-:global(.dataModal main) {
-  background-color: #212121 !important;
-  border-radius: 12px !important;
-  max-width: 883px !important;
-}
-
-:global(.dataModal main header) {
-  border-bottom: 1px solid #a7a7a7 !important;
-  padding: 16px !important;
-}
-
-:global(.dataModal main header h1) {
-  font-size: 24px !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-}
-
-:global(.dataModal main footer) {
-  padding: 16px !important;
-  display: flex !important;
-  gap: 8px !important;
-}
-
-:global(.dataModal main footer button:first-child) {
-  background-color: #00e38c !important;
-  border: none !important;
-  color: #212121 !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  flex: 2 !important;
-}
-
-:global(.dataModal main footer button:last-child) {
-  background-color: transparent !important;
-  border: 1px solid #a7a7a7 !important;
-  color: #a7a7a7 !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  flex: 1 !important;
-}
 
 /* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
@@ -546,9 +505,7 @@
     font-size: 14px;
   }
   
-  :global(.dataModal main footer) {
-    flex-direction: column !important;
-  }
+
 }
 /* Estilos para toggle switch */
 .toggleSwitch {

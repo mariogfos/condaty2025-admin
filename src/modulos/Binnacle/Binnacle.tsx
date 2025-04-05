@@ -1,7 +1,7 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Binnacle.module.css";
+
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
@@ -77,7 +77,7 @@ const Binnacle = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.style}>
+    <div >
       <List />
     </div>
   );
