@@ -16,13 +16,6 @@ export default function NotifInstantDb() {
       console.log("new Notificascion", notifs[lastNotif - 1]);
     }
     console.log("useeffect last notif", lastNotif);
-  }, [lastNotif, notifs]);
+  }, [lastNotif, notifs, showToast]);
   return null;
-  return (
-    <div style={{ color: "white" }}>
-      Notificaciones: <br />
-      {lastNotif}
-      {JSON.stringify(notifs)}
-    </div>
-  );
 }
