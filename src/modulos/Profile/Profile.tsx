@@ -228,6 +228,7 @@ const Profile = () => {
               <div className={styles.editButton}>
                 <Button
                   className={styles.editProfileButton}
+                  
                   onClick={onEditProfile}
                 >
                   Editar Perfil
@@ -308,6 +309,7 @@ const Profile = () => {
           <div className={styles.buttonsContainer}>
             <Button
               onClick={onChangeEmail}
+              style={{ backgroundColor: "var(--cWhiteV2)", color: "var(--cWhiteV1)" }}
               className={styles.accessButton}
             >
               <IconEmail className={styles.buttonIcon} />
@@ -316,6 +318,7 @@ const Profile = () => {
 
             <Button
               onClick={onChangePassword}
+              style={{ backgroundColor: "var(--cWhiteV2)", color: "var(--cWhiteV1)" }}
               className={styles.accessButton}
             >
               <IconLook className={styles.buttonIcon} />

@@ -1,6 +1,6 @@
 import {
-  IconArrowLeft,
-  IconArrowRight,
+  IconArrowBack,
+  IconArrowNext,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./pagination.module.css";
@@ -29,79 +29,101 @@ const Pagination = ({
   params,
   total = null,
 }: PropsType) => {
-  // const [perPage, setPerPage] = useState(params?.perPage);
-  const { firstPage, lastPage, goToNextPage, goToPreviousPage, range } =
-    useMemo(() => {
-      const firstPage = totalPages > 1 ? Math.max(1, currentPage - 3) : 1;
-      const lastPage =
-        totalPages > 1 ? Math.min(currentPage + 3, totalPages) : 1;
+  const [pageInput, setPageInput] = useState<string>(currentPage.toString());
+  const [perPageInput, setPerPageInput] = useState<string>(
+    (params?.perPage || 10).toString()
+  );
 
-      const goToNextPage = (): void => {
-        onPageChange(Math.min(currentPage + 1, totalPages));
-      };
+  // Asegurar que totalPages sea siempre al menos 1
+  const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
 
-      const goToPreviousPage = (): void => {
-        onPageChange(Math.max(currentPage - 1, 1));
-      };
-      const range = (start: number, end: number): number[] => {
-        if (start >= end) {
-          return [];
-        }
-        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-      };
-      return { firstPage, lastPage, goToNextPage, goToPreviousPage, range };
-    }, [currentPage, totalPages]);
+  // Actualizar el input cuando cambia la página actual
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+    setPerPageInput((params?.perPage || 10).toString());
+  }, [currentPage, params?.perPage]);
 
-  // useEffect(() => {
-  //   if (perPage) {
-  //     setParams({ ...params, perPage: perPage });
-  //   }
-  // }, [perPage]);
+  const { goToNextPage, goToPreviousPage, goToPage } = useMemo(() => {
+    const goToNextPage = (): void => {
+      onPageChange(Math.min(currentPage + 1, safeTotal));
+    };
+
+    const goToPreviousPage = (): void => {
+      onPageChange(Math.max(currentPage - 1, 1));
+    };
+
+    const goToPage = (page: number): void => {
+      if (page >= 1 && page <= safeTotal) {
+        onPageChange(page);
+      }
+    };
+
+    return { goToNextPage, goToPreviousPage, goToPage };
+  }, [currentPage, safeTotal, onPageChange]);
+
+  // Manejar el cambio en el input de elementos por página
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPerPageInput(e.target.value);
+  };
+
+  // Aplicar el cambio de elementos por página
+  const handlePerPageSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const perPage = parseInt(perPageInput);
+    if (!isNaN(perPage) && perPage > 0) {
+      setParams({ ...params, perPage, page: 1 });
+    }
+  };
 
   return (
-    <div className={styles.pagination + " " + className}>
-      <div>
-        {totalPages > 1 && (
-          <>
-            <span>
-              <IconArrowLeft
-                onClick={goToPreviousPage}
-                size={20}
-                color="var(--cBlackV2)"
-              />
-            </span>
-            <span>
-              <IconArrowRight
-                onClick={goToNextPage}
-                size={20}
-                color="var(--cBlackV2)"
-              />
-            </span>
-          </>
-        )}
+    <div className={`${styles.pagination} ${className}`}>
+      {/* Texto informativo a la izquierda */}
+      <div className={styles.paginationInfo}>
+        <span>ir a la página {currentPage}</span>
       </div>
-      <div>
-        {range(firstPage, lastPage).map((page: number) => (
-          <div
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={page == currentPage ? styles["active"] : ""}
-          >
-            {page}
-          </div>
-        ))}
-        {totalPages <= 1 && <div className={styles["active"]}>1</div>}
+
+      {/* Botones de navegación en el centro */}
+      <div className={styles.navigationButtons}>
+        <button
+          className={styles.navButton}
+          onClick={goToPreviousPage}
+          disabled={currentPage <= 1}
+        >
+          <IconArrowBack size={18} color="var(--cWhite)" />
+        </button>
+        <button
+          className={styles.nextButton}
+          onClick={goToNextPage}
+          disabled={currentPage >= safeTotal}
+        >
+          Siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
+        </button>
       </div>
-      {/* <span>
-        <IconArrowRight onClick={goToNextPage} />
-      </span> */}
-      <div>
-        <p>Total {total} items </p>
+
+      {/* Selector de página a la derecha */}
+      <div className={styles.pageSelector}>
+        <form onSubmit={handlePerPageSubmit} className={styles.pageForm}>
+          <span>ir a una página, 1/{safeTotal}</span>
+          <input
+            type="number"
+            min="1"
+            value={perPageInput}
+            onChange={handlePerPageChange}
+            className={styles.pageInput}
+            aria-label="Elementos por página"
+          />
+          <button type="submit" className={styles.goButton}>
+            Ir <IconArrowNext size={16} color="var(--accent)" />
+          </button>
+        </form>
+      </div>
+
+      {/* Select para elementos por página - oculto pero funcional */}
+      <div className={styles.hiddenPerPage}>
         <Select
-          inputStyle={{ marginBottom: 0 }}
+          inputStyle={{ display: 'none' }}
           name="perPage"
           label=""
-          style={{ width: 120 }}
           options={[
             { id: 10, name: "10" },
             { id: 20, name: "20" },
@@ -111,12 +133,9 @@ const Pagination = ({
           value={params?.perPage}
           onChange={(e) => {
             setParams({ ...params, perPage: e.target.value, page: 1 });
-            // range(1, 3);
           }}
         />
       </div>
-
-      {/* {total && <p> Total items: {total}</p>} */}
     </div>
   );
 };

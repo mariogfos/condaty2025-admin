@@ -1,56 +1,159 @@
 .pagination {
-  width: 100%;
   display: flex;
-  justify-content: left;
   align-items: center;
-  /* background-color: var(--cBlackV1); */
-  padding: 12px;
-  /* border-radius: 0px 0px 16px 16px; */
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  
 
-  & > div:nth-child(1) {
-    display: flex;
-    gap: var(--spS);
-    & > span {
-      border-radius: var(--bRadiusS);
-      border: var(--bWidth) solid var(--cBlackV3);
-      padding: 6px;
-    }
+}
+
+/* Texto informativo a la izquierda */
+.paginationInfo {
+  color: var(--accent);
+  font-size: 14px;
+  
+}
+
+/* Botones de navegación en el centro */
+.navigationButtons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--cWhite);
+}
+
+.navButton:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.992);
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nextButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: var(--cPrimary, #4ade80);
+  color: var(--cBlack, #000000);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+}
+
+.nextButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.nextButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Selector de página a la derecha */
+.pageSelector {
+  display: flex;
+  align-items: center;
+}
+
+.pageForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageForm span {
+  color: var(--cWhite);
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.pageInput {
+  width: 48px;
+  height: 36px;
+  background-color: var(--darkColor);
+  border: 1px solid var(--cWhite);
+  border-radius: 8px;
+  color: var(--cWhiteV1, #ffffff);
+  text-align: center;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.pageInput:focus {
+  outline: none;
+  border-color: var(--cPrimary, #4ade80);
+}
+
+.goButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--accent);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.goButton:hover {
+  opacity: 0.9;
+}
+
+/* Ocultar el selector de elementos por página pero mantenerlo funcional */
+.hiddenPerPage {
+  position: absolute;
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
   }
-  & > div:nth-child(2) {
-    display: flex;
-    justify-content: center;
+  
+  .navigationButtons, .pageSelector {
     width: 100%;
-    align-items: center;
-    gap: var(--spS);
-
-    & > div {
-      width: 32px;
-      height: 32px;
-      /* border: var(--bWidth) solid var(--cBlackV3); */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: var(--bRadiusS);
-      color: var(--cWhiteV1);
-      cursor: pointer;
-    }
+    justify-content: center;
   }
+}
 
-  & > div:nth-child(2) {
-    & > div.active {
-      background-color: var(--cPrimary);
-      color: var(--cBlack);
-    }
+@media (max-width: 576px) {
+  .pageForm {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  & > div:nth-child(3) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    & > p {
-      font-size: var(--sM);
-      color: var(--cBlackV2);
-      width: 170px;
-      text-align: right;
-    }
+  
+  .nextButton, .goButton {
+    width: 100%;
   }
 }

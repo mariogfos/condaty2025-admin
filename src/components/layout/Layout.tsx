@@ -33,12 +33,10 @@ const Layout = ({ children }: any) => {
   }, [user]);
 
   const onNotif = useCallback((e: any) => {
-    showToast(e.payload?.title, "info");
-    // soundBell
-    //   .play()
-    //   .catch((err) => console.error("Error al reproducir el audio:", err));
+    if (e.event == "ping") {
+      showToast("Llegó un PING", "info");
+    }
 
-    console.log("*******1111******", e);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

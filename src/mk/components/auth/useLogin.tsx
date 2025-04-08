@@ -60,9 +60,7 @@ const useLogin = (): UseLoginType => {
             ...data?.errors,
           });
         }
-        logError("====================================");
-        logError("Error Login", errors, data?.errors);
-        logError("====================================");
+      
       }
       return;
     });

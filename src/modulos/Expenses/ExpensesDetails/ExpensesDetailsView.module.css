@@ -1,64 +1,247 @@
 .ExpensesDetailsView {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spL)
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
 }
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spM);
+  cursor: pointer;
+  margin-bottom: var(--spS);
+  color: var(--accent);
+}
+
+.backButton p {
+  color: var(--accent);
+  font-size: var(--sM);
+  margin: 0;
+}
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  background-color: var(--cBlackV2);
+  padding: var(--spL);
+  border-radius: var(--bRadiusL);
+  border: 0.5px solid var(--cWhiteV1);
+}
+
+.dashboardTitle {
+  font-size: var(--sXxl);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.allStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--cBlackV2);
+  padding: var(--spM);
+  border-radius: var(--bRadiusL);
+  border: 0.5px solid var(--cWhiteV1);
+  flex: 1;
+  min-width: 192px;
+  max-width: calc(100% / 7 - var(--spM));
+  height: 94px;
+}
+
+@media (max-width: 1600px) {
+  .statCard {
+    max-width: calc(100% / 4 - var(--spM));
+  }
+}
+
+@media (max-width: 1200px) {
+  .statCard {
+    max-width: calc(100% / 3 - var(--spM));
+  }
+}
+
+@media (max-width: 768px) {
+  .statCard {
+    max-width: calc(100% / 2 - var(--spM));
+  }
+}
+
+@media (max-width: 480px) {
+  .statCard {
+    max-width: 100%;
+  }
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  flex: 1;
+}
+
+.statValue {
+  font-size: var(--sXl);
+  font-weight: var(--bSemibold);
+  color: var(--cWhite);
+}
+
+.statLabel {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  white-space: nowrap;
+}
+
+.statIconContainer {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: var(--bRadiusL);
+  margin-left: var(--spS);
+}
+
+.iconDefault {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.iconPaid {
+  background-color: rgba(0, 175, 144, 0.2);
+}
+
+.iconPaidColor {
+  color: rgb(0, 175, 144);
+}
+
+.iconOverdue {
+  background-color: rgba(218, 93, 93, 0.2);
+}
+
+.iconOverdueColor {
+  color: rgb(218, 93, 93);
+}
+
+.iconPenalty {
+  background-color: rgba(243, 127, 61, 0.2);
+}
+
+.iconPenaltyColor {
+  color: rgb(243, 127, 61);
+}
+
+/* Estilos para el header si es necesario */
 .header {
-    background-color: var(--cBlackV2) !important;
+  background-color: var(--cBlackV2) !important;
+  display: flex;
+  justify-content: space-between;
+  min-height: 124px;
+  & > section {
+    & > div:nth-child(1) {
+      font-size: var(--sL);
+    }
+    & > div:nth-child(2) {
+      color: var(--cWhiteV1)
+    }
+  }
+}
+
+/* Estilos para render view */
+.renderView {
+  & > div {
     display: flex;
-    justify-content: space-between;
-    min-height: 124px;
+    padding: var(--spL);
+    gap: var(--spL);
+    align-items: center;
+    
+    @media (max-width: 750px) {
+      flex-direction: column;
+    }
+    
+    & > div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spL);
+    }
+    
     & > section {
-      & >div:nth-child(1){
-        font-size: var(--sL);
-      }
-      & > div:nth-child(2){
-        color: var(--cWhiteV1)
+      padding: var(--spM);
+      background-color: var(--cBlackV1);
+      border-radius: 8px;
+      width: 500px;
+      
+      & > div {
+        display: flex;
+        margin-bottom: 16px;
+        font-size: var(--sM);
+        
+        & > p:nth-child(odd) {
+          flex: 1;
+          color: var(--cWhiteV1);
+        }
+        
+        & > p:nth-child(even) {
+          flex: 1;
+          text-align: right;
+          color: var(--cWhite);
+        }
       }
     }
+  }
 }
 
-.renderView {
-  & > div  {  
-       display: flex; 
-       padding:var(--spL); 
-       gap: var(--spL);
-       align-items: center;
-       @media (max-width: 750px) {
-           flex-direction: column;
-         };
-       & > div {
-         display: flex;
-         flex-direction: column;
-         justify-content: center;
-         align-items: center;
-         gap: var(--spL);
-         
-       }
-       & > section {
-         padding: var(--spM);
-         background-color: var(--cBlackV1);
-         border-radius: 8px;
-         
-         width:500px;
+/* Estilo general para los badges de estado */
+.statusBadge {
+  font-weight: var(--bMedium);
+  padding: 6px var(--spM);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+  white-space: nowrap;
+}
 
-         
-         & > div {
-           display: flex;
-           margin-bottom: 16px;
-           font-size: var(--sL);
-           font-size: var(--sM);
-           & > p:nth-child(odd) {
-             flex: 1;
-             color: var(--cWhiteV1);
-             
-           }
-           & > p:nth-child(even) {
-             flex: 1;
-             text-align: right;
-             color: var(--cWhite);
-           }
-         }
-       }
-     }
- }
+/* Estilos para cada estado con fondos semitransparentes y texto coloreado */
+.statusP {
+  background-color: var(--accentBg);
+  color: var(--cPrimary);
+}
+
+.statusS {
+  background-color: var(--cHoverWarning);
+  color: var(--cWarning);
+}
+
+.statusR {
+  background-color: var(--cHoverError);
+  color: var(--cError);
+}
+
+.statusE {
+  background-color: var(--cHoverInfo);
+  color: var(--cInfo);
+}
+
+.statusA {
+  background-color: rgba(0, 123, 255, 0.2);
+  color: var(--info);
+}
+
+.statusM {
+  background-color: var(--cMediumAlertHover);
+  color: var(--cMediumAlert);
+}

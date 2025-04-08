@@ -3,11 +3,12 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
 import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
-import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+
 import HeadTitle from "../HeadTitle/HeadTitle";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 
 type PropsType = {
   isTablet: boolean;
@@ -94,6 +95,7 @@ const Header = ({
             onClick={() => {
               router.push("/profile");
             }}
+            square={true} 
             
           />
         </div>
@@ -133,35 +135,33 @@ const Header = ({
       </>
     );
 
-  return (
-    <div className={styles["header-desktop"]}>
-      <div>
-        <div>{title}</div>
+    return (
+      <div className={styles["header-desktop"]}>
+        <div className={styles["header-greeting"]}>
+          <h1>¡Hola {getFullName(user)}!</h1>
+          <p>Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente jornada laboral</p>
+        </div>
+
+        <div className={styles["header-controls"]}>
+          <NotificationIcon />
+          <div className={styles.tooltip}>
+            <div className={styles.iconOuterContainer}>
+              <div className={styles.settingContainer}>
+                <div 
+                  onClick={() => router.push('/roles')} 
+                  style={{ cursor: "pointer" }}
+                >
+                  <IconSetting />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+          <ProfileIcon />
+        </div>
       </div>
-      <div
-        style={{
-          marginTop: "var(--spL)",
-        }}
-      >
-        {/* <DataSearch
-          placeholder="Buscar"
-          value=""
-          onChange={() => {}}
-          setSearch={() => {}}
-          name="search"
-        /> */}
-      </div>
-      <div className={styles.tooltip}>
-        <Dropdown
-          trigger={<IconSetting style={{ cursor: "pointer" }} />}
-          items={menuItems}
-        />
-      </div>
-      
-      <NotificationIcon />
-      <ProfileIcon />
-    </div>
-  );
+    );
 };
 
 export default Header;

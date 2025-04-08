@@ -24,6 +24,7 @@ const Documents = () => {
     loadView: {
       fullType: "DET",
     },
+    export: true,
   };
 
   const paramsInitial = {
@@ -41,27 +42,30 @@ const Documents = () => {
         api: "ae",
         label: "Nombre",
         form: { type: "text" },
-        list: { width: "240px" },
+        list: {  },
       },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
         form: { type: "text" },
-        list: { width: "100%" },
+        list: { },
       },
       for_to: {
         rules: ["required"],
         api: "ae*",
         label: "Destino",
         form: { type: "select", options: lOptions },
-        list: { width: "120px" },
+        list: { },
       },
       position: {
         rules: ["required"],
         api: "ae*",
         label: "Posición",
-        form: { type: "text" },
+        form: { 
+          type: "text" ,
+          label: "Introduce un número del 0 al 5 para ordenar el documento",
+        },
       },
       doc: {
         rules: ["required"],

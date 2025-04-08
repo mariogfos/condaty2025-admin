@@ -1,22 +1,34 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { id } from "@instantdb/react";
+import { useEffect, useMemo, useState } from "react";
+import { id, init } from "@instantdb/react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { initSocket } from "../../chat/provider/useInstandDB";
 
 let last: any = 0;
 try {
-  last = localStorage.getItem("lastNotifInstantDB");
+  last = localStorage.getItem("lastNotifInstantDB") ?? 0;
 } catch (error) {
   last = 0;
 }
 
-const db: any = initSocket();
+let db: any = null;
+export const initSocket = () => {
+  if (!db) {
+    db = init({
+      appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
+    });
+    console.log("iniciando conexion a InstantDB");
+  } else {
+    console.log("recuperando conexion a InstantDB");
+  }
+  return db;
+};
+
+initSocket();
+
 export type NotifType = {
   user: Record<string, any>;
   notifs: Record<string, any>[];
-  showToast: Function;
-  sendNotif: (channel: string, event: string, payload: any) => any;
+  // sendNotif: (channel: string, event: string, payload: any) => any;
   lastNotif: number | null;
 };
 const channelGral: string = process.env
@@ -25,8 +37,13 @@ const channelGral: string = process.env
 const useNotifInstandDB = (
   channels: { channel: string }[] | undefined = []
 ): NotifType => {
-  const { user, showToast } = useAuth();
+  const { user } = useAuth();
+  const [lastNotif, setLastNotif] = useState<number | null>(null);
 
+  useEffect(() => {
+    // console.log("useeffect last", last);
+    setLastNotif(last);
+  }, []);
   const chiam =
     channelGral +
     "-" +
@@ -39,10 +56,11 @@ const useNotifInstandDB = (
           // created_at: { $gte: new Date(last).toISOString() },
           or: [
             { channel: channelGral },
-            {
-              channel: chiam,
-            },
-            { channel: channelGral + "-fosadmin" },
+            { channel: channelGral + user?.client_id },
+            { channel: chiam },
+            { channel: channelGral + user?.client_id + "-admin" },
+            { channel: channelGral + user?.client_id + "-alert-2" },
+            { channel: channelGral + user?.client_id + "-alert-3" },
             ...channels,
           ],
         },
@@ -53,13 +71,25 @@ const useNotifInstandDB = (
       },
     },
   };
-  const { data } = db.useQuery(query);
+  const { data } = db.useQuery(user?.id ? query : null);
 
-  const [lastNotif, setLastNotif] = useState(null);
   const { dispatch } = useEvent("onNotif");
   useEffect(() => {
     if (data?.notif?.length > 0) {
-      if (lastNotif && lastNotif < data?.notif[0].created_at) {
+      console.log(
+        "notif",
+        data?.notif[0],
+        lastNotif,
+        data?.notif[0].created_at
+      );
+      if (data?.notif[0].created_at == -1) {
+        localStorage.setItem("lastNotifInstantDB", "0");
+        setLastNotif(0);
+        console.log("notif reseteada");
+      }
+
+      if (lastNotif !== null && lastNotif < data?.notif[0].created_at) {
+        // console.log("notif enviada");
         dispatch(data?.notif[0]);
         last = data?.notif[0].created_at;
         localStorage.setItem("lastNotifInstantDB", last);
@@ -68,10 +98,6 @@ const useNotifInstandDB = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.notif]);
-
-  useEffect(() => {
-    setLastNotif(last);
-  }, []);
 
   const sendNotif = async (channel: string, event: string, payload: any) => {
     await db.transact(
@@ -90,7 +116,6 @@ const useNotifInstandDB = (
       return {
         user,
         notifs: data?.notif,
-        showToast,
         sendNotif,
         lastNotif,
       };
@@ -100,6 +125,7 @@ const useNotifInstandDB = (
   );
 
   return result;
+  // return;
 };
 
 export default useNotifInstandDB;

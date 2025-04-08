@@ -5,9 +5,9 @@ import {
   hasModelInCache,
   MLCEngine,
 } from "@mlc-ai/web-llm";
-import { initSocket } from "../provider/useInstandDB";
 import { id } from "@instantdb/react";
 import useAxios from "@/mk/hooks/useAxios";
+import { initSocket } from "../../notif/provider/useNotifInstandDB";
 
 const db: any = initSocket();
 const userBot = "chatBot";

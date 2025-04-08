@@ -1,32 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { init, id } from "@instantdb/react";
+import { id } from "@instantdb/react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 import { useEvent } from "@/mk/hooks/useEvents";
+import { initSocket } from "../../notif/provider/useNotifInstandDB";
 
 let initToken = false;
 const roomGral: string = process.env
   .NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX as string;
-let db: any = null;
-let room: any = null;
-let token: null | string = null;
-export const initSocket = () => {
-  if (!db) {
-    db = init({
-      appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
-    });
-    room = db.room("chat", roomGral);
-    console.log("iniciando conexion a InstantDB");
-  } else {
-    console.log("recuperando conexion a InstantDB");
-  }
-  return db;
-};
+let db: any = await initSocket();
 
-initSocket();
+let room: any = db.room("chat", roomGral);
+let token: null | string = null;
 
 type useInstantDbType = {
   getNameRoom: Function;

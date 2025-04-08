@@ -1,13 +1,14 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Binnacle.module.css";
+
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
-import { getFullName } from "@/mk/utils/string";
-import BinnacleDetail from "./BinnacleDetail";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import RenderView from "./RenderView/RenderView";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const mod = {
   modulo: "guardnews",
@@ -16,7 +17,7 @@ const mod = {
   permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true, add: true },
-  renderView: (props: any) => <BinnacleDetail {...props} />,
+  renderView: (props: any) => <RenderView {...props} />,
   loadView: { fullType: "DET" } // Esto cargará los detalles completos al hacer clic
 };
 
@@ -32,21 +33,39 @@ const Binnacle = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      descrip: {
-        rules: ["required"],
-        api: "ae",
-        label: "Descripción",
-        form: { type: "text" },
-        list: { },
-      },
       guardia: {
         rules: [""],
         api: "",
         label: "Guardia",
         list: {
             onRender: (props: any) => {
-            return getFullName(props.item.guardia); }}
-      },      
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  src={getUrlImages(
+                    "/GUARD-" +
+                      props?.item?.guardia.id +
+                                ".webp?d=" +
+                                props?.item?.guardia.updated_at
+                            )}
+                            name={getFullName(props?.item.guardia)}
+                            square
+                          />
+                          <div>
+                            <p>{getFullName(props?.item.guardia)} </p>
+                          </div>
+                        </div>
+            );
+          }
+        },
+      },    
+      descrip: {
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
+        list: { },
+      },  
     }),
     []
   );
@@ -77,7 +96,7 @@ const Binnacle = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.style}>
+    <div >
       <List />
     </div>
   );

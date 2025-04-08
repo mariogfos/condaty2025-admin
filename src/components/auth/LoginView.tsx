@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import { useState } from "react";
@@ -55,12 +55,18 @@ const LoginView = ({
             className={styles.mobileImage}
             priority
           />
-        </div>
-        
+        </div>      
         <div className={styles.formContainer}>
           <div className={styles.formWrapper}>
             <div className={styles.logo}>
-              <Logo width={98}  />
+              <Image
+              src="/assets/images/Condaty-completo-1.svg"
+              alt="adminDesktop"
+              width={164}
+              height={49}
+              className={styles.desktopLogoImage}
+              priority/>
+              
             </div>
             
             <div className={styles.titleSection}>
@@ -68,14 +74,9 @@ const LoginView = ({
                 Administrador
               </div>
               <div className={styles.desktopTitle}>
-                Bienvenido de vuelta
+                Bienvenido administrador
               </div>
-              <div className={styles.welcomeText}>
-                Bienvenido
-              </div>
-              <div className={styles.adminText}>
-                Administrador
-              </div>
+              
             </div>
             
             <form className={styles.form} onSubmit={(e) => {
@@ -106,21 +107,25 @@ const LoginView = ({
                   maxLength={10}
                 />
               </div>
-              
+              <div
+              className={styles.forgotPassword}
+              onClick={() => setOpenModal(true)}
+            >
+              Olvidé mi contraseña
+            </div>
               <Button
                 className={styles.button}
                 
               >
                 Iniciar sesión
               </Button>
+              {/* Añade esto después del "Olvidé mi contraseña" */}
+            <div className={styles.termsContainer}>
+              Al iniciar sesión aceptas los <a href="#">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
+            </div>
             </form>
             
-            <div
-              className={styles.forgotPassword}
-              onClick={() => setOpenModal(true)}
-            >
-              Olvidé mi contraseña
-            </div>
+            
           </div>
         </div>
       </div>
