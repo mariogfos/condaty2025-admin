@@ -35,7 +35,18 @@ const RenderForm = ({
   reLoad,
   user,
 }) => {
-  const [_formState, _setFormState] = useState(item || {});
+  const [_formState, _setFormState] = useState(() => {
+    // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    
+    return {
+      ...item || {},
+      // Si no hay fecha en 'item', usa la fecha actual
+      date_at: (item && item.date_at) || formattedDate,
+      payment_method: (item && item.payment_method) || "" // Añadir campo de método de pago
+    };
+  });
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState({});
   const [fileUploaded, setFileUploaded] = useState(false);
@@ -45,7 +56,7 @@ const RenderForm = ({
   const { store } = useAuth();
 
   const extem = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
-console.log("extraData", extraData);
+  
   // Toast function
   const showToast = (message, type) => {
     setToast({ msg: message, type });
@@ -222,6 +233,9 @@ console.log("extraData", extraData);
     if (!_formState.amount) {
       err.amount = "Este campo es requerido";
     }
+    if (!_formState.payment_method) {
+      err.payment_method = "Este campo es requerido";
+    }
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
@@ -241,6 +255,7 @@ console.log("extraData", extraData);
       category_id: _formState.subcategory_id,
       description: _formState.description,
       amount: parseFloat(_formState.amount || "0"),
+      payment_method: _formState.payment_method,
       file: {
         file: _formState.file,
         ext: _formState.ext,
@@ -276,6 +291,14 @@ console.log("extraData", extraData);
     onClose();
   }, [onClose]);
 
+  // Opciones de método de pago
+  const paymentMethods = [
+    { id: "transferencia", name: "Transferencia bancaria" },
+    { id: "efectivo", name: "Efectivo" },
+    { id: "tarjeta", name: "Tarjeta de crédito/débito" },
+    { id: "cheque", name: "Cheque" },
+  ];
+
   return (
     <>
       <Toast toast={toast} showToast={showToast} />
@@ -283,20 +306,19 @@ console.log("extraData", extraData);
         open={open}
         onClose={onCloseModal}
         onSave={_onSaveEgreso}
-        buttonCancel=""
-        buttonText={"Guardar"}
+        buttonCancel="Cancelar"
+        buttonText={"Registrar egreso"}
         title={"Estás registrando un nuevo egreso"}
       >
+        <div className={styles.divider}></div>
         <div className={styles["outlays-form-container"]}>
-          <p className={styles["form-title"]}>Indica los datos para tu nuevo egreso</p>
-          
+          {/* Fecha de pago */}
           <div className={styles.section}>
-            <p className={styles["section-title"]}>Fecha del egreso</p>
             <div className={styles["input-container"]}>
               <Input
                 type="date"
                 name="date_at"
-                label="Fecha"
+                label="Fecha de pago*"
                 required={true}
                 value={_formState.date_at || ""}
                 onChange={handleChangeInput}
@@ -305,68 +327,86 @@ console.log("extraData", extraData);
             </div>
           </div>
 
+          {/* Categoría y Subcategoría (en dos columnas) */}
           <div className={styles.section}>
-            <p className={styles["section-title"]}>Selecciona la categoría y subcategoría</p>
-            <div className={styles["input-container"]}>
-              <Select
-                name="category_id"
-                value={_formState.category_id}
-                placeholder="Seleccionar una categoría"
-                label="Categoría"
-                onChange={handleChangeInput}
-                options={extraData?.categories || []}
-                error={errors.category_id}
-                required
-                optionLabel="name"
-                optionValue="id"
-              />
-            </div>
-            <div className={styles["input-container"]}>
-              <Select
-                name="subcategory_id"
-                value={_formState.subcategory_id}
-                placeholder="Seleccionar subcategoría"
-                label="Subcategoría"
-                onChange={handleChangeInput}
-                options={filteredSubcategories}
-                error={errors.subcategory_id}
-                required
-                optionLabel="name"
-                optionValue="id"
-                disabled={!_formState.category_id}
-              />
+            <div className={styles["two-column-container"]}>
+              <div className={styles.column}>
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="category_id"
+                    value={_formState.category_id}
+                    placeholder="Seleccionar una categoría"
+                    label="Categoría*"
+                    onChange={handleChangeInput}
+                    options={extraData?.categories || []}
+                    error={errors.category_id}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                  />
+                </div>
+              </div>
+              <div className={styles.column}>
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="subcategory_id"
+                    value={_formState.subcategory_id}
+                    placeholder="Seleccionar subcategoría"
+                    label="Subcategoría*"
+                    onChange={handleChangeInput}
+                    options={filteredSubcategories}
+                    error={errors.subcategory_id}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={!_formState.category_id}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className={styles.section}>
-            <p className={styles["section-title"]}>Descripción y monto</p>
-            <div className={styles["input-container"]}>
-              <TextArea
-                name="description"
-                label="Descripción"
-                placeholder="Escribe una descripción detallada"
-                value={_formState.description || ""}
-                onChange={handleChangeInput}
-                error={errors.description}
-                required
-              />
+          {/* Monto y Método de pago (en dos columnas) */}
+          <div className={styles["two-column-container"]}>
+            <div className={styles.column}>
+              <div className={styles.section}>
+                <div className={styles["input-container"]}>
+                  <Input
+                    type="number"
+                    name="amount"
+                    label="Monto del pago*"
+                    placeholder="Ej: 10000"
+                    value={_formState.amount || ""}
+                    onChange={handleChangeInput}
+                    error={errors.amount}
+                    required
+                  />
+                </div>
+              </div>
             </div>
-            <div className={styles["input-container"]}>
-              <Input
-                type="number"
-                name="amount"
-                label="Monto (Bs)"
-                placeholder="Ej: 100.00"
-                value={_formState.amount || ""}
-                onChange={handleChangeInput}
-                error={errors.amount}
-                required
-              />
+            <div className={styles.column}>
+              <div className={styles.section}>
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="payment_method"
+                    value={_formState.payment_method}
+                    placeholder="Seleccionar método de pago"
+                    label="Método de pago*"
+                    onChange={handleChangeInput}
+                    options={paymentMethods}
+                    error={errors.payment_method}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* Comprobante */}
           <div className={styles.section}>
-            <p className={styles["section-title"]}>Comprobante</p>
+            <div className={styles["section-title"]}>Adjuntar comprobante o recibo del pago</div>
             <div
               className={`${styles["file-upload-area"]} ${
                 isDraggingFile ? styles.dragging : ""
@@ -433,12 +473,27 @@ console.log("extraData", extraData);
                         type="button"
                         className={styles["edit-file-button"]}
                       >
-                        <span>Editar elemento</span>
+                        <span>Cargar otra imagen</span>
                       </button>
                     </div>
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Concepto del pago */}
+          <div className={styles.section}>
+            <div className={styles["input-container"]}>
+              <TextArea
+                name="description"
+                label="Concepto del pago"
+                placeholder="Describa el concepto del pago"
+                value={_formState.description || ""}
+                onChange={handleChangeInput}
+                error={errors.description}
+                required
+              />
             </div>
           </div>
         </div>

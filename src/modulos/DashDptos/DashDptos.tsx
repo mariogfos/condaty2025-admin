@@ -18,8 +18,8 @@ import HistoryAccess from "./HistoryAccess/HistoryAccess";
 import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
-import DetailPayment from "../Payments/PaymentDetail/PaymentDetail";
-import RenderView from "../Owners/RenderView";
+import RenderView from "../Payments/RenderView/RenderView";
+import OwnersRenderView from "../Owners/RenderView";
 
 interface DashDptosProps {
   id: string | number;
@@ -544,7 +544,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
 
   {openComprobante && idPago && (
-    <DetailPayment
+    <RenderView
       open={openComprobante}
       onClose={() => {
         setOpenComprobante(false);
@@ -558,7 +558,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   )}
 
       {openPerfil && idPerfil && (
-        <RenderView
+        <OwnersRenderView
           open={openPerfil}
           onClose={() => {
             setOpenPerfil(false);

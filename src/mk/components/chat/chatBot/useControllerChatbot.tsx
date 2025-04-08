@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { initSocket } from "../provider/useInstandDB";
+import { initSocket } from "../../notif/provider/useNotifInstandDB";
 
 const db: any = initSocket();
 

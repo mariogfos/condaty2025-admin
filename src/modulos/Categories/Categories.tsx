@@ -8,6 +8,9 @@ import {
   IconEdit,
   IconTrash,
   IconSimpleAdd,
+  IconArrowRight,
+  IconArrowLeft,
+
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
@@ -15,13 +18,16 @@ import Input from "@/mk/components/forms/Input/Input";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Check from "@/mk/components/forms/Check/Check";
 import Select from "@/mk/components/forms/Select/Select";
+import Link from "next/link"; // Importar Link para la navegación
+
 
 import {
   CategoryCardProps,
   CategoryFormProps,
   CategoryItem,
   InputEvent,
-} from "./CategoryType";
+} from "./Type/CategoryType";
+import Button from "@/mk/components/forms/Button/Button";
 
 const CategoryForm = memo(
   ({
@@ -41,12 +47,19 @@ const CategoryForm = memo(
     );
 
     const [_Item, set_Item] = useState(item);
+    const [wantSubcategories, setWantSubcategories] = useState<boolean>(false);
 
     // Actualizar el estado local cuando cambia el item prop
     useEffect(() => {
       // Asegurarnos de que tenemos una copia limpia
       set_Item(item);
-      setIsCateg(item.category_id ? "S" : "C");
+      
+      // Si viene con category_id preestablecido, seleccionar automáticamente "S" (subcategoría)
+      if (item.category_id) {
+        setIsCateg("S");
+      } else {
+        setIsCateg("C");
+      }
     }, [item]);
 
     const handleChange = useCallback((e: InputEvent) => {
@@ -105,126 +118,125 @@ const CategoryForm = memo(
       }));
     }, [extraData?.categories]);
 
-    // Log para debugging
-    useEffect(() => {}, [item, action, isCateg, categoryType]);
-
     // Mostrar tipo de categoría según parámetro
     const categoryTypeText = categoryType === "I" ? "ingresos" : "egresos";
 
     // Evitar renderizados durante cambios de estado local
     if (!open) return null;
 
+    // Modificar para usar el DataModal existente
     return (
       <DataModal
         id="CategoriaForm"
-        title={`Registro de categorías y sub-categorías de ${categoryTypeText}`}
+        title="Registrar categoría"
         open={open}
         onClose={onClose}
         buttonText={
           action === "add"
-            ? isCateg === "C"
-              ? "Crear categoría"
-              : "Crear sub-categoría"
+            ? "Registrar categoría"
             : "Guardar cambios"
         }
-        buttonCancel=""
+        buttonCancel="Cancelar"
         onSave={handleSave}
+        style={{
+          backgroundColor: "#212121",
+          borderRadius: "12px",
+          maxWidth: "883px",
+          width: "100%"
+        }}
+        className={styles.formModalContent}
       >
-        {action === "add" && (
-          <>
-            <p className={styles.subtitle}>Indica lo que quieras crear hoy</p>
-            <div className={styles.optionsContainer}>
-              <div className={styles.optionRow}>
-                <p className={styles.optionLabel}>
-                  Quiero crear una categoría nueva
-                </p>
-                <Check
-                  name="C"
-                  checked={isCateg === "C"}
-                  onChange={onSelItem}
-                  optionValue={["Y", "N"]}
-                  value={isCateg === "C" ? "Y" : "N"}
-                />
+        <div className={styles.formContainer}>
+          {/* Input de Nombre */}
+          <div className={styles.formField}>
+            <div className={styles.fieldContent}>
+              <span className={styles.fieldLabel}>Nombre de la categoría*</span>
+              <Input
+                type="text"
+                name="name"
+                value={_Item.name || ""}
+                onChange={handleChange}
+                placeholder="Ej: Pagos al dpto. de administración"
+                error={errors}
+                required
+                className={styles.customInput}
+              />
+            </div>
+          </div>
+          
+          {/* Textarea de Descripción */}
+          <div className={styles.formField}>
+            <div className={styles.fieldContent}>
+              <span className={styles.fieldLabel}>Descripción de la nueva categoría</span>
+              <TextArea
+                name="description"
+                value={_Item.description || ""}
+                onChange={handleChange}
+                placeholder="Ej: Pagos variados entre limpieza de las oficinas, compras de herramientas..."
+                error={errors}
+                className={styles.customTextarea}
+              />
+            </div>
+          </div>
+          
+        {/* Opción de subcategoría */}
+        {action === "add" && isCateg === "C" && (
+          <div className={styles.formField}>
+            <div className={styles.subcategoryOption}>
+              <div className={styles.subcategoryText}>
+                <span className={styles.subcategoryTitle}>¿Quieres agregar una subcategoría?</span>
+                <span className={styles.subcategoryDescription}>
+                  Las subcategorías te ayudan a clasificar en opciones una categoría
+                </span>
               </div>
-
-              <div className={styles.optionRow}>
-                <p className={styles.optionLabel}>
-                  Quiero registrar una sub-categoría nueva
-                </p>
-                <Check
-                  name="S"
-                  checked={isCateg === "S"}
-                  onChange={onSelItem}
-                  optionValue={["Y", "N"]}
-                  value={isCateg === "S" ? "Y" : "N"}
+              <label className={styles.toggleSwitch}>
+                <input
+                  type="checkbox"
+                  checked={wantSubcategories}
+                  onChange={() => setWantSubcategories(!wantSubcategories)}
+                  name="wantSubcategory"
+                />
+                <span className={styles.toggleSlider}></span>
+              </label>
+            </div>
+          </div>
+        )}
+          {/* Selector de categoría padre si es subcategoría */}
+          {(isCateg === "S" || wantSubcategories) && (
+            <div className={styles.formField}>
+              <div className={styles.fieldContent}>
+                <span className={styles.fieldLabel}>Selecciona una categoría padre</span>
+                <Select
+                  name="category_id"
+                  placeholder="Selecciona una categoría"
+                  options={formattedCategories}
+                  value={_Item.category_id || ""}
+                  onChange={handleChange}
+                  error={errors}
+                  required
+                  className={styles.customSelect}
                 />
               </div>
             </div>
-          </>
-        )}
+          )}
 
-        {isCateg === "S" && (
-          <div className={styles.formGroup}>
-            <Select
-              name="category_id"
-              label="Categoría"
-              placeholder="Selecciona una categoría"
-              options={formattedCategories}
-              value={_Item.category_id || ""}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
-        )}
-
-        <div className={styles.formGroup}>
-          <p className={styles.fieldLabel}>
-            {isCateg === "C"
-              ? "Indica el nombre de tu categoría"
-              : "Indica el nombre de tu sub-categoría"}
-          </p>
-          <Input
-            type="text"
-            name="name"
-            value={_Item.name || ""}
-            onChange={handleChange}
-            placeholder="Ej: Pagos al dpto. de administración"
-            error={errors}
-            required
+          {/* Input oculto para el tipo */}
+          <input 
+            type="hidden" 
+            name="type" 
+            value={categoryType === "I" ? "I" : "E"} 
           />
         </div>
-        <div className={styles.formGroup}>
-          <p className={styles.fieldLabel}>
-            {isCateg === "C"
-              ? "Indica una descripción para tu categoría (opcional)"
-              : "Indica una descripción para tu sub-categoría (opcional)"}
-          </p>
-          <TextArea
-            name="description"
-            value={_Item.description || ""}
-            onChange={handleChange}
-            placeholder="Ej: Pagos variados entre limpieza de las oficinas, compras de herramientas para la oficina sueldos y refrigerio de los trabajadores"
-            error={errors}
-          />
-        </div>
-
-        {/* Input para type, siempre presente pero con valor según categoryType */}
-        <input
-          type="hidden"
-          name="type"
-          value={categoryType === "I" ? "I" : "E"}
-        />
       </DataModal>
     );
   }
 );
-
 CategoryForm.displayName = "CategoryForm";
 
 // Componente para renderizar una categoría con sus subcategorías
+
 const CategoryCard = memo(
-  ({ item, onClick, onEdit, onDel, categoryType }: CategoryCardProps) => {
+  ({ item, onClick, onEdit, onDel, categoryType, onAddSubcategory }: CategoryCardProps) => {
     // Usar el array 'hijos' en lugar de 'subcategories'
     const hasSubcategories = item.hijos && item.hijos.length > 0;
     const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
@@ -289,6 +301,7 @@ const CategoryCard = memo(
             {item.description || "Sin descripción"}
           </div>
           <div className={styles.categoryActions}>
+            
             <button className={styles.editButton} onClick={handleEditClick}>
               <IconEdit />
             </button>
@@ -343,16 +356,29 @@ const CategoryCard = memo(
                       </span>
                     </div>
                     <div className={styles.subcategoryActions}>
-                      <button onClick={handleSubcatEdit}>
-                        <IconEdit size={16} />
-                      </button>
                       <button onClick={handleSubcatDelete}>
                         <IconTrash size={16} />
+                      </button>
+                      <button onClick={handleSubcatEdit}>
+                        <IconEdit size={16} />
                       </button>
                     </div>
                   </div>
                 );
               })}
+               {/* Botón para agregar nueva subcategoría */}
+               <div className={styles.addSubcategoryContainer}>
+                <button 
+                  className={styles.addSubcategoryButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddSubcategory(item.id?.toString() || '');
+                  }}
+                >
+                  <IconSimpleAdd size={16} color="var(--cAccent, #4caf50)" />
+                  <span>Agregar subcategoría</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -362,6 +388,19 @@ const CategoryCard = memo(
 );
 
 CategoryCard.displayName = "CategoryCard";
+
+const BackNavigation = ({ type }: { type: "I" | "E" }) => {
+  const isIncome = type === "I";
+  const routePath = isIncome ? "/payments" : "/outlays";
+  const linkText = isIncome ? "Volver a sección ingresos" : "Volver a sección egresos";
+  
+  return (
+    <Link href={routePath} className={styles.backLink}>
+      <IconArrowLeft />
+      <span>{linkText}</span>
+    </Link>
+  );
+};
 
 // Componente principal que acepta props
 const Categories = ({ type = "" }) => {
@@ -373,36 +412,40 @@ const Categories = ({ type = "" }) => {
   const typeToUse = isIncome ? "I" : "E";
 
   // Configuración para useCrud
-  const mod: ModCrudType = useMemo(() => {
-    // Crear objeto base con tipado explícito para extraData
-    const modConfig: ModCrudType = {
-      modulo: "categories",
-      singular: "Categoría",
-      plural: "Categorías",
-      permiso: "",
-      // Inicializar extraData con params que incluye el tipo (I o E)
-      export: true,
-      extraData: {
-        params: { type: typeToUse },
-      } as { params: Record<string, any> },
-      hideActions: {
-        view: false,
-        add: false,
-        edit: false,
-        del: false,
-      },
-      saveMsg: {
-        add: `Categoría de ${categoryTypeText} creada con éxito`,
-        edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
-        del: `Categoría de ${categoryTypeText} eliminada con éxito`,
-      },
-      renderForm: (props: any) => (
-        <CategoryForm {...props} categoryType={typeToUse} />
-      ),
-    };
-
-    return modConfig;
-  }, [typeToUse, categoryTypeText]);
+  const mod: ModCrudType = useMemo(
+    () => {
+      // Crear objeto base con tipado explícito para extraData
+      const modConfig: ModCrudType = {
+        modulo: "categories",
+        singular: "Categoría",
+        plural: "Categorías",
+        permiso: "",
+        search: { hide: true },
+        // Inicializar extraData con params que incluye el tipo (I o E)
+        extraData: {
+          params: { type: typeToUse }
+        } as { params: Record<string, any> },
+        hideActions: {
+          view: false,
+          add: true,
+          edit: false,
+          del: false,
+          
+        },
+        saveMsg: {
+          add: `Categoría de ${categoryTypeText} creada con éxito`,
+          edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
+          del: `Categoría de ${categoryTypeText} eliminada con éxito`,
+        },
+        renderForm: (props: any) => (
+          <CategoryForm {...props} categoryType={typeToUse} />
+        ),
+      };
+      
+      return modConfig;
+    },
+    [typeToUse, categoryTypeText]
+  );
 
   const paramsInitial = useMemo(() => {
     const params: any = {
@@ -531,42 +574,79 @@ const Categories = ({ type = "" }) => {
     },
     [onDel]
   );
+  
+// En el componente Categories:
+const handleAddSubcategory = useCallback((categoryId: string) => {
+  // Crear un nuevo ítem para la subcategoría con la categoría padre seleccionada
+  const newItem = {
+    category_id: categoryId,
+    type: typeToUse,
+    // Es importante NO incluir estos campos para que el formulario inicie limpio
+    // pero con la categoría padre establecida
+  };
+  
+  // Llamar a onAdd con el ítem precargado
+  onAdd(newItem);
+}, [onAdd, typeToUse]);
 
   // Definir la función renderCard con callbacks memorizados
-  const renderCardFunction = useCallback(
-    (
-      item: CategoryItem,
-      index: number,
-      onClick: (item: CategoryItem) => void
-    ) => {
-      return (
-        <div style={{ gridColumn: "1 / -1", width: "100%" }}>
-          <CategoryCard
-            key={item.id || `category-${index}`}
-            item={item}
-            // No pasamos onClick para categorías padre para evitar el error
-            // onClick={onClick}
-            onEdit={handleEdit}
-            onDel={handleDelete}
-            categoryType={typeToUse}
-          />
-        </div>
-      );
-    },
-    [handleEdit, handleDelete, typeToUse]
-  );
+// MODIFICAR:
+const renderCardFunction = useCallback(
+  (
+    item: CategoryItem,
+    index: number,
+    onClick: (item: CategoryItem) => void
+  ) => {
+    return (
+      <div style={{ gridColumn: "1 / -1", width: "100%" }}>
+        <CategoryCard
+          key={item.id || `category-${index}`}
+          item={item}
+          // No pasamos onClick para categorías padre para evitar el error
+          // onClick={onClick}
+          onEdit={handleEdit}
+          onDel={handleDelete}
+          categoryType={typeToUse}
+          onAddSubcategory={handleAddSubcategory}
+        />
+      </div>
+    );
+  },
+  [handleEdit, handleDelete, typeToUse, handleAddSubcategory]
+);
+const renderCard = useMemo(() => renderCardFunction, [renderCardFunction]);
 
   // Memorizar la referencia a la función para evitar recreaciones
-  const renderCard = useMemo(() => renderCardFunction, [renderCardFunction]);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
+      {/* Componente de navegación de regreso */}
+      <BackNavigation type={typeToUse} />
       <div className={styles.header}>
-        <h2 className={styles.title}>Categorías de {categoryTypeText}</h2>
-      </div>
+        <div className={styles.headerLeft}>
+        <p className={styles.headerTitle}>
+          Categorías de {categoryTypeText}
+        </p>
+        <p className={styles.headerDescription}>
+          Administre, agregue y elimine las categorías y subcategorías de los {categoryTypeText}
+        </p>
+        </div>
+        
+        {/* Botón para registrar nueva categoría */}
+        <Button 
+          onClick={() => onAdd()}
+          style={{
+            padding: "8px 16px",
+            width: "auto",
+          }}
+        >
 
+          Registrar categoría
+        </Button>
+      </div>
+  
       <List
         onRenderCard={renderCard}
         // Pasamos null o una función vacía para evitar el error
@@ -575,5 +655,4 @@ const Categories = ({ type = "" }) => {
     </div>
   );
 };
-
 export default Categories;

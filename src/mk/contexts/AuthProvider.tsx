@@ -82,14 +82,10 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
             JSON.stringify({ token: token.token, user: data?.data?.user })
           );
         } else {
-          logError("====================================");
-          logError("Error get User", data, error);
-          logError("====================================");
+          
 
           if (error.status == 500) {
-            logError("====================================");
-            logError("Error getUser status 500", data, error);
-            logError("====================================");
+          
             setTimeout(async () => {
               localStorage.removeItem(
                 (process.env.NEXT_PUBLIC_AUTH_IAM as string) + "token"
@@ -173,9 +169,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
       return { user: data?.data?.user };
     } else {
       setUser(false);
-      logError("====================================");
-      logError("Error Login", data, error);
-      logError("====================================");
+
       setWaiting(-1, "-login2");
       return { user, errors: data?.errors || data?.message || error };
     }
@@ -194,9 +188,7 @@ const AuthProvider = ({ children, noAuth = false }: any): any => {
     if (data?.success) {
       setWaiting(-1, "-logout");
     } else {
-      logError("====================================");
-      logError("Error Logout", data);
-      logError("====================================");
+      
       setWaiting(-1, "-logout2");
       return { user, errors: data?.errors || data?.message || error };
     }

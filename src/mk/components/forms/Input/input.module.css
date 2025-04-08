@@ -1,9 +1,9 @@
 .input {
-  background-color: var(--cBlackV3);
+  background-color: var(--cWhiteV2);
   width: 100%;
   border-radius: var(--bRadiusS);
   border: var(--bWidth) solid var(--cBlackV3);
-  height: 56px;
+  height: 48px;
   font-size: var(--sL );
   align-items: center;
   position: relative;

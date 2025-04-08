@@ -27,9 +27,9 @@ import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
 import { UnitsType } from '@/mk/utils/utils'
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import styles from "./PaymentsForm.module.css"
+import styles from "./RenderForm.module.css"
 
-const IncomeForm = ({
+const RenderForm = ({
   open,
   onClose,
   item,
@@ -41,7 +41,18 @@ const IncomeForm = ({
   reLoad,
   user,
 }) => {
-  const [_formState, _setFormState] = useState(item || {});
+  const [_formState, _setFormState] = useState(() => {
+    // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    
+    return {
+      ...item || {},
+      // Si no hay fecha en 'item', usa la fecha actual
+      paid_at: (item && item.paid_at) || formattedDate,
+      payment_method: (item && item.payment_method) || "" 
+    };
+  });
   const [deudas, setDeudas] = useState([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState([]);
   const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
@@ -429,6 +440,18 @@ const handleSelectPeriodo = useCallback((periodo) => {
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
+    if (!_formState.paid_at) {
+      err.paid_at = "Este campo es requerido";
+    } else {
+      // Validar que la fecha no sea futura
+      const selectedDate = new Date(_formState.paid_at);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetear la hora para comparar solo fechas
+      
+      if (selectedDate > today) {
+        err.paid_at = "No se permiten fechas futuras";
+      }
+    }
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -458,6 +481,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
     const owner_id = selectedDpto?.titular?.owner?.id;
 
     let params = {
+      paid_at: _formState.paid_at, 
       type: _formState.type,
       file: {
         file: _formState.file,
@@ -535,17 +559,30 @@ const handleSelectPeriodo = useCallback((periodo) => {
         open={open}
         onClose={onCloseModal}
         onSave={_onSavePago}
-        buttonCancel=""
-        buttonText={"Guardar"}
+        buttonCancel={"Cancelar"}
+        buttonText={"Registrar ingreso"}
         disabled={isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0)}
         title={"Estás registrando un nuevo ingreso"}
       >
+          <div className={styles.divider}></div>
         <div className={styles["income-form-container"]}>
-          <p className={styles["form-title"]}>Indica los datos para tu nuevo ingreso</p>
+          {/* Fecha de pago */}
           <div className={styles.section}>
-            <p className={styles["section-title"]}>
-              Primero selecciona la unidad a la que pertenece este ingreso
-            </p>
+            <div className={styles["input-container"]}>
+              <Input
+                type="date"
+                name="paid_at"
+                label="Fecha de pago*"
+                required={true}
+                value={_formState.paid_at || ""}
+                onChange={handleChangeInput}
+                error={errors.paid_at}
+                max={new Date().toISOString().split('T')[0]} // Impide seleccionar fechas futuras
+              />
+            </div>
+          </div>
+          
+          <div className={styles.section}>
             <div className={styles["input-container"]}>
               <Select
                 name="dpto_id"
@@ -561,179 +598,87 @@ const handleSelectPeriodo = useCallback((periodo) => {
           </div>
   
           <div className={styles.section}>
-            <p className={styles["section-title"]}>
-              A continuación selecciona la categoría y sub-categoría para este
-              ingreso
-            </p>
-            <div className={styles["input-container"]}>
-              <Select
-                name="category_id"
-                value={_formState.category_id}
-                placeholder="Seleccionar una categoría"
-                label="Categoría"
-                onChange={handleChangeInput}
-                options={extraData?.categories || []}
-                error={errors.category_id}
-                required
-                optionLabel="name"
-                optionValue="id"
-              />
+            {/* Categoría y Subcategoría en una misma fila */}
+            <div className={styles["input-row"]}>
+              <div className={styles["input-half"]}>
+                <Select
+                  name="category_id"
+                  value={_formState.category_id}
+                  placeholder="Categoría*"
+                  onChange={handleChangeInput}
+                  options={extraData?.categories || []}
+                  error={errors.category_id}
+                  required
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              </div>
+              <div className={styles["input-half"]}>
+                <Select
+                  name="subcategory_id"
+                  value={_formState.subcategory_id}
+                  placeholder="Subcategoría"
+                  onChange={handleChangeInput}
+                  options={_formState.subcategories || []}
+                  error={errors.subcategory_id}
+                  required
+                  optionLabel="name"
+                  optionValue="id"
+                  disabled={_formState.isSubcategoryLocked}
+                />
+              </div>
             </div>
-            <div className={styles["input-container"]}>
-            <Select
-              name="subcategory_id"
-              value={_formState.subcategory_id}
-              placeholder="Seleccionar sub-categoría"
-              label="Subcategoría"
-              onChange={handleChangeInput}
-              options={_formState.subcategories || []}
-              error={errors.subcategory_id}
-              required
-              optionLabel="name"
-              optionValue="id"
-              disabled={_formState.isSubcategoryLocked}
-            />
             {_formState.isSubcategoryLocked && (
               <p className={styles["locked-message"]}>
                 Esta subcategoría se ha seleccionado automáticamente
               </p>
             )}
-          </div>
   
-            {/* Sección para mostrar deudas cuando es categoría de expensas */}
-            {_formState.subcategory_id ===
-              extraData?.client_config?.cat_expensas && (
-              <>
-                {!_formState.dpto_id ? (
-                  <EmptyData
-                    message="Seleccione una unidad para ver deudas"
-                    h={200}
-                  />
-                ) : isLoadingDeudas ? (
-                  <EmptyData message="Cargando deudas..." h={200} />
-                ) : deudas?.length === 0 ? (
-                  <EmptyData
-                    message="Esta unidad no tiene deudas pendientes. No se puede registrar un pago."
-                    h={200}
-                  />
-                ) : (
-                  <div className={styles["deudas-container"]}>
-                    <p className={styles["deudas-title"]}>
-                      Seleccione las expensas a pagar:
-                    </p>
-                    <div className={styles["deudas-header"]}>
-                      <span className={styles["header-item"]}>Periodo</span>
-                      <span className={styles["header-item"]}>Monto</span>
-                      <span className={styles["header-item"]}>Multa</span>
-                      <span className={styles["header-item"]}>SubTotal</span>
-                      <span className={styles["header-item"]}></span>
-                    </div>
-  
-                    {deudas.map((periodo) => (
-                      <div
-                        key={String(periodo.id)}
-                        onClick={() => handleSelectPeriodo(periodo)}
-                        className={styles["deuda-item"]}
-                      >
-                        <div className={styles["deuda-row"]}>
-                          <div className={styles["deuda-cell"]}>
-                            {periodo.debt
-                              ? MONTHS_S[periodo.debt.month] +
-                                "/" +
-                                periodo.debt.year
-                              : "N/A"}
-                          </div>
-                          <div className={styles["deuda-cell"]}>
-                            {"Bs " + periodo.amount}
-                          </div>
-                          <div className={styles["deuda-cell"]}>
-                            {"Bs " + periodo.penalty_amount}
-                          </div>
-                          <div className={styles["deuda-cell"]}>
-                            {"Bs " +
-                              (Number(periodo.amount) +
-                                Number(periodo.penalty_amount))}
-                          </div>
-                          <div className={styles["deuda-check"]}>
-                            {selectedPeriodo.some(
-                              (item) => item.id === periodo.id
-                            ) ? (
-                              <IconCheckSquare className={`${styles["check-icon"]} ${styles.selected}`} />
-                            ) : (
-                              <IconCheckOff className={styles["check-icon"]} />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <div className={styles["total-container"]}>
-                      <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
-                      {selectedPeriodo.length === 0 && (
-                        <p className={styles["error-message"]}>Debe seleccionar al menos una deuda para pagar</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+            
   
             {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
             {!isExpensasWithoutDebt && (
               <>
                 {/* Sección de monto y medio de pago */}
                 <div className={styles["payment-section"]}>
-                  <p className={styles["section-title"]}>
-                    {_formState.subcategory_id ===
-                      extraData?.client_config?.cat_expensas && deudas?.length > 0
-                      ? "Seleccione el medio de pago"
-                      : "Ahora ingresa el monto y el medio de pago de este ingreso"}
-                  </p>
-                  <div className={styles["payment-inputs"]}>
-                  {(_formState.subcategory_id !== extraData?.client_config?.cat_expensas) ? (
-                      <div className={styles["amount-input"]}>
+                  
+                  <div className={styles["input-row"]}>
+                      <div className={styles["input-half"]}>
                         <Input
                           type="number"
-                          label="Monto"
                           name="amount"
+                          placeholder="Monto del ingreso*"
                           onChange={handleChangeInput}
-                          value={_formState.amount}
+                          value={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 
+                            ? selecPeriodoTotal 
+                            : _formState.amount}
                           required={true}
                           error={errors.amount || ""}
+                          disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
                         />
                       </div>
-                    ) : (
-                      <div className={`${styles["amount-input"]} ${styles["amount-input-disabled"]}`}>
-                        <Input
-                          type="number"
-                          label="Monto (calculado de expensas)"
-                          name="amount"
-                          value={selecPeriodoTotal}
-                          disabled={true}
+                      <div className={styles["input-half"]}>
+                        <Select
+                          name="type"
+                          value={_formState.type}
+                          placeholder="Tipo de pago*"
+                          onChange={handleChangeInput}
+                          options={[
+                            { id: "Q", name: "Pago QR" },
+                            { id: "T", name: "Transferencia bancaria" },
+                            { id: "E", name: "Efectivo" },
+                            { id: "C", name: "Cheque" },
+                            { id: "O", name: "Pago en oficina" }
+                          ]}
+                          error={errors.type}
+                          required
+                          optionLabel="name"
+                          optionValue="id"
                         />
                       </div>
-                    )}
-    
-                    <div className={styles["payment-type"]}>
-                    <Select
-                      name="type"
-                      value={_formState.type}
-                      placeholder="Seleccionar tipo de pago"
-                      label="Pago por:"
-                      onChange={handleChangeInput}
-                      options={[
-                        { id: "Q", name: "Qr simple" },
-                        { id: "T", name: "Transferencia bancaria" },
-                        { id: "O", name: "Pago en efectivo" },
-                      ]}
-                      error={errors.type}
-                      required
-                      optionLabel="name"
-                      optionValue="id"
-                    />
-                  </div>
-                  </div>
+                    </div>
                 </div>
-    
+  
                 {/* Sección de subir comprobante */}
                 <div className={styles["upload-section"]}>
                   <p className={styles["section-title"]}>Subir comprobante</p>
@@ -811,16 +756,14 @@ const handleSelectPeriodo = useCallback((periodo) => {
                     )}
                   </div>
                 </div>
-    
+  
                 {/* Sección de código de comprobante */}
                 <div className={styles["voucher-section"]}>
-                  <p className={styles["section-title"]}>
-                    Por último, agrega el número del comprobante
-                  </p>
+                  
                   <div className={styles["voucher-input"]}>
                     <Input
                       type="text"
-                      label="Código de comprobante"
+                      label="Ingresar el numero del comprobante"
                       name="voucher"
                       onChange={handleChangeInput}
                       value={_formState.voucher}
@@ -828,7 +771,119 @@ const handleSelectPeriodo = useCallback((periodo) => {
                     />
                   </div>
                 </div>
-    
+
+                {/* Sección para mostrar deudas cuando es categoría de expensas */}                     
+                  {_formState.subcategory_id === extraData?.client_config?.cat_expensas && (
+                    <>
+                      {!_formState.dpto_id ? (
+                        <EmptyData
+                          message="Seleccione una unidad para ver deudas"
+                          h={200}
+                        />
+                      ) : isLoadingDeudas ? (
+                        <EmptyData message="Cargando deudas..." h={200} />
+                      ) : deudas?.length === 0 ? (
+                        <EmptyData
+                          message="Esta unidad no tiene deudas pendientes. No se puede registrar un pago."
+                          h={200}
+                        />
+                      ) : (
+                        <div className={styles["deudas-container"]}>
+                          <div className={styles["deudas-title-row"]}>
+                            <p className={styles["deudas-title"]}>
+                              Seleccione las expensas a pagar:
+                            </p>
+                            <div 
+                              className={styles["select-all-container"]}
+                              onClick={() => {
+                                // Si todas están seleccionadas, deseleccionar todas
+                                if (selectedPeriodo.length === deudas.length) {
+                                  setSelectedPeriodo([]);
+                                  setSelectPeriodoTotal(0);
+                                } 
+                                // Si no todas están seleccionadas, seleccionar todas
+                                else {
+                                  const allPeriodos = deudas.map(periodo => ({
+                                    id: periodo.id,
+                                    amount: Number(periodo.amount) + Number(periodo.penalty_amount)
+                                  }));
+                                  
+                                  const totalAmount = allPeriodos.reduce((sum, item) => 
+                                    sum + item.amount, 0
+                                  );
+                                  
+                                  setSelectedPeriodo(allPeriodos);
+                                  setSelectPeriodoTotal(totalAmount);
+                                }
+                              }}
+                            >
+                              <span className={styles["select-all-text"]}>Pagar todo</span>
+                              {selectedPeriodo.length === deudas.length ? (
+                                <IconCheckSquare className={`${styles["check-icon"]} ${styles.selected}`} />
+                              ) : (
+                                <IconCheckOff className={styles["check-icon"]} />
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className={styles["deudas-table"]}>
+                            <div className={styles["deudas-header"]}>
+                              <span className={styles["header-item"]}>Periodo</span>
+                              <span className={styles["header-item"]}>Monto</span>
+                              <span className={styles["header-item"]}>Multa</span>
+                              <span className={styles["header-item"]}>SubTotal</span>
+                              <span className={styles["header-item"]}>Seleccionar</span>
+                            </div>
+
+                            {deudas.map((periodo) => (
+                              <div
+                                key={String(periodo.id)}
+                                onClick={() => handleSelectPeriodo(periodo)}
+                                className={styles["deuda-item"]}
+                              >
+                                <div className={styles["deuda-row"]}>
+                                  <div className={styles["deuda-cell"]}>
+                                    {periodo.debt
+                                      ? MONTHS_S[periodo.debt.month] +
+                                        "/" +
+                                        periodo.debt.year
+                                      : "N/A"}
+                                  </div>
+                                  <div className={styles["deuda-cell"]}>
+                                    {"Bs " + periodo.amount}
+                                  </div>
+                                  <div className={styles["deuda-cell"]}>
+                                    {"Bs " + periodo.penalty_amount}
+                                  </div>
+                                  <div className={styles["deuda-cell"]}>
+                                    {"Bs " +
+                                      (Number(periodo.amount) +
+                                        Number(periodo.penalty_amount))}
+                                  </div>
+                                  <div className={styles["deuda-check"]}>
+                                    {selectedPeriodo.some(
+                                      (item) => item.id === periodo.id
+                                    ) ? (
+                                      <IconCheckSquare className={`${styles["check-icon"]} ${styles.selected}`} />
+                                    ) : (
+                                      <IconCheckOff className={styles["check-icon"]} />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className={styles["total-container"]}>
+                            <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
+                            {selectedPeriodo.length === 0 && (
+                              <p className={styles["error-message"]}>Debe seleccionar al menos una deuda para pagar</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+  
                 {/* Sección de descripción */}
                 <div className={styles["obs-section"]}>
                   <p className={styles["section-title"]}>
@@ -853,4 +908,4 @@ const handleSelectPeriodo = useCallback((periodo) => {
   );
 };
 
-export default IncomeForm;
+export default RenderForm;

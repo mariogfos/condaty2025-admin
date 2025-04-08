@@ -1,16 +1,18 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import styles from './DefaultersView.module.css'
-import WidgetDefaulterResume from '../../components/ Widgets/WidgetDefaulterResume/WidgetDefaulterResume'
+
 import useAxios from '@/mk/hooks/useAxios'
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase'
-import { MONTHS_S } from '@/mk/utils/date'
 import { getFullName } from '@/mk/utils/string'
 import { formatNumber } from '@/mk/utils/numbers'
 import { useAuth } from '@/mk/contexts/AuthProvider'
-import { IconExport } from '../../components/layout/icons/IconsBiblioteca'
+import { IconExport, IconBilletera, IconMultas, IconHandcoin } from '../../components/layout/icons/IconsBiblioteca'
 import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen'
 import useCrud from '@/mk/hooks/useCrud/useCrud'
+import WidgetDefaulterResume from '@/components/ Widgets/WidgetDefaulterResume/WidgetDefaulterResume'
+
+
 
 const DefaultersView = () => {
     const { setStore } = useAuth();
@@ -39,7 +41,7 @@ const DefaultersView = () => {
         extraData: true,
         hideActions: {
             view: true,
-            add: false,
+            add: true,
             edit: false,
             del: false
         },
@@ -51,7 +53,7 @@ const DefaultersView = () => {
         }
     };
 
-    // Parámetros iniciales para la carga de datos - AÑADIDOS PARÁMETROS DE PAGINACIÓN
+    // Parámetros iniciales para la carga de datos
     const paramsInitial = {
        fullType: "L",
     };
@@ -61,21 +63,21 @@ const DefaultersView = () => {
         () => ({
             dpto: {
                 rules: [],
-                api: "ae", // Cambiado de "r" a "ae" para alinearse con el componente Payments
+                api: "ae",
                 label: "Unidad",
                 width: "170px",
                 list: {
                     width: "170px"
                 },
-                filter: {
+                /* filter: {
                     label: "Unidad",
                     width: "150px",
                     options: getUnidadOptions
-                }
+                } */
             },
             titular: {
                 rules: [],
-                api: "ae", // Cambiado de "r" a "ae"
+                api: "ae",
                 label: "Titular",
                 list: { 
                     onRender: (props: any) => {
@@ -85,7 +87,7 @@ const DefaultersView = () => {
             },
             count: {
                 rules: [],
-                api: "ae", // Cambiado de "r" a "ae"
+                api: "ae",
                 label: "Expensa atrasada",
                 list: { 
                     onRender: (props: any) => {
@@ -93,15 +95,15 @@ const DefaultersView = () => {
                         return props?.item?.count + " expensa" + s;
                     }
                 },
-                filter: {
+               /*  filter: {
                     label: "Expensas",
                     width: "150px",
                     options: getExpensaOptions
-                }
+                } */
             },
             multa: {
                 rules: [],
-                api: "ae", // Cambiado de "r" a "ae"
+                api: "ae",
                 label: "Multa",
                 list: { 
                     onRender: (props: any) => {
@@ -111,7 +113,7 @@ const DefaultersView = () => {
             },
             total: {
                 rules: [],
-                api: "ae", // Cambiado de "r" a "ae"
+                api: "ae",
                 label: "Total",
                 list: { 
                     onRender: (props: any) => {
@@ -122,12 +124,6 @@ const DefaultersView = () => {
         }),
         []
     );
-
-    // Datos para los widgets
-    const [porCobrarExpensa, setPorCobrarExpensa] = useState(0);
-    const [porCobrarMulta, setPorCobrarMulta] = useState(0);
-    const [morososMultaCount, setMorososMultaCount] = useState(0);
-    const [defaultersLength, setDefaultersLength] = useState(0);
 
     // Exportar función para el botón de exportar
     const exportar = () => {
@@ -152,7 +148,8 @@ const DefaultersView = () => {
         onAdd,
         execute,
         setParams,
-        data
+        data,
+        extraData
     } = useCrud({
         paramsInitial,
         mod,
@@ -160,39 +157,100 @@ const DefaultersView = () => {
         extraButtons
     });
 
-    // Obtener datos resumidos para widgets
-    const fetchDefaultersSummary = async () => {
-        try {
-            // Usamos el mismo endpoint que useCrud usa para obtener los datos
-            const { data: response } = await execute("/defaulters", "GET", {
-                fullType: "DET"
-            }, false);
-            
-            if (response?.success && response?.data) {
-                setPorCobrarExpensa(response.data.porCobrarExpensa || 0);
-                setPorCobrarMulta(response.data.porCobrarMulta || 0);
-                setMorososMultaCount(response.data.morososMultaCount || 0);
-                setDefaultersLength(response.data.defaulters?.length || 0);
-            }
-        } catch (error) {
-            console.error("Error al obtener resumen de morosos:", error);
+    // Estado para controlar el número total de defaulters
+    const [defaultersLength, setDefaultersLength] = useState(0);
+    
+    // Actualizar datos cuando cambia extraData
+    useEffect(() => {
+        if (data?.data) {
+            setDefaultersLength(data.data.length || 0);
         }
-    };
+    }, [data]);
 
     useEffect(() => {
         setStore({ title: 'Morosos' });
-        fetchDefaultersSummary();
         
         // Log para depuración
         console.log("Parámetros iniciales:", paramsInitial);
     }, []);
 
-    // Añadir un useEffect para ver los datos cuando cambien
-    useEffect(() => {
-        if (data) {
-            console.log("Datos recibidos:", data);
-        }
-    }, [data]);
+    // Calcular el total de morosidad
+    const totalMorosidad = (extraData?.porCobrarExpensa || 0) + (extraData?.porCobrarMulta || 0);
+    
+    // Calcular porcentajes para la gráfica
+    const porcentajeExpensas = totalMorosidad > 0 
+        ? Math.round((extraData?.porCobrarExpensa || 0) / totalMorosidad * 100) 
+        : 0;
+    const porcentajeMultas = totalMorosidad > 0 
+        ? Math.round((extraData?.porCobrarMulta || 0) / totalMorosidad * 100) 
+        : 0;
+
+    // Componente del panel derecho con gráfico y widgets
+    const renderRightPanel = () => {
+        return (
+            <div className={styles.rightPanel}>
+                <div className={styles.graphPanel}>
+                    <GraphBase
+                        data={{
+                            labels: ["Expensas", "Multas"],
+                            values: [
+                                {
+                                    name: "Morosidad",
+                                    values: [
+                                        extraData?.porCobrarExpensa || 0,
+                                        extraData?.porCobrarMulta || 0
+                                    ],
+                                },
+                            ],
+                        }}
+                        chartTypes={["donut"]}
+                        background="darkv2"
+                        downloadPdf
+                        options={{
+                            title: "Representación gráfica del estado general de morosos",
+                            subtitle: "",
+                            label: "Total de morosidad general entre expensas y multas",
+                          /*   labelValue: `Bs ${formatNumber(totalMorosidad)}`,
+                            showPercent: true,
+                            percentValues: [porcentajeExpensas, porcentajeMultas], */
+                            colors: ["#b996f6", "#f4be77"],
+                            height: 400,
+                            width: 400,
+                        }}
+                    />
+                </div>
+                
+                <div className={styles.widgetsPanel}>
+                <WidgetDefaulterResume
+                    title={"Total de expensas"}
+                    amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
+                    pointColor={"var(--cInfo)"}
+                    icon={<IconBilletera size={26} color="#f7b267" />}
+                    backgroundColor="rgba(247, 178, 103, 0.2)"
+                    textColor="white"
+                />
+                                    
+                <WidgetDefaulterResume
+                    title={"Total de multas"}
+                    amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
+                    pointColor={"var(--cError)"}
+                    icon={<IconMultas size={26}  color="#b996f6" />}
+                    backgroundColor="rgba(185, 150, 246, 0.2)"
+                    textColor="white"
+                />
+                                    
+                <WidgetDefaulterResume
+                    title={"Total de morosidad"}
+                    amount={`Bs ${formatNumber(totalMorosidad)}`}
+                    pointColor={"var(--cSuccess)"}
+                    icon={<IconHandcoin size={26} color="#4ED58C" />}
+                    backgroundColor="rgba(78, 213, 140, 0.2)"
+                    textColor="white"
+                />
+                </div>
+            </div>
+        );
+    };
 
     return (
         <LoadingScreen>    
@@ -203,57 +261,8 @@ const DefaultersView = () => {
                     Podrás mantener un control sobre los pagos atrasados de los residentes y tomar medidas para garantizar la estabilidad financiera de tu condominio
                 </p>
                 
-                <div className={styles.widgetsContainer}>
-                    <GraphBase
-                        data={{
-                            labels: MONTHS_S.slice(1, 13),
-                            values: [
-                                {
-                                    name: "Expensas",
-                                    values: [porCobrarExpensa],
-                                },
-                                {
-                                    name: "Multas",
-                                    values: [porCobrarMulta],
-                                },
-                            ],
-                        }}
-                        chartTypes={["pie"]}
-                        background="darkv2"
-                        downloadPdf
-                        options={{
-                            title: "",
-                            subtitle: "",
-                            label: "",
-                            colors: ["#4C98DF", "#FF5B4D"],
-                            height: 350,
-                            width: 350,
-                        }}
-                    />
-                    <WidgetDefaulterResume
-                        title={"Expensas "}
-                        amount={porCobrarExpensa.toString()}
-                        units={defaultersLength + ""}
-                        pointColor={"var(--cInfo)"}
-                    />
-                    <WidgetDefaulterResume
-                        title={"Multas "}
-                        amount={porCobrarMulta.toString()}
-                        units={
-                            morososMultaCount +
-                            "/" +
-                            defaultersLength
-                        }
-                        pointColor={"var(--cError)"}
-                    />
-                    <WidgetDefaulterResume
-                        title={"Total de morosidad "}
-                        amount={(porCobrarExpensa + porCobrarMulta).toString()}
-                    />
-                </div>
-
                 <div className={styles.listContainer}>
-                    <List />
+                    <List renderRight={renderRightPanel} />
                 </div>
             </div>
         </LoadingScreen>

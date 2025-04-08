@@ -16,31 +16,6 @@
   margin-bottom: 20px;
 }
 
-.buttonsContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.graphButton {
-  background-color: var(--cDarkv2, #2a2a2a) !important;
-  color: white !important;
-  font-size: 14px;
-  padding: 8px 16px !important;
-  border-radius: 16px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 150px;
-}
-
-.graphButton:hover {
-  opacity: 0.9;
-}
-
 .categoriesButton {
   border: 1px solid var(--cLightv3, #a0a0a0) !important;
   color: var(--cLightv3, #a0a0a0) !important;
@@ -51,8 +26,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
+  width: 120px; /* Más adecuado para el texto "Categorías" */
+  height: 48px !important; /* Corregido a 48px */
+  min-height: 48px !important;
+  max-height: 48px !important;
+  margin: 0 !important;
 }
+
+.graphButton:hover {
+  opacity: 0.9;
+}
+
 
 .categoriesButton:hover {
   background-color: rgba(160, 160, 160, 0.1) !important;
@@ -99,12 +83,29 @@
   }
 }
 
-@media (min-width: 1025px) and (max-width: 1440px) {
-  .graphButton {
-    width: 15%;
-  }
-  
-  .categoriesButton {
-    width: 25%;
-  }
+
+
+.statusBadge {
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+/* Estilos para cada estado con fondos semitransparentes y texto coloreado
+   Exactamente como en el componente Payments */
+.statusA {
+  background-color: rgba(0, 227, 140, 0.2); /* Verde semitransparente */
+  color: #00e38c; /* Verde brillante */
+}
+
+.statusC {
+  background-color: rgba(218, 93, 93, 0.2); /* Rojo semitransparente */
+  color: #e46055; /* Rojo brillante */
 }

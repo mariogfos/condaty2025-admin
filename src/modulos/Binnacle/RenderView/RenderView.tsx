@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import styles from "./BinnacleDetail.module.css";
+import styles from "./RenderView.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // Definir la interfaz para las props
@@ -14,7 +14,7 @@ interface BinnacleDetailProps {
 }
 
 // eslint-disable-next-line react/display-name
-const BinnacleDetail = memo((props: BinnacleDetailProps) => {
+const RenderView = memo((props: BinnacleDetailProps) => {
   const { open, onClose, item } = props;
 
   return (
@@ -65,4 +65,4 @@ const BinnacleDetail = memo((props: BinnacleDetailProps) => {
   );
 });
 
-export default BinnacleDetail;
+export default RenderView;
