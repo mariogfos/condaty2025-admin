@@ -51,7 +51,8 @@ const paramsInitialQR = {
   sortBy: "invitations.date_event,invitations.created_at",
   orderBy: "desc,desc",
   joins: "visits|owners",
-  relations: "access|access.guardia|access.out_guard|access.visit:id,name,middle_name,last_name,mother_last_name,ci,phone|guests:id,invitation_id,visit_id,access_id,status|owner:id,ci,name,middle_name,last_name,mother_last_name,phone|guests.visit:id,name,middle_name,last_name,mother_last_name,ci|guests.access:id,invitation_id,visit_id,in_at,out_at,obs_in,obs_out,plate",
+  relations:
+    "access|access.guardia|access.out_guard|access.visit:id,name,middle_name,last_name,mother_last_name,ci,phone|guests:id,invitation_id,visit_id,access_id,status|owner:id,ci,name,middle_name,last_name,mother_last_name,phone|guests.visit:id,name,middle_name,last_name,mother_last_name,ci|guests.access:id,invitation_id,visit_id,in_at,out_at,obs_in,obs_out,plate",
   searchBy: "|__date__date_event,<=," + getNow() + ",,,",
 };
 
@@ -60,7 +61,9 @@ const Activities = () => {
   const { user, showToast } = useAuth();
   const [typeSearch, setTypeSearch] = useState<string>("A");
   const [openInvitationInfo, setOpenInvitationInfo] = useState<boolean>(false);
-  const [selectedInvitation, setSelectedInvitation] = useState<any | null>(null);
+  const [selectedInvitation, setSelectedInvitation] = useState<any | null>(
+    null
+  );
   const [openReport, setOpenReport] = useState<boolean>(false);
   const linkDownload = useRef<string>("");
   const { execute } = useAxios("", "GET", {});
@@ -78,14 +81,15 @@ const Activities = () => {
       plural: "Accesos",
       filter: true,
       permiso: "",
+      export: true,
       extraData: false,
       hideActions: {
         view: true,
         add: true,
         edit: true,
-        del: true
+        del: true,
       },
-      search: true
+      search: true,
     };
   }, []);
 
@@ -96,14 +100,15 @@ const Activities = () => {
       plural: "Invitaciones QR",
       filter: true,
       permiso: "",
+      export: true,
       extraData: false,
       hideActions: {
         view: true,
         add: true,
         edit: true,
-        del: true
+        del: true,
       },
-      search: true
+      search: true,
     };
   }, []);
 
@@ -115,13 +120,14 @@ const Activities = () => {
       filter: true,
       permiso: "",
       extraData: false,
+      export: true,
       hideActions: {
         view: true,
         add: true,
         edit: true,
-        del: true
+        del: true,
       },
-      search: true
+      search: true,
     };
   }, []);
 
@@ -129,98 +135,103 @@ const Activities = () => {
   const fieldsAccess = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      
+
       visit_id: {
         rules: [""],
         api: "",
         label: "Visitante",
-        list: { 
+        list: {
           onRender: (props: any) => {
             return getFullName(props.item.visit);
-            
-          }
+          },
         },
       },
-      
+
       in_at: {
         rules: [""],
         api: "",
         label: "Entrada",
-        list: { 
-          
+        list: {
           onRender: (props: any) => {
             return <div>{getDateStrMes(props.item.in_at || "")}</div>;
-          }
+          },
         },
       },
-      
+
       out_at: {
         rules: [""],
         api: "",
         label: "Salida",
-        list: { 
+        list: {
           width: "140px",
           onRender: (props: any) => {
-            return <div>{props.item.out_at ? getDateStrMes(props.item.out_at) : "No registrada"}</div>;
-          }
+            return (
+              <div>
+                {props.item.out_at
+                  ? getDateStrMes(props.item.out_at)
+                  : "No registrada"}
+              </div>
+            );
+          },
         },
       },
-      
+
       plate: {
         rules: [""],
         api: "",
         label: "Placa",
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: any) => {
             return <div>{props.item.plate || "Sin placa"}</div>;
-          }
+          },
         },
       },
-      
+
       owner_id: {
         rules: [""],
         api: "",
         label: "Residente",
-        list: { 
+        list: {
           width: "180px",
           onRender: (props: any) => {
             return getFullName(props.item.owner);
-            
-          }
+          },
         },
       },
-      
+
       guard_id: {
         rules: [""],
         api: "",
         label: "Guardia",
-        list: { 
-          
+        list: {
           onRender: (props: any) => {
             return getFullName(props.item.guardia);
-            
-          }
+          },
         },
       },
-      
+
       type: {
         rules: [""],
         api: "",
         label: "Tipo",
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: any) => {
             const typeMap: Record<string, string> = {
-              "C": "Control",
-              "G": "Grupo",
-              "I": "Individual",
-              "P": "Pedido"
+              C: "Control",
+              G: "Grupo",
+              I: "Individual",
+              P: "Pedido",
             };
-            return <div>{typeMap[props.item.type] || props.item.type || "Sin tipo"}</div>;
-          }
+            return (
+              <div>
+                {typeMap[props.item.type] || props.item.type || "Sin tipo"}
+              </div>
+            );
+          },
         },
-      }
+      },
     };
   }, []);
 
@@ -228,69 +239,82 @@ const Activities = () => {
   const fieldsQR = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      
+
       date_event: {
         rules: [""],
         api: "",
         label: "Fecha",
-        list: { 
-         
+        list: {
           onRender: (props: any) => {
             return <div>{getDateStrMes(props.item.date_event || "")}</div>;
-          }
+          },
         },
       },
-      
+
       owner: {
         rules: [""],
         api: "",
         label: "Residente",
-        list: { 
+        list: {
           width: "180px",
           onRender: (props: any) => {
-            return <div>{props.item.owner ? getFullName(props.item.owner) : "Sin residente"}</div>;
-          }
+            return (
+              <div>
+                {props.item.owner
+                  ? getFullName(props.item.owner)
+                  : "Sin residente"}
+              </div>
+            );
+          },
         },
       },
-      
+
       title: {
         rules: [""],
         api: "",
         label: "Título",
-        list: { 
+        list: {
           width: "180px",
           onRender: (props: any) => {
-            return <div className={styles.invitationTitle}>{props.item.title || "Sin título"}</div>;
-          }
+            return (
+              <div className={styles.invitationTitle}>
+                {props.item.title || "Sin título"}
+              </div>
+            );
+          },
         },
       },
-      
+
       type: {
         rules: [""],
         api: "",
         label: "Tipo",
-        list: { 
+        list: {
           width: "80px",
           onRender: (props: any) => {
-            return <div className={styles.invitationTypeIcon}>
-              {props.item.type === "G" ? 
-                <IconGroupsQr className={styles.groupIcon} /> : 
-                <IconSingleQr className={styles.singleIcon} />}
-            </div>;
-          }
+            return (
+              <div className={styles.invitationTypeIcon}>
+                {props.item.type === "G" ? (
+                  <IconGroupsQr className={styles.groupIcon} />
+                ) : (
+                  <IconSingleQr className={styles.singleIcon} />
+                )}
+              </div>
+            );
+          },
         },
       },
-      
+
       status: {
         rules: [""],
         api: "",
         label: "Estado",
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: any) => {
             let statusLabel = "Activa";
             let statusClass = "statusA";
-            
+
             if (props.item.status === "X") {
               statusLabel = "Anulada";
               statusClass = "statusX";
@@ -298,25 +322,31 @@ const Activities = () => {
               statusLabel = "Expirada";
               statusClass = "statusE";
             }
-            
-            return <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
-              {statusLabel}
-            </div>;
-          }
+
+            return (
+              <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
+                {statusLabel}
+              </div>
+            );
+          },
         },
       },
-      
+
       guests_count: {
         rules: [""],
         api: "",
         label: "Invitados",
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: any) => {
-            return <div>{props.item.guests ? props.item.guests.length : 0} invitados</div>;
-          }
+            return (
+              <div>
+                {props.item.guests ? props.item.guests.length : 0} invitados
+              </div>
+            );
+          },
         },
-      }
+      },
     };
   }, []);
 
@@ -324,66 +354,91 @@ const Activities = () => {
   const fieldsPedidos = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      
+
       descrip: {
         rules: [""],
         api: "",
         label: "Descripción",
-        list: { 
-          
+        list: {
           onRender: (props: any) => {
-            return <div className={styles.pedidoDescripcion}>{props.item.descrip || "Sin descripción"}</div>;
-          }
+            return (
+              <div className={styles.pedidoDescripcion}>
+                {props.item.descrip || "Sin descripción"}
+              </div>
+            );
+          },
         },
       },
-      
+
       otherType: {
         rules: [""],
         api: "",
         label: "Tipo",
-        list: { 
+        list: {
           width: "120px",
           onRender: (props: any) => {
-            return <div>{props.item.otherType ? props.item.otherType.name : "Sin tipo"}</div>;
-          }
+            return (
+              <div>
+                {props.item.otherType ? props.item.otherType.name : "Sin tipo"}
+              </div>
+            );
+          },
         },
       },
-      
+
       owner: {
         rules: [""],
         api: "",
         label: "Residente",
-        list: { 
+        list: {
           width: "180px",
           onRender: (props: any) => {
-            return <div>{props.item.owner ? getFullName(props.item.owner) : "Sin residente"}</div>;
-          }
+            return (
+              <div>
+                {props.item.owner
+                  ? getFullName(props.item.owner)
+                  : "Sin residente"}
+              </div>
+            );
+          },
         },
       },
-      
+
       access: {
         rules: [""],
         api: "",
         label: "Entrada",
-        list: { 
+        list: {
           width: "140px",
           onRender: (props: any) => {
-            return <div>{props.item.access?.in_at ? getDateStrMes(props.item.access.in_at) : "No registrada"}</div>;
-          }
+            return (
+              <div>
+                {props.item.access?.in_at
+                  ? getDateStrMes(props.item.access.in_at)
+                  : "No registrada"}
+              </div>
+            );
+          },
         },
       },
-      
+
       access_out: {
         rules: [""],
         api: "",
         label: "Salida",
-        list: { 
+        list: {
           width: "140px",
           onRender: (props: any) => {
-            return <div>{props.item.access?.out_at ? getDateStrMes(props.item.access.out_at) : "No registrada"}</div>;
-          }
+            return (
+              <div>
+                {props.item.access?.out_at
+                  ? getDateStrMes(props.item.access.out_at)
+                  : "No registrada"}
+              </div>
+            );
+          },
         },
-      }
+      },
     };
   }, []);
 
@@ -391,13 +446,13 @@ const Activities = () => {
   const {
     userCan: userCanAccess,
     List: ListAccess,
-   
+
     onSearch: onSearchAccess,
     searchs: searchsAccess,
     data: accessData,
     reLoad: reLoadAccess,
     params: paramsAccess,
-    setParams: setParamsAccess
+    setParams: setParamsAccess,
   } = useCrud({
     paramsInitial: paramsInitialAccess,
     mod: modAccess,
@@ -407,13 +462,13 @@ const Activities = () => {
   const {
     userCan: userCanQR,
     List: ListQR,
-  
+
     onSearch: onSearchQR,
     searchs: searchsQR,
     data: qrData,
     reLoad: reLoadQR,
     params: paramsQR,
-    setParams: setParamsQR
+    setParams: setParamsQR,
   } = useCrud({
     paramsInitial: paramsInitialQR,
     mod: modQR,
@@ -429,16 +484,12 @@ const Activities = () => {
     data: pedidosData,
     reLoad: reLoadPedidos,
     params: paramsPedidos,
-    setParams: setParamsPedidos
+    setParams: setParamsPedidos,
   } = useCrud({
     paramsInitial: paramsInitialPedidos,
     mod: modPedidos,
     fields: fieldsPedidos,
   });
-
-
-
-
 
   // Manejo de invitaciones
   const handleQRClick = (invitation: any) => {
@@ -451,29 +502,33 @@ const Activities = () => {
     const modMap: Record<string, any> = {
       A: {
         modulo: "accesses",
-        exportCols: "visit.name,in_at,out_at,plate,owner.name,guardia.name,out_guard.name",
+        exportCols:
+          "visit.name,in_at,out_at,plate,owner.name,guardia.name,out_guard.name",
         exportTitulo: "Historial de Accesos",
-        exportTitulos: "Visitante,Entrada,Salida,Placa,Residente,Guardia,G.Salida",
+        exportTitulos:
+          "Visitante,Entrada,Salida,Placa,Residente,Guardia,G.Salida",
         params: paramsAccess,
       },
       P: {
         modulo: "others",
-        exportCols: "descrip,access.in_at,access.out_at,owner.name,access.guardia.name,access.out_guard.name",
+        exportCols:
+          "descrip,access.in_at,access.out_at,owner.name,access.guardia.name,access.out_guard.name",
         exportTitulo: "Historial de Pedidos",
         exportTitulos: "Pedido,Ingreso,Salida,Residente,Guardia,G.Salida",
         params: paramsPedidos,
       },
       Q: {
         modulo: "invitations",
-        exportCols: "_text|aa [1]|(_if|(_count|access)|>|0|(_count|access)|(_text|Expirado))",
+        exportCols:
+          "_text|aa [1]|(_if|(_count|access)|>|0|(_count|access)|(_text|Expirado))",
         exportTitulo: "Historial de Invitaciones QR",
         exportTitulos: "Fecha,Visita,Residente,Acceso,Guardia",
         params: paramsQR,
       },
     };
-    
+
     const currentMod = modMap[typeSearch];
-    
+
     const { data: file } = await execute("/" + currentMod.modulo, "GET", {
       ...currentMod.params,
       _export: type,
@@ -482,7 +537,7 @@ const Activities = () => {
       exportTitulos: currentMod.exportTitulos || "",
       exportAnchos: currentMod.exportAnchos || "",
     });
-    
+
     if (file?.success === true) {
       linkDownload.current = getUrlImages("/" + file?.data?.path);
       setOpenReport(true);
@@ -496,20 +551,20 @@ const Activities = () => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash) {
-        if (hash === '#pdf') onExport("pdf");
-        else if (hash === '#xls') onExport("xls");
-        else if (hash === '#csv') onExport("csv");
-        
+        if (hash === "#pdf") onExport("pdf");
+        else if (hash === "#xls") onExport("xls");
+        else if (hash === "#csv") onExport("csv");
+
         // Limpiar el hash después de procesarlo
         setTimeout(() => {
-          window.location.hash = '';
+          window.location.hash = "";
         }, 100);
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   }, [typeSearch]);
 
@@ -525,16 +580,12 @@ const Activities = () => {
   return (
     <div className={styles.container}>
       {/* Tabs de navegación */}
-      <TabsButtons
-        tabs={tabs}
-        sel={typeSearch}
-        setSel={setTypeSearch}
-      />
-      
+      <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} />
+
       {/* Contenedor principal */}
       <div className={styles.contentContainer}>
         {/* Acciones generales */}
-        <div className={styles.actionsRow}>
+        {/* <div className={styles.actionsRow}>
           <div className={styles.exportContainer}>
             <Dropdown
               trigger={<IconDownload className={styles.exportIcon} />}
@@ -545,24 +596,22 @@ const Activities = () => {
               ]}
             />
           </div>
-        </div>
-        
+        </div> */}
+
         {/* Contenido según pestaña activa */}
         <div className={styles.listWrapper}>
           {typeSearch === "A" && canAccess && (
             <ListAccess onRowClick={handleQRClick} />
           )}
-          
-          {typeSearch === "Q" && canQR && (
-            <ListQR onRowClick={handleQRClick} />
-          )}
-          
+
+          {typeSearch === "Q" && canQR && <ListQR onRowClick={handleQRClick} />}
+
           {typeSearch === "P" && canPedidos && (
             <ListPedidos onRowClick={handleQRClick} />
           )}
         </div>
       </div>
-      
+
       {/* Modal para reportes */}
       <DataModal
         open={openReport}
@@ -583,7 +632,7 @@ const Activities = () => {
           </a>
         </div>
       </DataModal>
-      
+
       {/* Modal para detalles de invitación */}
       {selectedInvitation && openInvitationInfo && (
         <InvitacionInfo
