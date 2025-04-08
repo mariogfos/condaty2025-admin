@@ -3,7 +3,7 @@
 import styles from "./Owners.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -37,11 +37,10 @@ const Owners = () => {
     }) => <RenderView {...props} />,
     extraData: true,
   };
-  const [disabled, setDisabled] = useState(false);
-  const onBlurCi = async (e: any, { setItem, item }: any) => {
-    console.log("onBlurCi", e.target.value);
+  const onBlurCi = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "") return;
     const { data, error } = await execute(
-      "/owners?",
+      "/owners",
       "GET",
       {
         _exist: 1,
@@ -52,12 +51,9 @@ const Owners = () => {
     );
 
     if (data?.success && data?.data?.length > 0) {
-      //relleno datos
-      const filteredData = data.data.filter((item: any) => {
-        return item.ci === e.target.value;
-      });
-      setItem({
-        ...item,
+      const filteredData = data.data;
+      props.setItem({
+        ...props.item,
         ci: filteredData[0].ci,
         name: filteredData[0].name,
         middle_name: filteredData[0].middle_name,
@@ -67,21 +63,22 @@ const Owners = () => {
         phone: filteredData[0].phone,
         _disabled: true,
       });
-      // setDisabled(true);
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
-      //setItem()
     } else {
-      setItem({
-        ...item,
+      props.setItem({
+        ...props.item,
         _disabled: false,
       });
       //no existe
     }
-  };
+  }, []);
 
+  const onDisbled = ({ item }: any) => {
+    return item._disabled;
+  };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -132,16 +129,14 @@ const Owners = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: disabled
-          ? false
-          : {
-              type: "imageUpload",
-              prefix: "OWNER",
-              style: { width: "100%" },
-            },
+        form: {
+          type: "imageUpload",
+          prefix: "OWNER",
+          style: { width: "100%" },
+        },
       },
       password: {
-        rules: disabled ? [] : ["required*add"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -161,10 +156,9 @@ const Owners = () => {
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    ({JSON.stringify(disabled)}) Ingrese el número de carnet y
-                    haga click fuera del campo para que el sistema busque
-                    automáticamente al residente si el carnet no existe
-                    ,continúa con el proceso de registro
+                    Ingrese el número de carnet y haga click fuera del campo
+                    para que el sistema busque automáticamente al residente si
+                    el carnet no existe ,continúa con el proceso de registro
                   </div>
                 </div>
                 <div>
@@ -177,13 +171,17 @@ const Owners = () => {
                     onBlur={(e: any) => onBlurCi(e, props)}
                     disabled={props?.field?.action === "edit"}
                   />
-                  {props?.field?.action === "add" && (
+                  {props?.field?.action === "add" && !props.item._disabled && (
                     <InputPassword
                       name="password"
                       value={props?.item?.password}
                       onChange={props.onChange}
                       label="Contraseña"
                       error={props.error}
+                      // disabled={
+                      //   props?.field?.action === "edit" ||
+                      //   props.item._disabled === true
+                      // }
                     />
                   )}
                 </div>
@@ -201,7 +199,7 @@ const Owners = () => {
         label: "Primer nombre",
         form: {
           type: "text",
-          disabled: disabled,
+          disabled: onDisbled,
         },
 
         list: false,
@@ -211,7 +209,10 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       last_name: {
@@ -223,7 +224,10 @@ const Owners = () => {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       mother_last_name: {
@@ -231,7 +235,10 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       units: {
@@ -252,7 +259,7 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-          disabled,
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },
@@ -270,7 +277,7 @@ const Owners = () => {
         label: "Celular (Opcional)",
         form: {
           type: "text",
-          disabled,
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },
@@ -337,5 +344,4 @@ const Owners = () => {
     </div>
   );
 };
-
 export default Owners;

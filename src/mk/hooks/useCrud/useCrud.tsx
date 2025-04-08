@@ -638,9 +638,10 @@ const useCrud = ({
           // },
           // tagStyle: field.tagStyle || null,
         };
-        if (typeof col.disabled == "function") {
-          col.disabled = col.disabled(item);
-        }
+        // console.log("getHeader", typeof col.disabled == "function");
+        // if (typeof col.disabled == "function") {
+        //   col.disabled = col.disabled(item);
+        // }
         if (
           field.form.type == "select" &&
           field.form.options &&
@@ -692,7 +693,7 @@ const useCrud = ({
     const [showExtraModal, setShowExtraModal] = useState(null);
     useEffect(() => {
       setHeader(getHeader());
-    }, [fields]);
+    }, [fields, item._disabled]);
 
     useEffect(() => {
       let it = { ...item };

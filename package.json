@@ -9,19 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@instantdb/admin": "^0.17.12",
+    "@instantdb/react": "^0.17.31",
+    "@mlc-ai/web-llm": "^0.2.78",
     "axios": "^1.7.9",
-    "next": "15.1.7",
+    "emoji-picker-react": "^4.12.2",
+    "next": "^15.2.4",
     "pusher-js": "^8.4.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.0.0",
     "react-easy-crop": "^5.2.0",
     "react-player": "^2.16.0",
-    "xlsx": "^0.18.5",
-    "@instantdb/admin": "^0.17.12",
-    "@instantdb/react": "^0.17.31",
-    "@mlc-ai/web-llm": "^0.2.78",
-    "emoji-picker-react": "^4.12.2"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

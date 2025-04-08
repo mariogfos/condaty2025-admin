@@ -181,7 +181,11 @@ const FormElement = memo(
               value={val}
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur || _field.onBlur}
               error={error}
               onFocus={_field.onFocus}
@@ -204,7 +208,11 @@ const FormElement = memo(
               value={item[_field.key]}
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur}
               error={error}
               onFocus={_field.onFocus}
@@ -241,7 +249,11 @@ const FormElement = memo(
               }
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur}
               error={error}
               onFocus={_field.onFocus}
@@ -269,7 +281,11 @@ const FormElement = memo(
               value={item[_field.key]}
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur}
               error={error}
               onFocus={_field.onFocus}
@@ -301,7 +317,11 @@ const FormElement = memo(
               value={item[_field.key]}
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur}
               error={error}
               onFocus={_field.onFocus}
@@ -325,7 +345,11 @@ const FormElement = memo(
               value={item[_field.key]}
               onChange={onChange}
               label={_field.label}
-              disabled={_field.disabled}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
               onBlur={onBlur}
               error={error}
               onFocus={_field.onFocus}
