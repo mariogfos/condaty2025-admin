@@ -847,22 +847,22 @@ const useCrud = ({
   Form.displayName = "Form";
   const [filterSel, setFilterSel]: any = useState({});
   const AddMenu = memo(
-    ({ 
-      filters, 
-      onClick, 
-      extraButtons 
-    }: { 
-      filters?: any; 
+    ({
+      filters,
+      onClick,
+      extraButtons,
+    }: {
+      filters?: any;
       onClick?: (e?: any) => void;
-      extraButtons?: React.ReactNode[]; 
+      extraButtons?: React.ReactNode[];
     }) => {
       if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
-  
+
       const onChange = (e: any) => {
         setFilterSel({ ...filterSel, [e.target.name]: e.target.value });
         onFilter(e.target.name, e.target.value);
       };
-  
+
       return (
         <nav>
           {mod.search && mod.search.hide ? null : (
@@ -918,7 +918,7 @@ const useCrud = ({
               </div>
             </div>
           )}
-          
+
           {/* Renderizar los botones extras */}
           {extraButtons && extraButtons.length > 0 && (
             <div className={styles.extraButtons}>
@@ -927,11 +927,11 @@ const useCrud = ({
               ))}
             </div>
           )}
-          
+
           {mod.hideActions?.add ? null : (
             <div>
-              <Button 
-                className={styles.addButton} 
+              <Button
+                className={styles.addButton}
                 onClick={onClick || onAdd}
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
@@ -1070,7 +1070,7 @@ const useCrud = ({
     const getHeader = () => {
       const head: Object[] = [];
       const lFilter: Object[] = [];
-  
+
       for (const key in fields) {
         const field = fields[key];
         if (field.filter) {
@@ -1106,7 +1106,7 @@ const useCrud = ({
       setLfilter(lFilter);
       return head;
     };
-  
+
     const [header, setHeader]: any = useState([]);
     const [lFilter, setLfilter]: any = useState([]);
     useEffect(() => {
@@ -1287,7 +1287,7 @@ const useCrud = ({
               )}
             </>
           )}
-        </LoadingScreen>    
+        </LoadingScreen>
       </div>
     );
   });
@@ -1344,6 +1344,5 @@ const useCrud = ({
     openCard,
   };
 };
-
 
 export default useCrud;
