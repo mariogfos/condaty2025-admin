@@ -3,11 +3,12 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
 import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
-import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+
 import HeadTitle from "../HeadTitle/HeadTitle";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 
 type PropsType = {
   isTablet: boolean;
@@ -144,14 +145,16 @@ const Header = ({
         <div className={styles["header-controls"]}>
           <NotificationIcon />
           <div className={styles.tooltip}>
-          <div className={styles.iconOuterContainer}>
-            <div className={styles.settingContainer}>
-              <Dropdown
-                trigger={<IconSetting style={{ cursor: "pointer" }} />}
-                items={menuItems}
-              />
+            <div className={styles.iconOuterContainer}>
+              <div className={styles.settingContainer}>
+                <div 
+                  onClick={() => router.push('/roles')} 
+                  style={{ cursor: "pointer" }}
+                >
+                  <IconSetting />
+                </div>
+              </div>
             </div>
-          </div>
           </div>
           
 

@@ -6,8 +6,9 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const mod = {
   modulo: "guardnews",
@@ -32,21 +33,39 @@ const Binnacle = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      descrip: {
-        rules: ["required"],
-        api: "ae",
-        label: "Descripción",
-        form: { type: "text" },
-        list: { },
-      },
       guardia: {
         rules: [""],
         api: "",
         label: "Guardia",
         list: {
             onRender: (props: any) => {
-            return getFullName(props.item.guardia); }}
-      },      
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  src={getUrlImages(
+                    "/GUARD-" +
+                      props?.item?.guardia.id +
+                                ".webp?d=" +
+                                props?.item?.guardia.updated_at
+                            )}
+                            name={getFullName(props?.item.guardia)}
+                            square
+                          />
+                          <div>
+                            <p>{getFullName(props?.item.guardia)} </p>
+                          </div>
+                        </div>
+            );
+          }
+        },
+      },    
+      descrip: {
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
+        list: { },
+      },  
     }),
     []
   );

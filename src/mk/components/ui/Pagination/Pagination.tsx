@@ -1,9 +1,6 @@
 import {
   IconArrowBack,
-  IconArrowLeft,
   IconArrowNext,
-  IconArrowRight,
-
 } from "@/components/layout/icons/IconsBiblioteca";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./pagination.module.css";
@@ -33,52 +30,48 @@ const Pagination = ({
   total = null,
 }: PropsType) => {
   const [pageInput, setPageInput] = useState<string>(currentPage.toString());
+  const [perPageInput, setPerPageInput] = useState<string>(
+    (params?.perPage || 10).toString()
+  );
+
+  // Asegurar que totalPages sea siempre al menos 1
+  const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
 
   // Actualizar el input cuando cambia la página actual
   useEffect(() => {
     setPageInput(currentPage.toString());
-  }, [currentPage]);
+    setPerPageInput((params?.perPage || 10).toString());
+  }, [currentPage, params?.perPage]);
 
-  const { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage } =
-    useMemo(() => {
-      const firstPage = totalPages > 1 ? Math.max(1, currentPage - 3) : 1;
-      const lastPage =
-        totalPages > 1 ? Math.min(currentPage + 3, totalPages) : 1;
+  const { goToNextPage, goToPreviousPage, goToPage } = useMemo(() => {
+    const goToNextPage = (): void => {
+      onPageChange(Math.min(currentPage + 1, safeTotal));
+    };
 
-      const goToNextPage = (): void => {
-        onPageChange(Math.min(currentPage + 1, totalPages));
-      };
+    const goToPreviousPage = (): void => {
+      onPageChange(Math.max(currentPage - 1, 1));
+    };
 
-      const goToPreviousPage = (): void => {
-        onPageChange(Math.max(currentPage - 1, 1));
-      };
+    const goToPage = (page: number): void => {
+      if (page >= 1 && page <= safeTotal) {
+        onPageChange(page);
+      }
+    };
 
-      const goToPage = (page: number): void => {
-        if (page >= 1 && page <= totalPages) {
-          onPageChange(page);
-        }
-      };
+    return { goToNextPage, goToPreviousPage, goToPage };
+  }, [currentPage, safeTotal, onPageChange]);
 
-      const range = (start: number, end: number): number[] => {
-        if (start >= end) {
-          return [];
-        }
-        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-      };
-      return { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage };
-    }, [currentPage, totalPages, onPageChange]);
-
-  // Manejar la entrada de la página
-  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPageInput(e.target.value);
+  // Manejar el cambio en el input de elementos por página
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPerPageInput(e.target.value);
   };
 
-  // Manejar envío del formulario
-  const handleSubmit = (e: React.FormEvent) => {
+  // Aplicar el cambio de elementos por página
+  const handlePerPageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const pageNumber = parseInt(pageInput);
-    if (!isNaN(pageNumber)) {
-      goToPage(pageNumber);
+    const perPage = parseInt(perPageInput);
+    if (!isNaN(perPage) && perPage > 0) {
+      setParams({ ...params, perPage, page: 1 });
     }
   };
 
@@ -101,7 +94,7 @@ const Pagination = ({
         <button
           className={styles.nextButton}
           onClick={goToNextPage}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= safeTotal}
         >
           Siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
         </button>
@@ -109,14 +102,15 @@ const Pagination = ({
 
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
-        <form onSubmit={handleSubmit} className={styles.pageForm}>
-          <span>ir a una página, 1/{totalPages}</span>
+        <form onSubmit={handlePerPageSubmit} className={styles.pageForm}>
+          <span>ir a una página, 1/{safeTotal}</span>
           <input
-            type="text"
-            value={pageInput}
-            onChange={handlePageInputChange}
+            type="number"
+            min="1"
+            value={perPageInput}
+            onChange={handlePerPageChange}
             className={styles.pageInput}
-            aria-label="Ir a página"
+            aria-label="Elementos por página"
           />
           <button type="submit" className={styles.goButton}>
             Ir <IconArrowNext size={16} color="var(--accent)" />

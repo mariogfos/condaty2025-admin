@@ -204,7 +204,7 @@ const RenderView = (props: {
               title={getFullName(user)}
               subtitle={
                 <>
-                asass
+                
                   {/* <div>{data?.user?.role1[0]?.name}</div>
                   <div>{getDateStrMes(props?.item?.data?.created_at)}</div> */}
                 </>

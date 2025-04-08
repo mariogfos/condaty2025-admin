@@ -20,6 +20,10 @@ const paramsInitial = {
   page: 1,
   searchBy: "",
 };
+const lTitulars = [
+  { id: "S", name: "Sin Titular" },
+  { id: "T", name: "Con Titular" },
+];
 
 const Dptos = () => {
   const router = useRouter();
@@ -40,6 +44,7 @@ const Dptos = () => {
     permiso: "",
     export: true,
     extraData: true,
+    import: true,
     hideActions: {
       view: true,
       add: false,
@@ -116,30 +121,36 @@ const Dptos = () => {
         // form: { type: "text" },
         list: {
           onRender: (props: any) => {
-            return props?.item?.titular?.owner ? (
-              <div className={styles.titularRow}>
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  src={
-                    props?.item?.titular?.id &&
-                    props?.item?.titular?.owner?.updated_at
-                      ? getUrlImages(
-                          "/OWNER" +
-                            "-" +
-                            props?.item?.titular?.owner_id +
-                            ".webp?d=" +
-                            props?.item?.titular?.owner?.updated_at
-                        )
-                      : ""
-                  }
-                  name={getFullName(props?.item?.titular?.owner)}
-                />
-                {getFullName(props?.item?.titular?.owner)}
-              </div>
-            ) : (
-              "Sin titular"
+                    src={getUrlImages(
+                      "/OWNER-" +
+                        props?.item?.titular.owner_id +
+                                  ".webp?d=" +
+                                  props?.item?.titular.owner.updated_at
+                              )}
+                              name={getFullName(props?.item.titular.owner)}
+                              square
+                            />
+                            <div>
+                              <p>{getFullName(props?.item.titular.owner)} </p>
+                            </div>
+                          </div>
             );
           },
         },
+        filter: {
+          label: "Titular",
+         
+          options: () => [
+            { id: "", name: "Todos" },
+            ...lTitulars
+          ],
+          optionLabel: "name",
+          optionValue: "id"
+        },
+        import:true
       },
     };
   }, []);
