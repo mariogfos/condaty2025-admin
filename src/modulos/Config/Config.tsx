@@ -14,9 +14,9 @@ import {
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import DefaulterConfig from "./DefaulterConfig";
-import PaymentsConfig from "./PaymentsConfig";
-import DptoConfig from "./DptoConfig";
+import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
+import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
+import DptoConfig from "./DptoConfig/DptoConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
@@ -64,23 +64,7 @@ const Config = () => {
     }
   }, [formState.payment_transfer_ci]);
 
-  //   const { data, error } = await execute(
-  //     "/client-config-actualizar",
-  //     "PUT",
-  //     formState
-  //   );
 
-  //   if (data?.success == true) {
-  //     showToast("Datos guardados", "success");
-  //     // getUser();
-  //     // router.push("/");
-  //     setErrors({});
-  //   } else {
-  //     showToast(error?.data?.message || error?.message, "error");
-  //     console.log("error:", error);
-  //     setErrors(error?.data?.errors);
-  //   }
-  // };
 
   const validate = () => {
     let errors: any = {};
@@ -262,11 +246,12 @@ const Config = () => {
       </div>
       <LoadingScreen>
         <div className="">
-          {typeSearch == "M" && (
+        {typeSearch == "M" && (
             <DefaulterConfig
               formState={formState}
               onChange={onChange}
               errors={errors}
+              onSave={onSave}
             />
           )}
           {typeSearch == "P" && (
@@ -275,6 +260,7 @@ const Config = () => {
               onChange={onChange}
               errors={errors}
               setErrors={setErrors}
+              onSave={onSave}
             />
           )}
           {typeSearch == "C" && (
@@ -285,20 +271,10 @@ const Config = () => {
               errors={errors}
               setErrors={setErrors}
               client_config={client_config}
+              onSave={onSave}
             />
           )}
-          <div className="w-full flex justify-center mb-6">
-            <Button
-              className={
-                typeSearch == "P"
-                  ? "w-[68%] btn btn-primary"
-                  : "btn btn-primary"
-              }
-              onClick={() => onSave()}
-            >
-              Guardar
-            </Button>
-          </div>
+        
         </div>
       </LoadingScreen>
     </div>
