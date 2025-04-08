@@ -17,7 +17,7 @@ import DataModal from "../../components/ui/DataModal/DataModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
 import useScreenSize from "../useScreenSize";
-import styles from "./useCrud.module.css";
+import styles from "./useCrudStyle.module.css";
 import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import {
