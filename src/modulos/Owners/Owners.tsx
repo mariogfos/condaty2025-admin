@@ -284,10 +284,6 @@ const Owners = () => {
     };
   }, []);
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
-
   const {
     userCan,
     List,
@@ -298,15 +294,12 @@ const Owners = () => {
     onDel,
     showToast,
     execute,
-    reLoad,
-    getExtraData,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
-    _onImport: onImport,
   });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -314,11 +307,6 @@ const Owners = () => {
     onEdit,
     onDel,
   });
-
-  const [openImport, setOpenImport] = useState(false);
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
 
   const renderItem = (
     item: Record<string, any>,
