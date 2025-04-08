@@ -97,15 +97,6 @@ const Alerts = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      created_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha",
-        list: { width: "160px" },
-        onRender: (props:any) => {
-          return getDateTimeStrMesShort(props.item.created_at);
-        },
-      },
       guard_id: {
         rules: ["required"],
         api: "ae",
@@ -148,6 +139,16 @@ const Alerts = () => {
         list: true,
         form: { type: "text" },
       },
+      created_at: {
+        rules: [""],
+        api: "",
+        label: "Fecha",
+        list: {  },
+        onRender: (props:any) => {
+          return getDateTimeStrMesShort(props.item.created_at);
+        },
+      },
+      
       level: {
         rules: ["required"],
         api: "ae",

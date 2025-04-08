@@ -9,7 +9,7 @@
 .statusBadge {
   font-weight: var(--bMedium);
   padding: 6px var(--spM);
-  border-radius: 50px; /* Bordes redondeados como en la imagen */
+  border-radius: 4px; /* Bordes redondeados como en la imagen */
   display: inline-flex;
   align-items: center;
   justify-content: center;
