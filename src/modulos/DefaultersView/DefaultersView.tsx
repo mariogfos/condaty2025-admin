@@ -4,13 +4,14 @@ import styles from './DefaultersView.module.css'
 
 import useAxios from '@/mk/hooks/useAxios'
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase'
-import { getFullName } from '@/mk/utils/string'
+import { getFullName, getUrlImages } from '@/mk/utils/string'
 import { formatNumber } from '@/mk/utils/numbers'
 import { useAuth } from '@/mk/contexts/AuthProvider'
 import { IconExport, IconBilletera, IconMultas, IconHandcoin } from '../../components/layout/icons/IconsBiblioteca'
 import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen'
 import useCrud from '@/mk/hooks/useCrud/useCrud'
 import WidgetDefaulterResume from '@/components/ Widgets/WidgetDefaulterResume/WidgetDefaulterResume'
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar'
 
 
 
@@ -79,9 +80,34 @@ const DefaultersView = () => {
                 rules: [],
                 api: "ae",
                 label: "Titular",
-                list: { 
+                list: {
                     onRender: (props: any) => {
-                        return getFullName(props?.item?.titular?.owner);
+                        const titular = props?.item?.titular?.owner;
+                        const titularId = titular?.id;
+                        
+                        return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <Avatar
+                                    src={
+                                        titularId
+                                            ? getUrlImages(
+                                                "/OWNER" +
+                                                "-" +
+                                                titularId +
+                                                ".webp" +
+                                                (titular?.updated_at
+                                                    ? "?d=" + titular?.updated_at
+                                                    : "")
+                                            )
+                                            : ""
+                                    }
+                                    name={getFullName(titular)}
+                                    w={32}
+                                    h={32}
+                                />
+                                {getFullName(titular)}
+                            </div>
+                        );
                     }
                 }
             },

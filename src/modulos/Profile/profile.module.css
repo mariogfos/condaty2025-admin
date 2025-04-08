@@ -97,8 +97,10 @@
 }
 
 .editButton {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center;     /* Centra verticalmente (opcional) */
   width: 100%;
-  text-align: center;
   margin-bottom: 16px;
 }
 
