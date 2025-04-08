@@ -132,6 +132,14 @@ const Alerts = () => {
           }
         },
         form: { type: "text" },
+        onRenderView: (props: any) => {
+          return (
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{  }}>Guardia:</span>
+              <span style={{ color: "var(--cWhite)" }}>{getFullName(props.item.guardia)}</span>
+            </div>
+          );
+        }
       },
       descrip: {
         rules: ["required"],
@@ -166,7 +174,8 @@ const Alerts = () => {
           ],
           optionLabel: "name",
           optionValue: "id"
-        }
+        },
+        
       },
     }),
     []
