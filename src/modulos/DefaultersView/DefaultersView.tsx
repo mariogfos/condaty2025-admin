@@ -212,71 +212,88 @@ const DefaultersView = () => {
         : 0;
 
     // Componente del panel derecho con gráfico y widgets
-    const renderRightPanel = () => {
-        return (
-            <div className={styles.rightPanel}>
-                <div className={styles.graphPanel}>
-                    <GraphBase
-                        data={{
-                            labels: ["Expensas", "Multas"],
-                            values: [
-                                {
-                                    name: "Morosidad",
-                                    values: [
-                                        extraData?.porCobrarExpensa || 0,
-                                        extraData?.porCobrarMulta || 0
-                                    ],
-                                },
-                            ],
-                        }}
-                        chartTypes={["donut"]}
-                        background="darkv2"
-                        downloadPdf
-                        options={{
-                            title: "Representación gráfica del estado general de morosos",
-                            subtitle: "",
-                            label: "Total de morosidad general entre expensas y multas",
-                          /*   labelValue: `Bs ${formatNumber(totalMorosidad)}`,
-                            showPercent: true,
-                            percentValues: [porcentajeExpensas, porcentajeMultas], */
-                            colors: ["#b996f6", "#f4be77"],
-                            height: 400,
-                            width: 400,
-                        }}
-                    />
-                </div>
-                
-                <div className={styles.widgetsPanel}>
+  // Actualizar la configuración del gráfico en la función renderRightPanel
+const renderRightPanel = () => {
+    // Definir los colores consistentes para los widgets y el gráfico
+    const expensaColor = "#f7b267"; // Color naranja para expensas (del IconBilletera)
+    const multaColor = "#b996f6";   // Color morado para multas (del IconMultas)
+    const totalColor = "#4ED58C";   // Color verde para el total (del IconHandcoin)
+    
+    return (
+        <div className={styles.rightPanel}>
+            <div className={styles.graphPanel}>
+                <GraphBase
+                    data={{
+                        labels: ["Expensas", "Multas"],
+                        values: [
+                            {
+                                name: "Morosidad",
+                                values: [
+                                    extraData?.porCobrarExpensa || 0,
+                                    extraData?.porCobrarMulta || 0
+                                ],
+                            },
+                        ],
+                    }}
+                    chartTypes={["donut"]}
+                    background="darkv2"
+                    downloadPdf
+                    options={{
+                        title: "Representación gráfica del estado general de morosos",
+                        subtitle: "",
+                        label: "Total de morosidad general entre expensas y multas",
+                        // Usar exactamente los mismos colores que los fondos de los widgets
+                        colors: [expensaColor, multaColor],
+                        height: 400,
+                        width: 400,
+                    }}
+                />
+            </div>
+            
+            <div className={styles.widgetsPanel}>
                 <WidgetDefaulterResume
                     title={"Total de expensas"}
                     amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
                     pointColor={"var(--cInfo)"}
-                    icon={<IconBilletera size={26} color="#f7b267" />}
-                    backgroundColor="rgba(247, 178, 103, 0.2)"
+                    icon={<IconBilletera size={26} color={expensaColor} />}
+                    backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
                     textColor="white"
                 />
-                                    
+                                
                 <WidgetDefaulterResume
                     title={"Total de multas"}
                     amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
                     pointColor={"var(--cError)"}
-                    icon={<IconMultas size={26}  color="#b996f6" />}
-                    backgroundColor="rgba(185, 150, 246, 0.2)"
+                    icon={<IconMultas size={26} color={multaColor} />}
+                    backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
                     textColor="white"
                 />
-                                    
+                                
                 <WidgetDefaulterResume
                     title={"Total de morosidad"}
                     amount={`Bs ${formatNumber(totalMorosidad)}`}
                     pointColor={"var(--cSuccess)"}
-                    icon={<IconHandcoin size={26} color="#4ED58C" />}
-                    backgroundColor="rgba(78, 213, 140, 0.2)"
+                    icon={<IconHandcoin size={26} color={totalColor} />}
+                    backgroundColor={`rgba(${hexToRgb(totalColor)}, 0.2)`}
                     textColor="white"
                 />
-                </div>
             </div>
-        );
-    };
+        </div>
+    );
+};
+// Función auxiliar para convertir colores hexadecimales a RGB
+const hexToRgb = (hex:any) => {
+    // Eliminar el # si existe
+    hex = hex.replace(/^#/, '');
+    
+    // Convertir hex a RGB
+    let bigint = parseInt(hex, 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+    
+    return `${r}, ${g}, ${b}`;
+  };
 
     return (
         <LoadingScreen>    
