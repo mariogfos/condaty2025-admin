@@ -1,9 +1,9 @@
 'use client'
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./Owners.module.css";
+import styles from "../Owners.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName } from "../../mk/utils/string";
+import { getFullName } from "../../../mk/utils/string";
 import { lStatusActive } from "@/mk/utils/utils";
 import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";

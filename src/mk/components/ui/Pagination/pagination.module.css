@@ -4,15 +4,42 @@
   justify-content: space-between;
   width: 100%;
   padding: 8px 12px;
-  
-
 }
 
 /* Texto informativo a la izquierda */
 .paginationInfo {
   color: var(--accent);
   font-size: 14px;
-  
+  display: flex;
+  align-items: center;
+}
+
+.currentPageInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pageNumber {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin-bottom: 4px;
+}
+
+.goToPageButton {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  padding: 4px 0;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.goToPageButton:hover {
+  opacity: 0.8;
 }
 
 /* Botones de navegación en el centro */
@@ -35,13 +62,14 @@
   color: var(--cWhite);
   padding-top: 0;
 }
+
 .navButton svg {
   display: block; /* Asegura que el SVG no tenga espacio fantasma */
   flex-shrink: 0; /* Previene encogimiento no deseado */
 }
 
 .navButton:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.992);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .navButton:disabled {
@@ -86,10 +114,22 @@
   gap: 8px;
 }
 
-.pageForm span {
+.pageInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.currentPageLabel {
   color: var(--cWhite);
-  font-size: 14px;
+  font-size: 12px;
   opacity: 0.7;
+}
+
+.totalPages {
+  color: var(--cWhite);
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .pageInput {

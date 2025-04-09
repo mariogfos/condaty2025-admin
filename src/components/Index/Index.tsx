@@ -18,7 +18,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import OwnersRender from "@/modulos/Owners/RenderView";
+import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 
 const paramsInitial = {

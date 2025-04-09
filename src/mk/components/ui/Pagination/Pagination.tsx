@@ -97,7 +97,15 @@ const Pagination = ({
     <div className={`${styles.pagination} ${className}`}>
       {/* Texto informativo a la izquierda */}
       <div className={styles.paginationInfo}>
-        <span>ir a la página {currentPage}</span>
+        <span className={styles.currentPageInfo}>
+          
+          <button 
+            className={styles.goToPageButton}
+            onClick={() => goToPage(1)}
+          >
+            ir a la página
+          </button>
+        </span>
       </div>
 
       {/* Botones de navegación en el centro */}
@@ -121,7 +129,10 @@ const Pagination = ({
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
-          <span>ir a una página, 1/{safeTotal}</span>
+          <span className={styles.pageInfo}>
+            <span className={styles.currentPageLabel}>Página</span>
+            <span className={styles.totalPages}>{currentPage}/{safeTotal}</span>
+          </span>
           <input
             type="text"
             value={pageInput}
