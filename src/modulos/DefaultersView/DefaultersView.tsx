@@ -227,9 +227,15 @@ const renderRightPanel = () => {
                         labels: ["Expensas", "Multas"],
                         values: [
                             {
-                                name: "Morosidad",
+                                name: "Expensas",
                                 values: [
                                     extraData?.porCobrarExpensa || 0,
+                                    
+                                ],
+                            },
+                            {
+                                name: "Multas",
+                                values: [
                                     extraData?.porCobrarMulta || 0
                                 ],
                             },

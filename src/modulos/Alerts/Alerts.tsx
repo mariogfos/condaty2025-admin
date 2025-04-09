@@ -6,6 +6,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "alerts",
@@ -15,7 +16,13 @@ const mod = {
   extraData: false,
   hideActions: { edit: true, del: true, add: true },
   export: true,
-  filter: true
+  filter: true,
+  renderView: (props: {
+    open: boolean;
+    onClose: any;
+    item: Record<string, any>;
+    onConfirm?: Function;
+  }) => <RenderView {...props} />
 };
 
 const paramsInitial = {
@@ -122,15 +129,7 @@ const Alerts = () => {
             );
           }
         },
-        form: { type: "text" },
-        onRenderView: (props: any) => {
-          return (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{  }}>Guardia:</span>
-              <span style={{ color: "var(--cWhite)" }}>{getFullName(props.item.guardia)}</span>
-            </div>
-          );
-        }
+        form: { type: "text" }
       },
       descrip: {
         rules: ["required"],

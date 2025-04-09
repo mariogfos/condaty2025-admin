@@ -1,0 +1,109 @@
+/* Puedes agregar estos estilos a tu RenderView.module.css existente */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%;
+  padding: var(--spL);
+  border-radius: var(--bRadiusL);
+}
+
+/* Sección para mostrar el avatar */
+.avatarSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--spM);
+}
+
+/* Descripción de la alerta */
+.alertDescription {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  text-align: center;
+  width: 100%;
+  margin-bottom: var(--spM);
+}
+
+/* Separador horizontal */
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: var(--spM) 0;
+  opacity: 0.3;
+}
+
+/* Contenedor para la información detallada */
+.detailsContainer {
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.label {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.value {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  text-align: right;
+}
+
+.valueHighlight {
+  color: #FFD700; /* Color dorado para el nivel de alerta */
+  font-size: var(--sM);
+  text-align: right;
+  font-weight: var(--bSemibold);
+}
+
+/* Botón de acción */
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: var(--spL);
+}
+
+.actionButton {
+  background-color: var(--cPrimary) !important;
+  color: var(--cWhite) !important;
+  font-size: var(--sM) !important;
+  padding: var(--spM) var(--spL) !important;
+  border-radius: var(--bRadius) !important;
+  width: 100%;
+  max-width: 320px;
+  font-weight: var(--bMedium) !important;
+  transition: all 0.2s ease !important;
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .detailsContainer {
+    padding: 0 var(--spM);
+  }
+  
+  .alertDescription {
+    font-size: var(--sM);
+  }
+  
+  .label, .value, .valueHighlight {
+    font-size: var(--sS);
+  }
+}
