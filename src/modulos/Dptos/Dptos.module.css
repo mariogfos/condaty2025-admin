@@ -1,6 +1,4 @@
-.Dptos{
 
-}
 .titularRow {
     display: flex;
     align-items: center;
@@ -8,3 +6,15 @@
 
 
 }
+.departamentos {
+    width: 100%;
+  }
+  
+  .noTitular {
+    display: flex;
+    align-items: center;
+    color: var(--cGrayV2);
+    font-style: italic;
+    font-size: 14px;
+    padding: 4px 0;
+  }
