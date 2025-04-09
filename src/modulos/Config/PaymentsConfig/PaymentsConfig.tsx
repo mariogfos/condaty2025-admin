@@ -90,15 +90,6 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
     }
   };
 
-  // Función para mostrar el contador de caracteres
-  const renderCharacterCount = (current: number, max: number) => {
-    return (
-      <div className={styles.characterCount}>
-        {current}/{max} caracteres
-      </div>
-    );
-  };
-
   return (
     <div className={styles.paymentsContainer}>
       <div>
@@ -166,9 +157,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
                 onChange={handleChange}
                 maxLength={50}
               />
-              {formState?.payment_transfer_bank && (
-                renderCharacterCount(formState.payment_transfer_bank.length, 50)
-              )}
+             
             </div>
             <div className={styles.inputHalf}>
               <Input
@@ -230,9 +219,6 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
               error={validationErrors.payment_office_obs || errors?.payment_office_obs}
               maxLength={500}
             />
-            {formState?.payment_office_obs && (
-              renderCharacterCount(formState.payment_office_obs.length, 500)
-            )}
           </div>
         </div>
 
