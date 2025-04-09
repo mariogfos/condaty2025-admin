@@ -158,7 +158,7 @@ const RenderForm = ({
   }, [extraData?.dptos]);
 
   return (
-    <DataModal open={open} onClose={onClose} title="Editar Expensa" onSave={onSave}>
+    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave}>
 
       <Select
         label="Año"
@@ -217,6 +217,7 @@ const RenderForm = ({
             onChange={handleAssignChange}
             optionValue={["Y", "N"]}
             value={assignState === "T" ? "Y" : "N"}
+            style={{color:"var(--cWhiteV1)"}}
           />
           <Check
             label="Unidades ocupadas"

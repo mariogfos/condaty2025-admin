@@ -61,6 +61,10 @@
   transition: all 0.2s ease;
   color: var(--cWhite);
   padding-top: 0;
+  background-color: transparent !important;
+}
+.navButton:enabled {
+  background-color: transparent;
 }
 
 .navButton svg {
