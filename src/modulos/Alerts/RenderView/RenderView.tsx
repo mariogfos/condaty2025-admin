@@ -72,7 +72,7 @@ const RenderView = (props: {
           <div className={styles.detailRow}>
             <div className={styles.label}>C.I.</div>
             <div className={styles.value}>
-              {props?.item?.security_id || "6473845"}
+              {props?.item?.guardia?.ci || "6473845"}
             </div>
           </div>
         </div>
