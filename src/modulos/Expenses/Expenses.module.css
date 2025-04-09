@@ -25,3 +25,6 @@
     background-color: var(--cHoverError);
     color: var(--cError);
   }
+  .space-y-3 .label {
+   color: var(--cWhiteV1); 
+  }

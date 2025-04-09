@@ -121,22 +121,32 @@ const Dptos = () => {
         // form: { type: "text" },
         list: {
           onRender: (props: any) => {
+            // Verificar si titular existe antes de intentar acceder a sus propiedades
+            if (!props?.item?.titular) {
+              return <div className={styles.noTitular}>Sin titular</div>;
+            }
+            
+            // También verificar si titular.owner existe
+            if (!props?.item?.titular?.owner) {
+              return <div className={styles.noTitular}>Titular sin datos</div>;
+            }
+            
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                    src={getUrlImages(
-                      "/OWNER-" +
-                        props?.item?.titular.owner_id +
-                                  ".webp?d=" +
-                                  props?.item?.titular.owner.updated_at
-                              )}
-                              name={getFullName(props?.item.titular.owner)}
-                              square
-                            />
-                            <div>
-                              <p>{getFullName(props?.item.titular.owner)} </p>
-                            </div>
-                          </div>
+                  src={getUrlImages(
+                    "/OWNER-" +
+                      props?.item?.titular?.owner_id +
+                      ".webp?d=" +
+                      props?.item?.titular?.owner?.updated_at
+                  )}
+                  name={getFullName(props?.item?.titular?.owner)}
+                  square
+                />
+                <div>
+                  <p>{getFullName(props?.item?.titular?.owner)}</p>
+                </div>
+              </div>
             );
           },
         },
@@ -150,7 +160,7 @@ const Dptos = () => {
           optionLabel: "name",
           optionValue: "id"
         },
-        import:true
+        import: true
       },
     };
   }, []);
