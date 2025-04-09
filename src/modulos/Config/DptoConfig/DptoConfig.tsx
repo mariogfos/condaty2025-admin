@@ -214,7 +214,7 @@ const DptoConfig = ({
           
           <Input
             type="currency"
-            label="Saldo*"
+            label="Saldo"
             name="initial_amount"
             error={errors}
             required
