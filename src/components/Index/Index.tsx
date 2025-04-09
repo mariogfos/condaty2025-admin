@@ -258,13 +258,13 @@ const HomePage = () => {
      />                                   
    </section>
   </div>
- <OwnersRender 
+ <PaymentRender
   open={openActive}
   onClose={()=>setOpenActive(false)}
   item={dataOwner}
-  reLoad={reLoad}
+
  />
- <OwnersRender
+ <PaymentRender
 { ...paymentProps}
  />
   </>;
