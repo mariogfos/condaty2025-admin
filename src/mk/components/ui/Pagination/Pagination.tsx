@@ -107,7 +107,7 @@ const Pagination = ({
           onClick={goToPreviousPage}
           disabled={currentPage <= 1}
         >
-          <IconArrowBack size={18} color="var(--cWhite)" />
+          <IconArrowBack size={16} color="var(--cWhite)" />
         </button>
         <button
           className={styles.nextButton}

@@ -33,6 +33,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--cWhite);
+  padding-top: 0;
+}
+.navButton svg {
+  display: block; /* Asegura que el SVG no tenga espacio fantasma */
+  flex-shrink: 0; /* Previene encogimiento no deseado */
 }
 
 .navButton:hover:not(:disabled) {
