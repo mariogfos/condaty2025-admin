@@ -4,7 +4,7 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { getUrlImages } from "@/mk/utils/string";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./DptoConfig.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 
@@ -17,6 +17,114 @@ const DptoConfig = ({
   onChange,
   onSave,
 }: any) => {
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Validar cambios en el formulario
+  useEffect(() => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validación 1: Nombre del condominio - no debe permitir caracteres especiales
+    if (formState?.name) {
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]+$/.test(formState.name)) {
+        newErrors.name = 'No se permiten caracteres especiales';
+      }
+    }
+    
+    // Validación 2: Descripción del condominio - máximo 500 caracteres
+    if (formState?.description && formState.description.length > 500) {
+      newErrors.description = 'Máximo 500 caracteres';
+    }
+    
+    // Validación 3: Monto inicial - debe ser menos o igual a 10 dígitos
+    if (formState?.initial_amount) {
+      const amountStr = formState.initial_amount.toString().replace(/\D/g, '');
+      if (amountStr.length > 10) {
+        newErrors.initial_amount = 'El monto debe ser menor o igual a 10 dígitos';
+      }
+    }
+    
+    // Validación 4: Limitar los otros campos (teléfono, dirección, etc.)
+    if (formState?.phone && formState.phone.toString().length > 15) {
+      newErrors.phone = 'Máximo 15 dígitos';
+    }
+    
+    if (formState?.address && formState.address.length > 100) {
+      newErrors.address = 'Máximo 100 caracteres';
+    }
+    
+    if (formState?.email && formState.email.length > 50) {
+      newErrors.email = 'Máximo 50 caracteres';
+    }
+    
+    if (formState?.year && (formState.year < 1900 || formState.year > 2100)) {
+      newErrors.year = 'Año entre 1900 y 2100';
+    }
+    
+    setValidationErrors(newErrors);
+  }, [formState]);
+
+  // Función para manejar cambios con validación
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Validaciones específicas para cada campo
+    if (name === 'name') {
+      // Solo permitir letras, números y espacios (sin caracteres especiales)
+      if (value === '' || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]*$/.test(value)) {
+        onChange(e);
+      }
+    } 
+    else if (name === 'description') {
+      // Limitar a 500 caracteres
+      if (value.length <= 500) {
+        onChange(e);
+      }
+    }
+    else if (name === 'initial_amount') {
+      // Solo permitir números y hasta 10 dígitos (ignorando puntos y comas)
+      const digitsOnly = value.replace(/[^\d]/g, '');
+      if (digitsOnly.length <= 10) {
+        onChange(e);
+      }
+    }
+    else if (name === 'phone') {
+      // Solo permitir números con longitud máxima de 15
+      if (value === '' || (/^\d*$/.test(value) && value.length <= 15)) {
+        onChange(e);
+      }
+    }
+    else if (name === 'address') {
+      // Limitar a 100 caracteres
+      if (value.length <= 100) {
+        onChange(e);
+      }
+    }
+    else if (name === 'email') {
+      // Limitar a 50 caracteres
+      if (value.length <= 50) {
+        onChange(e);
+      }
+    }
+    else if (name === 'year') {
+      // Solo años válidos entre 1900 y 2100
+      if (value === '' || (/^\d*$/.test(value) && parseInt(value) >= 0 && parseInt(value) <= 2100)) {
+        onChange(e);
+      }
+    }
+    else {
+      onChange(e);
+    }
+  };
+
+  // Función para mostrar el contador de caracteres
+  const renderCharacterCount = (current: number, max: number) => {
+    return (
+      <div className={styles.characterCount}>
+        {current}/{max} caracteres
+      </div>
+    );
+  };
+
   return (
     <div className={styles.Config}>
       <h1 className={styles.mainTitle}>Datos generales del condominio</h1>
@@ -57,11 +165,14 @@ const DptoConfig = ({
               value={formState["name"]}
               type="text"
               name="name"
-              error={errors}
+              error={validationErrors.name || errors?.name}
               required
-              onChange={onChange}
+              onChange={handleChange}
               className="dark-input"
             />
+            {formState?.name && (
+              <div className={styles.fieldHint}>Solo letras, números y espacios</div>
+            )}
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -69,7 +180,7 @@ const DptoConfig = ({
               value={formState?.type}
               name="type"
               error={errors}
-              onChange={onChange}
+              onChange={handleChange}
               options={[
                 { id: "C", name: "Condominio" },
                 { id: "E", name: "Edificio" },
@@ -88,11 +199,15 @@ const DptoConfig = ({
               value={formState["address"]}
               type="text"
               name="address"
-              error={errors}
+              error={validationErrors.address || errors?.address}
               required
-              onChange={onChange}
+              onChange={handleChange}
               className="dark-input"
+              maxLength={100}
             />
+            {formState?.address && (
+              renderCharacterCount(formState.address.length, 100)
+            )}
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -100,7 +215,7 @@ const DptoConfig = ({
               value={formState?.type_dpto}
               name="type_dpto"
               error={errors}
-              onChange={onChange}
+              onChange={handleChange}
               options={[
                 { id: "D", name: "Departamento" },
                 { id: "O", name: "Oficina" },
@@ -118,13 +233,17 @@ const DptoConfig = ({
             <Input
               label={"Teléfono"}
               value={formState["phone"]}
-              type="number"
+              type="text"
               name="phone"
-              error={errors}
+              error={validationErrors.phone || errors?.phone}
               required
-              onChange={onChange}
+              onChange={handleChange}
               className="dark-input"
+              maxLength={15}
             />
+            {formState?.phone && (
+              renderCharacterCount(formState.phone.length, 15)
+            )}
           </div>
           <div className={styles.inputHalf}>
             <Input
@@ -132,22 +251,33 @@ const DptoConfig = ({
               value={formState["email"]}
               type="email"
               name="email"
-              error={errors}
+              error={validationErrors.email || errors?.email}
               required
-              onChange={onChange}
+              onChange={handleChange}
               className="dark-input"
+              maxLength={50}
             />
+            {formState?.email && (
+              renderCharacterCount(formState.email.length, 50)
+            )}
           </div>
         </div>
 
-        <TextArea
-          label="Agrega una pequeña descripción del condominio"
-          name="description"
-          required={false}
-          onChange={onChange}
-          value={formState?.description}
-          className="dark-input"
-        />
+        <div className={styles.textareaContainer}>
+          <TextArea
+            label="Agrega una pequeña descripción del condominio"
+            name="description"
+            required={false}
+            onChange={handleChange}
+            value={formState?.description}
+            className="dark-input"
+            maxLength={500}
+            error={validationErrors.description || errors?.description}
+          />
+          {formState?.description && (
+            renderCharacterCount(formState.description.length, 500)
+          )}
+        </div>
 
         <div className={styles.sectionContainer}>
           <div>
@@ -167,7 +297,7 @@ const DptoConfig = ({
                 value={formState?.month}
                 name="month"
                 error={errors}
-                onChange={onChange}
+                onChange={handleChange}
                 options={[
                   { id: "1", name: "Enero" },
                   { id: "2", name: "Febrero" },
@@ -191,11 +321,13 @@ const DptoConfig = ({
                 type="number"
                 label="Año"
                 name="year"
-                error={errors}
+                error={validationErrors.year || errors?.year}
                 required
                 value={formState?.year}
-                onChange={onChange}
+                onChange={handleChange}
                 className="dark-input"
+                min={1900}
+                max={2100}
               />
             </div>
           </div>
@@ -216,16 +348,21 @@ const DptoConfig = ({
             type="currency"
             label="Saldo"
             name="initial_amount"
-            error={errors}
+            error={validationErrors.initial_amount || errors?.initial_amount}
             required
             value={formState?.initial_amount}
-            onChange={onChange}
+            onChange={handleChange}
             className="dark-input"
           />
+          <div className={styles.fieldHint}>El monto debe ser menor o igual a 10 dígitos</div>
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <Button className={styles.saveButton} onClick={onSave}>
+          <Button 
+            className={`${styles.saveButton} ${Object.keys(validationErrors).length > 0 ? styles.disabledButton : ''}`} 
+            onClick={onSave}
+            disabled={Object.keys(validationErrors).length > 0}
+          >
             Guardar datos
           </Button>
         </div>
