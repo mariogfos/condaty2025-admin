@@ -69,7 +69,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
             <div className={styles.inputHalf}>
               <Input
                 type="text"
-                label="Entidad bancaria*"
+                label="Entidad bancaria"
                 name="payment_transfer_bank"
                 error={errors}
                 required
@@ -80,7 +80,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
             <div className={styles.inputHalf}>
               <Input
                 type="text"
-                label="Número de cuenta*"
+                label="Número de cuenta"
                 name="payment_transfer_account"
                 error={errors}
                 required
@@ -94,7 +94,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
             <div className={styles.inputHalf}>
               <Input
                 type="text"
-                label="Nombre de destinatario*"
+                label="Nombre de destinatario"
                 name="payment_transfer_name"
                 error={errors}
                 value={formState?.payment_transfer_name}
@@ -105,7 +105,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
             <div className={styles.inputHalf}>
               <Input
                 type="number"
-                label="Carnet de identidad/NIT*"
+                label="Carnet de identidad/NIT"
                 name="payment_transfer_ci"
                 error={errors}
                 required={true}
@@ -123,7 +123,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
           
           <div className={styles.textareaContainer}>
             <TextArea
-              label="Detalles o requisitos*"
+              label="Detalles o requisitos"
               required
               name="payment_office_obs"
               onChange={onChange}

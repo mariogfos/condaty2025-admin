@@ -163,7 +163,7 @@ const DptoConfig = ({
           <div className={styles.dateSelectors}>
             <div className={styles.dateSelector}>
               <Select
-                label="Mes*"
+                label="Mes"
                 value={formState?.month}
                 name="month"
                 error={errors}
@@ -189,7 +189,7 @@ const DptoConfig = ({
             <div className={styles.dateSelector}>
               <Input
                 type="number"
-                label="Año*"
+                label="Año"
                 name="year"
                 error={errors}
                 required

@@ -32,7 +32,7 @@ const DefaulterConfig = ({ formState, onChange, errors, onSave }: DefaulterConfi
           <div className={styles.inputField}>
             <Input
               type="number"
-              label="Cantidad*"
+              label="Cantidad"
               name="soft_limit"
               error={errors}
               required
@@ -53,7 +53,7 @@ const DefaulterConfig = ({ formState, onChange, errors, onSave }: DefaulterConfi
           <div className={styles.inputField}>
             <Input
               type="number"
-              label="Cantidad*"
+              label="Cantidad"
               name="hard_limit"
               error={errors}
               required
@@ -74,7 +74,7 @@ const DefaulterConfig = ({ formState, onChange, errors, onSave }: DefaulterConfi
           <div className={styles.inputField}>
             <Input
               type="number"
-              label="Porcentaje*"
+              label="Porcentaje"
               name="penalty_limit"
               error={errors}
               required
@@ -95,7 +95,7 @@ const DefaulterConfig = ({ formState, onChange, errors, onSave }: DefaulterConfi
           <div className={styles.inputField}>
             <Input
               type="number"
-              label="Porcentaje*"
+              label="Porcentaje"
               name="penalty_percent"
               error={errors}
               required
