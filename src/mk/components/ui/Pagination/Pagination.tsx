@@ -103,7 +103,7 @@ const Pagination = ({
             className={styles.goToPageButton}
             onClick={() => goToPage(1)}
           >
-            ir a la página
+            ir a la página 1
           </button>
         </span>
       </div>
