@@ -181,9 +181,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
                 onChange={handleChange}
                 maxLength={25}
               />
-              {formState?.payment_transfer_account && (
-                renderCharacterCount(formState.payment_transfer_account.length, 25)
-              )}
+              
             </div>
           </div>
           
@@ -199,9 +197,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
                 required
                 maxLength={50}
               />
-              {formState?.payment_transfer_name && (
-                renderCharacterCount(formState.payment_transfer_name.length, 50)
-              )}
+              
             </div>
             <div className={styles.inputHalf}>
               <Input
@@ -214,9 +210,7 @@ const PaymentsConfig = ({ formState, onChange, setErrors, errors, onSave }: any)
                 onChange={handleChange}
                 maxLength={15}
               />
-              {formState?.payment_transfer_ci && (
-                renderCharacterCount(formState.payment_transfer_ci.length, 15)
-              )}
+              
             </div>
           </div>
         </div>

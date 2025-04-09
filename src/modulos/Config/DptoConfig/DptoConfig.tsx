@@ -116,14 +116,6 @@ const DptoConfig = ({
     }
   };
 
-  // Función para mostrar el contador de caracteres
-  const renderCharacterCount = (current: number, max: number) => {
-    return (
-      <div className={styles.characterCount}>
-        {current}/{max} caracteres
-      </div>
-    );
-  };
 
   return (
     <div className={styles.Config}>
@@ -170,9 +162,7 @@ const DptoConfig = ({
               onChange={handleChange}
               className="dark-input"
             />
-            {formState?.name && (
-              <div className={styles.fieldHint}>Solo letras, números y espacios</div>
-            )}
+            
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -205,9 +195,7 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={100}
             />
-            {formState?.address && (
-              renderCharacterCount(formState.address.length, 100)
-            )}
+            
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -241,9 +229,7 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={15}
             />
-            {formState?.phone && (
-              renderCharacterCount(formState.phone.length, 15)
-            )}
+           
           </div>
           <div className={styles.inputHalf}>
             <Input
@@ -257,9 +243,7 @@ const DptoConfig = ({
               className="dark-input"
               maxLength={50}
             />
-            {formState?.email && (
-              renderCharacterCount(formState.email.length, 50)
-            )}
+            
           </div>
         </div>
 
@@ -274,9 +258,7 @@ const DptoConfig = ({
             maxLength={500}
             error={validationErrors.description || errors?.description}
           />
-          {formState?.description && (
-            renderCharacterCount(formState.description.length, 500)
-          )}
+          
         </div>
 
         <div className={styles.sectionContainer}>

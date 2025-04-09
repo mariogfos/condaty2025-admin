@@ -16,7 +16,7 @@
   .formContainer {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+ 
     padding: 1rem;
     background-color: #333536;
     border-radius: 1rem;
@@ -37,7 +37,7 @@
   .inputContainer {
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 0.5rem;
+    
   }
   
   .inputHalf {
@@ -56,16 +56,12 @@
     font-size: 14px;
     margin-bottom: 0.75rem;
   }
-  
-  .marginY {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-  }
+
   
   .sectionContainer {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+ 
     border-radius: 1rem;
   }
   
