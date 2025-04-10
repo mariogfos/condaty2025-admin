@@ -120,6 +120,7 @@ const TableIngresos = ({
       total={total}
       color="text-accent"
       meses={anual ? meses : []}
+      variant="income"
     />
   );
 };

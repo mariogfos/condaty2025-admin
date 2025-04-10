@@ -43,8 +43,8 @@ const DefaultersView = () => {
         hideActions: {
             view: true,
             add: true,
-            edit: false,
-            del: false
+            edit: true,
+            del: true
         },
         filter: true,
         saveMsg: {
@@ -114,7 +114,7 @@ const DefaultersView = () => {
             count: {
                 rules: [],
                 api: "ae",
-                label: "Expensa atrasada",
+                label: "Expensas atrasadas",
                 list: { 
                     onRender: (props: any) => {
                         const s = props?.item?.count > 1 ? "s" : "";
@@ -127,6 +127,16 @@ const DefaultersView = () => {
                     options: getExpensaOptions
                 } */
             },
+            expensa: {
+                rules: [],
+                api: "ae",
+                label: "Monto por expensa",
+                list: { 
+                    onRender: (props: any) => {
+                        return "Bs " + formatNumber(props?.item?.expensa);
+                    }
+                }
+            },
             multa: {
                 rules: [],
                 api: "ae",
@@ -137,6 +147,7 @@ const DefaultersView = () => {
                     }
                 }
             },
+            
             total: {
                 rules: [],
                 api: "ae",
