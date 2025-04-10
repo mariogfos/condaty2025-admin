@@ -7,7 +7,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 
-const mod: ModCrudType = {
+const mod = {
   modulo: "types",
   singular: "Tipo de unidad",
   plural: "Tipos de unidades",
@@ -15,6 +15,7 @@ const mod: ModCrudType = {
   // importRequiredCols: "NAME",
   permiso: "",
   extraData: true,
+  noWaiting: true,
 //   onHideActions: (item: any) => {
 //     return {
 //       hideEdit: item.is_assigned == "1",
@@ -22,14 +23,15 @@ const mod: ModCrudType = {
 //     };
 //   },
 };
-
-const UnitsType = () => {
-  const paramsInitial = {
+const paramsInitial = {
     perPage: 10,
     page: 1,
     fullType: "L",
     searchBy: "",
   };
+
+const UnitsType = () => {
+
 
   const fields = useMemo(() => {
     return {
@@ -37,12 +39,10 @@ const UnitsType = () => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Código",
+        label: "Nombre",
         list: true,
         form: { type: "text" },
       },
-    
-
     
     };
   }, []);

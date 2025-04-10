@@ -280,7 +280,7 @@ const Config = () => {
              <UnitsType />
 
           }
-          <div className="w-full flex justify-center mb-6">
+     { typeSearch !== "T" &&   <div className="w-full flex justify-center mb-6">
             <Button
               className={
                 typeSearch == "P"
@@ -291,7 +291,7 @@ const Config = () => {
             >
               Guardar
             </Button>
-          </div>
+          </div>}
         </div>
       </LoadingScreen>
     </div>
