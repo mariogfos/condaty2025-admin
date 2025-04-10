@@ -3,27 +3,27 @@ import { init, id } from "@instantdb/admin";
 
 export async function POST(request) {
   try {
-    console.log("Request headers:", request.headers);
-    console.log("Request body:", await request.text()); // Antes de parsear JSON
-    // Verificar que hay cuerpo en la solicitud
-    if (!request.body) {
-      return NextResponse.json(
-        { message: "Cuerpo de solicitud vacío" },
-        { status: 400 }
-      );
-    }
+    // Leer el cuerpo como texto primero
+    const rawBody = await request.text();
+    console.log("Raw body:", rawBody);
 
     let body;
     try {
-      body = await request.json();
-    } catch (error) {
+      // Parsear manualmente el JSON
+      body = JSON.parse(rawBody);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
       return NextResponse.json(
-        { message: "JSON inválido en el cuerpo de la solicitud" },
+        {
+          message: "JSON inválido en el cuerpo de la solicitud",
+          error: parseError.message,
+        },
         { status: 400 }
       );
     }
 
     const { id: _id, payload, channel, event } = body;
+    console.log("Parsed body:", { _id, payload, channel, event });
 
     // Validación de seguridad
     if (!_id || _id != process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX) {
