@@ -20,6 +20,7 @@ import DptoConfig from "./DptoConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import UnitsType from "../UnitTypes/UnitsTypes";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
@@ -287,6 +288,10 @@ const Config = () => {
               client_config={client_config}
             />
           )}
+          {typeSearch == "T" &&
+             <UnitsType />
+
+          }
           <div className="w-full flex justify-center mb-6">
             <Button
               className={
