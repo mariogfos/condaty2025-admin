@@ -57,7 +57,7 @@
     color: var(--cWhiteV1);
   }
   & > p {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     font-size: var(--sS);
   }
 }

@@ -33,7 +33,7 @@
       gap: var(--spS);
 
       & > p:first-of-type {
-        color: var(--cBlackV2);
+        color: var(--cWhiteV1);
         margin-top: -2px;
       }
     }
@@ -69,5 +69,3 @@
   }
 }
 
-.text {
-}

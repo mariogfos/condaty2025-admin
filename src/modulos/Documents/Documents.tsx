@@ -46,10 +46,11 @@ const Documents = () => {
         list: {  },
       },
       ext: {
-        rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Extensión",
         list: { },
+        
       },
       descrip: {
         rules: ["required"],

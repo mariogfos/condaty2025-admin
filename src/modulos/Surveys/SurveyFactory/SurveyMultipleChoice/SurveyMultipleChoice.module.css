@@ -5,7 +5,7 @@
     font-weight: 700;
   }
   & > p:nth-child(2) {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     font-size: var(--sM);
     font-weight: 400;
     margin-bottom: var(--spXs);
@@ -46,7 +46,7 @@
           margin-bottom: var(--spS);
         }
         & > p:nth-child(even) {
-          color: var(--cBlackV2);
+          color: var(--cWhiteV1);
           font-size: var(--sM);
           font-weight: 400;
           margin-bottom: var(--spS);
