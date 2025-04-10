@@ -3,6 +3,8 @@ import { init, id } from "@instantdb/admin";
 
 export async function POST(request) {
   try {
+    console.log("Request headers:", request.headers);
+    console.log("Request body:", await request.text()); // Antes de parsear JSON
     // Verificar que hay cuerpo en la solicitud
     if (!request.body) {
       return NextResponse.json(
