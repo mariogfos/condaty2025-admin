@@ -1,5 +1,6 @@
 'use client'
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import RenderForm from "./RenderForm/RenderForm";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 // import styles from "./Educations.module.css";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -16,12 +17,25 @@ const mod = {
   permiso: "",
   extraData: true,
   noWaiting: true,
-//   onHideActions: (item: any) => {
-//     return {
-//       hideEdit: item.is_assigned == "1",
-//       hideDel: item.is_assigned == "1",
-//     };
-//   },
+  renderForm: (props: {
+    item: any;
+    setItem: any;
+    errors: any;
+    extraData: any;
+    open: boolean;
+    onClose: any;
+    user: any;
+    execute: any;
+    setErrors: any;
+    action: any;
+    reLoad: any;
+  }) => {
+    return (
+      <RenderForm
+        {...props}
+      />
+    );
+  },
 };
 const paramsInitial = {
     perPage: 10,
