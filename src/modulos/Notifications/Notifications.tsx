@@ -70,7 +70,8 @@ const Notifications = () => {
           width: "100%",
           onRender: (props: any) => {
             try {
-              let x = props.item.message.replace(/\\/g, "");
+              // Mejor manejo de caracteres especiales
+              let x = props.item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
               const parsedMessage = JSON.parse(x);
               
               // Verificar si la notificación está en localStorage
@@ -143,8 +144,8 @@ const Notifications = () => {
         notif: 0,
       }));
 
-      // Parse message
-      let x = item.message.replace(/\\/g, "");
+      // Parse message con mejor manejo de caracteres especiales
+      let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
       const parsedMessage = JSON.parse(x);
 
       // Navegar según el tipo de notificación
@@ -173,7 +174,8 @@ const Notifications = () => {
     try {
       let parsedMessage = { msg: { title: "", body: "" } };
       try {
-        let x = item.message.replace(/\\/g, "");
+        // Mejor manejo de caracteres especiales
+        let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
         parsedMessage = JSON.parse(x);
       } catch (error) {
         console.error("Error parsing message:", error);
