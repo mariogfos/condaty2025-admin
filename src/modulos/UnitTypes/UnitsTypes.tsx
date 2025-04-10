@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 
 const mod: ModCrudType = {
-  modulo: "type",
+  modulo: "types",
   singular: "Tipo de unidad",
   plural: "Tipos de unidades",
   // import: true,
@@ -42,37 +42,8 @@ const UnitsType = () => {
         form: { type: "text" },
       },
     
-      description: {
-        rules: [],
-        api: "ae",
-        label: "Nombre del permiso",
-        form: { type: "text" },
-        list: true,
-      },
-      ability_category_id: {
-        rules: [],
-        api: "ae",
-        label: "Categoría",
-        width: "200px",
-        // options: (extraData: any) => {
-        //   let data: any = [];
-        //   // let data: any = [{ id: "T", name: "Todas" }];
-        //   extraData?.ability_categories?.map((c: any) => {
-        //     data.push({
-        //       id: c.id,
-        //       name: c.name,
-        //     });
-        //   });
-        //   return data;
-        // },
-        form: {
-          type: "select",
-          optionsExtra: "ability_categories",
-          label: "Seleccionar Categoría",
-          optionValue:"id"
-        },
-        list: true,
-      },
+
+    
     };
   }, []);
 

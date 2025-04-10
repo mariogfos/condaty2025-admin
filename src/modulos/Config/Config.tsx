@@ -240,6 +240,7 @@ const Config = () => {
             { value: "C", text: "Condominio" },
             { value: "P", text: "Pagos" },
             { value: "M", text: "Morosidad" },
+            { value: "T", text: "Tipos de unidades" },
           ]}
           sel={typeSearch}
           setSel={setTypeSearch}
