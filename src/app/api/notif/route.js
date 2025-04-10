@@ -8,11 +8,11 @@ export async function POST(request) {
   });
   const { id: _id, payload, channel, event } = await request.json();
   // if (!_id) {
-  // console.log(
-  //   "instant:",
-  //   id,
-  //   process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX
-  // );
+  console.log(
+    "instant:",
+    id,
+    process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX
+  );
   if (!_id || _id != process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 });
   }
