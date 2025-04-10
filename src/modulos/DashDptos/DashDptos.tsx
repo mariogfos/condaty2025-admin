@@ -65,6 +65,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
     fullType: "DET",
     dpto_id: id,
   });
+  const { data: extraData } = useAxios("/dptos", "GET", {
+    fullType: "EXTRA"
+  });
 
   const datas = dashData?.data || {};
 
@@ -498,23 +501,23 @@ const DashDptos = ({ id }: DashDptosProps) => {
         buttonText="Guardar"
       >
         <div className={styles.modalContent}>
-          <Select
-            placeholder="Selecciona al nuevo titular"
-            name="owner_id"
-            error={errorsT.owner_id}
-            required={true}
-            value={formState.owner_id || ""}
-            onChange={(e) =>
-              setFormState({ ...formState, owner_id: e.target.value })
-            }
-            options={(datas?.owners || []).map((owner: any) => ({
-              ...owner,
-              name: `${getFullName(owner)}`,
-            }))}
-            optionLabel="name"
-            optionValue="id"
-            iconRight={<IconArrowDown />}
-          />
+        <Select
+        placeholder="Selecciona al nuevo titular"
+        name="owner_id"
+        error={errorsT.owner_id}
+        required={true}
+        value={formState.owner_id || ""}
+        onChange={(e) =>
+          setFormState({ ...formState, owner_id: e.target.value })
+        }
+        options={(extraData?.data?.homeowners || []).map((owner: any) => ({
+          ...owner,
+          name: `${getFullName(owner)}`,
+        }))}
+        optionLabel="name"
+        optionValue="id"
+        iconRight={<IconArrowDown />}
+      />
         </div>
       </DataModal>
       {/* Modales de Historial */}
