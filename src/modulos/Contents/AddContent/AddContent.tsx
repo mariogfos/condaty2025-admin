@@ -464,6 +464,7 @@ const AddContent = ({
                 prefix={"CONT"}
                 images={formState?.images}
                 item={formState}
+                
                 // editor={}
                 // sizePreview={_field.sizePreview}
                 // autoOpen={data?.action == "add"}
