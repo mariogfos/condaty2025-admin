@@ -110,12 +110,11 @@ const AddContent = ({
   }, [formState.destiny]);
 
   const handleChangeInput = (e: any) => {
-
     let value = e.target.value;
     if (e.target?.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
-   
+
     setFormState({ ...formState, [e.target.name]: value });
     // if (e.target.name == "destiny" && value > 0) {
     //   setOpenDestiny(true);
@@ -404,10 +403,14 @@ const AddContent = ({
                 icon={<IconGallery size={16} />}
                 isActive={formState.type == "I"}
                 text="Contenido multimedia"
-                onClick={() => setFormState({  ...formState,
-                  type: "I",
-                  url: null,
-                  file: null, })}
+                onClick={() =>
+                  setFormState({
+                    ...formState,
+                    type: "I",
+                    url: null,
+                    file: null,
+                  })
+                }
                 disabled={action == "edit"}
               />
               {formState.isType == "P" && (
@@ -417,10 +420,14 @@ const AddContent = ({
                     isActive={formState.type == "V"}
                     icon={<IconVideo size={16} />}
                     text={"Video"}
-                    onClick={() => setFormState({ ...formState,
-                      type: "V",
-                      file: null,
-                      avatar: null,})}
+                    onClick={() =>
+                      setFormState({
+                        ...formState,
+                        type: "V",
+                        file: null,
+                        avatar: null,
+                      })
+                    }
                     disabled={action == "edit"}
                   />
                   {/* )} */}
@@ -429,12 +436,14 @@ const AddContent = ({
                     isActive={formState.type == "D"}
                     icon={<IconDocs size={16} />}
                     text="Documento"
-                    onClick={() =>   setFormState({
-                      ...formState,
-                      type: "D",
-                      url: null,
-                      avatar: null,
-                    })}
+                    onClick={() =>
+                      setFormState({
+                        ...formState,
+                        type: "D",
+                        url: null,
+                        avatar: null,
+                      })
+                    }
                     disabled={action == "edit"}
                   />
                   {/* )} */}
