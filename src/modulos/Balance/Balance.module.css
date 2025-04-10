@@ -103,45 +103,7 @@
   margin-bottom: 2rem;
 }
 
-/* Table styling for Ingresos, Egresos, and Resumen General */
-:global(.table-container) {
-  background-color: var(--darkv1);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
 
-:global(.table-header) {
-  background-color: var(--darkv2);
-  color: var(--light-v1);
-  padding: 1rem;
-  font-weight: 600;
-  border-radius: 0.5rem 0.5rem 0 0;
-}
-
-:global(.table-row) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.2s;
-}
-
-:global(.table-row:hover) {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-:global(.table-cell) {
-  padding: 0.875rem 1rem;
-  color: var(--light-v2);
-}
-
-:global(.table-footer) {
-  background-color: var(--darkv2);
-  color: var(--light-v1);
-  padding: 1rem;
-  font-weight: 600;
-  border-radius: 0 0 0.5rem 0.5rem;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
