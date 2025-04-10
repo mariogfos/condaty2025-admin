@@ -5,7 +5,7 @@
 }
 
 .surveyquestion {
-  background-color: var(--cBlackV1);
+  background-color: var(--cWhiteV1);
   border-radius: var(--bRadius);
   padding: var(--spM);
 
