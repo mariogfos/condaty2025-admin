@@ -19,7 +19,7 @@ import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
-import OwnersRenderView from "../Owners/RenderView";
+import OwnersRenderView from "../Owners/RenderView/RenderView";
 
 interface DashDptosProps {
   id: string | number;

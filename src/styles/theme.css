@@ -1,29 +1,29 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 :root {
-  --accent: #00E38C;
+  --accent: #00e38c;
   --primary: #fff;
   --secondary: #000;
   --terciary: #595959;
-  --title: #3B3B3B;
-  --subTitle: #1E1E1E;
-  --textMenu: #4C4C4C;
+  --title: #3b3b3b;
+  --subTitle: #1e1e1e;
+  --textMenu: #4c4c4c;
   --tBlack: #3b3b3b;
   --tWhite: #fafafa;
   --pBlack: #212121;
-  --info: #00E38C;
-  --success: #00E38C;
-  --warning: #FFCD3D;
-  --danger: #FF0000;
+  --info: #00e38c;
+  --success: #00e38c;
+  --warning: #ffcd3d;
+  --danger: #ff0000;
 
   /* Accents */
-  --accentColor: #00E38C;
-  --accentv1: #4EE7AC;
-  --accentv2: #BFFFE7;
+  --accentColor: #00e38c;
+  --accentv1: #4ee7ac;
+  --accentv2: #bfffe7;
 
   /* Etiquetas */
-  --accentBg: #00E38C26;
-  --errorBg: #EA433526;
+  --accentBg: #00e38c26;
+  --errorBg: #ea433526;
 
   /* Darks */
   --darkColor: #212121;
@@ -31,31 +31,31 @@
   --darkv2: #333536;
 
   /* Lights */
-  --lightColor: #FAFAFA;
-  --lightv1: #EEEEEE;
-  --lightv2: #D8D8D8;
-  --lightv3: #A7A7A7;
+  --lightColor: #fafafa;
+  --lightv1: #eeeeee;
+  --lightv2: #d8d8d8;
+  --lightv3: #a7a7a7;
 
   /* Alerts */
-  --hightAlert: #FF5B4D;
-  --mediumAlert: #F37F3D;
-  --lowAlert: #FDD671;
-  --warning: #FBBC05;
-  --error: #EA4335;
-  --success: #34A853;
-  --info: #4285FA;
+  --hightAlert: #ff5b4d;
+  --mediumAlert: #f37f3d;
+  --lowAlert: #fdd671;
+  --warning: #fbbc05;
+  --error: #ea4335;
+  --success: #34a853;
+  --info: #4285fa;
 
-
-
+  /* sidebar */
+  --cSidebar: #246950;
 
   /* Paleta de colores principales */
   --cPrimary: #00e38c;
   --cSecondary: #212121;
   --cTerciary: #393c3f;
   --cAccent: #00e38c;
-  --cWhite: #FAFAFA;
-  --cWhiteV1: #A7A7A7;
-  --cWhiteV2: #4A4A4A;
+  --cWhite: #fafafa;
+  --cWhiteV1: #a7a7a7;
+  --cWhiteV2: #4a4a4a;
   --cWhiteV3: #ffffff0d;
   --cBlack: #212121;
   --cBlackV1: #292929;
@@ -67,28 +67,25 @@
   --cHoverInfo: #39acec33;
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
-  --cHoverBigSidebar:#1F2D27;
-  --cHightAlertHover: #FF5B4D33;  
-  --cMediumAlertHover:#F37F3D33;  
-  --cLowAlertHover:   #FDD67133;
+  --cHoverBigSidebar: #1f2d27;
+  --cHightAlertHover: #ff5b4d33;
+  --cMediumAlertHover: #f37f3d33;
+  --cLowAlertHover: #fdd67133;
   /* Paleta de los toast */
-  --cError: #E46055;
-  --cSuccess: #34A853;
-  --cInfo: #4285FA;
-  --cWarning: #E9B01E;
+  --cError: #e46055;
+  --cSuccess: #34a853;
+  --cInfo: #4285fa;
+  --cWarning: #e9b01e;
 
+  --cBigSidebar: #246950;
 
-  --cBigSidebar:#246950; 
+  --cCompl1: #faff7f;
+  --cCompl2: #a2faa3;
+  --cCompl3: #b382d9;
+  --cCompl4: #e9b01e;
+  --cCompl5: #f7b267;
+  --cCompl6: #ff7f51;
 
-
-  --cCompl1:#FAFF7F;
-  --cCompl2:#A2FAA3;
-  --cCompl3:#B382D9;
-  --cCompl4:#E9B01E;
-  --cCompl5:#F7B267;
-  --cCompl6:#FF7F51;
-
- 
   /* Paleta de colores Random */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;
@@ -158,7 +155,7 @@
 
 html,
 body {
-  max-width:100%;
+  max-width: 100%;
   display: flex;
   overflow-x: hidden;
   font-size: var(--sM);

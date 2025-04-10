@@ -124,3 +124,75 @@
     padding: 0.5rem;
   }
 }
+
+/* Añadir al Activities.module.css */
+
+/* Estilos para los iconos de tipo de pedido */
+.typeIconContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+}
+
+/* Corrección para el centrado vertical de iconos */
+.iconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--darkv1);
+  flex-shrink: 0;
+  position: relative;
+}
+
+
+
+.typeIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+}
+
+.typeName {
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Estilos específicos para cada tipo de pedido */
+.iconCircle svg {
+  opacity: 0.9;
+}
+
+/* Colores para cada tipo de pedido */
+.iconDelivery {
+  color: #4ade80; /* verde */
+}
+
+.iconTaxi {
+  color: #facc15; /* amarillo */
+}
+
+.iconEmail {
+  color: #60a5fa; /* azul */
+}
+
+.iconOther {
+  color: #a78bfa; /* morado */
+}
+
+.iconFoot {
+  color: #fb923c; /* naranja */
+}
+
+.iconVehicle {
+  color: #f87171; /* rojo */
+}
+

@@ -1,0 +1,303 @@
+.container {
+  padding: 20px;
+  color: var(--light-v1);
+}
+
+.iconHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.iconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--darkv2);
+  margin: 0 auto;
+  border: 2px solid var(--light-v3);
+  position: relative;
+}
+
+.qrIcon {
+  width: 40px;
+  height: 40px;
+  color: var(--light-v1);
+}
+
+.invitationTitle {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--light-v1);
+}
+
+.invitationStatus {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 16px;
+  display: inline-block;
+  margin: 0 auto;
+  margin-bottom: 16px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.statusActive {
+  background-color: rgba(72, 187, 120, 0.2);
+  color: #48bb78;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.statusCancelled {
+  background-color: rgba(245, 101, 101, 0.2);
+  color: #f56565;
+  border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
+.statusExpired {
+  background-color: rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+  border: 1px solid rgba(237, 137, 54, 0.3);
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--light-v3);
+  opacity: 0.3;
+  margin: 16px 0;
+}
+
+.detailsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+}
+
+.label {
+  flex: 0 0 40%;
+  text-align: right;
+  padding-right: 16px;
+  font-weight: 500;
+  color: var(--light-v1);
+}
+
+.value {
+  flex: 0 0 60%;
+  color: var(--light-v3);
+}
+
+.guestsHeader {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.guestsTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--light-v1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.guestsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 16px;
+}
+
+.guestItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.guestName {
+  font-weight: 500;
+  color: var(--light-v2);
+}
+
+.guestStatus {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.guestAccessed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+}
+
+.guestNotAccessed {
+  color: var(--light-v3);
+  font-style: italic;
+}
+
+.accessInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.accessEntry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+}
+
+.accessExit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--error);
+}
+
+.accessIcon {
+  color: var(--accent);
+}
+
+.exitIcon {
+  color: var(--error);
+}
+
+.actionContainer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.qrButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.qrButton:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: var(--error);
+  border: 1px solid var(--error);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--error);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.buttonIcon {
+  margin-right: 4px;
+}
+
+/* Animation for the icon */
+@keyframes qrPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.iconCircle {
+  animation: qrPulse 2s infinite ease-in-out;
+}
+
+/* Scrollbar styling for the guests list */
+.guestsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.guestsList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.guestsList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.guestsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .detailRow {
+    flex-direction: column;
+  }
+  
+  .label, .value {
+    flex: 1 0 100%;
+    text-align: left;
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  
+  .guestItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .actionContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .qrButton, .cancelButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

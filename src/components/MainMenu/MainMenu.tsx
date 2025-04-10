@@ -38,7 +38,9 @@ const MainMenu = ({
 }: PropsType) => {
   const { isMobile } = useScreenSize();
   const { setStore } = useAuth();
-  const client = user?.clients?.filter((item:any) => item?.id === user?.client_id)[0];
+  const client = user?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
+  )[0];
   // const play = () => {
   //   sound
   //     .play()
@@ -82,26 +84,26 @@ const MainMenu = ({
             label="Administración"
             icon={<IconMonitorLine />}
             items={[
-              { href: "/dptos", label: UnitsType[client?.type_dpto]+"s" },
-              { href: "/activities", label: "Actividades" },
+              { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
+              { href: "/activities", label: "Historial" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-            <MainmenuDropdown
-              label="Usuarios"
-              icon={<IconGroup/>}
-              items={[
-                { href: "/guards", label: "Guardias" },
-                { href: "/owners", label: "Residentes" },
-                { href: "/homeowners", label: "Propietarios" },
-                { href: "/users", label: "Administradores" },
-              ]}
-              collapsed={collapsed}
-              setSideBarOpen={setSideBarOpen}
-            /> 
+          <MainmenuDropdown
+            label="Usuarios"
+            icon={<IconGroup />}
+            items={[
+              { href: "/guards", label: "Guardias" },
+              { href: "/owners", label: "Residentes" },
+              { href: "/homeowners", label: "Propietarios" },
+              { href: "/users", label: "Administradores" },
+            ]}
+            collapsed={collapsed}
+            setSideBarOpen={setSideBarOpen}
+          />
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}
@@ -117,6 +119,13 @@ const MainMenu = ({
           <MainmenuItem
             href="/binnacle"
             label="Bitácora"
+            icon={<IconBitacora />}
+            collapsed={collapsed}
+          />
+
+          <MainmenuItem
+            href="/areas"
+            label="Areas sociales"
             icon={<IconBitacora />}
             collapsed={collapsed}
           />

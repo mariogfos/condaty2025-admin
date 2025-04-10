@@ -3,11 +3,12 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
 import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
-import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+
 import HeadTitle from "../HeadTitle/HeadTitle";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 
 type PropsType = {
   isTablet: boolean;
@@ -45,8 +46,7 @@ const Header = ({
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
-    // { name: "Metas", route: "/goals" },
-    // { name: "Gamificación", route: "/gamification" },
+
   ];
 
   const Title = () => {
@@ -142,21 +142,19 @@ const Header = ({
         </div>
 
         <div className={styles["header-controls"]}>
-          <NotificationIcon />
-          <div className={styles.tooltip}>
-          <div className={styles.iconOuterContainer}>
-            <div className={styles.settingContainer}>
-              <Dropdown
-                trigger={<IconSetting style={{ cursor: "pointer" }} />}
-                items={menuItems}
-              />
+        <NotificationIcon />
+        <Dropdown
+          trigger={
+            <div className={styles.iconOuterContainer}>
+              <div className={styles.settingContainer}>
+                <IconSetting />
+              </div>
             </div>
-          </div>
-          </div>
-          
-
-          <ProfileIcon />
-        </div>
+          }
+          items={menuItems}
+        />
+        <ProfileIcon />
+      </div>
       </div>
     );
 };

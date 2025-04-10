@@ -20,6 +20,10 @@ const paramsInitial = {
   page: 1,
   searchBy: "",
 };
+const lTitulars = [
+  { id: "S", name: "Sin Titular" },
+  { id: "T", name: "Con Titular" },
+];
 
 const Dptos = () => {
   const router = useRouter();
@@ -40,6 +44,7 @@ const Dptos = () => {
     permiso: "",
     export: true,
     extraData: true,
+    import: true,
     hideActions: {
       view: true,
       add: false,
@@ -116,30 +121,46 @@ const Dptos = () => {
         // form: { type: "text" },
         list: {
           onRender: (props: any) => {
-            return props?.item?.titular?.owner ? (
-              <div className={styles.titularRow}>
+            // Verificar si titular existe antes de intentar acceder a sus propiedades
+            if (!props?.item?.titular) {
+              return <div className={styles.noTitular}>Sin titular</div>;
+            }
+            
+            // También verificar si titular.owner existe
+            if (!props?.item?.titular?.owner) {
+              return <div className={styles.noTitular}>Titular sin datos</div>;
+            }
+            
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  src={
-                    props?.item?.titular?.id &&
-                    props?.item?.titular?.owner?.updated_at
-                      ? getUrlImages(
-                          "/OWNER" +
-                            "-" +
-                            props?.item?.titular?.owner_id +
-                            ".webp?d=" +
-                            props?.item?.titular?.owner?.updated_at
-                        )
-                      : ""
-                  }
+                  src={getUrlImages(
+                    "/OWNER-" +
+                      props?.item?.titular?.owner_id +
+                      ".webp?d=" +
+                      props?.item?.titular?.owner?.updated_at
+                  )}
                   name={getFullName(props?.item?.titular?.owner)}
+                  square
                 />
-                {getFullName(props?.item?.titular?.owner)}
+                <div>
+                  <p>{getFullName(props?.item?.titular?.owner)}</p>
+                </div>
               </div>
-            ) : (
-              "Sin titular"
             );
           },
         },
+        filter: {
+          label: "Titular",
+         
+          options: () => [
+            { id: "", name: "Todos" },
+            ...lTitulars
+          ],
+          optionLabel: "name",
+          optionValue: "id"
+        },
+        import: true
       },
     };
   }, []);

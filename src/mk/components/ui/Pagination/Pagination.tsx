@@ -1,9 +1,6 @@
 import {
   IconArrowBack,
-  IconArrowLeft,
   IconArrowNext,
-  IconArrowRight,
-
 } from "@/components/layout/icons/IconsBiblioteca";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./pagination.module.css";
@@ -34,6 +31,9 @@ const Pagination = ({
 }: PropsType) => {
   const [pageInput, setPageInput] = useState<string>(currentPage.toString());
 
+  // Asegurar que totalPages sea siempre al menos 1
+  const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
+
   // Actualizar el input cuando cambia la página actual
   useEffect(() => {
     setPageInput(currentPage.toString());
@@ -41,12 +41,12 @@ const Pagination = ({
 
   const { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage } =
     useMemo(() => {
-      const firstPage = totalPages > 1 ? Math.max(1, currentPage - 3) : 1;
+      const firstPage = safeTotal > 1 ? Math.max(1, currentPage - 3) : 1;
       const lastPage =
-        totalPages > 1 ? Math.min(currentPage + 3, totalPages) : 1;
+        safeTotal > 1 ? Math.min(currentPage + 3, safeTotal) : 1;
 
       const goToNextPage = (): void => {
-        onPageChange(Math.min(currentPage + 1, totalPages));
+        onPageChange(Math.min(currentPage + 1, safeTotal));
       };
 
       const goToPreviousPage = (): void => {
@@ -54,7 +54,7 @@ const Pagination = ({
       };
 
       const goToPage = (page: number): void => {
-        if (page >= 1 && page <= totalPages) {
+        if (page >= 1 && page <= safeTotal) {
           onPageChange(page);
         }
       };
@@ -66,7 +66,7 @@ const Pagination = ({
         return Array.from({ length: end - start + 1 }, (_, i) => start + i);
       };
       return { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage };
-    }, [currentPage, totalPages, onPageChange]);
+    }, [currentPage, safeTotal, onPageChange]);
 
   // Manejar la entrada de la página
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,11 +82,30 @@ const Pagination = ({
     }
   };
 
+  // Manejar pulsación de tecla en el input
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const pageNumber = parseInt(pageInput);
+      if (!isNaN(pageNumber)) {
+        goToPage(pageNumber);
+      }
+    }
+  };
+
   return (
     <div className={`${styles.pagination} ${className}`}>
       {/* Texto informativo a la izquierda */}
       <div className={styles.paginationInfo}>
-        <span>ir a la página {currentPage}</span>
+        <span className={styles.currentPageInfo}>
+          
+          <button 
+            className={styles.goToPageButton}
+            onClick={() => goToPage(1)}
+          >
+            ir a la página 1
+          </button>
+        </span>
       </div>
 
       {/* Botones de navegación en el centro */}
@@ -96,25 +115,29 @@ const Pagination = ({
           onClick={goToPreviousPage}
           disabled={currentPage <= 1}
         >
-          <IconArrowBack size={18} color="var(--cWhite)" />
+          <IconArrowBack size={16} color="var(--cWhite)" />
         </button>
         <button
           className={styles.nextButton}
           onClick={goToNextPage}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= safeTotal}
         >
-          Siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
+          Pagina Siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
         </button>
       </div>
 
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
-          <span>ir a una página, 1/{totalPages}</span>
+          <span className={styles.pageInfo}>
+            <span className={styles.currentPageLabel}>Página</span>
+            <span className={styles.totalPages}>{currentPage}/{safeTotal}</span>
+          </span>
           <input
             type="text"
             value={pageInput}
             onChange={handlePageInputChange}
+            onKeyDown={handleKeyDown}
             className={styles.pageInput}
             aria-label="Ir a página"
           />
