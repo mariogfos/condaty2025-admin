@@ -3,7 +3,7 @@
 import styles from "./Owners.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -37,42 +37,48 @@ const Owners = () => {
     }) => <RenderView {...props} />,
     extraData: true,
   };
-  const [ disabled, setDisabled ] = useState(false);
-  const onBlurCi = async(e:any,{setItem, item,}:any)  => {
-    console.log("onBlurCi", e.target.value);
-    const { data, error } =  await execute("/owners?", "GET", {
-      _exist: 1,
-      ci: e.target.value,
-    }
-    ,false,true);
-    
-  
+  const onBlurCi = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "") return;
+    const { data, error } = await execute(
+      "/owners",
+      "GET",
+      {
+        _exist: 1,
+        ci: e.target.value,
+      },
+      false,
+      true
+    );
 
     if (data?.success && data?.data?.length > 0) {
-      //relleno datos
-      const filteredData = data.data.filter((item: any) => {
-        return item.ci === e.target.value;
-      })
-     setItem({
-      ...item,
-      ci: filteredData[0].ci,
-      name: filteredData[0].name,
-      middle_name: filteredData[0].middle_name,
-      last_name: filteredData[0].last_name,
-      mother_last_name: filteredData[0].mother_last_name,
-      email: filteredData[0].email,
-      phone: filteredData[0].phone,
-  
-     })
-      setDisabled(true);
-      showToast("El residente ya existe, vincular?", "warning");
-      //setItem()
+      const filteredData = data.data;
+      props.setItem({
+        ...props.item,
+        ci: filteredData[0].ci,
+        name: filteredData[0].name,
+        middle_name: filteredData[0].middle_name,
+        last_name: filteredData[0].last_name,
+        mother_last_name: filteredData[0].mother_last_name,
+        email: filteredData[0].email,
+        phone: filteredData[0].phone,
+        _disabled: true,
+      });
+      showToast(
+        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
     } else {
-      setDisabled(false);
+      props.setItem({
+        ...props.item,
+        _disabled: false,
+      });
       //no existe
     }
-  };
+  }, []);
 
+  const onDisbled = ({ item }: any) => {
+    return item._disabled;
+  };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -123,14 +129,14 @@ const Owners = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: disabled ? false : {
+        form: {
           type: "imageUpload",
           prefix: "OWNER",
           style: { width: "100%" },
         },
       },
       password: {
-        rules: disabled ? [] : ["required*add"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -163,15 +169,19 @@ const Owners = () => {
                     label="Carnet de Identidad"
                     error={props.error}
                     onBlur={(e: any) => onBlurCi(e, props)}
-                    disabled={props?.field?.action === "edit" }
+                    disabled={props?.field?.action === "edit"}
                   />
-                  {props?.field?.action === "add"   && (
+                  {props?.field?.action === "add" && !props.item._disabled && (
                     <InputPassword
                       name="password"
                       value={props?.item?.password}
                       onChange={props.onChange}
                       label="Contraseña"
                       error={props.error}
+                      // disabled={
+                      //   props?.field?.action === "edit" ||
+                      //   props.item._disabled === true
+                      // }
                     />
                   )}
                 </div>
@@ -189,7 +199,7 @@ const Owners = () => {
         label: "Primer nombre",
         form: {
           type: "text",
-          disabled: true,
+          disabled: onDisbled,
         },
 
         list: false,
@@ -199,7 +209,10 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       last_name: {
@@ -211,7 +224,10 @@ const Owners = () => {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       mother_last_name: {
@@ -219,7 +235,10 @@ const Owners = () => {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", disabled },
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
         list: false,
       },
       units: {
@@ -240,7 +259,7 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
-          disabled
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },
@@ -258,16 +277,12 @@ const Owners = () => {
         label: "Celular (Opcional)",
         form: {
           type: "text",
-          disabled
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },
     };
   }, []);
-
-  const onImport = () => {
-    setOpenImport(true);
-  };
 
   const {
     userCan,
@@ -279,15 +294,12 @@ const Owners = () => {
     onDel,
     showToast,
     execute,
-    reLoad,
-    getExtraData,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
-    _onImport: onImport,
   });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -295,11 +307,6 @@ const Owners = () => {
     onEdit,
     onDel,
   });
-
-  const [openImport, setOpenImport] = useState(false);
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
 
   const renderItem = (
     item: Record<string, any>,
@@ -325,5 +332,4 @@ const Owners = () => {
     </div>
   );
 };
-
 export default Owners;
