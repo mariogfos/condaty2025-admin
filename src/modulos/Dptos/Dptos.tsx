@@ -9,10 +9,12 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
+
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
+import RenderForm from "./RenderForm";
 
 const paramsInitial = {
   fullType: "L",
@@ -51,6 +53,15 @@ const Dptos = () => {
       edit: false,
       del: false,
     },
+    renderForm: (props: {
+      item: any;
+      setItem: any;
+      extraData: any;
+      open: boolean;
+      onClose: any;
+      user: any;
+      execute: any;
+    }) => <RenderForm {...props} />,
   };
   const fields = useMemo(() => {
     return {
@@ -70,6 +81,29 @@ const Dptos = () => {
         label: "Descripción",
         form: { type: "text" },
         list: true,
+      },
+      type: {
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo de unidad",
+        form: { type: "select",
+          options: (data: any) => {
+            
+            let dataList: any = [];
+            data?.extraData?.type?.map((c: any) => {
+              dataList.push({
+                id: c.id,
+                name: c.name,
+              });
+            });
+            return dataList;
+          },
+         },
+        list: {
+          onRender: (props: any) => {
+            return (  props?.item?.type?.name || "Sin tipo")
+        }
+        },
       },
       expense_amount: {
         rules: ["required"],
@@ -109,6 +143,7 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
+            console.log(props, "props");
             return getFullName(props?.item?.homeowner) || "Sin propietario";
           },
         },
