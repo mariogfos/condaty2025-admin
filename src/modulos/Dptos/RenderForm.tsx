@@ -42,9 +42,27 @@ const RenderForm = ({
       errors: errs,
     });
     errs = checkRules({
-      value: formState.status,
+      value: formState.type,
       rules: ["required"],
-      key: "status",
+      key: "type",
+      errors: errs,
+    });
+    errs = checkRules({
+      value: formState.expense_amount,
+      rules: ["required"],
+      key: "expense_amount",
+      errors: errs,
+    });
+    errs = checkRules({
+      value: formState.dimension,
+      rules: ["required"],
+      key: "dimension",
+      errors: errs,
+    });
+    errs = checkRules({
+      value: formState.homeowner_id,
+      rules: ["required"],
+      key: "homeowner_id",
       errors: errs,
     });
     setErrors(errs);
@@ -60,8 +78,10 @@ const RenderForm = ({
       {
         nro: formState.nro,
         description: formState.description,
-        status: formState.status,
-        owner_id: formState.owner_id,
+        type: formState.type,
+        expense_amount: formState.expense_amount,
+        dimension: formState.dimension,
+        homeowner_id: formState.homeowner_id,
       },
       false
     );
@@ -75,20 +95,21 @@ const RenderForm = ({
     }
   };
 
-  const ownerOptions = extraData?.owners?.map((owner: any) => ({
-    id: owner.id,
-    name: getFullName(owner),
+  const homeownerOptions = extraData?.homeowners?.map((c: any) => ({
+    id: c.id,
+    name: getFullName(c),
   })) || [];
 
   return (
-    <DataModal open={open} onClose={onClose} title="Departamento" onSave={onSave}>
+    <DataModal open={open} onClose={onClose} title={formState.id ? "Editar Unidad" : "Crear Unidad"} onSave={onSave}>
       <Input
-        label="Número de departamento"
+        label="Número de Unidad"
         name="nro"
         value={formState.nro}
         onChange={handleChange}
         error={errors}
       />
+
       <TextArea
         label="Descripción"
         name="description"
@@ -96,23 +117,40 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       />
+
       <Select
-        label="Estado"
-        name="status"
-        value={formState.status}
+        label="Tipo de unidad"
+        name="type"
+        value={formState.type}
+        options={extraData?.type || []}
         onChange={handleChange}
-        options={[
-          { id: "A", name: "Activo" },
-          { id: "X", name: "Inactivo" },
-        ]}
         error={errors}
       />
-      <Select
-        label="Titular"
-        name="owner_id"
-        value={formState.owner_id}
+
+      <Input
+        label="Cuota (Bs)"
+        name="expense_amount"
+        value={formState.expense_amount}
         onChange={handleChange}
-        options={ownerOptions}
+        type="number"
+        error={errors}
+      />
+
+      <Input
+        label="Dimensiones en m²"
+        name="dimension"
+        value={formState.dimension}
+        onChange={handleChange}
+        type="number"
+        error={errors}
+      />
+
+      <Select
+        label="Propietario"
+        name="homeowner_id"
+        value={formState.homeowner_id}
+        onChange={handleChange}
+        options={homeownerOptions}
         error={errors}
       />
     </DataModal>
