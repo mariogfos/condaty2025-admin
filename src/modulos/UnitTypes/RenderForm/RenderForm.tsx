@@ -41,9 +41,14 @@ const RenderForm = ({
   action,
   reLoad,
 }: RenderFormProps) => {
-  const [extraFields, setExtraFields] = useState<ExtraField[]>(
-    item?.extraFields || []
-  );
+  const [extraFields, setExtraFields] = useState<ExtraField[]>(() => {
+    if (action === 'add') return [];
+   
+    return (extraData?.fields || []).filter((field: any) => field.type_id === item.id).map((field: any) => ({
+      name: field.name,
+      value: field.type || 'text'
+    }));
+  });
   const [formState, setFormState] = useState({ ...item });
   const {showToast} = useAuth();
 
