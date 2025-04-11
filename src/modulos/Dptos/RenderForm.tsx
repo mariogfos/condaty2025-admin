@@ -196,17 +196,25 @@ const RenderForm = ({
       />
 
       {typeFields.map((field: any) => (
-        <div key={field.id} style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <input
-              type="checkbox"
-              id={`enable_${field.id}`}
-              name={`enable_${field.id}`}
-              checked={enabledFields[field.id] || false}
+        <div key={field.id} style={{ marginBottom: 'var(--spS)',display:'flex' ,gap:5}}>
+          <div style={{ display: 'flex', alignItems: 'center',width:'50%'}}>
+            <Input
+              name={`field_extra_${field.id}`}
+              value={ field.name}
               onChange={handleChange}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <label htmlFor={`enable_${field.id}`}>{field.name}</label>
+              type={field.type}
+              error={errors}
+              disabled={true}
+              iconRight={  <input
+                type="checkbox"
+                id={`enable_${field.id}`}
+                name={`enable_${field.id}`}
+                checked={enabledFields[field.id] || false}
+                onChange={handleChange}
+                />}
+              />
+            
+
           </div>
           {enabledFields[field.id] && (
             <Input
@@ -216,6 +224,8 @@ const RenderForm = ({
               onChange={handleChange}
               type={field.type}
               error={errors}
+              style={{ width:'50%' }}
+
             />
           )}
         </div>
