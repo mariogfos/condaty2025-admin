@@ -198,7 +198,7 @@ const Users = () => {
         form: {
           type: "select",
           optionsExtra: "roles",
-          optionLabel: "description",
+          optionLabel: "name",
           optionValue: "id",
         },
 

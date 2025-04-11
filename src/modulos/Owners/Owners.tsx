@@ -36,7 +36,7 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    extraData: true,
+    // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
