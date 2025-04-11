@@ -210,7 +210,7 @@ const Users = () => {
                 {
                   props?.extraData?.roles.find(
                     (i: any) => i.id === props.item.role_id
-                  )?.description
+                  )?.name
                 }
               </div>
             );
