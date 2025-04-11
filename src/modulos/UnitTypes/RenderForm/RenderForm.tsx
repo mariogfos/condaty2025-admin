@@ -43,11 +43,16 @@ const RenderForm = ({
   const [extraFields, setExtraFields] = useState<ExtraField[]>(
     item?.extraFields || []
   );
-  const [formState, setFormState] = useState({
-    ...item,
- 
-  })
-  console.log(item,'itetetmemmt',action !== 'add' && item.is_fixed === "A")
+  const [formState, setFormState] = useState({ ...item });
+
+
+
+  const handleChange = (e: any) => {
+    let value = e.target.value;
+
+    setFormState({ ...formState, [e.target.name]: value });
+  };
+
   const handleAddField = () => {
     setExtraFields([...extraFields, { name: '', value: '' }]);
   };
@@ -104,8 +109,8 @@ const RenderForm = ({
       <Input
         name="name"
         label="Nombre de la unidad"
-        value={item?.name || formState?.name || ''}
-        onChange={(e) => setItem({ ...item, name: e.target.value })}
+        value={formState?.name || ''}
+        onChange={handleChange}
         error={errors?.name}
         disabled={action !== 'add' && item.is_fixed === "A"}
         required
@@ -113,8 +118,8 @@ const RenderForm = ({
        <Input
         name="description"
         label="Descripción"
-        value={item?.description || ''}
-        onChange={(e) => setItem({ ...item, description: e.target.value })}
+        value={formState?.description || ''}
+        onChange={handleChange}
       />
       <div className={styles.textContainer}>
         <div>Campos adicionales</div>
