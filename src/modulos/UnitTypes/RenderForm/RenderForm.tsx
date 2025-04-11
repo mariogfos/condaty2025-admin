@@ -5,6 +5,7 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { useState } from 'react';
 import styles from './RenderForm.module.css';
 import { IconTrash } from '@/components/layout/icons/IconsBiblioteca';
+import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
 
 interface ExtraField {
   name: string;
@@ -23,6 +24,7 @@ interface RenderFormProps {
   setErrors: any;
   action: string;
   reLoad: () => void;
+  
 }
 
 const RenderForm = ({
@@ -39,9 +41,13 @@ const RenderForm = ({
   reLoad,
 }: RenderFormProps) => {
   const [extraFields, setExtraFields] = useState<ExtraField[]>(
-    item?.extra_fields || []
+    item?.extraFields || []
   );
-
+  const [formState, setFormState] = useState({
+    ...item,
+ 
+  })
+  console.log(item,'itetetmemmt',action !== 'add' && item.is_fixed === "A")
   const handleAddField = () => {
     setExtraFields([...extraFields, { name: '', value: '' }]);
   };
@@ -57,12 +63,34 @@ const RenderForm = ({
     setExtraFields(newFields);
   };
 
+  const validate = (field: any = "") => {
+    let errors: any = {};
+
+    errors = checkRules({
+      value: formState.name,
+      rules: ["required"],
+      key: "name",
+      errors,
+    });
+
+    setErrors(errors);
+    return errors;
+  }
+
+
   const handleSubmit = async () => {
+    if (hasErrors(validate())) return;
     const formData = {
-      ...item,
-      extra_fields: extraFields
+      ...formState,
+      name: formState.name,
+      description: formState.description || '',
+      fields: extraFields.map(field => ({
+        name: field.name,
+        type: 'text'
+      }))
     };
-    setItem(formData);
+    console.log(formData, 'extra submit');
+    setFormState(formData);
     await execute();
   };
 
@@ -76,10 +104,17 @@ const RenderForm = ({
       <Input
         name="name"
         label="Nombre de la unidad"
-        value={item?.name || ''}
+        value={item?.name || formState?.name || ''}
         onChange={(e) => setItem({ ...item, name: e.target.value })}
         error={errors?.name}
+        disabled={action !== 'add' && item.is_fixed === "A"}
         required
+      />
+       <Input
+        name="description"
+        label="Descripción"
+        value={item?.description || ''}
+        onChange={(e) => setItem({ ...item, description: e.target.value })}
       />
       <div className={styles.textContainer}>
         <div>Campos adicionales</div>
@@ -93,7 +128,8 @@ const RenderForm = ({
             value={field.name}
             onChange={(e) => handleExtraFieldChange(index, 'name', e.target.value)}
             style={{ flex: 1 }}
-            iconRight={<IconTrash onClick={() => handleRemoveField(index)} />}
+            iconRight={<IconTrash onClick={() => handleRemoveField(index)}  style={{cursor:'pointer'}}/>}
+           
           />
     
           {/* <Button
@@ -105,7 +141,7 @@ const RenderForm = ({
 
       <div
         onClick={handleAddField}
-        style={{ marginTop: '10px',color:'var(--cAccent)' }}
+        style={{ marginTop: '10px',color:'var(--cAccent)',cursor:'pointer' }}
       >
         Agregar Campo Extra
       </div>
