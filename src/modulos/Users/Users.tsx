@@ -198,7 +198,7 @@ const Users = () => {
         form: {
           type: "select",
           optionsExtra: "roles",
-          optionLabel: "description",
+          optionLabel: "name",
           optionValue: "id",
         },
 
@@ -210,7 +210,7 @@ const Users = () => {
                 {
                   props?.extraData?.roles.find(
                     (i: any) => i.id === props.item.role_id
-                  )?.description
+                  )?.name
                 }
               </div>
             );
