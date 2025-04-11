@@ -9,7 +9,7 @@
 }
 
 .title {
-  color: #f0f0f0;
+  color: var(--cWhiteV1);
   font-size: 16px;
   font-weight: bold;
 }
@@ -27,12 +27,12 @@
 
 .labelLeft {
   font-size: 14px;
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
   text-align: left;
 }
 .labelRight {
   font-size: 14px;
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
   text-align: right;
 }
 
@@ -47,6 +47,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: var(--cWhiteV1);
 }
 
 .checkbox {
@@ -63,7 +64,7 @@
   justify-content: center;
   font-size: 12px;
   cursor: pointer;
-  border: 1px solid var(--cBlackV2);
+  border: 1px solid var(--cWhiteV1);
 }
 
 .checkbox:checked + .checkboxValue {
@@ -72,7 +73,7 @@
 }
 
 .checkboxValue + .checkboxNumber {
-  color: var(--cBlackV2); /* Color del número debajo del círculo */
+  color: var(--cWhiteV1); /* Color del número debajo del círculo */
   font-size: 12px;
   margin-top: 8px; /* Espacio entre el círculo y el número */
   display: block;

@@ -10,7 +10,7 @@
     }
 
     & > p:first-of-type {
-      color: var(--cBlackV2);
+      color: var(--cWhiteV1);
       font-size: var(--sM);
     }
 
@@ -103,7 +103,7 @@
           & > p:first-of-type {
             width: 40%;
             margin-bottom: var(--spXl);
-            color: var(--cBlackV2);
+            color: var(--cWhiteV1);
           }
         }
 
@@ -116,7 +116,7 @@
           & > p:first-of-type {
             width: 40%;
             margin-bottom: var(--spXl);
-            color: var(--cBlackV2);
+            color: var(--cWhiteV1);
           }
         }
       }

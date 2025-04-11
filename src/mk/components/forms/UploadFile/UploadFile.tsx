@@ -34,25 +34,16 @@ export const UploadFile = ({
   const [selectedFiles, setSelectedFiles]: any = useState({});
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isFileError, setIsFileError] = useState(false);
-  // console.log(props, "props");
   const { showToast } = useAuth();
 
   const onError = (err: any) => {
     console.log("reader error", err);
   };
 
-  // useEffect(() => {
-  //   if (value == "" || item[props.name]?.file == "delete") {
-  //     // setSelectedFiles({});
-  //   }
-  // }, [value, item]);
-
   const [editedImage, setEditedImage]: any = useState(null);
   const [loadedImage, setLoadedImage]: any = useState(false);
 
   const handleImageProcessed = (imageBase64: string) => {
-    // setEditedImage(imageBase64);
-    const partes = selectedFiles.name.split(".");
     let base64String = imageBase64.replace("data:", "").replace(/^.+,/, "");
     base64String = encodeURIComponent(base64String);
     setLoadedImage(false);
@@ -64,55 +55,64 @@ export const UploadFile = ({
         value: { ext: "webp", file: base64String },
       },
     });
-    // onChange({
-    //   target: {
-    //     name: props.name,
-    //     value: { ext: partes[partes.length - 1], file: base64String },
-    //   },
-    // });
+  };
+
+  // Verificar si el archivo es una imagen por extensión
+  const isImageFile = (fileName: string) => {
+    if (!fileName) return false;
+    const ext = fileName
+      .toLowerCase()
+      .slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2);
+    return ["jpg", "png", "webp", "jpeg", "gif"].includes(ext);
   };
 
   const onChangeFile = async (e: any) => {
-    // props.setError({});
     setIsFileError(false);
     props.setError({ ...props.error, [props.name]: "" });
     try {
       let file: any = null;
       if (e.dataTransfer) file = e.dataTransfer.files[0];
       else file = e.target.files[0];
+      
+      if (!file) return;
+      
       setSelectedFiles(file);
 
-      if (
-        !props.ext.includes(
-          file.name
-            .toLowerCase()
-            .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2)
-        )
-      ) {
+      const fileExt = file.name
+        .toLowerCase()
+        .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2);
+
+      if (!props.ext.includes(fileExt)) {
         props.setError({ ...props.error, [props.name]: "" });
         setSelectedFiles({});
         showToast("Solo se permiten archivos " + props.ext.join(", "), "error");
         return;
       }
-      if (
-        ["jpg", "png", "webp", "jpeg", "gif"].includes(
-          file.name
-            .toLowerCase()
-            .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2)
-        )
-      ) {
-        const image: any = await resizeImage(file, 720, 1024, 0.7);
-        let base64String = image.replace("data:", "").replace(/^.+,/, "");
-        base64String = encodeURIComponent(base64String);
-        //
-        if (editor) setLoadedImage(image);
-        //
-        onChange({
-          target: {
-            name: props.name,
-            value: { ext: "webp", file: base64String },
-          },
-        });
+      
+      const isImage = ["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt);
+      
+      if (isImage) {
+        try {
+          const image: any = await resizeImage(file, 720, 1024, 0.7);
+          let base64String = image.replace("data:", "").replace(/^.+,/, "");
+          base64String = encodeURIComponent(base64String);
+          
+          if (editor) setLoadedImage(image);
+          
+          // Mantener la extensión original para webp (evita conversiones extra)
+          const outputExt = fileExt === "webp" ? "webp" : "webp";
+          
+          onChange({
+            target: {
+              name: props.name,
+              value: { ext: outputExt, file: base64String },
+            },
+          });
+        } catch (error) {
+          console.error("Error resizing image:", error);
+          setIsFileError(true);
+          showToast("Error al procesar la imagen", "error");
+        }
       } else {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -133,7 +133,9 @@ export const UploadFile = ({
         reader.readAsDataURL(file);
       }
     } catch (error) {
+      console.error("Error en onChangeFile:", error);
       setSelectedFiles({});
+      setIsFileError(true);
       onChange({
         target: {
           name: props.name,
@@ -142,10 +144,12 @@ export const UploadFile = ({
       });
     }
   };
+  
   const handleDragOver = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
   };
+  
   const handleDrop = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -154,11 +158,6 @@ export const UploadFile = ({
 
   const accept = () => {
     let accept: any = [];
-    //   props.ext.map((ext) => {
-    //     accept.push(`application/${ext}`);
-    //   });
-    //   return accept.join(",");
-
     props.ext.map((ext) => {
       accept.push(`.${ext}`);
     });
@@ -168,12 +167,6 @@ export const UploadFile = ({
   const deleteImg = (del = true) => {
     props.setError({ ...props.error, [props.name]: "" });
     setIsFileError(false);
-
-    // if (!selectedFiles?.name) {
-    // console.log("deleteImg", del, selectedFiles?.name, "value:", value, {
-    //   ext: "",
-    //   file: del == false ? "" : "delete",
-    // });
 
     if (value && value.file != "") {
       onChange({
@@ -190,16 +183,124 @@ export const UploadFile = ({
         },
       });
     }
-    // }
     setSelectedFiles({});
-    // onChange &&
-    //   onChange({
-    //     target: {
-    //       name: props.name,
-    //       value: { file: del == false ? "" : "delete", ext: "" },
-    //     },
-    //   });
   };
+
+
+  // Determinar qué mostrar según el tipo de archivo
+  const renderFilePreview = () => {
+    // Si estamos cargando una imagen pero hay un error
+    if (isFileError) {
+      return img ? (
+        <IconImage size={40} color={"var(--cWhite)"} />
+      ) : (
+        <IconDocs size={40} color={"var(--cWhite)"} />
+      );
+    }
+
+    // Función para construir URL de imagen desde base64 si es necesario
+    const getImageUrl = () => {
+      if (editedImage) {
+        return editedImage;
+      }
+      
+      if (selectedFiles?.name) {
+        return URL.createObjectURL(selectedFiles);
+      }
+      
+      // Si value es un objeto con formato {ext, file} y contiene datos base64
+      if (typeof value === 'object' && value?.file && value?.ext) {
+        // Decodificar el base64 que está codificado con encodeURIComponent
+        try {
+          const decoded = decodeURIComponent(value.file);
+          return `data:image/${value.ext};base64,${decoded}`;
+        } catch (e) {
+          console.error("Error decodificando image:", e);
+          return "";
+        }
+      }
+      
+      // Si value es una string (url directa)
+      if (typeof value === 'string') {
+        return value;
+      }
+      
+      return "";
+    };
+    
+    // Si es una imagen basada en las condiciones
+    const isImageToShow = (editedImage || 
+      selectedFiles?.type?.startsWith("image/") || 
+      (selectedFiles?.name && isImageFile(selectedFiles.name)) ||
+      (typeof value === 'object' && value?.ext) ||
+      (typeof value === 'string' && value)) && 
+      img;
+    
+    if (isImageToShow) {
+      const imageUrl = getImageUrl();
+      return (
+        <>
+          <img
+            src={imageUrl}
+            onError={(e) => {
+              console.log("error imagen", e);
+              setIsFileError(true);
+            }}
+            alt={selectedFiles?.name || "Preview"}
+            style={{
+              objectFit: "cover",
+              width: getSizeWithUnit(sizePreview?.width),
+              height: getSizeWithUnit(sizePreview?.height)
+            }}
+          />
+          <p>
+            Archivo: <span>{selectedFiles?.name || "Imagen"}</span>
+          </p>
+        </>
+      );
+    }
+    
+    // Si es un PDF
+    if (selectedFiles.type === "application/pdf") {
+      return (
+        <>
+          <IconPDF size={80} color={"var(--cWhite)"} />
+          <p>
+            Archivo seleccionado: <br />
+            <span>{selectedFiles.name}</span>
+          </p>
+        </>
+      );
+    }
+    
+    // Si es otro tipo de documento
+    if (selectedFiles.name) {
+      return (
+        <>
+          <IconDocs size={40} color={"var(--cWhite)"} />
+          <p>
+            Archivo seleccionado: <br />
+            <span>{selectedFiles.name}</span>
+          </p>
+        </>
+      );
+    }
+    
+    // Si no hay archivo seleccionado
+    return img ? (
+      <IconImage size={40} color={"var(--cWhite)"} />
+    ) : (
+      <IconDocs size={40} color={"var(--cWhite)"} />
+    );
+  };
+
+  // Verificar si el valor es un número y devolver con 'px', o usar el valor como está si es string
+  const getSizeWithUnit = (size:any) => {
+    if (size === undefined || size === null) return "100px";
+    if (typeof size === 'number') return `${size}px`;
+    return size;
+  };
+
   return (
     <ControlLabel
       {...props}
@@ -207,12 +308,6 @@ export const UploadFile = ({
       className={styles.uploadFile + " " + className}
     >
       <section
-        // onClick={() => {
-        //   const fileUpload = document.getElementById(props.name);
-        //   if (fileUpload) {
-        //     fileUpload.click();
-        //   }
-        // }}
         style={{
           borderColor: props.error[props.name]
             ? "var(--cError)"
@@ -236,14 +331,6 @@ export const UploadFile = ({
           accept={accept()}
         />
         {
-          // !selectedFiles?.name || selectedFiles?.name == "" && onlyImg?(
-          //   <>
-          //       <IconImage size={40} color={"white"} />
-          //   <span>Adjunta o arrastra y suelta </span>
-          //   <span>{`${placeholderMsg}`}</span>
-          //   <span>{props.ext.join(", ")}</span>
-          // </>
-          // ):
           (!selectedFiles?.name || selectedFiles?.name == "") &&
           (!value || value == "") ? (
             <div
@@ -254,7 +341,6 @@ export const UploadFile = ({
                 }
               }}
             >
-              {/* value:({value}) */}
               {img ? (
                 <IconImage size={40} color={"var(--cWhite)"} />
               ) : (
@@ -267,74 +353,8 @@ export const UploadFile = ({
             </div>
           ) : (
             <div style={{ position: "relative" }}>
-              {/* value2 :({value}) */}
-              {/* {(value || selectedFiles?.type?.startsWith("image/")) && img ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={
-                    selectedFiles?.name
-                      ? URL.createObjectURL(selectedFiles)
-                      : value || ""
-                  }
-                  alt="Preview"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                  }}
-                /> */}
-              {!isFileError &&
-              (editedImage ||
-                selectedFiles?.type?.startsWith("image/") ||
-                value) &&
-              img ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={
-                    editedImage ||
-                    (selectedFiles?.name
-                      ? URL.createObjectURL(selectedFiles)
-                      : value || "")
-                  }
-                  onError={(e) => {
-                    console.log("error imagen", e);
-                    setIsFileError(true);
-                  }}
-                  alt={selectedFiles?.name}
-                  style={{
-                    objectFit: "cover",
-                    width: sizePreview?.width || "100px",
-                    height: sizePreview?.height || "100px",
-                  }}
-                />
-              ) : selectedFiles.type === "application/pdf" ? (
-                <>
-                  <IconPDF size={80} color={"var(--cWhite)"} />
-                  <p>
-                    Archivo seleccionado: <br />
-                    <span>{selectedFiles.name}</span>
-                  </p>
-                </>
-              ) : 
-                img ? (
-                  <IconImage size={40} color={"var(--cWhite)"} />
-                ) : (
-                  <IconDocs size={40} color={"var(--cWhite)"} />
-                )
-              }
-              {/* <p>
-                Archivo seleccionado: <span>{selectedFiles.name}</span>
-              </p>
-              <Button
-                // onClick={() => {
-                //   const fileUpload = document.getElementById(props.name);
-                //   if (fileUpload) {
-                //     fileUpload.click();
-                //   }
-                // }}
-                variant="terciary"
-              >
-                Editar elemento
-              </Button> */}
+              {renderFilePreview()}
+              
               <IconEdit
                 size={20}
                 style={{
@@ -353,53 +373,53 @@ export const UploadFile = ({
                   }
                 }}
               />
-              {
-                item[props.name]?.file == "delete" ? (
-                  <>
-                    <IconTrash
-                      size={100}
-                      style={{
-                        cursor: "",
-                        padding: "2px",
-                        position: "absolute",
-                        color: "red",
-                        top: 0,
-                        left: 0,
-                      }}
-                    />
-                    <IconArrowLeft
-                      size={20}
-                      circle={true}
-                      color="var(--cSuccess)"
-                      style={{
-                        position: "absolute",
-                        top: 2,
-                        left: 2,
-                        padding: 2,
-                        backgroundColor: "var(--cBlack)",
-                      }}
-                      onClick={() => {
-                        deleteImg(false);
-                      }}
-                    />
-                  </>
-                ) : null
-                // <IconTrash
-                //   size={20}
-                //   style={{
-                //     position: "absolute",
-                //     top: 2,
-                //     left: 2,
-                //     padding: 2,
-                //     backgroundColor: "var(--cBlack)",
-                //   }}
-                //   color={"var(--cError)"}
-                //   circle
-                //   onClick={() => {
-                //     deleteImg();
-                //   }}
-                // />
-              }
+              
+              {item[props.name]?.file == "delete" ? (
+                <>
+                  <IconTrash
+                    size={100}
+                    style={{
+                      cursor: "",
+                      padding: "2px",
+                      position: "absolute",
+                      color: "red",
+                      top: 0,
+                      left: 0,
+                    }}
+                  />
+                  <IconArrowLeft
+                    size={20}
+                    circle={true}
+                    color="var(--cSuccess)"
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      left: 2,
+                      padding: 2,
+                      backgroundColor: "var(--cBlack)",
+                    }}
+                    onClick={() => {
+                      deleteImg(false);
+                    }}
+                  />
+                </>
+              ) : (
+                <IconTrash
+                  size={20}
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    left: 2,
+                    padding: 2,
+                    backgroundColor: "var(--cBlack)",
+                  }}
+                  color={"var(--cError)"}
+                  circle
+                  onClick={() => {
+                    deleteImg();
+                  }}
+                />
+              )}
             </div>
           )
         }
@@ -408,7 +428,7 @@ export const UploadFile = ({
         <ImageEditor
           imageBase64={loadedImage || false}
           onImageProcessed={handleImageProcessed}
-          size={editor}
+          size={typeof editor === 'object' ? editor : { width: 720, height: 1024 }}
         />
       )}
     </ControlLabel>

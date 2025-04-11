@@ -23,10 +23,12 @@ const DptoConfig = ({
   useEffect(() => {
     const newErrors: Record<string, string> = {};
     
-    // Validación 1: Nombre del condominio - no debe permitir caracteres especiales
+    // Validación 1: Nombre del condominio - no debe permitir caracteres especiales y máximo 80 caracteres
     if (formState?.name) {
       if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]+$/.test(formState.name)) {
         newErrors.name = 'No se permiten caracteres especiales';
+      } else if (formState.name.length > 80) {
+        newErrors.name = 'Máximo 80 caracteres';
       }
     }
     
@@ -37,7 +39,7 @@ const DptoConfig = ({
     
     // Validación 3: Monto inicial - debe ser menos o igual a 10 dígitos
     if (formState?.initial_amount) {
-      const amountStr = formState.initial_amount.toString().replace(/\D/g, '');
+      const amountStr = String(formState.initial_amount).replace(/\D/g, '');
       if (amountStr.length > 10) {
         newErrors.initial_amount = 'El monto debe ser menor o igual a 10 dígitos';
       }
@@ -52,8 +54,9 @@ const DptoConfig = ({
       newErrors.address = 'Máximo 100 caracteres';
     }
     
-    if (formState?.email && formState.email.length > 50) {
-      newErrors.email = 'Máximo 50 caracteres';
+    // Correo electrónico ahora tiene máximo de 100 caracteres
+    if (formState?.email && formState.email.length > 100) {
+      newErrors.email = 'Máximo 100 caracteres';
     }
     
     if (formState?.year && (formState.year < 1900 || formState.year > 2100)) {
@@ -69,8 +72,8 @@ const DptoConfig = ({
     
     // Validaciones específicas para cada campo
     if (name === 'name') {
-      // Solo permitir letras, números y espacios (sin caracteres especiales)
-      if (value === '' || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]*$/.test(value)) {
+      // Solo permitir letras, números y espacios (sin caracteres especiales) con máximo 80 caracteres
+      if (value === '' || (/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]*$/.test(value) && value.length <= 80)) {
         onChange(e);
       }
     } 
@@ -81,11 +84,8 @@ const DptoConfig = ({
       }
     }
     else if (name === 'initial_amount') {
-      // Solo permitir números y hasta 10 dígitos (ignorando puntos y comas)
-      const digitsOnly = value.replace(/[^\d]/g, '');
-      if (digitsOnly.length <= 10) {
-        onChange(e);
-      }
+      // Permitir la edición del monto inicial sin restricciones adicionales
+      onChange(e);
     }
     else if (name === 'phone') {
       // Solo permitir números con longitud máxima de 15
@@ -100,8 +100,8 @@ const DptoConfig = ({
       }
     }
     else if (name === 'email') {
-      // Limitar a 50 caracteres
-      if (value.length <= 50) {
+      // Limitar a 100 caracteres (cambiado de 50 a 100)
+      if (value.length <= 100) {
         onChange(e);
       }
     }
@@ -161,8 +161,9 @@ const DptoConfig = ({
               required
               onChange={handleChange}
               className="dark-input"
+              maxLength={80}
             />
-            
+            <div className={styles.fieldHint}>Máximo 80 caracteres</div>
           </div>
           <div className={styles.inputHalf}>
             <Select
@@ -241,9 +242,9 @@ const DptoConfig = ({
               required
               onChange={handleChange}
               className="dark-input"
-              maxLength={50}
+              maxLength={100}
             />
-            
+            <div className={styles.fieldHint}>Máximo 100 caracteres</div>
           </div>
         </div>
 
@@ -258,7 +259,7 @@ const DptoConfig = ({
             maxLength={500}
             error={validationErrors.description || errors?.description}
           />
-          
+          <div className={styles.fieldHint}>Máximo 500 caracteres</div>
         </div>
 
         <div className={styles.sectionContainer}>

@@ -27,6 +27,7 @@ const Documents = () => {
     export: true,
   };
 
+
   const paramsInitial = {
     perPage: 10,
     page: 1,
@@ -43,6 +44,13 @@ const Documents = () => {
         label: "Nombre",
         form: { type: "text" },
         list: {  },
+      },
+      ext: {
+        rules: [],
+        api: "ae",
+        label: "Extensión",
+        list: { },
+        
       },
       descrip: {
         rules: ["required"],
