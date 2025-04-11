@@ -44,11 +44,6 @@ const Alerts = () => {
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
-
-  // Función personalizada para el manejo de filtros
-
-
-  // Función para determinar la clase de estilo según el nivel de alerta
   const getAlertLevelClass = (level:any) => {
     switch (level) {
       case 3:
@@ -62,7 +57,6 @@ const Alerts = () => {
     }
   };
 
-  // Función para obtener el texto del nivel de alerta
   const getAlertLevelText = (level:any) => {
     switch (level) {
       case 3:
