@@ -13,6 +13,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
+import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 
 const paramsInitial = {
   fullType: "L",
@@ -126,12 +127,12 @@ const Dptos = () => {
             if (!props?.item?.titular) {
               return <div className={styles.noTitular}>Sin titular</div>;
             }
-            
+
             // También verificar si titular.owner existe
             if (!props?.item?.titular?.owner) {
               return <div className={styles.noTitular}>Titular sin datos</div>;
             }
-            
+
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
@@ -153,27 +154,39 @@ const Dptos = () => {
         },
         filter: {
           label: "Titular",
-         
-          options: () => [
-            ...lTitulars
-          ],
+
+          options: () => [{ id: "", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
-          optionValue: "id"
+          optionValue: "id",
         },
-        import: true
+        import: true,
       },
     };
   }, []);
+  const [openImport, setOpenImport] = useState(false);
+  const onImport = () => {
+    setOpenImport(true);
+  };
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-    }
-  );
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    showToast,
+    execute,
+    reLoad,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    _onImport: onImport,
+  });
 
-  const { onLongPress, selItem, searchState } = useCrudUtils({
+  const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -206,6 +219,20 @@ const Dptos = () => {
   return (
     <div className={styles.departamentos}>
       <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      {openImport && (
+        <ImportDataModal
+          open={openImport}
+          onClose={() => {
+            setOpenImport(false);
+          }}
+          mod={mod}
+          showToast={showToast}
+          reLoad={reLoad}
+          execute={execute}
+          // getExtraData={getExtraData}
+          // requiredCols="DEPARTAMENTO, HABITANTES, HABILITADOS, ESCANOS, CODE"
+        />
+      )}
     </div>
   );
 };
