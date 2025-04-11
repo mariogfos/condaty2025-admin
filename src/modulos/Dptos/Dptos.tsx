@@ -22,7 +22,8 @@ const paramsInitial = {
 };
 const lTitulars = [
   { id: "S", name: "Sin Titular" },
-  { id: "T", name: "Con Titular" },
+  { id: "C", name: "Con Titular" },
+  { id: "T", name: "Todos" },
 ];
 
 const Dptos = () => {
@@ -154,7 +155,6 @@ const Dptos = () => {
           label: "Titular",
          
           options: () => [
-            { id: "", name: "Todos" },
             ...lTitulars
           ],
           optionLabel: "name",
