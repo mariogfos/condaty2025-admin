@@ -9,6 +9,7 @@ import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 
 interface ExtraField {
+  id?: number;
   name: string;
   value: string;
 }
@@ -45,6 +46,7 @@ const RenderForm = ({
     if (action === 'add') return [];
    
     return (extraData?.fields || []).filter((field: any) => field.type_id === item.id).map((field: any) => ({
+      id: field.id,
       name: field.name,
       value: field.type || 'text'
     }));
@@ -52,7 +54,7 @@ const RenderForm = ({
   const [formState, setFormState] = useState({ ...item });
   const {showToast} = useAuth();
 
-  console.log(extraData,'extraaa')
+  // console.log(extraData,'extraaa')
 
   const handleChange = (e: any) => {
     let value = e.target.value;
@@ -61,7 +63,7 @@ const RenderForm = ({
   };
 
   const handleAddField = () => {
-    setExtraFields([...extraFields, { name: '', value: '' }]);
+    setExtraFields([...extraFields, { name: '', value: 'text' }]);
   };
 
   const handleRemoveField = (index: number) => {
@@ -93,13 +95,20 @@ const RenderForm = ({
   const handleSubmit = async () => {
     if (hasErrors(validate())) return;
     const formData = {
-      ...formState,
+      // ...formState,
       name: formState.name,
       description: formState.description || '',
-      fields: extraFields.map(field => ({
-        name: field.name,
-        type: 'text'
-      }))
+      fields: extraFields.map(field => {
+        let fieldData: any = {
+          name: field.name,
+          type: field.value
+        };
+        // Incluir el ID del campo si existe, independientemente de la acción
+        if (field.id) {
+          fieldData.id = field.id;
+        }
+        return fieldData;
+      })
     };
 
     const method = action === 'add' ? 'POST' : 'PUT';

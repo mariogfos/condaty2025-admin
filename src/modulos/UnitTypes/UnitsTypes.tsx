@@ -13,7 +13,6 @@ const mod = {
   singular: "Tipo de unidad",
   plural: "Tipos de unidades",
   // import: true,
-  // importRequiredCols: "NAME",
   onHideActions: (item: any) => {
     return {
       // hideEdit: item.is_fixed == "1",
