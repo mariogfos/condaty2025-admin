@@ -6,6 +6,7 @@ import { useState } from 'react';
 import styles from './RenderForm.module.css';
 import { IconTrash } from '@/components/layout/icons/IconsBiblioteca';
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
 interface ExtraField {
   name: string;
@@ -44,6 +45,7 @@ const RenderForm = ({
     item?.extraFields || []
   );
   const [formState, setFormState] = useState({ ...item });
+  const {showToast} = useAuth();
 
 
 
@@ -94,9 +96,23 @@ const RenderForm = ({
         type: 'text'
       }))
     };
-    console.log(formData, 'extra submit');
-    setFormState(formData);
-    await execute();
+
+    const method = action === 'add' ? 'POST' : 'PUT';
+    const endpoint = action === 'add' ? '/types' : `/types/${formState.id}`;
+    
+    const { data: response } = await execute(
+      endpoint,
+      method,
+      formData,
+      false
+    );
+
+    if (response?.success === true) {
+      reLoad();
+      // setItem(formData);
+      showToast(response?.message, "success");
+      onClose();
+    }
   };
 
   return (
