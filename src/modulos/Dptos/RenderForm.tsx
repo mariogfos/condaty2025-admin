@@ -20,12 +20,43 @@ const RenderForm = ({
 }: any) => {
   const [formState, setFormState]: any = useState({ ...item });
   const [errors, setErrors]: any = useState({});
+  const [typeFields, setTypeFields]: any = useState([]);
+  const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormState((prev: any) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    if (name === 'type') {
+      const selectedType = extraData?.type?.find((t: any) => t.id === parseInt(value));
+      const fields = selectedType?.fields || [];
+      setTypeFields(fields);
+      setEnabledFields({});
+      setFormState((prev: any) => ({
+        ...prev,
+        [name]: value,
+        // Limpiar los valores de los campos adicionales al cambiar el tipo
+        ...fields.reduce((acc: any, field: any) => {
+          acc[`field_${field.id}`] = '';
+          return acc;
+        }, {})
+      }));
+    } else if (name.startsWith('enable_')) {
+      const fieldId = name.replace('enable_', '');
+      setEnabledFields((prev: any) => ({
+        ...prev,
+        [fieldId]: checked
+      }));
+      if (!checked) {
+        setFormState((prev: any) => ({
+          ...prev,
+          [`field_${fieldId}`]: ''
+        }));
+      }
+    } else {
+      setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
+}
 
   const validate = () => {
     let errs: any = {};
@@ -72,6 +103,15 @@ const RenderForm = ({
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
+
+    // Preparar los campos adicionales habilitados
+    const additionalFields:any = {};
+    typeFields.forEach((field: any) => {
+      if (enabledFields[field.id]) {
+        additionalFields[`field_${field.id}`] = formState[`field_${field.id}`];
+      }
+    });
+
     const { data: response } = await execute(
       "/dptos" + (formState.id ? "/" + formState.id : ""),
       method,
@@ -82,6 +122,7 @@ const RenderForm = ({
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         homeowner_id: formState.homeowner_id,
+        ...additionalFields,
       },
       false
     );
@@ -153,6 +194,33 @@ const RenderForm = ({
         options={homeownerOptions}
         error={errors}
       />
+
+      {typeFields.map((field: any) => (
+        <div key={field.id} style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id={`enable_${field.id}`}
+              name={`enable_${field.id}`}
+              checked={enabledFields[field.id] || false}
+              onChange={handleChange}
+              style={{ marginRight: '0.5rem' }}
+            />
+            <label htmlFor={`enable_${field.id}`}>{field.name}</label>
+          </div>
+          {enabledFields[field.id] && (
+            <Input
+              label={field.name}
+              name={`field_${field.id}`}
+              value={formState[`field_${field.id}`] || ''}
+              onChange={handleChange}
+              type={field.type}
+              error={errors}
+            />
+          )}
+        </div>
+      ))}
+
     </DataModal>
   );
 };
