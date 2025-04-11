@@ -280,18 +280,7 @@ const Config = () => {
              <UnitsType />
 
           }
-     { typeSearch !== "T" &&   <div className="w-full flex justify-center mb-6">
-            <Button
-              className={
-                typeSearch == "P"
-                  ? "w-[68%] btn btn-primary"
-                  : "btn btn-primary"
-              }
-              onClick={() => onSave()}
-            >
-              Guardar
-            </Button>
-          </div>}
+     
         </div>
       </LoadingScreen>
     </div>
