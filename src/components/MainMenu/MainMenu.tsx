@@ -13,6 +13,7 @@ import {
   IconInterrogation,
   IconGuard,
   IconBitacora,
+  IconCalendar,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -127,6 +128,12 @@ const MainMenu = ({
             href="/areas"
             label="Areas sociales"
             icon={<IconBitacora />}
+            collapsed={collapsed}
+          />
+          <MainmenuItem
+            href="/reservas"
+            label="Reservas"
+            icon={<IconCalendar/>}
             collapsed={collapsed}
           />
 
