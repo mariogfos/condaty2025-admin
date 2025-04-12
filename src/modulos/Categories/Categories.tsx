@@ -65,6 +65,8 @@ const CategoryForm = memo(
     const handleChange = useCallback((e: InputEvent) => {
       const { name, value } = e.target;
       set_Item((prevItem: any) => ({ ...prevItem, [name]: value }));
+      console.log("name", name);
+      console.log("value", value);
     }, []);
 
     const onSelItem = useCallback((e: InputEvent) => {
@@ -81,31 +83,37 @@ const CategoryForm = memo(
 
     const handleSave = useCallback(() => {
       const cleanItem = { ..._Item };
-
+    
       // Eliminar subcategorías para evitar conflictos
       if (cleanItem.hijos) {
         delete cleanItem.hijos;
       }
-
-      // Asegurar que category_id sea null para categorías padre
-      if (isCateg === "C") {
+    
+      // Lógica simplificada para category_id
+      if (wantSubcategories) {
+        // Si quiere subcategorías, debe haber seleccionado una categoría padre
+        if (!cleanItem.category_id) {
+          console.error("Error: Se intenta crear una subcategoría sin categoría padre");
+          return; // Detener envío del formulario
+        }
+      } else {
+        // Si no quiere subcategorías, siempre es null
         cleanItem.category_id = null;
       }
-
+    
       // Remover propiedades que no necesitamos enviar al backend
       if (cleanItem._initItem) delete cleanItem._initItem;
       if (cleanItem.category) delete cleanItem.category;
       if (cleanItem.fixed && action === "edit") delete cleanItem.fixed;
-
+    
       // Establecer tipo según categoryType (I para ingresos, E para egresos)
       cleanItem.type = categoryType === "I" ? "I" : "E";
-
-      // Para debugging
+    
       console.log("Guardando:", cleanItem);
-
+    
       setItem(cleanItem);
       onSave(cleanItem);
-    }, [_Item, onSave, setItem, isCateg, action, categoryType]);
+    }, [_Item, onSave, setItem, wantSubcategories, action, categoryType]);
 
     // Formatear categorías para el select
     const formattedCategories = useMemo(() => {
@@ -189,36 +197,41 @@ const CategoryForm = memo(
                   Las subcategorías te ayudan a clasificar en opciones una categoría
                 </span>
               </div>
+     
               <label className={styles.toggleSwitch}>
-                <input
-                  type="checkbox"
-                  checked={wantSubcategories}
-                  onChange={() => setWantSubcategories(!wantSubcategories)}
-                  name="wantSubcategory"
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
+  <input
+    type="checkbox"
+    checked={wantSubcategories}
+    onChange={() => {
+      // Solo cambiamos el estado del checkbox, sin tocar isCateg
+      setWantSubcategories(!wantSubcategories);
+    }}
+    name="wantSubcategory"
+  />
+  <span className={styles.toggleSlider}></span>
+</label>
+
             </div>
           </div>
         )}
           {/* Selector de categoría padre si es subcategoría */}
           {(isCateg === "S" || wantSubcategories) && (
-            <div className={styles.formField}>
-              <div className={styles.fieldContent}>
-                <span className={styles.fieldLabel}>Selecciona una categoría padre</span>
-                <Select
-                  name="category_id"
-                  placeholder="Selecciona una categoría"
-                  options={formattedCategories}
-                  value={_Item.category_id || ""}
-                  onChange={handleChange}
-                  error={errors}
-                  required
-                  className={styles.customSelect}
-                />
-              </div>
-            </div>
-          )}
+  <div className={styles.formField}>
+    <div className={styles.fieldContent}>
+      <span className={styles.fieldLabel}>Selecciona una categoría padre</span>
+      <Select
+        name="category_id"
+        placeholder="Selecciona una categoría"
+        options={formattedCategories}
+        value={_Item.category_id || ""}
+        onChange={handleChange}
+        error={errors}
+        required
+        className={styles.customSelect}
+      />
+    </div>
+  </div>
+)}
 
           {/* Input oculto para el tipo */}
           <input 
