@@ -22,6 +22,14 @@ interface PedidosTabProps {
   paramsInitial: any;
   onRowClick?: (item: any) => void;
 }
+// Función actualizada para obtener las opciones de período
+const getPeriodOptions = () => [
+  { id: "t", name: "Todos" },
+  { id: "week", name: "Esta Semana" },
+  { id: "lweek", name: "Ant. Semana" },
+  { id: "month", name: "Este Mes" },
+  { id: "lmonth", name: "Ant. Mes" }
+];
 
 const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
   const { showToast } = useAuth();
@@ -179,8 +187,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
         rules: [""],
         api: "",
         label: "Entrada",
-        list: {
-          
+        list: {  
           onRender: (props: any) => {
             return (
               <div>
@@ -191,7 +198,19 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
             );
           },
         },
+        
       },
+       in_at: {
+              rules: [""],
+              api: "",
+              label: "Entrada",
+              
+              filter: {
+                label: "Periodo",
+                width: "180px",
+                options: getPeriodOptions
+              }
+            },
 
       access_out: {
         rules: [""],

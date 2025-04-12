@@ -365,7 +365,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <div>Categoría</div>
               <div>Monto</div>
               <div>Medio de pago</div>
-              <div className={styles.centerCell}>Estado</div>
+              <div>Estado</div>
             </div>
             <div className={styles.accountList}>
               {!datas?.payments || datas.payments.length === 0 ? (
@@ -408,7 +408,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         ? "Pago en oficina"
                         : "Sin pago"}
                     </div>
-                    <div className={`${styles.cell} ${styles.centerCell}`}>
+                    <div className={styles.cell}>
                       <span
                         className={`${styles.status} ${
                           styles[`status${pago?.status}`]

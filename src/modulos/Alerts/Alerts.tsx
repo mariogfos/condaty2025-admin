@@ -33,9 +33,9 @@ const paramsInitial = {
 };
 
 const lLevels = [
+  { id: "T", name: "Todos" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
-  { id: 1, name: "Nivel bajo" },
 ];
 
 const Alerts = () => {
@@ -43,37 +43,6 @@ const Alerts = () => {
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
-
-  // Función personalizada para el manejo de filtros
-  const getFilter = (opt:any, value:any, oldFilter:any) => {
-    // Para depuración si es necesario
-    console.log("Filtrando por:", opt, "con valor:", value);
-    
-    // Si el campo es level
-    if (opt === 'level') {
-      // Si no hay valor (opción "Todos"), no aplicamos filtro
-      if (value === '') {
-        return { filterBy: {} };
-      }
-      
-      // Si hay un valor, aplicamos el filtro directamente sin el formato opt:value
-      return { 
-        filterBy: { 
-          [opt]: value 
-        } 
-      };
-    }
-    
-    // Para otros campos, mantener el comportamiento por defecto
-    return { 
-      filterBy: { 
-        ...oldFilter.filterBy, 
-        [opt]: value 
-      } 
-    };
-  };
-
-  // Función para determinar la clase de estilo según el nivel de alerta
   const getAlertLevelClass = (level:any) => {
     switch (level) {
       case 3:
@@ -87,7 +56,6 @@ const Alerts = () => {
     }
   };
 
-  // Función para obtener el texto del nivel de alerta
   const getAlertLevelText = (level:any) => {
     switch (level) {
       case 3:
@@ -169,7 +137,6 @@ const Alerts = () => {
           label: "Nivel",
           width: "200px",
           options: () => [
-            { id: "", name: "Todos" },
             ...lLevels
           ],
           optionLabel: "name",
@@ -185,7 +152,6 @@ const Alerts = () => {
     paramsInitial,
     mod,
     fields,
-    getFilter // Pasamos la función personalizada al hook useCrud
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

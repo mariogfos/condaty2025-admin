@@ -12,6 +12,14 @@ interface QRTabProps {
   paramsInitial: any;
   onRowClick: (item: any) => void;
 }
+// Función actualizada para obtener las opciones de período
+const getPeriodOptions = () => [
+  { id: "t", name: "Todos" },
+  { id: "week", name: "Esta Semana" },
+  { id: "lweek", name: "Ant. Semana" },
+  { id: "month", name: "Este Mes" },
+  { id: "lmonth", name: "Ant. Mes" }
+];
 
 const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
   // Definición del módulo QR
@@ -53,6 +61,11 @@ const QRTab: React.FC<QRTabProps> = ({ paramsInitial, onRowClick }) => {
             return <div>{getDateStrMes(props.item.date_event || "")}</div>;
           },
         },
+        filter: {
+          label: "Periodo",
+          width: "180px",
+          options: getPeriodOptions
+        }
       },
 
       owner: {
