@@ -70,7 +70,8 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de " + store?.UnitsType,
+        // label: "Número de " + store?.UnitsType,
+        label: "Número de unidad" ,
         form: { type: "text" },
         list: { width: "100px" },
       },
@@ -88,7 +89,6 @@ const Dptos = () => {
         label: "Tipo de unidad",
         form: { type: "select",
           options: (data: any) => {
-            
             let dataList: any = [];
             data?.extraData?.type?.map((c: any) => {
               dataList.push({
@@ -101,9 +101,25 @@ const Dptos = () => {
          },
         list: {
           onRender: (props: any) => {
-            return (  props?.item?.type?.name || "Sin tipo")
-        }
+            return (props?.item?.type?.name || "Sin tipo")
+          }
         },
+        filter: {
+          label: "Tipo de unidad",
+          options: (data: any) => {
+            // console.log(data, "data")
+            let options = [{ id: "", name: "Todos" }];
+            data?.type?.forEach((type: any) => {
+              options.push({
+                id: type.id,
+                name: type.name
+              });
+            });
+            return options;
+          },
+          optionLabel: "name",
+          optionValue: "id"
+        }
       },
       expense_amount: {
         rules: ["required"],

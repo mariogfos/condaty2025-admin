@@ -23,6 +23,21 @@ const RenderForm = ({
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
+  console.log(item,'itetetet')
+
+  useEffect(() => {
+    if (item?.type_id) {
+      const selectedType = extraData?.type?.find((t: any) => t.id === parseInt(item.type_id));
+      if (selectedType) {
+        const fields = selectedType.fields || [];
+        setTypeFields(fields);
+        setFormState(prev => ({
+          ...prev,
+          type: item.type_id
+        }));
+      }
+    }
+  }, [item, extraData]);
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
