@@ -31,7 +31,7 @@ const RenderForm = ({
       if (selectedType) {
         const fields = selectedType.fields || [];
         setTypeFields(fields);
-        setFormState(prev => ({
+        setFormState((prev:any) => ({
           ...prev,
           type: item.type_id
         }));
