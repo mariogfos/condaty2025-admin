@@ -104,13 +104,13 @@ const RenderForm = ({
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
 
-    // Preparar los campos adicionales habilitados
-    const additionalFields:any = {};
-    typeFields.forEach((field: any) => {
-      if (enabledFields[field.id]) {
-        additionalFields[`field_${field.id}`] = formState[`field_${field.id}`];
-      }
-    });
+    // Preparar los campos adicionales habilitados en el formato requerido
+    const fields = typeFields
+      .filter((field: any) => enabledFields[field.id])
+      .map((field: any) => ({
+        field_id: field.id,
+        value: formState[`field_${field.id}`] || ""
+      }));
 
     const { data: response } = await execute(
       "/dptos" + (formState.id ? "/" + formState.id : ""),
@@ -118,11 +118,11 @@ const RenderForm = ({
       {
         nro: formState.nro,
         description: formState.description,
-        type: formState.type,
+        type_id: parseInt(formState.type),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         homeowner_id: formState.homeowner_id,
-        ...additionalFields,
+        fields: fields
       },
       false
     );
