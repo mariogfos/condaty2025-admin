@@ -36,7 +36,6 @@ const lLevels = [
   { id: "T", name: "Todos" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
-  { id: 1, name: "Nivel bajo" },
 ];
 
 const Alerts = () => {
