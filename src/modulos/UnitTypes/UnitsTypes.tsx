@@ -8,6 +8,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import styles from "./UnitsType.module.css";
 
 const mod = {
   modulo: "types",
@@ -51,10 +52,15 @@ const mod = {
     console.log(props,'props renderview')
     return (
       <DataModal open={props.open} onClose={props.onClose} >
-      <div className="p-4">
-        <span className="font-medium">Tipo de unidad: </span>
-        <span className="text-lg font-semibold mb-4">{props.item?.name}</span>
-        <div className="space-y-3">
+      <div className={styles.renderView}>
+        <div>
+          <div>
+            <span className="font-medium">Tipo de unidad: </span>
+            <span className="text-lg font-semibold mb-4">{props.item?.name}</span>
+          </div>
+        </div>
+
+        <div>
           <div>
             <span className="font-medium">Descripción: </span>
             <span>{props.item?.description || 'Sin descripción'}</span>
@@ -62,9 +68,9 @@ const mod = {
           <div>
             <span className="font-medium">Campos:</span>
             <div className="mt-2 space-y-2">
-              {props?.extraData?.fields?.map((field: any, index: number) => (
+              {props?.extraData?.fields?.filter((field: any) => field.type_id === props.item.id).map((field: any, index: number) => (
                 <div key={index} className="pl-4">
-                  <span className="font-medium">{field.name}</span> - {field.description}
+                  <span style={{color:'var(--cWhite)'}}>{field.name}</span>{field.description}
                 </div>
               ))}
             </div>
