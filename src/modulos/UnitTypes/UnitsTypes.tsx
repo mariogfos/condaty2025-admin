@@ -7,6 +7,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
 const mod = {
   modulo: "types",
@@ -16,7 +17,6 @@ const mod = {
   onHideActions: (item: any) => {
     return {
       // hideEdit: item.is_fixed == "1",
-
       hideDel: item.is_fixed == "A",
     }
   },
@@ -42,6 +42,38 @@ const mod = {
       />
     );
   },
+  renderView: (props: {
+    open: boolean;
+    onClose: any;
+    item: Record<string, any>;
+    extraData: any;
+  }) => {
+    console.log(props,'props renderview')
+    return (
+      <DataModal open={props.open} onClose={props.onClose} >
+      <div className="p-4">
+        <span className="font-medium">Tipo de unidad: </span>
+        <span className="text-lg font-semibold mb-4">{props.item?.name}</span>
+        <div className="space-y-3">
+          <div>
+            <span className="font-medium">Descripción: </span>
+            <span>{props.item?.description || 'Sin descripción'}</span>
+          </div>
+          <div>
+            <span className="font-medium">Campos:</span>
+            <div className="mt-2 space-y-2">
+              {props?.extraData?.fields?.map((field: any, index: number) => (
+                <div key={index} className="pl-4">
+                  <span className="font-medium">{field.name}</span> - {field.description}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      </DataModal>
+    );
+  },
 };
 const paramsInitial = {
     perPage: 10,
@@ -63,6 +95,37 @@ const UnitsType = () => {
         list: true,
         form: { type: "text" },
       },
+      description: {
+        rules: ["required"],
+        api: "ae",
+        label: "Descripción",
+        list: true,
+        form: { type: "text" },
+        onRender:(props:any, )=>{
+          console.log(props,'extr 71')
+        }
+      },
+      fields:{
+        rules:[""],
+        api:"ae",
+        label:"Campos",
+        onRender:(props:any, )=>{
+          console.log(props,'extr 78')
+          return <div> 
+            Campos <section>
+              {
+                props?.extraData?.fields?.map((c:any,i:number)=>{
+                  return <div key={i}>
+                    {c.name} - {c.description}
+                  </div>
+                })
+              }
+            </section>
+          </div>
+        },
+     
+     
+      }
     
     };
   }, []);
