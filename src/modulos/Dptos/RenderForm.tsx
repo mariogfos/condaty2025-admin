@@ -31,10 +31,21 @@ const RenderForm = ({
       if (selectedType) {
         const fields = selectedType.fields || [];
         setTypeFields(fields);
-        setFormState((prev:any) => ({
-          ...prev,
-          type: item.type_id
-        }));
+        
+        // Inicializar los campos habilitados y sus valores
+        const enabledFieldsInit:any = {};
+        const formStateUpdate = { ...item, type: item.type_id };
+        
+        // Procesar field_values si existen
+        if (item.field_values && Array.isArray(item.field_values)) {
+          item.field_values.forEach((fieldValue: any) => {
+            enabledFieldsInit[fieldValue.field_id] = true;
+            formStateUpdate[`field_${fieldValue.field_id}`] = fieldValue.value;
+          });
+        }
+        
+        setEnabledFields(enabledFieldsInit);
+        setFormState(formStateUpdate);
       }
     }
   }, [item, extraData]);
