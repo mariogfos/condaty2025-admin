@@ -212,11 +212,9 @@ const SecondPart = ({
           gap: 12,
           marginTop: 12,
           marginBottom: 12,
-          msOverflowStyle: "none",
-          scrollbarWidth: "none",
-          // "&::-webkit-scrollbar": {
-          //   display: "none",
-          // },
+          scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
+          // msOverflowStyle: "none",
+          // scrollbarWidth: "none",
         }}
       >
         {formState?.available_hours &&
@@ -229,6 +227,7 @@ const SecondPart = ({
                   border: "1px solid var(--cWhiteV1)",
                   borderRadius: 8,
                   padding: 12,
+                  backgroundColor: "var(--cBlackV1)",
                 }}
               >
                 <p style={{ fontSize: 14 }}>{day}</p>
@@ -247,8 +246,10 @@ const SecondPart = ({
                     gap: 8,
                     overflowX: "auto",
                     width: "100%",
-                    msOverflowStyle: "none",
-                    scrollbarWidth: "none",
+                    // msOverflowStyle: "none",
+                    scrollbarWidth: "thin",
+                    // scrollbarWidth: "none",
+                    scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
                   }}
                 >
                   {formState?.available_hours[day].map(
