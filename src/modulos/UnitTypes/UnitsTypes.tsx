@@ -51,7 +51,7 @@ const mod = {
   }) => {
     console.log(props,'props renderview')
     return (
-      <DataModal open={props.open} onClose={props.onClose} >
+      <DataModal open={props.open} onClose={props.onClose} title={'Detalle de tipo de unidad'} buttonText="" buttonCancel="">
       <div className={styles.renderView}>
         <div>
           <div>
