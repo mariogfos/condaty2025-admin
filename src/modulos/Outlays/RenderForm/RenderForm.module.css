@@ -172,3 +172,23 @@
   width: 100%;
   margin: 8px 0;
 }
+
+/* Añade esto en tu CSS */
+.outlays-form-container input::placeholder,
+.outlays-form-container textarea::placeholder,
+.outlays-form-container .select-placeholder { /* Si usas una clase específica para selects */
+  color: #999 !important; /* Color gris medio */
+  opacity: 1 !important; /* Asegura que no sea transparente */
+}
+
+/* Para los selects (dependiendo de tu librería de componentes) */
+.outlays-form-container .react-select__placeholder {
+  color: #999 !important;
+}
+
+/* Mantén el color del texto ingresado igual que antes */
+.outlays-form-container input,
+.outlays-form-container textarea,
+.outlays-form-container .react-select__single-value {
+  color: tu-color-original !important; /* Ej: #333 o var(--cBlack) */
+}
