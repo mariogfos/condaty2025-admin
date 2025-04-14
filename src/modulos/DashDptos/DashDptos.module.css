@@ -432,3 +432,12 @@
     padding: 1rem;
     display: flex;
   }
+
+  .tooltip {
+   
+      & > span{
+      /* background-color: #00E38C; */
+      width: max-content;
+      }
+    
+  }

@@ -20,6 +20,7 @@ import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
+import Tooltip from "@/components/Tooltip/Tooltip";
 
 interface DashDptosProps {
   id: string | number;
@@ -303,8 +304,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       {datas.titular.dependientes.length > 0 ? (
                         datas.titular.dependientes.map(
                           (dependiente: any, index: number) => (
+                            <Tooltip title={getFullName(dependiente.owner)} position="top" className={styles.tooltip}>
                             <Avatar
                               key={index}
+                              src={
+                                dependiente.owner?.id
+                                 ? getUrlImages(
+                                      "/OWNER" +
+                                        "-" +
+                                        dependiente.owner?.id +
+                                        ".webp" +
+                                        (datas?.titular?.updated_at
+                                         ? "?d=" + datas?.titular?.updated_at
+                                          : "")
+                                    )
+                                  : ""
+                              }
                               name={getFullName(dependiente.owner)}
                               w={30}
                               h={30}
@@ -314,6 +329,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               }
                               square={true}
                             />
+                            </Tooltip>
                           )
                         )
                       ) : (
