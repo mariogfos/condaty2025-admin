@@ -142,28 +142,72 @@ const DashDptos = ({ id }: DashDptosProps) => {
   
   return (
     <div className={styles.container}>
+      <section style={{display:'flex',justifyContent:'flex-start'}} onClick={() => router.push("/dptos")}>
+
+        <HeadTitle
+                  className={styles.backButton}
+                  onBack={() => router.push("/dptos")}
+                  colorBack={'var(--accent)'}
+                />
+
+        <span> Volver a sección unidades </span>
+      </section>
+      <section>
+
+   
       <div className={styles.leftPanel}>
         <LoadingScreen className={styles.loadingCard}>
           <div className={styles.infoCard}>
             {/* Cabecera */}
             <div className={styles.cardHeader}>
               <div className={styles.title}>
-                <HeadTitle
+                {/* <HeadTitle
                   className={styles.backButton}
                   onBack={() => router.push("/dptos")}
-                />
+                /> */}
                 {tipoUnidad} {datas?.data?.nro}, {datas?.data?.description}
               </div>
             </div>
 
-            {/* Info Grid */}
-            <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Propietario</span>
+            <div style={{display:'flex',marginBottom:'var(--spS)'}}>
+                <Avatar
+                  src={
+                    datas?.data?.id
+                    ? getUrlImages(
+                          "/DPTO" +
+                            "-" +
+                            datas?.data?.id +
+                            ".webp" +
+                            (datas?.data?.updated_at
+                            ? "?d=" + datas?.data?.updated_at
+                              : "")
+                        )
+                      : ""
+                  }
+                  name={getFullName(datas?.data?.homeowner)}
+                  w={40}
+                  h={40}
+                  square={true}
+                  />
+              <div style={{display:'flex',flexDirection:'column',marginLeft:8}}>
                 <span className={styles.value}>
                   {datas?.data?.homeowner
                     ? getFullName(datas?.data?.homeowner)
                     : "Sin Propietario"}
+                </span>
+                    <span className={styles.label}>Propietario</span>
+              </div>
+            </div>    
+
+        <div style={{display:'flex'}}>
+            {/* Info Grid */}
+            <div className={styles.infoGrid}>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Estado</span>
+                <span className={styles.value}>
+                  {datas?.data?.status
+                   ? getStatus(datas?.data?.status)
+                    : "Sin Estado"}
                 </span>
               </div>
               <div className={styles.infoRow}>
@@ -178,8 +222,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               </div>
             </div>
 
-            <div className={styles.divider} />
-
+            {/* <div className={styles.divider} /> */}
+          <div style={{width:'100%'}}>
             {/* Sección Titular */}
             {!datas?.titular ? (
               <div className={styles.emptyTitular}>
@@ -213,6 +257,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   name={getFullName(datas?.titular)}
                   w={80}
                   h={80}
+                  square={true}
                   onClick={() => {
                     setIdPerfil(datas?.titular?.id);
                     setOpenPerfil(true);
@@ -261,12 +306,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
                             <Avatar
                               key={index}
                               name={getFullName(dependiente.owner)}
-                              w={40}
-                              h={40}
+                              w={20}
+                              h={20}
                               className={styles.dependentAvatar}
                               onClick={() =>
                                 handleOpenPerfil(dependiente.owner_id)
                               }
+                              square={true}
                             />
                           )
                         )
@@ -280,11 +326,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 )}
               </div>
             )}
+            </div>
+          </div>
+          <div className={styles.viewMore}  onClick={() => setOpenTitularHist(true)}>Ver historial de titulares</div>
           </div>
         </LoadingScreen>
 
+
+
         {/* Historial de Titulares Mini Lista */}
-        <div className={styles.historySection}>
+        {/* <div className={styles.historySection}>
           <div className={styles.historyHeader}>
             <h3 className={styles.historyTitle}>Historial de Titulares</h3>
             <span
@@ -344,7 +395,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 ))
             )}
           </div>
-        </div>
+        </div> */}
+
+
+
+
       </div>
 
       <div className={styles.rightPanel}>
@@ -575,7 +630,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           reLoad={reLoad}
         />
       )}
-      
+      </section>
     </div>
   );
 };

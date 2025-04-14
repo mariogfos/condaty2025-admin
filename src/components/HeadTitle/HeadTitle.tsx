@@ -14,6 +14,7 @@ type PropsType = {
   left?: any;
   right?: any;
   customTitle?: any;
+  colorBack?: string;
 };
 
 const HeadTitle = ({
@@ -25,6 +26,7 @@ const HeadTitle = ({
   left = null,
   right = null,
   customTitle = null,
+  colorBack = "var(--cWhite)" 
 }: PropsType) => {
   const router = useRouter();
   const goBack = () => {
@@ -45,7 +47,7 @@ const HeadTitle = ({
           {left !== null ? (
             left
           ) : (
-            <IconArrowLeft onClick={goBack} color="var(--cWhite)" size={32} />
+            <IconArrowLeft onClick={goBack} color={colorBack} size={32} />
           )}
         </span>
       )}
