@@ -306,8 +306,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
                             <Avatar
                               key={index}
                               name={getFullName(dependiente.owner)}
-                              w={20}
-                              h={20}
+                              w={30}
+                              h={30}
                               className={styles.dependentAvatar}
                               onClick={() =>
                                 handleOpenPerfil(dependiente.owner_id)
@@ -330,6 +330,83 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
           <div className={styles.viewMore}  onClick={() => setOpenTitularHist(true)}>Ver historial de titulares</div>
           </div>
+
+          <div className={styles.accountSection}>
+          <div className={styles.accountHeader}>
+            <h3 className={styles.accountTitle}>Historial de pagos</h3>
+            <span
+              className={styles.viewMore}
+              onClick={() => setOpenPaymentsHist(true)}
+            >
+              Ver más
+            </span>
+          </div>
+          <div className={styles.accountContent}>
+            <div className={styles.accountGrid}>
+              <div>Fecha</div>
+              <div>Categoría</div>
+              <div>Monto</div>
+              <div>Medio de pago</div>
+              <div>Estado</div>
+            </div>
+            <div className={styles.accountList}>
+              {!datas?.payments || datas.payments.length === 0 ? (
+                <EmptyData
+                  message="No existe historial de pagos para esta unidad"
+                  centered={false}
+                />
+              ) : (
+                datas.payments.slice(0, 4).map((pago: any, index: number) => (
+                  <div
+                    key={index}
+                    className={styles.accountRow}
+                    onClick={() => {
+                      if (pago.status === "A") {
+                        setOpenPagar(true);
+                      } else {
+                        setOpenComprobante(true);
+                        setIdPago(pago?.payment?.id);
+                      }
+                    }}
+                  >
+                    <div className={styles.cell}>
+                      {getDateStrMes(pago?.paid_at) || "-"}
+                    </div>
+                    <div className={styles.cell}>Expensa</div>
+                    <div className={styles.cell}>
+                      {pago?.amount && pago?.penalty_amount
+                        ? `Bs ${
+                            parseFloat(pago?.amount) +
+                            parseFloat(pago?.penalty_amount)
+                          }`
+                        : "-"}
+                    </div>
+                    <div className={styles.cell}>
+                      {pago?.payment?.type === "Q"
+                        ? "Qr"
+                        : pago?.payment?.type === "T"
+                        ? "Transferencia"
+                        : pago?.payment?.type === "O"
+                        ? "Pago en oficina"
+                        : "Sin pago"}
+                    </div>
+                    <div className={styles.cell}>
+                      <span
+                        className={`${styles.status} ${
+                          styles[`status${pago?.status}`]
+                        }`}
+                      >
+                        {getStatus(pago?.status)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+
         </LoadingScreen>
 
 
@@ -406,7 +483,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Estado de Cuenta Mini Lista */}
         <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
-            <h3 className={styles.accountTitle}>Estado de cuenta</h3>
+            <h3 className={styles.accountTitle}>Historial de pagos</h3>
             <span
               className={styles.viewMore}
               onClick={() => setOpenPaymentsHist(true)}
@@ -482,7 +559,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Historial de Visitas Mini Lista */}
         <div className={styles.visitsSection}>
           <div className={styles.visitsHeader}>
-            <h3 className={styles.visitsTitle}>Historial de Visitas</h3>
+            <h3 className={styles.visitsTitle}>Historial de accesos</h3>
             <span
               className={styles.viewMore}
               onClick={() => setOpenAccesos(true)}
@@ -512,6 +589,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         w={28}
                         h={28}
                         className={styles.visitorAvatar}
+                        square={true}
                       />
                       <div>
                         <p className={styles.visitorName}>
@@ -544,6 +622,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
         </div>
       </div>
+
+      
 
       {/* Modales */}
       <DataModal
