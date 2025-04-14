@@ -308,3 +308,22 @@
   width: 100%;
   margin: var(--spS) 0;
 }
+/* Añade estos estilos a tu archivo RenderForm.module.css */
+.no-deudas-container {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.no-deudas-message {
+  text-align: center;
+  color: #e53935;
+  font-weight: 500;
+  margin-top: 10px;
+  font-size: 14px;
+  padding: 10px;
+  background-color: rgba(229, 57, 53, 0.1);
+  border-radius: 4px;
+  width: 100%;
+}

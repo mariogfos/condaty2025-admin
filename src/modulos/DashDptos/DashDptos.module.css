@@ -40,18 +40,22 @@
   
   .cardHeader {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: center; /* Asegura que los elementos estén alineados verticalmente */
+    width: 100%; /* Ocupa todo el ancho del contenedor padre */
     margin-bottom: 1rem;
   }
   
   .title {
+    flex: 1; /* Hace que title ocupe todo el espacio disponible */
     color: var(--twhite);
     font-size: 1.5rem;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 1rem;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas (opcional) */
+    overflow: hidden; /* Maneja el desbordamiento si el texto es demasiado largo */
+    text-overflow: ellipsis; /* Agrega puntos suspensivos si el texto se corta */
   }
   
   .backButton {

@@ -4,6 +4,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 10,
@@ -20,6 +21,15 @@ const Areas = () => {
     permiso: "",
     extraData: false,
     //   hideActions: { edit: true, del: true, add: true },
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      setOpenList: any;
+      openList: boolean;
+      extraData: any;
+    }) => <RenderView {...props} />,
+    // loadView: { fullType: "DET" },
     renderForm: (props: {
       item: any;
       setItem: any;
