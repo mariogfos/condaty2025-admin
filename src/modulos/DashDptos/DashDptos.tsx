@@ -481,7 +481,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       <div className={styles.rightPanel}>
         {/* Estado de Cuenta Mini Lista */}
-        <div className={styles.accountSection}>
+        {/* <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
             <h3 className={styles.accountTitle}>Historial de pagos</h3>
             <span
@@ -554,7 +554,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Historial de Visitas Mini Lista */}
         <div className={styles.visitsSection}>
@@ -567,6 +567,42 @@ const DashDptos = ({ id }: DashDptosProps) => {
               Ver más
             </span>
           </div>
+
+
+
+
+        {/*   modo cards para otro sprint
+        
+        {    !datas?.access || datas.access.length === 0 ? (
+                <EmptyData
+                  message="No existe historial de visitas para esta unidad"
+                  centered={false}
+                />
+              ) : ( datas.access.slice(0, 4).map((visita: any, index: number) => (
+          <div className={styles.accessCard}>
+             <div className={styles.visitorInfo}>
+                      <Avatar
+                        name={getFullName(visita.visit)}
+                        w={28}
+                        h={28}
+                        className={styles.visitorAvatar}
+                        square={true}
+                      />
+                      <div>
+                        <p className={styles.visitorName}>
+                          {getFullName(visita.visit)}
+                        </p>
+                        <p className={styles.visitorCI}>
+                          CI: {visita.visit?.ci}
+                        </p>
+                      </div>
+                    </div>
+          </div>
+          )))} */}
+
+
+
+
           <div className={styles.visitsContent}>
             <div className={styles.visitsGrid}>
               <div>Nombre completo</div>
