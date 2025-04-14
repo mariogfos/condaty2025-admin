@@ -15,8 +15,8 @@ const paramsInitial = {
 const Areas = () => {
   const mod = {
     modulo: "areas",
-    singular: "Area",
-    plural: "Areas",
+    singular: "área social",
+    plural: "áreas sociales",
     permiso: "",
     extraData: false,
     //   hideActions: { edit: true, del: true, add: true },
