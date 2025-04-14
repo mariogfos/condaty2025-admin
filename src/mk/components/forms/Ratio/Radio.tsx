@@ -21,7 +21,7 @@ const Radio = ({ checked, label, subtitle, onChange, disabled }: PropsType) => {
   };
   return (
     <div className={style.radio}>
-      <div style={{ opacity: checked ? 1 : 0.3 }}>
+      <div>
         {checked ? (
           <IconRatioOn
             onClick={handleClick}
