@@ -303,22 +303,27 @@ const SecondPart = ({
           )}
         </div>
       )}
-      <p className={styles.title} style={{ marginTop: 12 }}>
-        Reservaciones por día
-      </p>
-      <p className={styles.subtitle}>
-        Define la cantidad máxima de reservas que un residente puede realizar en
-        un solo día
-      </p>
-      <Input
-        label="Reservas máximas por día"
-        name="max_reservations_per_day"
-        type="number"
-        required
-        value={formState?.max_reservations_per_day}
-        onChange={handleChange}
-        error={errors}
-      />
+      {formState?.booking_mode == "hour" && (
+        <>
+          <p className={styles.title} style={{ marginTop: 12 }}>
+            Reservaciones por día
+          </p>
+          <p className={styles.subtitle}>
+            Define la cantidad máxima de reservas que un residente puede
+            realizar en un solo día
+          </p>
+
+          <Input
+            label="Reservas máximas por día"
+            name="max_reservations_per_day"
+            type="number"
+            required
+            value={formState?.max_reservations_per_day}
+            onChange={handleChange}
+            error={errors}
+          />
+        </>
+      )}
       <p className={styles.title}>Reservaciones por semana</p>
       <p className={styles.subtitle}>
         Define la cantidad máxima de reservas que un residente puede realizar en
