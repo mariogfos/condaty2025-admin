@@ -38,18 +38,54 @@ const UploadFileMultiple = ({
     if (imgs[0]?.id != 0 && imgs?.length < maxFiles)
       setImgs([...imgs, { id: 0 }]);
   }, []);
+  // useEffect(() => {
+  //   // Initialize or update images when formState changes
+  //   if (item?.[name]) {
+  //     const currentImages = Object.values(item[name]).filter(
+  //       (img: any) => img?.file !== "delete"
+  //     );
+  //     const hasEmptySlot = currentImages.length < maxFiles;
+  //     setImgs([...currentImages, ...(hasEmptySlot ? [{ id: 0 }] : [])]);
+  //     setValue(item[name]);
+  //   }
+  // }, [item, name, maxFiles]);
+
   useEffect(() => {
     // Initialize or update images when formState changes
-    if (item?.[name]) {
-      const currentImages = Object.values(item[name]).filter(
-        (img: any) => img?.file !== "delete"
-      );
+    if (item?.[name] || (item?.images && item?.id)) {
+      let currentImages;
+
+      if (item?.images && item?.id) {
+        // Handle existing images from edit mode
+        currentImages = item.images.map((img: any) => ({
+          id: img.id,
+          ext: img.ext || "webp",
+        }));
+      } else {
+        // Handle new images being added
+        currentImages = Object.values(item[name]).filter(
+          (img: any) => img?.file !== "delete"
+        );
+      }
+
       const hasEmptySlot = currentImages.length < maxFiles;
       setImgs([...currentImages, ...(hasEmptySlot ? [{ id: 0 }] : [])]);
-      setValue(item[name]);
+
+      if (item?.images && item?.id) {
+        // Convert existing images to the expected format
+        const existingImagesValue = currentImages.reduce(
+          (acc: any, img: any, index: number) => {
+            acc[name + index] = { file: "", id: img.id, ext: img.ext };
+            return acc;
+          },
+          {}
+        );
+        setValue({ ...existingImagesValue, ...item[name] });
+      } else {
+        setValue(item[name]);
+      }
     }
   }, [item, name, maxFiles]);
-
   const deleteImg = (img: string, del = true) => {
     const indice = img.replace(name, "").split("-")[0];
     const id = img.replace(name, "").split("-")[1] || 0;
