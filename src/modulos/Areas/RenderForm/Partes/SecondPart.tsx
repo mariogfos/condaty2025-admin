@@ -195,7 +195,6 @@ const SecondPart = ({
       <Input
         type="number"
         label="Monto (Bs)"
-        required
         name="price"
         value={formState?.price}
         onChange={handleChange}

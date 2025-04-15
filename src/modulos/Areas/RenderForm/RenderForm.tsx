@@ -70,24 +70,18 @@ const RenderForm = ({
       key: "status",
       errors,
     });
-    // errors = checkRules({
-    //   value: formState?.requires_approval,
-    //   rules: ["required"],
-    //   key: "requires_approval",
-    //   errors,
-    // });
 
     setErrors(errors);
     return errors;
   };
   const validateLevel2 = () => {
     let errors: any = {};
-    errors = checkRules({
-      value: formState?.price,
-      rules: ["required"],
-      key: "price",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState?.price,
+    //   rules: ["required"],
+    //   key: "price",
+    //   errors,
+    // });
     errors = checkRules({
       value: formState?.max_reservations_per_week,
       rules: ["required"],
