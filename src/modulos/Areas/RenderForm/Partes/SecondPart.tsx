@@ -29,7 +29,9 @@ const SecondPart = ({
   formState,
   setFormState,
 }: PropsType) => {
-  const [selectedDays, setSelectedDays]: any = useState([]);
+  const [selectedDays, setSelectedDays]: any = useState(
+    formState?.available_days || []
+  );
   // const [selectdHours, setSelectedHours] = useState([]);
   const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
@@ -149,7 +151,11 @@ const SecondPart = ({
   };
 
   useEffect(() => {
-    if (!formState?.id) {
+    if (
+      !formState?.id &&
+      formState?.booking_mode === "hour" &&
+      selectdHour == ""
+    ) {
       setFormState({
         ...formState,
         start_hour: "",
@@ -158,9 +164,12 @@ const SecondPart = ({
         available_days: [],
       });
       setSelectdHour("");
+      setSelectedDays([]);
       setPeriods([]);
     }
   }, [formState?.booking_mode]);
+
+  console.log(formState);
 
   return (
     <>
@@ -186,6 +195,7 @@ const SecondPart = ({
       <Input
         type="number"
         label="Monto (Bs)"
+        required
         name="price"
         value={formState?.price}
         onChange={handleChange}
@@ -205,20 +215,18 @@ const SecondPart = ({
           />
         </>
       )}
-      <div
-        style={{
-          display: "flex",
-          overflowX: "scroll",
-          gap: 12,
-          marginTop: 12,
-          marginBottom: 12,
-          scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
-          // msOverflowStyle: "none",
-          // scrollbarWidth: "none",
-        }}
-      >
-        {formState?.available_hours &&
-          Object.keys(formState?.available_hours).map(
+      {formState?.available_hours && formState?.booking_mode && (
+        <div
+          style={{
+            display: "flex",
+            overflowX: "scroll",
+            gap: 12,
+            marginTop: 12,
+            marginBottom: 12,
+            scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
+          }}
+        >
+          {Object.keys(formState?.available_hours).map(
             (day: any, index: any) => (
               <div
                 key={index}
@@ -246,9 +254,7 @@ const SecondPart = ({
                     gap: 8,
                     overflowX: "auto",
                     width: "100%",
-                    // msOverflowStyle: "none",
                     scrollbarWidth: "thin",
-                    // scrollbarWidth: "none",
                     scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
                   }}
                 >
@@ -274,7 +280,8 @@ const SecondPart = ({
               </div>
             )
           )}
-      </div>
+        </div>
+      )}
       <p className={styles.title}>Reservaciones por semana</p>
       <p className={styles.subtitle}>
         Define la cantidad máxima de reservas que un residente puede realizar en
@@ -283,6 +290,7 @@ const SecondPart = ({
       <Input
         type="number"
         label="Reservas máximas por semana"
+        required
         name="max_reservations_per_week"
         value={formState?.max_reservations_per_week}
         onChange={handleChange}
@@ -297,6 +305,7 @@ const SecondPart = ({
         type="number"
         label="Tiempo"
         name="min_cancel_hours"
+        required
         // placeholder="Usa el formato: 2h, 4h, 6"
         placeholder="El tiempo debe ser en horas"
         value={formState?.min_cancel_hours}
@@ -311,6 +320,7 @@ const SecondPart = ({
       <Input
         type="number"
         label="Tarifa de penalización"
+        required
         name="penalty_fee"
         value={formState?.penalty_fee}
         placeholder="Coloca 0% si no aplicas multas"

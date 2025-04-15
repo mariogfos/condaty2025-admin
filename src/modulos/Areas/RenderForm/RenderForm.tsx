@@ -142,19 +142,24 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      if (!formState?.avatar) {
+      if (!formState?.avatar && !formState.id) {
         showToast("Debe seleccionar una imagen", "error");
         return;
       }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;
+      if (!formState?.booking_mode) {
+        showToast("Seleccione el modo de reserva", "error");
+        return;
+      }
       if (!formState?.available_days) {
         showToast("Seleccione los días y periodos disponibles", "error");
         return;
       }
     }
     if (level === 3) {
+      if (hasErrors(validateLevel3())) return;
       onSave();
       return;
     }
@@ -182,6 +187,7 @@ const RenderForm = ({
         cancellation_policy: formState?.cancellation_policy,
         approval_response_hours: formState?.approval_response_hours,
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+        booking_mode: formState?.booking_mode,
       }
     );
 

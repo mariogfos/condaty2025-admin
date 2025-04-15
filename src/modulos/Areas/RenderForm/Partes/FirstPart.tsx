@@ -43,6 +43,7 @@ const FirstPart = ({
         <Input
           label="Nombre del área social"
           name="title"
+          required
           value={formState?.title}
           onChange={handleChange}
           error={errors}
@@ -51,6 +52,7 @@ const FirstPart = ({
           type="number"
           label="Capacidad máxima de personas"
           name="max_capacity"
+          required
           value={formState?.max_capacity}
           onChange={handleChange}
           error={errors}
@@ -59,6 +61,7 @@ const FirstPart = ({
       <Select
         label="Estado del área "
         name="status"
+        required
         value={formState?.status}
         onChange={handleChange}
         options={[
@@ -70,6 +73,7 @@ const FirstPart = ({
       />
       <TextArea
         label="Descripción"
+        required
         name="description"
         value={formState?.description}
         onChange={handleChange}
