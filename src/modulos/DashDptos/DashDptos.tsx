@@ -21,6 +21,7 @@ import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
 import Tooltip from "@/components/Tooltip/Tooltip";
+import Table from "@/mk/components/ui/Table/Table";
 
 interface DashDptosProps {
   id: string | number;
@@ -358,67 +359,65 @@ const DashDptos = ({ id }: DashDptosProps) => {
             </span>
           </div>
           <div className={styles.accountContent}>
-            <div className={styles.accountGrid}>
-              <div>Fecha</div>
-              <div>Categoría</div>
-              <div>Monto</div>
-              <div>Medio de pago</div>
-              <div>Estado</div>
-            </div>
-            <div className={styles.accountList}>
-              {!datas?.payments || datas.payments.length === 0 ? (
-                <EmptyData
-                  message="No existe historial de pagos para esta unidad"
-                  centered={false}
-                />
-              ) : (
-                datas.payments.slice(0, 4).map((pago: any, index: number) => (
-                  <div
-                    key={index}
-                    className={styles.accountRow}
-                    onClick={() => {
-                      if (pago.status === "A") {
-                        setOpenPagar(true);
-                      } else {
-                        setOpenComprobante(true);
-                        setIdPago(pago?.payment?.id);
-                      }
-                    }}
-                  >
-                    <div className={styles.cell}>
-                      {getDateStrMes(pago?.paid_at) || "-"}
-                    </div>
-                    <div className={styles.cell}>Expensa</div>
-                    <div className={styles.cell}>
-                      {pago?.amount && pago?.penalty_amount
-                        ? `Bs ${
-                            parseFloat(pago?.amount) +
-                            parseFloat(pago?.penalty_amount)
-                          }`
-                        : "-"}
-                    </div>
-                    <div className={styles.cell}>
-                      {pago?.payment?.type === "Q"
-                        ? "Qr"
-                        : pago?.payment?.type === "T"
-                        ? "Transferencia"
-                        : pago?.payment?.type === "O"
-                        ? "Pago en oficina"
-                        : "Sin pago"}
-                    </div>
-                    <div className={styles.cell}>
-                      <span
-                        className={`${styles.status} ${
-                          styles[`status${pago?.status}`]
-                        }`}
-                      >
-                        {getStatus(pago?.status)}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+
+
+
+          //tabla aqui
+
+
+
+
+
+
+
+
+            {(!datas?.payments || datas.payments.length === 0) ? (
+              <EmptyData
+              message="No existe historial de pagos para esta unidad"
+              centered={false}
+              />
+            ):
+            <Table
+              header={[
+                { key: 'fecha', label: 'Fecha de pago',responsive:"desktop", },
+                { key: 'categoria', label: 'Categoría',responsive:"desktop", width: '100px' },
+                { key: 'subcategoria', label: 'SubCategoría',responsive:"desktop", width: '120px' },
+                { key: 'monto', label: 'Monto',responsive:"desktop", width: '100px' },
+                { key: 'medio_pago', label: 'Medio de pago',responsive:"desktop", width: '120px' },
+                { key: 'estado', label: 'Estado', width: '100px', responsive:"desktop",}
+              ]}
+              data={datas?.payments?.slice(0, 4).map((pago: any) => ({
+                fecha: getDateStrMes(pago?.paid_at) || '-',
+                categoria: 'Expensa',
+                subcategoria: pago?.category?.name || '-',
+                monto: pago?.amount && pago?.penalty_amount
+                  ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
+                  : '-',
+                medio_pago: pago?.payment?.type === 'Q'
+                  ? 'Qr'
+                  : pago?.payment?.type === 'T'
+                  ? 'Transferencia'
+                  : pago?.payment?.type === 'O'
+                  ? 'Pago en oficina'
+                  : 'Sin pago',
+                estado: <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}>
+                  {getStatus(pago?.status)}
+                </span>
+              }))}
+               className="striped"
+               
+              onRowClick={(row) => {
+                console.log(row)
+                if (row.estado.props.children === 'Por Pagar') {
+                  setOpenPagar(true);
+                } else {
+                  setOpenComprobante(true);
+                  setIdPago(row.id);
+                }
+              }}
+            />
+          
+          }
           </div>
         </div>
 
