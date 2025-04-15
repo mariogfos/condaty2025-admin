@@ -83,6 +83,12 @@ const RenderForm = ({
     //   errors,
     // });
     errors = checkRules({
+      value: formState?.max_reservations_per_day,
+      rules: ["required"],
+      key: "max_reservations_per_day",
+      errors,
+    });
+    errors = checkRules({
       value: formState?.max_reservations_per_week,
       rules: ["required"],
       key: "max_reservations_per_week",
@@ -182,6 +188,7 @@ const RenderForm = ({
         approval_response_hours: formState?.approval_response_hours,
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
         booking_mode: formState?.booking_mode,
+        max_reservations_per_day: formState?.max_reservations_per_day,
       }
     );
 
@@ -290,13 +297,6 @@ const RenderForm = ({
             label="Reglas de uso"
             name="usage_rules"
             value={formState?.usage_rules}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Reservas máximas por día"
-            name="max_reservations_per_day"
-            value={formState?.max_reservations_per_day}
             onChange={handleChange}
             error={errors}
           />
