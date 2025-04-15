@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
-import { getDateStrMes, getUTCNow } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes, getUTCNow } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -170,7 +170,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
         api: "",
         label: "Residente",
         list: {
-          width: "180px",
+          
           onRender: (props: any) => {
             return (
               <div>
@@ -188,11 +188,12 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
         api: "",
         label: "Entrada",
         list: {  
+          
           onRender: (props: any) => {
             return (
-              <div>
+              <div className={styles.valueAccent}>
                 {props.item.access?.in_at
-                  ? getDateStrMes(props.item.access.in_at)
+                  ? getDateTimeStrMes(props.item.access.in_at) + " >" 
                   : "No registrada"}
               </div>
             );
@@ -207,7 +208,7 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
               
               filter: {
                 label: "Periodo",
-                width: "180px",
+                width: "200px",
                 options: getPeriodOptions
               }
             },
@@ -219,9 +220,9 @@ const PedidosTab: React.FC<PedidosTabProps> = ({ paramsInitial }) => {
         list: {
           onRender: (props: any) => {
             return (
-              <div>
+              <div className={styles.valueError}>
                 {props.item.access?.out_at
-                  ? getDateStrMes(props.item.access.out_at)
+                  ? "< " + getDateTimeStrMes(props.item.access.out_at)
                   : "No registrada"}
               </div>
             );
