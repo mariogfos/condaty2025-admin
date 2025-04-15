@@ -21,6 +21,8 @@ import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
 import Tooltip from "@/components/Tooltip/Tooltip";
+import Table from "@/mk/components/ui/Table/Table";
+import { Categories } from "emoji-picker-react";
 
 interface DashDptosProps {
   id: string | number;
@@ -140,7 +142,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
     );
     setDataOw(dependentData?.owner || {});
   };
-  
+  // console.log(datas,'datas')
+
   return (
     <div className={styles.container}>
       <section style={{display:'flex',justifyContent:'flex-start'}} onClick={() => router.push("/dptos")}>
@@ -304,7 +307,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       {datas.titular.dependientes.length > 0 ? (
                         datas.titular.dependientes.map(
                           (dependiente: any, index: number) => (
-                            <Tooltip title={getFullName(dependiente.owner)} position="top" className={styles.tooltip}>
+
+                            
+                            <Tooltip key={index} title={getFullName(dependiente.owner)} position="top" className={styles.tooltip}>
                             <Avatar
                               key={index}
                               src={
@@ -358,67 +363,66 @@ const DashDptos = ({ id }: DashDptosProps) => {
             </span>
           </div>
           <div className={styles.accountContent}>
-            <div className={styles.accountGrid}>
-              <div>Fecha</div>
-              <div>Categoría</div>
-              <div>Monto</div>
-              <div>Medio de pago</div>
-              <div>Estado</div>
-            </div>
-            <div className={styles.accountList}>
-              {!datas?.payments || datas.payments.length === 0 ? (
-                <EmptyData
-                  message="No existe historial de pagos para esta unidad"
-                  centered={false}
-                />
-              ) : (
-                datas.payments.slice(0, 4).map((pago: any, index: number) => (
-                  <div
-                    key={index}
-                    className={styles.accountRow}
-                    onClick={() => {
-                      if (pago.status === "A") {
-                        setOpenPagar(true);
-                      } else {
-                        setOpenComprobante(true);
-                        setIdPago(pago?.payment?.id);
-                      }
-                    }}
-                  >
-                    <div className={styles.cell}>
-                      {getDateStrMes(pago?.paid_at) || "-"}
-                    </div>
-                    <div className={styles.cell}>Expensa</div>
-                    <div className={styles.cell}>
-                      {pago?.amount && pago?.penalty_amount
-                        ? `Bs ${
-                            parseFloat(pago?.amount) +
-                            parseFloat(pago?.penalty_amount)
-                          }`
-                        : "-"}
-                    </div>
-                    <div className={styles.cell}>
-                      {pago?.payment?.type === "Q"
-                        ? "Qr"
-                        : pago?.payment?.type === "T"
-                        ? "Transferencia"
-                        : pago?.payment?.type === "O"
-                        ? "Pago en oficina"
-                        : "Sin pago"}
-                    </div>
-                    <div className={styles.cell}>
-                      <span
-                        className={`${styles.status} ${
-                          styles[`status${pago?.status}`]
-                        }`}
-                      >
-                        {getStatus(pago?.status)}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+
+
+
+            {(!datas?.payments || datas.payments.length === 0) ? (
+              <EmptyData
+              message="No existe historial de pagos para esta unidad"
+              centered={false}
+              />
+            ):
+            <Table
+              header={[
+                { key: 'paid_at', label: 'Fecha de pago', responsive: "desktop" ,onRender:({item}:any)=>{ return getDateStrMes(item?.paid_at) || '-'}},
+                { key: 'categorie',label:'Categoría', responsive: "desktop" },
+                { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" },
+                { key: 'amount', label: 'Monto', responsive: "desktop", width: '100px',
+                  onRender: ({ item }: any) => {
+                   return item?.amount && item?.penalty_amount
+                      ? `Bs ${
+                          parseFloat(item?.amount) +
+                          parseFloat(item?.penalty_amount)
+                        }`
+                      : "-"
+                 },},
+                { key: 'type', label: 'Tipo de pago', responsive: "desktop" ,
+                   onRender:({item}:any)=>{
+                    //  console.log(item,'props desde render de qr');
+                   return item?.payment?.type === "Q"
+                    ? "Qr"
+                    :  item?.payment?.type === "T"
+                    ? "Transferencia"
+                    :  item?.payment?.type === "O"
+                    ? "Pago en oficina"
+                    : "Sin pago"}},
+                // { key: 'penalty_amount', label: 'Mora', responsive: "desktop", width: '100px' },
+                { key: 'status', label: 'Estado', width: '100px', responsive: "desktop", onRender:({item}:any)=>{ 
+                  return     <span className={`${styles.status} ${styles[`status${item?.status}`] }`}  >
+                  {getStatus(item?.status)}
+                </span>
+                }}
+              ]}
+              data={datas?.payments?.slice(0, 4)}
+              className="striped"
+              onRowClick={(row) => {
+                // console.log(row, 'row');
+                // if (row.status.props.children === 'Por Pagar') {
+                //   setOpenPagar(true);
+                // } else {
+                //   setOpenComprobante(true);
+                //   setIdPago(row.payment_id);
+                // }
+
+                if (row.status === 'A') {
+                  setOpenPagar(true);
+                } else {
+                  setOpenComprobante(true);
+                  setIdPago(row.payment_id);
+                }
+              }}
+            />
+          }
           </div>
         </div>
 
@@ -768,3 +772,43 @@ const DashDptos = ({ id }: DashDptosProps) => {
 };
 
 export default DashDptos;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// data={datas?.payments?.slice(0, 4).map((pago: any) => 
+             
+//   {    console.log(pago,'pago desde data con '); return ({
+//   // fecha: getDateStrMes(pago?.paid_at) || '-',
+//   categoria: 'Expensa',
+//   subcategoria: pago?.category?.name || '-',
+//   monto: pago?.amount && pago?.penalty_amount
+//     ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
+//     : '-',
+//   medio_pago: pago?.payment?.type === 'Q'
+//     ? 'Qr'
+//     : pago?.payment?.type === 'T'
+//     ? 'Transferencia'
+//     : pago?.payment?.type === 'O'
+//     ? 'Pago en oficina'
+//     : 'Sin pago',
+//   estado: <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}></span>
