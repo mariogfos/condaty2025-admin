@@ -110,7 +110,7 @@ const SecondPart = ({
     for (let t = start; t + periodLength <= end; t += periodLength) {
       const from = minutesToTimeString(t);
       const to = minutesToTimeString(t + periodLength);
-      result.push(`${from} - ${to}`);
+      result.push(`${from}-${to}`);
     }
 
     setPeriods(result);
@@ -169,18 +169,18 @@ const SecondPart = ({
     }
   }, [formState?.booking_mode]);
 
-  console.log(formState);
-
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
       <div style={{ display: "flex", width: "100%", gap: 8 }}>
         <Radio
+          disabled={formState?.id}
           checked={formState?.booking_mode == "day"}
           label="Por dia"
           onChange={() => setFormState({ ...formState, booking_mode: "day" })}
         />
         <Radio
+          disabled={formState?.id}
           checked={formState?.booking_mode == "hour"}
           label="Por hora"
           onChange={() => setFormState({ ...formState, booking_mode: "hour" })}
@@ -203,10 +203,15 @@ const SecondPart = ({
       />
       {formState?.booking_mode && (
         <>
-          <p className={styles.title}>Días y periodos disponibles</p>
+          <p className={styles.title}>
+            {formState?.booking_mode == "day"
+              ? "Días disponibles"
+              : "Días y periodos disponibles"}
+          </p>
           <p className={styles.subtitle}>
-            Selecciona los días y crea los periodos de horas en que esta área
-            estará disponible para reservar
+            {formState?.booking_mode == "day"
+              ? "Selecciona los días en que esta área estará disponible para reservar"
+              : "Selecciona los días y crea los periodos de horas en que esta área estará disponible para reservar"}
           </p>
           <WeekdayToggleGroup
             days={days}
@@ -246,7 +251,9 @@ const SecondPart = ({
                     color: "var(--cWhiteV1)",
                   }}
                 >
-                  periodos de horas
+                  {formState?.booking_mode == "hour"
+                    ? "periodos de horas"
+                    : "Horario disponible"}
                 </p>
                 <div
                   style={{
@@ -404,11 +411,14 @@ const SecondPart = ({
             </>
           )}
           <p className={styles.title} style={{ marginTop: 12 }}>
-            Aplicar periodos a los demás días
+            {formState?.booking_mode == "hour"
+              ? "Aplicar periodos a los demás días"
+              : "Aplicar horarios a los demás días"}
           </p>
           <p className={styles.subtitle}>
-            Simplifica tu tarea aplicando los mismos bloques a los demás días.
-            Selecciona los días en los que quieras repetir estos mismos bloques
+            {formState?.booking_mode == "hour"
+              ? "Simplifica tu tarea aplicando los mismos bloques a los demás días. Selecciona los días en los que quieras repetir estos mismos bloques"
+              : "Simplifica tu tarea aplicando el mismo horario a los demás días. Selecciona los días en los que quieras repetir este mismo horario"}
           </p>
           <WeekdayToggleGroup
             days={days}

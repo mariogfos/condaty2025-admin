@@ -11,7 +11,7 @@
   padding-right: var(--spM);
   display: flex;
   gap: var(--spXs);
-  margin-bottom: calc(var(--spS) * 3);
+  margin-bottom: calc(var(--spS) * 2.5);
   font-weight: var(--bRegular);
   color: var(--cWhite);
   & > div > input::placeholder {
