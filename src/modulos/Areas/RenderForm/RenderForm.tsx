@@ -40,7 +40,6 @@ const RenderForm = ({
       [e.target.name]: e.target.value,
     });
   };
-  console.log(formState);
 
   const validateLevel1 = () => {
     let errors: any = {};
