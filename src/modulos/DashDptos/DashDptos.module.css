@@ -20,7 +20,10 @@
   
   .leftPanel {
     width: 70%;
-    height: calc(100vh - 50px);
+    /* height: calc(100vh - 50px); */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spL);
   }
   
   .rightPanel {
@@ -421,4 +424,20 @@
   .accountRow:hover {
     border-color: var(--accentColor);
     box-shadow: 0 0 8px rgba(0, 227, 140, 0.2);
+  }
+
+  .accessCard {
+    border: solid 1px var(--lightv3);
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+  }
+
+  .tooltip {
+   
+      & > span{
+      /* background-color: #00E38C; */
+      width: max-content;
+      }
+    
   }
