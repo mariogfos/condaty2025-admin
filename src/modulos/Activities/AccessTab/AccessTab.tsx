@@ -169,7 +169,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         api: "",
         label: "Salida",
         list: {
-          width: "140px",
+          
           onRender: (props: any) => {
             return (
               <div>
@@ -199,7 +199,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         api: "",
         label: "Residente",
         list: {
-          width: "180px",
+          
           onRender: (props: any) => {
             return getFullName(props.item.owner);
           },

@@ -28,16 +28,64 @@ const UploadFileMultiple = ({
   editor = false,
   sizePreview = { width: "100px", height: "100px" },
   // autoOpen = true,
+  value: initialValue,
   ...props
 }: PropsType) => {
   const [imgs, setImgs]: any = useState(images);
-  const [value, setValue]: any = useState({});
+  const [value, setValue]: any = useState(initialValue || {});
 
   useEffect(() => {
     if (imgs[0]?.id != 0 && imgs?.length < maxFiles)
       setImgs([...imgs, { id: 0 }]);
   }, []);
+  // useEffect(() => {
+  //   // Initialize or update images when formState changes
+  //   if (item?.[name]) {
+  //     const currentImages = Object.values(item[name]).filter(
+  //       (img: any) => img?.file !== "delete"
+  //     );
+  //     const hasEmptySlot = currentImages.length < maxFiles;
+  //     setImgs([...currentImages, ...(hasEmptySlot ? [{ id: 0 }] : [])]);
+  //     setValue(item[name]);
+  //   }
+  // }, [item, name, maxFiles]);
 
+  useEffect(() => {
+    // Initialize or update images when formState changes
+    if (item?.[name] || (item?.images && item?.id)) {
+      let currentImages;
+
+      if (item?.images && item?.id) {
+        // Handle existing images from edit mode
+        currentImages = item.images.map((img: any) => ({
+          id: img.id,
+          ext: img.ext || "webp",
+        }));
+      } else {
+        // Handle new images being added
+        currentImages = Object.values(item[name]).filter(
+          (img: any) => img?.file !== "delete"
+        );
+      }
+
+      const hasEmptySlot = currentImages.length < maxFiles;
+      setImgs([...currentImages, ...(hasEmptySlot ? [{ id: 0 }] : [])]);
+
+      if (item?.images && item?.id) {
+        // Convert existing images to the expected format
+        const existingImagesValue = currentImages.reduce(
+          (acc: any, img: any, index: number) => {
+            acc[name + index] = { file: "", id: img.id, ext: img.ext };
+            return acc;
+          },
+          {}
+        );
+        setValue({ ...existingImagesValue, ...item[name] });
+      } else {
+        setValue(item[name]);
+      }
+    }
+  }, [item, name, maxFiles]);
   const deleteImg = (img: string, del = true) => {
     const indice = img.replace(name, "").split("-")[0];
     const id = img.replace(name, "").split("-")[1] || 0;
@@ -69,43 +117,65 @@ const UploadFileMultiple = ({
     onChange && onChange({ target: { name, value: newE } });
   };
 
+  // const _onChange = (e: any) => {
+  //   if (
+  //     (e.target.value.file == "" || e.target.value.file == "delete") &&
+  //     imgs.length > 1
+  //   ) {
+  //     deleteImg(e.target.name, false);
+
+  //     return;
+  //   }
+
+  //   const indice = e.target.name.replace(name, "").split("-")[0];
+  //   const id = e.target.name.replace(name, "").split("-")[1] || 0;
+  //   const edit = value[name + indice]?.file || id > 0;
+  //   console.log("edit", edit, name + indice, value[name + indice]?.file);
+  //   const newE = { ...value, [name + indice]: { ...e.target.value, id } };
+  //   onChange && onChange({ target: { name, value: newE } });
+  //   setValue(newE);
+
+  //   let add = true;
+
+  //   add = imgs.length <= Object.keys(newE).length + (images.length - 1);
+
+  //   if (!add) {
+  //     add = true;
+  //     imgs.map((it: any, i: number) => {
+  //       if (
+  //         it.id == 0 &&
+  //         value &&
+  //         value[name + i] &&
+  //         value[name + i].file == ""
+  //       )
+  //         add = false;
+  //     });
+  //   }
+
+  //   if (imgs.length >= maxFiles || !add || edit) return;
+  //   setImgs((prev: any) => [...prev, { id: 0 }]);
+  // };
   const _onChange = (e: any) => {
     if (
       (e.target.value.file == "" || e.target.value.file == "delete") &&
       imgs.length > 1
     ) {
       deleteImg(e.target.name, false);
-
       return;
     }
 
     const indice = e.target.name.replace(name, "").split("-")[0];
     const id = e.target.name.replace(name, "").split("-")[1] || 0;
     const edit = value[name + indice]?.file || id > 0;
-    console.log("edit", edit, name + indice, value[name + indice]?.file);
+
     const newE = { ...value, [name + indice]: { ...e.target.value, id } };
     onChange && onChange({ target: { name, value: newE } });
     setValue(newE);
 
-    let add = true;
-
-    add = imgs.length <= Object.keys(newE).length + (images.length - 1);
-
-    if (!add) {
-      add = true;
-      imgs.map((it: any, i: number) => {
-        if (
-          it.id == 0 &&
-          value &&
-          value[name + i] &&
-          value[name + i].file == ""
-        )
-          add = false;
-      });
+    // Add new empty slot if needed
+    if (!edit && imgs.length < maxFiles) {
+      setImgs((prev: any) => [...prev, { id: 0 }]);
     }
-
-    if (imgs.length >= maxFiles || !add || edit) return;
-    setImgs((prev: any) => [...prev, { id: 0 }]);
   };
   return (
     <div

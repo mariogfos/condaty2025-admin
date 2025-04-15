@@ -211,23 +211,33 @@ const Expenses = () => {
                     onRender:(props:any)=>{
                         return(<div style={{color:isUnitInDefault(props?.item)?'var(--cError)':''}}>{unitsPayable(props?.item?.asignados)}  U</div>)}}
                     },
-            payStatus: {
-                rules: [""],
-                api: "",
-                label: "Estado",
-                list: { 
-                    onRender: (props: any) => {
-                        const isInDefault = isUnitInDefault(props?.item);
-                        const statusClass = `${styles.statusBadge} ${isInDefault ? styles.statusMora : styles.statusDefault}`;
-                        
-                        return (
-                            <div className={statusClass}>
-                                {isInDefault ? "En mora" : "Vigente"}
-                            </div>
-                        );
-                    }
-                }
-            },
+                    payStatus: {
+                      rules: [""],
+                      api: "",
+                      label: "Estado",
+                      list: { 
+                          onRender: (props: any) => {
+                              const isInDefault = isUnitInDefault(props?.item);
+                              const statusClass = `${styles.statusBadge} ${isInDefault ? styles.statusMora : styles.statusDefault}`;
+                              
+                              // Primero verificamos si es Pagado
+                              if (props.item.status === "P") {
+                                  return (
+                                      <div className={styles.statusPay}>
+                                          Pagado
+                                      </div>
+                                  );
+                              }
+                              
+                              // Lógica normal para otros estados
+                              return (
+                                  <div className={statusClass}>
+                                      {isInDefault ? "En mora" : "Vigente"}
+                                  </div>
+                              );
+                          }
+                      }
+                  },
            sumPenalty: {
             rules: [""],
             api: "",

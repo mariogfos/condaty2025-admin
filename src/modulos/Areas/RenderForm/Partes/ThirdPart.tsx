@@ -18,6 +18,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       </p>
       <TextArea
         label="Descripción"
+        required
         name="usage_rules"
         value={formState?.usage_rules}
         onChange={handleChange}
@@ -31,6 +32,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <TextArea
         label="Descripción"
         name="cancellation_policy"
+        required
         value={formState?.cancellation_policy}
         onChange={handleChange}
         error={errors}
@@ -44,6 +46,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <Input
         type="number"
         label="Horas de respuesta de aprobación"
+        required
         name="approval_response_hours"
         value={formState?.approval_response_hours}
         onChange={handleChange}
