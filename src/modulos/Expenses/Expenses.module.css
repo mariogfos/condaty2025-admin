@@ -20,6 +20,20 @@
     background-color: rgba(0, 123, 255, 0.2);
     color: var(--info);
   }
+  .statusPay {
+    font-weight: var(--bMedium);
+    padding: 6px var(--spM);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: fit-content;
+    min-width: 110px;
+    white-space: nowrap;
+    background-color: var(--accentBg);
+  color: var(--cPrimary);
+  }
   
   .statusMora {
     background-color: var(--cHoverError);
