@@ -36,14 +36,30 @@ const SecondPart = ({
   const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  // console.log(selectedDays, "selectedDays");
+
   const handleChangeWeekday = (day: string) => {
-    if (selectedDays.includes(day)) {
+    if (
+      selectedDays.includes(day) ||
+      formState?.available_days?.includes(day)
+    ) {
       setSelectedDays(selectedDays.filter((d: any) => d !== day));
+      const updatedHours = { ...formState?.available_hours };
+      delete updatedHours[day];
+
+      setFormState({
+        ...formState,
+        available_days: formState?.available_days?.filter(
+          (d: any) => d !== day
+        ),
+        available_hours: updatedHours,
+      });
     } else {
       setSelectedDays([...selectedDays, day]);
+      setOpenModal(true);
     }
-    setOpenModal(true);
   };
+
   const handleChangePeriods = (period: string) => {
     setSelectdHour(period);
   };
@@ -224,9 +240,8 @@ const SecondPart = ({
           style={{
             display: "flex",
             overflowX: "scroll",
-            gap: 12,
+            gap: 8,
             marginTop: 12,
-
             scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
           }}
         >
@@ -264,7 +279,7 @@ const SecondPart = ({
                     scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
                   }}
                 >
-                  {formState?.available_hours[day].map(
+                  {formState?.available_hours[day]?.map(
                     (period: any, index: any) => (
                       <div
                         key={index}
