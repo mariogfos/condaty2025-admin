@@ -136,7 +136,7 @@ const SecondPart = ({
       !selectedDays.length ||
       !formState?.start_hour ||
       !formState?.end_hour ||
-      selectdHour == ""
+      (selectdHour == "" && formState?.booking_mode == "hour")
     )
       return;
 
