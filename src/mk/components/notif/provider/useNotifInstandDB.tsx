@@ -58,7 +58,7 @@ const useNotifInstandDB = (
             { channel: channelGral },
             { channel: channelGral + user?.client_id },
             { channel: chiam },
-            { channel: channelGral + user?.client_id + "-admin" },
+            { channel: channelGral + user?.client_id + "-admins" },
             { channel: channelGral + user?.client_id + "-alert-2" },
             { channel: channelGral + user?.client_id + "-alert-3" },
             ...channels,
@@ -89,7 +89,7 @@ const useNotifInstandDB = (
       }
 
       if (lastNotif !== null && lastNotif < data?.notif[0].created_at) {
-        // console.log("notif enviada");
+        console.log("notif enviada");
         dispatch(data?.notif[0]);
         last = data?.notif[0].created_at;
         localStorage.setItem("lastNotifInstantDB", last);
