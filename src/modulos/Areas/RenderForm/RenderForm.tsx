@@ -40,7 +40,6 @@ const RenderForm = ({
       [e.target.name]: e.target.value,
     });
   };
-  console.log(formState);
 
   const validateLevel1 = () => {
     let errors: any = {};
@@ -82,12 +81,14 @@ const RenderForm = ({
     //   key: "price",
     //   errors,
     // });
-    errors = checkRules({
-      value: formState?.max_reservations_per_day,
-      rules: ["required"],
-      key: "max_reservations_per_day",
-      errors,
-    });
+    if (formState?.booking_mode === "hour") {
+      errors = checkRules({
+        value: formState?.max_reservations_per_day,
+        rules: ["required"],
+        key: "max_reservations_per_day",
+        errors,
+      });
+    }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
       rules: ["required"],
