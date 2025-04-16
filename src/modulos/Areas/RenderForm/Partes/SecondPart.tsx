@@ -32,11 +32,10 @@ const SecondPart = ({
   const [selectedDays, setSelectedDays]: any = useState(
     formState?.available_days || []
   );
-  // const [selectdHours, setSelectedHours] = useState([]);
+  const prevBookingMode = React.useRef(formState?.booking_mode);
   const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  // console.log(selectedDays, "selectedDays");
 
   const handleChangeWeekday = (day: string) => {
     if (
@@ -167,24 +166,24 @@ const SecondPart = ({
   };
 
   useEffect(() => {
-    if (
-      !formState?.id &&
-      formState?.booking_mode === "hour" &&
-      selectdHour == ""
-    ) {
+    if (prevBookingMode.current === formState?.booking_mode) {
+      prevBookingMode.current = formState?.booking_mode;
+      return;
+    }
+    if (!formState?.id) {
       setFormState({
         ...formState,
         start_hour: "",
         end_hour: "",
         available_hours: {},
         available_days: [],
+        max_reservations_per_day: "",
       });
       setSelectdHour("");
       setSelectedDays([]);
       setPeriods([]);
     }
   }, [formState?.booking_mode]);
-
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
