@@ -1,0 +1,571 @@
+/* CreateReserva.module.css */
+
+.createReservaContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Equivalente a gap-4 aprox */
+  /* Añade max-width o width si es necesario */
+  width: 100%;
+  max-width: 800px; /* Ajusta según tu diseño */
+  margin: 0 auto; /* Centrar */
+  padding: 1rem; /* Añade padding si es necesario */
+  color: #f0f0f0; /* Color de texto base claro */
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* gap-3 */
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+  cursor: pointer;
+  color: #a7a7a7; /* Color grisáceo */
+  font-size: 14px;
+}
+.backButton:hover {
+  color: #f0f0f0; /* Más claro al pasar el ratón */
+}
+
+.header h1 {
+  font-size: 24px; /* text-[24px] */
+  font-weight: 600; /* font-semibold */
+  color: #f0f0f0; /* text-neutral-50 */
+}
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.progressBar {
+  height: 7px; /* h-[7px] */
+  background-color: #292929; /* bg-[#292929] */
+  border-radius: 1rem; /* rounded-2xl */
+  overflow: hidden; /* Para que el fill no se salga */
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #246950; /* bg-[#246950] */ /* Este es el color del paso 1-2 */
+  /* El color cambia a #00e38c en el paso 3, se podría manejar con clases condicionales o JS */
+  transition: width 0.3s ease-in-out;
+}
+
+.formContainer {
+  /* Contenedor si necesitas separar el header de la tarjeta */
+}
+
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* gap-6 */
+  background-color: #333536; /* bg-[#333536] */
+  padding: 1rem; /* p-4 */
+  border-radius: 1rem; /* rounded-2xl */
+  border: 0.5px solid #a7a7a7; /* border-[0.5px] border-solid border-[#a7a7a7] */
+}
+
+.stepIndicator {
+    font-size: 14px; /* text-[14px] */
+    color: #f0f0f0; /* text-neutral-50 */
+    align-self: flex-start; /* O ajusta según diseño */
+    margin-bottom: -1rem; /* Ajusta para solapar si es necesario */
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Ajusta según el contenido de cada paso */
+}
+
+/* --- Estilos Paso 1 (Revisar/Añadir si es necesario) --- */
+.step1Content h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    margin-bottom: -0.5rem; /* Reduce espacio antes del campo */
+}
+.areaPreview {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    border: 1px solid #414141;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+.imageContainer { /* ... */ }
+.areaInfo { /* ... */ }
+
+
+/* --- Estilos Paso 2 --- */
+.step2Content {
+    gap: 2rem; /* Más espacio entre secciones */
+}
+
+.sectionLabel {
+    font-size: 16px; /* text-[16px] */
+    font-weight: 500; /* font-medium */
+    color: #f0f0f0; /* text-neutral-50 */
+    margin-bottom: 0.25rem; /* gap-1 */
+}
+
+.sectionSubtitle {
+    font-size: 14px; /* text-[14px] */
+    color: #a7a7a7; /* text-[#a7a7a7] */
+    margin-bottom: 0.75rem; /* gap-3 */
+}
+
+.errorText {
+    color: #ff6b6b; /* Color de error */
+    font-size: 12px;
+    margin-top: -1rem; /* Ajusta para acercar al campo */
+}
+
+/* Sección Fecha */
+.dateSection {
+    display: flex;
+    flex-direction: column;
+}
+.calendarPlaceholder {
+    /* Estilos para el contenedor del input/calendario */
+    border: 1px dashed #555; /* Placeholder border */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* gap-4 */
+}
+.calendarControls {
+    display: flex;
+    gap: 0.5rem; /* gap-2 */
+}
+.controlButton {
+    padding: 0.5rem; /* p-2 */
+    border-radius: 0.5rem; /* rounded-lg */
+    border: 0.5px solid #a7a7a7;
+    background-color: transparent;
+    color: #a7a7a7;
+    cursor: pointer;
+    font-size: 14px;
+}
+.controlButton:first-child { /* Simula el botón activo */
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #f0f0f0;
+}
+.calendarGridPlaceholder {
+    /* Estilos para simular la cuadrícula del calendario */
+    min-height: 150px; /* Para dar espacio */
+    text-align: center;
+    color: #777;
+}
+
+/* Sección Duración */
+.durationSection {
+    display: flex;
+    flex-direction: column;
+}
+.timeSelection {
+   /* Contenedor si necesitas agrupar los selects */
+}
+.timeFields {
+    display: flex;
+    gap: 1rem;
+}
+.halfWidth {
+    flex: 1; /* Ocupa mitad del espacio */
+}
+
+/* Sección Personas */
+.peopleSection {
+    display: flex;
+    /* items-center gap-[47px] -> Alinear items y dar espacio */
+    align-items: center;
+    justify-content: space-between; /* Empuja label/input a los lados */
+    gap: 2rem; /* Espacio entre label e input */
+}
+.peopleLabelContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* gap-1 */
+    flex-grow: 1; /* Ocupa espacio disponible */
+}
+.peopleInputContainer {
+    /* Contenedor para el input o los botones +/- */
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* gap-4 */
+}
+.peopleInput input { /* Estilo específico para el input de número */
+    max-width: 80px; /* Limita el ancho */
+    text-align: center;
+}
+
+
+/* --- Estilos Paso 3 --- */
+.step3Content {
+    gap: 1.5rem; /* gap-6 */
+}
+
+.summaryTitle {
+    font-size: 16px; /* text-[16px] */
+    font-weight: 500; /* font-medium */
+    color: #f0f0f0; /* text-neutral-50 */
+    margin-top: 1rem; /* Espacio antes del resumen */
+    margin-bottom: -0.5rem;
+}
+.summaryContainer {
+    /* Contenedor del resumen */
+    background-color: #333536; /* Mismo fondo que la tarjeta, ajusta si es diferente */
+    border-radius: 0.75rem; /* rounded-xl */
+    /* padding: 1rem; Añadido por summaryContent */
+}
+.summaryContent {
+    display: flex;
+    gap: 1rem; /* gap-3 */
+    padding: 1rem; /* Añade padding si no lo tiene el container */
+}
+.summaryImageContainer {
+   /* Contenedor de la imagen */
+   flex-shrink: 0; /* Evita que se encoja */
+}
+.summaryImage {
+    width: 218px; /* w-[218px] */
+    height: 218px; /* h-[218px] */
+    object-fit: cover; /* object-cover */
+    border-radius: 0.5rem; /* Añade borde redondeado si es necesario */
+}
+.summaryDetailsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* gap-3 */
+    flex-grow: 1; /* Ocupa espacio restante */
+}
+.summaryAreaInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* gap-2 */
+}
+.summaryAreaName {
+    font-size: 16px; /* text-[16px] */
+    font-weight: 500; /* font-medium */
+    color: #f0f0f0; /* text-neutral-50 */
+}
+.summaryAreaDescription {
+    font-size: 14px; /* text-[14px] */
+    color: #a7a7a7; /* text-[#a7a7a7] */
+    /* Opcional: limitar líneas */
+    /* display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden; */
+}
+.summaryBookingDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* gap-2 */
+}
+.summaryDetailsTitle {
+    font-size: 16px; /* text-[16px] */
+    font-weight: 500; /* font-medium */
+    color: #f0f0f0; /* text-neutral-50 */
+}
+.summaryDetailItem {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* gap-1 */
+    font-size: 14px; /* text-[14px] */
+    color: #a7a7a7; /* text-[#a7a7a7] */
+}
+.summaryDetailItem span:first-child { /* Placeholder para icono */
+    width: 20px; /* w-5 */
+    height: 20px; /* h-5 */
+    display: inline-block;
+    /* background-color: #555;  Color placeholder icono */
+    margin-right: 0.25rem;
+}
+.summaryCostPerHour {
+    /* Estilo específico si es necesario */
+}
+.summaryTotalCost {
+    margin-left: auto; /* Empuja el costo total a la derecha */
+    font-weight: 500;
+    color: #f0f0f0; /* text-neutral-50 */
+}
+
+
+/* --- Estilos Acciones/Botones --- */
+.formActions {
+  display: flex;
+  justify-content: flex-end; /* Alinea botones a la derecha */
+  gap: 1rem; /* Espacio entre botones */
+  margin-top: 1rem; /* Espacio sobre los botones */
+  padding-top: 1rem; /* Espacio separador opcional */
+  border-top: 1px solid #414141; /* Línea separadora opcional */
+}
+
+.button {
+  /* Estilos base para todos los botones */
+  padding: 0.75rem 1.5rem; /* px-6 py-3 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-weight: 600; /* font-semibold */
+  font-size: 16px; /* text-[16px] */
+  cursor: pointer;
+  border: none;
+  min-width: 120px; /* Ancho mínimo */
+  text-align: center;
+}
+
+.backBtn {
+  background-color: transparent;
+  border: 1px solid #a7a7a7;
+  color: #a7a7a7;
+}
+.backBtn:hover {
+  background-color: #414141;
+  color: #f0f0f0;
+}
+
+.nextBtn, .submitBtn {
+  background-color: #00e38c; /* bg-[#00e38c] */
+  color: #212121; /* text-[#212121] */
+  /* Ancho específico de Figma w-[302px] si es necesario */
+  /* width: 302px; */
+}
+.nextBtn:hover, .submitBtn:hover {
+  background-color: #00c77a; /* Un verde ligeramente más oscuro */
+}
+
+/* --- Estilos Formularios (Revisar/Ajustar Input/Select/TextArea) --- */
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* Espacio entre label y campo */
+}
+
+/* Asegúrate que los estilos de tus componentes Input, Select, TextArea */
+/* CreateReserva.module.css */
+
+/* ... (Estilos anteriores: .createReservaContainer, .header, .formCard, etc.) ... */
+
+
+/* --- Estilos para CalendarPicker --- */
+.calendarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Espacio entre controles y calendario */
+  /* width: 707px; */ /* Si necesitas el ancho fijo de Figma */
+  align-self: center; /* Centrar el calendario si es más estrecho */
+}
+
+.calendarViewControls {
+  display: flex;
+  gap: 0.5rem; /* gap-2 */
+  align-self: flex-start; /* Alinea a la izquierda */
+}
+
+.controlButton {
+  padding: 0.5rem 1rem; /* p-2 ajustado */
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 0.5px solid #a7a7a7;
+  background-color: transparent;
+  color: #a7a7a7;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400; /* font-normal */
+}
+
+.controlButton.active { /* Botón activo */
+  background-color: #f0f0f0; /* bg-neutral-50 */
+  color: #333; /* Color de texto oscuro para contraste */
+  border-color: #f0f0f0;
+  font-weight: 500; /* font-medium */
+}
+
+/* --- Estilos para react-day-picker (Usando las clases definidas en classNames) --- */
+.rdpRoot { /* Contenedor DayPicker */
+  margin: 0; /* Resetea margen default */
+  padding: 1rem; /* Añade padding si es necesario */
+  background-color: #333536; /* Fondo similar a la tarjeta */
+  border-radius: 0.5rem; /* Bordes redondeados */
+  width: 100%; /* Ocupa el ancho del contenedor */
+  color: #f0f0f0; /* Color de texto por defecto */
+}
+
+.rdpCaption {
+  display: flex;
+  justify-content: space-between; /* Empuja Mes/Año y botones a los lados */
+  align-items: center;
+  padding: 0 0.5rem; /* Espacio horizontal */
+  margin-bottom: 1rem; /* Espacio debajo del caption */
+}
+
+.rdpCaptionLabel {
+  font-size: 20px; /* text-[20px] */
+  font-weight: 600; /* font-semibold */
+  color: #f0f0f0; /* text-neutral-50 */
+}
+
+.rdpNav {
+  /* Contenedor de los botones de navegación si es necesario */
+}
+
+.rdpNavButton {
+  display: inline-flex; /* Para alinear icono */
+  justify-content: center;
+  align-items: center;
+  width: 24px; /* w-6 */
+  height: 24px; /* h-6 */
+  background-color: transparent;
+  border: 1px solid #555; /* Borde sutil */
+  border-radius: 50%; /* Circular */
+  color: #f0f0f0; /* text-neutral-50 */
+  cursor: pointer;
+}
+.rdpNavButton:hover {
+  background-color: #414141;
+}
+/* Estilos específicos para prev/next si usas tus propios iconos SVG */
+/* .rdpNavButtonPrev svg, .rdpNavButtonNext svg { ... } */
+
+
+.rdpTable {
+  width: 100%;
+  border-collapse: collapse; /* Asegura bordes limpios */
+  margin: 0;
+}
+
+.rdpHead {
+ /* Estilos para la cabecera (Dom, Lun, Mar...) */
+}
+
+.rdpHeadRow {
+  /* Fila de la cabecera */
+}
+
+.rdpHeadCell {
+  padding: 0.5rem 0.25rem; /* p-1 ajustado */
+  font-size: 16px; /* text-[16px] */
+  font-weight: 500; /* font-medium */
+  color: #a7a7a7; /* text-[#a7a7a7] */
+  text-align: center;
+  height: 26px; /* h-[26px] */
+  box-sizing: border-box;
+}
+
+.rdpTbody {
+  /* Cuerpo de la tabla */
+}
+
+.rdpRow {
+  /* Estilos para cada fila de días */
+}
+
+.rdpCell {
+  padding: 0; /* Quitamos padding para controlar tamaño con el día */
+  text-align: center;
+  /* border: 1px solid #414141; */ /* Borde sutil para ver celdas */
+  height: 40px; /* Altura estimada para cada celda de día */
+  position: relative; /* Para posicionar el punto rojo */
+}
+
+.rdpDay { /* El número del día */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px; /* Ancho del cuadrado del día */
+  height: 36px; /* Alto del cuadrado del día */
+  margin: auto; /* Centra el cuadrado dentro de la celda */
+  border-radius: 0.375rem; /* rounded-md aprox */
+  font-size: 16px; /* text-[16px] */
+  font-weight: 500; /* font-medium */
+  color: #a7a7a7; /* Color por defecto días mes actual */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  position: relative; /* Para el punto rojo */
+  z-index: 1;
+}
+.rdpDay:hover:not(.rdp-day_disabled) {
+  background-color: #4a4d4e; /* Fondo hover sutil */
+}
+
+/* Día seleccionado */
+.selectedDay {
+  background-color: transparent !important; /* Quitamos fondo por defecto si lo hubiera */
+  color: #00e38c !important; /* Color de texto neón */
+  font-weight: 700; /* Más grueso */
+  border: 1px solid #00e38c; /* Borde verde */
+  box-shadow: 0 0 8px #00e38c; /* Efecto neón */
+}
+/* Opcional: quitar hover del seleccionado */
+.selectedDay:hover {
+   background-color: transparent !important;
+}
+
+
+/* Día ocupado (con punto rojo) */
+.busyDay::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; /* Posición del punto */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px; /* Tamaño punto */
+  height: 5px; /* Tamaño punto */
+  border-radius: 50%;
+  background-color: #ff4d4d; /* Rojo para ocupado */
+  z-index: 2; /* Asegura que esté sobre el número */
+}
+/* Ajusta color del texto si el día ocupado también está seleccionado */
+.selectedDay.busyDay {
+   color: #00e38c !important; /* Mantiene el color neón */
+}
+
+
+/* Día de hoy */
+.today {
+  font-weight: 700; /* Negrita */
+  color: #f0f0f0; /* Blanco o color destacado */
+  /* border: 1px dashed #f0f0f0; */ /* Borde opcional */
+}
+.selectedDay.today {
+    /* Mantener estilos de .selectedDay */
+}
+
+/* Días fuera del mes */
+.rdpDayOutside {
+  color: #414141 !important; /* text-[#414141] */
+  cursor: default;
+}
+.rdpDayOutside:hover {
+    background-color: transparent; /* Sin hover */
+}
+
+/* Días deshabilitados (pasados) */
+.disabledDay {
+  color: #555 !important; /* Color muy apagado */
+  cursor: default;
+  pointer-events: none; /* No clickable */
+  text-decoration: line-through; /* Tachado opcional */
+}
+.disabledDay:hover {
+    background-color: transparent; /* Sin hover */
+}
+
+/* --- Estilos Secciones debajo del calendario --- */
+.durationSection, .peopleSection {
+  margin-top: 1.5rem; /* Espacio después del calendario */
+  padding-top: 1.5rem; /* Espacio antes */
+  border-top: 1px solid #414141; /* Línea separadora */
+}
+
+/* Ajustes menores si son necesarios */
+.errorText {
+  /* ... */
+  margin-top: 0.5rem; /* Ajusta espacio si es necesario */
+}
