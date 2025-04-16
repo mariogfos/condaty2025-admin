@@ -132,7 +132,12 @@ const SecondPart = ({
   }, [selectdHour]);
 
   const handleSave = () => {
-    if (!selectedDays.length || !formState?.start_hour || !formState?.end_hour)
+    if (
+      !selectedDays.length ||
+      !formState?.start_hour ||
+      !formState?.end_hour ||
+      selectdHour == ""
+    )
       return;
 
     const updatedHours: any = {};
@@ -184,6 +189,19 @@ const SecondPart = ({
       setPeriods([]);
     }
   }, [formState?.booking_mode]);
+
+  const getEndHours = () => {
+    if (!formState?.start_hour) {
+      return [];
+    }
+    let h: any = [];
+    hours.map((hour: any) => {
+      if (hour.name > formState?.start_hour) {
+        h.push(hour);
+      }
+    });
+    return h;
+  };
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
@@ -396,7 +414,7 @@ const SecondPart = ({
               label="Hora de fin"
               name="end_hour"
               value={formState?.end_hour}
-              options={hours || []}
+              options={getEndHours() || []}
               onChange={handleChange}
               error={errors}
             />
