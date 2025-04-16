@@ -29,19 +29,37 @@ const SecondPart = ({
   formState,
   setFormState,
 }: PropsType) => {
-  const [selectedDays, setSelectedDays]: any = useState([]);
+  const [selectedDays, setSelectedDays]: any = useState(
+    formState?.available_days || []
+  );
   // const [selectdHours, setSelectedHours] = useState([]);
   const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  // console.log(selectedDays, "selectedDays");
+
   const handleChangeWeekday = (day: string) => {
-    if (selectedDays.includes(day)) {
+    if (
+      selectedDays.includes(day) ||
+      formState?.available_days?.includes(day)
+    ) {
       setSelectedDays(selectedDays.filter((d: any) => d !== day));
+      const updatedHours = { ...formState?.available_hours };
+      delete updatedHours[day];
+
+      setFormState({
+        ...formState,
+        available_days: formState?.available_days?.filter(
+          (d: any) => d !== day
+        ),
+        available_hours: updatedHours,
+      });
     } else {
       setSelectedDays([...selectedDays, day]);
+      setOpenModal(true);
     }
-    setOpenModal(true);
   };
+
   const handleChangePeriods = (period: string) => {
     setSelectdHour(period);
   };
@@ -108,7 +126,7 @@ const SecondPart = ({
     for (let t = start; t + periodLength <= end; t += periodLength) {
       const from = minutesToTimeString(t);
       const to = minutesToTimeString(t + periodLength);
-      result.push(`${from} - ${to}`);
+      result.push(`${from}-${to}`);
     }
 
     setPeriods(result);
@@ -149,7 +167,11 @@ const SecondPart = ({
   };
 
   useEffect(() => {
-    if (!formState?.id) {
+    if (
+      !formState?.id &&
+      formState?.booking_mode === "hour" &&
+      selectdHour == ""
+    ) {
       setFormState({
         ...formState,
         start_hour: "",
@@ -158,6 +180,7 @@ const SecondPart = ({
         available_days: [],
       });
       setSelectdHour("");
+      setSelectedDays([]);
       setPeriods([]);
     }
   }, [formState?.booking_mode]);
@@ -167,11 +190,13 @@ const SecondPart = ({
       <p className={styles.title}>Define el tipo de reserva</p>
       <div style={{ display: "flex", width: "100%", gap: 8 }}>
         <Radio
+          disabled={formState?.id}
           checked={formState?.booking_mode == "day"}
           label="Por dia"
           onChange={() => setFormState({ ...formState, booking_mode: "day" })}
         />
         <Radio
+          disabled={formState?.id}
           checked={formState?.booking_mode == "hour"}
           label="Por hora"
           onChange={() => setFormState({ ...formState, booking_mode: "hour" })}
@@ -193,10 +218,15 @@ const SecondPart = ({
       />
       {formState?.booking_mode && (
         <>
-          <p className={styles.title}>Días y periodos disponibles</p>
+          <p className={styles.title}>
+            {formState?.booking_mode == "day"
+              ? "Días disponibles"
+              : "Días y periodos disponibles"}
+          </p>
           <p className={styles.subtitle}>
-            Selecciona los días y crea los periodos de horas en que esta área
-            estará disponible para reservar
+            {formState?.booking_mode == "day"
+              ? "Selecciona los días en que esta área estará disponible para reservar"
+              : "Selecciona los días y crea los periodos de horas en que esta área estará disponible para reservar"}
           </p>
           <WeekdayToggleGroup
             days={days}
@@ -205,22 +235,17 @@ const SecondPart = ({
           />
         </>
       )}
-      <div
-        style={{
-          display: "flex",
-          overflowX: "scroll",
-          gap: 12,
-          marginTop: 12,
-          marginBottom: 12,
-          msOverflowStyle: "none",
-          scrollbarWidth: "none",
-          // "&::-webkit-scrollbar": {
-          //   display: "none",
-          // },
-        }}
-      >
-        {formState?.available_hours &&
-          Object.keys(formState?.available_hours).map(
+      {formState?.available_hours && formState?.booking_mode && (
+        <div
+          style={{
+            display: "flex",
+            overflowX: "scroll",
+            gap: 8,
+            marginTop: 12,
+            scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
+          }}
+        >
+          {Object.keys(formState?.available_hours).map(
             (day: any, index: any) => (
               <div
                 key={index}
@@ -229,6 +254,7 @@ const SecondPart = ({
                   border: "1px solid var(--cWhiteV1)",
                   borderRadius: 8,
                   padding: 12,
+                  backgroundColor: "var(--cBlackV1)",
                 }}
               >
                 <p style={{ fontSize: 14 }}>{day}</p>
@@ -239,7 +265,9 @@ const SecondPart = ({
                     color: "var(--cWhiteV1)",
                   }}
                 >
-                  periodos de horas
+                  {formState?.booking_mode == "hour"
+                    ? "periodos de horas"
+                    : "Horario disponible"}
                 </p>
                 <div
                   style={{
@@ -247,11 +275,11 @@ const SecondPart = ({
                     gap: 8,
                     overflowX: "auto",
                     width: "100%",
-                    msOverflowStyle: "none",
-                    scrollbarWidth: "none",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
                   }}
                 >
-                  {formState?.available_hours[day].map(
+                  {formState?.available_hours[day]?.map(
                     (period: any, index: any) => (
                       <div
                         key={index}
@@ -273,7 +301,29 @@ const SecondPart = ({
               </div>
             )
           )}
-      </div>
+        </div>
+      )}
+      {formState?.booking_mode == "hour" && (
+        <>
+          <p className={styles.title} style={{ marginTop: 12 }}>
+            Reservaciones por día
+          </p>
+          <p className={styles.subtitle}>
+            Define la cantidad máxima de reservas que un residente puede
+            realizar en un solo día
+          </p>
+
+          <Input
+            label="Reservas máximas por día"
+            name="max_reservations_per_day"
+            type="number"
+            required
+            value={formState?.max_reservations_per_day}
+            onChange={handleChange}
+            error={errors}
+          />
+        </>
+      )}
       <p className={styles.title}>Reservaciones por semana</p>
       <p className={styles.subtitle}>
         Define la cantidad máxima de reservas que un residente puede realizar en
@@ -282,6 +332,7 @@ const SecondPart = ({
       <Input
         type="number"
         label="Reservas máximas por semana"
+        required
         name="max_reservations_per_week"
         value={formState?.max_reservations_per_week}
         onChange={handleChange}
@@ -296,6 +347,7 @@ const SecondPart = ({
         type="number"
         label="Tiempo"
         name="min_cancel_hours"
+        required
         // placeholder="Usa el formato: 2h, 4h, 6"
         placeholder="El tiempo debe ser en horas"
         value={formState?.min_cancel_hours}
@@ -310,6 +362,7 @@ const SecondPart = ({
       <Input
         type="number"
         label="Tarifa de penalización"
+        required
         name="penalty_fee"
         value={formState?.penalty_fee}
         placeholder="Coloca 0% si no aplicas multas"
@@ -393,11 +446,14 @@ const SecondPart = ({
             </>
           )}
           <p className={styles.title} style={{ marginTop: 12 }}>
-            Aplicar periodos a los demás días
+            {formState?.booking_mode == "hour"
+              ? "Aplicar periodos a los demás días"
+              : "Aplicar horarios a los demás días"}
           </p>
           <p className={styles.subtitle}>
-            Simplifica tu tarea aplicando los mismos bloques a los demás días.
-            Selecciona los días en los que quieras repetir estos mismos bloques
+            {formState?.booking_mode == "hour"
+              ? "Simplifica tu tarea aplicando los mismos bloques a los demás días. Selecciona los días en los que quieras repetir estos mismos bloques"
+              : "Simplifica tu tarea aplicando el mismo horario a los demás días. Selecciona los días en los que quieras repetir este mismo horario"}
           </p>
           <WeekdayToggleGroup
             days={days}

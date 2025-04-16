@@ -1,6 +1,6 @@
 .WeekdayToggleGroup {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   & > button {
     background-color: transparent;
     border: 1px solid var(--cWhiteV1);

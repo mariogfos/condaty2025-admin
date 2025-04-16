@@ -196,3 +196,18 @@
   color: #f87171; /* rojo */
 }
 
+.valueAccent {
+  flex: 0 0 60%;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.valueError {
+  flex: 0 0 60%;
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

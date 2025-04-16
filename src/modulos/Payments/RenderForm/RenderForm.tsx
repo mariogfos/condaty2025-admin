@@ -301,10 +301,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
         if (!e.target.files || e.target.files.length === 0) return;
 
         const file = e.target.files[0];
-        if (file.size > 2 * 1024 * 1024) {
-          alert("El archivo debe ser menor a 2MB");
-          return;
-        }
+       
 
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
         if (!extem.includes(fileExtension)) {
@@ -652,18 +649,26 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   
                   <div className={styles["input-row"]}>
                       <div className={styles["input-half"]}>
-                        <Input
-                          type="number"
-                          name="amount"
-                          placeholder="Monto del ingreso"
-                          onChange={handleChangeInput}
-                          value={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 
-                            ? selecPeriodoTotal 
-                            : _formState.amount}
-                          required={true}
-                          error={errors.amount || ""}
-                          disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
-                        />
+                      <Input
+                        type="text" // Cambiar a text para permitir nuestra validación personalizada
+                        name="amount"
+                        placeholder="Monto del ingreso"
+                        onChange={(e) => {
+                          // Solo permitir números y limitar a 10 dígitos
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          if (value.length <= 10) { // Solo actualizar si no excede 10 dígitos
+                            const newEvent = { ...e, target: { ...e.target, name: 'amount', value }};
+                            handleChangeInput(newEvent);
+                          }
+                        }}
+                        value={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 
+                          ? selecPeriodoTotal 
+                          : _formState.amount}
+                        required={true}
+                        error={errors.amount || ""}
+                        disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
+                        maxLength={10} // Asegurar límite de 10 caracteres
+                      />
                       </div>
                       <div className={styles["input-half"]}>
                       <Select
@@ -768,25 +773,36 @@ const handleSelectPeriodo = useCallback((periodo) => {
                 {/* Sección de código de comprobante */}
                 <div className={styles["voucher-section"]}>
                   
+               
                 <div className={styles["voucher-input"]}>
                 <Input
                   type="text"
-                  label="Ingresar el numero del comprobante"
+                  label="Ingresar el número del comprobante"
                   name="voucher"
                   onChange={(e) => {
                     // Solo permitir números y limitar a 10 dígitos
-                    const value = e.target.value.replace(/[^0-9]/g, '').substring(0, 10);
-                    const newEvent = { ...e, target: { ...e.target, name: 'voucher', value }};
+                    const value = e.target.value.replace(/[^0-9]/g, "").substring(0, 10);
+                    const newEvent = {
+                      ...e,
+                      target: { ...e.target, name: "voucher", value },
+                    };
                     handleChangeInput(newEvent);
+
+                    // Mostrar un mensaje de error inmediato si se ingresan caracteres no permitidos
+                    if (e.target.value !== value) {
+                      showToast(
+                        "El número de comprobante solo puede contener números (máximo 10 dígitos)",
+                        "warning"
+                      );
+                    }
                   }}
-                  value={_formState.voucher}
+                  value={_formState.voucher || ""}
                   error={errors.voucher || ""}
                   maxLength={10}
                   required
                 />
               </div>
-                </div>
-
+              </div>
                 {/* Sección para mostrar deudas cuando es categoría de expensas */}                     
                 {_formState.subcategory_id === extraData?.client_config?.cat_expensas && (
                       <>

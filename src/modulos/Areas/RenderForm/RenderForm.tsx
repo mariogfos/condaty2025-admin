@@ -40,7 +40,6 @@ const RenderForm = ({
       [e.target.name]: e.target.value,
     });
   };
-  console.log(formState);
 
   const validateLevel1 = () => {
     let errors: any = {};
@@ -70,24 +69,26 @@ const RenderForm = ({
       key: "status",
       errors,
     });
-    // errors = checkRules({
-    //   value: formState?.requires_approval,
-    //   rules: ["required"],
-    //   key: "requires_approval",
-    //   errors,
-    // });
 
     setErrors(errors);
     return errors;
   };
   const validateLevel2 = () => {
     let errors: any = {};
-    errors = checkRules({
-      value: formState?.price,
-      rules: ["required"],
-      key: "price",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState?.price,
+    //   rules: ["required"],
+    //   key: "price",
+    //   errors,
+    // });
+    if (formState?.booking_mode === "hour") {
+      errors = checkRules({
+        value: formState?.max_reservations_per_day,
+        rules: ["required"],
+        key: "max_reservations_per_day",
+        errors,
+      });
+    }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
       rules: ["required"],
@@ -142,19 +143,24 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      if (!formState?.avatar) {
+      if (!formState?.avatar && !formState.id) {
         showToast("Debe seleccionar una imagen", "error");
         return;
       }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;
+      if (!formState?.booking_mode) {
+        showToast("Seleccione el modo de reserva", "error");
+        return;
+      }
       if (!formState?.available_days) {
         showToast("Seleccione los días y periodos disponibles", "error");
         return;
       }
     }
     if (level === 3) {
+      if (hasErrors(validateLevel3())) return;
       onSave();
       return;
     }
@@ -182,6 +188,8 @@ const RenderForm = ({
         cancellation_policy: formState?.cancellation_policy,
         approval_response_hours: formState?.approval_response_hours,
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
+        booking_mode: formState?.booking_mode,
+        max_reservations_per_day: formState?.max_reservations_per_day,
       }
     );
 
@@ -290,13 +298,6 @@ const RenderForm = ({
             label="Reglas de uso"
             name="usage_rules"
             value={formState?.usage_rules}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Reservas máximas por día"
-            name="max_reservations_per_day"
-            value={formState?.max_reservations_per_day}
             onChange={handleChange}
             error={errors}
           />

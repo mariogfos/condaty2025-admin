@@ -42,8 +42,10 @@ const Dptos = () => {
 
   const mod: ModCrudType = {
     modulo: "dptos",
-    singular: `${store?.UnitsType}`,
-    plural: `${store?.UnitsType}s`,
+    // singular: `${store?.UnitsType}`,
+    // plural: `${store?.UnitsType}s`,
+    singular: "unidad",
+    plural: "unidades",
     filter: true,
     permiso: "",
     export: true,

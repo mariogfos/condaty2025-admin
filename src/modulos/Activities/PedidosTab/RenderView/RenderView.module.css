@@ -47,7 +47,8 @@
   
   .detailRow {
     display: flex;
-    align-items: flex-start;
+    align-items: center; /* Cambiado de flex-start a center */
+    justify-content: center; /* Añadir esta línea */
   }
   
   .label {
@@ -55,10 +56,11 @@
     text-align: right;
     padding-right: 16px;
     font-weight: 500;
-    color: var(--light-v1);
+    color: var(--cWhite);
   }
   
   .value {
+    text-align: left;
     flex: 0 0 60%;
     color: var(--light-v3);
   }

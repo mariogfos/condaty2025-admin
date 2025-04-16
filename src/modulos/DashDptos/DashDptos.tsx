@@ -20,6 +20,9 @@ import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
+import Tooltip from "@/components/Tooltip/Tooltip";
+import Table from "@/mk/components/ui/Table/Table";
+import { Categories } from "emoji-picker-react";
 
 interface DashDptosProps {
   id: string | number;
@@ -139,31 +142,76 @@ const DashDptos = ({ id }: DashDptosProps) => {
     );
     setDataOw(dependentData?.owner || {});
   };
-  
+  // console.log(datas,'datas')
+
   return (
     <div className={styles.container}>
+      <section style={{display:'flex',justifyContent:'flex-start'}} onClick={() => router.push("/dptos")}>
+
+        <HeadTitle
+                  className={styles.backButton}
+                  onBack={() => router.push("/dptos")}
+                  colorBack={'var(--accent)'}
+                />
+
+        <span> Volver a sección unidades </span>
+      </section>
+      <section>
+
+   
       <div className={styles.leftPanel}>
         <LoadingScreen className={styles.loadingCard}>
           <div className={styles.infoCard}>
             {/* Cabecera */}
             <div className={styles.cardHeader}>
               <div className={styles.title}>
-                <HeadTitle
+                {/* <HeadTitle
                   className={styles.backButton}
                   onBack={() => router.push("/dptos")}
-                />
+                /> */}
                 {tipoUnidad} {datas?.data?.nro}, {datas?.data?.description}
               </div>
             </div>
 
-            {/* Info Grid */}
-            <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Propietario</span>
+            <div style={{display:'flex',marginBottom:'var(--spS)'}}>
+                <Avatar
+                  src={
+                    datas?.data?.id
+                    ? getUrlImages(
+                          "/DPTO" +
+                            "-" +
+                            datas?.data?.id +
+                            ".webp" +
+                            (datas?.data?.updated_at
+                            ? "?d=" + datas?.data?.updated_at
+                              : "")
+                        )
+                      : ""
+                  }
+                  name={getFullName(datas?.data?.homeowner)}
+                  w={40}
+                  h={40}
+                  square={true}
+                  />
+              <div style={{display:'flex',flexDirection:'column',marginLeft:8}}>
                 <span className={styles.value}>
                   {datas?.data?.homeowner
                     ? getFullName(datas?.data?.homeowner)
                     : "Sin Propietario"}
+                </span>
+                    <span className={styles.label}>Propietario</span>
+              </div>
+            </div>    
+
+        <div style={{display:'flex'}}>
+            {/* Info Grid */}
+            <div className={styles.infoGrid}>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Estado</span>
+                <span className={styles.value}>
+                  {datas?.data?.status
+                   ? getStatus(datas?.data?.status)
+                    : "Sin Estado"}
                 </span>
               </div>
               <div className={styles.infoRow}>
@@ -178,8 +226,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               </div>
             </div>
 
-            <div className={styles.divider} />
-
+            {/* <div className={styles.divider} /> */}
+          <div style={{width:'100%'}}>
             {/* Sección Titular */}
             {!datas?.titular ? (
               <div className={styles.emptyTitular}>
@@ -213,6 +261,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   name={getFullName(datas?.titular)}
                   w={80}
                   h={80}
+                  square={true}
                   onClick={() => {
                     setIdPerfil(datas?.titular?.id);
                     setOpenPerfil(true);
@@ -258,16 +307,34 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       {datas.titular.dependientes.length > 0 ? (
                         datas.titular.dependientes.map(
                           (dependiente: any, index: number) => (
+
+                            
+                            <Tooltip key={index} title={getFullName(dependiente.owner)} position="top" className={styles.tooltip}>
                             <Avatar
                               key={index}
+                              src={
+                                dependiente.owner?.id
+                                 ? getUrlImages(
+                                      "/OWNER" +
+                                        "-" +
+                                        dependiente.owner?.id +
+                                        ".webp" +
+                                        (datas?.titular?.updated_at
+                                         ? "?d=" + datas?.titular?.updated_at
+                                          : "")
+                                    )
+                                  : ""
+                              }
                               name={getFullName(dependiente.owner)}
-                              w={40}
-                              h={40}
+                              w={30}
+                              h={30}
                               className={styles.dependentAvatar}
                               onClick={() =>
                                 handleOpenPerfil(dependiente.owner_id)
                               }
+                              square={true}
                             />
+                            </Tooltip>
                           )
                         )
                       ) : (
@@ -280,11 +347,92 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 )}
               </div>
             )}
+            </div>
           </div>
+          <div className={styles.viewMore}  onClick={() => setOpenTitularHist(true)}>Ver historial de titulares</div>
+          </div>
+
+          <div className={styles.accountSection}>
+          <div className={styles.accountHeader}>
+            <h3 className={styles.accountTitle}>Historial de pagos</h3>
+            <span
+              className={styles.viewMore}
+              onClick={() => setOpenPaymentsHist(true)}
+            >
+              Ver más
+            </span>
+          </div>
+          <div className={styles.accountContent}>
+
+
+
+            {(!datas?.payments || datas.payments.length === 0) ? (
+              <EmptyData
+              message="No existe historial de pagos para esta unidad"
+              centered={false}
+              />
+            ):
+            <Table
+              header={[
+                { key: 'paid_at', label: 'Fecha de pago', responsive: "desktop" ,onRender:({item}:any)=>{ return getDateStrMes(item?.paid_at) || '-'}},
+                { key: 'categorie',label:'Categoría', responsive: "desktop" },
+                { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" },
+                { key: 'amount', label: 'Monto', responsive: "desktop", width: '100px',
+                  onRender: ({ item }: any) => {
+                   return item?.amount && item?.penalty_amount
+                      ? `Bs ${
+                          parseFloat(item?.amount) +
+                          parseFloat(item?.penalty_amount)
+                        }`
+                      : "-"
+                 },},
+                { key: 'type', label: 'Tipo de pago', responsive: "desktop" ,
+                   onRender:({item}:any)=>{
+                    //  console.log(item,'props desde render de qr');
+                   return item?.payment?.type === "Q"
+                    ? "Qr"
+                    :  item?.payment?.type === "T"
+                    ? "Transferencia"
+                    :  item?.payment?.type === "O"
+                    ? "Pago en oficina"
+                    : "Sin pago"}},
+                // { key: 'penalty_amount', label: 'Mora', responsive: "desktop", width: '100px' },
+                { key: 'status', label: 'Estado', width: '100px', responsive: "desktop", onRender:({item}:any)=>{ 
+                  return     <span className={`${styles.status} ${styles[`status${item?.status}`] }`}  >
+                  {getStatus(item?.status)}
+                </span>
+                }}
+              ]}
+              data={datas?.payments?.slice(0, 4)}
+              className="striped"
+              onRowClick={(row) => {
+                // console.log(row, 'row');
+                // if (row.status.props.children === 'Por Pagar') {
+                //   setOpenPagar(true);
+                // } else {
+                //   setOpenComprobante(true);
+                //   setIdPago(row.payment_id);
+                // }
+
+                if (row.status === 'A') {
+                  setOpenPagar(true);
+                } else {
+                  setOpenComprobante(true);
+                  setIdPago(row.payment_id);
+                }
+              }}
+            />
+          }
+          </div>
+        </div>
+
+
         </LoadingScreen>
 
+
+
         {/* Historial de Titulares Mini Lista */}
-        <div className={styles.historySection}>
+        {/* <div className={styles.historySection}>
           <div className={styles.historyHeader}>
             <h3 className={styles.historyTitle}>Historial de Titulares</h3>
             <span
@@ -344,14 +492,18 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 ))
             )}
           </div>
-        </div>
+        </div> */}
+
+
+
+
       </div>
 
       <div className={styles.rightPanel}>
         {/* Estado de Cuenta Mini Lista */}
-        <div className={styles.accountSection}>
+        {/* <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
-            <h3 className={styles.accountTitle}>Estado de cuenta</h3>
+            <h3 className={styles.accountTitle}>Historial de pagos</h3>
             <span
               className={styles.viewMore}
               onClick={() => setOpenPaymentsHist(true)}
@@ -422,12 +574,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Historial de Visitas Mini Lista */}
         <div className={styles.visitsSection}>
           <div className={styles.visitsHeader}>
-            <h3 className={styles.visitsTitle}>Historial de Visitas</h3>
+            <h3 className={styles.visitsTitle}>Historial de accesos</h3>
             <span
               className={styles.viewMore}
               onClick={() => setOpenAccesos(true)}
@@ -435,6 +587,42 @@ const DashDptos = ({ id }: DashDptosProps) => {
               Ver más
             </span>
           </div>
+
+
+
+
+        {/*   modo cards para otro sprint
+        
+        {    !datas?.access || datas.access.length === 0 ? (
+                <EmptyData
+                  message="No existe historial de visitas para esta unidad"
+                  centered={false}
+                />
+              ) : ( datas.access.slice(0, 4).map((visita: any, index: number) => (
+          <div className={styles.accessCard}>
+             <div className={styles.visitorInfo}>
+                      <Avatar
+                        name={getFullName(visita.visit)}
+                        w={28}
+                        h={28}
+                        className={styles.visitorAvatar}
+                        square={true}
+                      />
+                      <div>
+                        <p className={styles.visitorName}>
+                          {getFullName(visita.visit)}
+                        </p>
+                        <p className={styles.visitorCI}>
+                          CI: {visita.visit?.ci}
+                        </p>
+                      </div>
+                    </div>
+          </div>
+          )))} */}
+
+
+
+
           <div className={styles.visitsContent}>
             <div className={styles.visitsGrid}>
               <div>Nombre completo</div>
@@ -457,6 +645,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         w={28}
                         h={28}
                         className={styles.visitorAvatar}
+                        square={true}
                       />
                       <div>
                         <p className={styles.visitorName}>
@@ -489,6 +678,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
         </div>
       </div>
+
+      
 
       {/* Modales */}
       <DataModal
@@ -575,9 +766,49 @@ const DashDptos = ({ id }: DashDptosProps) => {
           reLoad={reLoad}
         />
       )}
-      
+      </section>
     </div>
   );
 };
 
 export default DashDptos;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// data={datas?.payments?.slice(0, 4).map((pago: any) => 
+             
+//   {    console.log(pago,'pago desde data con '); return ({
+//   // fecha: getDateStrMes(pago?.paid_at) || '-',
+//   categoria: 'Expensa',
+//   subcategoria: pago?.category?.name || '-',
+//   monto: pago?.amount && pago?.penalty_amount
+//     ? `Bs ${parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}`
+//     : '-',
+//   medio_pago: pago?.payment?.type === 'Q'
+//     ? 'Qr'
+//     : pago?.payment?.type === 'T'
+//     ? 'Transferencia'
+//     : pago?.payment?.type === 'O'
+//     ? 'Pago en oficina'
+//     : 'Sin pago',
+//   estado: <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}></span>
