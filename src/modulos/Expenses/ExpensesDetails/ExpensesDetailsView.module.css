@@ -1,3 +1,5 @@
+/* ExpensesDetailsView.module.css */
+
 .ExpensesDetailsView {
   display: flex;
   flex-direction: column;
@@ -36,11 +38,36 @@
   margin: 0;
 }
 
+/* --- Fila de Estadísticas Corregida --- */
 .allStatsRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spM);
+  gap: 0; /* Quitamos el gap principal, lo maneja el divider y los grupos */
   width: 100%;
+  align-items: stretch;
+}
+
+.statGroupLeft {
+  display: flex;
+  gap: var(--spM); /* Espacio ENTRE tarjetas del grupo izquierdo */
+  /* Forzamos un ancho base (ajustable) y evitamos que crezca o se encoja */
+  flex: 0 0 45%; /* Ajusta este porcentaje o usa un valor fijo como 524px */
+  /* flex: 0 0 524px; */ /* Alternativa con ancho fijo */
+  /* flex-wrap: wrap; */ /* Descomenta si las tarjetas internas deben envolverse */
+}
+
+/* NUEVO: Estilo para el divisor */
+.divider {
+  width: 1px; /* Ancho de la línea */
+  background-color: var(--cWhiteV1); /* Color de la línea */
+  margin: 0 var(--spL); /* Espacio a los lados del divisor */
+  flex-shrink: 0; /* Evita que el divisor se encoja */
+}
+
+.statGroupRight {
+  display: flex;
+  gap: var(--spM); /* Espacio ENTRE tarjetas del grupo derecho */
+  flex: 1 1 0; /* Permite crecer y encogerse, con base 0 (distribuye espacio libre) */
+  /* flex-wrap: wrap; */ /* Descomenta si las tarjetas internas deben envolverse */
 }
 
 .statCard {
@@ -51,53 +78,39 @@
   padding: var(--spM);
   border-radius: var(--bRadiusL);
   border: 0.5px solid var(--cWhiteV1);
-  flex: 1;
-  min-width: 192px;
-  max-width: calc(100% / 7 - var(--spM));
+  /* Flex para distribuir espacio DENTRO del grupo */
+  flex: 1 1 0; /* Permite crecer/encoger equitativamente dentro del grupo, base 0 */
+  min-width: 150px; /* Un ancho mínimo para que no colapsen */
   height: 94px;
+  overflow: hidden; /* Previene desbordamiento general de la card */
 }
-
-@media (max-width: 1600px) {
-  .statCard {
-    max-width: calc(100% / 4 - var(--spM));
-  }
-}
-
-@media (max-width: 1200px) {
-  .statCard {
-    max-width: calc(100% / 3 - var(--spM));
-  }
-}
-
-@media (max-width: 768px) {
-  .statCard {
-    max-width: calc(100% / 2 - var(--spM));
-  }
-}
-
-@media (max-width: 480px) {
-  .statCard {
-    max-width: 100%;
-  }
-}
+/* --- Fin Fila de Estadísticas Corregida --- */
 
 .statContent {
   display: flex;
   flex-direction: column;
   gap: var(--spS);
-  flex: 1;
+  flex: 1; /* Ocupa espacio disponible */
+  min-width: 0; /* Permite encogerse */
+  overflow: hidden; /* Evita que el texto desborde el contenedor */
 }
 
 .statValue {
   font-size: var(--sXl);
   font-weight: var(--bSemibold);
   color: var(--cWhite);
+  white-space: nowrap; /* Números largos no deben romper línea */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .statLabel {
-  font-size: var(--sS);
+  font-size: var(--sL);
   color: var(--cWhiteV1);
-  white-space: nowrap;
+  white-space: normal; /* <<< --- CAMBIO: Permite el salto de línea */
+  word-break: break-word; /* Ayuda a romper palabras largas si es necesario */
+  /* Quitamos overflow y text-ellipsis para permitir el wrap */
+  line-height: 1.3; /* Ajusta el interlineado si es necesario */
 }
 
 .statIconContainer {
@@ -109,139 +122,82 @@
   background-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--bRadiusL);
   margin-left: var(--spS);
+  flex-shrink: 0;
 }
 
-.iconDefault {
-  color: rgba(255, 255, 255, 0.8);
-}
+/* --- Iconos y colores (sin cambios) --- */
+.iconDefault { color: rgba(255, 255, 255, 0.8); }
+.iconPaid { background-color: rgba(0, 175, 144, 0.2); }
+.iconPaidColor { color: rgb(0, 175, 144); }
+.iconOverdue { background-color: rgba(218, 93, 93, 0.2); }
+.iconOverdueColor { color: rgb(218, 93, 93); }
+.iconPenalty { background-color: rgba(243, 127, 61, 0.2); }
+.iconPenaltyColor { color: rgb(243, 127, 61); }
+/* --- Fin Iconos y colores --- */
 
-.iconPaid {
-  background-color: rgba(0, 175, 144, 0.2);
-}
 
-.iconPaidColor {
-  color: rgb(0, 175, 144);
-}
+/* --- Media Queries --- */
+/* Ajusta el punto de ruptura donde los grupos se apilan */
+@media (max-width: 1300px) { /* Ejemplo: un breakpoint más grande */
+  .allStatsRow {
+    flex-direction: column; /* Apila los grupos */
+    gap: var(--spM); /* Añade espacio vertical entre grupos apilados */
+  }
 
-.iconOverdue {
-  background-color: rgba(218, 93, 93, 0.2);
-}
+  .statGroupLeft,
+  .statGroupRight {
+    flex-basis: auto; /* Resetea la base */
+    width: 100%;
+    flex-wrap: wrap; /* Permite envolver tarjetas internas */
+    flex-shrink: 1;
+  }
 
-.iconOverdueColor {
-  color: rgb(218, 93, 93);
-}
-
-.iconPenalty {
-  background-color: rgba(243, 127, 61, 0.2);
-}
-
-.iconPenaltyColor {
-  color: rgb(243, 127, 61);
-}
-
-/* Estilos para el header si es necesario */
-.header {
-  background-color: var(--cBlackV2) !important;
-  display: flex;
-  justify-content: space-between;
-  min-height: 124px;
-  & > section {
-    & > div:nth-child(1) {
-      font-size: var(--sL);
-    }
-    & > div:nth-child(2) {
-      color: var(--cWhiteV1)
-    }
+  /* Oculta el divisor cuando los grupos están apilados */
+  .divider {
+    display: none;
   }
 }
 
-/* Estilos para render view */
-.renderView {
-  & > div {
-    display: flex;
-    padding: var(--spL);
-    gap: var(--spL);
-    align-items: center;
-    
-    @media (max-width: 750px) {
-      flex-direction: column;
-    }
-    
-    & > div {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: var(--spL);
-    }
-    
-    & > section {
-      padding: var(--spM);
-      background-color: var(--cBlackV1);
-      border-radius: 8px;
-      width: 500px;
-      
-      & > div {
-        display: flex;
-        margin-bottom: 16px;
-        font-size: var(--sM);
-        
-        & > p:nth-child(odd) {
-          flex: 1;
-          color: var(--cWhiteV1);
-        }
-        
-        & > p:nth-child(even) {
-          flex: 1;
-          text-align: right;
-          color: var(--cWhite);
-        }
-      }
-    }
+/* Ajusta las tarjetas DENTRO de los grupos en pantallas medianas */
+@media (max-width: 768px) {
+  .statCard {
+    flex-basis: calc(50% - (var(--spM) / 2)); /* 2 tarjetas por fila */
+    min-width: 140px;
+  }
+  .dashboardContainer {
+     padding: var(--spM); /* Menos padding */
   }
 }
 
-/* Estilo general para los badges de estado */
-.statusBadge {
-  font-weight: var(--bMedium);
-  padding: 6px var(--spM);
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: fit-content;
-  min-width: 110px;
-  white-space: nowrap;
+/* Ajusta las tarjetas DENTRO de los grupos en pantallas pequeñas */
+@media (max-width: 480px) {
+  .statCard {
+    flex-basis: 100%; /* 1 tarjeta por fila */
+    min-width: 0;
+  }
 }
+/* --- Fin Media Queries --- */
 
-/* Estilos para cada estado con fondos semitransparentes y texto coloreado */
-.statusP {
-  background-color: var(--accentBg);
-  color: var(--cPrimary);
-}
 
-.statusS {
-  background-color: var(--cHoverWarning);
-  color: var(--cWarning);
-}
+/* Estilos para el header (Sin cambios) */
+.header { background-color: var(--cBlackV2) !important; display: flex; justify-content: space-between; min-height: 124px; }
+.header > section > div:nth-child(1) { font-size: var(--sL); }
+.header > section > div:nth-child(2) { color: var(--cWhiteV1) }
 
-.statusR {
-  background-color: var(--cHoverError);
-  color: var(--cError);
-}
+/* Estilos para render view (Sin cambios) */
+.renderView > div { display: flex; padding: var(--spL); gap: var(--spL); align-items: center; }
+@media (max-width: 750px) { .renderView > div { flex-direction: column; } }
+.renderView > div > div { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: var(--spL); }
+.renderView > div > section { padding: var(--spM); background-color: var(--cBlackV1); border-radius: 8px; width: 500px; }
+.renderView > div > section > div { display: flex; margin-bottom: 16px; font-size: var(--sM); }
+.renderView > div > section > div > p:nth-child(odd) { flex: 1; color: var(--cWhiteV1); }
+.renderView > div > section > div > p:nth-child(even) { flex: 1; text-align: right; color: var(--cWhite); }
 
-.statusE {
-  background-color: var(--cHoverInfo);
-  color: var(--cInfo);
-}
-
-.statusA {
-  background-color: rgba(0, 123, 255, 0.2);
-  color: var(--info);
-}
-
-.statusM {
-  background-color: var(--cMediumAlertHover);
-  color: var(--cMediumAlert);
-}
+/* Estilos para badges de estado (Sin cambios) */
+.statusBadge { font-weight: var(--bMedium); padding: 6px var(--spM); border-radius: 4px; display: inline-flex; align-items: left; justify-content: left; text-align: left; width: fit-content; min-width: 110px; white-space: nowrap; }
+.statusP { background-color: var(--accentBg); color: var(--cPrimary); }
+.statusS { background-color: var(--cHoverWarning); color: var(--cWarning); }
+.statusR { background-color: var(--cHoverError); color: var(--cError); }
+.statusE { background-color: var(--cHoverInfo); color: var(--cInfo); }
+.statusA { background-color: rgba(0, 123, 255, 0.2); color: var(--info); }
+.statusM { background-color: var(--cMediumAlertHover); color: var(--cMediumAlert); }
