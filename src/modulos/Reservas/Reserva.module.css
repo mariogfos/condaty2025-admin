@@ -1,0 +1,29 @@
+/* Mantenemos los estilos base */
+.statusBadge {
+    font-weight: var(--bMedium);
+    padding: 6px var(--spM);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: fit-content;
+    min-width: 110px;
+    white-space: nowrap;
+  }
+  
+  /* Estados específicos */
+  .statusA {
+    background-color: rgba(0, 123, 255, 0.2);  /* Fondo azul suave */
+    color: var(--info);                        /* Texto azul */
+  }
+  
+  .statusX {
+    background-color: var(--cHoverError);      /* Fondo rojo suave */
+    color: var(--cError);                      /* Texto rojo */
+  }
+  
+  .statusM {
+    background-color: var(--cMediumAlertHover);/* Fondo amarillo/naranja suave */
+    color: var(--cMediumAlert);                /* Texto amarillo/naranja */
+  }
