@@ -33,6 +33,7 @@ const Layout = ({ children }: any) => {
   }, [user]);
 
   const onNotif = useCallback((e: any) => {
+    console.log("*******11111*****", e);
     if (e.event == "ping") {
       showToast("Llegó un PING", "info");
     }

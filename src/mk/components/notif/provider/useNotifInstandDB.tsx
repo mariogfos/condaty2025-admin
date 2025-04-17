@@ -58,7 +58,7 @@ const useNotifInstandDB = (
             { channel: channelGral },
             { channel: channelGral + user?.client_id },
             { channel: chiam },
-            { channel: channelGral + user?.client_id + "-admin" },
+            { channel: channelGral + user?.client_id + "-admins" },
             { channel: channelGral + user?.client_id + "-alert-2" },
             { channel: channelGral + user?.client_id + "-alert-3" },
             ...channels,
