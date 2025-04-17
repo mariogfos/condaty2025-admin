@@ -77,7 +77,7 @@ export const validRule = (
     email: () => (!/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : ""),
     textDash: () =>
       //permmitir acentos, guiones, guiones bajos, y espacios
-      !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ_-]+$/.test(value)
+      !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s-]+$/.test(value)
         ? "No es un texto válido"
         : "",
     alpha: () =>

@@ -9,6 +9,7 @@ import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getUrlImages } from "@/mk/utils/string";
+import { useRouter } from 'next/navigation';
 // Importa TODAS las interfaces necesarias desde Type.ts
 import {
     ApiUnidad,
@@ -19,6 +20,7 @@ import {
     Option, // Importa Option también
     FormState
 } from "./Type"; // Asegúrate que la ruta sea correcta
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
 // --- Interfaces del Formulario (Definidas localmente) ---
 
@@ -82,6 +84,8 @@ const CreateReserva = () => {
   // NUEVO: Estado para indicar si se está enviando el formulario
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
+  const [isRulesModalVisible, setIsRulesModalVisible] = useState<boolean>(false); 
+  const router = useRouter();
 
 
   // --- Hooks ---
@@ -412,12 +416,17 @@ const prevStep = (): void => {
   console.log("RENDERIZANDO - SelectedPeriods:", selectedPeriods);
 // --- RENDER ---
 return (
+  <div className={styles.pageWrapper}>
+
+  {/* === Botón Volver (Ahora dentro del wrapper, posicionado absolutamente respecto a él) === */}
+  <button onClick={() => router.back()} className={styles.backButton}>
+      <IconArrowLeft /> Volver a lista de reservas {/* O solo "Volver" */}
+  </button>
   <div className={styles.createReservaContainer}>
     {/* --- Header --- */}
     <div className={styles.header}>
-       {/* Aquí podrías poner un botón para volver atrás si esta pantalla no es la principal */}
-       {/* <button onClick={() => router.back()} className={styles.backButton}><IconArrowLeft/> Volver</button> */}
-       <h1>Reservar un área</h1>
+       {/* Botón para volver atrás */}
+ 
        {/* Indicador de Paso */}
       <div className={styles.progressContainer}>
           <span className={styles.stepIndicatorText}>{currentStep} de 3 pasos</span>
@@ -551,13 +560,18 @@ return (
                           </span>
                       </div>
                        <hr className={styles.areaSeparator} />
-                      {/* Reglas */}
-                      <div className={styles.detailBlock}>
-                           <span className={styles.detailLabel}>Reglas y restricciones</span>
-                           <button type='button' className={styles.rulesButton} onClick={() => alert(selectedAreaDetails.usage_rules || 'No hay reglas especificadas.')}>
-                              Ver Reglas
-                           </button>
-                      </div>
+                       {/* Reglas */}
+                    <div className={styles.detailBlock}>
+                        <span className={styles.detailLabel}>Reglas y restricciones</span>
+                        {/* MODIFICAR onClick */}
+                        <button
+                          type='button'
+                          className={styles.rulesButton}
+                          onClick={() => setIsRulesModalVisible(true)} // <-- CAMBIAR AQUÍ
+                        >
+                          Ver Reglas
+                        </button>
+                    </div>
                   </div> {/* Fin areaInfo */}
               </div> // Fin areaPreview
             )}
@@ -807,7 +821,25 @@ return (
 
       </div> {/* Fin formCard */}
     </div> {/* Fin formContainer */}
-  </div> // Fin createReservaContainer
+
+    {selectedAreaDetails && ( // Renderiza el modal solo si hay detalles del área
+     <DataModal
+       open={isRulesModalVisible}
+       onClose={() => setIsRulesModalVisible(false)} // Función para cerrar
+       title={`Reglas de Uso - ${selectedAreaDetails.title}`} // Título del modal
+       buttonText="" // Oculta el botón de "Guardar"
+       buttonCancel="Cerrar" // Texto del botón para cerrar
+       iconClose={true} // Muestra el icono 'X' para cerrar si no es fullscreen
+       // fullScreen={false} // Puedes ajustar si lo necesitas a pantalla completa
+     >
+       {/* Contenido del modal (los hijos) */}
+       <div className={styles.rulesModalContent}> {/* Puedes añadir un estilo específico si quieres */}
+         <p>{selectedAreaDetails.usage_rules || 'No hay reglas de uso especificadas para esta área.'}</p>
+       </div>
+     </DataModal>
+   )}
+  </div> 
+  </div>  
 );
 };
 

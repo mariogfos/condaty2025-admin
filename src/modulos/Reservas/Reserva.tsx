@@ -46,25 +46,32 @@ const Reserva = () => {
         label: "Área Social",
         form: { type: "text" },
         list: {
+          // MODIFICACIÓN AQUÍ (area.onRender)
           onRender: (props: any) => {
-          return (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/AREA-" +
-                    props?.item?.area?.images?.[0].area_id+ "-"+ props?.item?.area?.images?.[0].id +
-                              ".webp?d=" +
-                              props?.item?.area?.updated_at
-                          )}
-                          square
-                        />
-                        <div>
-                          <p>{props?.item?.area.name} </p>
-                        </div>
-                      </div>
-          );
-        }
-      },
+            // Guarda el área y el nombre en variables con comprobación
+            const area = props?.item?.area;
+            const areaName = area?.name; // Acceso seguro a 'name'
+            const imageUrl = area?.images?.[0]
+              ? getUrlImages(
+                  `/AREA-${area.images[0].area_id}-${area.images[0].id}.webp?d=${area.updated_at}`
+                )
+              : undefined; // Genera URL solo si hay datos
+
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  src={imageUrl} // Pasa la URL segura (puede ser undefined)
+                  square
+                />
+                <div>
+                  {/* Muestra el nombre o un texto alternativo si no existe */}
+                  <p>{areaName || 'Área no disponible'}</p>
+                </div>
+              </div>
+            );
+          }
+          // FIN MODIFICACIÓN (area.onRender)
+        },
       },
       owner: {
         rules: ["required"],
@@ -72,26 +79,31 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
+          // MODIFICACIÓN AQUÍ (owner.onRender)
           onRender: (props: any) => {
-          return (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/OWNER-" +
-                    props?.item?.owner.id +
-                              ".webp?d=" +
-                              props?.item?.owner.updated_at
-                          )}
-                          name={getFullName(props?.item.owner)}
-                          square
-                        />
-                        <div>
-                          <p>{getFullName(props?.item.owner)} </p>
-                        </div>
-                      </div>
-          );
-        }
-      },
+            // Guarda el owner en una variable
+            const owner = props?.item?.owner;
+            // Llama a getFullName solo si owner existe, sino usa texto alternativo
+            const ownerName = owner ? getFullName(owner) : 'Residente no disponible';
+            const imageUrl = owner
+              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at}`)
+              : undefined; // Genera URL solo si hay owner
+
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  src={imageUrl} // Pasa la URL segura (puede ser undefined)
+                  name={ownerName} // Pasa el nombre seguro
+                  square
+                />
+                <div>
+                  <p>{ownerName}</p> {/* Muestra el nombre seguro */}
+                </div>
+              </div>
+            );
+          }
+          // FIN MODIFICACIÓN (owner.onRender)
+        },
       },
       date_at: {
         rules: ["required"],
