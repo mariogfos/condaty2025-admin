@@ -32,11 +32,10 @@ const SecondPart = ({
   const [selectedDays, setSelectedDays]: any = useState(
     formState?.available_days || []
   );
-  // const [selectdHours, setSelectedHours] = useState([]);
+  const prevBookingMode = React.useRef(formState?.booking_mode);
   const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  // console.log(selectedDays, "selectedDays");
 
   const handleChangeWeekday = (day: string) => {
     if (
@@ -133,7 +132,12 @@ const SecondPart = ({
   }, [selectdHour]);
 
   const handleSave = () => {
-    if (!selectedDays.length || !formState?.start_hour || !formState?.end_hour)
+    if (
+      !selectedDays.length ||
+      !formState?.start_hour ||
+      !formState?.end_hour ||
+      (selectdHour == "" && formState?.booking_mode == "hour")
+    )
       return;
 
     const updatedHours: any = {};
@@ -167,17 +171,18 @@ const SecondPart = ({
   };
 
   useEffect(() => {
-    if (
-      !formState?.id &&
-      formState?.booking_mode === "hour" &&
-      selectdHour == ""
-    ) {
+    if (prevBookingMode.current === formState?.booking_mode) {
+      prevBookingMode.current = formState?.booking_mode;
+      return;
+    }
+    if (!formState?.id) {
       setFormState({
         ...formState,
         start_hour: "",
         end_hour: "",
         available_hours: {},
         available_days: [],
+        max_reservations_per_day: "",
       });
       setSelectdHour("");
       setSelectedDays([]);
@@ -185,6 +190,18 @@ const SecondPart = ({
     }
   }, [formState?.booking_mode]);
 
+  const getEndHours = () => {
+    if (!formState?.start_hour) {
+      return [];
+    }
+    let h: any = [];
+    hours.map((hour: any) => {
+      if (hour.name > formState?.start_hour) {
+        h.push(hour);
+      }
+    });
+    return h;
+  };
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
@@ -303,22 +320,27 @@ const SecondPart = ({
           )}
         </div>
       )}
-      <p className={styles.title} style={{ marginTop: 12 }}>
-        Reservaciones por día
-      </p>
-      <p className={styles.subtitle}>
-        Define la cantidad máxima de reservas que un residente puede realizar en
-        un solo día
-      </p>
-      <Input
-        label="Reservas máximas por día"
-        name="max_reservations_per_day"
-        type="number"
-        required
-        value={formState?.max_reservations_per_day}
-        onChange={handleChange}
-        error={errors}
-      />
+      {formState?.booking_mode == "hour" && (
+        <>
+          <p className={styles.title} style={{ marginTop: 12 }}>
+            Reservaciones por día
+          </p>
+          <p className={styles.subtitle}>
+            Define la cantidad máxima de reservas que un residente puede
+            realizar en un solo día
+          </p>
+
+          <Input
+            label="Reservas máximas por día"
+            name="max_reservations_per_day"
+            type="number"
+            required
+            value={formState?.max_reservations_per_day}
+            onChange={handleChange}
+            error={errors}
+          />
+        </>
+      )}
       <p className={styles.title}>Reservaciones por semana</p>
       <p className={styles.subtitle}>
         Define la cantidad máxima de reservas que un residente puede realizar en
@@ -392,7 +414,7 @@ const SecondPart = ({
               label="Hora de fin"
               name="end_hour"
               value={formState?.end_hour}
-              options={hours || []}
+              options={getEndHours() || []}
               onChange={handleChange}
               error={errors}
             />

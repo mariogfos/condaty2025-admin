@@ -581,7 +581,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
               required={true}
               value={_formState.paid_at || ""}
               onChange={handleChangeInput}
-              error={errors.paid_at}
+              error={errors} 
               max={new Date().toISOString().split('T')[0]} // Impide seleccionar fechas futuras
             />
             </div>
@@ -596,7 +596,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
               onChange={handleChangeInput}
               placeholder="Seleccionar la unidad"
               options={lDptos}
-              error={errors.dpto_id}
+              error={errors} 
               filter={true}
             />
             </div>
@@ -612,7 +612,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
               placeholder="Categoría*"
               onChange={handleChangeInput}
               options={extraData?.categories || []}
-              error={errors.category_id}
+              error={errors} 
               required
               optionLabel="name"
               optionValue="id"
@@ -625,7 +625,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   placeholder="Subcategoría"
                   onChange={handleChangeInput}
                   options={_formState.subcategories || []}
-                  error={errors.subcategory_id}
+                  error={errors} 
                   required
                   optionLabel="name"
                   optionValue="id"
@@ -665,7 +665,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                           ? selecPeriodoTotal 
                           : _formState.amount}
                         required={true}
-                        error={errors.amount || ""}
+                        error={errors} 
                         disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
                         maxLength={10} // Asegurar límite de 10 caracteres
                       />
@@ -683,7 +683,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                         { id: "C", name: "Cheque" },
                         { id: "O", name: "Pago en oficina" }
                       ]}
-                      error={errors.type}
+                      error={errors} 
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -797,7 +797,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                     }
                   }}
                   value={_formState.voucher || ""}
-                  error={errors.voucher || ""}
+                  error={errors} 
                   maxLength={10}
                   required
                 />

@@ -83,7 +83,7 @@
     text-align: right;
     padding-right: 16px;
     font-weight: 500;
-    color: var(--light-v1);
+    color: var(--primary);
   }
   
   .value {

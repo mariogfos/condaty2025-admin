@@ -370,7 +370,7 @@ const RenderForm = ({
                   required={true}
                   value={_formState.date_at || ""}
                   onChange={handleChangeInput}
-                  error={errors.date_at}
+                  error={errors} 
                   className={errors.date_at ? styles.error : ""} // Aplicar clase de error si existe
                 />
               </div>
@@ -388,7 +388,7 @@ const RenderForm = ({
                       label="Categoría"
                       onChange={handleChangeInput}
                       options={extraData?.categories || []}
-                      error={errors.category_id}
+                      error={errors} 
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -405,7 +405,7 @@ const RenderForm = ({
                       label="Subcategoría"
                       onChange={handleChangeInput}
                       options={filteredSubcategories}
-                      error={errors.subcategory_id}
+                      error={errors} 
                       required={hasSubcategories} // Solo requerido si hay subcategorías
                       optionLabel="name"
                       optionValue="id"
@@ -429,7 +429,7 @@ const RenderForm = ({
                       placeholder="Ej: 10000"
                       value={_formState.amount || ""}
                       onChange={handleChangeInput}
-                      error={errors.amount}
+                      error={errors} 
                       required
                       maxLength={10} // Limitar a 10 caracteres
                        className={errors.amount ? styles.error : ""} // Aplicar clase de error si existe
@@ -447,7 +447,7 @@ const RenderForm = ({
                       label="Método de pago"
                       onChange={handleChangeInput}
                       options={paymentMethods}
-                      error={errors.payment_method}
+                      error={errors} 
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -574,7 +574,7 @@ const RenderForm = ({
                   placeholder="Describa el concepto del pago"
                   value={_formState.description || ""}
                   onChange={handleChangeInput}
-                  error={errors.description}
+                  error={errors} 
                   required
                   maxLength={500} // Limitar a 500 caracteres
                    className={errors.description ? styles.error : ""} // Aplicar clase de error si existe
