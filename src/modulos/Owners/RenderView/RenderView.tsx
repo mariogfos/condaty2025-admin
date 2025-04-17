@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "../Owners.module.css";
 import { getUrlImages } from "@/mk/utils/string";
@@ -9,23 +9,16 @@ import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
 
-const RenderView = (props:any) => {
-  const {
-    open,
-    onClose,
-    item,
-    reLoad,
-    onConfirm,
-    extraData
-  } = props;
+const RenderView = (props: any) => {
+  const { open, onClose, item, reLoad, onConfirm, extraData } = props;
 
   const [openActive, setOpenActive] = useState(false);
-  const [typeActive, setTypeActive] = useState('');
+  const [typeActive, setTypeActive] = useState("");
 
-  const openModal = (t:any) => {
+  const openModal = (t: any) => {
     setOpenActive(true);
     setTypeActive(t);
-  }
+  };
 
   if (!item) {
     return (
@@ -35,7 +28,7 @@ const RenderView = (props:any) => {
         title={"Detalle del residente"}
         buttonText=""
         buttonCancel=""
-        style={{width:'max-content'}}
+        style={{ width: "max-content" }}
         className={styles.renderView}
       >
         <div className="flex justify-center items-center h-40">
@@ -44,16 +37,16 @@ const RenderView = (props:any) => {
       </DataModal>
     );
   }
-
+  console.log(item);
   return (
-    <>    
+    <>
       <DataModal
         open={open}
         onClose={onClose}
         title={"Detalle del residente"}
         buttonText=""
         buttonCancel=""
-        style={{width:'max-content'}}
+        style={{ width: "max-content" }}
         className={styles.renderView}
       >
         <div>
@@ -64,7 +57,7 @@ const RenderView = (props:any) => {
               )}
               h={170}
               w={170}
-              style={{borderRadius:16}}
+              style={{ borderRadius: 16 }}
               name={getFullName(item)}
             />
             <div>
@@ -91,29 +84,41 @@ const RenderView = (props:any) => {
             <div>
               <p>Estado</p>
               <p>
-                {lStatusActive[item.status]?.name || item.status || "No disponible"}
+                {lStatusActive[item.status]?.name ||
+                  item.status ||
+                  "No disponible"}
               </p>
             </div>
+            {item?.dpto[0]?.type.name && (
+              <div>
+                <p>Tipo de unidad</p>
+                <p>{item?.dpto[0]?.type.name}</p>
+              </div>
+            )}
             <div>
               <p>Número de casa</p>
               <p>
-                {item?.dpto?.length > 0 ?
-                item?.dpto[0]?.nro : 
-                item?.client_owner?.preunidad || 'Sin número de casa'}
+                {item?.dpto?.length > 0
+                  ? item?.dpto[0]?.nro
+                  : item?.client_owner?.preunidad || "Sin número de casa"}
               </p>
             </div>
           </section>
         </div>
-        {item?.status === 'R' && (
+        {item?.status === "R" && (
           <div>
-            <Button onClick={() => openModal('R')} className="btn-cancel">Rechazar</Button>
-            <Button onClick={() => openModal('S')} className="btn btn-primary">Activar</Button>
+            <Button onClick={() => openModal("R")} className="btn-cancel">
+              Rechazar
+            </Button>
+            <Button onClick={() => openModal("S")} className="btn btn-primary">
+              Activar
+            </Button>
           </div>
         )}
       </DataModal>
-     
+
       {openActive && (
-        <ActiveOwner 
+        <ActiveOwner
           open={openActive}
           onClose={() => setOpenActive(false)}
           typeActive={typeActive}
