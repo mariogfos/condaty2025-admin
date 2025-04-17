@@ -231,12 +231,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
 
 
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Expensa</span>
-                <span className={styles.value}>
-                  {datas?.data?.expense_amount} Bs
-                </span>
-              </div>
+          
               <div className={styles.infoRow}>
                 <span className={styles.label}>Dimensiones</span>
                 <span className={styles.value}>{datas?.data?.dimension} m</span>
