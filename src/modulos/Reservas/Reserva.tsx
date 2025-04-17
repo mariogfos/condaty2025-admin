@@ -11,6 +11,7 @@ import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
+import ReservaModal from "./ReservaModal/ReservaModal";
 
 const mod = {
   modulo: "reservations",
@@ -18,8 +19,8 @@ const mod = {
   plural: "Reservas",
   permiso: "",
   extraData: true,
-  hideActions: { edit: true, del: true, add: true, view: true },
-  renderView: (props: any) => <RenderView {...props} />,
+  hideActions: { edit: true, del: true, add: true},
+  renderView: (props: any) => <ReservaModal {...props} />,
   loadView: { fullType: "DET" } // Esto cargará los detalles completos al hacer clic
 };
 

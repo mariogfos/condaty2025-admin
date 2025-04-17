@@ -236,10 +236,10 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
            <h1 className={styles.dashboardTitle}>
              Expensas de {MONTHS[data?.month]} {data?.year}
            </h1>
-           
-           <div className={styles.allStatsRow}> {/* Contenedor principal flex */}
-            {/* NUEVO: Grupo Izquierdo (3 tarjetas) */}
-          <div className={styles.statGroupLeft}> 
+
+           {/* CONTENEDOR ÚNICO PARA TODAS LAS TARJETAS */}
+           <div className={styles.allStatsRow}>
+               {/* Tarjeta 1 (antes en grupo izquierdo) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{statsData.totalUnits}</span>
@@ -249,7 +249,7 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconUnidades className={styles.iconDefault} />
                  </div>
                </div>
-               
+               {/* Tarjeta 2 (antes en grupo izquierdo) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{statsData.paidUnits}</span>
@@ -259,7 +259,7 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconUnidades className={styles.iconPaidColor} />
                  </div>
                </div>
-               
+               {/* Tarjeta 3 (antes en grupo izquierdo) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{statsData.overdueUnits}</span>
@@ -269,11 +269,8 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconUnidades className={styles.iconOverdueColor} />
                  </div>
                </div>
-           </div> {/* Fin Grupo Izquierdo */}
-           <div className={styles.divider}></div>
 
-           {/* NUEVO: Grupo Derecho (4 tarjetas) */}
-            <div className={styles.statGroupRight}>
+               {/* Tarjeta 4 (antes en grupo derecho) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{formatNumber(statsData.totalAmount)}</span>
@@ -283,7 +280,7 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconMonedas className={styles.iconDefault} />
                  </div>
                </div>
-               
+               {/* Tarjeta 5 (antes en grupo derecho) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{formatNumber(statsData.paidAmount)}</span>
@@ -293,7 +290,7 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconBilletera className={styles.iconPaidColor} />
                  </div>
                </div>
-               
+               {/* Tarjeta 6 (antes en grupo derecho) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{formatNumber(statsData.penaltyAmount)}</span>
@@ -303,7 +300,7 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconMultas className={styles.iconPenaltyColor} />
                  </div>
                </div>
-               
+               {/* Tarjeta 7 (antes en grupo derecho) */}
                <div className={styles.statCard}>
                  <div className={styles.statContent}>
                    <span className={styles.statValue}>{formatNumber(statsData.pendingAmount)}</span>
@@ -313,10 +310,10 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
                    <IconHandcoin className={styles.iconOverdueColor} />
                  </div>
                </div>
-           </div> {/* Fin Grupo Derecho */}
-           </div>
-         </div>
-        
+               {/* Fin de las tarjetas */}
+           </div> {/* Fin .allStatsRow */}
+         </div> {/* Fin .dashboardContainer */}
+
         <List onTabletRow={renderItem} />
       </LoadingScreen>
     </div>
