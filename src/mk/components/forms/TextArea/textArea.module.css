@@ -47,8 +47,8 @@
       top: -10px;
       left: -4px;
       font-size: var(--sS);
-      transform: translateY(-20%);
-      background-color: 'transparent';
+      transform: translateY(-28%);
+      background-color: "transparent";
       color: var(--cWhiteV1);
     }
     & > textarea {

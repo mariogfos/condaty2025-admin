@@ -76,6 +76,8 @@ const FirstPart = ({
         required
         name="description"
         value={formState?.description}
+        maxLength={1000}
+        isLimit
         onChange={handleChange}
         error={errors}
       />

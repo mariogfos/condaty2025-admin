@@ -75,6 +75,11 @@ export const validRule = (
     min: () => (value?.length < param[0] ? `min ${param[0]} caracteres` : ""),
     max: () => (value?.length > param[0] ? `max ${param[0]} caracteres` : ""),
     email: () => (!/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : ""),
+    textDash: () =>
+      //permmitir acentos, guiones, guiones bajos, y espacios
+      !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ_-]+$/.test(value)
+        ? "No es un texto válido"
+        : "",
     alpha: () =>
       !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value) ? "No es un texto válido" : "",
     noSpaces: () => (!/^\S+$/.test(value) ? "No debe tener espacios" : ""),
