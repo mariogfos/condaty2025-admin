@@ -265,6 +265,7 @@ const HomePage = () => {
 />
  <PaymentRender
 { ...paymentProps}
+payment_id={paymentProps.item?.id}
  />
   </>;
 };
