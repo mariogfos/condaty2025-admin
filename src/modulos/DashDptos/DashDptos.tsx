@@ -220,6 +220,23 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   {datas?.data?.expense_amount} Bs
                 </span>
               </div>
+
+             {datas?.data?.field_values?.map((item:any)=> 
+              <div className={styles.infoRow}>
+                <span className={styles.label}>{item.type_field?.name}</span>
+                <span className={styles.value}>
+                  {item?.value}
+                </span>
+              </div>)}
+
+
+
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Expensa</span>
+                <span className={styles.value}>
+                  {datas?.data?.expense_amount} Bs
+                </span>
+              </div>
               <div className={styles.infoRow}>
                 <span className={styles.label}>Dimensiones</span>
                 <span className={styles.value}>{datas?.data?.dimension} m</span>
