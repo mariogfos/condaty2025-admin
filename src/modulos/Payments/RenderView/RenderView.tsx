@@ -44,7 +44,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   useEffect(() => {
 
     fetchPaymentData();
-  }, [open]);
+  }, [payment_id]);
   // console.log(item,)
 
 

@@ -61,6 +61,7 @@ const HomePage = () => {
     open:openPayment,
     onClose:()=>setOpenPayment(false),
     item:dataPayment,
+    payment_id: dataPayment?.id,
     reLoad:reLoad
   }
 
@@ -75,7 +76,7 @@ const HomePage = () => {
         return uniqueArray.join(" ");
       };
   
-  
+  // console.log(paymentProps,'paymentProps')
       return (
         <ItemList
           title={getFullName(data?.owner)}
@@ -265,7 +266,7 @@ const HomePage = () => {
 />
  <PaymentRender
 { ...paymentProps}
-payment_id={paymentProps.item?.id}
+ payment_id={paymentProps?.payment_id}
  />
   </>;
 };
