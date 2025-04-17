@@ -18,11 +18,14 @@ export interface CategoryFormProps {
   open: boolean;
   onClose: () => void;
   item: CategoryItem;
-  setItem: (item: CategoryItem | ((prev: CategoryItem) => CategoryItem)) => void;
+  setItem: (
+    item: CategoryItem | ((prev: CategoryItem) => CategoryItem)
+  ) => void;
   errors: Record<string, any>;
   setErrors: (errors: Record<string, any>) => void;
   onSave: (item: CategoryItem) => void;
   extraData: Record<string, any>;
+  getExtraData: Function;
   action: string;
   execute?: any;
   categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)

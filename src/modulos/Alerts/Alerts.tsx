@@ -6,6 +6,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "alerts",
@@ -15,7 +16,13 @@ const mod = {
   extraData: false,
   hideActions: { edit: true, del: true, add: true },
   export: true,
-  filter: true
+  filter: true,
+  renderView: (props: {
+    open: boolean;
+    onClose: any;
+    item: Record<string, any>;
+    onConfirm?: Function;
+  }) => <RenderView {...props} />
 };
 
 const paramsInitial = {
@@ -26,9 +33,9 @@ const paramsInitial = {
 };
 
 const lLevels = [
+  { id: "T", name: "Todos" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
-  { id: 1, name: "Nivel bajo" },
 ];
 
 const Alerts = () => {
@@ -36,37 +43,6 @@ const Alerts = () => {
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
-
-  // Función personalizada para el manejo de filtros
-  const getFilter = (opt:any, value:any, oldFilter:any) => {
-    // Para depuración si es necesario
-    console.log("Filtrando por:", opt, "con valor:", value);
-    
-    // Si el campo es level
-    if (opt === 'level') {
-      // Si no hay valor (opción "Todos"), no aplicamos filtro
-      if (value === '') {
-        return { filterBy: {} };
-      }
-      
-      // Si hay un valor, aplicamos el filtro directamente sin el formato opt:value
-      return { 
-        filterBy: { 
-          [opt]: value 
-        } 
-      };
-    }
-    
-    // Para otros campos, mantener el comportamiento por defecto
-    return { 
-      filterBy: { 
-        ...oldFilter.filterBy, 
-        [opt]: value 
-      } 
-    };
-  };
-
-  // Función para determinar la clase de estilo según el nivel de alerta
   const getAlertLevelClass = (level:any) => {
     switch (level) {
       case 3:
@@ -80,7 +56,6 @@ const Alerts = () => {
     }
   };
 
-  // Función para obtener el texto del nivel de alerta
   const getAlertLevelText = (level:any) => {
     switch (level) {
       case 3:
@@ -122,15 +97,7 @@ const Alerts = () => {
             );
           }
         },
-        form: { type: "text" },
-        onRenderView: (props: any) => {
-          return (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{  }}>Guardia:</span>
-              <span style={{ color: "var(--cWhite)" }}>{getFullName(props.item.guardia)}</span>
-            </div>
-          );
-        }
+        form: { type: "text" }
       },
       descrip: {
         rules: ["required"],
@@ -170,7 +137,6 @@ const Alerts = () => {
           label: "Nivel",
           width: "200px",
           options: () => [
-            { id: "", name: "Todos" },
             ...lLevels
           ],
           optionLabel: "name",
@@ -186,7 +152,6 @@ const Alerts = () => {
     paramsInitial,
     mod,
     fields,
-    getFilter // Pasamos la función personalizada al hook useCrud
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

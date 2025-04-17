@@ -4,7 +4,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useState } from "react";
-import styles from "./Users.module.css"
+import styles from "../Users.module.css"
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";

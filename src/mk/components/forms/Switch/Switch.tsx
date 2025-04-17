@@ -66,7 +66,7 @@ const Switch = ({
                 backgroundColor:
                   value === optionValue[0]
                     ? "var(--cSuccess)"
-                    : "var(--cBlackV2)",
+                    : "var(--cWhiteV1)",
                 height: height ? `${height}px` : "24px",
                 width: width ? `${width}px` : "44px",
               }}

@@ -11,7 +11,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import RenderView from "./RenderView";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 10,
@@ -27,6 +27,7 @@ const Owners = () => {
     plural: "Residentes",
     filter: true,
     export: true,
+    import: true,
     permiso: "",
     renderView: (props: {
       open: boolean;
@@ -35,7 +36,7 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    extraData: true,
+    // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;

@@ -157,3 +157,8 @@ export const PREFIX_COUNTRY = [
   { id: "598", name: "🇺🇾 Uruguay", label: "+598 Uruguay" }, // Uruguay
   { id: "58", name: "🇻🇪 Venezuela", label: "+58 Venezuela" }, // Venezuela
 ];
+export const getInitials = (name = "", lastName = "") => {
+  const firstInitial = name?.charAt(0)?.toUpperCase() || "";
+  const lastInitial = lastName?.charAt(0)?.toUpperCase() || "";
+  return `${firstInitial}${lastInitial}`;
+};

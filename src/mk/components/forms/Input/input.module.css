@@ -4,18 +4,19 @@
   border-radius: var(--bRadiusS);
   border: var(--bWidth) solid var(--cBlackV3);
   height: 48px;
-  font-size: var(--sL );
+  font-size: var(--sL);
   align-items: center;
   position: relative;
   padding-left: var(--spM);
   padding-right: var(--spM);
   display: flex;
   gap: var(--spXs);
-  margin-bottom: calc(var(--spS) * 3);
+  margin-bottom: calc(var(--spS) * 2.5);
   font-weight: var(--bRegular);
   color: var(--cWhite);
   & > div > input::placeholder {
-    color: var(--cWhite);
+    color: var(--cWhiteV1);
+    opacity: 0.5;
   }
   & > span {
     flex-shrink: 1;
@@ -75,7 +76,7 @@
 
     & > div > input:focus + label,
     & > div > input:not(:placeholder-shown) + label {
-      color: var(--cPrimary); 
+      color: var(--cPrimary);
     }
   }
 

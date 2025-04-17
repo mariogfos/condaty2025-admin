@@ -46,8 +46,7 @@ const Header = ({
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
-    // { name: "Metas", route: "/goals" },
-    // { name: "Gamificación", route: "/gamification" },
+
   ];
 
   const Title = () => {
@@ -143,23 +142,19 @@ const Header = ({
         </div>
 
         <div className={styles["header-controls"]}>
-          <NotificationIcon />
-          <div className={styles.tooltip}>
+        <NotificationIcon />
+        <Dropdown
+          trigger={
             <div className={styles.iconOuterContainer}>
               <div className={styles.settingContainer}>
-                <div 
-                  onClick={() => router.push('/roles')} 
-                  style={{ cursor: "pointer" }}
-                >
-                  <IconSetting />
-                </div>
+                <IconSetting />
               </div>
             </div>
-          </div>
-          
-
-          <ProfileIcon />
-        </div>
+          }
+          items={menuItems}
+        />
+        <ProfileIcon />
+      </div>
       </div>
     );
 };

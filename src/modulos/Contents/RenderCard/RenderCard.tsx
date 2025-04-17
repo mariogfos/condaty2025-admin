@@ -31,40 +31,27 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
   //   (t: any) => t.id == candidate?.typecand_id
   // );
 
-  const getDestinys = () => {
-    const names: any = [];
-    if (item?.destiny == 0) {
-      names.push("Todos");
-    }
-    if (item?.destiny == 2) {
-      extraData?.listas.map((li: any) => {
-        let d = item?.cdestinies.find((e: any) => e.lista_id == li.id);
-        if (d) {
-          names.push(li.name);
-        }
-      });
-    }
-    if (item?.destiny == 3) {
-      extraData?.dptos.map((dpto: any) => {
-        let d = item?.cdestinies.find((e: any) => e.dpto_id == dpto.id);
-        if (d) {
-          names.push(dpto.name);
-        }
-      });
-    }
-    if (item?.destiny == 4) {
-      extraData?.muns.map((mun: any) => {
-        let d = item?.cdestinies.find((e: any) => e.mun_id == mun.id);
-        if (d) {
-          names.push(mun.name);
-        }
-      });
-    }
-    if (item?.destiny == 5) {
-      names.push("Barrio");
-    }
-    return names;
-  };
+// Función modificada para obtener destinos en formato de texto descriptivo
+const getDestinys = () => {
+  const names: any = [];
+  
+  // Analizar el valor de destiny para mostrar texto descriptivo
+  if (item?.destiny === "T" || item?.destiny === 0) {
+    names.push("Todos");
+  }
+  if (item?.destiny === "D" || item?.destiny === 2) {
+    names.push("Dptos");
+  }
+  if (item?.destiny === "G" || item?.destiny === 5) {
+    names.push("Guardia");
+  }
+  if (item?.destiny === "R" || item?.destiny === 3) {
+    names.push("Residente");
+  }
+  
+  // Si no hay ningún destino reconocido, mostrar "Desconocido"
+  return names.length > 0 ? names : ["Desconocido"];
+};
 
   return (
     <div onClick={() => onClick(item)} className={styles.renderCard}>

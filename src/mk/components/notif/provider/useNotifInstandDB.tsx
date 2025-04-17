@@ -89,7 +89,7 @@ const useNotifInstandDB = (
       }
 
       if (lastNotif !== null && lastNotif < data?.notif[0].created_at) {
-        // console.log("notif enviada");
+        console.log("notif enviada");
         dispatch(data?.notif[0]);
         last = data?.notif[0].created_at;
         localStorage.setItem("lastNotifInstantDB", last);

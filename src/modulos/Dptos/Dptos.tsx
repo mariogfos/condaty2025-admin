@@ -9,10 +9,13 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
+
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
+import RenderForm from "./RenderForm";
+import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 
 const paramsInitial = {
   fullType: "L",
@@ -22,7 +25,8 @@ const paramsInitial = {
 };
 const lTitulars = [
   { id: "S", name: "Sin Titular" },
-  { id: "T", name: "Con Titular" },
+  { id: "C", name: "Con Titular" },
+  { id: "T", name: "Todos" },
 ];
 
 const Dptos = () => {
@@ -38,8 +42,10 @@ const Dptos = () => {
 
   const mod: ModCrudType = {
     modulo: "dptos",
-    singular: `${store?.UnitsType}`,
-    plural: `${store?.UnitsType}s`,
+    // singular: `${store?.UnitsType}`,
+    // plural: `${store?.UnitsType}s`,
+    singular: "unidad",
+    plural: "unidades",
     filter: true,
     permiso: "",
     export: true,
@@ -51,6 +57,15 @@ const Dptos = () => {
       edit: false,
       del: false,
     },
+    renderForm: (props: {
+      item: any;
+      setItem: any;
+      extraData: any;
+      open: boolean;
+      onClose: any;
+      user: any;
+      execute: any;
+    }) => <RenderForm {...props} />,
   };
   const fields = useMemo(() => {
     return {
@@ -59,7 +74,8 @@ const Dptos = () => {
       nro: {
         rules: ["required"],
         api: "ae",
-        label: "Número de " + store?.UnitsType,
+        // label: "Número de " + store?.UnitsType,
+        label: "Número de unidad" ,
         form: { type: "text" },
         list: { width: "100px" },
       },
@@ -70,6 +86,44 @@ const Dptos = () => {
         label: "Descripción",
         form: { type: "text" },
         list: true,
+      },
+      type: {
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo de unidad",
+        form: { type: "select",
+          options: (data: any) => {
+            let dataList: any = [];
+            data?.extraData?.type?.map((c: any) => {
+              dataList.push({
+                id: c.id,
+                name: c.name,
+              });
+            });
+            return dataList;
+          },
+         },
+        list: {
+          onRender: (props: any) => {
+            return (props?.item?.type?.name || "Sin tipo")
+          }
+        },
+        filter: {
+          label: "Tipo de unidad",
+          options: (data: any) => {
+            // console.log(data, "data")
+            let options = [{ id: "", name: "Todos" }];
+            data?.type?.forEach((type: any) => {
+              options.push({
+                id: type.id,
+                name: type.name
+              });
+            });
+            return options;
+          },
+          optionLabel: "name",
+          optionValue: "id"
+        }
       },
       expense_amount: {
         rules: ["required"],
@@ -109,6 +163,7 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
+            console.log(props, "props");
             return getFullName(props?.item?.homeowner) || "Sin propietario";
           },
         },
@@ -121,49 +176,70 @@ const Dptos = () => {
         // form: { type: "text" },
         list: {
           onRender: (props: any) => {
+            // Verificar si titular existe antes de intentar acceder a sus propiedades
+            if (!props?.item?.titular) {
+              return <div className={styles.noTitular}>Sin titular</div>;
+            }
+
+            // También verificar si titular.owner existe
+            if (!props?.item?.titular?.owner) {
+              return <div className={styles.noTitular}>Titular sin datos</div>;
+            }
+
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                    src={getUrlImages(
-                      "/OWNER-" +
-                        props?.item?.titular.owner_id +
-                                  ".webp?d=" +
-                                  props?.item?.titular.owner.updated_at
-                              )}
-                              name={getFullName(props?.item.titular.owner)}
-                              square
-                            />
-                            <div>
-                              <p>{getFullName(props?.item.titular.owner)} </p>
-                            </div>
-                          </div>
+                  src={getUrlImages(
+                    "/OWNER-" +
+                      props?.item?.titular?.owner_id +
+                      ".webp?d=" +
+                      props?.item?.titular?.owner?.updated_at
+                  )}
+                  name={getFullName(props?.item?.titular?.owner)}
+                  square
+                />
+                <div>
+                  <p>{getFullName(props?.item?.titular?.owner)}</p>
+                </div>
+              </div>
             );
           },
         },
         filter: {
           label: "Titular",
-         
-          options: () => [
-            { id: "", name: "Todos" },
-            ...lTitulars
-          ],
+
+          options: () => [{ id: "", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
-          optionValue: "id"
+          optionValue: "id",
         },
-        import:true
+        import: true,
       },
     };
   }, []);
+  const [openImport, setOpenImport] = useState(false);
+  const onImport = () => {
+    setOpenImport(true);
+  };
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-    }
-  );
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    showToast,
+    execute,
+    reLoad,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    _onImport: onImport,
+  });
 
-  const { onLongPress, selItem, searchState } = useCrudUtils({
+  const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -196,6 +272,20 @@ const Dptos = () => {
   return (
     <div className={styles.departamentos}>
       <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      {openImport && (
+        <ImportDataModal
+          open={openImport}
+          onClose={() => {
+            setOpenImport(false);
+          }}
+          mod={mod}
+          showToast={showToast}
+          reLoad={reLoad}
+          execute={execute}
+          // getExtraData={getExtraData}
+          // requiredCols="DEPARTAMENTO, HABITANTES, HABILITADOS, ESCANOS, CODE"
+        />
+      )}
     </div>
   );
 };

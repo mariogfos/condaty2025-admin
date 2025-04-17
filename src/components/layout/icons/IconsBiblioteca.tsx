@@ -3328,7 +3328,7 @@ export const IconBellAlertOff = (props: IconType) => {
 
 export const IconArrowBack = (props: IconType) => {
   return (
-    <IconWrap viewBox="0 0 24 24" {...props}>
+    <IconWrap viewBox="0 0 16 16" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

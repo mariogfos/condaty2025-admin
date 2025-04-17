@@ -52,6 +52,7 @@ const TableResumenGeneral = ({
       total={total || 0}
       color={`${total < 0 ? "text-error " : "text-accent"}`}
       titleTotal={titleTotal}
+      variant="summary"
     />
   );
 };

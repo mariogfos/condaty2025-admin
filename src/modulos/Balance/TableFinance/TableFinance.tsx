@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { formatNumber } from "@/mk/utils/numbers";
 
 import styles from "./TableFinance.module.css";
+import colorStyles from "./TableFinanceColors.module.css"; // Import the new color styles
 import { IconArrowUp, IconArrowDown, IconTableHelp } from "@/components/layout/icons/IconsBiblioteca";
 
 interface SubItem {
@@ -27,6 +28,7 @@ interface PropsType {
   titleTotal?: string;
   meses?: string[];
   tooltip?: string;
+  variant?: 'income' | 'expense' | 'summary'; // New prop for table variant
 }
 
 const TableFinance = ({
@@ -38,6 +40,7 @@ const TableFinance = ({
   titleTotal,
   meses = [],
   tooltip,
+  variant = 'income', // Default to income if not specified
 }: PropsType) => {
   const [dropStates, setDropStates] = useState<Array<{ drop: boolean }>>([]);
 
@@ -53,8 +56,36 @@ const TableFinance = ({
     );
   };
 
+  // Get the appropriate container class based on the variant
+  const getContainerClass = () => {
+    switch (variant) {
+      case 'income':
+        return `${styles.tableContainer} ${colorStyles['tableContainer-income']}`;
+      case 'expense':
+        return `${styles.tableContainer} ${colorStyles['tableContainer-expense']}`;
+      case 'summary':
+        return `${styles.tableContainer} ${colorStyles['tableContainer-summary']}`;
+      default:
+        return styles.tableContainer;
+    }
+  };
+
+  // Get the appropriate total row class based on the variant
+  const getTotalRowClass = () => {
+    switch (variant) {
+      case 'income':
+        return `${styles.totalRow} ${colorStyles['totalRow-income']} ${color}`;
+      case 'expense':
+        return `${styles.totalRow} ${colorStyles['totalRow-expense']} ${color}`;
+      case 'summary':
+        return `${styles.totalRow} ${colorStyles['totalRow-summary']} ${color}`;
+      default:
+        return `${styles.totalRow} ${color}`;
+    }
+  };
+
   return (
-    <div className={styles.tableContainer}>
+    <div className={getContainerClass()}>
       <div className={styles.tableHeader}>
         <div className={styles.headerRow}>
           <p className={styles.titleText}>{title}</p>
@@ -135,7 +166,7 @@ const TableFinance = ({
         ))}
       </div>
       <div className={styles.totalContainer}>
-        <div className={`${styles.totalRow} ${color}`}>
+        <div className={getTotalRowClass()}>
           <p className={styles.totalLabel}>{titleTotal || "Total de " + title}</p>
           <div className={styles.tooltipContainer}>
             <IconTableHelp className={styles.tooltipIcon} />

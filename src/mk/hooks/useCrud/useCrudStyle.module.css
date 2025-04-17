@@ -109,7 +109,6 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .extraButtons {
   display: flex;
   gap: var(--spM);

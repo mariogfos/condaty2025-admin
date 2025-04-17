@@ -1,0 +1,14 @@
+.WeekdayToggleGroup {
+  display: flex;
+  gap: 8px;
+  & > button {
+    background-color: transparent;
+    border: 1px solid var(--cWhiteV1);
+    width: 100%;
+    color: var(--cWhiteV1);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+}

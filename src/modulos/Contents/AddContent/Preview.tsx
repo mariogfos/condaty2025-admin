@@ -113,15 +113,15 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       </div>
       <div>
         <div>
-          <IconLike color="var(--cWhiteV2)" />
+          <IconLike color="var(--cWhiteV1)" />
           <p>Apoyar</p>
         </div>
         <div>
-          <IconComment color="var(--cWhiteV2)" />
+          <IconComment color="var(--cWhiteV1)" />
           <p>Comentar</p>
         </div>
         <div>
-          <IconShare color="var(--cWhiteV2)" />
+          <IconShare color="var(--cWhiteV1)" />
           <p>Compartir</p>
         </div>
       </div>

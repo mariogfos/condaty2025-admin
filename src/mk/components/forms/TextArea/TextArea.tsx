@@ -9,7 +9,12 @@ interface PropsType extends PropsTypeInputBase {
   maxLength?: number; // Límite de caracteres
 }
 
-const TextArea = ({ maxLength, isLimit = false, ...props }: PropsType) => {
+const TextArea = ({
+  lines = 6,
+  maxLength,
+  isLimit = false,
+  ...props
+}: PropsType) => {
   const {
     name,
     placeholder = "",
@@ -44,7 +49,7 @@ const TextArea = ({ maxLength, isLimit = false, ...props }: PropsType) => {
           style={{ width: "100%", ...style }}
           disabled={disabled}
           required={required}
-          rows={props.lines}
+          rows={lines}
           maxLength={maxLength} // Aplica el límite de caracteres
           onChange={handleChange}
           onFocus={onFocus}

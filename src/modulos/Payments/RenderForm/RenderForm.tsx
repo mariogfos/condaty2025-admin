@@ -301,10 +301,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
         if (!e.target.files || e.target.files.length === 0) return;
 
         const file = e.target.files[0];
-        if (file.size > 2 * 1024 * 1024) {
-          alert("El archivo debe ser menor a 2MB");
-          return;
-        }
+       
 
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
         if (!extem.includes(fileExtension)) {
@@ -424,6 +421,14 @@ const handleSelectPeriodo = useCallback((periodo) => {
     }
     if (!_formState.subcategory_id) {
       err.subcategory_id = "Este campo es requerido";
+    }
+    if (!_formState.type) {
+      err.type = "Este campo es requerido";
+    }
+    if (!_formState.voucher) {
+      err.voucher = "Este campo es requerido";
+    } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
+      err.voucher = "Debe contener solo números (máximo 10 dígitos)";
     }
 
     // Validamos los demás campos
@@ -569,31 +574,31 @@ const handleSelectPeriodo = useCallback((periodo) => {
           {/* Fecha de pago */}
           <div className={styles.section}>
             <div className={styles["input-container"]}>
-              <Input
-                type="date"
-                name="paid_at"
-                label="Fecha de pago*"
-                required={true}
-                value={_formState.paid_at || ""}
-                onChange={handleChangeInput}
-                error={errors.paid_at}
-                max={new Date().toISOString().split('T')[0]} // Impide seleccionar fechas futuras
-              />
+            <Input
+              type="date"
+              name="paid_at"
+              label="Fecha de pago"
+              required={true}
+              value={_formState.paid_at || ""}
+              onChange={handleChangeInput}
+              error={errors} 
+              max={new Date().toISOString().split('T')[0]} // Impide seleccionar fechas futuras
+            />
             </div>
           </div>
           
           <div className={styles.section}>
             <div className={styles["input-container"]}>
-              <Select
-                name="dpto_id"
-                required={true}
-                value={_formState.dpto_id}
-                onChange={handleChangeInput}
-                placeholder="Seleccionar la unidad"
-                options={lDptos}
-                error={errors.dpto_id}
-                filter={true}
-              />
+            <Select
+              name="dpto_id"
+              required={true}
+              value={_formState.dpto_id}
+              onChange={handleChangeInput}
+              placeholder="Seleccionar la unidad"
+              options={lDptos}
+              error={errors} 
+              filter={true}
+            />
             </div>
           </div>
   
@@ -601,17 +606,17 @@ const handleSelectPeriodo = useCallback((periodo) => {
             {/* Categoría y Subcategoría en una misma fila */}
             <div className={styles["input-row"]}>
               <div className={styles["input-half"]}>
-                <Select
-                  name="category_id"
-                  value={_formState.category_id}
-                  placeholder="Categoría*"
-                  onChange={handleChangeInput}
-                  options={extraData?.categories || []}
-                  error={errors.category_id}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
-                />
+              <Select
+              name="category_id"
+              value={_formState.category_id}
+              placeholder="Categoría*"
+              onChange={handleChangeInput}
+              options={extraData?.categories || []}
+              error={errors} 
+              required
+              optionLabel="name"
+              optionValue="id"
+            />
               </div>
               <div className={styles["input-half"]}>
                 <Select
@@ -620,7 +625,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   placeholder="Subcategoría"
                   onChange={handleChangeInput}
                   options={_formState.subcategories || []}
-                  error={errors.subcategory_id}
+                  error={errors} 
                   required
                   optionLabel="name"
                   optionValue="id"
@@ -644,37 +649,45 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   
                   <div className={styles["input-row"]}>
                       <div className={styles["input-half"]}>
-                        <Input
-                          type="number"
-                          name="amount"
-                          placeholder="Monto del ingreso*"
-                          onChange={handleChangeInput}
-                          value={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 
-                            ? selecPeriodoTotal 
-                            : _formState.amount}
-                          required={true}
-                          error={errors.amount || ""}
-                          disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
-                        />
+                      <Input
+                        type="text" // Cambiar a text para permitir nuestra validación personalizada
+                        name="amount"
+                        placeholder="Monto del ingreso"
+                        onChange={(e) => {
+                          // Solo permitir números y limitar a 10 dígitos
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          if (value.length <= 10) { // Solo actualizar si no excede 10 dígitos
+                            const newEvent = { ...e, target: { ...e.target, name: 'amount', value }};
+                            handleChangeInput(newEvent);
+                          }
+                        }}
+                        value={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 
+                          ? selecPeriodoTotal 
+                          : _formState.amount}
+                        required={true}
+                        error={errors} 
+                        disabled={_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0}
+                        maxLength={10} // Asegurar límite de 10 caracteres
+                      />
                       </div>
                       <div className={styles["input-half"]}>
-                        <Select
-                          name="type"
-                          value={_formState.type}
-                          placeholder="Tipo de pago*"
-                          onChange={handleChangeInput}
-                          options={[
-                            { id: "Q", name: "Pago QR" },
-                            { id: "T", name: "Transferencia bancaria" },
-                            { id: "E", name: "Efectivo" },
-                            { id: "C", name: "Cheque" },
-                            { id: "O", name: "Pago en oficina" }
-                          ]}
-                          error={errors.type}
-                          required
-                          optionLabel="name"
-                          optionValue="id"
-                        />
+                      <Select
+                      name="type"
+                      value={_formState.type}
+                      placeholder="Tipo de pago*"
+                      onChange={handleChangeInput}
+                      options={[
+                        { id: "Q", name: "Pago QR" },
+                        { id: "T", name: "Transferencia bancaria" },
+                        { id: "E", name: "Efectivo" },
+                        { id: "C", name: "Cheque" },
+                        { id: "O", name: "Pago en oficina" }
+                      ]}
+                      error={errors} 
+                      required
+                      optionLabel="name"
+                      optionValue="id"
+                    />
                       </div>
                     </div>
                 </div>
@@ -760,34 +773,58 @@ const handleSelectPeriodo = useCallback((periodo) => {
                 {/* Sección de código de comprobante */}
                 <div className={styles["voucher-section"]}>
                   
-                  <div className={styles["voucher-input"]}>
-                    <Input
-                      type="text"
-                      label="Ingresar el numero del comprobante"
-                      name="voucher"
-                      onChange={handleChangeInput}
-                      value={_formState.voucher}
-                      error={errors.voucher || ""}
-                    />
-                  </div>
-                </div>
+               
+                <div className={styles["voucher-input"]}>
+                <Input
+                  type="text"
+                  label="Ingresar el número del comprobante"
+                  name="voucher"
+                  onChange={(e) => {
+                    // Solo permitir números y limitar a 10 dígitos
+                    const value = e.target.value.replace(/[^0-9]/g, "").substring(0, 10);
+                    const newEvent = {
+                      ...e,
+                      target: { ...e.target, name: "voucher", value },
+                    };
+                    handleChangeInput(newEvent);
 
+                    // Mostrar un mensaje de error inmediato si se ingresan caracteres no permitidos
+                    if (e.target.value !== value) {
+                      showToast(
+                        "El número de comprobante solo puede contener números (máximo 10 dígitos)",
+                        "warning"
+                      );
+                    }
+                  }}
+                  value={_formState.voucher || ""}
+                  error={errors} 
+                  maxLength={10}
+                  required
+                />
+              </div>
+              </div>
                 {/* Sección para mostrar deudas cuando es categoría de expensas */}                     
-                  {_formState.subcategory_id === extraData?.client_config?.cat_expensas && (
-                    <>
-                      {!_formState.dpto_id ? (
-                        <EmptyData
-                          message="Seleccione una unidad para ver deudas"
-                          h={200}
-                        />
-                      ) : isLoadingDeudas ? (
-                        <EmptyData message="Cargando deudas..." h={200} />
-                      ) : deudas?.length === 0 ? (
-                        <EmptyData
-                          message="Esta unidad no tiene deudas pendientes. No se puede registrar un pago."
-                          h={200}
-                        />
-                      ) : (
+                {_formState.subcategory_id === extraData?.client_config?.cat_expensas && (
+                      <>
+                        {!_formState.dpto_id ? (
+                          <EmptyData
+                            message="Seleccione una unidad para ver deudas"
+                            h={200}
+                          />
+                        ) : isLoadingDeudas ? (
+                          <EmptyData message="Cargando deudas..." h={200} />
+                        ) : deudas?.length === 0 ? (
+                          // Aquí es donde queremos modificar el mensaje
+                          <div className={styles["no-deudas-container"]}>
+                            <EmptyData
+                              message="Esta unidad no tiene deudas pendientes"
+                              h={200}
+                            />
+                            <p className={styles["no-deudas-message"]}>
+                              No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de expensas.
+                            </p>
+                          </div>
+                        ) : (
                         <div className={styles["deudas-container"]}>
                           <div className={styles["deudas-title-row"]}>
                             <p className={styles["deudas-title"]}>
@@ -890,13 +927,19 @@ const handleSelectPeriodo = useCallback((periodo) => {
                     Indica una descripción para este ingreso
                   </p>
                   <div className={styles["obs-input"]}>
-                    <TextArea
-                      label="Descripción"
-                      placeholder="Escribe una descripción(Opcional)"
-                      name="obs"
-                      onChange={handleChangeInput}
-                      value={_formState.obs}
-                    />
+                  <TextArea
+                    label="Descripción"
+                    placeholder="Escribe una descripción(Opcional)"
+                    name="obs"
+                    onChange={(e) => {
+                      // Limitar a 500 caracteres
+                      const value = e.target.value.substring(0, 500);
+                      const newEvent = { ...e, target: { ...e.target, name: 'obs', value }};
+                      handleChangeInput(newEvent);
+                    }}
+                    value={_formState.obs}
+                    maxLength={500}
+                  />
                   </div>
                 </div>
               </>
