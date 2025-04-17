@@ -127,3 +127,15 @@ export interface ApiHomeowner {
     id: number | string;
     name: string;
   }
+  export interface FormState {
+    unidad: string;
+    area_social: string;
+    fecha: string;
+    // REMOVIDOS: hora_inicio, hora_fin
+    // NO AÑADIMOS NADA AQUÍ, la selección va a un estado separado
+    cantidad_personas: string | number;
+    motivo: string;
+    nombre_responsable: string;
+    telefono_responsable: string;
+    email_responsable: string;
+  }
