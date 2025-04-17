@@ -387,8 +387,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
             <Table
               header={[
                 { key: 'paid_at', label: 'Fecha de pago', responsive: "desktop" ,onRender:({item}:any)=>{ return getDateStrMes(item?.paid_at) || '-'}},
-                { key: 'categorie',label:'Categoría', responsive: "desktop",onRender:({item}:any)=>{return '-'} },
-                { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" },
+                { key: 'categorie',label:'Categoría', responsive: "desktop",onRender:({item}:any)=>{return item?.payment?.categoryP?.name || '-'} },
+                { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" ,onRender:({item}:any)=>{return item?.payment?.category?.name || '-'} },
                 { key: 'amount', label: 'Monto', responsive: "desktop", width: '100px',
                   onRender: ({ item }: any) => {
                    return item?.amount && item?.penalty_amount
