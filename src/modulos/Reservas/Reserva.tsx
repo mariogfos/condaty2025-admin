@@ -11,6 +11,9 @@ import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
+import ReservaModal from "./ReservaModal/ReservaModal";
+import Button from "@/mk/components/forms/Button/Button";
+import { useRouter } from 'next/navigation';
 
 const mod = {
   modulo: "reservations",
@@ -18,9 +21,10 @@ const mod = {
   plural: "Reservas",
   permiso: "",
   extraData: true,
-  hideActions: { edit: true, del: true, add: true, view: true },
-  renderView: (props: any) => <RenderView {...props} />,
-  loadView: { fullType: "DET" } // Esto cargará los detalles completos al hacer clic
+  hideActions: { edit: true, del: true, add: true},
+  renderView: (props: any) => <ReservaModal {...props} />,
+  loadView: { fullType: "DET" } ,
+  // Esto cargará los detalles completos al hacer clic
 };
 
 const paramsInitial = {
@@ -32,6 +36,7 @@ const paramsInitial = {
 
 
 const Reserva = () => {
+  const router = useRouter();
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -113,32 +118,52 @@ const Reserva = () => {
         },
         list: {
           onRender: (props: any) => {
-              const status = props?.item?.status as 'A' | 'X' | 'M' | undefined;
-              const statusMap = {
-                  A: { label: "Disponible", class: styles.statusA },
-                  X: { label: "No disponible", class: styles.statusX },
-                  M: { label: "En mantenimiento", class: styles.statusM }
-              };
-              
-              return (
-                  <div className={`${styles.statusBadge} ${status ? statusMap[status]?.class : ''}`}>
-                      {status ? statusMap[status]?.label : 'Estado desconocido'}
-                  </div>
-              );
+            // NUEVO: Tipo actualizado para incluir los nuevos estados
+            const status = props?.item?.status as 'X' | 'W' | 'Y' | 'N' | undefined;
+
+            // NUEVO: Mapeo actualizado con los nuevos estados y clases
+            const statusMap = {
+              X: { label: "Cancelado", class: styles.statusX },
+              W: { label: "En espera", class: styles.statusW },
+              Y: { label: "Aprobado", class: styles.statusY },
+              N: { label: "Rechazado", class: styles.statusN },
+              A: { label: "Disponible", class: styles.statusA },
+            };
+
+            const currentStatus = status ? statusMap[status] : null;
+
+            return (
+              <div className={`${styles.statusBadge} ${currentStatus ? currentStatus.class : styles.statusUnknown}`}>
+                {currentStatus ? currentStatus.label : 'Estado desconocido'}
+              </div>
+            );
           },
       },
     },
     }),
     []
   );
+  const customAddButton = (
+    <Button
+      key="custom-add-reserva" // Añadir key única
+      onClick={() => router.push('/create-reservas')} // Acción de navegación
+      variant="primary" // O el variant que uses
+      style={{ height: 48 }} // Mantener estilo consistente si es necesario
+    >
+      Crear Reserva
+    </Button>
+  );
 
   const {
     userCan,
     List,
+    // Ya no necesitas onAdd del hook si no lo usas
+    // onAdd,
+    // ...otros elementos que sí uses ...
     setStore,
     onSearch,
     searchs,
-    onEdit,
+    onEdit, // Mantienes onEdit/onDel si los usas en otro lugar (ej. onLongPress)
     onDel,
     extraData,
     findOptions,
@@ -146,6 +171,8 @@ const Reserva = () => {
     paramsInitial,
     mod,
     fields,
+    // NUEVO: Pasar el botón personalizado como extraButton
+    extraButtons: [customAddButton],
   });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,

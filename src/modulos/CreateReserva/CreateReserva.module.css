@@ -3,58 +3,62 @@
 .createReservaContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Equivalente a gap-4 aprox */
-  /* Añade max-width o width si es necesario */
+  gap: var(--spL); /* 1rem -> 16px */
   width: 100%;
-  max-width: 800px; /* Ajusta según tu diseño */
-  margin: 0 auto; /* Centrar */
-  padding: 1rem; /* Añade padding si es necesario */
-  color: #f0f0f0; /* Color de texto base claro */
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spL);
+  color: var(--cWhite); /* Color de texto base */
+  font-family: var(--fPrimary);
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* gap-3 */
+  gap: var(--spM); /* 0.75rem -> 12px */
 }
 
 .backButton {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* gap-2 */
+  gap: var(--spS); /* 0.5rem -> 8px */
   cursor: pointer;
-  color: #a7a7a7; /* Color grisáceo */
-  font-size: 14px;
+  color: var(--cWhiteV1); /* #a7a7a7 */
+  font-size: var(--sM); /* 14px */
 }
 .backButton:hover {
-  color: #f0f0f0; /* Más claro al pasar el ratón */
+  color: var(--cWhite); /* #f0f0f0 */
 }
 
 .header h1 {
-  font-size: 24px; /* text-[24px] */
-  font-weight: 600; /* font-semibold */
-  color: #f0f0f0; /* text-neutral-50 */
+  font-size: var(--sXxl); /* 24px */
+  font-weight: var(--bSemibold); /* 600 */
+  color: var(--cWhite); /* Asegura color blanco */
 }
 
 .progressContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* gap-2 */
+  gap: var(--spS); /* 0.5rem -> 8px */
+  margin-top: var(--spS); /* Añade espacio si es necesario */
 }
 
 .progressBar {
-  height: 7px; /* h-[7px] */
-  background-color: #292929; /* bg-[#292929] */
-  border-radius: 1rem; /* rounded-2xl */
-  overflow: hidden; /* Para que el fill no se salga */
+  height: 7px;
+  background-color: var(--cBlackV1); /* #292929 */
+  border-radius: var(--bRadiusM); /* 1rem -> 16px */
+  overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background-color: #246950; /* bg-[#246950] */ /* Este es el color del paso 1-2 */
-  /* El color cambia a #00e38c en el paso 3, se podría manejar con clases condicionales o JS */
+  /* Color inicial verde oscuro, podría cambiar con JS/clases */
+  background-color: var(--cBigSidebar); /* #246950 */
   transition: width 0.3s ease-in-out;
 }
+/* Podrías tener una clase adicional para el color verde claro */
+/* .progressFillActive { background-color: var(--cAccent); } */
+
 
 .formContainer {
   /* Contenedor si necesitas separar el header de la tarjeta */
@@ -63,106 +67,240 @@
 .formCard {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* gap-6 */
-  background-color: #333536; /* bg-[#333536] */
-  padding: 1rem; /* p-4 */
-  border-radius: 1rem; /* rounded-2xl */
-  border: 0.5px solid #a7a7a7; /* border-[0.5px] border-solid border-[#a7a7a7] */
+  gap: var(--spXl); /* 1.5rem -> 24px */
+  background-color: var(--cBlackV2); /* #333536 */
+  padding: var(--spL); /* 1rem -> 16px */
+  border-radius: var(--bRadiusM); /* 1rem -> 16px */
+  border: var(--bWidth) solid var(--cWhiteV1); /* 0.5px solid #a7a7a7 -> usamos 1px y variable */
 }
 
 .stepIndicator {
-    font-size: 14px; /* text-[14px] */
-    color: #f0f0f0; /* text-neutral-50 */
-    align-self: flex-start; /* O ajusta según diseño */
-    margin-bottom: -1rem; /* Ajusta para solapar si es necesario */
+    font-size: var(--sM); /* 14px */
+    color: var(--cWhite); /* #f0f0f0 */
+    align-self: flex-start;
+    margin-bottom: calc(-1 * var(--spL)); /* -1rem (ajusta según diseño exacto) */
+    padding-left: var(--spS); /* Añade un poco de padding para que no pegue al borde */
+}
+.stepIndicatorText { /* Estilo para el texto del paso */
+  font-size: var(--sM); /* 14px */
+  color: var(--cWhite); /* #f0f0f0 */
+  margin-bottom: var(--spXs); /* Espacio antes de la barra */
+  /* align-self: flex-start; Opcional */
 }
 
 .stepContent {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Ajusta según el contenido de cada paso */
+  gap: var(--spXl); /* Ajusta según el contenido de cada paso (1.5rem -> 24px) */
 }
 
-/* --- Estilos Paso 1 (Revisar/Añadir si es necesario) --- */
-.step1Content h2 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    margin-bottom: -0.5rem; /* Reduce espacio antes del campo */
+/* --- Estilos Títulos dentro de Pasos --- */
+.stepTitle, /* Título del paso */
+.step1Content h2,
+.step3Content h2, /* Título "Datos del responsable" */
+.summaryTitle { /* Título "Resumen de la reserva" */
+    font-size: var(--sXl); /* 20px (o var(--sL) si prefieres 16px) */
+    font-weight: var(--bSemibold); /* 600 */
+    color: var(--cWhite); /* Asegura color blanco */
+    margin-top: var(--spS); /* 0.5rem */
+    margin-bottom: calc(-1 * var(--spM)); /* -0.75rem (reduce espacio antes del campo/contenido) */
 }
+/* Ajuste específico para el primer h2 de paso 1 si es necesario */
+.step1Content h2:first-of-type {
+     margin-top: 0;
+}
+/* Ajuste específico para el título del resumen */
+.summaryTitle {
+    margin-top: var(--spL); /* 1rem */
+    margin-bottom: calc(-1 * var(--spS)); /* -0.5rem */
+}
+
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS); /* Espacio entre título y campo */
+}
+/* --- Estilos Previsualización Área (Paso 1) --- */
 .areaPreview {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    border: 1px solid #414141;
-    padding: 1rem;
-    border-radius: 0.5rem;
+  display: flex;
+  flex-direction: row; /* Lado a lado */
+  gap: var(--spL); /* 1rem */
+  margin-top: var(--spL);
+ 
+  padding: var(--spL);
+  border-radius: var(--bRadiusS);
+  background-color: var(--cBlackV2); /* Fondo ligeramente diferente opcional */
 }
-.imageContainer { /* ... */ }
-.areaInfo { /* ... */ }
+
+/* Contenedor Imagen */
+.imageContainer {
+  width: 350px; /* Ancho deseado */
+  flex-shrink: 0; /* Evita que se encoja */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spS);
+}
+
+.previewImage { /* Clase específica para la imagen de previsualización */
+  width: 100%; /* Ocupa el ancho del contenedor (350px) */
+  height: 280px; /* Alto deseado */
+  object-fit: cover; /* Cubre el espacio sin deformar */
+  border-radius: var(--bRadiusS); /* Bordes redondeados */
+  background-color: var(--cBlackV1); /* Fondo mientras carga */
+}
+
+/* Paginación (Placeholder) */
+.imagePagination {
+  display: flex;
+  align-items: center;
+  gap: var(--spM);
+  font-size: var(--sS);
+  color: var(--cWhite);
+}
+.imagePagination button {
+  background: var(--cBlackV1);
+  border: none;
+  color: var(--cWhite);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenedor Info */
+.areaInfo {
+  flex-grow: 1; /* Ocupa el espacio restante */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM); /* Espacio entre bloques de info */
+}
+
+.areaHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  flex-wrap: wrap; /* Para que el badge baje si no cabe */
+}
+
+.areaTitle { /* Título del Área (Piscina Exclusiva) */
+  font-size: var(--sL); /* 16px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhite);
+  margin: 0; /* Resetear margen */
+}
+
+.statusBadge {
+  font-size: var(--sS); /* 12px */
+  padding: var(--spXs) var(--spS); /* 4px 8px */
+  border-radius: var(--bRadiusS); /* 8px */
+  font-weight: var(--bRegular);
+}
+
+.statusDisponible {
+  background-color: var(--cSuccess); /* Verde éxito */
+  color: var(--cWhite);
+  /* O usar los colores de Figma si son diferentes:
+  background-color: #00af90;
+  color: #00e38c;
+  */
+}
+
+.statusNoDisponible {
+  background-color: var(--cError); /* Rojo error */
+  color: var(--cWhite);
+}
+
+.areaDescription { /* Descripción del área */
+  font-size: var(--sM); /* 14px */
+  color: var(--cWhiteV1); /* #a7a7a7 */
+  line-height: 1.4;
+}
+
+.areaSeparator { /* Línea separadora */
+  border: none;
+  border-top: 1px solid var(--cBlackV1); /* Línea sutil */
+  margin: 0; /* Resetear margen */
+}
+
+.detailBlock { /* Contenedor para Capacidad, Disponibilidad, Reglas */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs); /* Espacio entre label y value */
+}
+
+.detailLabel { /* "Cantidad máxima...", "Disponibilidad", "Reglas..." */
+  font-size: var(--sL); /* 16px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhite);
+}
+
+.detailValue { /* "16", "Días: ...", "Máximo 2 horas..." */
+  font-size: var(--sM); /* 14px */
+  color: var(--cWhiteV1); /* #a7a7a7 */
+}
+
+.rulesButton { /* Botón/Enlace para ver reglas */
+  background: none;
+  border: none;
+  color: var(--cAccent); /* Color acento */
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  font-size: var(--sM);
+  text-decoration: underline;
+  margin-top: var(--spXs);
+}
+.rulesButton:hover {
+  color: var(--accentv1);
+}
+.sectionTitle { /* Estilo para "Datos generales", "Datos de la reserva" */
+  font-size: var(--sL); /* 16px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhite);
+  margin-bottom: var(--spXs); /* Pequeño espacio antes del campo */
+}
+/* Quitar margen superior/inferior extra de los h2 si se usa sectionTitle */
+.step1Content h2 {
+  margin: 0; /* Resetear márgenes si usamos sectionTitle */
+  font-size: inherit; /* Heredar tamaño de sectionTitle si se reemplaza */
+  font-weight: inherit;
+}
 
 
 /* --- Estilos Paso 2 --- */
 .step2Content {
-    gap: 2rem; /* Más espacio entre secciones */
+    gap: var(--spXxl); /* 2rem -> 32px */
 }
 
-.sectionLabel {
-    font-size: 16px; /* text-[16px] */
-    font-weight: 500; /* font-medium */
-    color: #f0f0f0; /* text-neutral-50 */
-    margin-bottom: 0.25rem; /* gap-1 */
+.sectionLabel { /* Label "Selecciona la fecha", "Selecciona la hora", "Cantidad de personas" */
+    font-size: var(--sL); /* 16px */
+    font-weight: var(--bMedium); /* 500 */
+    color: var(--cWhite); /* Asegura color blanco */
+    margin-bottom: var(--spXs); /* 0.25rem -> 4px */
 }
 
 .sectionSubtitle {
-    font-size: 14px; /* text-[14px] */
-    color: #a7a7a7; /* text-[#a7a7a7] */
-    margin-bottom: 0.75rem; /* gap-3 */
+    font-size: var(--sM); /* 14px */
+    color: var(--cWhiteV1); /* #a7a7a7 */
+    margin-bottom: var(--spM); /* 0.75rem -> 12px */
 }
 
 .errorText {
-    color: #ff6b6b; /* Color de error */
-    font-size: 12px;
-    margin-top: -1rem; /* Ajusta para acercar al campo */
+    color: var(--cError); /* #e46055 o similar */
+    font-size: var(--sS); /* 12px */
+    margin-top: calc(-1 * var(--spM)); /* Ajusta para acercar al campo (-0.75rem) */
+    padding-left: var(--spS); /* Añade padding si viene de un Select/Input */
 }
 
 /* Sección Fecha */
 .dateSection {
     display: flex;
     flex-direction: column;
-}
-.calendarPlaceholder {
-    /* Estilos para el contenedor del input/calendario */
-    border: 1px dashed #555; /* Placeholder border */
-    padding: 1rem;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* gap-4 */
-}
-.calendarControls {
-    display: flex;
-    gap: 0.5rem; /* gap-2 */
-}
-.controlButton {
-    padding: 0.5rem; /* p-2 */
-    border-radius: 0.5rem; /* rounded-lg */
-    border: 0.5px solid #a7a7a7;
-    background-color: transparent;
-    color: #a7a7a7;
-    cursor: pointer;
-    font-size: 14px;
-}
-.controlButton:first-child { /* Simula el botón activo */
-    background-color: #f0f0f0;
-    color: #333;
-    border-color: #f0f0f0;
-}
-.calendarGridPlaceholder {
-    /* Estilos para simular la cuadrícula del calendario */
-    min-height: 150px; /* Para dar espacio */
-    text-align: center;
-    color: #777;
 }
 
 /* Sección Duración */
@@ -175,397 +313,443 @@
 }
 .timeFields {
     display: flex;
-    gap: 1rem;
+    gap: var(--spL);
 }
 .halfWidth {
-    flex: 1; /* Ocupa mitad del espacio */
+    flex: 1;
 }
 
 /* Sección Personas */
 .peopleSection {
     display: flex;
-    /* items-center gap-[47px] -> Alinear items y dar espacio */
     align-items: center;
-    justify-content: space-between; /* Empuja label/input a los lados */
-    gap: 2rem; /* Espacio entre label e input */
+    justify-content: space-between;
+    gap: var(--spXl); /* 2rem -> 32px */
 }
 .peopleLabelContainer {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem; /* gap-1 */
-    flex-grow: 1; /* Ocupa espacio disponible */
+    gap: var(--spXs); /* 0.25rem -> 4px */
+    flex-grow: 1;
 }
 .peopleInputContainer {
-    /* Contenedor para el input o los botones +/- */
     display: flex;
     align-items: center;
-    gap: 1rem; /* gap-4 */
+    gap: var(--spL); /* 1rem -> 16px */
 }
 .peopleInput input { /* Estilo específico para el input de número */
-    max-width: 80px; /* Limita el ancho */
+    max-width: 80px;
     text-align: center;
 }
 
 
 /* --- Estilos Paso 3 --- */
 .step3Content {
-    gap: 1.5rem; /* gap-6 */
+    gap: var(--spXl); /* 1.5rem -> 24px */
 }
 
-.summaryTitle {
-    font-size: 16px; /* text-[16px] */
-    font-weight: 500; /* font-medium */
-    color: #f0f0f0; /* text-neutral-50 */
-    margin-top: 1rem; /* Espacio antes del resumen */
-    margin-bottom: -0.5rem;
-}
 .summaryContainer {
-    /* Contenedor del resumen */
-    background-color: #333536; /* Mismo fondo que la tarjeta, ajusta si es diferente */
-    border-radius: 0.75rem; /* rounded-xl */
-    /* padding: 1rem; Añadido por summaryContent */
+    background-color: var(--cBlackV2); /* Mismo fondo que la tarjeta */
+    border-radius: var(--bRadius); /* 0.75rem -> 12px */
 }
 .summaryContent {
     display: flex;
-    gap: 1rem; /* gap-3 */
-    padding: 1rem; /* Añade padding si no lo tiene el container */
+    gap: var(--spL); /* 1rem -> 16px */
+    padding: var(--spL);
 }
 .summaryImageContainer {
-   /* Contenedor de la imagen */
-   flex-shrink: 0; /* Evita que se encoja */
+   flex-shrink: 0;
 }
 .summaryImage {
-    width: 218px; /* w-[218px] */
-    height: 218px; /* h-[218px] */
-    object-fit: cover; /* object-cover */
-    border-radius: 0.5rem; /* Añade borde redondeado si es necesario */
+    width: 218px;
+    height: 218px;
+    object-fit: cover;
+    border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
 }
 .summaryDetailsContainer {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* gap-3 */
-    flex-grow: 1; /* Ocupa espacio restante */
+    gap: var(--spL); /* 1rem -> 16px */
+    flex-grow: 1;
 }
 .summaryAreaInfo {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* gap-2 */
+    gap: var(--spS); /* 0.5rem -> 8px */
 }
-.summaryAreaName {
-    font-size: 16px; /* text-[16px] */
-    font-weight: 500; /* font-medium */
-    color: #f0f0f0; /* text-neutral-50 */
+.summaryAreaName { /* Nombre del área en el resumen */
+    font-size: var(--sL); /* 16px */
+    font-weight: var(--bMedium); /* 500 */
+    color: var(--cWhite); /* #f0f0f0 */
 }
 .summaryAreaDescription {
-    font-size: 14px; /* text-[14px] */
-    color: #a7a7a7; /* text-[#a7a7a7] */
-    /* Opcional: limitar líneas */
-    /* display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden; */
+    font-size: var(--sM); /* 14px */
+    color: var(--cWhiteV1); /* #a7a7a7 */
 }
 .summaryBookingDetails {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* gap-2 */
+    gap: var(--spS); /* 0.5rem -> 8px */
 }
-.summaryDetailsTitle {
-    font-size: 16px; /* text-[16px] */
-    font-weight: 500; /* font-medium */
-    color: #f0f0f0; /* text-neutral-50 */
+.summaryDetailsTitle { /* Título "Detalles" en resumen */
+    font-size: var(--sL); /* 16px */
+    font-weight: var(--bMedium); /* 500 */
+    color: var(--cWhite); /* #f0f0f0 */
 }
 .summaryDetailItem {
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* gap-1 */
-    font-size: 14px; /* text-[14px] */
-    color: #a7a7a7; /* text-[#a7a7a7] */
+    gap: var(--spXs); /* 0.25rem -> 4px */
+    font-size: var(--sM); /* 14px */
+    color: var(--cWhiteV1); /* #a7a7a7 */
 }
 .summaryDetailItem span:first-child { /* Placeholder para icono */
-    width: 20px; /* w-5 */
-    height: 20px; /* h-5 */
-    display: inline-block;
-    /* background-color: #555;  Color placeholder icono */
-    margin-right: 0.25rem;
+    width: 20px;
+    height: 20px;
+    display: inline-flex; /* Usa flex para centrar futuro icono */
+    align-items: center;
+    justify-content: center;
+    /* background-color: var(--terciary); Color placeholder icono */
+    margin-right: var(--spXs); /* 4px */
+    color: var(--cWhiteV1); /* Color del icono mismo */
 }
 .summaryCostPerHour {
     /* Estilo específico si es necesario */
 }
 .summaryTotalCost {
-    margin-left: auto; /* Empuja el costo total a la derecha */
-    font-weight: 500;
-    color: #f0f0f0; /* text-neutral-50 */
+    margin-left: auto;
+    font-weight: var(--bMedium); /* 500 */
+    color: var(--cWhite); /* #f0f0f0 */
 }
 
 
 /* --- Estilos Acciones/Botones --- */
 .formActions {
   display: flex;
-  justify-content: flex-end; /* Alinea botones a la derecha */
-  gap: 1rem; /* Espacio entre botones */
-  margin-top: 1rem; /* Espacio sobre los botones */
-  padding-top: 1rem; /* Espacio separador opcional */
-  border-top: 1px solid #414141; /* Línea separadora opcional */
+  justify-content: flex-end;
+  gap: var(--spL); /* 1rem */
+  margin-top: var(--spL);
+  padding-top: var(--spL);
+  border-top: var(--bWidth) solid var(--cBlackV3); /* #414141 */
 }
 
 .button {
-  /* Estilos base para todos los botones */
-  padding: 0.75rem 1.5rem; /* px-6 py-3 */
-  border-radius: 0.5rem; /* rounded-lg */
-  font-weight: 600; /* font-semibold */
-  font-size: 16px; /* text-[16px] */
+  padding: var(--spM) var(--spXl); /* 0.75rem 1.5rem -> 12px 24px */
+  border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
+  font-weight: var(--bSemibold); /* 600 */
+  font-size: var(--sL); /* 16px */
   cursor: pointer;
   border: none;
-  min-width: 120px; /* Ancho mínimo */
+  min-width: 120px;
   text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .backBtn {
   background-color: transparent;
-  border: 1px solid #a7a7a7;
-  color: #a7a7a7;
+  border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
+  color: var(--cWhiteV1); /* #a7a7a7 */
 }
 .backBtn:hover {
-  background-color: #414141;
-  color: #f0f0f0;
+  background-color: var(--cBlackV3); /* #414141 */
+  color: var(--cWhite); /* #f0f0f0 */
+  border-color: var(--cBlackV3);
 }
 
 .nextBtn, .submitBtn {
-  background-color: #00e38c; /* bg-[#00e38c] */
-  color: #212121; /* text-[#212121] */
-  /* Ancho específico de Figma w-[302px] si es necesario */
-  /* width: 302px; */
+  background-color: var(--cAccent); /* #00e38c */
+  color: var(--cBlack); /* #212121 */
 }
 .nextBtn:hover, .submitBtn:hover {
-  background-color: #00c77a; /* Un verde ligeramente más oscuro */
+  background-color: var(--accentv1); /* #4ee7ac (Versión más clara del accent) */
+  /* O mantener el mismo color: background-color: var(--cAccent); */
 }
 
-/* --- Estilos Formularios (Revisar/Ajustar Input/Select/TextArea) --- */
+/* --- Estilos Formularios (Input/Select/TextArea) --- */
 .formField {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem; /* Espacio entre label y campo */
+    gap: var(--spXs); /* 4px */
 }
-
-/* Asegúrate que los estilos de tus componentes Input, Select, TextArea */
-/* CreateReserva.module.css */
-
-/* ... (Estilos anteriores: .createReservaContainer, .header, .formCard, etc.) ... */
+/* Asegúrate que los estilos *internos* de tus componentes Input, Select, TextArea usen variables de tema */
 
 
-/* --- Estilos para CalendarPicker --- */
+/* --- Estilos para CalendarPicker (usando variables de tema) --- */
 .calendarContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Espacio entre controles y calendario */
-  /* width: 707px; */ /* Si necesitas el ancho fijo de Figma */
-  align-self: center; /* Centrar el calendario si es más estrecho */
+  gap: var(--spL); /* 1rem */
+  align-self: center;
+  width: 100%; /* Ocupa el ancho disponible */
+  max-width: 707px; /* Ancho máximo si es necesario */
 }
 
 .calendarViewControls {
   display: flex;
-  gap: 0.5rem; /* gap-2 */
-  align-self: flex-start; /* Alinea a la izquierda */
+  gap: var(--spS); /* 0.5rem */
+  align-self: flex-start;
 }
 
+/* Hereda de .button base */
 .controlButton {
-  padding: 0.5rem 1rem; /* p-2 ajustado */
-  border-radius: 0.5rem; /* rounded-lg */
-  border: 0.5px solid #a7a7a7;
+  padding: var(--spS) var(--spL); /* 0.5rem 1rem -> 8px 16px */
+  border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
+  border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
   background-color: transparent;
-  color: #a7a7a7;
+  color: var(--cWhiteV1); /* #a7a7a7 */
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400; /* font-normal */
+  font-size: var(--sM); /* 14px */
+  font-weight: var(--bRegular); /* 400 */
+}
+.controlButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.controlButton.active { /* Botón activo */
-  background-color: #f0f0f0; /* bg-neutral-50 */
-  color: #333; /* Color de texto oscuro para contraste */
-  border-color: #f0f0f0;
-  font-weight: 500; /* font-medium */
+.controlButton.active {
+  background-color: var(--cWhite); /* #f0f0f0 */
+  color: var(--cBlackV2); /* #333536 */
+  border-color: var(--cWhite);
+  font-weight: var(--bMedium); /* 500 */
 }
 
-/* --- Estilos para react-day-picker (Usando las clases definidas en classNames) --- */
-.rdpRoot { /* Contenedor DayPicker */
-  margin: 0; /* Resetea margen default */
-  padding: 1rem; /* Añade padding si es necesario */
-  background-color: #333536; /* Fondo similar a la tarjeta */
-  border-radius: 0.5rem; /* Bordes redondeados */
-  width: 100%; /* Ocupa el ancho del contenedor */
-  color: #f0f0f0; /* Color de texto por defecto */
+/* --- Estilos para calendario manual (sin react-day-picker) --- */
+/* Contenedor principal del calendario generado manualmente */
+.calendarGridContainer {
+  padding: var(--spL);
+  background-color: var(--cBlackV2);
+  border-radius: var(--bRadiusS);
+  width: 100%;
+  color: var(--cWhite);
 }
 
-.rdpCaption {
+/* Equivalente a rdpCaption */
+.calendarNavigation {
   display: flex;
-  justify-content: space-between; /* Empuja Mes/Año y botones a los lados */
+  justify-content: space-between;
   align-items: center;
-  padding: 0 0.5rem; /* Espacio horizontal */
-  margin-bottom: 1rem; /* Espacio debajo del caption */
+  padding: 0 var(--spS);
+  margin-bottom: var(--spL);
 }
 
-.rdpCaptionLabel {
-  font-size: 20px; /* text-[20px] */
-  font-weight: 600; /* font-semibold */
-  color: #f0f0f0; /* text-neutral-50 */
+/* Equivalente a rdpCaptionLabel */
+.calendarMonthYear {
+  font-size: var(--sXl); /* 20px */
+  font-weight: var(--bSemibold); /* 600 */
+  color: var(--cWhite);
+  text-transform: capitalize;
 }
 
-.rdpNav {
-  /* Contenedor de los botones de navegación si es necesario */
-}
-
-.rdpNavButton {
-  display: inline-flex; /* Para alinear icono */
+/* Equivalente a rdpNavButton */
+.calendarNavButton {
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 24px; /* w-6 */
-  height: 24px; /* h-6 */
+  width: 28px; /* Ajusta tamaño */
+  height: 28px; /* Ajusta tamaño */
   background-color: transparent;
-  border: 1px solid #555; /* Borde sutil */
-  border-radius: 50%; /* Circular */
-  color: #f0f0f0; /* text-neutral-50 */
+  border: var(--bWidth) solid var(--terciary); /* #595959 */
+  border-radius: 50%;
+  color: var(--cWhite);
   cursor: pointer;
+  font-size: var(--sL); /* Tamaño flecha */
 }
-.rdpNavButton:hover {
-  background-color: #414141;
-}
-/* Estilos específicos para prev/next si usas tus propios iconos SVG */
-/* .rdpNavButtonPrev svg, .rdpNavButtonNext svg { ... } */
-
-
-.rdpTable {
-  width: 100%;
-  border-collapse: collapse; /* Asegura bordes limpios */
-  margin: 0;
+.calendarNavButton:hover {
+  background-color: var(--cBlackV3); /* #393c3f */
+  border-color: var(--cWhiteV1);
 }
 
-.rdpHead {
- /* Estilos para la cabecera (Dom, Lun, Mar...) */
+/* Equivalente a rdpHeadRow */
+.calendarWeekdays {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: var(--spS);
+  padding-bottom: var(--spS);
+  border-bottom: var(--bWidth) solid var(--cBlackV3); /* #393c3f */
 }
 
-.rdpHeadRow {
-  /* Fila de la cabecera */
-}
-
-.rdpHeadCell {
-  padding: 0.5rem 0.25rem; /* p-1 ajustado */
-  font-size: 16px; /* text-[16px] */
-  font-weight: 500; /* font-medium */
-  color: #a7a7a7; /* text-[#a7a7a7] */
+/* Equivalente a rdpHeadCell */
+.calendarWeekday {
+  flex: 1;
   text-align: center;
-  height: 26px; /* h-[26px] */
+  font-size: var(--sL); /* 16px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhiteV1); /* #a7a7a7 */
+  height: 26px;
   box-sizing: border-box;
 }
 
-.rdpTbody {
-  /* Cuerpo de la tabla */
+/* Equivalente a rdpTbody */
+.calendarDaysGrid {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.rdpRow {
-  /* Estilos para cada fila de días */
-}
-
-.rdpCell {
-  padding: 0; /* Quitamos padding para controlar tamaño con el día */
-  text-align: center;
-  /* border: 1px solid #414141; */ /* Borde sutil para ver celdas */
-  height: 40px; /* Altura estimada para cada celda de día */
-  position: relative; /* Para posicionar el punto rojo */
-}
-
-.rdpDay { /* El número del día */
+/* Equivalente a rdpCell */
+.calendarDayCell {
+  flex-basis: calc(100% / 7);
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 36px; /* Ancho del cuadrado del día */
-  height: 36px; /* Alto del cuadrado del día */
-  margin: auto; /* Centra el cuadrado dentro de la celda */
-  border-radius: 0.375rem; /* rounded-md aprox */
-  font-size: 16px; /* text-[16px] */
-  font-weight: 500; /* font-medium */
-  color: #a7a7a7; /* Color por defecto días mes actual */
+  margin: 1px 0;
+  height: 40px;
+  position: relative;
+}
+
+/* Equivalente a rdpDay (el botón) */
+.calendarDayButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%; /* Circular */
+  border: var(--bWidth) solid transparent;
+  background-color: transparent;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-  position: relative; /* Para el punto rojo */
+  font-size: var(--sL); /* 16px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhiteV1); /* #a7a7a7 (Color por defecto días mes actual) */
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  position: relative;
   z-index: 1;
 }
-.rdpDay:hover:not(.rdp-day_disabled) {
-  background-color: #4a4d4e; /* Fondo hover sutil */
+.calendarDayButton:hover:not(:disabled) {
+  background-color: var(--cBlackV3); /* #393c3f (Hover sutil) */
 }
 
 /* Día seleccionado */
-.selectedDay {
-  background-color: transparent !important; /* Quitamos fondo por defecto si lo hubiera */
-  color: #00e38c !important; /* Color de texto neón */
-  font-weight: 700; /* Más grueso */
-  border: 1px solid #00e38c; /* Borde verde */
-  box-shadow: 0 0 8px #00e38c; /* Efecto neón */
+.calendarDayButton.selectedDay {
+  background-color: transparent !important;
+  color: var(--cAccent) !important; /* #00e38c */
+  font-weight: var(--bBold); /* 700 */
+  border: var(--bWidth) solid var(--cAccent); /* Borde verde */
+  /* box-shadow: 0 0 8px var(--cAccent); Efecto neón opcional */
 }
-/* Opcional: quitar hover del seleccionado */
-.selectedDay:hover {
+.calendarDayButton.selectedDay:hover:not(:disabled) {
    background-color: transparent !important;
 }
 
-
 /* Día ocupado (con punto rojo) */
-.busyDay::after {
+.calendarDayButton.busyDay::after {
   content: '';
   position: absolute;
-  bottom: 4px; /* Posición del punto */
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 5px; /* Tamaño punto */
-  height: 5px; /* Tamaño punto */
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background-color: #ff4d4d; /* Rojo para ocupado */
-  z-index: 2; /* Asegura que esté sobre el número */
+  background-color: var(--cError); /* #e46055 */
+  z-index: 2;
 }
 /* Ajusta color del texto si el día ocupado también está seleccionado */
-.selectedDay.busyDay {
-   color: #00e38c !important; /* Mantiene el color neón */
+.calendarDayButton.selectedDay.busyDay {
+   color: var(--cAccent) !important; /* Mantiene el color neón */
 }
 
 
 /* Día de hoy */
-.today {
-  font-weight: 700; /* Negrita */
-  color: #f0f0f0; /* Blanco o color destacado */
-  /* border: 1px dashed #f0f0f0; */ /* Borde opcional */
+.calendarDayButton.today {
+  font-weight: var(--bBold); /* 700 */
+  color: var(--cWhite); /* #f0f0f0 */
+  /* border: 1px dashed var(--cWhite); Borde opcional */
 }
-.selectedDay.today {
-    /* Mantener estilos de .selectedDay */
+.calendarDayButton.selectedDay.today {
+    /* Mantiene estilos de .selectedDay */
 }
 
 /* Días fuera del mes */
-.rdpDayOutside {
-  color: #414141 !important; /* text-[#414141] */
+.calendarDayButton.outsideDay {
+  color: var(--cBlackV3) !important; /* #393c3f (Color muy apagado) */
   cursor: default;
+  pointer-events: none; /* No interactivo */
 }
-.rdpDayOutside:hover {
-    background-color: transparent; /* Sin hover */
+.calendarDayButton.outsideDay:hover {
+    background-color: transparent;
 }
 
-/* Días deshabilitados (pasados) */
-.disabledDay {
-  color: #555 !important; /* Color muy apagado */
-  cursor: default;
-  pointer-events: none; /* No clickable */
-  text-decoration: line-through; /* Tachado opcional */
+/* Días deshabilitados (pasados o no del mes) */
+.calendarDayButton:disabled,
+.calendarDayButton.disabledDay /* Clase explícita si la añades */
+{
+  color: var(--terciary) !important; /* #595959 (Color deshabilitado) */
+  cursor: not-allowed;
+  pointer-events: none; /* Asegura no interactividad */
+  /* text-decoration: line-through; Opcional */
+  background-color: transparent !important; /* Sin fondo */
+  border-color: transparent !important; /* Sin borde */
 }
-.disabledDay:hover {
+.calendarDayButton:disabled:hover {
     background-color: transparent; /* Sin hover */
 }
 
 /* --- Estilos Secciones debajo del calendario --- */
 .durationSection, .peopleSection {
-  margin-top: 1.5rem; /* Espacio después del calendario */
-  padding-top: 1.5rem; /* Espacio antes */
-  border-top: 1px solid #414141; /* Línea separadora */
+  margin-top: var(--spXl); /* 1.5rem -> 24px */
+  padding-top: var(--spXl); /* 1.5rem -> 24px */
+  border-top: var(--bWidth) solid var(--cBlackV3); /* #414141 */
 }
 
 /* Ajustes menores si son necesarios */
 .errorText {
-  /* ... */
-  margin-top: 0.5rem; /* Ajusta espacio si es necesario */
+  margin-top: var(--spS); /* 8px */
+}
+
+.periodSelectionContainer {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea */
+  gap: var(--spS); /* Espacio entre botones */
+  margin-top: var(--spS);
+}
+
+.periodButton {
+  padding: var(--spS) var(--spM);
+  border: 1px solid var(--cWhiteV1); /* Borde por defecto */
+  background-color: transparent; /* Fondo transparente */
+  color: var(--cWhite); /* Color de texto */
+  border-radius: var(--bRadiusS);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  font-size: var(--sS); /* Ajusta tamaño de fuente */
+}
+
+.periodButton:hover {
+  border-color: var(--accent); /* Borde cambia al hacer hover */
+  background-color: rgba(var(--accentRGB), 0.1); /* Fondo suave al hover */
+}
+
+.periodButton.selectedPeriod {
+  background-color: var(--accent); /* Fondo del botón seleccionado */
+  color: var(--cBlack); /* Color de texto del botón seleccionado */
+  border-color: var(--accent); /* Borde del botón seleccionado */
+  font-weight: var(--bMedium);
+}
+
+/* Clases de Texto Auxiliares (si no las tienes ya) */
+.loadingText {
+    display: block;
+    margin-top: var(--spS);
+    color: var(--cWhiteV1);
+    font-style: italic;
+}
+
+.warningText {
+    display: block;
+    margin-top: var(--spS);
+    color: var(--cWarning); /* Asegúrate de tener esta variable */
+}
+
+/* Asegúrate que el contenedor de errores se muestre bien */
+.errorText {
+    color: var(--cError); /* Asegúrate de tener esta variable */
+    font-size: var(--sS);
+    display: block;
+    margin-top: 4px;
+    width: 100%; /* Para que ocupe el ancho bajo los botones */
+}
+
+/* Ajustes al contenedor de la sección de duración si es necesario */
+.durationSection {
+    margin-top: var(--spL); /* Añade espacio arriba */
 }
