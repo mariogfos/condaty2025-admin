@@ -76,6 +76,7 @@ export const validRule = (
     max: () => (value?.length > param[0] ? `max ${param[0]} caracteres` : ""),
     email: () => (!/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : ""),
     textDash: () =>
+      //permmitir acen
       !/^[a-zA-Z0-9_-]+$/.test(value) ? "No es un texto válido" : "",
     alpha: () =>
       !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value) ? "No es un texto válido" : "",

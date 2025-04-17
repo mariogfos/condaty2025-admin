@@ -89,7 +89,7 @@ const RenderView = (props: any) => {
                   "No disponible"}
               </p>
             </div>
-            {item?.dpto[0]?.type.name && (
+            {item?.dpto?.[0]?.type.name && (
               <div>
                 <p>Tipo de unidad</p>
                 <p>{item?.dpto[0]?.type.name}</p>
