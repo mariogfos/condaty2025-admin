@@ -1,14 +1,27 @@
-/* CreateReserva.module.css */
+/* NUEVO: Estilo para el contenedor externo */
+.pageWrapper {
+  width: 100%; /* Ocupa todo el ancho de la ventana */
+  min-height: 100vh; /* Opcional: asegura altura mínima */
+  position: relative; /* Contexto para el botón absoluto */
+  padding-top: 50px; /* Espacio reservado arriba para el botón. Ajusta '50px' si es necesario */
+                    /* Alternativa: podrías quitar este padding y ajustar 'top' en .backButton */
+  box-sizing: border-box; /* Incluye padding en el tamaño total */
+}
 
 .createReservaContainer {
+  /* Ya NO necesita position: relative ni el padding-top extra */
+  /* position: relative; */ /* <--- QUITAR */
+  /* padding-top: 50px; */ /* <--- QUITAR */
+
+  /* Mantiene los estilos de centrado y contenido */
   display: flex;
   flex-direction: column;
-  gap: var(--spL); /* 1rem -> 16px */
+  gap: var(--spL);
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto; /* Centra este contenedor DENTRO del pageWrapper */
   padding: var(--spL);
-  color: var(--cWhite); /* Color de texto base */
+  color: var(--cWhite);
   font-family: var(--fPrimary);
 }
 
@@ -19,16 +32,26 @@
 }
 
 .backButton {
+  position: absolute;   /* Posición absoluta */
+  top: var(--spL);      /* Distancia desde arriba del pageWrapper */
+  left: var(--spL);     /* Distancia desde la IZQUIERDA del pageWrapper (borde de PÁGINA) */
+  /* Estilos visuales */
   display: flex;
   align-items: center;
-  gap: var(--spS); /* 0.5rem -> 8px */
+  gap: var(--spS);
   cursor: pointer;
-  color: var(--cWhiteV1); /* #a7a7a7 */
-  font-size: var(--sM); /* 14px */
+  color: var(--cAccent); /* O el color que prefieras */
+  font-size: var(--sM);
+  background: none;
+  border: none;
+  padding: 0;
+  width: fit-content;
+  z-index: 10; /* Asegura que esté visible */
 }
 .backButton:hover {
-  color: var(--cWhite); /* #f0f0f0 */
+  color: var(--cWhiteV2); /* O el color hover que prefieras */
 }
+
 
 .header h1 {
   font-size: var(--sXxl); /* 24px */
