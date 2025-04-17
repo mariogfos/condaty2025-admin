@@ -46,7 +46,7 @@ const RenderForm = ({
 
     errors = checkRules({
       value: formState?.title,
-      rules: ["required"],
+      rules: ["required", "textDash"],
       key: "title",
       errors,
     });
@@ -59,7 +59,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.max_capacity,
-      rules: ["required"],
+      rules: ["required", "max:5"],
       key: "max_capacity",
       errors,
     });
@@ -75,35 +75,35 @@ const RenderForm = ({
   };
   const validateLevel2 = () => {
     let errors: any = {};
-    // errors = checkRules({
-    //   value: formState?.price,
-    //   rules: ["required"],
-    //   key: "price",
-    //   errors,
-    // });
+    errors = checkRules({
+      value: formState?.price,
+      rules: ["max:10"],
+      key: "price",
+      errors,
+    });
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required"],
+        rules: ["required", "max:5"],
         key: "max_reservations_per_day",
         errors,
       });
     }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
-      rules: ["required"],
+      rules: ["required", "max:5"],
       key: "max_reservations_per_week",
       errors,
     });
     errors = checkRules({
       value: formState?.min_cancel_hours,
-      rules: ["required"],
+      rules: ["required", "max:2"],
       key: "min_cancel_hours",
       errors,
     });
     errors = checkRules({
       value: formState?.penalty_fee,
-      rules: ["required"],
+      rules: ["required", "max:5"],
       key: "penalty_fee",
       errors,
     });
@@ -126,7 +126,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.approval_response_hours,
-      rules: ["required"],
+      rules: ["required", "max:3"],
       key: "approval_response_hours",
       errors,
     });
