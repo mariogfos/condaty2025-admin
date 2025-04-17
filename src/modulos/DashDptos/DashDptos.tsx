@@ -220,6 +220,18 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   {datas?.data?.expense_amount} Bs
                 </span>
               </div>
+
+             {datas?.data?.field_values?.map((item:any)=> 
+              <div className={styles.infoRow}>
+                <span className={styles.label}>{item.type_field?.name}</span>
+                <span className={styles.value}>
+                  {item?.value}
+                </span>
+              </div>)}
+
+
+
+          
               <div className={styles.infoRow}>
                 <span className={styles.label}>Dimensiones</span>
                 <span className={styles.value}>{datas?.data?.dimension} m</span>
@@ -375,7 +387,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             <Table
               header={[
                 { key: 'paid_at', label: 'Fecha de pago', responsive: "desktop" ,onRender:({item}:any)=>{ return getDateStrMes(item?.paid_at) || '-'}},
-                { key: 'categorie',label:'Categoría', responsive: "desktop" },
+                { key: 'categorie',label:'Categoría', responsive: "desktop",onRender:({item}:any)=>{return '-'} },
                 { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" },
                 { key: 'amount', label: 'Monto', responsive: "desktop", width: '100px',
                   onRender: ({ item }: any) => {
@@ -742,10 +754,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
         setOpenComprobante(false);
         setIdPago(null);
       }}
-      item={datas.payments?.find(
-        (pago: any) => pago?.payment?.id === idPago
-      )?.payment || {}}
+      // item={datas.payments?.find(
+      //   (pago: any) => pago?.payment?.id === idPago
+      // )?.payment || {}}
+      // id={idPago}
       extraData={datas}
+      payment_id={idPago}
     />
   )}
 
