@@ -202,6 +202,21 @@ const SecondPart = ({
     });
     return h;
   };
+  const sortedDays = () => {
+    const dayOrder: any = {
+      Lunes: 0,
+      Martes: 1,
+      Miércoles: 2,
+      Jueves: 3,
+      Viernes: 4,
+      Sábado: 5,
+      Domingo: 6,
+    };
+
+    return Object.keys(formState?.available_hours || {}).sort(
+      (a, b) => dayOrder[a] - dayOrder[b]
+    );
+  };
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
@@ -262,62 +277,60 @@ const SecondPart = ({
             scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
           }}
         >
-          {Object.keys(formState?.available_hours).map(
-            (day: any, index: any) => (
-              <div
-                key={index}
+          {sortedDays().map((day: any, index: any) => (
+            <div
+              key={index}
+              style={{
+                width: 216,
+                border: "1px solid var(--cWhiteV1)",
+                borderRadius: 8,
+                padding: 12,
+                backgroundColor: "var(--cBlackV1)",
+              }}
+            >
+              <p style={{ fontSize: 14 }}>{day}</p>
+              <p
                 style={{
-                  width: 216,
-                  border: "1px solid var(--cWhiteV1)",
-                  borderRadius: 8,
-                  padding: 12,
-                  backgroundColor: "var(--cBlackV1)",
+                  marginBottom: 8,
+                  fontSize: 12,
+                  color: "var(--cWhiteV1)",
                 }}
               >
-                <p style={{ fontSize: 14 }}>{day}</p>
-                <p
-                  style={{
-                    marginBottom: 8,
-                    fontSize: 12,
-                    color: "var(--cWhiteV1)",
-                  }}
-                >
-                  {formState?.booking_mode == "hour"
-                    ? "periodos de horas"
-                    : "Horario disponible"}
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    overflowX: "auto",
-                    width: "100%",
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
-                  }}
-                >
-                  {formState?.available_hours[day]?.map(
-                    (period: any, index: any) => (
-                      <div
-                        key={index}
-                        style={{
-                          border: "1px solid var(--cWhiteV1)",
-                          minWidth: "100px",
-                          flex: "0 0 auto",
-                          padding: "8px",
-                          borderRadius: 8,
-                        }}
-                      >
-                        <p style={{ color: "var(--cWhite)", fontSize: 14 }}>
-                          {period}
-                        </p>
-                      </div>
-                    )
-                  )}
-                </div>
+                {formState?.booking_mode == "hour"
+                  ? "periodos de horas"
+                  : "Horario disponible"}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  overflowX: "auto",
+                  width: "100%",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "var(--cBlackV2) var(--cBlackV1)",
+                }}
+              >
+                {formState?.available_hours[day]?.map(
+                  (period: any, index: any) => (
+                    <div
+                      key={index}
+                      style={{
+                        border: "1px solid var(--cWhiteV1)",
+                        minWidth: "100px",
+                        flex: "0 0 auto",
+                        padding: "8px",
+                        borderRadius: 8,
+                      }}
+                    >
+                      <p style={{ color: "var(--cWhite)", fontSize: 14 }}>
+                        {period}
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
-            )
-          )}
+            </div>
+          ))}
         </div>
       )}
       {formState?.booking_mode == "hour" && (
