@@ -9,11 +9,12 @@ import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getDateTimeStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes, getHourStr } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
 import ReservaModal from "./ReservaModal/ReservaModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
+import { format, parse } from "date-fns";
 
 const mod = {
   modulo: "reservations",
@@ -39,6 +40,22 @@ const Reserva = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
+      date_at: {
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha del evento",
+        form: { type: "date" },
+        list: {
+          onRender: (props: any) => {
+            return (
+              <div>
+                {getDateStrMes(props?.item?.date_at)}{" "}
+                {format(parse(props?.item?.start_time, "HH:mm:ss", new Date()), "H:mm")}
+              </div>
+            );
+          },
+        },
+      },
       area: {
         rules: ["required"],
         api: "ae",
@@ -60,7 +77,7 @@ const Reserva = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
                   src={imageUrl} // Pasa la URL segura (puede ser undefined)
-                  square
+                  
                 />
                 <div>
                   {/* Muestra el nombre o un texto alternativo si no existe */}
@@ -95,7 +112,6 @@ const Reserva = () => {
                 <Avatar
                   src={imageUrl} // Pasa la URL segura (puede ser undefined)
                   name={ownerName} // Pasa el nombre seguro
-                  square
                 />
                 <div>
                   <p>{ownerName}</p> {/* Muestra el nombre seguro */}
@@ -106,17 +122,7 @@ const Reserva = () => {
           // FIN MODIFICACIÓN (owner.onRender)
         },
       },
-      date_at: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha del evento",
-        form: { type: "date" },
-        list: {
-          onRender: (props: any) => {
-            return <div>{getDateTimeStrMes(props?.item?.date_at)}</div>;
-          },
-        },
-      },
+      
       status: {
         rules: ["required"],
         api: "ae",
