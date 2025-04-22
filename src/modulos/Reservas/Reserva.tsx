@@ -13,7 +13,7 @@ import { getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
 import ReservaModal from "./ReservaModal/ReservaModal";
 import Button from "@/mk/components/forms/Button/Button";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const mod = {
   modulo: "reservations",
@@ -21,19 +21,18 @@ const mod = {
   plural: "Reservas",
   permiso: "",
   extraData: true,
-  hideActions: { edit: true, del: true, add: true},
+  hideActions: { edit: true, del: true, add: true },
   renderView: (props: any) => <ReservaModal {...props} />,
-  loadView: { fullType: "DET" } ,
+  loadView: { fullType: "DET" },
   // Esto cargará los detalles completos al hacer clic
 };
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
 };
-
 
 const Reserva = () => {
   const router = useRouter();
@@ -65,11 +64,11 @@ const Reserva = () => {
                 />
                 <div>
                   {/* Muestra el nombre o un texto alternativo si no existe */}
-                  <p>{areaName || 'Área no disponible'}</p>
+                  <p>{areaName || "Área no disponible"}</p>
                 </div>
               </div>
             );
-          }
+          },
           // FIN MODIFICACIÓN (area.onRender)
         },
       },
@@ -84,7 +83,9 @@ const Reserva = () => {
             // Guarda el owner en una variable
             const owner = props?.item?.owner;
             // Llama a getFullName solo si owner existe, sino usa texto alternativo
-            const ownerName = owner ? getFullName(owner) : 'Residente no disponible';
+            const ownerName = owner
+              ? getFullName(owner)
+              : "Residente no disponible";
             const imageUrl = owner
               ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at}`)
               : undefined; // Genera URL solo si hay owner
@@ -101,7 +102,7 @@ const Reserva = () => {
                 </div>
               </div>
             );
-          }
+          },
           // FIN MODIFICACIÓN (owner.onRender)
         },
       },
@@ -120,18 +121,23 @@ const Reserva = () => {
         rules: ["required"],
         api: "ae",
         label: "Estado",
-        form: { 
-            type: "select", 
-            options: [
-                { id: "A", name: "Disponible" }, 
-                { id: "X", name: "No disponible" },
-                { id: "M", name: "En mantenimiento" }
-            ] 
+        form: {
+          type: "select",
+          options: [
+            { id: "A", name: "Disponible" },
+            { id: "X", name: "No disponible" },
+            { id: "M", name: "En mantenimiento" },
+          ],
         },
         list: {
           onRender: (props: any) => {
             // NUEVO: Tipo actualizado para incluir los nuevos estados
-            const status = props?.item?.status as 'X' | 'W' | 'Y' | 'N' | undefined;
+            const status = props?.item?.status as
+              | "X"
+              | "W"
+              | "Y"
+              | "N"
+              | undefined;
 
             // NUEVO: Mapeo actualizado con los nuevos estados y clases
             const statusMap = {
@@ -145,20 +151,24 @@ const Reserva = () => {
             const currentStatus = status ? statusMap[status] : null;
 
             return (
-              <div className={`${styles.statusBadge} ${currentStatus ? currentStatus.class : styles.statusUnknown}`}>
-                {currentStatus ? currentStatus.label : 'Estado desconocido'}
+              <div
+                className={`${styles.statusBadge} ${
+                  currentStatus ? currentStatus.class : styles.statusUnknown
+                }`}
+              >
+                {currentStatus ? currentStatus.label : "Estado desconocido"}
               </div>
             );
           },
+        },
       },
-    },
     }),
     []
   );
   const customAddButton = (
     <Button
       key="custom-add-reserva" // Añadir key única
-      onClick={() => router.push('/create-reservas')} // Acción de navegación
+      onClick={() => router.push("/create-reservas")} // Acción de navegación
       variant="primary" // O el variant que uses
       style={{ height: 48 }} // Mantener estilo consistente si es necesario
     >
@@ -197,7 +207,7 @@ const Reserva = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div >
+    <div>
       <List />
     </div>
   );

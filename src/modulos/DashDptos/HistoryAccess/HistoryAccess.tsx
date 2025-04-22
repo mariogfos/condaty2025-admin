@@ -17,8 +17,8 @@ interface HistoryAccessProps {
 
 const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
   const [params, setParams] = useState({
-    perPage: 10,
-    page: 1
+    perPage: 20,
+    page: 1,
   });
 
   // Calcula el índice inicial y final para la paginación
@@ -45,7 +45,7 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
           <div>Ingreso</div>
           <div>Salida</div>
         </div>
-        
+
         <div className={styles.visitsList}>
           {paginatedData?.map((visita, index) => (
             <div key={index} className={styles.visitRow}>
@@ -57,17 +57,25 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
                   className={styles.visitorAvatar}
                 />
                 <div className={styles.visitorDetails}>
-                  <p className={styles.visitorName}>{getFullName(visita.visit)}</p>
+                  <p className={styles.visitorName}>
+                    {getFullName(visita.visit)}
+                  </p>
                   <p className={styles.visitorCI}>CI: {visita.visit?.ci}</p>
                 </div>
               </div>
 
               <div>
-                {visita.type === "P" ? "Pedido" :
-                 visita.type === "I" ? "Individual" :
-                 visita.type === "G" ? "Grupal" :
-                 visita.type === "C" ? "Sin Qr" : 
-                 <EmptyData />}
+                {visita.type === "P" ? (
+                  "Pedido"
+                ) : visita.type === "I" ? (
+                  "Individual"
+                ) : visita.type === "G" ? (
+                  "Grupal"
+                ) : visita.type === "C" ? (
+                  "Sin Qr"
+                ) : (
+                  <EmptyData />
+                )}
               </div>
 
               <div>

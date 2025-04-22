@@ -1,4 +1,4 @@
-'use client'
+"use client";
 /* eslint-disable react-hooks/exhaustive-deps */
 import useCrud, {
   ModCrudType,
@@ -45,7 +45,7 @@ const arrayToSelect = (array: string[], level: number = 6) => {
 };
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -64,14 +64,14 @@ const Roles = () => {
   }: TypeRenderForm) => {
     // console.log("renderPermisos", extraData);
     return (
-      <div style={{width:'100%'}}>
-      <Permisos
-        data={item}
-        options={extraData?.abilities || [{ id: 1, name: "CRUD" }]}
-        setItem={setItem}
-        error={error}
-        extraData={extraData}
-      />
+      <div style={{ width: "100%" }}>
+        <Permisos
+          data={item}
+          options={extraData?.abilities || [{ id: 1, name: "CRUD" }]}
+          setItem={setItem}
+          error={error}
+          extraData={extraData}
+        />
       </div>
     );
   };
@@ -95,7 +95,6 @@ const Roles = () => {
         form: { type: "text" },
       },
 
-
       // area_id:{
       //   rules: [],
       //   api: "ae",
@@ -108,9 +107,9 @@ const Roles = () => {
       //   },
       //   form: {
       //          type: "select",
-      //          optionsExtra: "role_categories",               
+      //          optionsExtra: "role_categories",
       //        },
- 
+
       //   },
       abilities: {
         rules: [],

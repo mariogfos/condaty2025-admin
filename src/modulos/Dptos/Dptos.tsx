@@ -9,7 +9,6 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
-
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useRouter } from "next/navigation";
@@ -19,7 +18,7 @@ import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModa
 
 const paramsInitial = {
   fullType: "L",
-  perPage: 10,
+  perPage: 20,
   page: 1,
   searchBy: "",
 };
@@ -75,7 +74,7 @@ const Dptos = () => {
         rules: ["required"],
         api: "ae",
         // label: "Número de " + store?.UnitsType,
-        label: "Número de unidad" ,
+        label: "Número de unidad",
         form: { type: "text" },
         list: { width: "100px" },
       },
@@ -91,7 +90,8 @@ const Dptos = () => {
         rules: ["required"],
         api: "ae",
         label: "Tipo de unidad",
-        form: { type: "select",
+        form: {
+          type: "select",
           options: (data: any) => {
             let dataList: any = [];
             data?.extraData?.type?.map((c: any) => {
@@ -102,11 +102,11 @@ const Dptos = () => {
             });
             return dataList;
           },
-         },
+        },
         list: {
           onRender: (props: any) => {
-            return (props?.item?.type?.name || "Sin tipo")
-          }
+            return props?.item?.type?.name || "Sin tipo";
+          },
         },
         filter: {
           label: "Tipo de unidad",
@@ -116,14 +116,14 @@ const Dptos = () => {
             data?.type?.forEach((type: any) => {
               options.push({
                 id: type.id,
-                name: type.name
+                name: type.name,
               });
             });
             return options;
           },
           optionLabel: "name",
-          optionValue: "id"
-        }
+          optionValue: "id",
+        },
       },
       expense_amount: {
         rules: ["required"],

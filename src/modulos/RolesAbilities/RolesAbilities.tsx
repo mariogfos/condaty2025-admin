@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 // import styles from "./Educations.module.css";
@@ -25,7 +25,7 @@ const mod: ModCrudType = {
 
 const RolesAbilities = () => {
   const paramsInitial = {
-    perPage: 10,
+    perPage: 20,
     page: 1,
     fullType: "L",
     searchBy: "",
@@ -41,7 +41,7 @@ const RolesAbilities = () => {
         list: true,
         form: { type: "text" },
       },
-    
+
       description: {
         rules: [],
         api: "ae",
@@ -69,7 +69,7 @@ const RolesAbilities = () => {
           type: "select",
           optionsExtra: "ability_categories",
           label: "Seleccionar Categoría",
-          optionValue:"id"
+          optionValue: "id",
         },
         list: true,
       },

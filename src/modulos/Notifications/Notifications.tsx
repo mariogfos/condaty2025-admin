@@ -18,7 +18,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 
 const paramsInitial = {
   fullType: "L",
-  perPage: 10,
+  perPage: 20,
   page: 1,
   searchBy: "",
 };
@@ -26,7 +26,7 @@ const paramsInitial = {
 const Notifications = () => {
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const mod: ModCrudType = {
     modulo: "notifications",
     singular: "Notificación",
@@ -38,14 +38,14 @@ const Notifications = () => {
       view: true,
       add: true,
       edit: true,
-      del: true
+      del: true,
     },
-    search: false
+    search: false,
   };
 
   const renderNotificationIcon = (info: any) => {
     if (!info) return null;
-    
+
     if (info.act === "alerts") {
       return <IconAlertNotification className={styles.alertIcon} />;
     }
@@ -61,7 +61,7 @@ const Notifications = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      
+
       message: {
         rules: [""],
         api: "",
@@ -71,27 +71,34 @@ const Notifications = () => {
           onRender: (props: any) => {
             try {
               // Mejor manejo de caracteres especiales
-              let x = props.item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
+              let x = props.item.message
+                .replace(/\\"/g, '"')
+                .replace(/\\'/g, "'");
               const parsedMessage = JSON.parse(x);
-              
+
               // Verificar si la notificación está en localStorage
-              const notificationsView = JSON.parse(localStorage.getItem("notificationsView") || "[]");
+              const notificationsView = JSON.parse(
+                localStorage.getItem("notificationsView") || "[]"
+              );
               const isRead = notificationsView.includes(props.item.id);
-              
+
               return (
-                <div 
+                <div
                   className={
-                    isRead 
-                      ? styles.notificationRead 
-                      : styles.notificationUnread
+                    isRead ? styles.notificationRead : styles.notificationUnread
                   }
                 >
                   <div className={styles.notificationIcon}>
-                    {parsedMessage.info && renderNotificationIcon(parsedMessage.info)}
+                    {parsedMessage.info &&
+                      renderNotificationIcon(parsedMessage.info)}
                   </div>
                   <div className={styles.notificationContent}>
-                    <p className={styles.notificationTitle}>{parsedMessage.msg?.title || "Sin título"}</p>
-                    <p className={styles.notificationBody}>{parsedMessage.msg?.body || "Sin contenido"}</p>
+                    <p className={styles.notificationTitle}>
+                      {parsedMessage.msg?.title || "Sin título"}
+                    </p>
+                    <p className={styles.notificationBody}>
+                      {parsedMessage.msg?.body || "Sin contenido"}
+                    </p>
                     <p className={styles.notificationDate}>
                       {getDateStrMes(props.item.created_at)}
                     </p>
@@ -102,19 +109,13 @@ const Notifications = () => {
               console.error("Error rendering notification:", error);
               return <div>Error en formato de notificación</div>;
             }
-          }
-        }
-      }
+          },
+        },
+      },
     };
   }, []);
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-  } = useCrud({
+  const { userCan, List, setStore, onSearch, searchs } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -132,10 +133,15 @@ const Notifications = () => {
   const handleRowClick = (item: any) => {
     try {
       // Agregar a localStorage para marcar como leída
-      const notificationsView = JSON.parse(localStorage.getItem("notificationsView") || "[]");
+      const notificationsView = JSON.parse(
+        localStorage.getItem("notificationsView") || "[]"
+      );
       if (!notificationsView.includes(item.id)) {
         notificationsView.push(item.id);
-        localStorage.setItem("notificationsView", JSON.stringify(notificationsView));
+        localStorage.setItem(
+          "notificationsView",
+          JSON.stringify(notificationsView)
+        );
       }
 
       // Resetear contador de notificaciones
@@ -149,7 +155,10 @@ const Notifications = () => {
       const parsedMessage = JSON.parse(x);
 
       // Navegar según el tipo de notificación
-      if (parsedMessage?.info?.act === "newVoucher" || parsedMessage?.info?.act === "newPayment") {
+      if (
+        parsedMessage?.info?.act === "newVoucher" ||
+        parsedMessage?.info?.act === "newPayment"
+      ) {
         if (parsedMessage.info?.id) {
           router.push(`/payments/${parsedMessage.info.id}`);
         }
@@ -198,14 +207,11 @@ const Notifications = () => {
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  
+
   return (
     <div className={styles.notificationsContainer}>
       <h1 className={styles.title}>Notificaciones</h1>
-      <List 
-        onTabletRow={renderItem}
-        onRowClick={handleRowClick} 
-      />
+      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
     </div>
   );
 };

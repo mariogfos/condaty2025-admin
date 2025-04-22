@@ -14,8 +14,6 @@ import AccessesTab from "./AccessTab/AccessTab";
 import PedidosTab from "./PedidosTab/PedidosTab";
 import QRTab from "./QrTab/QrTab";
 
-
-
 type TabType = {
   value: string;
   text: string;
@@ -30,20 +28,20 @@ const tabs: TabType[] = [
 // Parámetros iniciales para cada tipo
 const paramsInitialAccess = {
   fullType: "L",
-  perPage: 10,
+  perPage: 20,
   page: 1,
 };
 
 const paramsInitialPedidos = {
   fullType: "L",
   page: 1,
-  perPage: 10,
+  perPage: 20,
 };
 
 const paramsInitialQR = {
   fullType: "L",
   page: 1,
-  perPage: 10,
+  perPage: 20,
 
   searchBy: "|__date__date_event,<=," + getNow() + ",,,",
 };
@@ -52,7 +50,9 @@ const Activities = () => {
   const { user, showToast, setStore } = useAuth();
   const [typeSearch, setTypeSearch] = useState<string>("A");
   const [openInvitationInfo, setOpenInvitationInfo] = useState<boolean>(false);
-  const [selectedInvitation, setSelectedInvitation] = useState<any | null>(null);
+  const [selectedInvitation, setSelectedInvitation] = useState<any | null>(
+    null
+  );
   const [openReport, setOpenReport] = useState<boolean>(false);
   const linkDownload = useRef<string>("");
   const { execute } = useAxios("", "GET", {});
@@ -180,8 +180,6 @@ const Activities = () => {
           </a>
         </div>
       </DataModal>
-
-      
     </div>
   );
 };

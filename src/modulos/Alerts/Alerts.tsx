@@ -22,11 +22,11 @@ const mod = {
     onClose: any;
     item: Record<string, any>;
     onConfirm?: Function;
-  }) => <RenderView {...props} />
+  }) => <RenderView {...props} />,
 };
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -43,7 +43,7 @@ const Alerts = () => {
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
-  const getAlertLevelClass = (level:any) => {
+  const getAlertLevelClass = (level: any) => {
     switch (level) {
       case 3:
         return styles.nivelAlto;
@@ -56,7 +56,7 @@ const Alerts = () => {
     }
   };
 
-  const getAlertLevelText = (level:any) => {
+  const getAlertLevelText = (level: any) => {
     switch (level) {
       case 3:
         return "Nivel alto";
@@ -81,23 +81,23 @@ const Alerts = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                    src={getUrlImages(
-                      "/GUARD-" +
-                        props?.item?.guardia.id +
-                                  ".webp?d=" +
-                                  props?.item?.guardia.updated_at
-                              )}
-                              name={getFullName(props?.item.guardia)}
-                              square
-                            />
-                            <div>
-                              <p>{getFullName(props?.item.guardia)} </p>
-                            </div>
-                          </div>
+                  src={getUrlImages(
+                    "/GUARD-" +
+                      props?.item?.guardia.id +
+                      ".webp?d=" +
+                      props?.item?.guardia.updated_at
+                  )}
+                  name={getFullName(props?.item.guardia)}
+                  square
+                />
+                <div>
+                  <p>{getFullName(props?.item.guardia)} </p>
+                </div>
+              </div>
             );
-          }
+          },
         },
-        form: { type: "text" }
+        form: { type: "text" },
       },
       descrip: {
         rules: ["required"],
@@ -110,39 +110,36 @@ const Alerts = () => {
         rules: [""],
         api: "",
         label: "Fecha",
-        list: {  },
-        onRender: (props:any) => {
+        list: {},
+        onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
         },
       },
-      
+
       level: {
         rules: ["required"],
         api: "ae",
         label: "Nivel de alerta",
         list: {
-          onRender: (props:any) => {
+          onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
-            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(alertLevel)}`;
-            
+            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(
+              alertLevel
+            )}`;
+
             return (
-              <div className={levelClass}>
-                {getAlertLevelText(alertLevel)}
-              </div>
+              <div className={levelClass}>{getAlertLevelText(alertLevel)}</div>
             );
-          }
+          },
         },
         form: { type: "select", options: lLevels },
         filter: {
           label: "Nivel",
           width: "200px",
-          options: () => [
-            ...lLevels
-          ],
+          options: () => [...lLevels],
           optionLabel: "name",
-          optionValue: "id"
+          optionValue: "id",
         },
-        
       },
     }),
     []

@@ -10,7 +10,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",

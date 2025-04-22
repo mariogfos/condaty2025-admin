@@ -20,7 +20,7 @@ interface FormStateFilter {
 }
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -73,18 +73,18 @@ const Outlays = () => {
     { id: "month", name: "Este mes" },
     { id: "lmonth", name: "Mes anterior" },
     { id: "year", name: "Este año" },
-    { id: "lyear", name: "Año anterior" }
+    { id: "lyear", name: "Año anterior" },
   ];
-  
+
   const getCategoryOptions = () => [
     { id: "", name: "Todos" },
     // Aquí se podrían agregar dinámicamente las categorías desde extraData
   ];
-  
+
   const getStatusOptions = () => [
     { id: "", name: "Todos" },
     { id: "A", name: "Pagado" },
-    { id: "C", name: "Anulado" }
+    { id: "C", name: "Anulado" },
   ];
 
   const fields = useMemo(() => {
@@ -94,16 +94,16 @@ const Outlays = () => {
         rules: ["required"],
         api: "ae",
         label: "Fecha",
-        form: { type: "date" }, 
-        list: { },
+        form: { type: "date" },
+        list: {},
         filter: {
           label: "Periodo",
           width: "150px",
-          options: getPeriodOptions
-        }
-      }, 
-      category_id: { 
-        rules: ["required"], 
+          options: getPeriodOptions,
+        },
+      },
+      category_id: {
+        rules: ["required"],
         api: "ae",
         label: "Categoria",
         form: {
@@ -125,17 +125,17 @@ const Outlays = () => {
         list: {
           onRender: (props: any) => {
             return props.item.category?.padre?.name || `sin datos disponibles`;
-          }
+          },
         },
         filter: {
           label: "Categoría",
           width: "150px",
-          extraData: "categories",  
-        }
-      }, 
-      subcategory_id: { 
-        rules: ["required"], 
-        api: "ae", 
+          extraData: "categories",
+        },
+      },
+      subcategory_id: {
+        rules: ["required"],
+        api: "ae",
         label: "Subcategoria",
         form: {
           type: "select",
@@ -161,17 +161,21 @@ const Outlays = () => {
         list: {
           onRender: (props: any) => {
             return (
-              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+              <div
+                className={`${styles.statusBadge} ${
+                  styles[`status${props.item.status}`]
+                }`}
+              >
                 {props.item.status === "A" ? "Pagado" : "Anulado"}
               </div>
             );
-          }
+          },
         },
         filter: {
           label: "Estado del egreso",
           width: "180px",
-          options: getStatusOptions
-        }
+          options: getStatusOptions,
+        },
       },
       amount: {
         rules: ["required"],
@@ -218,13 +222,13 @@ const Outlays = () => {
 
   // Definición de botones extras para enviar al useCrud
   const extraButtons = [
-    <Button 
+    <Button
       key="categories-button"
       onClick={() => goToCategories("E")}
       className={styles.categoriesButton}
     >
       Categorías
-    </Button>
+    </Button>,
   ];
 
   const {
@@ -245,7 +249,7 @@ const Outlays = () => {
     mod,
     fields,
     _onImport: onImport,
-    extraButtons // Pasando los botones extras al hook
+    extraButtons, // Pasando los botones extras al hook
   });
 
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
@@ -290,14 +294,16 @@ const Outlays = () => {
   return (
     <div className={styles.outlays}>
       <h1 className={styles.title}>Egresos</h1>
-      <p className={styles.subtitle}>Administre, agregue y elimine todos los egresos</p>
-     {/*  
+      <p className={styles.subtitle}>
+        Administre, agregue y elimine todos los egresos
+      </p>
+      {/*  
       <div className={styles.buttonsContainer}>
         <Button onClick={onClickGraph} className={styles.graphButton}>
           Ver gráfica
         </Button>
       </div> */}
-      
+
       <List />
 
       {/* Modal para mostrar el gráfico */}

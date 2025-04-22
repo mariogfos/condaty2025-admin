@@ -37,7 +37,7 @@ import RenderCard from "./RenderCard/RenderCard";
 import { lComDestinies } from "@/mk/utils/utils";
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
