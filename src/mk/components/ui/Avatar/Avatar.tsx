@@ -14,6 +14,7 @@ type PropsType = {
   style?: CSSProperties;
   styleText?: CSSProperties;
   square?: boolean;
+  onError?: () => void;
 };
 
 export const Avatar = ({
@@ -23,6 +24,7 @@ export const Avatar = ({
   children,
   w = 48,
   h = 48,
+  onError,
   onClick,
   className,
   styleText,
@@ -45,7 +47,14 @@ export const Avatar = ({
       >
         {src && !imageError ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={name} onError={() => setImageError(true)} />
+          <img
+            src={src}
+            alt={name}
+            onError={() => {
+              setImageError(true);
+              onError && onError();
+            }}
+          />
         ) : (
           <div style={{ ...styleText }}>{initialsName(name)}</div>
           // <IconUser size={w - 8} color={"var(--cBlackV2)"} reverse={false} />

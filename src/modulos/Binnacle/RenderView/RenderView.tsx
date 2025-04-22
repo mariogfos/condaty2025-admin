@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -16,6 +16,7 @@ interface BinnacleDetailProps {
 // eslint-disable-next-line react/display-name
 const RenderView = memo((props: BinnacleDetailProps) => {
   const { open, onClose, item } = props;
+  const [imageExist, setImageExist] = useState(true);
 
   return (
     <DataModal
@@ -26,17 +27,22 @@ const RenderView = memo((props: BinnacleDetailProps) => {
       buttonCancel=""
     >
       <div className={styles.container}>
-        <div className={styles.imageContainer}>
-          <Avatar
-            src={getUrlImages(
-              "/GNEW-" + item.id + ".webp?d=" + item.updated_at
-            )}
-            h={170}
-            w={170}
-            style={{ borderRadius: 16 }}
-            name={getFullName(item)}
-          />
-        </div>
+        {imageExist && (
+          <div className={styles.imageContainer}>
+            <Avatar
+              src={getUrlImages(
+                "/GNEW-" + item.id + ".webp?d=" + item.updated_at
+              )}
+              h={170}
+              w={170}
+              onError={() => {
+                setImageExist(false);
+              }}
+              style={{ borderRadius: 16 }}
+              name={getFullName(item)}
+            />
+          </div>
+        )}
 
         <div className={styles.detailsContainer}>
           <div className={styles.detailRow}>
