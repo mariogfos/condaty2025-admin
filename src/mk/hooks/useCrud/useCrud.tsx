@@ -894,7 +894,10 @@ const useCrud = ({
             </>
           )}
           {mod.import && (
-            <div style={{ marginTop: "12px", cursor: "pointer" }} onClick={onImport}>
+            <div
+              style={{ marginTop: "12px", cursor: "pointer" }}
+              onClick={onImport}
+            >
               <IconImport />
             </div>
           )}
@@ -1122,98 +1125,120 @@ const useCrud = ({
             <div
               style={{
                 display: "flex",
-                flexDirection: "row", // Layout principal: Columna Izquierda (contenido) y Derecha (opcional)
+                flexDirection: "row",
                 gap: "var(--spM)",
-                // Asegúrate que .useCrud en CSS tenga una altura definida para que flexGrow funcione
               }}
             >
-              {/* --- Columna Principal (Tabla/Empty + Paginación) --- */}
               <section
                 style={{
-                  display: 'flex',         // Habilita Flexbox
-                  flexDirection: 'column', // Organiza hijos verticalmente
-                  flexGrow: 1,             // Ocupa el espacio vertical disponible
-                  overflow: 'hidden',      // Evita doble scrollbar general en esta sección
-                  // Ya no necesita altura fija aquí
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
                 }}
               >
-                {/* --- Área de Contenido (Tabla o Mensaje Vacío) --- */}
-                {/* Este div se estira y permite scroll INTERNO si la tabla es larga */}
-                <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-                  {data?.data?.length > 0 ? (
-                    <Table
-                      data={data?.data}
-                      onRowClick={
-                        mod.hideActions?.view ? props.onRowClick : onView
-                      }
-                      header={header}
-                      onTabletRow={props.onTabletRow}
-                      onRenderBody={props.onRenderBody}
-                      onRenderFoot={props.onRenderFoot}
-                      onRenderHead={props.onRenderHead}
-                      onRenderCard={props.onRenderCard}
-                      onButtonActions={
-                        mod.hideActions?.edit && mod.hideActions?.del
-                          ? undefined
-                          : onButtonActions
-                      }
-                      className="striped"
-                      actionsWidth={"170px"}
-                      sumarize={props.sumarize}
-                      extraData={extraData}
-                      onSort={onSort}
-                      sortCol={sortCol}
-                    />
-                  ) : (
-                    // Contenedor para el estado vacío, usa el estilo CSS
-                    <section className={styles.emptyStateContainer}>
-                      <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                      <p>No existen datos en este momento.</p>
-                    </section>
-                  )}
-                </div> {/* <-- FIN del Div estirable con scroll */}
-  
-                {/* --- Área de Paginación (abajo y condicional) --- */}
-                {/* Solo muestra la paginación si hay datos */}
-                {data?.data && data.data.length > 0 && (
-                  <div className={styles.paginationContainer}> {/* Contenedor opcional para estilos */}
-                    <Pagination
-                      currentPage={params.page}
-                      onPageChange={onChangePage}
-                      setParams={setParams}
-                      params={params}
-                      totalPages={Math.ceil(
-                        (data?.message?.total || 0) / (params.perPage > 0 ? params.perPage : 1) // Evita división por <= 0
-                      )}
-                      previousLabel=""
-                      nextLabel=""
-                      total={data?.message?.total || 0}
-                    />
-                  </div>
+                {data?.data?.length > 0 ? (
+                  <Table
+                    data={data?.data}
+                    onRowClick={
+                      mod.hideActions?.view ? props.onRowClick : onView
+                    }
+                    header={header}
+                    onTabletRow={props.onTabletRow}
+                    onRenderBody={props.onRenderBody}
+                    onRenderFoot={props.onRenderFoot}
+                    onRenderHead={props.onRenderHead}
+                    onRenderCard={props.onRenderCard}
+                    onButtonActions={
+                      mod.hideActions?.edit && mod.hideActions?.del
+                        ? undefined
+                        : onButtonActions
+                    }
+                    className="striped"
+                    actionsWidth={"170px"}
+                    sumarize={props.sumarize}
+                    extraData={extraData}
+                    onSort={onSort}
+                    sortCol={sortCol}
+                  />
+                ) : (
+                  <section>
+                    <IconTableEmpty size={180} color="var(--cBlackV2)" />
+                    <p>No existen datos en este momento.</p>
+                  </section>
                 )}
+                <div>
+                  <Pagination
+                    currentPage={params.page}
+                    onPageChange={onChangePage}
+                    setParams={setParams}
+                    params={params}
+                    totalPages={Math.ceil(
+                      (data?.message?.total || 1) / (params.perPage || 1)
+                    )}
+                    previousLabel=""
+                    nextLabel=""
+                    total={data?.message?.total || 0}
+                  />
+                </div>
               </section>
-  
-              {/* --- Columna Derecha (Opcional) --- */}
               {props.renderRight ? props.renderRight() : null}
             </div>
           )}
-  
-          {/* --- Renderizado de Modales (sin cambios respecto a tu versión original) --- */}
           {openView && (
             <>
               {mod.renderView ? (
-                mod.renderView({ /* ...props... */ })
+                mod.renderView({
+                  open: openView,
+                  onClose: onCloseView,
+                  item: formState,
+                  onConfirm: onSave,
+                  extraData,
+                  execute,
+                  onEdit,
+                  onDel,
+                  onAdd,
+                  openList,
+                  setOpenList,
+                })
               ) : (
-                <Detail open={openView} onClose={onCloseView} item={formState} onConfirm={onSave} />
+                <Detail
+                  open={openView}
+                  onClose={onCloseView}
+                  item={formState}
+                  onConfirm={onSave}
+                />
               )}
             </>
           )}
           {open && (
             <>
               {mod.renderForm ? (
-                mod.renderForm({ /* ...props... */ })
+                mod.renderForm({
+                  open: open,
+                  onClose: onCloseCrud,
+                  item: formState,
+                  setItem: setFormState,
+                  onSave: onSave,
+                  extraData,
+                  execute,
+                  errors,
+                  setErrors,
+                  reLoad,
+                  user,
+                  onEdit,
+                  onDel,
+                  onAdd,
+                  action,
+                  openList,
+                  setOpenList,
+                })
               ) : (
-                <Form open={open} onClose={onCloseCrud} item={formState} onConfirm={onSave} />
+                <Form
+                  open={open}
+                  onClose={onCloseCrud}
+                  item={formState}
+                  onConfirm={onSave}
+                />
               )}
             </>
           )}
@@ -1228,6 +1253,7 @@ const useCrud = ({
               showToast={showToast}
               reLoad={reLoad}
               execute={execute}
+              //getExtraData={getExtraData}
               extraData={extraData}
               requiredCols={mod.importRequiredCols || null}
               client_id={store?.client?.id}
@@ -1236,7 +1262,24 @@ const useCrud = ({
           {openDel && (
             <>
               {mod.renderDel ? (
-                mod.renderDel({ /* ...props... */ })
+                mod.renderDel({
+                  open: openDel,
+                  onClose: onCloseDel,
+                  item: formState,
+                  setItem: setFormState,
+                  onSave: onSave,
+                  extraData,
+                  execute,
+                  errors,
+                  setErrors,
+                  reLoad,
+                  user,
+                  onEdit,
+                  onDel,
+                  onAdd,
+                  openList,
+                  setOpenList,
+                })
               ) : (
                 <FormDelete
                   open={openDel}
