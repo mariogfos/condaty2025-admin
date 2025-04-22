@@ -116,12 +116,12 @@ const RenderForm = ({
       key: "dimension",
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.homeowner_id,
-      rules: ["required"],
-      key: "homeowner_id",
-      errors: errs,
-    });
+    // errs = checkRules({
+    //   value: formState.homeowner_id,
+    //   rules: ["required"],
+    //   key: "homeowner_id",
+    //   errors: errs,
+    // });
     setErrors(errs);
     return errs;
   };
@@ -195,7 +195,7 @@ const RenderForm = ({
       />
 
       <Input
-        label="Cuota (Bs)"
+        label="Expensa"
         name="expense_amount"
         value={formState.expense_amount}
         onChange={handleChange}
