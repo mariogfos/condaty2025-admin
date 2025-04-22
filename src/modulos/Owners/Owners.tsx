@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps    xom */
 "use client";
 import styles from "./Owners.module.css";
 import RenderItem from "../shared/RenderItem";
