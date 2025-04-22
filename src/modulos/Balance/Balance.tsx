@@ -248,6 +248,8 @@ const BalanceGeneral: React.FC = () => {
     setErrors({});
   };
 
+  console.log(formStateFilter.filter_date[0], "formStateFilter.filter_date");
+
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -355,7 +357,7 @@ const BalanceGeneral: React.FC = () => {
                     title={" "}
                     subtitle={
                       "Resumen de la gestión " +
-                      getDateDesdeHasta(formStateFilter.filter_date)
+                      formStateFilter.filter_date[0] === 'c'? 'asa' : getDateDesdeHasta(formStateFilter.filter_date)
                     }
                     periodo={formStateFilter?.filter_date}
                   />
