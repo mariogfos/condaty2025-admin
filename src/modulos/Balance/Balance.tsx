@@ -357,7 +357,7 @@ const BalanceGeneral: React.FC = () => {
                     title={" "}
                     subtitle={
                       "Resumen de la gestión " +
-                      formStateFilter.filter_date[0] === 'c'? 'asa' : getDateDesdeHasta(formStateFilter.filter_date)
+                      getDateDesdeHasta(formStateFilter.filter_date)
                     }
                     periodo={formStateFilter?.filter_date}
                   />

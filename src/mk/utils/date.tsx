@@ -194,6 +194,13 @@ console.log(date,'dadada')
     fechaActual.getMonth() + 1,
     0
   );
+  // Manejar fechas personalizadas
+  if (typeof date === 'string' && date.startsWith('c:')) {
+    const [fechaInicio, fechaFin] = date.substring(2).split(',');
+    primerDia = new Date(fechaInicio);
+    ultimoDia = new Date(fechaFin);
+    return `${primerDia.getDate()}/${primerDia.getMonth() + 1}/${primerDia.getFullYear()} al ${ultimoDia.getDate()}/${ultimoDia.getMonth() + 1}/${ultimoDia.getFullYear()}`;
+  }
 
   if (date === "m") {
     // return `${primerDia.getDate()}/${
