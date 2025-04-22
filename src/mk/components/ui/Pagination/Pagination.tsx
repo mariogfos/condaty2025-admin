@@ -39,34 +39,46 @@ const Pagination = ({
     setPageInput(currentPage.toString());
   }, [currentPage]);
 
-  const { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage } =
-    useMemo(() => {
-      const firstPage = safeTotal > 1 ? Math.max(1, currentPage - 3) : 1;
-      const lastPage =
-        safeTotal > 1 ? Math.min(currentPage + 3, safeTotal) : 1;
+  const {
+    firstPage,
+    lastPage,
+    goToNextPage,
+    goToPreviousPage,
+    range,
+    goToPage,
+  } = useMemo(() => {
+    const firstPage = safeTotal > 1 ? Math.max(1, currentPage - 3) : 1;
+    const lastPage = safeTotal > 1 ? Math.min(currentPage + 3, safeTotal) : 1;
 
-      const goToNextPage = (): void => {
-        onPageChange(Math.min(currentPage + 1, safeTotal));
-      };
+    const goToNextPage = (): void => {
+      onPageChange(Math.min(currentPage + 1, safeTotal));
+    };
 
-      const goToPreviousPage = (): void => {
-        onPageChange(Math.max(currentPage - 1, 1));
-      };
+    const goToPreviousPage = (): void => {
+      onPageChange(Math.max(currentPage - 1, 1));
+    };
 
-      const goToPage = (page: number): void => {
-        if (page >= 1 && page <= safeTotal) {
-          onPageChange(page);
-        }
-      };
+    const goToPage = (page: number): void => {
+      if (page >= 1 && page <= safeTotal) {
+        onPageChange(page);
+      }
+    };
 
-      const range = (start: number, end: number): number[] => {
-        if (start >= end) {
-          return [];
-        }
-        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-      };
-      return { firstPage, lastPage, goToNextPage, goToPreviousPage, range, goToPage };
-    }, [currentPage, safeTotal, onPageChange]);
+    const range = (start: number, end: number): number[] => {
+      if (start >= end) {
+        return [];
+      }
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
+    return {
+      firstPage,
+      lastPage,
+      goToNextPage,
+      goToPreviousPage,
+      range,
+      goToPage,
+    };
+  }, [currentPage, safeTotal, onPageChange]);
 
   // Manejar la entrada de la página
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +96,7 @@ const Pagination = ({
 
   // Manejar pulsación de tecla en el input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       const pageNumber = parseInt(pageInput);
       if (!isNaN(pageNumber)) {
@@ -93,16 +105,15 @@ const Pagination = ({
     }
   };
 
+  if (safeTotal === 1) {
+    return null;
+  }
   return (
     <div className={`${styles.pagination} ${className}`}>
       {/* Texto informativo a la izquierda */}
       <div className={styles.paginationInfo}>
         <span className={styles.currentPageInfo}>
-          
-          <button 
-            className={styles.goToPageButton}
-            onClick={() => goToPage(1)}
-          >
+          <button className={styles.goToPageButton} onClick={() => goToPage(1)}>
             ir a la página 1
           </button>
         </span>
@@ -131,7 +142,9 @@ const Pagination = ({
         <form onSubmit={handleSubmit} className={styles.pageForm}>
           <span className={styles.pageInfo}>
             <span className={styles.currentPageLabel}>Página</span>
-            <span className={styles.totalPages}>{currentPage}/{safeTotal}</span>
+            <span className={styles.totalPages}>
+              {currentPage}/{safeTotal}
+            </span>
           </span>
           <input
             type="text"
@@ -150,7 +163,7 @@ const Pagination = ({
       {/* Select para elementos por página - oculto pero funcional */}
       <div className={styles.hiddenPerPage}>
         <Select
-          inputStyle={{ display: 'none' }}
+          inputStyle={{ display: "none" }}
           name="perPage"
           label=""
           options={[
