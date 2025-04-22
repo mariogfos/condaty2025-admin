@@ -29,21 +29,21 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
   };
 
   // Manejo del click fuera del dropdown para cerrarlo
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       dropdownRef.current &&
+  //       !dropdownRef.current.contains(event.target as Node)
+  //     ) {
+  //       setIsOpen(false);
+  //     }
+  //   };
 
-    document.addEventListener("mouseup", handleClickOutside);
-    return () => {
-      document.removeEventListener("mouseup", handleClickOutside);
-    };
-  }, []);
+  //   document.addEventListener("mouseup", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mouseup", handleClickOutside);
+  //   };
+  // }, []);
 
   // Verifica si la ruta está activa para gestionar el estado del dropdown
   useEffect(() => {
