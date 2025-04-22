@@ -221,6 +221,7 @@ const RenderForm = ({
         error={errors}
       />
 
+      {/* campos extra --- para un futuro quiza
       {typeFields.map((field: any) => (
         <div key={field.id} style={{ marginBottom: 'var(--spS)',display:'flex' ,gap:5}}>
           <div style={{ display: 'flex', alignItems: 'center',width:'50%'}}>
@@ -255,7 +256,7 @@ const RenderForm = ({
             />
           )}
         </div>
-      ))}
+      ))} */}
 
     </DataModal>
   );

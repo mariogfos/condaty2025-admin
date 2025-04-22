@@ -221,13 +221,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 </span>
               </div>
 
+             {/* campos extra 
              {datas?.data?.field_values?.map((item:any)=> 
               <div className={styles.infoRow}>
                 <span className={styles.label}>{item.type_field?.name}</span>
                 <span className={styles.value}>
                   {item?.value}
                 </span>
-              </div>)}
+              </div>)} */}
 
 
 
