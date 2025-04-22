@@ -143,7 +143,7 @@ const UnitsType = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, loaded } = useCrud(
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
     {
       paramsInitial,
       mod,
@@ -179,8 +179,7 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      {JSON.stringify(loaded, null, 2)}
-     {loaded ? <List onTabletRow={renderItem} />: <div>qsas</div> }
+      <List onTabletRow={renderItem} />
     </div>
   );
 };
