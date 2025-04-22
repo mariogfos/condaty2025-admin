@@ -38,6 +38,7 @@ const Guards = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
+    
     // renderForm: (props: {
     //   item: any;
     //   setItem: any;

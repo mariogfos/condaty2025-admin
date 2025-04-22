@@ -12,6 +12,8 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -36,6 +38,18 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      mod: ModCrudType;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+    }) => {
+      return (
+        <UnlinkModal open={props.open} onClose={props.onClose} modName='residente' />
+      );
+    }
     // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
