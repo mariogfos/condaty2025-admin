@@ -42,8 +42,6 @@ const paramsInitialQR = {
   fullType: "L",
   page: 1,
   perPage: 20,
-
-  searchBy: "|__date__date_event,<=," + getNow() + ",,,",
 };
 
 const Activities = () => {
