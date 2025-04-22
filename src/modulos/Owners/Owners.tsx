@@ -126,7 +126,6 @@ const Owners = () => {
         list: true,
       },
       avatar: {
-        rules: ["requiredFile*a"],
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
