@@ -18,7 +18,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import OwnersRender from "@/modulos/Owners/RenderView";
+import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 
 const paramsInitial = {
@@ -61,6 +61,7 @@ const HomePage = () => {
     open:openPayment,
     onClose:()=>setOpenPayment(false),
     item:dataPayment,
+    payment_id: dataPayment?.id,
     reLoad:reLoad
   }
 
@@ -75,7 +76,7 @@ const HomePage = () => {
         return uniqueArray.join(" ");
       };
   
-  
+  // console.log(paymentProps,'paymentProps')
       return (
         <ItemList
           title={getFullName(data?.owner)}
@@ -258,14 +259,14 @@ const HomePage = () => {
      />                                   
    </section>
   </div>
- <OwnersRender 
+  <OwnersRender
   open={openActive}
   onClose={()=>setOpenActive(false)}
   item={dataOwner}
-  reLoad={reLoad}
- />
- <OwnersRender
+/>
+ <PaymentRender
 { ...paymentProps}
+ payment_id={paymentProps?.payment_id}
  />
   </>;
 };

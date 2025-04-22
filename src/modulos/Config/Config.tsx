@@ -20,6 +20,7 @@ import DptoConfig from "./DptoConfig/DptoConfig";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import UnitsType from "../UnitTypes/UnitsTypes";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
@@ -239,6 +240,7 @@ const Config = () => {
             { value: "C", text: "Condominio" },
             { value: "P", text: "Pagos" },
             { value: "M", text: "Morosidad" },
+            { value: "T", text: "Tipos de unidades" },
           ]}
           sel={typeSearch}
           setSel={setTypeSearch}
@@ -274,7 +276,11 @@ const Config = () => {
               onSave={onSave}
             />
           )}
-        
+          {typeSearch == "T" &&
+             <UnitsType />
+
+          }
+     
         </div>
       </LoadingScreen>
     </div>

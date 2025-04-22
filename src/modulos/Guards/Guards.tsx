@@ -16,7 +16,7 @@ import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -47,7 +47,7 @@ const Guards = () => {
     //   user: any;
     //   execute: any;
     // }) => <RenderForm {...props} />,
-    extraData: true,
+    // extraData: true,
     // hideActions: { add: true },
   };
 

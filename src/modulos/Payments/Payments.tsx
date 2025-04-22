@@ -37,7 +37,9 @@ const Payments = () => {
     permiso: "",
     extraData: true,
     renderForm: RenderForm,
-    renderView: (props: any) => <RenderView {...props} />,
+    renderView: (props: any) => (
+      <RenderView {...props} payment_id={props?.item?.id} />
+    ),
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,
@@ -49,26 +51,26 @@ const Payments = () => {
     saveMsg: {
       add: "Ingreso creado con éxito",
       edit: "Ingreso actualizado con éxito",
-      del: "Ingreso eliminado con éxito"
-    }
+      del: "Ingreso eliminado con éxito",
+    },
   };
   const getPeriodOptions = () => [
     { id: "", name: "Todos" },
     { id: "month", name: "Este mes" },
     { id: "lmonth", name: "Mes anterior" },
     { id: "year", name: "Este año" },
-    { id: "lyear", name: "Año anterior" }
+    { id: "lyear", name: "Año anterior" },
   ];
-  
+
   const getPaymentTypeOptions = () => [
     { id: "", name: "Todos" },
     { id: "T", name: "Transferencia" },
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
     { id: "Q", name: "QR" },
-    { id: "O", name: "Pago en oficina" }
+    { id: "O", name: "Pago en oficina" },
   ];
-  
+
   const getStatusOptions = () => [
     { id: "", name: "Todos" },
     { id: "P", name: "Pagado" },
@@ -76,14 +78,14 @@ const Payments = () => {
     { id: "R", name: "Rechazado" },
     { id: "E", name: "Por subir comprobante" },
     { id: "A", name: "Por pagar" },
-    { id: "M", name: "Moroso" }
+    { id: "M", name: "Moroso" },
   ];
   const removeCommas = (text: string | number): string => {
-    return String(text).replace(/[,]/g, '');
+    return String(text).replace(/[,]/g, "");
   };
 
   const paramsInitial = {
-    perPage: 10,
+    perPage: 20,
     page: 1,
     fullType: "L",
     searchBy: "",
@@ -111,25 +113,27 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
-            return <div>{ getDateStrMes(props.item.paid_at) || "No pagado"}</div>;
-          }
+            return (
+              <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
+            );
+          },
         },
         filter: {
           label: "Periodo",
           width: "150px",
-          options: getPeriodOptions // Referencia a la función, no llamada a la función
-        }
+          options: getPeriodOptions, // Referencia a la función, no llamada a la función
+        },
       },
       dptos: {
         api: "ae",
         label: "Unidad",
-        list: { 
+        list: {
           onRender: (props: any) => {
             return <div>{removeCommas(props.item.dptos)}</div>;
-          }
-        }
+          },
+        },
       },
-  
+
       category_id: {
         rules: ["required"],
         api: "ae",
@@ -141,12 +145,15 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
-            return <div>{props.item.category?.padre.name}</div>;
-          }
-        }
-        
+            return (
+              <div>
+                {props.item.category?.padre?.name || "Sin categoría padre"}
+              </div>
+            );
+          },
+        },
       },
-  
+
       type: {
         rules: ["required"],
         api: "ae",
@@ -169,20 +176,20 @@ const Payments = () => {
               O: "Pago en oficina",
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
-          }
+          },
         },
         filter: {
           label: "Tipo de pago",
           width: "150px",
-          options: getPaymentTypeOptions
-        }
+          options: getPaymentTypeOptions,
+        },
       },
 
       status: {
         rules: [],
         api: "ae",
         label: "Estado",
-        list: { 
+        list: {
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
               P: "Pagado",
@@ -202,13 +209,13 @@ const Payments = () => {
                 {statusMap[props.item.status] || props.item.status}
               </div>
             );
-          }
+          },
         },
         filter: {
           label: "Estado del ingreso",
           width: "180px",
-          options: getStatusOptions
-        }
+          options: getStatusOptions,
+        },
       },
       amount: {
         rules: ["required", "number"],
@@ -218,7 +225,7 @@ const Payments = () => {
           type: "number",
           placeholder: "Ej: 100.00",
         },
-        list: { 
+        list: {
           onRender: (props: any) => {
             return <div>Bs.{props.item.amount}</div>;
           },
@@ -244,7 +251,6 @@ const Payments = () => {
       if (response && response.data) {
         setDataGraph(response.data);
         setOpenGraph(true);
-        
       }
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -268,38 +274,32 @@ const Payments = () => {
 
   // Definición de botones extras
   const extraButtons = [
-    <Button 
+    <Button
       key="categories-button"
       onClick={() => goToCategories("I")}
       className={styles.categoriesButton}
     >
       Categorías
-    </Button>
+    </Button>,
   ];
   // Uso del hook useCrud con los botones extras
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons // Pasando los botones extras al hook
-  });
+  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons, // Pasando los botones extras al hook
+    });
   // Verificación de permisos
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>Administre, agregue y elimine todos los ingresos</p>
-      
+      <p className={styles.subtitle}>
+        Administre, agregue y elimine todos los ingresos
+      </p>
+
       {/* <div className={styles.buttonsContainer}>
         <Button
           onClick={onClickGraph}
@@ -315,7 +315,7 @@ const Payments = () => {
           Administrar categorías
         </Button>
       </div> */}
-      
+
       <List />
 
       {/* Modal para mostrar el gráfico */}

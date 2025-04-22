@@ -70,6 +70,33 @@ export let lAges = [
   { id: "81+", name: "81+" },
 ];
 
+export let hours = [
+  { id: "00:00", name: "00:00" },
+  { id: "01:00", name: "01:00" },
+  { id: "02:00", name: "02:00" },
+  { id: "03:00", name: "03:00" },
+  { id: "04:00", name: "04:00" },
+  { id: "05:00", name: "05:00" },
+  { id: "06:00", name: "06:00" },
+  { id: "07:00", name: "07:00" },
+  { id: "08:00", name: "08:00" },
+  { id: "09:00", name: "09:00" },
+  { id: "10:00", name: "10:00" },
+  { id: "11:00", name: "11:00" },
+  { id: "12:00", name: "12:00" },
+  { id: "13:00", name: "13:00" },
+  { id: "14:00", name: "14:00" },
+  { id: "15:00", name: "15:00" },
+  { id: "16:00", name: "16:00" },
+  { id: "17:00", name: "17:00" },
+  { id: "18:00", name: "18:00" },
+  { id: "19:00", name: "19:00" },
+  { id: "20:00", name: "20:00" },
+  { id: "21:00", name: "21:00" },
+  { id: "22:00", name: "22:00" },
+  { id: "23:00", name: "23:00" },
+];
+
 export let lIdeologies = [
   { id: "-1", name: "" },
   { id: "0", name: "Izquierda" },
@@ -99,19 +126,19 @@ export let lIdeologies = [
   { id: "24", name: "Republicanismo" },
   { id: "25", name: "Herrerismo" },
 ];
-export const lStatusActive:any  = {
-  A:{ name:"Activo" },
-  X:{ name:"Inactivo" },
-  R:{ name:"Por activar"},
-  P:{ name:"Debe cambiar contraseña"},
-  // en un futuro el estado inactivo se manejara de acuerdo al campo delete_at 
-}
-export const lComDestinies:any =[
-    { id: 'T', name: "Todos" },
-    { id: 'D', name: "Departamentos" },
-    { id: 'G', name: "Guardias" },
-    { id: 'R', name: "Residentes" }
-  ]
+export const lStatusActive: any = {
+  A: { name: "Activo" },
+  X: { name: "Inactivo" },
+  R: { name: "Por activar" },
+  P: { name: "Debe cambiar contraseña" },
+  // en un futuro el estado inactivo se manejara de acuerdo al campo delete_at
+};
+export const lComDestinies: any = [
+  { id: "T", name: "Todos" },
+  { id: "D", name: "Departamentos" },
+  { id: "G", name: "Guardias" },
+  { id: "R", name: "Residentes" },
+];
 
 export const statusTask: any = {
   P: "Pendiente",
@@ -148,15 +175,14 @@ export const UnitsType: any = {
   _O: "Piso",
 };
 
-export const StatusDetailExpColor:any = {
+export const StatusDetailExpColor: any = {
   A: "var(--cWhiteV1)", // por cobrar
   E: "var(--cWhiteV1)", // espera
   P: "var(--cSuccess)", //pagado
-  S: "var(--cWarning)", 
+  S: "var(--cWarning)",
   M: "var(--cError)", //
   R: "var(--cError)", // rechazado
 };
-
 
 //Expensas
 
@@ -168,75 +194,74 @@ interface Assigned {
   status: string;
 }
 
-
 type AssignedList = Assigned[];
 interface Debt {
-    id: string;
-    clientId: string;
-    amount: number;
-    asignados: AssignedList;
-    begin_at: string | null;
-    categoryId: number;
-    created_at: string;
-    deleted_at: string | null;
-    description: string;
-    due_at: string;
-    month: number;
-    status: string;
-    updated_at: string;
-    year: number;
-  }
-  
-    const today = new Date();
-    export const units = (unidades: AssignedList) => {
-        return unidades.length;
-    };
-    export const sumExpenses = (unidades: AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-            sum = sum + Number(uni.amount);
-        });
-        return sum;
-    };
-    export const paidUnits= (unidades:AssignedList) => {
-        let cont = 0;
-        unidades.map((uni) => {
-                 // && uni.status != "X"
-          if (uni.status == "P") {
-            cont = cont + 1;
-          }
-        });
-  
-        return cont;
-      };
-     export const sumPaidUnits = (unidades:AssignedList) => {
-        let sum = 0;
-        unidades.map((uni) => {
-          if (uni.status == "P") {
-            sum += Number(uni.amount) + Number(uni.penalty_amount);
-          }
-        });
-        return sum;
-      };
-   
-    export const unitsPayable = (unidades:AssignedList) => {
-        let cont = 0;
-        // let c = "";
-        unidades.map((uni) => {
-          if (uni.status != "P" && uni.status != "X") {
-            cont = cont + 1;
-          }
-        });
-        // return c;
-        return cont;
-      };  
-    export const isUnitInDefault = (props:Debt)=>{
-       return  unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today 
+  id: string;
+  clientId: string;
+  amount: number;
+  asignados: AssignedList;
+  begin_at: string | null;
+  categoryId: number;
+  created_at: string;
+  deleted_at: string | null;
+  description: string;
+  due_at: string;
+  month: number;
+  status: string;
+  updated_at: string;
+  year: number;
+}
+
+const today = new Date();
+export const units = (unidades: AssignedList) => {
+  return unidades.length;
+};
+export const sumExpenses = (unidades: AssignedList) => {
+  let sum = 0;
+  unidades.map((uni) => {
+    sum = sum + Number(uni.amount);
+  });
+  return sum;
+};
+export const paidUnits = (unidades: AssignedList) => {
+  let cont = 0;
+  unidades.map((uni) => {
+    // && uni.status != "X"
+    if (uni.status == "P") {
+      cont = cont + 1;
     }
-    export const sumPenalty = (unidades:AssignedList) => {
-        let sum: number = 0;
-        unidades.map((uni) => {
-          sum = sum + Number(uni.penalty_amount);
-        });
-        return sum;
-      };  
+  });
+
+  return cont;
+};
+export const sumPaidUnits = (unidades: AssignedList) => {
+  let sum = 0;
+  unidades.map((uni) => {
+    if (uni.status == "P") {
+      sum += Number(uni.amount) + Number(uni.penalty_amount);
+    }
+  });
+  return sum;
+};
+
+export const unitsPayable = (unidades: AssignedList) => {
+  let cont = 0;
+  // let c = "";
+  unidades.map((uni) => {
+    if (uni.status != "P" && uni.status != "X") {
+      cont = cont + 1;
+    }
+  });
+  // return c;
+  return cont;
+};
+export const isUnitInDefault = (props: Debt) => {
+  return unitsPayable(props?.asignados) > 0 && new Date(props?.due_at) < today;
+};
+export const sumPenalty = (unidades: AssignedList) => {
+  let sum: number = 0;
+  unidades.map((uni) => {
+    sum = sum + Number(uni.penalty_amount);
+  });
+  return sum;
+};

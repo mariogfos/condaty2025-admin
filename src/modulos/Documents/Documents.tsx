@@ -28,7 +28,7 @@ const Documents = () => {
   };
 
   const paramsInitial = {
-    perPage: 10,
+    perPage: 20,
     page: 1,
     fullType: "L",
     searchBy: "",
@@ -42,28 +42,34 @@ const Documents = () => {
         api: "ae",
         label: "Nombre",
         form: { type: "text" },
-        list: {  },
+        list: {},
+      },
+      ext: {
+        rules: [],
+        api: "ae",
+        label: "Extensión",
+        list: {},
       },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
         form: { type: "text" },
-        list: { },
+        list: {},
       },
       for_to: {
         rules: ["required"],
         api: "ae*",
         label: "Destino",
         form: { type: "select", options: lOptions },
-        list: { },
+        list: {},
       },
       position: {
         rules: ["required"],
         api: "ae*",
         label: "Posición",
-        form: { 
-          type: "text" ,
+        form: {
+          type: "text",
           label: "Introduce un número del 0 al 5 para ordenar el documento",
         },
       },
@@ -95,7 +101,6 @@ const Documents = () => {
           );
         },
       },
-   
     }),
     []
   );

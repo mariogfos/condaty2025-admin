@@ -41,7 +41,7 @@
     color: var(--cWhite);
   }
   .subtitle {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     font-weight: 400;
     font-size: var(--sL);
     padding-top: 4px;
@@ -94,6 +94,6 @@
   }
 }
 .subtitleFormLv2 {
-  color: var(--cBlackV2);
+  color: var(--cWhiteV1);
   font-size: var(--sM);
 }

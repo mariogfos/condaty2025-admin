@@ -23,7 +23,7 @@ const Check = ({
     <div className={styles.check + " " + className}>
       <label
         htmlFor={props.name}
-        style={{ color: props.checked ? "var(--cSuccess)" : "var(--cBlackV2)" }}
+        style={{ color: props.checked ? "var(--cSuccess)" : "var(--cWhiteV1)" }}
       >
         {!reverse && (
           <p>

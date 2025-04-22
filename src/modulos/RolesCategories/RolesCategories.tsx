@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 // import styles from "./Educations.module.css";
@@ -23,14 +23,11 @@ const mod: ModCrudType = {
 };
 
 const RolesCategories = () => {
-
-
   const paramsInitial = {
-    perPage: 10,
+    perPage: 20,
     page: 1,
     fullType: "L",
     searchBy: "",
-   
   };
 
   const fields = useMemo(() => {
@@ -43,15 +40,15 @@ const RolesCategories = () => {
         list: true,
         form: { type: "text" },
       },
-  
-    //   description: {
-    //     rules: [],
-    //     api: "ae",
-    //     label:"Descripción",
-    //     form: {type:"text"},
-    //     list:true,
-    //     default: client_id,
-    //   },
+
+      //   description: {
+      //     rules: [],
+      //     api: "ae",
+      //     label:"Descripción",
+      //     form: {type:"text"},
+      //     list:true,
+      //     default: client_id,
+      //   },
     };
   }, []);
 
@@ -90,7 +87,7 @@ const RolesCategories = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div >
+    <div>
       <List onTabletRow={renderItem} />
     </div>
   );

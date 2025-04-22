@@ -1,6 +1,5 @@
 import { CalendarExample } from "@/mk/components/Calendar";
 import { Reservation } from "@/mk/components/Calendar/CalendarExample";
-
 const page = () => {
   const initialReservations: Reservation[] = [
     {

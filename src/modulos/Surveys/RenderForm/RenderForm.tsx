@@ -343,7 +343,7 @@ const RenderForm = ({
               >
                 <IconWorld
                   size={48}
-                  color="var(--cBlackV2)"
+                  color="var(--cWhiteV1)"
                   style={{ minWidth: 30 }}
                 />
                 <div style={{ flexGrow: 1 }}>

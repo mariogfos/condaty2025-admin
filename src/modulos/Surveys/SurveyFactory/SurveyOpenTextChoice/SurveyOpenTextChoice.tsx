@@ -140,7 +140,7 @@ const SurveyOpenTextChoice = ({
               value={formStateSingleChoice.description}
               disabled
               style={{
-                color: "var(--cBlackV2)",
+                color: "var(--cWhiteV1)",
                 fontWeight: 400,
                 fontSize: 14,
                 border: "none",

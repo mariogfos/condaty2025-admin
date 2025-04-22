@@ -112,6 +112,7 @@ const TableEgresos = ({
       total={total}
       color="text-red-500"
       meses={anual ? meses : []}
+      variant="expense"
     />
   );
 };

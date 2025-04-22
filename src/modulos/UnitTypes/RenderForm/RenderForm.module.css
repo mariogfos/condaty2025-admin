@@ -1,0 +1,14 @@
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  margin-bottom: var(--spS);
+   & > div:nth-child(1){
+    color:var(--cWhite);
+    font-size: var(--sL);
+   }
+   & > div:nth-child(2){
+    color:var(--cWhiteV1);
+    font-size: var(--sM);
+   }
+}

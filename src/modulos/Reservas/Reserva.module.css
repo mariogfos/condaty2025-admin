@@ -1,0 +1,71 @@
+/* Reserva.module.css */
+
+/* Estilo base para todos los badges de estado */
+.statusBadge {
+    font-weight: var(--bMedium);
+    padding: 6px var(--spM); /* Ajusta el padding si es necesario */
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: fit-content; /* Ancho se ajusta al contenido */
+    min-width: 90px;  /* Un mínimo para mantener consistencia, ajusta si prefieres */
+    white-space: nowrap; /* Evita que el texto corto se parta */
+    font-size: var(--sS); /* Puedes ajustar el tamaño de fuente */
+    line-height: 1.2;
+    box-sizing: border-box;
+  }
+  
+  /* --- Nuevos Estados de Reserva --- */
+  
+  /* Y: Aprobado (Verde) */
+  .statusY {
+    /* Asume que tienes variables para éxito/success */
+    background-color: var(--cHoverSuccess, rgba(40, 167, 69, 0.2)); /* Fondo verde suave */
+    color: var(--cSuccess, rgb(40, 167, 69));                   /* Texto verde */
+  }
+  
+  /* W: En espera (Amarillo/Naranja) */
+  .statusW {
+    /* Asume que tienes variables para advertencia/warning */
+    background-color: var(--cHoverWarning, rgba(255, 193, 7, 0.2)); /* Fondo amarillo suave */
+    color: var(--cWarning, rgb(255, 193, 7));                    /* Texto amarillo */
+  }
+  
+  /* N: Rechazado (Rojo) */
+  .statusN {
+    /* Asume que tienes variables para error/danger */
+    background-color: var(--cHoverError, rgba(220, 53, 69, 0.2)); /* Fondo rojo suave */
+    color: var(--cError, rgb(220, 53, 69));                     /* Texto rojo */
+  }
+  
+  /* X: Cancelado (Gris Oscuro o Rojo suave) */
+  .statusX {
+    /* Puedes usar colores de error como 'Rechazado' o algo más neutro */
+     background-color: var(--cHoverError, rgba(220, 53, 69, 0.2)); /* Fondo rojo suave (igual que Rechazado) */
+     color: var(--cError, rgb(220, 53, 69));                     /* Texto rojo */
+    /* Alternativa gris: */
+    /* background-color: var(--cHoverMuted, rgba(108, 117, 125, 0.2)); */
+    /* color: var(--cMuted, rgb(108, 117, 125)); */
+  }
+  
+  /* Estado Desconocido o Inválido (Gris claro) */
+  .statusUnknown {
+     background-color: var(--cHoverLight, rgba(248, 249, 250, 0.5)); /* Fondo gris muy suave */
+     color: var(--cLightDark, rgb(108, 117, 125));                    /* Texto gris oscuro */
+     border: 1px solid var(--cLightDark, rgb(200, 200, 200));       /* Borde opcional */
+  }
+  
+  /* A: Disponible (Azul) */
+  .statusA {
+    /* Asume que tienes variables para azul/info */
+    background-color: var(--cHoverInfo, rgba(0, 123, 255, 0.2)); /* Fondo azul suave */
+    color: var(--cInfo, rgb(0, 123, 255));                     /* Texto azul */
+  }
+  
+  /* --- Eliminados (si ya no se usan en Reservas) --- */
+  /* .statusM { ... } */
+  
+  /* --- Otros estilos del componente (si existen) --- */
+  /* ... */

@@ -6,6 +6,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "alerts",
@@ -15,20 +16,26 @@ const mod = {
   extraData: false,
   hideActions: { edit: true, del: true, add: true },
   export: true,
-  filter: true
+  filter: true,
+  renderView: (props: {
+    open: boolean;
+    onClose: any;
+    item: Record<string, any>;
+    onConfirm?: Function;
+  }) => <RenderView {...props} />,
 };
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
 };
 
 const lLevels = [
+  { id: "T", name: "Todos" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
-  { id: 1, name: "Nivel bajo" },
 ];
 
 const Alerts = () => {
@@ -36,38 +43,7 @@ const Alerts = () => {
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
-
-  // Función personalizada para el manejo de filtros
-  const getFilter = (opt:any, value:any, oldFilter:any) => {
-    // Para depuración si es necesario
-    console.log("Filtrando por:", opt, "con valor:", value);
-    
-    // Si el campo es level
-    if (opt === 'level') {
-      // Si no hay valor (opción "Todos"), no aplicamos filtro
-      if (value === '') {
-        return { filterBy: {} };
-      }
-      
-      // Si hay un valor, aplicamos el filtro directamente sin el formato opt:value
-      return { 
-        filterBy: { 
-          [opt]: value 
-        } 
-      };
-    }
-    
-    // Para otros campos, mantener el comportamiento por defecto
-    return { 
-      filterBy: { 
-        ...oldFilter.filterBy, 
-        [opt]: value 
-      } 
-    };
-  };
-
-  // Función para determinar la clase de estilo según el nivel de alerta
-  const getAlertLevelClass = (level:any) => {
+  const getAlertLevelClass = (level: any) => {
     switch (level) {
       case 3:
         return styles.nivelAlto;
@@ -80,8 +56,7 @@ const Alerts = () => {
     }
   };
 
-  // Función para obtener el texto del nivel de alerta
-  const getAlertLevelText = (level:any) => {
+  const getAlertLevelText = (level: any) => {
     switch (level) {
       case 3:
         return "Nivel alto";
@@ -106,31 +81,23 @@ const Alerts = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                    src={getUrlImages(
-                      "/GUARD-" +
-                        props?.item?.guardia.id +
-                                  ".webp?d=" +
-                                  props?.item?.guardia.updated_at
-                              )}
-                              name={getFullName(props?.item.guardia)}
-                              square
-                            />
-                            <div>
-                              <p>{getFullName(props?.item.guardia)} </p>
-                            </div>
-                          </div>
+                  src={getUrlImages(
+                    "/GUARD-" +
+                      props?.item?.guardia.id +
+                      ".webp?d=" +
+                      props?.item?.guardia.updated_at
+                  )}
+                  name={getFullName(props?.item.guardia)}
+                  square
+                />
+                <div>
+                  <p>{getFullName(props?.item.guardia)} </p>
+                </div>
+              </div>
             );
-          }
+          },
         },
         form: { type: "text" },
-        onRenderView: (props: any) => {
-          return (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{  }}>Guardia:</span>
-              <span style={{ color: "var(--cWhite)" }}>{getFullName(props.item.guardia)}</span>
-            </div>
-          );
-        }
       },
       descrip: {
         rules: ["required"],
@@ -143,40 +110,36 @@ const Alerts = () => {
         rules: [""],
         api: "",
         label: "Fecha",
-        list: {  },
-        onRender: (props:any) => {
+        list: {},
+        onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
         },
       },
-      
+
       level: {
         rules: ["required"],
         api: "ae",
         label: "Nivel de alerta",
         list: {
-          onRender: (props:any) => {
+          onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
-            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(alertLevel)}`;
-            
+            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(
+              alertLevel
+            )}`;
+
             return (
-              <div className={levelClass}>
-                {getAlertLevelText(alertLevel)}
-              </div>
+              <div className={levelClass}>{getAlertLevelText(alertLevel)}</div>
             );
-          }
+          },
         },
         form: { type: "select", options: lLevels },
         filter: {
           label: "Nivel",
           width: "200px",
-          options: () => [
-            { id: "", name: "Todos" },
-            ...lLevels
-          ],
+          options: () => [...lLevels],
           optionLabel: "name",
-          optionValue: "id"
+          optionValue: "id",
         },
-        
       },
     }),
     []
@@ -186,7 +149,6 @@ const Alerts = () => {
     paramsInitial,
     mod,
     fields,
-    getFilter // Pasamos la función personalizada al hook useCrud
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

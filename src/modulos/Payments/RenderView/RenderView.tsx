@@ -1,7 +1,7 @@
 // @ts-nocheck
  
 
-import React, { memo, useState } from "react";
+import React, { memo, useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
@@ -15,19 +15,38 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 interface DetailPaymentProps {
   open: boolean;
   onClose: () => void;
-  item: any;
+  // item: any;
   extraData?: any;
   reLoad?: () => void;
+  payment_id: string | number;
+
 }
 
 // eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
-  const { open, onClose, item, extraData, reLoad } = props;
+  const { open, onClose, extraData, reLoad, payment_id } = props;
   const [formState, setFormState] = useState<{confirm_obs?: string}>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{confirm_obs?: string}>({});
+  const [item, setItem] = useState(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
+
+  const fetchPaymentData = async () => {
+    if (payment_id && open) {
+      const { data } = await execute("/payments", "GET", {
+        fullType: "DET",
+        searchBy: payment_id,
+      },false,true);
+      setItem(data?.data);
+    }
+  };
+  useEffect(() => {
+
+    fetchPaymentData();
+  }, [payment_id]);
+  // console.log(item,)
+
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;

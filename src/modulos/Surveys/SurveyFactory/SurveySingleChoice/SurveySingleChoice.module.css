@@ -5,13 +5,13 @@
     font-weight: 700;
   }
   & > p:nth-child(2) {
-    color: var(--cBlackV2);
+    color: var(--cWhiteV1);
     font-size: var(--sM);
     font-weight: 400;
     margin-bottom: var(--spXs);
   }
   & > p:nth-child(3) {
-    color: var(--cInfo);
+    color: var(--cSuccess);
     margin-bottom: var(--spXl);
   }
   & > div {

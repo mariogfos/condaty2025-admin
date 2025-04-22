@@ -894,12 +894,12 @@ const useCrud = ({
             </>
           )}
           {mod.import && (
-            <div style={{ marginTop: "12px" }} onClick={onImport}>
+            <div style={{ marginTop: "12px", cursor: "pointer" }} onClick={onImport}>
               <IconImport />
             </div>
           )}
           {mod.export && (
-            <div style={{ marginTop: "12px" }}>
+            <div style={{ marginTop: "12px", cursor: "pointer" }}>
               <IconExport onClick={() => onExport("pdf")} />
             </div>
           )}

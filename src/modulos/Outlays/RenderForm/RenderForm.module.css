@@ -1,3 +1,4 @@
+/* === Estilos Originales y Generales === */
 .outlays-form-container {
   width: 100%;
   max-width: 800px;
@@ -15,6 +16,8 @@
 
 .section {
   border-radius: 8px;
+  /* Considera añadir un margin-bottom si es necesario separar secciones */
+  /* margin-bottom: 1rem; */
 }
 
 .section-title {
@@ -33,7 +36,13 @@
   margin-bottom: 0;
 }
 
-/* Two column layout */
+.char-count {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+  margin-top: 4px;
+}
+
 .two-column-container {
   display: flex;
   gap: 12px;
@@ -42,8 +51,17 @@
 
 .column {
   flex: 1;
-  min-width: 0; /* Prevent flex items from overflowing */
+  min-width: 0;
 }
+
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: 8px 0;
+}
+
+/* === Estilos Carga de Archivos === */
 .upload-section {
   margin-top: 12px;
 }
@@ -52,23 +70,27 @@
   margin-top: 8px;
   display: flex;
   justify-content: center;
+  align-items: center; /* Centra verticalmente también */
   border-radius: 8px;
   border: 1px dashed rgba(255, 255, 255, 0.25);
   padding: 24px;
+  min-height: 100px; /* Dale una altura mínima */
 }
 
 .file-upload-area.dragging {
-  border-color: #3498db; /* El color de acento */
+  border-color: #3498db;
 }
 
+/* Asegura que use la variable de error */
 .file-upload-area.error {
-  border-color: #e74c3c;
+  border-color: var(--cError) !important; /* Usa variable y !important si es necesario */
 }
 
 .hidden-input {
   display: none;
 }
 
+/* --- Instrucciones de Carga --- */
 .upload-instructions {
   text-align: center;
 }
@@ -94,49 +116,71 @@
 }
 
 .file-types {
-  color: #888;
+  color: var(--cWhite);
   font-size: 0.85rem;
 }
 
-.error-message {
-  color: var(--cError);
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-}
-
-/* File Preview */
+/* --- Previsualización de Archivo (MODIFICADO) --- */
 .file-preview {
   width: 100%;
+  /* Alinea el contenido interno */
+  display: flex;
+  justify-content: center;
 }
 
 .file-preview-content {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1rem; /* Espacio entre icono/thumb y la info */
+  width: 100%; /* Ocupa el ancho disponible dentro del preview */
+  padding: 5px; /* Un pequeño padding interno opcional */
 }
 
 .file-thumbnail {
-  width: 70px;
-  height: 70px;
+  width: 50px; /* Tamaño ajustado para thumbnail */
+  height: 50px;
   object-fit: cover;
   border-radius: 4px;
+  flex-shrink: 0; /* Evita que el thumbnail se encoja */
 }
 
+/* Iconos PDF/DOCS como thumbnail */
+.file-preview-content svg {
+    width: 40px; /* Ajusta el tamaño de los iconos SVG */
+    height: 40px;
+    flex-shrink: 0;
+}
+
+
 .file-info {
-  flex: 1;
+  flex: 1; /* Ocupa el espacio restante */
+  min-width: 0; /* Importante para que flex funcione bien con overflow */
+  /* --- MODIFICADO: Ahora es flex para alinear nombre y acciones --- */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Nombre a la izq, acciones a la der */
+  gap: 10px; /* Espacio entre nombre y grupo de acciones */
 }
 
 .file-name {
-  margin-bottom: 0.5rem;
+  /* --- MODIFICADO: Quitado margin-bottom, añadido overflow --- */
   font-size: 0.9rem;
   color: #666;
+  /* Para manejar nombres largos */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Opcional: Define un ancho máximo si es necesario */
+  /* max-width: 250px; */
 }
 
 .file-name span {
   font-weight: 500;
-  color: var(--cBlack);
+  color: var(--cBlack); /* Hereda el color del padre o define uno */
 }
 
+/* --- ELIMINADO: .edit-file-button ya no se usa --- */
+/*
 .edit-file-button {
   background-color: transparent;
   border: none;
@@ -146,29 +190,140 @@
   padding: 0;
   text-decoration: underline;
 }
+*/
 
-/* Responsive adjustments */
+/* --- NUEVO: Estilos para el contenedor de acciones y botones de icono --- */
+.file-actions {
+  display: flex;
+  gap: 8px; /* Espacio entre iconos */
+  flex-shrink: 0; /* Evita que las acciones se encojan */
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  padding: 4px; /* Un poco de padding para hacer click más fácil */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555; /* Color base del icono */
+  border-radius: 4px; /* Opcional: bordes redondeados */
+  transition: background-color 0.2s, color 0.2s; /* Transición suave */
+}
+
+.icon-button:hover {
+  color: var(--cPrimary); /* Color al pasar el ratón (o el color que prefieras) */
+  background-color: rgba(0, 0, 0, 0.05); /* Fondo sutil al pasar el ratón */
+}
+/* --- FIN NUEVO --- */
+
+
+/* === Estilos de Error === */
+.error-message {
+  color: var(--cError);
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Estilos para inputs/textarea/select con error */
+.outlays-form-container input.error,
+.outlays-form-container textarea.error,
+.outlays-form-container select.error,
+.outlays-form-container .select-error { /* Asegúrate que tus selects usen la clase 'error' o 'select-error' */
+  border-color: var(--cError) !important;
+  background-color: rgba(231, 76, 60, 0.05) !important; /* Fondo rojo muy sutil */
+}
+
+/* Mensaje de error debajo del input (si tu componente Input lo renderiza) */
+.input-error-message {
+  color: var(--cError);
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* --- NUEVO: Estilo para errores generales --- */
+.error-general {
+   margin-top: 15px;
+   padding: 10px 15px;
+   border: 1px solid var(--cError);
+   border-radius: 4px;
+   background-color: rgba(231, 76, 60, 0.05);
+   color: var(--cError);
+}
+/* Si el error general contiene un <p class="error-message"> */
+.error-general > .error-message {
+   margin-top: 0; /* Quita el margen superior extra */
+   font-weight: normal; /* Quizás un peso normal aquí */
+}
+/* --- FIN NUEVO --- */
+
+
+/* === Placeholders === */
+.outlays-form-container input::placeholder,
+.outlays-form-container textarea::placeholder,
+.outlays-form-container .select-placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
+}
+
+.outlays-form-container .react-select__placeholder {
+  color: #999 !important;
+}
+
+.outlays-form-container input,
+.outlays-form-container textarea,
+.outlays-form-container .react-select__single-value {
+  /* No necesita color específico aquí si quieres el default */
+}
+
+/* === Responsive adjustments === */
 @media (max-width: 768px) {
   .two-column-container {
     flex-direction: column;
+    gap: 0; /* Quita el gap horizontal al apilar */
   }
 
-  .section {
-    padding: 1rem;
+  .column {
+      /* Asegúrate que los inputs/selects dentro de columnas apiladas tengan margen */
+      margin-bottom: 12px;
+  }
+  .column:last-child {
+      margin-bottom: 0;
   }
 
+
+  /* Ajuste para la previsualización en móvil */
   .file-preview-content {
-    flex-direction: column;
-    text-align: center;
+     /* Puedes mantener flex-direction: row o cambiar a column si prefieres */
+     /* flex-direction: column; */
+     /* text-align: center; */
+     gap: 0.5rem; /* Reduce el gap en móvil */
   }
+
+   .file-thumbnail {
+     width: 40px; /* Más pequeño en móvil */
+     height: 40px;
+   }
+   .file-preview-content svg {
+     width: 35px;
+     height: 35px;
+   }
 
   .file-info {
-    margin-top: 0.5rem;
+    /* Si usas flex-direction: column arriba, ajusta esto */
+    /* margin-top: 0.5rem; */
+    gap: 5px; /* Reduce gap entre nombre y acciones */
   }
-}
-.divider {
-  height: 1px;
-  background-color: var(--cWhiteV1);
-  width: 100%;
-  margin: 8px 0;
+
+  .file-name {
+      font-size: 0.8rem; /* Nombre un poco más pequeño */
+      /* max-width: 150px; /* Ajusta max-width si es necesario */
+  }
+
+  .icon-button {
+      padding: 2px; /* Padding más pequeño para iconos */
+  }
 }

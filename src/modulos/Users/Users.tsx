@@ -7,16 +7,16 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import RenderView from "./RenderView";
+import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import RenderForm from "./RenderForm";
+import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 
 const paramsInitial = {
-  perPage: 10,
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -30,7 +30,7 @@ const Users = () => {
     plural: "Administradores",
     filter: true,
     permiso: "",
-    export: true,
+    //export: true,
     // import: true,
     renderView: (props: {
       open: boolean;
@@ -198,7 +198,7 @@ const Users = () => {
         form: {
           type: "select",
           optionsExtra: "roles",
-          optionLabel: "description",
+          optionLabel: "name",
           optionValue: "id",
         },
 
@@ -210,7 +210,7 @@ const Users = () => {
                 {
                   props?.extraData?.roles.find(
                     (i: any) => i.id === props.item.role_id
-                  )?.description
+                  )?.name
                 }
               </div>
             );

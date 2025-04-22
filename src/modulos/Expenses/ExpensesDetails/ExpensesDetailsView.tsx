@@ -232,84 +232,88 @@ const ExpensesDetails = ({data, setOpenDetail}:any) => {
       </div>
       
       <LoadingScreen>
-        <div className={styles.dashboardContainer}>
-          <h1 className={styles.dashboardTitle}>
-            Expensas de {MONTHS[data?.month]} {data?.year}
-          </h1>
-          
-          <div className={styles.allStatsRow}>
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{statsData.totalUnits}</span>
-                <span className={styles.statLabel}>Unidades asignadas</span>
-              </div>
-              <div className={styles.statIconContainer}>
-                <IconUnidades className={styles.iconDefault} />
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{statsData.paidUnits}</span>
-                <span className={styles.statLabel}>Unidades al día</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
-                <IconUnidades className={styles.iconPaidColor} />
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{statsData.overdueUnits}</span>
-                <span className={styles.statLabel}>Unidades morosas</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
-                <IconUnidades className={styles.iconOverdueColor} />
-              </div>
-            </div>
+      <div className={styles.dashboardContainer}>
+           <h1 className={styles.dashboardTitle}>
+             Expensas de {MONTHS[data?.month]} {data?.year}
+           </h1>
 
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{formatNumber(statsData.totalAmount)}</span>
-                <span className={styles.statLabel}>Monto total de expensa</span>
-              </div>
-              <div className={styles.statIconContainer}>
-                <IconMonedas className={styles.iconDefault} />
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{formatNumber(statsData.paidAmount)}</span>
-                <span className={styles.statLabel}>Monto cobrado</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
-                <IconBilletera className={styles.iconPaidColor} />
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{formatNumber(statsData.penaltyAmount)}</span>
-                <span className={styles.statLabel}>Monto por multas</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconPenalty}`}>
-                <IconMultas className={styles.iconPenaltyColor} />
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{formatNumber(statsData.pendingAmount)}</span>
-                <span className={styles.statLabel}>Monto por cobrar</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
-                <IconHandcoin className={styles.iconOverdueColor} />
-              </div>
-            </div>
-          </div>
-        </div>
-        
+           {/* CONTENEDOR ÚNICO PARA TODAS LAS TARJETAS */}
+           <div className={styles.allStatsRow}>
+               {/* Tarjeta 1 (antes en grupo izquierdo) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{statsData.totalUnits}</span>
+                   <span className={styles.statLabel}>Unidades asignadas</span>
+                 </div>
+                 <div className={styles.statIconContainer}>
+                   <IconUnidades className={styles.iconDefault} />
+                 </div>
+               </div>
+               {/* Tarjeta 2 (antes en grupo izquierdo) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{statsData.paidUnits}</span>
+                   <span className={styles.statLabel}>Unidades al día</span>
+                 </div>
+                 <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
+                   <IconUnidades className={styles.iconPaidColor} />
+                 </div>
+               </div>
+               {/* Tarjeta 3 (antes en grupo izquierdo) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{statsData.overdueUnits}</span>
+                   <span className={styles.statLabel}>Unidades morosas</span>
+                 </div>
+                 <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
+                   <IconUnidades className={styles.iconOverdueColor} />
+                 </div>
+               </div>
+
+               {/* Tarjeta 4 (antes en grupo derecho) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{formatNumber(statsData.totalAmount)}</span>
+                   <span className={styles.statLabel}>Monto total de expensa</span>
+                 </div>
+                 <div className={styles.statIconContainer}>
+                   <IconMonedas className={styles.iconDefault} />
+                 </div>
+               </div>
+               {/* Tarjeta 5 (antes en grupo derecho) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{formatNumber(statsData.paidAmount)}</span>
+                   <span className={styles.statLabel}>Monto cobrado</span>
+                 </div>
+                 <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
+                   <IconBilletera className={styles.iconPaidColor} />
+                 </div>
+               </div>
+               {/* Tarjeta 6 (antes en grupo derecho) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{formatNumber(statsData.penaltyAmount)}</span>
+                   <span className={styles.statLabel}>Monto por multas</span>
+                 </div>
+                 <div className={`${styles.statIconContainer} ${styles.iconPenalty}`}>
+                   <IconMultas className={styles.iconPenaltyColor} />
+                 </div>
+               </div>
+               {/* Tarjeta 7 (antes en grupo derecho) */}
+               <div className={styles.statCard}>
+                 <div className={styles.statContent}>
+                   <span className={styles.statValue}>{formatNumber(statsData.pendingAmount)}</span>
+                   <span className={styles.statLabel}>Monto por cobrar</span>
+                 </div>
+                 <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
+                   <IconHandcoin className={styles.iconOverdueColor} />
+                 </div>
+               </div>
+               {/* Fin de las tarjetas */}
+           </div> {/* Fin .allStatsRow */}
+         </div> {/* Fin .dashboardContainer */}
+
         <List onTabletRow={renderItem} />
       </LoadingScreen>
     </div>

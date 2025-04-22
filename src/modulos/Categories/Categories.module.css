@@ -454,6 +454,7 @@
   color: #ffffff !important;
   font-size: 16px !important;
   width: 100% !important;
+  cursor: pointer;
 }
 
 .customSelect:focus {

@@ -53,13 +53,37 @@
   margin-bottom: var(--spM);
 }
 
+/* Añadir esto a tu DefaultersView.module.css */
+
 .widgetsPanel {
-  display: flex;
-  flex-direction: row;
-  gap: var(--spM);
-  padding: var(--spM);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  width: 100%;
+  margin-right: 10px;
 }
 
+/* Media queries para hacer el panel de widgets responsivo */
+@media screen and (max-width: 992px) {
+  .widgetsPanel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .widgetsPanel {
+    grid-template-columns: 1fr;
+  }
+  
+  .rightPanel {
+    flex-direction: column;
+  }
+  
+  .graphPanel {
+    width: 100%;
+  }
+}
 /* Media queries para dispositivos móviles */
 @media (max-width: 1200px) {
   .rightPanel {

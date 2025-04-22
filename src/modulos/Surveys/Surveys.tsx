@@ -19,8 +19,8 @@ interface SurveyItem {
   name?: string;
   description?: string;
   status?: string;
-  begin_at?: string | null; 
-  end_at?: string | null;  
+  begin_at?: string | null;
+  end_at?: string | null;
   destiny?: string;
   is_mandatory?: string;
   squestions?: any[];
@@ -31,7 +31,7 @@ interface SurveyItem {
 
 const paramsInitial = {
   fullType: "L",
-  perPage: 10,
+  perPage: 20,
   page: 1,
   searchBy: "",
 };
@@ -39,12 +39,12 @@ const paramsInitial = {
 const Surveys = () => {
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const onHideActions = (item: SurveyItem) => {
     let hoy = new Date();
     hoy.setHours(hoy.getHours() - GMT);
     hoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    
+
     if (item?.end_at && new Date(item?.end_at) < hoy) {
       return { hideEdit: true, hideDel: true };
     }
@@ -54,7 +54,7 @@ const Surveys = () => {
     if (item?.begin_at && new Date(item?.begin_at) <= new Date())
       return { hideEdit: false, hideDel: true };
     if (!item?.begin_at) return { hideEdit: true, hideDel: true };
-    
+
     return {};
   };
 
@@ -82,10 +82,21 @@ const Surveys = () => {
       view: false,
       add: false,
       edit: false,
-      del: false
+      del: false,
     },
     search: true,
-    renderForm: (props: { onClose: any; open: any; item: any; setItem: any; errors: any; extraData: any; user: any; execute: any; setErrors: any; action: any; }) => {
+    renderForm: (props: {
+      onClose: any;
+      open: any;
+      item: any;
+      setItem: any;
+      errors: any;
+      extraData: any;
+      user: any;
+      execute: any;
+      setErrors: any;
+      action: any;
+    }) => {
       return (
         <RenderForm
           onClose={props.onClose}
@@ -102,31 +113,38 @@ const Surveys = () => {
         />
       );
     },
-    renderView: (props: { open: boolean; onClose: any; item: Record<string, any>; onConfirm?: Function; onEdit?: Function; extraData?: any; }) => <RenderView {...props} />,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      onEdit?: Function;
+      extraData?: any;
+    }) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
   };
 
   const getStatusLabel = (status: string): string => {
     const statusMap: Record<string, string> = {
-      "A": "Activa",
-      "I": "Inactiva",
-      "F": "Finalizada",
-      "D": "Borrador"
+      A: "Activa",
+      I: "Inactiva",
+      F: "Finalizada",
+      D: "Borrador",
     };
     return statusMap[status] || status;
   };
 
   const getDestinyLabel = (destiny: string): string => {
     const destinyMap: Record<string, string> = {
-      "T": "Todos",
-      "P": "Propietarios",
-      "R": "Residentes",
-      "A": "Administradores"    ,
-      "D": "Departamento"
+      T: "Todos",
+      P: "Propietarios",
+      R: "Residentes",
+      A: "Administradores",
+      D: "Departamento",
     };
     return destinyMap[destiny] || destiny;
   };
-  
+
   const renderState = (props: { item: SurveyItem }) => {
     let color = "var(--cWhite)";
     let texto = "Vigente";
@@ -174,7 +192,7 @@ const Surveys = () => {
         rules: ["validateIf:switch,Y", "required", "greaterDate"],
         api: "ae",
         label: "Fecha inicio",
-        form: { 
+        form: {
           onTop: () => {
             return (
               <p style={{ fontSize: 14, color: "var(--cBlackV2)" }}>
@@ -184,7 +202,8 @@ const Surveys = () => {
             );
           },
           type: "date",
-          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
+          onHide: (data: { item: { switch: string } }) =>
+            !data.item.switch || data.item.switch === "N",
           disabled: (item: SurveyItem) => {
             let hoy = new Date();
             hoy.setHours(hoy.getHours() - GMT);
@@ -197,10 +216,10 @@ const Surveys = () => {
         rules: [],
         api: "ae",
         label: "Fecha creación",
-        list: { 
+        list: {
           onRender: (props: { item: SurveyItem }) => {
             return <div>{getDateStrMes(props.item.created_at)}</div>;
-          }
+          },
         },
       },
       end_at: {
@@ -212,21 +231,21 @@ const Surveys = () => {
         ],
         api: "ae",
         label: "Fecha fin",
-        form: { 
+        form: {
           type: "date",
-          onHide: (data: { item: { switch: string; }; }) => !data.item.switch || data.item.switch === "N",
+          onHide: (data: { item: { switch: string } }) =>
+            !data.item.switch || data.item.switch === "N",
           keyLeft: "begin_at",
-          disabled: (item: SurveyItem) => 
+          disabled: (item: SurveyItem) =>
             !!(item.end_at && compareDate(item.end_at, new Date(), "<")),
         },
-
       },
-      
+
       name: {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        form: { 
+        form: {
           label: "Escribe tu pregunta",
           type: "text",
           disabled: (item: SurveyItem) => {
@@ -253,20 +272,20 @@ const Surveys = () => {
             );
           },
         },
-        list: { 
+        list: {
           onRender: (props: { item: SurveyItem }) => {
             return <div className={styles.surveyName}>{props.item.name}</div>;
-          }
+          },
         },
       },
-      
+
       description: {
         rules: ["required"],
         api: "ae",
         label: "Descripción",
         form: { type: "textarea" },
       },
-            
+
       switch: {
         rules: [],
         api: "ae",
@@ -274,30 +293,33 @@ const Surveys = () => {
         form: {
           precarga: "N",
           edit: {
-            precarga: (data: { data: { begin_at: any; }; }) => {
+            precarga: (data: { data: { begin_at: any } }) => {
               return data.data?.begin_at ? "Y" : "N";
             },
           },
         },
       },
-      
+
       creator: {
         rules: [""],
         api: "",
         label: "Creado por",
-        list: { 
-          
+        list: {
           onRender: (props: { item: SurveyItem }) => {
-            return <div>{props.item.user ? getFullName(props.item.user) : "Sin usuario"}</div>;
-          }
+            return (
+              <div>
+                {props.item.user ? getFullName(props.item.user) : "Sin usuario"}
+              </div>
+            );
+          },
         },
       },
-      
+
       destiny: {
         rules: ["required"],
         api: "ae",
         label: "Destinatarios",
-        form: { 
+        form: {
           type: "select",
           options: [
             { id: "T", name: "Todos" },
@@ -305,52 +327,52 @@ const Surveys = () => {
             { id: "R", name: "Residentes" },
             { id: "A", name: "Administradores" },
             { id: "D", name: "Departamento" },
-          ]
+          ],
         },
-        list: { 
+        list: {
           width: "120px",
           onRender: (props: { item: SurveyItem }) => {
             if (!props.item.destiny) return null;
             return <div>{getDestinyLabel(props.item.destiny)}</div>;
-          }
+          },
         },
       },
-      
+
       is_mandatory: {
         rules: ["required"],
         api: "ae",
         label: "Obligatoria",
-        form: { 
+        form: {
           type: "select",
           options: [
             { id: "Y", name: "Sí" },
-            { id: "N", name: "No" }
-          ]
+            { id: "N", name: "No" },
+          ],
         },
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: { item: SurveyItem }) => {
             return <div>{props.item.is_mandatory === "Y" ? "Sí" : "No"}</div>;
-          }
+          },
         },
       },
-      
+
       squestions_count: {
         rules: [""],
         api: "",
         label: "Preguntas",
-        list: { 
+        list: {
           width: "150px",
           onRender: (props: { item: SurveyItem }) => {
             return <div>{props.item.squestions?.length || 0} preguntas</div>;
-          }
+          },
         },
       },
-      
+
       votes: {
         label: "Votos",
       },
-      
+
       type: {
         label: "Tipo",
         /*list: {
@@ -367,34 +389,37 @@ const Surveys = () => {
           onRender: renderState,
         },
       },
-      
- 
+
       status: {
         rules: ["required"],
         api: "ae",
         label: "Estado",
-        form: { 
+        form: {
           type: "select",
           options: [
             { id: "A", name: "Activa" },
             { id: "I", name: "Inactiva" },
             { id: "F", name: "Finalizada" },
-            { id: "D", name: "Borrador" }
-          ]
+            { id: "D", name: "Borrador" },
+          ],
         },
-        list: { 
+        list: {
           width: "100px",
           onRender: (props: { item: SurveyItem }) => {
             if (!props.item.status) return null;
             return (
-              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
+              <div
+                className={`${styles.statusBadge} ${
+                  styles[`status${props.item.status}`]
+                }`}
+              >
                 {getStatusLabel(props.item.status)}
               </div>
             );
-          }
+          },
         },
       },
-      
+
       questions: {
         rules: [],
         api: "ae",
@@ -415,7 +440,7 @@ const Surveys = () => {
     onView,
     reLoad,
     execute,
-    extraData
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -435,16 +460,14 @@ const Surveys = () => {
     onView(item);
   };
 
-  const renderItem = (
-    item: SurveyItem,
-    i: number,
-    onClick: Function
-  ) => {
+  const renderItem = (item: SurveyItem, i: number, onClick: Function) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
         <ItemList
           title={item.name}
-          subtitle={`${item.description} - ${item.status ? getStatusLabel(item.status) : ''}`}
+          subtitle={`${item.description} - ${
+            item.status ? getStatusLabel(item.status) : ""
+          }`}
           variant="V1"
           active={selItem && selItem.id === item.id}
         />
@@ -453,14 +476,11 @@ const Surveys = () => {
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-  
+
   return (
     <div className={styles.surveysContainer}>
       <h1 className={styles.title}>Encuestas</h1>
-      <List 
-        onTabletRow={renderItem}
-        onRowClick={handleRowClick} 
-      />
+      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
     </div>
   );
 };

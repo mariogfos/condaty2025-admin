@@ -1,0 +1,27 @@
+
+
+
+
+.renderView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spS);
+
+     & > div {
+        /* background-color: aqua; */
+        display: flex;
+        flex-direction: column;
+        gap: var(--spS);
+        & > div {
+            /* background-color: blue; */
+            display: flex;
+            justify-content: space-between;
+            & > span:nth-child(2)  {
+              color:var(--cWhite);
+            }
+        }
+     }
+  
+  
+  
+}

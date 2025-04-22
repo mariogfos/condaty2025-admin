@@ -16,20 +16,24 @@ interface HistoryPaymentsProps {
 
 const getStatus = (status: string) => {
   const statusMap: Record<string, string> = {
-    "A": "Por Pagar",
-    "E": "Por subir comprobante",
-    "P": "Pagado",
-    "S": "Por confirmar",
-    "M": "Moroso",
-    "R": "Rechazado"
+    A: "Por Pagar",
+    E: "Por subir comprobante",
+    P: "Pagado",
+    S: "Por confirmar",
+    M: "Moroso",
+    R: "Rechazado",
   };
   return statusMap[status] || status;
 };
 
-const HistoryPayments = ({ paymentsData, open, close }: HistoryPaymentsProps) => {
+const HistoryPayments = ({
+  paymentsData,
+  open,
+  close,
+}: HistoryPaymentsProps) => {
   const [params, setParams] = useState({
-    perPage: 10,
-    page: 1
+    perPage: 20,
+    page: 1,
   });
 
   const [typeSearch, setTypeSearch] = useState("P");
@@ -42,9 +46,10 @@ const HistoryPayments = ({ paymentsData, open, close }: HistoryPaymentsProps) =>
   const endIndex = startIndex + params.perPage;
 
   // Filtra los datos según el tab seleccionado
-  const filteredData = paymentsData.filter(pago => 
-    (typeSearch === "P" && pago?.status === "P") || 
-    (typeSearch === "X" && pago?.status !== "P")
+  const filteredData = paymentsData.filter(
+    (pago) =>
+      (typeSearch === "P" && pago?.status === "P") ||
+      (typeSearch === "X" && pago?.status !== "P")
   );
 
   // Pagina los datos filtrados
@@ -80,8 +85,8 @@ const HistoryPayments = ({ paymentsData, open, close }: HistoryPaymentsProps) =>
 
             <div className={styles.gridBody}>
               {paginatedData.map((pago, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={styles.gridRow}
                   onClick={() => {
                     if (pago.status === "A") {
@@ -95,24 +100,31 @@ const HistoryPayments = ({ paymentsData, open, close }: HistoryPaymentsProps) =>
                   <div className={styles.cell}>
                     {getDateStrMes(pago?.paid_at) || "-"}
                   </div>
-                  <div className={styles.cell}>
-                    {"Expensa"}
-                  </div>
+                  <div className={styles.cell}>{"Expensa"}</div>
                   {pago?.amount && pago?.penalty_amount ? (
                     <div className={styles.cell}>
-                      Bs {parseFloat(pago?.amount) + parseFloat(pago?.penalty_amount)}
+                      Bs{" "}
+                      {parseFloat(pago?.amount) +
+                        parseFloat(pago?.penalty_amount)}
                     </div>
                   ) : (
                     <EmptyData className={styles.emptyCell} message="-" />
                   )}
                   <div className={styles.cell}>
-                    {pago?.payment?.type === "Q" ? "Qr" :
-                     pago?.payment?.type === "T" ? "Transferencia" :
-                     pago?.payment?.type === "O" ? "Pago en oficina" :
-                     "Sin pago"}
+                    {pago?.payment?.type === "Q"
+                      ? "Qr"
+                      : pago?.payment?.type === "T"
+                      ? "Transferencia"
+                      : pago?.payment?.type === "O"
+                      ? "Pago en oficina"
+                      : "Sin pago"}
                   </div>
                   <div className={styles.cell}>
-                    <span className={`${styles.status} ${styles[`status${pago?.status}`]}`}>
+                    <span
+                      className={`${styles.status} ${
+                        styles[`status${pago?.status}`]
+                      }`}
+                    >
                       {getStatus(pago?.status)}
                     </span>
                   </div>
@@ -129,22 +141,21 @@ const HistoryPayments = ({ paymentsData, open, close }: HistoryPaymentsProps) =>
         </div>
 
         <div className={styles.footer}>
-  <div className={styles.paginationWrapper}>
-    <div className={styles.totalItems}>
-      Total {filteredData.length} items
-    </div>
-    <Pagination
-      currentPage={params.page}
-      onPageChange={(page) => setParams({...params, page})}
-      totalPages={Math.ceil(filteredData.length / params.perPage)}
-      previousLabel=""
-      nextLabel=""
-      params={params}
-      setParams={setParams}
-    />
-  </div>
-
-</div>
+          <div className={styles.paginationWrapper}>
+            <div className={styles.totalItems}>
+              Total {filteredData.length} items
+            </div>
+            <Pagination
+              currentPage={params.page}
+              onPageChange={(page) => setParams({ ...params, page })}
+              totalPages={Math.ceil(filteredData.length / params.perPage)}
+              previousLabel=""
+              nextLabel=""
+              params={params}
+              setParams={setParams}
+            />
+          </div>
+        </div>
       </div>
     </DataModal>
   );
