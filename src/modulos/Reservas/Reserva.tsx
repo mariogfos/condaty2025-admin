@@ -66,7 +66,7 @@ const Reserva = () => {
           onRender: (props: any) => {
             // Guarda el área y el nombre en variables con comprobación
             const area = props?.item?.area;
-            const areaName = area?.name; // Acceso seguro a 'name'
+            const areaName = area?.title; // Acceso seguro a 'name'
             const imageUrl = area?.images?.[0]
               ? getUrlImages(
                   `/AREA-${area.images[0].area_id}-${area.images[0].id}.webp?d=${area.updated_at}`
