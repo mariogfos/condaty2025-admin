@@ -168,9 +168,15 @@ export const checkRulesFields = (
       const [ruleName, ruleActions] = rule.split("*");
       if (!ruleName || (ruleActions && !ruleActions.includes(action[0])))
         continue;
+      const rName = (ruleName + ":").split(":")[0];
+      console.log(rName, "rName", data);
+      if (rName == "_disabled_" && data["_disabled"] === true) {
+        detener = true;
+        // errors[key] = "";
+        continue;
+      }
 
       const error = validRule(data[key], ruleName, data, key, execute);
-      const rName = (ruleName + ":").split(":")[0];
 
       if (rName === "validateIf" && error) {
         detener = true;
