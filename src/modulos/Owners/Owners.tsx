@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps    xom */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Owners.module.css";
 import RenderItem from "../shared/RenderItem";
@@ -150,7 +150,7 @@ const Owners = () => {
         },
       },
       password: {
-        rules: ["required*add"],
+        rules: ["_disabled_", "required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -308,6 +308,7 @@ const Owners = () => {
     onDel,
     showToast,
     execute,
+    errors,
   } = useCrud({
     paramsInitial,
     mod,

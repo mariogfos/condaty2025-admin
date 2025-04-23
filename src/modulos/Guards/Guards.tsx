@@ -3,7 +3,7 @@
 import styles from "./Guards.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -66,6 +66,47 @@ const Guards = () => {
     // hideActions: { add: true },
   };
 
+  const onBlurCi = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "") return;
+    const { data, error } = await execute(
+      "/guards",
+      "GET",
+      {
+        _exist: 1,
+        ci: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data?.data?.length > 0) {
+      const filteredData = data.data;
+      props.setItem({
+        ...props.item,
+        ci: filteredData[0].ci,
+        name: filteredData[0].name,
+        middle_name: filteredData[0].middle_name,
+        last_name: filteredData[0].last_name,
+        mother_last_name: filteredData[0].mother_last_name,
+        email: filteredData[0].email,
+        phone: filteredData[0].phone,
+        _disabled: true,
+      });
+      showToast(
+        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
+    } else {
+      props.setItem({
+        ...props.item,
+        _disabled: false,
+      });
+      //no existe
+    }
+  }, []);
+  const onDisbled = ({ item }: any) => {
+    return item._disabled;
+  };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -112,7 +153,6 @@ const Guards = () => {
         list: true,
       },
       avatar: {
-        
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
@@ -124,7 +164,7 @@ const Guards = () => {
         },
       },
       password: {
-        rules: ["required*add"],
+        rules: ["_disabled_", "required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -158,8 +198,9 @@ const Guards = () => {
                     label="Carnet de Identidad"
                     error={props.error}
                     disabled={props?.field?.action === "edit"}
+                    onBlur={(e: any) => onBlurCi(e, props)}
                   />
-                  {props?.field?.action === "add" && (
+                  {props?.field?.action === "add" && !props.item._disabled && (
                     <InputPassword
                       name="password"
                       value={props?.item?.password}
@@ -183,6 +224,7 @@ const Guards = () => {
         form: {
           type: "text",
           style: { width: "49%" },
+          disabled: onDisbled,
         },
 
         list: false,
@@ -191,27 +233,27 @@ const Guards = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" } },
+        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
         list: false,
       },
       last_name: {
         rules: ["required"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" } },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" } },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       phone: {
         api: "ae",
         label: "Celular",
-        form: { type: "text" },
+        form: { type: "text", disabled: onDisbled },
         list: { width: "110px" },
       },
       email: {
@@ -220,6 +262,7 @@ const Guards = () => {
         label: "Correo electrónico",
         form: {
           type: "text",
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },
@@ -230,6 +273,7 @@ const Guards = () => {
         label: "Domicilio",
         form: {
           type: "text",
+          disabled: onDisbled,
         },
         list: { width: "180px" },
       },

@@ -132,6 +132,8 @@ type UseCrudType = {
   searchs: any;
   setSearchs: Function;
   data: any;
+  loaded: boolean;
+  setAction: Function;
   reLoad: Function;
   execute: Function;
   userCan: Function;
@@ -170,7 +172,7 @@ const useCrud = ({
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
 
-  const { data, reLoad, execute } = useAxios(
+  const { data, reLoad, execute, loaded } = useAxios(
     "/" + mod.modulo,
     "GET",
     params,
@@ -1336,6 +1338,8 @@ const useCrud = ({
     searchs,
     setSearchs,
     data,
+    loaded,
+    setAction,
     reLoad,
     execute,
     userCan,
