@@ -129,22 +129,22 @@ const BalanceGeneral: React.FC = () => {
   });
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
-  const [lcategories, setLcategories] = useState<CategoryOption[]>([]);
+  // const [lcategories, setLcategories] = useState<CategoryOption[]>([]);
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [formState, setFormState] = useState<FormStateType>({});
 
-  const { data: categories } = useAxios("/categories", "GET", {
-    perPage: -1,
-    page: 1,
-    fullType: "OC", //OC = only categories
-  });
+  // const { data: categories } = useAxios("/categories", "GET", {
+  //   perPage: -1,
+  //   page: 1,
+  //   fullType: "OC", //OC = only categories
+  // });
 
-  const { data: categoriesI } = useAxios("/categories", "GET", {
-    perPage: -1,
-    page: 1,
-    fullType: "OC", //lista de categorias con hijos
-    type: "I",
-  });
+  // const { data: categoriesI } = useAxios("/categories", "GET", {
+  //   perPage: -1,
+  //   page: 1,
+  //   fullType: "OC", //lista de categorias con hijos
+  //   type: "I",
+  // });
 
   const { data: finanzas, reLoad: reLoadFinanzas } = useAxios(
     "/balances",
@@ -174,11 +174,11 @@ const BalanceGeneral: React.FC = () => {
         { id: "line" as ChartType, name: "Linea" },
       ]);
     } else {
-      if (formStateFilter.filter_mov === "I") {
-        setLcategories(categoriesI?.data || []);
-      } else {
-        setLcategories(categories?.data || []);
-      }
+      // if (formStateFilter.filter_mov === "I") {
+      //   setLcategories(finanzas?.data?.categI || []);
+      // } else {
+      //   setLcategories(finanzas?.data?.categE || []);
+      // }
       setCharType({ filter_charType: "bar" as ChartType });
       setLchars([
         { id: "bar" as ChartType, name: "Barra" },
@@ -186,8 +186,7 @@ const BalanceGeneral: React.FC = () => {
         { id: "line" as ChartType, name: "Linea" },
       ]);
     }
-  }, [formStateFilter, categoriesI, categories]);
-
+  }, [formStateFilter]);
   const ldate = [
     { id: "m", name: "Este Mes" },
     { id: "lm", name: "Ant. Mes" },
@@ -248,8 +247,15 @@ const BalanceGeneral: React.FC = () => {
     setErrors({});
   };
 
-  console.log(formStateFilter.filter_date[0], "formStateFilter.filter_date");
-
+  const getCategories = () => {
+    let data = [];
+    if (formStateFilter.filter_mov === "I") {
+      data = finanzas?.data?.categI || [];
+    } else {
+      data = finanzas?.data?.categE || [];
+    }
+    return data;
+  };
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -319,7 +325,7 @@ const BalanceGeneral: React.FC = () => {
                     filter_categ: e.target.value,
                   });
                 }}
-                options={lcategories}
+                options={getCategories()}
                 required
                 iconLeft={<IconArrowDown />}
               />
