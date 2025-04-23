@@ -14,6 +14,7 @@ import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
+import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -30,6 +31,7 @@ const Guards = () => {
     filter: true,
     permiso: "",
     export: true,
+    // noWaiting: true,
     // import: true,
     renderView: (props: {
       open: boolean;
@@ -38,7 +40,19 @@ const Guards = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
-    
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      mod: ModCrudType;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+
+    }) => {
+      return (
+        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
+      );
+    },
     // renderForm: (props: {
     //   item: any;
     //   setItem: any;
@@ -125,7 +139,7 @@ const Guards = () => {
           type: "number",
           label: "Cédula de identidad",
           onRender: (props: any) => {
-            console.log(props, "propsval");
+            // console.log(props, "propsval");
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
@@ -235,6 +249,7 @@ const Guards = () => {
     onEdit,
     onDel,
     showToast,
+    
     execute,
     reLoad,
     getExtraData,
