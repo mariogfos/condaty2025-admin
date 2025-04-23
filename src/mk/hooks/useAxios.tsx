@@ -54,9 +54,9 @@ const useAxios = (
     notWaiting = false
   ) => {
     setError("");
+    setLoaded(false);
     if (!notWaiting) {
       setWaiting(1, "execute:" + _url);
-      setLoaded(false);
     }
     if (_method == "GET" && payload) {
       _url = _url + "?" + new URLSearchParams(payload).toString();
@@ -85,9 +85,9 @@ const useAxios = (
       };
       setError(error);
     } finally {
+      setLoaded(true);
       if (!notWaiting) {
         setWaiting(-1, "-execute:" + _url);
-        setLoaded(true);
       }
     }
 
