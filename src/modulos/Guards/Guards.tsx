@@ -149,7 +149,7 @@ const Guards = () => {
         },
       },
       password: {
-        rules: ["required*add"],
+        rules: ["_disabled_", "required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
