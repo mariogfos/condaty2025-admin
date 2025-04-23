@@ -111,8 +111,8 @@ const MainMenu = ({
             icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
-              { href: "/events", label: "Eventos" },
-              { href: "/surveys", label: "Encuestas" },
+              // { href: "/events", label: "Eventos" },
+              // { href: "/surveys", label: "Encuestas" },
               { href: "/alerts", label: "Alertas" },
             ]}
             collapsed={collapsed}
