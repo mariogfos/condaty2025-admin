@@ -47,7 +47,8 @@ const Owners = () => {
       extraData?: Record<string, any>;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose} modName='residente' />
+        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
+
       );
     }
     // extraData: true,
@@ -306,6 +307,7 @@ const Owners = () => {
     searchs,
     onEdit,
     onDel,
+    reLoad,
     showToast,
     execute,
     errors,
