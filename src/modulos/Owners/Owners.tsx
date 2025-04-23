@@ -153,7 +153,6 @@ const Owners = () => {
           onRender: (props: any) => {
             return (
               <fieldset className={styles.fieldSet}>
-                {JSON.stringify(props.error)}
                 <div>
                   <div>Información de acceso</div>
                   <div>

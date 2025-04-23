@@ -3,9 +3,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
-import useCrudUtils from "../shared/useCrudUtils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 
@@ -210,15 +208,6 @@ const HomeOwners = () => {
     paramsInitial,
     mod,
     fields,
-  });
-
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
