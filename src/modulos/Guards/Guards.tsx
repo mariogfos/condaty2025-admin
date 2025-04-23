@@ -54,7 +54,7 @@ const Guards = () => {
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
     const { data, error } = await execute(
-      "/users",
+      "/guards",
       "GET",
       {
         _exist: 1,
