@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./UnitsType.module.css";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
 const mod = {
   modulo: "types",
@@ -180,7 +181,13 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-        {loaded ? <div>qsas</div> :  <List onTabletRow={renderItem} /> }
+      {!loaded ? (
+        <LoadingScreen loaded={false} type="TableSkeleton" onlyLoading/>
+      ) : (
+
+        <List onTabletRow={renderItem} />
+      
+      )}
     </div>
   );
 };

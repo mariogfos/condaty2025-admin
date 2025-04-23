@@ -9,6 +9,7 @@ interface PropsType {
   children?: any;
   loaded?: any; // Indicates if the data is loaded
   onlyLoading?: boolean; // If true, shows only loading animation
+  circle?: boolean;
 }
 
 const LoadingScreen = ({
@@ -17,11 +18,12 @@ const LoadingScreen = ({
   children = null,
   loaded,
   onlyLoading = false, // Default is false
+  circle = false,
 }: PropsType) => {
   const { waiting }: any = useContext(AxiosContext);
 
   // If onlyLoading is true, show the loading animation while data is not loaded
-  if (onlyLoading && !loaded) {
+  if (onlyLoading && !loaded && circle) {
     return (
       <div className={styles.loadingScreen + " " + className}>
         <div>
@@ -30,7 +32,11 @@ const LoadingScreen = ({
       </div>
     );
   }
-
+  if (onlyLoading && !loaded ) {
+   
+      return <SkeletonAdapterComponent type={type} />;
+  
+  }
   // If data is loaded or there are no pending requests, render the children
   if (loaded || waiting === 0) {
     return children;
