@@ -83,9 +83,9 @@ const Alerts = () => {
                 <Avatar
                   src={getUrlImages(
                     "/GUARD-" +
-                      props?.item?.guardia.id +
+                      props?.item?.guardia?.id +
                       ".webp?d=" +
-                      props?.item?.guardia.updated_at
+                      props?.item?.guardia?.updated_at
                   )}
                   name={getFullName(props?.item.guardia)}
                   square

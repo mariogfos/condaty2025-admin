@@ -31,7 +31,7 @@ const RenderView = (props: {
         {/* Imagen de seguridad/guardia */}
         <div className={styles.avatarSection}>
           <Avatar
-            src={getUrlImages("/GUARD-" + props?.item?.guard_id + ".webp?d=" + props?.item?.guardia.updated_at)}
+            src={getUrlImages("/GUARD-" + props?.item?.guard_id + ".webp?d=" + props?.item?.guardia?.updated_at)}
             name={props?.item?.guard_name || "Guardia"}
             w={100}
             h={100}
