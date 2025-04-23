@@ -14,6 +14,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -39,6 +40,19 @@ const Users = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      mod: ModCrudType;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+      onDel: Function;
+    }) => {
+      return (
+        <UnlinkModal open={props.open} onClose={props.onClose} mod={mod} item={props.item} reLoad={reLoad} />
+      );
+    },
     // renderForm: (props: {
     //   item: any;
     //   setItem: any;

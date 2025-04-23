@@ -40,7 +40,7 @@ const UnlinkModal = ({open, onClose, mod, item ,reLoad}:any) => {
       buttonCancel="" 
       onSave={onSave}
     >
-      <h2>¿Estás seguro de eliminar el {mod.singular.toLowerCase()}?</h2>
+      <h2 style={{color:'var(--cWhiteV1)'}}>¿Estás seguro de eliminar el {mod.singular.toLowerCase()}?</h2>
       <p>
         Recuerda que al momento de eliminar esta información ya no podrás recuperarla.
       </p>
