@@ -25,7 +25,6 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const type = searchParams?.get("type");
-
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -52,7 +51,8 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     const isActive = items.some(
       (item) =>
         pathname === item.href ||
-        (pathname === "/categories" && item.href === "/payments")
+        (pathname === "/categories" && item.href === "/payments") ||
+        (item.href === "/units" && pathname.startsWith("/dashDpto/"))
     );
     setIsRouteActive(isActive);
 
@@ -88,6 +88,9 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
       item.href === "/outlays" &&
       type === "E"
     ) {
+      return true;
+    }
+    if (item.href === "/units" && pathname.startsWith("/dashDpto/")) {
       return true;
     }
     return false;
