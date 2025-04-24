@@ -23,6 +23,8 @@ type useInstantDbType = {
   sendMessage: SendMessageType;
   sendEmoticon: SendEmoticonType;
   readMessage: Function;
+  receivedMessage: Function;
+  db: any;
   showToast: Function;
   chats: any;
   user: any;
@@ -219,6 +221,24 @@ const useInstandDB = (): useInstantDbType => {
     [user?.id]
   );
 
+  const receivedMessage = useCallback(
+    async (msgsReceived: any[]) => {
+      if (msgsReceived?.length > 0) {
+        const now = Date.now();
+        msgsReceived?.map((m: any) => {
+          if (m.sender !== user.id && !m.received_at && !m.read_at) {
+            db.transact(
+              db.tx.messages[m.id].update({
+                received_at: now,
+              })
+            );
+          }
+        });
+      }
+    },
+    [user?.id]
+  );
+
   const uploadImageInstantDB = async (
     file: File,
     roomId: string,
@@ -244,14 +264,14 @@ const useInstandDB = (): useInstantDbType => {
     }
   };
   const sendMessage: SendMessageType = useCallback(
-    async (text: string, roomId: string, file?: File) => {
+    async (text, roomId, userId, file) => {
       if (text.trim() || file) {
         setSending(true);
         const _id = id();
         const now = Date.now();
         const msg = {
           text,
-          sender: user.id,
+          sender: userId || user.id,
           roomId,
           created_at: now,
         };
@@ -336,6 +356,7 @@ const useInstandDB = (): useInstantDbType => {
       sendMessage,
       sendEmoticon,
       readMessage,
+      receivedMessage,
       chats,
       user,
       usersChat: [
@@ -354,6 +375,7 @@ const useInstandDB = (): useInstantDbType => {
       showToast,
       typing,
       sending,
+      db,
     }),
     [
       getNameRoom,
