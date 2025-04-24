@@ -236,12 +236,16 @@ const BalanceGeneral: React.FC = () => {
       return;
     }
 
-    if (formState.date_inicio && formState.date_fin) {
-      setFormStateFilter({
-        ...formStateFilter,
-        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
-      });
-    }
+// ESTA ES LA CORRECCIÓN
+if (formState.date_inicio && formState.date_fin) {
+  // Directamente usar las cadenas YYYY-MM-DD de los inputs
+  // No convertir a objeto Date para evitar problemas de zona horaria
+  setFormStateFilter({
+    ...formStateFilter,
+    // Usar los strings directamente tal como vienen del input type="date"
+    filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
+  });
+}
 
     setOpenCustomFilter(false);
     setErrors({});

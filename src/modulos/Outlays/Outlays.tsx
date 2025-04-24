@@ -124,7 +124,7 @@ const Outlays = () => {
         },
         list: {
           onRender: (props: any) => {
-            return props.item.category?.padre?.name || `sin datos disponibles`;
+            return props.item.category?.padre?.name || props.item.category?.name || `sin datos disponibles`;
           },
         },
         filter: {
