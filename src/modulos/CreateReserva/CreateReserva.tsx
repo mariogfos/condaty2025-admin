@@ -797,26 +797,55 @@ return (
           </div> // Fin Step 3
         )}
 
-        {/* === Acciones (Botones) === */}
-        <div className={styles.formActions}>
-           {/* Botón Atrás (visible desde paso 2 en adelante) */}
-           {currentStep > 1 && (
-            <button type="button" className={`${styles.button} ${styles.backBtn}`} onClick={prevStep} disabled={isSubmitting}>
-              Atras
-            </button>
-          )}
-          {/* Botón Siguiente/Continuar (visible hasta antes del último paso) */}
-          {currentStep < 3 ? (
-            <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting}>
-              {/* Cambia el texto en el paso 2 */}
-              {currentStep === 2 ? "Continuar" : "Siguiente"}
-            </button>
-          ) : (
-            // Botón Reservar (visible solo en el último paso)
-            <button type="button" className={`${styles.button} ${styles.submitBtn}`} onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? "Reservando..." : "Reservar"}
-            </button>
-          )}
+        {/* === Acciones (Botones) y Precio Condicional === */}
+    <div className={styles.formActions}> {/* CSS: justify-content: space-between; align-items: center; */}
+
+{/* --- Contenedor para Info de Precio (SOLO EN PASO 1) --- */}
+{currentStep === 1 && selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
+  <div className={styles.priceInfoBottom}>
+      <span className={styles.priceValueBottom}>
+        {selectedAreaDetails.is_free === 'X'
+          ? 'Gratis'
+          : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(2)}`
+        }
+      </span>
+  </div>
+)}
+        {/* Si no es paso 1 o no hay area, no muestra nada aquí (a la izquierda) */}
+        {/* Opcional: podrías poner un div vacío o un spacer si necesitas mantener el espacio */}
+        {currentStep !== 1 && <div style={{ flexGrow: 1 }}></div>} {/* Placeholder para empujar botones a la derecha en otros pasos */}
+        {/* --- FIN Contenedor Precio --- */}
+
+
+        {/* --- Contenedor para los Botones (siempre a la derecha) --- */}
+        <div className={styles.actionButtonsContainer}>
+            {/* Botón Atrás (visible desde paso 2 en adelante) */}
+            {currentStep > 1 && (
+              <button type="button" className={`${styles.button} ${styles.backBtn}`} onClick={prevStep} disabled={isSubmitting}>
+                Atras
+              </button>
+            )}
+            {/* Botón Siguiente (visible solo en Paso 1) */}
+            {currentStep === 1 && (
+              <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting || !selectedAreaDetails}>
+                Siguiente
+              </button>
+            )}
+            {/* Botón Continuar (visible solo en Paso 2) */}
+            {currentStep === 2 && (
+              <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting}>
+                Continuar
+              </button>
+            )}
+            {/* Botón Reservar (visible solo en el último paso - Paso 3) */}
+            {currentStep === 3 && (
+              <button type="button" className={`${styles.button} ${styles.submitBtn}`} onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? "Reservando..." : "Reservar"}
+              </button>
+            )}
+        </div>
+        {/* --- FIN Contenedor Botones --- */}
+
         </div>
 
       </div> {/* Fin formCard */}

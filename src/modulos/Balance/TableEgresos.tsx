@@ -63,7 +63,7 @@ const TableEgresos = ({
 
     subcategorias?.map((subcategoria: any) => {
       const categ = fData.find(
-        (categoria: any) => categoria.id == subcategoria.category_id
+        (categoria: any) => categoria.id == subcategoria.categ_id
       );
       if (!categ) return; // Protección contra valores nulos
       
