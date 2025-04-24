@@ -13,6 +13,7 @@ import { SendEmoticonType, SendMessageType } from "../chat-types";
 
 import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
+import { useChatProvider } from "../chatBot/useChatProvider";
 
 interface SelectedFile {
   file: File;
@@ -47,6 +48,7 @@ const ChatRoom = ({
   db,
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
+  const { sendMessageBot } = useChatProvider({ provider: "chatgpt" });
 
   const cancelUpload = () => {
     if (selectedFile) {
@@ -90,8 +92,8 @@ const ChatRoom = ({
           received_at: Date.now(),
         })
       );
-      // const reply = await sendMessageBot(newMessage);
-      const reply = "";
+      const reply = await sendMessageBot(newMessage);
+      // const reply = "";
       if (reply != "") {
         await sendMessage(reply, roomId, "chatBot");
         db.transact(
