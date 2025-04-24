@@ -134,7 +134,7 @@ const MainMenu = ({
           <MainmenuItem
             href="/reservas"
             label="Reservas"
-            icon={<IconCalendar/>}
+            icon={<IconCalendar />}
             collapsed={collapsed}
           />
 
