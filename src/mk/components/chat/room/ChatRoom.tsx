@@ -30,6 +30,7 @@ type ChatRoomPropsType = {
   typing: any;
   sending: boolean;
   readMessage: Function;
+  db: any;
 };
 
 const ChatRoom = ({
@@ -43,6 +44,7 @@ const ChatRoom = ({
   typing,
   sending,
   readMessage,
+  db,
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
 
@@ -54,16 +56,51 @@ const ChatRoom = ({
       setIsUploading(false);
     }
   };
+  // const handleSendMessage = async () => {
+  //   if (selectedFile) {
+  //     setIsUploading(true);
+  //     await sendMessage(newMessage, roomId, selectedFile.file);
+  //     cancelUpload();
+  //   } else {
+  //     sendMessage(newMessage, roomId);
+  //   }
+  //   setNewMessage("");
+  //   typing.inputProps.onBlur();
+  // };
+
   const handleSendMessage = async () => {
+    let msgId = 0;
     if (selectedFile) {
       setIsUploading(true);
-      await sendMessage(newMessage, roomId, selectedFile.file);
+      msgId = await sendMessage(
+        newMessage,
+        roomId,
+        user?.id,
+        selectedFile.file
+      );
       cancelUpload();
     } else {
-      sendMessage(newMessage, roomId);
+      msgId = await sendMessage(newMessage, roomId, user?.id);
     }
     setNewMessage("");
     typing.inputProps.onBlur();
+    if (roomId.indexOf("chatBot") > -1) {
+      db.transact(
+        db.tx.messages[msgId].update({
+          received_at: Date.now(),
+        })
+      );
+      // const reply = await sendMessageBot(newMessage);
+      const reply = "";
+      if (reply != "") {
+        await sendMessage(reply, roomId, "chatBot");
+        db.transact(
+          db.tx.messages[msgId].update({
+            read_at: Date.now(),
+          })
+        );
+      }
+    }
   };
 
   // Filtrar mensajes de la sala actual
