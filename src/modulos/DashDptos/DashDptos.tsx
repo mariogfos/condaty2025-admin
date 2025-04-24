@@ -68,7 +68,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
     fullType: "DET",
     dpto_id: id,
   });
-  
 
   const datas = dashData?.data || {};
 
@@ -146,44 +145,44 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   return (
     <div className={styles.container}>
-      <section style={{display:'flex',justifyContent:'flex-start'}} onClick={() => router.push("/dptos")}>
-
+      <section
+        style={{ display: "flex", justifyContent: "flex-start" }}
+        onClick={() => router.push("/units")}
+      >
         <HeadTitle
-                  className={styles.backButton}
-                  onBack={() => router.push("/dptos")}
-                  colorBack={'var(--accent)'}
-                />
+          className={styles.backButton}
+          onBack={() => router.push("/units")}
+          colorBack={"var(--accent)"}
+        />
 
         <span> Volver a sección unidades </span>
       </section>
       <section>
-
-   
-      <div className={styles.leftPanel}>
-        <LoadingScreen className={styles.loadingCard}>
-          <div className={styles.infoCard}>
-            {/* Cabecera */}
-            <div className={styles.cardHeader}>
-              <div className={styles.title}>
-                {/* <HeadTitle
+        <div className={styles.leftPanel}>
+          <LoadingScreen className={styles.loadingCard}>
+            <div className={styles.infoCard}>
+              {/* Cabecera */}
+              <div className={styles.cardHeader}>
+                <div className={styles.title}>
+                  {/* <HeadTitle
                   className={styles.backButton}
                   onBack={() => router.push("/dptos")}
                 /> */}
-                {tipoUnidad} {datas?.data?.nro}, {datas?.data?.description}
+                  {tipoUnidad} {datas?.data?.nro}, {datas?.data?.description}
+                </div>
               </div>
-            </div>
 
-            <div style={{display:'flex',marginBottom:'var(--spS)'}}>
+              <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
                 <Avatar
                   src={
                     datas?.data?.id
-                    ? getUrlImages(
+                      ? getUrlImages(
                           "/DPTO" +
                             "-" +
                             datas?.data?.id +
                             ".webp" +
                             (datas?.data?.updated_at
-                            ? "?d=" + datas?.data?.updated_at
+                              ? "?d=" + datas?.data?.updated_at
                               : "")
                         )
                       : ""
@@ -192,36 +191,42 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   w={40}
                   h={40}
                   square={true}
-                  />
-              <div style={{display:'flex',flexDirection:'column',marginLeft:8}}>
-                <span className={styles.value}>
-                  {datas?.data?.homeowner
-                    ? getFullName(datas?.data?.homeowner)
-                    : "Sin Propietario"}
-                </span>
-                    <span className={styles.label}>Propietario</span>
-              </div>
-            </div>    
-
-        <div style={{display:'flex'}}>
-            {/* Info Grid */}
-            <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Estado</span>
-                <span className={styles.value}>
-                  {datas?.data?.status
-                   ? getStatus(datas?.data?.status)
-                    : "Sin Estado"}
-                </span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Expensa</span>
-                <span className={styles.value}>
-                  {datas?.data?.expense_amount} Bs
-                </span>
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    marginLeft: 8,
+                  }}
+                >
+                  <span className={styles.value}>
+                    {datas?.data?.homeowner
+                      ? getFullName(datas?.data?.homeowner)
+                      : "Sin Propietario"}
+                  </span>
+                  <span className={styles.label}>Propietario</span>
+                </div>
               </div>
 
-             {/* campos extra 
+              <div style={{ display: "flex" }}>
+                {/* Info Grid */}
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Estado</span>
+                    <span className={styles.value}>
+                      {datas?.data?.status
+                        ? getStatus(datas?.data?.status)
+                        : "Sin Estado"}
+                    </span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Expensa</span>
+                    <span className={styles.value}>
+                      {datas?.data?.expense_amount} Bs
+                    </span>
+                  </div>
+
+                  {/* campos extra 
              {datas?.data?.field_values?.map((item:any)=> 
               <div className={styles.infoRow}>
                 <span className={styles.label}>{item.type_field?.name}</span>
@@ -230,222 +235,272 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 </span>
               </div>)} */}
 
-
-
-          
-              <div className={styles.infoRow}>
-                <span className={styles.label}>Dimensiones</span>
-                <span className={styles.value}>{datas?.data?.dimension} m</span>
-              </div>
-            </div>
-
-            {/* <div className={styles.divider} /> */}
-          <div style={{width:'100%'}}>
-            {/* Sección Titular */}
-            {!datas?.titular ? (
-              <div className={styles.emptyTitular}>
-                <EmptyData
-                  message="No existe titular registrado en esta casa"
-                  centered={false}
-                />
-                <Button
-                  className={styles.addButton}
-                  onClick={() => setOpenTitular(true)}
-                >
-                  Agregar Titular
-                </Button>
-              </div>
-            ) : (
-              <div className={styles.titularInfo}>
-                <Avatar
-                  src={
-                    datas?.titular?.id
-                      ? getUrlImages(
-                          "/OWNER" +
-                            "-" +
-                            datas?.titular?.id +
-                            ".webp" +
-                            (datas?.titular?.updated_at
-                              ? "?d=" + datas?.titular?.updated_at
-                              : "")
-                        )
-                      : ""
-                  }
-                  name={getFullName(datas?.titular)}
-                  w={80}
-                  h={80}
-                  square={true}
-                  onClick={() => {
-                    setIdPerfil(datas?.titular?.id);
-                    setOpenPerfil(true);
-                    setDataOw(datas?.titular);
-                  }}
-                />
-                <p className={styles.titularName}>
-                  {getFullName(datas?.titular)}
-                </p>
-                <p className={styles.titularLabel}>Titular</p>
-                <Button
-                  className={styles.changeButton}
-                  onClick={() => setOpenTitular(true)}
-                >
-                  Cambiar Titular
-                </Button>
-
-                <div className={styles.divider} />
-
-                {/* Info Titular */}
-                <div className={styles.titularData}>
-                  <p className={styles.titularDataLabel}>Carnet de identidad</p>
-                  <p className={styles.titularDataValue}>
-                    {datas?.titular?.ci}
-                  </p>
-
-                  <p className={styles.titularDataLabel}>Celular</p>
-                  <p className={styles.titularDataValue}>
-                    {datas?.titular?.phone}
-                  </p>
-
-                  <p className={styles.titularDataLabel}>Correo electrónico</p>
-                  <p className={styles.titularDataValue}>
-                    {datas?.titular?.email}
-                  </p>
+                  <div className={styles.infoRow}>
+                    <span className={styles.label}>Dimensiones</span>
+                    <span className={styles.value}>
+                      {datas?.data?.dimension} m
+                    </span>
+                  </div>
                 </div>
 
-                {/* Dependientes */}
-                {datas?.titular?.dependientes && (
-                  <div className={styles.dependentesSection}>
-                    <p className={styles.titularDataLabel}>Dependientes</p>
-                    <div className={styles.dependentesGrid}>
-                      {datas.titular.dependientes.length > 0 ? (
-                        datas.titular.dependientes.map(
-                          (dependiente: any, index: number) => (
+                {/* <div className={styles.divider} /> */}
+                <div style={{ width: "100%" }}>
+                  {/* Sección Titular */}
+                  {!datas?.titular ? (
+                    <div className={styles.emptyTitular}>
+                      <EmptyData
+                        message="No existe titular registrado en esta casa"
+                        centered={false}
+                      />
+                      <Button
+                        className={styles.addButton}
+                        onClick={() => setOpenTitular(true)}
+                      >
+                        Agregar Titular
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className={styles.titularInfo}>
+                      <Avatar
+                        src={
+                          datas?.titular?.id
+                            ? getUrlImages(
+                                "/OWNER" +
+                                  "-" +
+                                  datas?.titular?.id +
+                                  ".webp" +
+                                  (datas?.titular?.updated_at
+                                    ? "?d=" + datas?.titular?.updated_at
+                                    : "")
+                              )
+                            : ""
+                        }
+                        name={getFullName(datas?.titular)}
+                        w={80}
+                        h={80}
+                        square={true}
+                        onClick={() => {
+                          setIdPerfil(datas?.titular?.id);
+                          setOpenPerfil(true);
+                          setDataOw(datas?.titular);
+                        }}
+                      />
+                      <p className={styles.titularName}>
+                        {getFullName(datas?.titular)}
+                      </p>
+                      <p className={styles.titularLabel}>Titular</p>
+                      <Button
+                        className={styles.changeButton}
+                        onClick={() => setOpenTitular(true)}
+                      >
+                        Cambiar Titular
+                      </Button>
 
-                            
-                            <Tooltip key={index} title={getFullName(dependiente.owner)} position="top" className={styles.tooltip}>
-                            <Avatar
-                              key={index}
-                              src={
-                                dependiente.owner?.id
-                                 ? getUrlImages(
-                                      "/OWNER" +
-                                        "-" +
-                                        dependiente.owner?.id +
-                                        ".webp" +
-                                        (datas?.titular?.updated_at
-                                         ? "?d=" + datas?.titular?.updated_at
-                                          : "")
-                                    )
-                                  : ""
-                              }
-                              name={getFullName(dependiente.owner)}
-                              w={30}
-                              h={30}
-                              className={styles.dependentAvatar}
-                              onClick={() =>
-                                handleOpenPerfil(dependiente.owner_id)
-                              }
-                              square={true}
-                            />
-                            </Tooltip>
-                          )
-                        )
-                      ) : (
-                        <p className={styles.emptyMessage}>
-                          No tiene dependientes
+                      <div className={styles.divider} />
+
+                      {/* Info Titular */}
+                      <div className={styles.titularData}>
+                        <p className={styles.titularDataLabel}>
+                          Carnet de identidad
                         </p>
+                        <p className={styles.titularDataValue}>
+                          {datas?.titular?.ci}
+                        </p>
+
+                        <p className={styles.titularDataLabel}>Celular</p>
+                        <p className={styles.titularDataValue}>
+                          {datas?.titular?.phone}
+                        </p>
+
+                        <p className={styles.titularDataLabel}>
+                          Correo electrónico
+                        </p>
+                        <p className={styles.titularDataValue}>
+                          {datas?.titular?.email}
+                        </p>
+                      </div>
+
+                      {/* Dependientes */}
+                      {datas?.titular?.dependientes && (
+                        <div className={styles.dependentesSection}>
+                          <p className={styles.titularDataLabel}>
+                            Dependientes
+                          </p>
+                          <div className={styles.dependentesGrid}>
+                            {datas.titular.dependientes.length > 0 ? (
+                              datas.titular.dependientes.map(
+                                (dependiente: any, index: number) => (
+                                  <Tooltip
+                                    key={index}
+                                    title={getFullName(dependiente.owner)}
+                                    position="top"
+                                    className={styles.tooltip}
+                                  >
+                                    <Avatar
+                                      key={index}
+                                      src={
+                                        dependiente.owner?.id
+                                          ? getUrlImages(
+                                              "/OWNER" +
+                                                "-" +
+                                                dependiente.owner?.id +
+                                                ".webp" +
+                                                (datas?.titular?.updated_at
+                                                  ? "?d=" +
+                                                    datas?.titular?.updated_at
+                                                  : "")
+                                            )
+                                          : ""
+                                      }
+                                      name={getFullName(dependiente.owner)}
+                                      w={30}
+                                      h={30}
+                                      className={styles.dependentAvatar}
+                                      onClick={() =>
+                                        handleOpenPerfil(dependiente.owner_id)
+                                      }
+                                      square={true}
+                                    />
+                                  </Tooltip>
+                                )
+                              )
+                            ) : (
+                              <p className={styles.emptyMessage}>
+                                No tiene dependientes
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </div>
-                  </div>
+                  )}
+                </div>
+              </div>
+              <div
+                className={styles.viewMore}
+                onClick={() => setOpenTitularHist(true)}
+              >
+                Ver historial de titulares
+              </div>
+            </div>
+
+            <div className={styles.accountSection}>
+              <div className={styles.accountHeader}>
+                <h3 className={styles.accountTitle}>Historial de pagos</h3>
+                <span
+                  className={styles.viewMore}
+                  onClick={() => setOpenPaymentsHist(true)}
+                >
+                  Ver más
+                </span>
+              </div>
+              <div className={styles.accountContent}>
+                {!datas?.payments || datas.payments.length === 0 ? (
+                  <EmptyData
+                    message="No existe historial de pagos para esta unidad"
+                    centered={false}
+                  />
+                ) : (
+                  <Table
+                    header={[
+                      {
+                        key: "paid_at",
+                        label: "Fecha de pago",
+                        responsive: "desktop",
+                        onRender: ({ item }: any) => {
+                          return getDateStrMes(item?.paid_at) || "-";
+                        },
+                      },
+                      {
+                        key: "categorie",
+                        label: "Categoría",
+                        responsive: "desktop",
+                        onRender: ({ item }: any) => {
+                          return item?.payment?.categoryP?.name || "-";
+                        },
+                      },
+                      {
+                        key: "sub_categorie",
+                        label: "Sub Categoría",
+                        responsive: "desktop",
+                        onRender: ({ item }: any) => {
+                          return item?.payment?.category?.name || "-";
+                        },
+                      },
+                      {
+                        key: "amount",
+                        label: "Monto",
+                        responsive: "desktop",
+                        width: "100px",
+                        onRender: ({ item }: any) => {
+                          return item?.amount && item?.penalty_amount
+                            ? `Bs ${
+                                parseFloat(item?.amount) +
+                                parseFloat(item?.penalty_amount)
+                              }`
+                            : "-";
+                        },
+                      },
+                      {
+                        key: "type",
+                        label: "Tipo de pago",
+                        responsive: "desktop",
+                        onRender: ({ item }: any) => {
+                          //  console.log(item,'props desde render de qr');
+                          return item?.payment?.type === "Q"
+                            ? "Qr"
+                            : item?.payment?.type === "T"
+                            ? "Transferencia"
+                            : item?.payment?.type === "O"
+                            ? "Pago en oficina"
+                            : "Sin pago";
+                        },
+                      },
+                      // { key: 'penalty_amount', label: 'Mora', responsive: "desktop", width: '100px' },
+                      {
+                        key: "status",
+                        label: "Estado",
+                        width: "100px",
+                        responsive: "desktop",
+                        onRender: ({ item }: any) => {
+                          return (
+                            <span
+                              className={`${styles.status} ${
+                                styles[`status${item?.status}`]
+                              }`}
+                            >
+                              {getStatus(item?.status)}
+                            </span>
+                          );
+                        },
+                      },
+                    ]}
+                    data={datas?.payments?.slice(0, 4)}
+                    className="striped"
+                    onRowClick={(row) => {
+                      // console.log(row, 'row');
+                      // if (row.status.props.children === 'Por Pagar') {
+                      //   setOpenPagar(true);
+                      // } else {
+                      //   setOpenComprobante(true);
+                      //   setIdPago(row.payment_id);
+                      // }
+
+                      if (row.status === "A") {
+                        setOpenPagar(true);
+                      } else {
+                        setOpenComprobante(true);
+                        setIdPago(row.payment_id);
+                      }
+                    }}
+                  />
                 )}
               </div>
-            )}
             </div>
-          </div>
-          <div className={styles.viewMore}  onClick={() => setOpenTitularHist(true)}>Ver historial de titulares</div>
-          </div>
+          </LoadingScreen>
 
-          <div className={styles.accountSection}>
-          <div className={styles.accountHeader}>
-            <h3 className={styles.accountTitle}>Historial de pagos</h3>
-            <span
-              className={styles.viewMore}
-              onClick={() => setOpenPaymentsHist(true)}
-            >
-              Ver más
-            </span>
-          </div>
-          <div className={styles.accountContent}>
-
-
-
-            {(!datas?.payments || datas.payments.length === 0) ? (
-              <EmptyData
-              message="No existe historial de pagos para esta unidad"
-              centered={false}
-              />
-            ):
-            <Table
-              header={[
-                { key: 'paid_at', label: 'Fecha de pago', responsive: "desktop" ,onRender:({item}:any)=>{ return getDateStrMes(item?.paid_at) || '-'}},
-                { key: 'categorie',label:'Categoría', responsive: "desktop",onRender:({item}:any)=>{return item?.payment?.categoryP?.name || '-'} },
-                { key:'sub_categorie', label:'Sub Categoría', responsive: "desktop" ,onRender:({item}:any)=>{return item?.payment?.category?.name || '-'} },
-                { key: 'amount', label: 'Monto', responsive: "desktop", width: '100px',
-                  onRender: ({ item }: any) => {
-                   return item?.amount && item?.penalty_amount
-                      ? `Bs ${
-                          parseFloat(item?.amount) +
-                          parseFloat(item?.penalty_amount)
-                        }`
-                      : "-"
-                 },},
-                { key: 'type', label: 'Tipo de pago', responsive: "desktop" ,
-                   onRender:({item}:any)=>{
-                    //  console.log(item,'props desde render de qr');
-                   return item?.payment?.type === "Q"
-                    ? "Qr"
-                    :  item?.payment?.type === "T"
-                    ? "Transferencia"
-                    :  item?.payment?.type === "O"
-                    ? "Pago en oficina"
-                    : "Sin pago"}},
-                // { key: 'penalty_amount', label: 'Mora', responsive: "desktop", width: '100px' },
-                { key: 'status', label: 'Estado', width: '100px', responsive: "desktop", onRender:({item}:any)=>{ 
-                  return     <span className={`${styles.status} ${styles[`status${item?.status}`] }`}  >
-                  {getStatus(item?.status)}
-                </span>
-                }}
-              ]}
-              data={datas?.payments?.slice(0, 4)}
-              className="striped"
-              onRowClick={(row) => {
-                // console.log(row, 'row');
-                // if (row.status.props.children === 'Por Pagar') {
-                //   setOpenPagar(true);
-                // } else {
-                //   setOpenComprobante(true);
-                //   setIdPago(row.payment_id);
-                // }
-
-                if (row.status === 'A') {
-                  setOpenPagar(true);
-                } else {
-                  setOpenComprobante(true);
-                  setIdPago(row.payment_id);
-                }
-              }}
-            />
-          }
-          </div>
-        </div>
-
-
-        </LoadingScreen>
-
-
-
-        {/* Historial de Titulares Mini Lista */}
-        {/* <div className={styles.historySection}>
+          {/* Historial de Titulares Mini Lista */}
+          {/* <div className={styles.historySection}>
           <div className={styles.historyHeader}>
             <h3 className={styles.historyTitle}>Historial de Titulares</h3>
             <span
@@ -506,15 +561,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
             )}
           </div>
         </div> */}
+        </div>
 
-
-
-
-      </div>
-
-      <div className={styles.rightPanel}>
-        {/* Estado de Cuenta Mini Lista */}
-        {/* <div className={styles.accountSection}>
+        <div className={styles.rightPanel}>
+          {/* Estado de Cuenta Mini Lista */}
+          {/* <div className={styles.accountSection}>
           <div className={styles.accountHeader}>
             <h3 className={styles.accountTitle}>Historial de pagos</h3>
             <span
@@ -589,22 +640,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
         </div> */}
 
-        {/* Historial de Visitas Mini Lista */}
-        <div className={styles.visitsSection}>
-          <div className={styles.visitsHeader}>
-            <h3 className={styles.visitsTitle}>Historial de accesos</h3>
-            <span
-              className={styles.viewMore}
-              onClick={() => setOpenAccesos(true)}
-            >
-              Ver más
-            </span>
-          </div>
+          {/* Historial de Visitas Mini Lista */}
+          <div className={styles.visitsSection}>
+            <div className={styles.visitsHeader}>
+              <h3 className={styles.visitsTitle}>Historial de accesos</h3>
+              <span
+                className={styles.viewMore}
+                onClick={() => setOpenAccesos(true)}
+              >
+                Ver más
+              </span>
+            </div>
 
-
-
-
-        {/*   modo cards para otro sprint
+            {/*   modo cards para otro sprint
         
         {    !datas?.access || datas.access.length === 0 ? (
                 <EmptyData
@@ -633,154 +681,152 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </div>
           )))} */}
 
-
-
-
-          <div className={styles.visitsContent}>
-            <div className={styles.visitsGrid}>
-              <div>Nombre completo</div>
-              <div>Tipo de visita</div>
-              <div>Ingreso</div>
-              <div>Salida</div>
-            </div>
-            <div className={styles.visitsList}>
-              {!datas?.access || datas.access.length === 0 ? (
-                <EmptyData
-                  message="No existe historial de visitas para esta unidad"
-                  centered={false}
-                />
-              ) : (
-                datas.access.slice(0, 4).map((visita: any, index: number) => (
-                  <div key={index} className={styles.visitRow}>
-                    <div className={styles.visitorInfo}>
-                      <Avatar
-                        name={getFullName(visita.visit)}
-                        w={28}
-                        h={28}
-                        className={styles.visitorAvatar}
-                        square={true}
-                      />
+            <div className={styles.visitsContent}>
+              <div className={styles.visitsGrid}>
+                <div>Nombre completo</div>
+                <div>Tipo de visita</div>
+                <div>Ingreso</div>
+                <div>Salida</div>
+              </div>
+              <div className={styles.visitsList}>
+                {!datas?.access || datas.access.length === 0 ? (
+                  <EmptyData
+                    message="No existe historial de visitas para esta unidad"
+                    centered={false}
+                  />
+                ) : (
+                  datas.access.slice(0, 4).map((visita: any, index: number) => (
+                    <div key={index} className={styles.visitRow}>
+                      <div className={styles.visitorInfo}>
+                        <Avatar
+                          name={getFullName(visita.visit)}
+                          w={28}
+                          h={28}
+                          className={styles.visitorAvatar}
+                          square={true}
+                        />
+                        <div>
+                          <p className={styles.visitorName}>
+                            {getFullName(visita.visit)}
+                          </p>
+                          <p className={styles.visitorCI}>
+                            CI: {visita.visit?.ci}
+                          </p>
+                        </div>
+                      </div>
                       <div>
-                        <p className={styles.visitorName}>
-                          {getFullName(visita.visit)}
-                        </p>
-                        <p className={styles.visitorCI}>
-                          CI: {visita.visit?.ci}
-                        </p>
+                        {visita.type === "P" ? (
+                          "Pedido"
+                        ) : visita.type === "I" ? (
+                          "Individual"
+                        ) : visita.type === "G" ? (
+                          "Grupal"
+                        ) : visita.type === "C" ? (
+                          "Sin Qr"
+                        ) : (
+                          <EmptyData />
+                        )}
+                      </div>
+                      <div>
+                        {getDateTimeStrMes(visita.in_at) || "Sin fecha"}
+                      </div>
+                      <div>
+                        {getDateTimeStrMes(visita.out_at) || "Sin fecha"}
                       </div>
                     </div>
-                    <div>
-                      {visita.type === "P" ? (
-                        "Pedido"
-                      ) : visita.type === "I" ? (
-                        "Individual"
-                      ) : visita.type === "G" ? (
-                        "Grupal"
-                      ) : visita.type === "C" ? (
-                        "Sin Qr"
-                      ) : (
-                        <EmptyData />
-                      )}
-                    </div>
-                    <div>{getDateTimeStrMes(visita.in_at) || "Sin fecha"}</div>
-                    <div>{getDateTimeStrMes(visita.out_at) || "Sin fecha"}</div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      
+        {/* Modales */}
+        <DataModal
+          title="Cambiar de titular"
+          open={openTitular}
+          onSave={onSave}
+          onClose={() => setOpenTitular(false)}
+          buttonText="Guardar"
+        >
+          <div className={styles.modalContent}>
+            <Select
+              placeholder="Selecciona al nuevo titular"
+              name="owner_id"
+              error={errorsT.owner_id}
+              required={true}
+              value={formState.owner_id || ""}
+              onChange={(e) =>
+                setFormState({ ...formState, owner_id: e.target.value })
+              }
+              options={(datas?.owners || []).map((owner: any) => ({
+                ...owner,
+                name: `${getFullName(owner)}`,
+              }))}
+              optionLabel="name"
+              optionValue="id"
+              iconRight={<IconArrowDown />}
+            />
+          </div>
+        </DataModal>
+        {/* Modales de Historial */}
+        {openTitularHist && (
+          <HistoryOwnership
+            ownershipData={datas?.titularHist || []}
+            open={openTitularHist}
+            close={() => setOpenTitularHist(false)}
+          />
+        )}
 
-      {/* Modales */}
-      <DataModal
-        title="Cambiar de titular"
-        open={openTitular}
-        onSave={onSave}
-        onClose={() => setOpenTitular(false)}
-        buttonText="Guardar"
-      >
-        <div className={styles.modalContent}>
-        <Select
-          placeholder="Selecciona al nuevo titular"
-          name="owner_id"
-          error={errorsT.owner_id}
-          required={true}
-          value={formState.owner_id || ""}
-          onChange={(e) =>
-            setFormState({ ...formState, owner_id: e.target.value })
-          }
-          options={(datas?.owners || []).map((owner: any) => ({
-            ...owner,
-            name: `${getFullName(owner)}`,
-          }))}
-          optionLabel="name"
-          optionValue="id"
-          iconRight={<IconArrowDown />}
-        />
-        </div>
-      </DataModal>
-      {/* Modales de Historial */}
-      {openTitularHist && (
-        <HistoryOwnership
-          ownershipData={datas?.titularHist || []}
-          open={openTitularHist}
-          close={() => setOpenTitularHist(false)}
-        />
-      )}
+        {openPaymentsHist && (
+          <HistoryPayments
+            paymentsData={datas?.payments || []}
+            open={openPaymentsHist}
+            close={() => setOpenPaymentsHist(false)}
+          />
+        )}
 
-      {openPaymentsHist && (
-        <HistoryPayments
-          paymentsData={datas?.payments || []}
-          open={openPaymentsHist}
-          close={() => setOpenPaymentsHist(false)}
-        />
-      )}
+        {openAccesos && (
+          <HistoryAccess
+            accessData={datas?.access || []}
+            open={openAccesos}
+            close={() => setOpenAccesos(false)}
+          />
+        )}
 
-      {openAccesos && (
-        <HistoryAccess
-          accessData={datas?.access || []}
-          open={openAccesos}
-          close={() => setOpenAccesos(false)}
-        />
-      )}
+        {openComprobante && idPago && (
+          <RenderView
+            open={openComprobante}
+            onClose={() => {
+              setOpenComprobante(false);
+              setIdPago(null);
+            }}
+            // item={datas.payments?.find(
+            //   (pago: any) => pago?.payment?.id === idPago
+            // )?.payment || {}}
+            // id={idPago}
+            extraData={datas}
+            payment_id={idPago}
+          />
+        )}
 
-
-  {openComprobante && idPago && (
-    <RenderView
-      open={openComprobante}
-      onClose={() => {
-        setOpenComprobante(false);
-        setIdPago(null);
-      }}
-      // item={datas.payments?.find(
-      //   (pago: any) => pago?.payment?.id === idPago
-      // )?.payment || {}}
-      // id={idPago}
-      extraData={datas}
-      payment_id={idPago}
-    />
-  )}
-
-      {openPerfil && idPerfil && (
-        <OwnersRenderView
-          open={openPerfil}
-          onClose={() => {
-            setOpenPerfil(false);
-            setIdPerfil(null);
-          }}
-          item={
-            idPerfil === datas?.titular?.id
-              ? datas?.titular
-              : datas?.titular?.dependientes?.find(
-                  (dep: any) => dep.owner_id === idPerfil
-                )?.owner || {}
-          }
-          reLoad={reLoad}
-        />
-      )}
+        {openPerfil && idPerfil && (
+          <OwnersRenderView
+            open={openPerfil}
+            onClose={() => {
+              setOpenPerfil(false);
+              setIdPerfil(null);
+            }}
+            item={
+              idPerfil === datas?.titular?.id
+                ? datas?.titular
+                : datas?.titular?.dependientes?.find(
+                    (dep: any) => dep.owner_id === idPerfil
+                  )?.owner || {}
+            }
+            reLoad={reLoad}
+          />
+        )}
       </section>
     </div>
   );
@@ -788,30 +834,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
 export default DashDptos;
 
+// data={datas?.payments?.slice(0, 4).map((pago: any) =>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// data={datas?.payments?.slice(0, 4).map((pago: any) => 
-             
 //   {    console.log(pago,'pago desde data con '); return ({
 //   // fecha: getDateStrMes(pago?.paid_at) || '-',
 //   categoria: 'Expensa',

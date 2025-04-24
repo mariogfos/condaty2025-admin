@@ -163,7 +163,6 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
-            console.log(props, "props");
             return getFullName(props?.item?.homeowner) || "Sin propietario";
           },
         },
