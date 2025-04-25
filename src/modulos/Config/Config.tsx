@@ -65,8 +65,6 @@ const Config = () => {
     }
   }, [formState.payment_transfer_ci]);
 
-
-
   const validate = () => {
     let errors: any = {};
 
@@ -246,17 +244,21 @@ const Config = () => {
           setSel={setTypeSearch}
         />
       </div>
-      <LoadingScreen>
-        <div className="">
+
+      <div className="">
         {typeSearch == "M" && (
+          <LoadingScreen>
             <DefaulterConfig
               formState={formState}
               onChange={onChange}
               errors={errors}
               onSave={onSave}
             />
-          )}
-          {typeSearch == "P" && (
+          </LoadingScreen>
+        )}
+
+        {typeSearch == "P" && (
+          <LoadingScreen>
             <PaymentsConfig
               formState={formState}
               onChange={onChange}
@@ -264,8 +266,10 @@ const Config = () => {
               setErrors={setErrors}
               onSave={onSave}
             />
-          )}
-          {typeSearch == "C" && (
+          </LoadingScreen>
+        )}
+        {typeSearch == "C" && (
+          <LoadingScreen>
             <DptoConfig
               formState={formState}
               setFormState={setFormState}
@@ -275,14 +279,10 @@ const Config = () => {
               client_config={client_config}
               onSave={onSave}
             />
-          )}
-          {typeSearch == "T" &&
-             <UnitsType />
-
-          }
-     
-        </div>
-      </LoadingScreen>
+          </LoadingScreen>
+        )}
+        {typeSearch == "T" && <UnitsType />}
+      </div>
     </div>
   );
 };

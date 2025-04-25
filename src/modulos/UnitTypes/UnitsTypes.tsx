@@ -24,7 +24,7 @@ const mod = {
   },
   permiso: "",
   extraData: true,
-  noWaiting: true,
+  // noWaiting: true,
   renderForm: (props: {
     item: any;
     setItem: any;
@@ -144,13 +144,12 @@ const UnitsType = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel ,loaded} = useCrud(
-    {
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, loaded } =
+    useCrud({
       paramsInitial,
       mod,
       fields,
-    }
-  );
+    });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -181,13 +180,13 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      {!loaded ? (
+      {/* {!loaded ? (
         <LoadingScreen loaded={false} type="TableSkeleton" onlyLoading/>
-      ) : (
+      ) : ( */}
 
-        <List onTabletRow={renderItem} />
-      
-      )}
+      <List onTabletRow={renderItem} />
+
+      {/* )} */}
     </div>
   );
 };
