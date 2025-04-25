@@ -50,7 +50,13 @@ const Users = () => {
       onDel: Function;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose} mod={mod} item={props.item} reLoad={reLoad} />
+        <UnlinkModal
+          open={props.open}
+          onClose={props.onClose}
+          mod={mod}
+          item={props.item}
+          reLoad={reLoad}
+        />
       );
     },
     // renderForm: (props: {

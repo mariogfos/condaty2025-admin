@@ -54,8 +54,8 @@ const useAxios = (
     notWaiting = false
   ) => {
     setError("");
-    setLoaded(false);
     if (!notWaiting) {
+      setLoaded(false);
       setWaiting(1, "execute:" + _url);
     }
     if (_method == "GET" && payload) {
@@ -85,8 +85,8 @@ const useAxios = (
       };
       setError(error);
     } finally {
-      setLoaded(true);
       if (!notWaiting) {
+        setLoaded(true);
         setWaiting(-1, "-execute:" + _url);
       }
     }
