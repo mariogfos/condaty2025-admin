@@ -15,6 +15,7 @@ import ReservaModal from "./ReservaModal/ReservaModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
+import ReservationDetailModal from "./RenderView/RenderView";
 
 const mod = {
   modulo: "reservations",
@@ -23,7 +24,7 @@ const mod = {
   permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true, add: true },
-  renderView: (props: any) => <ReservaModal {...props} />,
+  renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
   // Esto cargará los detalles completos al hacer clic
 };
