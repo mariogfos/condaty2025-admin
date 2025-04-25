@@ -1,5 +1,6 @@
 import useAxios from "@/mk/hooks/useAxios";
-import { useState } from "react";
+import { useEvent } from "@/mk/hooks/useEvents";
+import { useCallback, useState } from "react";
 
 export type Provider = "chatgpt" | "deepseek";
 
@@ -15,6 +16,20 @@ export function useChatProvider({ provider, context }: UseChatProviderOptions) {
   const { execute } = useAxios();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const onClose = useCallback(
+    (roomId: any) => {
+      console.log("onClose", roomId);
+      if (roomId.indexOf("chatBot") > -1) {
+        setError(null);
+        setIsLoading(false);
+      }
+      execute("chatbot-clear", "POST", {}, false, true);
+    },
+    [execute]
+  );
+
+  useEvent("onChatCloseRoom", onClose);
 
   const sendMessage = async (content: string) => {
     setIsLoading(true);
