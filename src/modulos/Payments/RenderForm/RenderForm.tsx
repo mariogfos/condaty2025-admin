@@ -901,19 +901,34 @@ const handleSelectPeriodo = useCallback((periodo) => {
                                 onClick={() => handleSelectPeriodo(periodo)}
                                 className={styles["deuda-item"]}
                               >
+                                {/* Asegúrate de que este div tenga 5 hijos directos */}
                                 <div className={styles["deuda-row"]}>
+
+                                  {/* 1. Celda Periodo */}
                                   <div className={styles["deuda-cell"]}>
                                     {periodo.debt && typeof periodo.debt === 'object' && periodo.debt.month && periodo.debt.year
                                     ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
                                     : "N/A"}
                                   </div>
+
+                                  {/* 2. Celda Monto (¡ESTA FALTABA!) */}
                                   <div className={styles["deuda-cell"]}>
-                                  {"Bs " + (periodo.penalty_amount ?? 0)}
+                                    {"Bs " + (Number(periodo.amount ?? 0)).toFixed(2)} {/* Muestra el monto base */}
                                   </div>
+
+                                  {/* 3. Celda Multa */}
                                   <div className={styles["deuda-cell"]}>
-                                    {"Bs " + (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0))}
+                                    {"Bs " + (Number(periodo.penalty_amount ?? 0)).toFixed(2)} {/* Muestra la multa */}
                                   </div>
-                                  <div className={styles["deuda-check"]}>
+
+                                  {/* 4. Celda SubTotal */}
+                                  <div className={styles["deuda-cell"]}>
+                                    {"Bs " + (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)).toFixed(2)} {/* Calcula y muestra subtotal */}
+                                  </div>
+
+                                  {/* 5. Celda Seleccionar (Checkbox) */}
+                                  {/* Puedes aplicar ambas clases si ayuda o solo deuda-check si ya centra */}
+                                  <div className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}>
                                     {selectedPeriodo.some(
                                       (item) => item.id === periodo.id
                                     ) ? (
@@ -922,6 +937,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                                       <IconCheckOff className={styles["check-icon"]} />
                                     )}
                                   </div>
+
                                 </div>
                               </div>
                             ))}
