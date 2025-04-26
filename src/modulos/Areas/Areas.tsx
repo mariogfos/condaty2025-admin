@@ -1,10 +1,12 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
+import Button from "@/mk/components/forms/Button/Button";
+import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -14,6 +16,7 @@ const paramsInitial = {
 };
 
 const Areas = () => {
+  const [openMaintenance, setOpenMaintenance] = useState(false);
   const mod = {
     modulo: "areas",
     singular: "área social",
@@ -270,10 +273,20 @@ const Areas = () => {
     []
   );
 
-  const { userCan, List, reLoad } = useCrud({
+  const extraButtons = [
+    <Button
+      variant="secondary"
+      key={"Button"}
+      onClick={() => setOpenMaintenance(true)}
+    >
+      Poner en mantenimiento
+    </Button>,
+  ];
+  const { userCan, List, reLoad, data } = useCrud({
     paramsInitial,
     mod,
     fields,
+    extraButtons,
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
@@ -282,6 +295,12 @@ const Areas = () => {
     //  className={styles.style}
     >
       <List />
+
+      <MaintenanceModal
+        open={openMaintenance}
+        onClose={() => setOpenMaintenance(false)}
+        areas={data?.data}
+      />
     </div>
   );
 };
