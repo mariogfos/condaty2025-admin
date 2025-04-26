@@ -122,13 +122,25 @@ const CreateReserva = () => {
 
 
   // --- Efecto para actualizar busyDays ---
-   useEffect(() => {
+  useEffect(() => {
+    // <---- AÑADE UN CONSOLE.LOG AQUÍ para ver qué llega
+    console.log("useEffect [busyDays] - Response:", JSON.stringify(reservaCalendarResponse), "Loaded:", reservaCalendarLoaded, "Area:", formState.area_social);
+
     if (reservaCalendarLoaded && formState.area_social && reservaCalendarResponse?.data && 'reserved' in reservaCalendarResponse.data) {
+        console.log("useEffect [busyDays] - Setting busyDays:", reservaCalendarResponse.data.reserved); // Verifica qué se va a setear
         setBusyDays(reservaCalendarResponse.data.reserved || []);
     } else if (!formState.area_social) {
+         console.log("useEffect [busyDays] - Resetting busyDays (no area)");
         setBusyDays([]);
-    } else if (reservaCalendarLoaded && formState.area_social && !(reservaCalendarResponse?.data && 'reserved' in reservaCalendarResponse.data)) {
-       setBusyDays([]);
+    } else if (reservaCalendarLoaded && formState.area_social) {
+        // Si loaded es true y hay area, pero la condición principal falló, loguea por qué
+        console.log("useEffect [busyDays] - Condition failed. Response data:", reservaCalendarResponse?.data);
+        if (!reservaCalendarResponse?.data) {
+             console.log("useEffect [busyDays] - Reason: reservaCalendarResponse.data is falsy");
+        } else if (!('reserved' in reservaCalendarResponse.data)) {
+             console.log("useEffect [busyDays] - Reason: 'reserved' key NOT found in reservaCalendarResponse.data. Keys:", Object.keys(reservaCalendarResponse.data));
+        }
+        setBusyDays([]);
     }
   }, [reservaCalendarResponse, reservaCalendarLoaded, formState.area_social]);
 
@@ -244,7 +256,7 @@ try {
                 "/reservations-calendar", // URL (ya definida en el hook, pero podemos pasarla)
                 "GET",                   // Método
                 { area_id: value },      // Parámetros: SOLO el area_id
-                false,                   // skipAbort (normalmente false)
+                true,                   // skipAbort (normalmente false)
                 false                    // skipLoading (ajusta si usas el estado 'loading' del hook)
             );
             // El useEffect que depende de reservaCalendarResponse se encargará
