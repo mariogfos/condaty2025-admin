@@ -24,23 +24,23 @@ import styles from './CalendarPicker.module.css'; // Importa los estilos locales
 // Asegúrate de importar tus iconos
 import { IconArrowLeft, IconArrowRight } from '@/components/layout/icons/IconsBiblioteca';
 
-// Interfaz día (sin cambios)
+// --- Interfaz Día Modificada ---
 interface CalendarDay {
   date: Date;
   dayOfMonth: number;
   isCurrentMonth: boolean; // Sigue siendo relevante para estilo 'outside' en vista mes
   isCurrentView: boolean; // Nuevo: para indicar si pertenece al mes/semana actual visible
-  isUnavailable: boolean;
+  isPartiallyBusy: boolean; // NUEVA: Indica si está en busyDays (ocupación parcial)
   isSelected: boolean;
-  isPast: boolean;
+  isPast: boolean;       // Indica si deshabilitar
   isToday: boolean;
 }
 
-// Props (sin 'styles')
+// --- Props ---
 interface CalendarPickerProps {
   selectedDate?: string; // 'yyyy-MM-dd'
   onDateChange: (dateString: string | undefined) => void;
-  busyDays?: string[]; // 'yyyy-MM-dd'
+  busyDays?: string[]; // 'yyyy-MM-dd' <- Estos indican ocupación parcial
 }
 
 const CalendarPicker: React.FC<CalendarPickerProps> = ({
@@ -49,24 +49,23 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   busyDays = [],
 }) => {
   // --- Estados ---
+  console.log("busyDays", busyDays);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
-
-  // Fecha que determina el mes o la semana actual visible
   const [currentDateForView, setCurrentDateForView] = useState<Date>(() => {
       const initialDate = selectedDate && isValid(parse(selectedDate, 'yyyy-MM-dd', new Date()))
           ? parse(selectedDate, 'yyyy-MM-dd', new Date())
           : new Date();
+      // Asegurarse que la fecha inicial no sea en el pasado para la vista inicial si no hay selección
+       // Comentado por ahora, podría ser útil si no quieres empezar en un mes pasado por defecto
+      // const today = startOfDay(new Date());
+      // return isBefore(initialDate, today) && !selectedDate ? today : initialDate;
       return initialDate;
   });
-
-  // Estado interno para la fecha seleccionada (como objeto Date)
   const [selectedDateInternal, setSelectedDateInternal] = useState<Date | null>(() => {
     const parsed = selectedDate ? parse(selectedDate, 'yyyy-MM-dd', new Date()) : null;
     return parsed && isValid(parsed) ? parsed : null;
   });
-
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
-
   const daysOfWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
   // --- Sincronizar prop externa con estado interno ---
@@ -78,18 +77,19 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
     if (newValidSelectedDate && selectedDateInternal) {
         datesDiffer = !isSameDay(newValidSelectedDate, selectedDateInternal);
     } else if (!newValidSelectedDate && !selectedDateInternal) {
-        datesDiffer = false;
+        datesDiffer = false; // Both are null/invalid, no difference
     }
 
     if (datesDiffer) {
         setSelectedDateInternal(newValidSelectedDate);
-        // Si la fecha seleccionada cambia desde fuera, actualizamos la vista actual
-        // para que contenga esa fecha (si es válida)
+        // Si la fecha seleccionada cambia desde fuera y es válida,
+        // ajusta la vista actual para que contenga esa fecha.
         if (newValidSelectedDate) {
             setCurrentDateForView(newValidSelectedDate);
         }
     }
-  }, [selectedDate]); // Solo depende del cambio de la prop
+  // Only re-run if the selectedDate prop changes externally
+  }, [selectedDate]);
 
 
   // --- Calcular intervalo de fechas a mostrar ---
@@ -101,7 +101,11 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
     if (viewMode === 'month') {
       const monthStart = startOfMonth(currentDateForView);
       start = startOfWeek(monthStart, weekOptions);
-      end = endOfWeek(endOfMonth(monthStart), weekOptions); // Usamos monthStart para asegurar 6 semanas max
+      // Calculamos el final basado en el inicio para asegurar un número fijo de semanas si es necesario
+      // O usar endOfWeek(endOfMonth(monthStart), weekOptions) si quieres que siempre termine al final de la última semana del mes.
+      // Por simplicidad, usemos endOfMonth:
+      const monthEnd = endOfMonth(monthStart);
+      end = endOfWeek(monthEnd, weekOptions);
     } else { // 'week'
       start = startOfWeek(currentDateForView, weekOptions);
       end = endOfWeek(currentDateForView, weekOptions);
@@ -113,37 +117,44 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   // --- Generar días del calendario basado en el intervalo ---
   const generateCalendarDays = useCallback(() => {
     const today = startOfDay(new Date());
-    const busyDatesSet = new Set(busyDays);
+    // Usamos un Set para buscar eficientemente los días parcialmente ocupados
+    const partiallyBusyDatesSet = new Set(busyDays);
     const monthForStyling = startOfMonth(currentDateForView); // Mes de referencia para estilo 'outside'
 
     const days: CalendarDay[] = eachDayOfInterval(currentInterval).map((date) => {
       const formattedDate = format(date, 'yyyy-MM-dd');
       const isSelected = selectedDateInternal ? isSameDay(date, selectedDateInternal) : false;
-      const isUnavailable = busyDatesSet.has(formattedDate);
+      // Determina si el día está en la lista `busyDays`
+      const isPartiallyBusy = partiallyBusyDatesSet.has(formattedDate);
+      // Determina si el día es anterior a hoy
       const isPastCheck = isBefore(date, today);
+      // Determina si el día está fuera del mes actual (para estilo gris en vista de mes)
+      const isOutsideMonth = !isSameMonth(date, monthForStyling);
+      // Un día está en la "vista actual" si NO está fuera del mes (en vista mes)
+      // En vista semana, todos los días del intervalo están en la vista actual.
+      const isCurrentViewCheck = viewMode === 'week' || !isOutsideMonth;
 
       return {
         date: date,
         dayOfMonth: date.getDate(),
-        // 'isCurrentMonth' ahora solo sirve para el estilo 'outside' en vista de mes
-        isCurrentMonth: isSameMonth(date, monthForStyling),
-        // 'isCurrentView' indica si el día pertenece al intervalo visible (importante en week view)
-        isCurrentView: viewMode === 'week' || isSameMonth(date, monthForStyling),
+        isCurrentMonth: !isOutsideMonth, // Mantenido para posible estilo 'outside'
+        isCurrentView: isCurrentViewCheck, // Usado para lógica de habilitación/deshabilitación
         isSelected: isSelected,
-        isUnavailable: isUnavailable,
-        isPast: isPastCheck,
+        isPartiallyBusy: isPartiallyBusy, // Indica si mostrar el punto rojo
+        isPast: isPastCheck,           // Indica si deshabilitar
         isToday: isSameDay(date, today),
       };
     });
 
     setCalendarDays(days);
-  }, [currentInterval, busyDays, selectedDateInternal, viewMode, currentDateForView]); // Dependencias
+  // Dependencias: Regenerar si cambia el intervalo, los días ocupados, la selección interna, etc.
+  }, [currentInterval, busyDays, selectedDateInternal, viewMode, currentDateForView]);
 
 
   // --- Regenerar días cuando cambian las dependencias ---
   useEffect(() => {
     generateCalendarDays();
-  }, [generateCalendarDays]);
+  }, [generateCalendarDays]); // generateCalendarDays ya incluye sus dependencias
 
   // --- Navegación (adaptada a viewMode) ---
   const goToPrev = () => {
@@ -160,16 +171,21 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
   // --- Manejar Selección ---
   const handleDateSelect = (day: CalendarDay) => {
-    // Solo permitir seleccionar días que pertenezcan a la vista actual
-    // (evita seleccionar días 'outside' grises en vista de mes también)
-    // y que no estén pasados o no disponibles
-    if (!day.isCurrentView || day.isPast || day.isUnavailable) {
-      return;
+    // Permitir seleccionar SOLO si:
+    // 1. Pertenece a la vista actual (isCurrentView es true)
+    // 2. NO está en el pasado (isPast es false)
+    // La condición isPartiallyBusy ya NO impide la selección aquí.
+    if (!day.isCurrentView || day.isPast) {
+      // console.log("Selection prevented: Outside view or past date.", day); // Log opcional
+      return; // No hacer nada si no es seleccionable
     }
+
+    // Si es seleccionable, actualiza el estado interno y llama a onDateChange
     const newSelectedDate = day.date;
-    setSelectedDateInternal(newSelectedDate);
-    onDateChange(format(newSelectedDate, 'yyyy-MM-dd'));
-    // Opcional: actualizar la vista para centrarse en la semana/mes seleccionado
+    setSelectedDateInternal(newSelectedDate); // Actualiza estado interno
+    onDateChange(format(newSelectedDate, 'yyyy-MM-dd')); // Notifica al padre
+
+    // Opcional: Si quieres que la vista se centre en la semana/mes del día seleccionado
     // setCurrentDateForView(newSelectedDate);
   };
 
@@ -210,12 +226,6 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
                 <span className={styles.calendarMonthYear}>
                     {/* Muestra siempre Mes y Año */}
                     {format(currentDateForView, 'MMMM yyyy', { locale: es })}
-                    {/* Opcional: Mostrar semana en week view
-                    {viewMode === 'week'
-                        ? `Semana del ${format(currentInterval.start, 'd \'de\' MMMM', { locale: es })}`
-                        : format(currentDateForView, 'MMMM yyyy', { locale: es })
-                    }
-                    */}
                 </span>
                 <button
                 type="button"
@@ -239,17 +249,25 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
             {/* Grid del Calendario */}
             <div className={styles.calendarDaysGrid}>
                 {calendarDays.map((day, index) => {
+                // Determina si el día está REALMENTE deshabilitado (no seleccionable)
+                const isTrulyDisabled = !day.isCurrentView || day.isPast;
+
+                // Construye las clases CSS para el botón del día
                 const dayClasses = [
                     styles.calendarDayButton,
-                    // Aplica 'outsideDay' solo en vista de mes y si no es del mes de referencia
-                    (viewMode === 'month' && !day.isCurrentMonth) ? styles.outsideDay : '',
-                    // Aplica 'disabledDay' si no es de la vista actual O es pasado O no disponible
-                    (!day.isCurrentView || day.isPast || day.isUnavailable) ? styles.disabledDay : '',
+                    // Estilo si está fuera del mes/semana visible (puede ser redundante si isTrulyDisabled ya lo cubre)
+                    !day.isCurrentView ? styles.outsideDay : '',
+                    // Estilo si está realmente deshabilitado
+                    isTrulyDisabled ? styles.disabledDay : '',
+                    // Estilo si es hoy
                     day.isToday ? styles.today : '',
+                    // Estilo si está seleccionado
                     day.isSelected ? styles.selectedDay : '',
-                    day.isUnavailable ? styles.busyDay : '',
-                ].filter(Boolean).join(' ');
+                    // NUEVO ESTILO: Aplicar solo si está parcialmente ocupado Y NO está deshabilitado
+                    (day.isPartiallyBusy && !isTrulyDisabled) ? styles.partiallyBusyDay : '',
+                ].filter(Boolean).join(' '); // filter(Boolean) elimina entradas vacías
 
+                // Clases para la celda contenedora (si es necesario)
                 const cellClasses = styles.calendarDayCell;
 
                 return (
@@ -257,12 +275,14 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
                     <button
                         type="button"
                         onClick={() => handleDateSelect(day)}
-                        // Deshabilita si no pertenece a la vista, es pasado o no disponible
-                        disabled={!day.isCurrentView || day.isPast || day.isUnavailable}
+                        // Deshabilita el botón SÓLO si isTrulyDisabled es true
+                        disabled={isTrulyDisabled}
                         className={dayClasses}
-                        aria-label={format(day.date, 'PPPP', { locale: es })} // Añade accesibilidad
+                        // Añade un aria-label más descriptivo
+                        aria-label={`Seleccionar ${format(day.date, 'PPPP', { locale: es })}${day.isPartiallyBusy && !isTrulyDisabled ? ' (con reservas)' : ''}${isTrulyDisabled ? ' (no disponible)' : ''}`}
                     >
                         {day.dayOfMonth}
+                        {/* El punto rojo se añade vía CSS con ::after en la clase .partiallyBusyDay */}
                     </button>
                     </div>
                 );

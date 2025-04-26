@@ -206,21 +206,55 @@ try {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const isAreaChange = name === 'area_social';
+
+    // Actualiza el estado del formulario
     setFormState((prev) => ({
         ...prev,
         [name]: value,
-        // Si cambia el área, resetea fecha y selección de periodos
+        // Si cambia el área, OBLIGATORIAMENTE resetea la fecha
         ...(isAreaChange && { fecha: '' }),
     }));
+
+    // Limpia el error del campo que cambió
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+
+    // Lógica específica cuando cambia el ÁREA SOCIAL
      if (isAreaChange) {
-        setBusyDays([]);
-        setAvailableTimeSlots([]);
-        setSelectedPeriods([]); // Limpia periodos seleccionados
-        setErrors(prev => ({ ...prev, selectedPeriods: undefined })); // Limpia error de periodo
-        if (!value) setFormState(prev => ({...prev, fecha: ''}));
+        // 1. Resetea estados dependientes del área y fecha
+        setBusyDays([]); // Resetea días ocupados inmediatamente para feedback visual
+        setAvailableTimeSlots([]); // Resetea horarios disponibles
+        setSelectedPeriods([]); // Resetea periodos seleccionados
+        // Limpia errores relacionados con fecha y periodos
+        setErrors(prev => ({
+            ...prev,
+            fecha: undefined,
+            selectedPeriods: undefined
+        }));
+        // Asegura que el estado de la fecha se limpie (aunque ya se hizo en setFormState)
+        // setFormState(prev => ({...prev, fecha: ''})); // Redundante si ya se hizo arriba
+
+        // 2. === LA CORRECCIÓN ES AQUÍ ===
+        // Si se seleccionó un área válida (no se deseleccionó a vacío)
+        if (value) {
+            console.log(`Área cambiada a ${value}. Obteniendo días ocupados...`);
+            // Ejecuta la llamada a la API para obtener los días ocupados (SIN date_at)
+            executeCalendarApi(
+                "/reservations-calendar", // URL (ya definida en el hook, pero podemos pasarla)
+                "GET",                   // Método
+                { area_id: value },      // Parámetros: SOLO el area_id
+                false,                   // skipAbort (normalmente false)
+                false                    // skipLoading (ajusta si usas el estado 'loading' del hook)
+            );
+            // El useEffect que depende de reservaCalendarResponse se encargará
+            // de actualizar busyDays cuando esta llamada termine.
+        } else {
+             // Si se deseleccionó el área, asegura que busyDays esté vacío
+             setBusyDays([]);
+        }
+        // 3. Resetea el índice de la imagen del carrusel si cambias de área
+        setCurrentImageIndex(0);
      }
   };
   // --- NUEVO: Handler para click en los botones de periodo ---
@@ -800,17 +834,17 @@ return (
         {/* === Acciones (Botones) y Precio Condicional === */}
     <div className={styles.formActions}> {/* CSS: justify-content: space-between; align-items: center; */}
 
-{/* --- Contenedor para Info de Precio (SOLO EN PASO 1) --- */}
-{currentStep === 1 && selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
-  <div className={styles.priceInfoBottom}>
-      <span className={styles.priceValueBottom}>
-        {selectedAreaDetails.is_free === 'X'
-          ? 'Gratis'
-          : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(2)}`
-        }
-      </span>
-  </div>
-)}
+        {/* --- Contenedor para Info de Precio (SOLO EN PASO 1) --- */}
+        {currentStep === 1 && selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
+          <div className={styles.priceInfoBottom}>
+              <span className={styles.priceValueBottom}>
+                {selectedAreaDetails.is_free === 'X'
+                  ? 'Gratis'
+                  : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(2)}`
+                }
+              </span>
+          </div>
+          )}  
         {/* Si no es paso 1 o no hay area, no muestra nada aquí (a la izquierda) */}
         {/* Opcional: podrías poner un div vacío o un spacer si necesitas mantener el espacio */}
         {currentStep !== 1 && <div style={{ flexGrow: 1 }}></div>} {/* Placeholder para empujar botones a la derecha en otros pasos */}
