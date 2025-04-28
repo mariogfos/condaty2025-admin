@@ -81,9 +81,12 @@ const Layout = ({ children }: any) => {
 
   const onNotif = useCallback(
     (e: any) => {
-      console.log("*******11111*****", e);
+      // console.log("*******11111*****", e);
       if (e.event == "ping") {
         showToast("Llegó un PING", "info");
+      }
+      if (e.event == "newPreregister" || e.payload == "newVoucher") {
+        showToast(e.payload.title, "info");
       }
       if (e.event == "alerts" && e.payload?.level == 4) {
         setOpenAlert({ open: true, item: e.payload });
