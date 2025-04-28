@@ -344,6 +344,7 @@
 
 /* Sección Personas */
 .peopleSection {
+  position: relative; 
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -491,12 +492,13 @@
 
 /* --- Estilos Formularios (Input/Select/TextArea) --- */
 .formField {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spXs); /* 4px */
+  position: relative; /* <-- AÑADIR: Contexto para el error absoluto */
+  padding-bottom: 18px; /* <-- AÑADIR/AJUSTAR: Espacio reservado ABAJO para el mensaje de error */
+                         /* Ajusta '18px' según el tamaño de fuente de tu error y el espacio deseado */
+  display: flex;
+  flex-direction: column;
+  /* gap: var(--spXs); */ /* El gap puede ser menos relevante ahora si el error es absoluto */
 }
-/* Asegúrate que los estilos *internos* de tus componentes Input, Select, TextArea usen variables de tema */
-
 
 /* --- Estilos para CalendarPicker (usando variables de tema) --- */
 .calendarContainer {
@@ -717,7 +719,24 @@
 
 /* Ajustes menores si son necesarios */
 .errorText {
-  margin-top: var(--spS); /* 8px */
+  position: absolute;   /* <-- Posicionamiento absoluto */
+  top: 100%;          /* <-- Posiciona el borde superior del error justo debajo del contenedor relativo */
+  left: 0;            /* <-- Alinea a la izquierda del contenedor */
+  width: 100%;          /* <-- Ocupa el ancho del contenedor */
+  margin-top: 2px;      /* <-- Pequeño espacio entre el input y el texto del error */
+  padding-left: 5px;    /* <-- Opcional: pequeña indentación */
+
+  color: var(--cError); /* Color de error */
+  font-size: var(--sS); /* Tamaño pequeño */
+  line-height: 1.2;     /* Interlineado ajustado */
+  
+  /* Importante para evitar problemas de click */
+  pointer-events: none; /* Permite hacer click 'a través' del mensaje de error si solapa algo */
+
+  /* Resetea otros márgenes por si acaso */
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .periodSelectionContainer {

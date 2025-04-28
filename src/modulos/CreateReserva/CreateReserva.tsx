@@ -316,27 +316,45 @@ const validateStep1 = (): boolean => {
 };
 
 const validateStep2 = (): boolean => {
-  const errs: FormErrors = {};
+  const errs: FormErrors = {}; // Inicia objeto de errores vacío
+
+  // Validación de Fecha (sin cambios)
   if (!formState.fecha) errs.fecha = "Selecciona una fecha";
 
-  // MODIFICADO: Validar que se haya seleccionado al menos un periodo si no es reserva por día
+  // Validación de Periodos Seleccionados (sin cambios)
   if (selectedAreaDetails?.booking_mode !== 'day') {
       if (selectedPeriods.length === 0) {
           // Usa la nueva clave de error
           errs.selectedPeriods = "Debes seleccionar al menos un periodo disponible";
       }
-      // Opcional: Podrías añadir validación de contigüidad aquí si es un requisito estricto
-      // const isContiguous = checkContiguity(selectedPeriods);
-      // if (!isContiguous) errs.selectedPeriods = "La selección de periodos debe ser continua";
   }
 
-  // Validación de cantidad de personas (sin cambios)
-  if (!formState.cantidad_personas) {
-    errs.cantidad_personas = "Ingresa la cantidad de personas";
-  } else { /* ... validación de número y capacidad ... */ }
+  // --- VALIDACIÓN DE CANTIDAD DE PERSONAS (CORREGIDA Y COMPLETA) ---
+  const maxCapacity = selectedAreaDetails?.max_capacity; // Obtiene la capacidad máxima del área seleccionada
 
-  setErrors(errs);
-  return Object.keys(errs).length === 0;
+  if (!formState.cantidad_personas) {
+    // 1. Verifica si el campo está vacío
+    errs.cantidad_personas = "Ingresa la cantidad de personas";
+  } else {
+    // 2. Si no está vacío, convierte el valor a número
+    const numPeople = Number(formState.cantidad_personas);
+
+    if (isNaN(numPeople)) {
+      // 3. Verifica si la conversión a número fue exitosa
+      errs.cantidad_personas = "Ingresa un número válido";
+    } else if (numPeople < 1) {
+      // 4. Verifica si el número es menor que el mínimo permitido (1)
+      errs.cantidad_personas = "La cantidad debe ser al menos 1";
+    } else if (maxCapacity !== undefined && maxCapacity !== null && numPeople > maxCapacity) {
+      // 5. Verifica si se definió una capacidad máxima Y si el número ingresado la excede
+      errs.cantidad_personas = `La cantidad máxima de personas permitida para esta área es ${maxCapacity}.`; // Mensaje de error específico
+    }
+    // Si ninguna de las condiciones anteriores se cumple, el valor es válido respecto a la capacidad.
+  }
+  // --- FIN VALIDACIÓN PERSONAS ---
+
+  setErrors(errs); // Actualiza el estado de errores con los encontrados
+  return Object.keys(errs).length === 0; // Devuelve true solo si NO hubo errores
 };
 
 const validateStep3 = (): boolean => {

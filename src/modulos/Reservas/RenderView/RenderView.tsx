@@ -134,14 +134,28 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   };
 
   const getFormattedReservationTime = (periods: Period[] | undefined | null): string => {
+    // 1. Validar entrada (sin cambios)
     if (!periods || periods.length === 0) return 'Horario no especificado';
+
     try {
-      // Ordenar periodos por hora de inicio por si acaso
+      // 2. Ordenar periodos (buena práctica, sin cambios)
       const sortedPeriods = [...periods].sort((a, b) => a.time_from.localeCompare(b.time_from));
-      const start = sortedPeriods[0].time_from.substring(0, 5); // HH:mm
-      const end = sortedPeriods[sortedPeriods.length - 1].time_to.substring(0, 5); // HH:mm
-      return `${start} - ${end}`;
-    } catch {
+
+      // 3. Mapear CADA periodo a su string formateado "HH:MM - HH:MM"
+      const formattedPeriodStrings = sortedPeriods.map(period => {
+        // Extraer solo HH:MM de las horas
+        const startTime = period.time_from.substring(0, 5);
+        const endTime = period.time_to.substring(0, 5);
+        // Devolver el string para este periodo específico
+        return `${startTime} - ${endTime}`;
+      });
+
+      // 4. Unir todos los strings formateados con " / " como separador
+      return formattedPeriodStrings.join(' / ');
+
+    } catch (error) {
+      // Manejo de error (sin cambios)
+      console.error("Error formateando horario de reserva:", error);
       return 'Horario inválido';
     }
   };
@@ -354,14 +368,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                 </Button>
               </div>
             )}
-             {/* Botón para cerrar si no hay acciones pendientes */}
-             {reservationData.status !== 'W' && (
-                 <div className={styles.actionButtonsContainer} style={{justifyContent: 'flex-end'}}>
-                     <Button onClick={onClose} variant="cancel">
-                        Cerrar
-                     </Button>
-                 </div>
-             )}
+            
 
           </>
         )}
