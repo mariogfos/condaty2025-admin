@@ -270,23 +270,29 @@ try {
      }
   };
   // --- NUEVO: Handler para click en los botones de periodo ---
-  const handlePeriodToggle = (period: string) => {
-    setSelectedPeriods(prevSelected => {
-        const isSelected = prevSelected.includes(period);
-        if (isSelected) {
-            // Si ya estaba seleccionado, lo quita
-            return prevSelected.filter(p => p !== period);
-        } else {
-            // Si no estaba, lo añade
-            // Opcional: ordenar al añadir para mantener consistencia
-            return [...prevSelected, period].sort();
-        }
-    });
-    // Limpia el error de selección de periodo si el usuario interactúa
-    if (errors.selectedPeriods) {
-        setErrors(prev => ({ ...prev, selectedPeriods: undefined }));
-    }
-  };
+// Dentro del componente CreateReserva
+
+const handlePeriodToggle = (period: string) => {
+  setSelectedPeriods(prevSelected => {
+      // Verifica si el periodo clickeado ya era el único seleccionado
+      const isCurrentlySelected = prevSelected.length === 1 && prevSelected[0] === period;
+
+      if (isCurrentlySelected) {
+          // Si se hace clic en el ya seleccionado, se deselecciona (queda vacío)
+          return [];
+      } else {
+          // Si se hace clic en uno nuevo (o no había selección), se selecciona SOLO ese
+          return [period];
+      }
+  });
+
+  // Limpia el error de selección de periodo si el usuario interactúa
+  if (errors.selectedPeriods) {
+      setErrors(prev => ({ ...prev, selectedPeriods: undefined }));
+  }
+};
+
+// --- FIN Modificación handlePeriodToggle ---
 
   const handleDateChange = (dateString: string | undefined) => {
     const newDate = dateString || "";
@@ -923,14 +929,16 @@ return (
                               <div className={styles.summaryDetailItem}>
                                  {/* Placeholder para Icono Dinero */}
                                 <span className={styles.detailIcon}>💲</span>
-                                {selectedAreaDetails.is_free === 'X' ? (
+                                {selectedAreaDetails.is_free === 'A' ? ( // Pregunta si ES GRATIS ('A')
                                     <span className={styles.summaryTotalCost}>Gratis</span>
-                                ) : (
-                                   <>
-                                     {/* Aquí necesitarías lógica para calcular el costo real */}
-                                     {/* <span className={styles.summaryCostPerHour}>Bs {selectedAreaDetails.price || 0}/h</span> */}
-                                     <span className={styles.summaryTotalCost}>Total: Bs {Number(selectedAreaDetails.price || 0)}</span>
-                                   </>
+                                ) : ( // Si NO es 'A' (debería ser 'X'), muestra el precio
+                                  <span className={styles.summaryTotalCost}>
+                                    {/* Muestra el precio formateado si existe, o un fallback */}
+                                    {selectedAreaDetails.price != null
+                                        ? `Total: Bs ${Number(selectedAreaDetails.price).toFixed(2)}`
+                                        : 'Precio no disponible'
+                                    }
+                                  </span>
                                 )}
                              </div>
                           </div>
@@ -950,7 +958,7 @@ return (
         {currentStep === 1 && selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
           <div className={styles.priceInfoBottom}>
               <span className={styles.priceValueBottom}>
-                {selectedAreaDetails.is_free === 'X'
+                {selectedAreaDetails.is_free === 'A'
                   ? 'Gratis'
                   : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(2)}`
                 }
