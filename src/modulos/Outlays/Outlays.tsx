@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { getDateDesdeHasta } from "@/mk/utils/date";
 import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -41,6 +42,14 @@ const Outlays = () => {
     permiso: "",
     extraData: true,
     renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
+    renderView: (props: any) => (
+      <RenderView // Usa el nuevo componente
+        {...props}
+        outlay_id={props?.item?.id} // Pasa el ID del egreso
+        extraData={extraData} // Pasa extraData para las categorías
+      />
+    ),
+    loadView: { fullType: "DET" },
     saveMsg: {
       add: "Egreso creado con éxito",
       edit: "Egreso actualizado con éxito",

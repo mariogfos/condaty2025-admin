@@ -96,31 +96,49 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
-          // MODIFICACIÓN AQUÍ (owner.onRender)
+          // ***** MODIFICACIÓN AQUÍ *****
           onRender: (props: any) => {
-            // Guarda el owner en una variable
             const owner = props?.item?.owner;
-            // Llama a getFullName solo si owner existe, sino usa texto alternativo
+            const dpto = props?.item?.dpto; // Obtener el objeto dpto del item
+
             const ownerName = owner
               ? getFullName(owner)
               : "Residente no disponible";
+            // Obtener el número de dpto de forma segura
+            const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
+
             const imageUrl = owner
-              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at}`)
-              : undefined; // Genera URL solo si hay owner
+              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`) // Fallback para d
+              : undefined;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  src={imageUrl} // Pasa la URL segura (puede ser undefined)
-                  name={ownerName} // Pasa el nombre seguro
+                  src={imageUrl}
+                  name={ownerName}
                 />
                 <div>
-                  <p>{ownerName}</p> {/* Muestra el nombre seguro */}
+                  {/* Párrafo para el nombre */}
+                  <p style={{ margin: 0, lineHeight: '1.3' }}>
+                    {ownerName}
+                  </p>
+                  {/* Párrafo para el número de departamento (solo si dpto existe) */}
+                  {dpto && (
+                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
+                       {dptoNro}
+                     </p>
+                  )}
+                  {/* Si 'owner' es null pero 'dpto' sí existe, podrías mostrar solo el dpto */}
+                  {!owner && dpto && (
+                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
+                       {dptoNro}
+                     </p>
+                  )}
                 </div>
               </div>
             );
           },
-          // FIN MODIFICACIÓN (owner.onRender)
+           // ***** FIN MODIFICACIÓN *****
         },
       },
       
