@@ -13,6 +13,7 @@ import {
     IconCash,
     IconGroup
 } from '@/components/layout/icons/IconsBiblioteca';
+import TextArea from '@/mk/components/forms/TextArea/TextArea';
 
 const ReservationDetailModal = ({
   open,
@@ -31,6 +32,10 @@ const ReservationDetailModal = ({
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [displayedData, setDisplayedData] = useState<any | null>(null);
+
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectErrors, setRejectErrors] = useState<any>({});
 
   const {
     execute: fetchDetails,
@@ -178,36 +183,58 @@ const ReservationDetailModal = ({
     }
   };
 
-  const handleRejectClick = async () => {
-    if (!displayedData?.id) return;
+// Modificado: Solo abre el modal de rechazo
+const handleRejectClick = () => {
+  if (!displayedData?.id) return;
+  setRejectionReason(""); // Limpiar motivo anterior
+  setRejectErrors({});    // Limpiar errores anteriores
+  setIsRejectModalOpen(true); // Abre el modal de rechazo
+};
+// NUEVO: Función para confirmar el rechazo desde el modal secundario
+const confirmRejection = async () => {
+  if (!displayedData?.id) return;
 
-    const obs = prompt("Por favor, introduce un motivo para el rechazo (opcional):");
+  // Opcional: Validación para asegurar que se ingrese un motivo
+  if (!rejectionReason || rejectionReason.trim() === "") {
+      setRejectErrors({ reason: "Debe ingresar un motivo para el rechazo." });
+      return;
+  }
+  setRejectErrors({}); // Limpiar errores si pasa la validación
 
-    setIsActionLoading(true); // <- Usamos estado local
-    setActionError(null);
+  setIsActionLoading(true); // Activar indicador de carga
+  setActionError(null);     // Limpiar error principal
 
-    const payload = {
-      is_approved: 'N',
-      obs: obs || 'Rechazado'
-    };
-
-    try {
-      await executeAction(
-        `/reservations/${displayedData.id}`,
-        'PUT',
-        payload,
-        false,
-        false
-      );
-      if (reLoad) reLoad();
-      onClose();
-    } catch (error: any) {
-      console.error("Error al rechazar reserva:", error);
-      setActionError(error?.response?.data?.message || error?.message || 'Ocurrió un error al rechazar.');
-    } finally {
-      setIsActionLoading(false); // <- Usamos estado local
-    }
+  const payload = {
+    is_approved: 'N',
+    obs: rejectionReason // Usa el motivo del estado
   };
+
+  try {
+    await executeAction(
+      `/reservations/${displayedData.id}`,
+      'PUT',
+      payload,
+      false, // Act
+      false  // notWaiting
+    );
+    // Éxito: cerrar ambos modales y recargar
+    setIsRejectModalOpen(false); // Cierra modal de rechazo
+    onClose();                 // Cierra modal principal
+    if (reLoad) reLoad();
+    // Opcional: Mostrar toast de éxito
+    // showToast('Reserva rechazada correctamente.', 'success');
+
+  } catch (error: any) {
+    console.error("Error al confirmar rechazo:", error);
+    // Mostrar error en el modal principal o en el de rechazo?
+    // Mostraremos en el principal por ahora
+    setActionError(error?.response?.data?.message || error?.message || 'Ocurrió un error al rechazar.');
+    // Podrías cerrar el modal de rechazo aquí o dejarlo abierto para reintentar
+    // setIsRejectModalOpen(false);
+  } finally {
+    setIsActionLoading(false); // Desactivar indicador de carga
+  }
+};
 
   const renderContent = () => {
     // Estado de carga: si no se pasó 'item' Y el hook de fetch aún no ha 'loaded' Y no hay error
@@ -328,6 +355,7 @@ const ReservationDetailModal = ({
 
 
   return (
+    <>
     <DataModal
       open={open}
       onClose={onClose}
@@ -339,6 +367,33 @@ const ReservationDetailModal = ({
         {renderContent()}
       </div>
     </DataModal>
+    {/* --- NUEVO: Modal para Confirmar Rechazo --- */}
+    <DataModal
+        open={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        title="Rechazar Reserva"
+        buttonText="Confirmar Rechazo" // Texto del botón de guardar
+        buttonCancel="Cancelar"       // Texto del botón de cancelar
+        onSave={confirmRejection}    // Llama a la nueva función al guardar
+        // Puedes añadir lógica de deshabilitar onSave si isActionLoading es true
+      >
+          <TextArea
+            label="Motivo del Rechazo"
+            name="reason" // Nombre del campo
+            value={rejectionReason}
+            onChange={(e) => {
+                setRejectionReason(e.target.value);
+                // Limpiar error al escribir
+                if (rejectErrors.reason) {
+                    setRejectErrors({});
+                }
+            }}
+            placeholder="Escribe aquí por qué se rechaza la reserva..."
+            required // Marcar como requerido visualmente
+          />
+     
+      </DataModal>
+    </>
   );
 };
 
