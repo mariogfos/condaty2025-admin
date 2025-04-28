@@ -1,4 +1,4 @@
-/* NUEVO: Estilo para el contenedor externo */
+
 .pageWrapper {
   width: 100%; /* Ocupa todo el ancho de la ventana */
   min-height: 100vh; /* Opcional: asegura altura mínima */
@@ -9,11 +9,6 @@
 }
 
 .createReservaContainer {
-  /* Ya NO necesita position: relative ni el padding-top extra */
-  /* position: relative; */ /* <--- QUITAR */
-  /* padding-top: 50px; */ /* <--- QUITAR */
-
-  /* Mantiene los estilos de centrado y contenido */
   display: flex;
   flex-direction: column;
   gap: var(--spL);
@@ -474,6 +469,7 @@
   background-color: transparent;
   border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
   color: var(--cWhiteV1); /* #a7a7a7 */
+  margin-right: 10px;
 }
 .backBtn:hover {
   background-color: var(--cBlackV3); /* #414141 */
@@ -796,3 +792,52 @@
 .durationSection {
     margin-top: var(--spL); /* Añade espacio arriba */
 }
+/* EN CreateReserva.module.css */
+
+/* Contenedor principal del selector de cantidad */
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spL); /* Espacio entre botones y número (ajusta 1rem) */
+  /* Puedes añadir otros estilos como background, border-radius si quieres un fondo */
+}
+
+/* Estilo para los botones +/- */
+.quantityButton {
+  background-color: transparent; /* Sin fondo */
+  border: 1px solid var(--cWhiteV1); /* Borde circular */
+  color: var(--cWhite); /* Color del símbolo +/- */
+  width: 32px;  /* Ancho del botón (ajusta) */
+  height: 32px; /* Alto del botón (ajusta) */
+  border-radius: 50%; /* Hace el botón circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--sXl); /* Tamaño del símbolo +/- (ajusta 20px) */
+  line-height: 1; /* Ajusta línea para centrar verticalmente */
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  padding: 0; /* Quitar padding extra */
+}
+
+.quantityButton:hover:not(:disabled) {
+  border-color: var(--cAccent); /* Cambia color borde al pasar el mouse */
+  background-color: var(--cBlackV3); /* Fondo sutil al pasar el mouse */
+}
+
+.quantityButton:disabled {
+  opacity: 0.5; /* Botón semi-transparente si está deshabilitado */
+  cursor: not-allowed; /* Cursor no permitido */
+  border-color: var(--terciary); /* Borde más oscuro */
+  color: var(--terciary);
+}
+
+/* Estilo para el número mostrado */
+.quantityValue {
+  font-size: var(--sXl); /* Tamaño del número (ajusta 20px) */
+  font-weight: var(--bMedium); /* Peso de fuente */
+  color: var(--cWhite);
+  min-width: 30px; /* Ancho mínimo para que no salte mucho el layout */
+  text-align: center; /* Centrar el número */
+}
+

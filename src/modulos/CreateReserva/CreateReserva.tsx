@@ -474,10 +474,58 @@ const prevStep = (): void => {
         setIsSubmitting(false);
     }
   };
-  console.log("RENDERIZANDO - Fecha:", formState.fecha);
-  console.log("RENDERIZANDO - Loading Times:", loadingTimes);
-  console.log("RENDERIZANDO - AvailableTimeSlots:", availableTimeSlots);
-  console.log("RENDERIZANDO - SelectedPeriods:", selectedPeriods);
+// Dentro del componente CreateReserva, antes del return
+
+const handleQuantityChange = (newValue: number | string) => {
+  // Asegurarse de que siempre guardamos un string o un número válido
+  let finalValue: string;
+  const numValue = Number(newValue); // Convertir a número
+
+  // Obtener límites
+  const min = 1;
+  const max = selectedAreaDetails?.max_capacity;
+
+  if (isNaN(numValue)) {
+      finalValue = ''; // Si no es número, guardar vacío
+  } else if (max !== undefined && max !== null && numValue > max) {
+      finalValue = String(max); // Si excede el máximo, fijar al máximo
+  } else if (numValue < min) {
+      finalValue = String(min); // Si es menor al mínimo, fijar al mínimo (o vacío si prefieres)
+  } else {
+      finalValue = String(numValue); // Si es válido, guardar como string
+  }
+
+  // Actualizar el estado principal del formulario
+  setFormState(prev => ({
+      ...prev,
+      cantidad_personas: finalValue
+  }));
+
+  // Limpiar error si existía
+  if (errors.cantidad_personas) {
+      setErrors(prev => ({ ...prev, cantidad_personas: undefined }));
+  }
+};
+
+const incrementPeople = () => {
+  const currentValue = Number(formState.cantidad_personas || 0); // Si está vacío, empieza desde 0
+  const max = selectedAreaDetails?.max_capacity;
+  const newValue = currentValue + 1;
+
+  // Aplicar la nueva lógica de manejo de cambio que respeta límites
+  handleQuantityChange(newValue);
+};
+
+const decrementPeople = () => {
+  const currentValue = Number(formState.cantidad_personas || 1); // Si está vacío, empieza desde 1
+  const min = 1;
+  const newValue = currentValue - 1;
+
+  // Aplicar la nueva lógica de manejo de cambio que respeta límites
+  handleQuantityChange(newValue);
+};
+
+// --- FIN Funciones para Incrementar/Decrementar ---
 // --- RENDER ---
 return (
   <div className={styles.pageWrapper}>
@@ -729,26 +777,60 @@ return (
                </>
             )}
 
-            {/* Sección Cantidad Personas */}
+            {/* Sección Cantidad Personas */ }
             <div className={styles.peopleSection}>
                 <div className={styles.peopleLabelContainer}>
                     <label className={styles.sectionLabel}>Cantidad de personas</label>
                     <span className={styles.sectionSubtitle}>
-                      Máx. {selectedAreaDetails?.max_capacity ?? 'N/A'} personas
+                        Máx. {selectedAreaDetails?.max_capacity ?? 'N/A'} personas
                     </span>
                 </div>
+
+                {/* --- REEMPLAZO DEL INPUT --- */}
+                {/* Este es el contenedor donde estaba tu Input de MK */}
+                {/* Ahora contendrá tu nuevo componente de botones +/- */}
                 <div className={styles.peopleInputContainer}>
-                    <Input
-                        label="" // Sin label flotante visible
-                        name="cantidad_personas" type="number"
-                        value={formState.cantidad_personas} onChange={handleChange}
-                        error={errors.cantidad_personas} min={1}
-                        max={selectedAreaDetails?.max_capacity ?? undefined}
-                        className={styles.peopleInput} placeholder="Nº"
-                    />
+
+                    {/* --- Estructura del Nuevo Componente (Ejemplo) --- */}
+                    {/* Necesitarás crear un componente reutilizable para esto, ej: <QuantityInput /> */}
+                    {/* Aquí simulamos su estructura básica */}
+                    <div className={styles.quantitySelector}> {/* Nuevo contenedor */}
+                        <button
+                            type="button"
+                            onClick={decrementPeople}
+                            className={styles.quantityButton}
+                            // Deshabilita si el valor actual es 1 o menos, o si no es un número válido
+                            disabled={Number(formState.cantidad_personas || 1) <= 1 || isSubmitting}
+                            aria-label="Disminuir cantidad"
+                        >
+                            - {/* O un icono */}
+                        </button>
+                        <span className={styles.quantityValue}>
+                            {/* Muestra 0 o 1 si está vacío/inválido, o el valor numérico */}
+                            {Number(formState.cantidad_personas) >= 1 ? formState.cantidad_personas : '1'}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={incrementPeople}
+                            className={styles.quantityButton}
+                            // Deshabilita si se alcanza la capacidad máxima
+                            disabled={
+                                (selectedAreaDetails?.max_capacity !== undefined &&
+                                selectedAreaDetails?.max_capacity !== null &&
+                                Number(formState.cantidad_personas || 0) >= selectedAreaDetails.max_capacity) || isSubmitting
+                            }
+                            aria-label="Aumentar cantidad"
+                        >
+                            + {/* O un icono */}
+                        </button>
+                    </div>
+                    {/* --- Fin Estructura Nuevo Componente --- */}
+
                 </div>
-                 {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
+                {/* El mensaje de error sigue igual aquí debajo */}
+                {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
             </div>
+            {/* --- FIN REEMPLAZO --- */ }
 
             {/* Opcional: Campo Motivo/Observaciones */}
             <div className={styles.formSection} style={{ marginTop: 'var(--spL)' }}>
