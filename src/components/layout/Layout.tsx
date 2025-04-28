@@ -25,12 +25,12 @@ const typeAlerts: any = {
     color: { background: "var(--cHoverError)", border: "var(--cError)" },
   },
   F: {
-    name: "Emergencia",
+    name: "Incendio",
     icon: <IconFlame size={36} color="var(--cWhite)" />,
     color: { background: "var(--cHoverWarning)", border: "var(--cWarning)" },
   },
   T: {
-    name: "Alerta",
+    name: "Robo",
     icon: <IconTheft size={36} color="var(--cWhite)" />,
     color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
   },
@@ -192,6 +192,7 @@ const Layout = ({ children }: any) => {
               src={getUrlImages(
                 "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
               )}
+              name={openAlert?.item?.owner_name}
             />
           }
         />
