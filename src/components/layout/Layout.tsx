@@ -15,7 +15,12 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
-import { IconAmbulance, IconFlame, IconTheft } from "./icons/IconsBiblioteca";
+import {
+  IconAlert,
+  IconAmbulance,
+  IconFlame,
+  IconTheft,
+} from "./icons/IconsBiblioteca";
 
 // const soundBell = new Audio("/sounds/bellding.mp3");
 const typeAlerts: any = {
@@ -32,6 +37,11 @@ const typeAlerts: any = {
   T: {
     name: "Robo",
     icon: <IconTheft size={36} color="var(--cWhite)" />,
+    color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
+  },
+  O: {
+    name: "Otro",
+    icon: <IconAlert size={36} color="var(--cWhite)" />,
     color: { background: "var(--cHoverInfo)", border: "var(--cInfo)" },
   },
 };
