@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Budget.module.css";
@@ -16,7 +16,6 @@ const paramsInitial = {
   searchBy: "",
 };
 
-// --- Helper Functions (Fuera del Componente) ---
 const formatPeriod = (periodCode: string): string => {
     const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
     return map[periodCode] || periodCode;
@@ -46,25 +45,38 @@ const getCategoryOptionsForFilter = (extraData: any) => [
     { id: "", name: "Todos" },
     ...(extraData?.categories || []).map((cat: any) => ({ id: cat.id, name: cat.name }))
 ];
-// --- Fin Helper Functions ---
 
-// --- Mod definition (Fuera del Componente) ---
 const mod: ModCrudType = {
     modulo: "budgets",
     singular: "Presupuesto",
     plural: "Presupuestos",
-    permiso: "", // Ajusta si es necesario
+    permiso: "", 
     extraData: true,
-    // renderForm: RenderForm,
     hideActions: {},
     filter: true,
     saveMsg: { add: "Presupuesto creado con éxito", edit: "Presupuesto actualizado con éxito", del: "Presupuesto eliminado con éxito" },
 };
-// --- Fin Mod definition ---
+
 
 
 const Budget = () => {
   const { setStore, userCan } = useAuth();
+  const handleGetFilter = useCallback((opt: string, value: string, oldFilterState: any) => {
+    // 1. Obtiene el objeto interno de filtros actual o inicializa uno vacío
+    //    Usa optional chaining (?.) y nullish coalescing (||) por seguridad
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    // 2. Lógica principal: Si el valor es "", elimina la clave del filtro.
+    if (value === "" || value === null || value === undefined) {
+        delete currentFilters[opt];
+    } else {
+    // 3. Si no, establece o actualiza el valor del filtro.
+        currentFilters[opt] = value;
+    }
+
+    // 4. Devuelve el objeto en la estructura que useCrud espera recibir de esta función.
+    return { filterBy: currentFilters };
+}, []);
 
 
 
@@ -160,6 +172,7 @@ const Budget = () => {
       paramsInitial,
       mod,
       fields,
+      getFilter: handleGetFilter,
     });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
