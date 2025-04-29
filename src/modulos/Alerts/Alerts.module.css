@@ -19,6 +19,13 @@
   white-space: nowrap;
 }
 
+/* Estilos para cada nivel de estado */
+
+.nivelPanico {
+  background-color: var(--cMediumAlertHover);
+  color: var(--cMediumAlert);
+}
+
 /* Nivel Alto - Rojo */
 .nivelAlto {
   background-color: rgba(220, 53, 69, 0.2); /* Fondo rojo semi-transparente */
@@ -27,7 +34,12 @@
 
 /* Nivel Medio - Amarillo/Dorado */
 .nivelMedio {
-  background-color: rgba(255, 193, 7, 0.2); /* Fondo amarillo semi-transparente */
+  background-color: rgba(
+    255,
+    193,
+    7,
+    0.2
+  ); /* Fondo amarillo semi-transparente */
   color: #e6b800; /* Texto amarillo/dorado */
 }
 
