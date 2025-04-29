@@ -309,7 +309,7 @@ const ReservationDetailModal = ({
       } else {
            // Si tiene precio > 0
           const mode = area.booking_mode === 'hour' ? '/h' : '/día'; // O '/reserva' si no es por hora/día
-          return `Bs ${price.toFixed(2)}${mode} - Total: Bs ${total.toFixed(2)}`;
+          return `Bs ${price.toFixed(2)}`;
       }
   };
 
