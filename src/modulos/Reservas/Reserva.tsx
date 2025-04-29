@@ -26,6 +26,7 @@ const mod = {
   hideActions: { edit: true, del: true, add: true },
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
+  filter:true
   // Esto cargará los detalles completos al hacer clic
 };
 
@@ -38,6 +39,15 @@ const paramsInitial = {
 
 const Reserva = () => {
   const router = useRouter();
+  const getReservaStatusOptions = () => [
+    { id: "", name: "Todos" }, // Opción para mostrar todos
+    { id: "W", name: "En espera" },
+    { id: "Y", name: "Aprobado" },
+    { id: "N", name: "Rechazado" },
+    { id: "X", name: "Cancelado" },
+    // Agrega otros estados si son relevantes para filtrar, por ejemplo:
+    // { id: "A", name: "Disponible" }, // Si aplica
+  ];
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -186,7 +196,12 @@ const Reserva = () => {
             );
           },
         },
-      },
+        filter: {
+          label: "Estado Reserva", 
+          width: "180px",              
+          options: getReservaStatusOptions, 
+        },
+      }, 
     }),
     []
   );

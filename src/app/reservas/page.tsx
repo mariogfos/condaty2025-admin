@@ -4,7 +4,7 @@ import Reserva from '@/modulos/Reservas/Reserva';
 import React from 'react'
 
 const reservas = () => {
-  return <ReservationsTabs />
+  return <Reserva/>
 }
 
 export default reservas;
