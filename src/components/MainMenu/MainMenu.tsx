@@ -77,6 +77,7 @@ const MainMenu = ({
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
+              { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
