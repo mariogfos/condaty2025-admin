@@ -5,10 +5,10 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
-import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowLeft, IconBackAround, IconNextAround, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getUrlImages } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useRouter } from 'next/navigation';
 // Importa TODAS las interfaces necesarias desde Type.ts
 import {
@@ -21,6 +21,7 @@ import {
     FormState
 } from "./Type"; // Asegúrate que la ruta sea correcta
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // --- Interfaces del Formulario (Definidas localmente) ---
 
@@ -531,8 +532,8 @@ const decrementPeople = () => {
   handleQuantityChange(newValue);
 };
 
-// --- FIN Funciones para Incrementar/Decrementar ---
-// --- RENDER ---
+
+
 return (
   <div className={styles.pageWrapper}>
 
@@ -613,25 +614,29 @@ return (
                       }}
                     />
                     {/* Paginación de Imagen */}
-                    <div className={styles.imagePagination}>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : (selectedAreaDetails?.images?.length || 1) - 1))}
-                        disabled={selectedAreaDetails?.images?.length <= 1}
-                        aria-label="Imagen anterior"
-                      >
-                        {"<"}
-                      </button>
-                      <span>{currentImageIndex + 1} / {selectedAreaDetails?.images?.length || 1}</span>
-                      <button
-                         type="button"
-                         onClick={() => setCurrentImageIndex((prev) => (prev < (selectedAreaDetails?.images?.length || 1) - 1 ? prev + 1 : 0))}
-                         disabled={selectedAreaDetails?.images?.length <= 1}
-                         aria-label="Siguiente imagen"
-                      >
-                        {">"}
-                      </button>
-                    </div>
+                  <div className={styles.imagePagination}>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : (selectedAreaDetails?.images?.length || 1) - 1))}
+                      disabled={selectedAreaDetails?.images?.length <= 1}
+                      aria-label="Imagen anterior"
+                    >
+                      {/* Añade la className aquí */}
+                      <IconBackAround className={styles.paginationIcon} />
+                    </button>
+
+                    <span>{currentImageIndex + 1} / {selectedAreaDetails?.images?.length || 1}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex((prev) => (prev < (selectedAreaDetails?.images?.length || 1) - 1 ? prev + 1 : 0))}
+                      disabled={selectedAreaDetails?.images?.length <= 1}
+                      aria-label="Siguiente imagen"
+                    >
+                      {/* Añade la className aquí */}
+                      <IconNextAround className={styles.paginationIcon} />
+                    </button>
+                  </div>
                   </div>
                   )}
                   {/* Si no hay imágenes */}
@@ -679,17 +684,18 @@ return (
                       </div>
                        <hr className={styles.areaSeparator} />
                        {/* Reglas */}
-                    <div className={styles.detailBlock}>
-                        <span className={styles.detailLabel}>Reglas y restricciones</span>
-                        {/* MODIFICAR onClick */}
-                        <button
-                          type='button'
-                          className={styles.rulesButton}
-                          onClick={() => setIsRulesModalVisible(true)} // <-- CAMBIAR AQUÍ
-                        >
-                          Ver Reglas
-                        </button>
-                    </div>
+                       <div className={styles.detailBlock}>
+                    <span className={styles.detailLabel}>Reglas y restricciones</span>
+                    {/* Botón ahora contiene solo el icono */}
+                    <button
+                      type='button'
+                      className={styles.rulesButton} // Mantenemos la clase para aplicar estilos CSS
+                      onClick={() => setIsRulesModalVisible(true)}
+                      aria-label="Ver reglas de uso" // IMPORTANTE para accesibilidad
+                    >
+                      <IconZoomDetail /> {/* <-- Icono en lugar de texto */}
+                    </button>
+                </div>
                   </div> {/* Fin areaInfo */}
               </div> // Fin areaPreview
             )}
@@ -773,11 +779,6 @@ return (
                   )}
                   {/* === FIN Sección de Selección de Periodos === */}
 
-                 {/* Mensaje si SÍ es reserva por día (sin cambios) */}
-                 {/* Nota: Este mensaje podría ser redundante si el label ya lo indica */}
-                 {/* {selectedAreaDetails?.booking_mode === 'day' && (
-                     <p className={styles.sectionSubtitle}>Esta área se reserva por día completo.</p>
-                 )} */}
                </>
             )}
                </>
@@ -857,13 +858,57 @@ return (
           </div> // Fin Step 2
         )}
 
-        {/* === PASO 3: Datos del Responsable y Resumen === */}
-        {currentStep === 3 && (
+       {/* === PASO 3: Resumen === */}
+       {currentStep === 3 && (
           <div className={`${styles.stepContent} ${styles.step3Content}`}>
-            
+             <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
+            {(() => {
+              // Encuentra los detalles de la unidad seleccionada
+              const selectedUnitDetails = unidadesResponse?.data?.find(
+                (u: ApiUnidad) => String(u.id) === formState.unidad
+              );
 
-            {/* Resumen de la reserva */}
-            <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
+              // Accede a titular y LUEGO a owner
+              const ownerData = selectedUnitDetails?.titular?.owner;
+              const unitNumber = selectedUnitDetails?.nro;
+
+              // Solo renderiza si tenemos los datos del owner
+              if (!ownerData || !unitNumber) {
+                return <div style={{ minHeight: '56px', display:'flex', alignItems:'center', color:'var(--cWhiteV1)' }}>Cargando datos del propietario...</div>; // Placeholder
+              }
+
+              // Renderiza la información del propietario
+              return (
+                <div className={styles.summaryOwnerInfoContainer}>
+                  <div className={styles.summaryOwnerInfo}>
+                    <div className={styles.ownerIdentifier}>
+                      <Avatar
+                        src={getUrlImages(
+                          `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
+                        )}
+                        name={getFullName(ownerData)}
+                        w={40}
+                        h={40}
+                      />
+                      <div className={styles.ownerText}>
+                        <span className={styles.ownerName}>
+                          {getFullName(ownerData)}
+                        </span>
+                        <span className={styles.ownerUnit}>
+                          Unidad {unitNumber}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={styles.reservationStatus}>
+                      Reservación: En proceso
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* --- FIN BLOQUE INFO DEL OWNER --- */}
+
+           
             <div className={styles.summaryContainer}>
                {selectedAreaDetails ? (
                   <div className={styles.summaryContent}>
@@ -872,7 +917,7 @@ return (
                          {selectedAreaDetails.images && selectedAreaDetails.images.length > 0 ? (
                              <img
                               className={styles.previewImage} // Reutiliza estilo
-                              src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`)}
+                              src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[0].id}.webp?d=${selectedAreaDetails.updated_at}`)} // Muestra siempre la primera imagen o la actual si tienes carrusel aquí
                               alt={selectedAreaDetails.title}
                              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                                  (e.target as HTMLImageElement).src = '/api/placeholder/150/120'; // Placeholder más pequeño
@@ -886,25 +931,19 @@ return (
                       <div className={styles.summaryDetailsContainer}>
                            <div className={styles.summaryAreaInfo}>
                              <span className={styles.summaryAreaName}>{selectedAreaDetails.title}</span>
-                             {/* Opcional: Descripción corta si quieres */}
-                             {/* <p className={styles.summaryAreaDescription}>
-                                 {selectedAreaDetails.description?.substring(0, 50) || "Sin descripci\u00F3n."}...
-                             </p> */}
-                          </div>
+                             {/* <p className={styles.summaryAreaDescription}> ... </p> */}
+                           </div>
                            <div className={styles.summaryBookingDetails}>
                              <span className={styles.summaryDetailsTitle}>Detalles de tu reserva</span>
                              {/* Fecha */}
                              <div className={styles.summaryDetailItem}>
-                                {/* Placeholder para Icono Calendario */}
                                 <span className={styles.detailIcon}>📅</span>
                                 <span>{formState.fecha || "Fecha no seleccionada"}</span>
                              </div>
-                             {/* Hora (si aplica) */}
-                             {/* Hora/Periodos (si aplica) - MODIFICADO */}
+                             {/* Hora/Periodos */}
                              {selectedAreaDetails.booking_mode !== 'day' && (
                                  <div className={styles.summaryDetailItem}>
                                     <span className={styles.detailIcon}>🕒</span>
-                                    {/* Muestra los periodos seleccionados, separados por coma o como prefieras */}
                                     <span>
                                         {selectedPeriods.length > 0
                                             ? selectedPeriods.map(p => p.replace('-', ' a ')).join(', ')
@@ -921,26 +960,51 @@ return (
                              )}
                               {/* Personas */}
                               <div className={styles.summaryDetailItem}>
-                                {/* Placeholder para Icono Personas */}
                                 <span className={styles.detailIcon}>👥</span>
                                 <span>{formState.cantidad_personas || 0} personas</span>
                              </div>
-                              {/* Costo (Ejemplo estático/simple) */}
-                              <div className={styles.summaryDetailItem}>
-                                 {/* Placeholder para Icono Dinero */}
-                                <span className={styles.detailIcon}>💲</span>
-                                {selectedAreaDetails.is_free === 'A' ? ( // Pregunta si ES GRATIS ('A')
-                                    <span className={styles.summaryTotalCost}>Gratis</span>
-                                ) : ( // Si NO es 'A' (debería ser 'X'), muestra el precio
-                                  <span className={styles.summaryTotalCost}>
-                                    {/* Muestra el precio formateado si existe, o un fallback */}
-                                    {selectedAreaDetails.price != null
-                                        ? `Total: Bs ${Number(selectedAreaDetails.price).toFixed(2)}`
-                                        : 'Precio no disponible'
-                                    }
+                              {/* --- Costo (MODIFICADO) --- */}
+                            <div className={styles.summaryDetailItem}>
+                              <span className={styles.detailIcon}>💲</span> {/* Icono */}
+
+                              {selectedAreaDetails.is_free === 'A' ? (
+                                // Si es Gratis
+                                <span className={styles.summaryPricePerUnit}>Gratis</span>
+                              ) : selectedAreaDetails.price != null ? (
+                                // Si tiene precio
+                                <>
+                                  {/* Precio por Unidad (Hora/Día/Periodo) */}
+                                  <span className={styles.summaryPricePerUnit}>
+                                    Bs {Number(selectedAreaDetails.price).toFixed(2)}
+                                    {selectedAreaDetails.booking_mode === 'day' ? '/día' : '/h'} {/* Muestra /h o /día */}
                                   </span>
-                                )}
-                             </div>
+
+                                  {/* Costo Total (Calculado) */}
+                                  <span className={styles.summaryTotalCost}>
+                                    {(() => {
+                                      // Calcula el total
+                                      let total = Number(selectedAreaDetails.price);
+                                      let quantityLabel = "";
+                                      // Si no es por día, multiplica por número de periodos
+                                      if (selectedAreaDetails.booking_mode !== 'day') {
+                                        const numPeriods = selectedPeriods.length || 1; // Asume 1 si no hay seleccionados (aunque debería haber validación)
+                                        // Intenta calcular la duración total en horas si es posible (esto es un extra opcional)
+                                         // Por defecto, 1 periodo = 1 hora (simplificación)
+                                        // Podrías intentar parsear HH:mm para calcular duración real si lo necesitas
+                                         // Etiqueta para el total
+                                      } else {
+                                        quantityLabel = `Total: `; // Etiqueta simple para reserva por día
+                                      }
+                                      return `${quantityLabel}Bs ${total.toFixed(2)}`;
+                                    })()}
+                                  </span>
+                                </>
+                              ) : (
+                                // Si no es gratis y no hay precio
+                                <span className={styles.summaryPricePerUnit}>Precio no disponible</span>
+                              )}
+                            </div>
+                            {/* --- Fin Costo (MODIFICADO) --- */}
                           </div>
                       </div>
                   </div>
@@ -948,6 +1012,8 @@ return (
                   <p>No se pudo cargar el resumen.</p>
                )}
             </div>
+             {/* ----- FIN DE TU CÓDIGO ORIGINAL DEL RESUMEN ----- */}
+
           </div> // Fin Step 3
         )}
 
@@ -982,7 +1048,7 @@ return (
             {/* Botón Siguiente (visible solo en Paso 1) */}
             {currentStep === 1 && (
               <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting || !selectedAreaDetails}>
-                Siguiente
+                Reservar
               </button>
             )}
             {/* Botón Continuar (visible solo en Paso 2) */}
@@ -1011,7 +1077,7 @@ return (
        onClose={() => setIsRulesModalVisible(false)} // Función para cerrar
        title={`Reglas de Uso - ${selectedAreaDetails.title}`} // Título del modal
        buttonText="" // Oculta el botón de "Guardar"
-       buttonCancel="Cerrar" // Texto del botón para cerrar
+       buttonCancel="" // Texto del botón para cerrar
        iconClose={true} // Muestra el icono 'X' para cerrar si no es fullscreen
        // fullScreen={false} // Puedes ajustar si lo necesitas a pantalla completa
      >
