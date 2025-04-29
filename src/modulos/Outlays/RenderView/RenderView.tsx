@@ -28,33 +28,49 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   // Función auxiliar para obtener nombre de categoría y subcategoría
   const getCategoryNames = () => {
     let categoryName = "Desconocida";
-    let subCategoryName = "-/-";
+    let subCategoryName = "-/-"; // Nombre por defecto para subcategoría
 
-    // Usa 'item' directamente de las props
-    if (item?.category_id && extraData?.categories) {
-      const foundCategory = extraData.categories.find((c: any) => c.id === item.category_id);
-      if (foundCategory) {
-        if (foundCategory.category_id) {
-          const parentCategory = extraData.categories.find((c: any) => c.id === foundCategory.category_id);
-          categoryName = parentCategory ? parentCategory.name : "Padre Desconocido";
-          subCategoryName = foundCategory.name;
-        } else if (foundCategory.padre && typeof foundCategory.padre === 'object') {
-           categoryName = foundCategory.padre.name || "Padre Desconocido";
-           subCategoryName = foundCategory.name;
-        } else {
-          categoryName = foundCategory.name;
+    // --- Estrategia Principal: Usar los datos embebidos en 'item' ---
+    if (item?.category) {
+        const subCategoryData = item.category; // Este objeto es la subcategoría
+        subCategoryName = subCategoryData.name || "Subcategoría sin nombre"; // Nombre de la subcategoría
+
+        // Buscar el objeto 'padre' dentro de la subcategoría
+        if (subCategoryData.padre && typeof subCategoryData.padre === 'object') {
+            categoryName = subCategoryData.padre.name || "Categoría sin nombre"; // Nombre de la categoría padre
         }
-      }
-    } else if (item?.category) {
-        if (item.category.padre && typeof item.category.padre === 'object') {
-            categoryName = item.category.padre.name || "Padre Desconocido";
-            subCategoryName = item.category.name;
-        } else {
-            categoryName = item.category.name;
+        // Fallback: Si no hay objeto 'padre' pero sí 'category_id' en la subcategoría
+        else if (subCategoryData.category_id && extraData?.categories) {
+             // Intentar buscar el padre en extraData usando el ID
+            const parentCategory = extraData.categories.find((c: any) => c.id === subCategoryData.category_id);
+            categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+            console.warn("Fallback: Usando category_id de subcategoría para buscar padre en extraData.");
+        }
+        // Si no tiene 'padre' ni 'category_id', entonces es una categoría principal
+        else {
+            categoryName = subCategoryData.name; // La categoría principal es ella misma
+            subCategoryName = "-/-"; // No hay subcategoría aplicable
         }
     }
+    // --- Estrategia Secundaria (Fallback): Si 'item.category' no existe ---
+    else if (item?.category_id && extraData?.categories) {
+        console.warn("Fallback General: 'item.category' no encontrado, buscando por 'item.category_id' en extraData.");
+        const foundCategory = extraData.categories.find((c: any) => c.id === item.category_id);
+        if (foundCategory) {
+            // Intentar determinar si es padre o hijo basándose en extraData
+             if (foundCategory.category_id) { // Si tiene un padre ID en extraData
+                const parentCategory = extraData.categories.find((c: any) => c.id === foundCategory.category_id);
+                categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+                subCategoryName = foundCategory.name; // La encontrada es la subcategoría
+            } else { // No tiene padre ID, es categoría principal
+                categoryName = foundCategory.name;
+                subCategoryName = "-/-";
+            }
+        }
+    }
+
     return { categoryName, subCategoryName };
-  };
+};
 
   // Función para obtener el texto del estado
   const getStatusText = (status: string) => {

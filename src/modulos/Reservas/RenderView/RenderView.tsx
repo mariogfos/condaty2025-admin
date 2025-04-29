@@ -294,7 +294,7 @@ const ReservationDetailModal = ({
       if (isNaN(price)) return 'Precio base inválido'; // O manejar de otra forma
       if (isNaN(total)) return 'Monto total inválido'; // O manejar de otra forma
 
-      const isFreeExplicit = area.is_free === 'X'; // Asumiendo 'X' significa gratis
+      const isFreeExplicit = area.is_free === 'A'; // Asumiendo 'X' significa gratis
       const isPriceZero = price <= 0;
 
       if (isFreeExplicit || isPriceZero) {

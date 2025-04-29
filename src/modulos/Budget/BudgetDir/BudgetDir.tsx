@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Budget.module.css";
+import styles from "./BudgetDir.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
@@ -12,7 +12,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider"; // Probablemente no necesi
 const paramsInitial = {
   perPage: 20,
   page: 1,
-  fullType: "L",
+  fullType: "P",
   searchBy: "",
 };
 
@@ -57,7 +57,7 @@ const mod: ModCrudType = {
 };
 
 
-const Budget = () => {
+const BudgetDir = () => {
   // No necesitas useAuth aquí si useCrud ya te da showToast y userCan
   // const { setStore, userCan } = useAuth();
 
@@ -132,4 +132,4 @@ const Budget = () => {
   );
 };
 
-export default Budget;
+export default BudgetDir;
