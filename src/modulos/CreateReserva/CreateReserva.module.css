@@ -1,4 +1,4 @@
-/* NUEVO: Estilo para el contenedor externo */
+
 .pageWrapper {
   width: 100%; /* Ocupa todo el ancho de la ventana */
   min-height: 100vh; /* Opcional: asegura altura mínima */
@@ -9,11 +9,6 @@
 }
 
 .createReservaContainer {
-  /* Ya NO necesita position: relative ni el padding-top extra */
-  /* position: relative; */ /* <--- QUITAR */
-  /* padding-top: 50px; */ /* <--- QUITAR */
-
-  /* Mantiene los estilos de centrado y contenido */
   display: flex;
   flex-direction: column;
   gap: var(--spL);
@@ -114,7 +109,7 @@
 .stepContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spXl); /* Ajusta según el contenido de cada paso (1.5rem -> 24px) */
+   /* Ajusta según el contenido de cada paso (1.5rem -> 24px) */
 }
 
 /* --- Estilos Títulos dentro de Pasos --- */
@@ -138,6 +133,64 @@
     margin-bottom: calc(-1 * var(--spS)); /* -0.5rem */
 }
 
+/* En CreateReserva.module.css */
+
+/* Contenedor para la info del owner con margen inferior y borde opcional */
+.summaryOwnerInfoContainer {
+  margin-bottom: var(--spM); /* Espacio antes del título "Resumen de la reserva" */
+  padding-bottom: var(--spM); /* Espacio antes del borde */
+  border-bottom: 1px solid var(--cBlackV3); /* Línea separadora */
+  width: 100%; /* Asegura que ocupe el ancho */
+}
+
+/* Contenedor flex principal para la info del owner (avatar/nombre vs estado) */
+.summaryOwnerInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Contenedor para Avatar + Texto (Nombre/Unidad) */
+.ownerIdentifier {
+  display: flex;
+  align-items: center;
+  gap: var(--spS); /* Espacio entre avatar y texto (ej: 8px) */
+}
+
+/* Contenedor para el texto (Nombre y Unidad en columna) */
+.ownerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Espacio vertical pequeño */
+}
+
+/* Estilo Nombre Owner */
+.ownerName {
+  font-size: var(--sM); /* 14px */
+  font-weight: var(--bMedium); /* 500 */
+  color: var(--cWhite);
+  line-height: 1.2;
+}
+
+/* Estilo Unidad Owner */
+.ownerUnit {
+  font-size: var(--sM); /* 14px */
+  font-weight: var(--bRegular); /* 400 */
+  color: var(--cWhiteV1); /* Grisáceo */
+  line-height: 1.2;
+}
+
+/* Estilo Estado Reserva (a la derecha) */
+.reservationStatus {
+  font-size: var(--sM); /* 14px */
+  font-weight: var(--bRegular);
+  color: var(--cWhiteV1);
+  text-align: right;
+  white-space: nowrap; /* Evita que el texto se parta */
+  margin-left: var(--spS); /* Pequeño margen por si acaso */
+}
+
 
 .formSection {
   display: flex;
@@ -149,7 +202,7 @@
   display: flex;
   flex-direction: row; /* Lado a lado */
   gap: var(--spL); /* 1rem */
-  margin-top: var(--spL);
+  margin-top: 12px;
  
   padding: var(--spL);
   border-radius: var(--bRadiusS);
@@ -174,27 +227,63 @@
   background-color: var(--cBlackV1); /* Fondo mientras carga */
 }
 
-/* Paginación (Placeholder) */
+
+/* En tu CreateReserva.module.css */
+
+/* Estilo para el CONTENEDOR de la paginación si necesitas */
 .imagePagination {
   display: flex;
   align-items: center;
-  gap: var(--spM);
-  font-size: var(--sS);
-  color: var(--cWhite);
+  justify-content: center; /* O según necesites alinear */
+  gap: var(--spM); /* Espacio entre botones y el texto "1 / X" */
 }
+
+/* Estilo para los BOTONES de paginación */
 .imagePagination button {
-  background: var(--cBlackV1);
-  border: none;
-  color: var(--cWhite);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  background: transparent; /* <-- ESENCIAL: Botón sin fondo */
+  border: none;           /* Sin borde */
+  color: var(--cWhite);   /* Color base para el icono (currentColor) */
+  padding: 0;             /* Sin padding interno */
+  margin: 0;              /* Sin margen extra */
   cursor: pointer;
+  width: 36px;            /* Tamaño del área clickeable (ajusta) */
+  height: 36px;           /* Tamaño del área clickeable (ajusta) */
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;    /* Mantiene el área de click circular */
 }
 
+/* Estilo para botones deshabilitados */
+.imagePagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--cWhiteV1); /* Color más tenue para icono deshabilitado */
+}
+
+/* Estilo base y tamaño para el SVG DENTRO del botón */
+.imagePagination button svg.paginationIcon {
+  width: 36px;             /* Tamaño visual del icono (ajusta) */
+  height: 36px;            /* Tamaño visual del icono (ajusta) */
+  display: block;          /* Ayuda a prevenir espacios extra */
+         /* <-- Grosor de línea deseado (ej: 1px) */
+                           /* Puedes ajustar 0.75px si lo prefieres */
+  /* No definas fill/stroke aquí si quieres controlarlo por elemento */
+}
+
+/* ESTILO ESPECÍFICO para el CÍRCULO DENTRO de estos iconos */
+.imagePagination button svg.paginationIcon circle {
+  fill: none;             /* SIN relleno */
+  stroke: currentColor;   /* CON borde (hereda color blanco del botón) */
+  /* stroke-width se hereda de svg.paginationIcon */
+}
+
+/* ESTILO ESPECÍFICO para el PATH (flecha) DENTRO de estos iconos */
+.imagePagination button svg.paginationIcon path {
+  fill: none;             /* <-- CORREGIDO: SIN relleno */
+  stroke: currentColor;   /* <-- CORREGIDO: CON borde (hereda color blanco) */
+  /* stroke-width se hereda de svg.paginationIcon */
+}
 /* Contenedor Info */
 .areaInfo {
   flex-grow: 1; /* Ocupa el espacio restante */
@@ -242,11 +331,18 @@
   font-size: var(--sM); /* 14px */
   color: var(--cWhiteV1); /* #a7a7a7 */
   line-height: 1.4;
+
+  /* --- Añade estas 4 líneas para truncar --- */
+  display: -webkit-box;         /* Necesario para line-clamp */
+  -webkit-line-clamp: 4;        /* Número máximo de líneas */
+  -webkit-box-orient: vertical; /* Orientación vertical */
+  overflow: hidden;             /* Oculta el texto que se desborda */
+  /* text-overflow: ellipsis; */ /* Opcional, usualmente implícito con line-clamp */
 }
 
 .areaSeparator { /* Línea separadora */
   border: none;
-  border-top: 1px solid var(--cBlackV1); /* Línea sutil */
+  border-top: 1px solid var(--cWhiteV1); /* Línea sutil */
   margin: 0; /* Resetear margen */
 }
 
@@ -267,19 +363,40 @@
   color: var(--cWhiteV1); /* #a7a7a7 */
 }
 
-.rulesButton { /* Botón/Enlace para ver reglas */
-  background: none;
-  border: none;
-  color: var(--cAccent); /* Color acento */
-  text-align: left;
-  padding: 0;
+/* En CreateReserva.module.css */
+
+.rulesButton {
+  /* Quita o comenta estilos específicos de texto si los tenías */
+  /* text-decoration: underline; */ /* <-- Quitar si existe */
+  /* text-align: left; */ /* Quitar o ajustar */
+
+  /* Añade/Ajusta estilos para botón de icono */
+  background: none; /* Sin fondo */
+  border: none; /* Sin borde */
+  padding: 3px; /* Espacio pequeño alrededor del icono (ajusta si quieres) */
+  margin: 0; /* Resetea margen si es necesario */
+  margin-top: var(--spXs); /* Mantiene el margen superior que tenías */
   cursor: pointer;
-  font-size: var(--sM);
-  text-decoration: underline;
-  margin-top: var(--spXs);
+  color: var(--cWhite); /* Color del icono (heredado por currentColor) */
+  width: auto; /* O un tamaño fijo si prefieres: ej 24px */
+  height: auto;/* O un tamaño fijo si prefieres: ej 24px */
+  display: inline-flex; /* Para alinear bien el SVG */
+  align-items: right;
+  justify-content: right;
+  border-radius: 4px; /* Opcional: esquinas redondeadas para el área del botón */
+  vertical-align: middle; /* Ayuda a alinear con el texto del label */
 }
+
 .rulesButton:hover {
-  color: var(--accentv1);
+  color: var(--accentv1); /* Color al pasar el mouse */
+  background-color: rgba(var(--accentRGB), 0.15); /* Opcional: fondo sutil al pasar el mouse */
+}
+
+/* Control específico del tamaño del SVG dentro de ESTE botón */
+.rulesButton svg {
+  width: 16px;  /* Tamaño deseado del icono */
+  height: 16px; /* Tamaño deseado del icono */
+  display: block; /* Evita espacio extra */
 }
 .sectionTitle { /* Estilo para "Datos generales", "Datos de la reserva" */
   font-size: var(--sL); /* 16px */
@@ -295,10 +412,7 @@
 }
 
 
-/* --- Estilos Paso 2 --- */
-.step2Content {
-    gap: var(--spXxl); /* 2rem -> 32px */
-}
+
 
 .sectionLabel { /* Label "Selecciona la fecha", "Selecciona la hora", "Cantidad de personas" */
     font-size: var(--sL); /* 16px */
@@ -344,6 +458,7 @@
 
 /* Sección Personas */
 .peopleSection {
+  position: relative; 
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -370,30 +485,39 @@
 .step3Content {
     gap: var(--spXl); /* 1.5rem -> 24px */
 }
-
 .summaryContainer {
-    background-color: var(--cBlackV2); /* Mismo fondo que la tarjeta */
-    border-radius: var(--bRadius); /* 0.75rem -> 12px */
+  background-color: var(--cBlackV2);
+  border-radius: var(--bRadius); /* 0.75rem -> 12px */
+  /* Añade padding aquí si summaryContent no lo tiene */
+   padding: var(--spL); /* Mueve el padding aquí */
+
 }
+
 .summaryContent {
-    display: flex;
-    gap: var(--spL); /* 1rem -> 16px */
-    padding: var(--spL);
+  display: flex;
+  gap: var(--spL); /* 1rem -> 16px */
+  /* padding: var(--spL); <-- Quita el padding de aquí si lo pusiste en summaryContainer */
+  width: 100%; /* Asegura que ocupe el ancho */
+  flex-direction: row; /* Asegura la dirección horizontal (aunque es default) */
+ /* Alinea los items al inicio si tienen alturas diferentes */
 }
+
 .summaryImageContainer {
-   flex-shrink: 0;
+ flex:1;
+ width: 218px; /* <-- AÑADE/ASEGURA este ancho */
+ 
 }
-.summaryImage {
-    width: 218px;
-    height: 218px;
-    object-fit: cover;
-    border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
+.summaryImage { /* (Sin cambios, ya estaba bien) */
+  width: 100%; /* Ocupa el 100% del contenedor (218px) */
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--bRadiusS);
 }
-.summaryDetailsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spL); /* 1rem -> 16px */
-    flex-grow: 1;
+.summaryDetailsContainer { /* (Sin cambios, ya estaba bien) */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  flex-grow: 1; /* Ocupa el espacio restante */
 }
 .summaryAreaInfo {
     display: flex;
@@ -420,11 +544,21 @@
     color: var(--cWhite); /* #f0f0f0 */
 }
 .summaryDetailItem {
-    display: flex;
-    align-items: center;
-    gap: var(--spXs); /* 0.25rem -> 4px */
-    font-size: var(--sM); /* 14px */
-    color: var(--cWhiteV1); /* #a7a7a7 */
+  display: flex;           /* <-- AÑADE: Para posicionar elementos internos */
+  align-items: center;
+  gap: var(--spS);        /* Reduce el gap si es necesario para que quepa todo */
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+}
+.summaryDetailItem .detailIcon { /* Selector más específico */
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Evita que el icono se encoja */
+  /* margin-right: var(--spXs);  <-- Puedes usar gap en el contenedor padre en su lugar */
+  color: var(--cWhiteV1);
 }
 .summaryDetailItem span:first-child { /* Placeholder para icono */
     width: 20px;
@@ -439,12 +573,20 @@
 .summaryCostPerHour {
     /* Estilo específico si es necesario */
 }
-.summaryTotalCost {
-    margin-left: auto;
-    font-weight: var(--bMedium); /* 500 */
-    color: var(--cWhite); /* #f0f0f0 */
+/* NUEVO: Estilo para el precio por unidad (Bs 50/h) */
+.summaryPricePerUnit {
+  color: var(--cWhiteV1); /* Mismo color que otros detalles */
+  white-space: nowrap; /* Evita que se parta */
 }
 
+/* Total Cost (Asegura que se vaya a la derecha) */
+.summaryTotalCost {
+  margin-left: auto;     /* <-- ESENCIAL: Empuja esto a la derecha */
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+  white-space: nowrap; /* Evita que se parta */
+  text-align: right; /* Alinea el texto a la derecha dentro de su span */
+}
 
 /* --- Estilos Acciones/Botones --- */
 .formActions {
@@ -454,7 +596,14 @@
   gap: var(--spL); /* 1rem */
   margin-top: var(--spL);
   padding-top: var(--spL);
-  border-top: var(--bWidth) solid var(--cBlackV3); /* #414141 */
+  border-top: var(--bWidth) solid var(--cWhiteV1); /* #414141 */
+}
+.priceInfoBottom {
+    display: flex;
+    align-items: center;
+    gap: var(--spXs); /* 0.25rem -> 4px */
+    font-size: var(--sXl); /* 14px */
+    color: var(--cWhite); /* #a7a7a7 */
 }
 
 .button {
@@ -473,6 +622,7 @@
   background-color: transparent;
   border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
   color: var(--cWhiteV1); /* #a7a7a7 */
+  margin-right: 10px;
 }
 .backBtn:hover {
   background-color: var(--cBlackV3); /* #414141 */
@@ -491,12 +641,10 @@
 
 /* --- Estilos Formularios (Input/Select/TextArea) --- */
 .formField {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spXs); /* 4px */
+  position: relative; /* <-- AÑADIR: Contexto para el error absoluto */
+  display: flex;
+  flex-direction: column;
 }
-/* Asegúrate que los estilos *internos* de tus componentes Input, Select, TextArea usen variables de tema */
-
 
 /* --- Estilos para CalendarPicker (usando variables de tema) --- */
 .calendarContainer {
@@ -717,7 +865,24 @@
 
 /* Ajustes menores si son necesarios */
 .errorText {
-  margin-top: var(--spS); /* 8px */
+  position: absolute;   /* <-- Posicionamiento absoluto */
+  top: 100%;          /* <-- Posiciona el borde superior del error justo debajo del contenedor relativo */
+  left: 0;            /* <-- Alinea a la izquierda del contenedor */
+  width: 100%;          /* <-- Ocupa el ancho del contenedor */
+  margin-top: 2px;      /* <-- Pequeño espacio entre el input y el texto del error */
+  padding-left: 5px;    /* <-- Opcional: pequeña indentación */
+
+  color: var(--cError); /* Color de error */
+  font-size: var(--sS); /* Tamaño pequeño */
+  line-height: 1.2;     /* Interlineado ajustado */
+  
+  /* Importante para evitar problemas de click */
+  pointer-events: none; /* Permite hacer click 'a través' del mensaje de error si solapa algo */
+
+  /* Resetea otros márgenes por si acaso */
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .periodSelectionContainer {
@@ -764,16 +929,58 @@
     color: var(--cWarning); /* Asegúrate de tener esta variable */
 }
 
-/* Asegúrate que el contenedor de errores se muestre bien */
-.errorText {
-    color: var(--cError); /* Asegúrate de tener esta variable */
-    font-size: var(--sS);
-    display: block;
-    margin-top: 4px;
-    width: 100%; /* Para que ocupe el ancho bajo los botones */
-}
+
 
 /* Ajustes al contenedor de la sección de duración si es necesario */
 .durationSection {
     margin-top: var(--spL); /* Añade espacio arriba */
 }
+/* EN CreateReserva.module.css */
+
+/* Contenedor principal del selector de cantidad */
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spL); /* Espacio entre botones y número (ajusta 1rem) */
+  /* Puedes añadir otros estilos como background, border-radius si quieres un fondo */
+}
+
+/* Estilo para los botones +/- */
+.quantityButton {
+  background-color: transparent; /* Sin fondo */
+  border: 1px solid var(--cWhiteV1); /* Borde circular */
+  color: var(--cWhite); /* Color del símbolo +/- */
+  width: 32px;  /* Ancho del botón (ajusta) */
+  height: 32px; /* Alto del botón (ajusta) */
+  border-radius: 50%; /* Hace el botón circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--sXl); /* Tamaño del símbolo +/- (ajusta 20px) */
+  line-height: 1; /* Ajusta línea para centrar verticalmente */
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  padding: 0; /* Quitar padding extra */
+}
+
+.quantityButton:hover:not(:disabled) {
+  border-color: var(--cAccent); /* Cambia color borde al pasar el mouse */
+  background-color: var(--cBlackV3); /* Fondo sutil al pasar el mouse */
+}
+
+.quantityButton:disabled {
+  opacity: 0.5; /* Botón semi-transparente si está deshabilitado */
+  cursor: not-allowed; /* Cursor no permitido */
+  border-color: var(--terciary); /* Borde más oscuro */
+  color: var(--terciary);
+}
+
+/* Estilo para el número mostrado */
+.quantityValue {
+  font-size: var(--sXl); /* Tamaño del número (ajusta 20px) */
+  font-weight: var(--bMedium); /* Peso de fuente */
+  color: var(--cWhite);
+  min-width: 30px; /* Ancho mínimo para que no salte mucho el layout */
+  text-align: center; /* Centrar el número */
+}
+

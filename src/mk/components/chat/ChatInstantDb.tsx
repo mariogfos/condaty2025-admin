@@ -15,6 +15,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
 import Logo from "@/components/req/Logo";
 import { useEvent } from "@/mk/hooks/useEvents";
+import { SendMessageType } from "./chat-types";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -33,6 +34,7 @@ export default function ChatInstantDb() {
     showToast,
     typing,
     sending,
+    db,
   } = useInstandDB();
   const [open, setOpen] = useState(false);
   const [typeSearch, setTypeSearch]: any = useState(roomGral);
@@ -140,7 +142,7 @@ export default function ChatInstantDb() {
 
   const [botActive, setBotActive] = useState(false);
   const [botActiveController, setBotActiveController] = useState(false);
-  const _sendMsg = async (text: string, roomId: string, file?: File) => {
+  const _sendMsg: SendMessageType = async (text, roomId, userId, file) => {
     if (roomId.indexOf("chatBot") > -1) {
       if (text == "_activate_") {
         setBotActive(true);
@@ -151,7 +153,7 @@ export default function ChatInstantDb() {
         return;
       }
     }
-    return await sendMessage(text, roomId, file);
+    return await sendMessage(text, roomId, userId, file);
   };
 
   const onNotif = useCallback((e: any) => {
@@ -203,6 +205,7 @@ export default function ChatInstantDb() {
         typing={typing}
         sending={sending}
         isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
+        db={db}
       />
       <h4 className={styles.onlineUsersTitle}>Usuarios en línea:</h4>
       <div className={styles.onlineUsersList}>

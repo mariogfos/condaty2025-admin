@@ -87,6 +87,14 @@ const Roles = () => {
         form: { type: "text", label: "Nombre del rol" },
         hide: true,
       },
+      code: {
+        rules: ["required"],
+        api: "ae",
+        label: "Código",
+        list: { width: "250" },
+        form: { type: "text", label: "Código del rol" },
+        hide: true,
+      },
       description: {
         rules: [""],
         api: "ae",
