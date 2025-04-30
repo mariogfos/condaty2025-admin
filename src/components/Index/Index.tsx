@@ -6,14 +6,14 @@ import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
 
 import { WidgetSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
-import { WidgetDashCard } from "../ Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { WidgetDashCard } from "../Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
-import WidgetBase from "../ Widgets/WidgetBase/WidgetBase";
-import WidgetGraphResume from "../ Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
+import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
+import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import Button from "@/mk/components/forms/Button/Button";
-import WidgetCalculatePenalty from "../ Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
-import { WidgetList } from "../ Widgets/WidgetsDashboard/WidgetList/WidgetList";
+import WidgetCalculatePenalty from "../Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
+import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
@@ -22,8 +22,6 @@ import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 // Asegúrate que la ruta al modal sea correcta
-
-
 
 const paramsInitial = {
   fullType: "L",
@@ -75,7 +73,10 @@ const HomePage = () => {
     if (!str) return "";
     const uniqueArray = str.split(",").filter((item, index, self) => {
       const trimmedItem = item.trim();
-      return trimmedItem !== "" && self.findIndex(s => s.trim() === trimmedItem) === index;
+      return (
+        trimmedItem !== "" &&
+        self.findIndex((s) => s.trim() === trimmedItem) === index
+      );
     });
     return uniqueArray.join(" ");
   };
@@ -89,10 +90,10 @@ const HomePage = () => {
           <Button
             onClick={() => {
               if (userCan("payments", "C") == false) {
-                 return showToast(
-                    "No tiene permisos para aceptar pagos",
-                    "error"
-                  );
+                return showToast(
+                  "No tiene permisos para aceptar pagos",
+                  "error"
+                );
               }
               setDataPayment(data);
               setOpenPayment(true);
@@ -110,11 +111,10 @@ const HomePage = () => {
     return (
       <ItemList
         title={getFullName(data?.owner)}
-        subtitle={`Área: ${data?.area?.title || 'No especificada'}`}
+        subtitle={`Área: ${data?.area?.title || "No especificada"}`}
         right={
           <Button
             onClick={() => {
-             
               setSelectedReservationId(data.id); // <- Guarda solo el ID
               setOpenReservation(true);
             }}
@@ -126,7 +126,6 @@ const HomePage = () => {
     );
   };
 
-
   const registroList = (data: any) => {
     return (
       <ItemList
@@ -135,10 +134,10 @@ const HomePage = () => {
           <Button
             onClick={() => {
               if (userCan("owners", "C") == false) {
-                 return showToast(
-                    "No tiene permisos para aceptar cuentas pre-registradas",
-                    "error"
-                  );
+                return showToast(
+                  "No tiene permisos para aceptar cuentas pre-registradas",
+                  "error"
+                );
               }
               setDataOwner(data.owner);
               setOpenActive(true);
@@ -198,13 +197,13 @@ const HomePage = () => {
             title="Ingresos"
             subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
-            onClick={() => window.location.href = "/payments"}
+            onClick={() => (window.location.href = "/payments")}
           />
           <WidgetDashCard
             title="Egresos"
             subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
-            onClick={() => window.location.href = "/outlays"}
+            onClick={() => (window.location.href = "/outlays")}
           />
           <WidgetDashCard
             title={balanceMessage}
@@ -214,7 +213,7 @@ const HomePage = () => {
               "Bs. " +
               formatNumber(
                 Number(dashboard?.data?.TotalIngresos) -
-                Number(dashboard?.data?.TotalEgresos)
+                  Number(dashboard?.data?.TotalEgresos)
               )
             }
           />
@@ -222,7 +221,7 @@ const HomePage = () => {
             title="Cartera vencida"
             subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
-            onClick={() => window.location.href = "/defaultersview"}
+            onClick={() => (window.location.href = "/defaultersview")}
           />
         </section>
 
@@ -281,16 +280,14 @@ const HomePage = () => {
         reLoad={reLoad}
       />
 
-      <PaymentRender
-        {...paymentProps}
-      />
+      <PaymentRender {...paymentProps} />
 
       {/* Modificado para pasar solo el ID a través de la prop 'reservationId' */}
       <ReservationDetailModal
         open={openReservation}
         onClose={() => {
-            setOpenReservation(false);
-            setSelectedReservationId(null);
+          setOpenReservation(false);
+          setSelectedReservationId(null);
         }}
         reservationId={selectedReservationId}
         reLoad={() => reLoad()}

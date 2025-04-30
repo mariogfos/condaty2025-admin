@@ -10,7 +10,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { getDateDesdeHasta } from "@/mk/utils/date";
-import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
+import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 
@@ -111,7 +111,8 @@ const Outlays = () => {
           options: getPeriodOptions,
         },
       },
-      category_id: { // <--- Columna "Categoría"
+      category_id: {
+        // <--- Columna "Categoría"
         rules: ["required"],
         api: "ae",
         label: "Categoria",
@@ -121,7 +122,10 @@ const Outlays = () => {
             let data: any = [];
             // Filtrar por los que no tienen objeto padre (o category_id es null)
             items?.extraData?.categories
-              ?.filter((c: { padre: any; category_id: any }) => !c.padre && !c.category_id)
+              ?.filter(
+                (c: { padre: any; category_id: any }) =>
+                  !c.padre && !c.category_id
+              )
               ?.map((c: any) => {
                 data.push({
                   id: c.id,
@@ -131,7 +135,8 @@ const Outlays = () => {
             return data;
           },
         },
-        list: { // <--- Lógica de renderizado para la columna "Categoría"
+        list: {
+          // <--- Lógica de renderizado para la columna "Categoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
@@ -139,7 +144,7 @@ const Outlays = () => {
             }
             // *** CORRECCIÓN LÓGICA ***
             // Verificar si el objeto 'padre' existe y NO es null
-            if (category.padre && typeof category.padre === 'object') {
+            if (category.padre && typeof category.padre === "object") {
               // Si existe el objeto padre, esta es una subcategoría. Mostramos el nombre del padre.
               return category.padre.name || `(Padre sin nombre)`;
             } else {
@@ -155,7 +160,8 @@ const Outlays = () => {
         },
       },
 
-      subcategory_id: { // <--- Columna "Subcategoría"
+      subcategory_id: {
+        // <--- Columna "Subcategoría"
         rules: ["required"], // Considera si realmente es requerido
         api: "ae",
         label: "Subcategoria",
@@ -164,16 +170,17 @@ const Outlays = () => {
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [], // Se maneja en RenderForm
         },
-        list: { // <--- Lógica de renderizado para la columna "Subcategoría"
+        list: {
+          // <--- Lógica de renderizado para la columna "Subcategoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
-               return `sin datos`;
+              return `sin datos`;
             }
             // *** CORRECCIÓN LÓGICA ***
             // Verificar si el objeto 'padre' existe y NO es null
-            if (category.padre && typeof category.padre === 'object') {
-               // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
+            if (category.padre && typeof category.padre === "object") {
+              // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
               return category.name || `(Sin nombre)`;
             } else {
               // Si NO existe el objeto padre, no hay subcategoría aplicable.

@@ -52,7 +52,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
       (item) =>
         pathname === item.href ||
         (pathname === "/categories" && item.href === "/payments") ||
-        (item.href === "/units" && pathname.startsWith("/dashDpto/"))
+        (item.href === "/units" && pathname?.startsWith("/dashDpto/"))
     );
     setIsRouteActive(isActive);
 
@@ -90,7 +90,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     ) {
       return true;
     }
-    if (item.href === "/units" && pathname.startsWith("/dashDpto/")) {
+    if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
       return true;
     }
     return false;

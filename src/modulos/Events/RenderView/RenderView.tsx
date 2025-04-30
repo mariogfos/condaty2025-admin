@@ -10,10 +10,10 @@ import {
   IconScanLine,
   IconUserAddline,
 } from "@/components/layout/icons/IconsBiblioteca";
-import WidgetBase from "@/components/ Widgets/WidgetBase/WidgetBase";
-import WidgetDonut from "@/components/ Widgets/WidgetDonut/WidgetDonut";
-import WidgetEducation from "@/components/ Widgets/WidgetEducation/WidgetEducation";
-import WidgetAge from "@/components/ Widgets/WidgetAge/WidgetAge";
+import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
+import WidgetDonut from "@/components/Widgets/WidgetDonut/WidgetDonut";
+import WidgetEducation from "@/components/Widgets/WidgetEducation/WidgetEducation";
+import WidgetAge from "@/components/Widgets/WidgetAge/WidgetAge";
 import Table from "@/mk/components/ui/Table/Table";
 import HorizontalProgresiveBar from "@/mk/components/ui/HorizontalProgresiveBar/HorizontalProgresiveBar";
 import { lComDestinies, RandomsColors } from "@/mk/utils/utils";
@@ -240,7 +240,10 @@ const RenderView = (props: {
   //   });
   //   return lEntidad;
   // };
-console.log(lComDestinies.find((i:any)=> i.id === data.destiny ),'asas')
+  console.log(
+    lComDestinies.find((i: any) => i.id === data.destiny),
+    "asas"
+  );
   return (
     <DataModal
       open={props.open}
@@ -254,7 +257,7 @@ console.log(lComDestinies.find((i:any)=> i.id === data.destiny ),'asas')
         {data?.destiny != 0 && (
           <p style={{ marginBottom: 12, color: "var(--cInfo)" }}>
             Destino:{" "}
-            { lComDestinies.find((i:any)=> i.id === data.destiny )?.name}
+            {lComDestinies.find((i: any) => i.id === data.destiny)?.name}
           </p>
         )}
         <WidgetBase

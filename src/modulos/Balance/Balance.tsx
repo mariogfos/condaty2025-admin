@@ -19,9 +19,9 @@ import TableResumenGeneral from "./TableResumenGeneral";
 import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
-import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
-import WidgetGrafIngresos from "@/components/ Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
-import WidgetGrafBalance from "@/components/ Widgets/WidgetGrafBalance/WidgetGrafBalance";
+import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
+import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
+import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 // Interfaces
@@ -236,16 +236,16 @@ const BalanceGeneral: React.FC = () => {
       return;
     }
 
-// ESTA ES LA CORRECCIÓN
-if (formState.date_inicio && formState.date_fin) {
-  // Directamente usar las cadenas YYYY-MM-DD de los inputs
-  // No convertir a objeto Date para evitar problemas de zona horaria
-  setFormStateFilter({
-    ...formStateFilter,
-    // Usar los strings directamente tal como vienen del input type="date"
-    filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
-  });
-}
+    // ESTA ES LA CORRECCIÓN
+    if (formState.date_inicio && formState.date_fin) {
+      // Directamente usar las cadenas YYYY-MM-DD de los inputs
+      // No convertir a objeto Date para evitar problemas de zona horaria
+      setFormStateFilter({
+        ...formStateFilter,
+        // Usar los strings directamente tal como vienen del input type="date"
+        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
+      });
+    }
 
     setOpenCustomFilter(false);
     setErrors({});
