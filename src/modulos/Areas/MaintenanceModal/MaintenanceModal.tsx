@@ -4,10 +4,14 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
 import React, { useEffect, useState } from "react";
 import TitleSubtitle from "./TitleSubtitle";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
+import { getDateStrMes } from "../../../mk/utils/date1";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { IconX } from "@/components/layout/icons/IconsBiblioteca";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface Props {
   open: boolean;
@@ -22,6 +26,9 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const { execute } = useAxios();
   const [errors, setErrors] = useState({});
   const [reservas, setReservas] = useState([]);
+  const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
+  const { showToast } = useAuth();
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormState({
@@ -42,7 +49,11 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     }
   };
   useEffect(() => {
-    if (formState.date_at && formState.date_end) {
+    if (
+      formState.date_at &&
+      formState.date_end &&
+      formState.date_at <= formState.date_end
+    ) {
       getReservas();
     }
   }, [formState.date_at, formState.date_end]);
@@ -63,15 +74,16 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     });
     errors = checkRules({
       value: formState?.date_at,
-      rules: ["required"],
+      rules: ["required", "greaterDate"],
       key: "date_at",
       errors,
     });
     errors = checkRules({
       value: formState?.date_end,
-      rules: ["required"],
+      rules: ["required", "greaterDateTime:date_at,1"],
       key: "date_end",
       errors,
+      data: formState,
     });
     errors = checkRules({
       value: formState?.reason,
@@ -93,6 +105,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     );
     if (data?.success == true) {
       _onClose();
+      showToast("Mantenimiento creado con éxito", "success");
     }
   };
 
@@ -108,10 +121,22 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     }
   };
   useEffect(() => {
+    setDataM([]);
     if (tab == "A") {
       getAreasM();
     }
   }, [tab]);
+
+  const handleCancelMaintenance = async (id: any) => {
+    const { data } = await execute("/reservations/" + id, "DELETE", {
+      is_canceled: "Y",
+    });
+    if (data?.success == true) {
+      getAreasM();
+      showToast("Mantenimiento cancelado con éxito", "success");
+      setOpenConfirm({ open: false, id: null });
+    }
+  };
 
   return (
     <DataModal
@@ -175,7 +200,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             </>
           )}
 
-          {reservas.length > 0 && (
+          {reservas?.length > 0 && (
             <div style={{ marginTop: "20px" }}>
               <TitleSubtitle
                 title={`Se cancelarán ${reservas.length} reserva(s)`}
@@ -255,8 +280,20 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   display: "flex",
                   flexDirection: "column",
                   gap: "12px",
+                  minWidth: "400px",
+                  position: "relative",
                 }}
               >
+                <IconX
+                  onClick={() => setOpenConfirm({ open: true, id: reserva.id })}
+                  style={{
+                    position: "absolute",
+                    top: "12px",
+                    right: "12px",
+                    cursor: "pointer",
+                  }}
+                />
+
                 <div
                   style={{
                     display: "flex",
@@ -264,33 +301,27 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     gap: "12px",
                   }}
                 >
-                  {/* <div
+                  <Avatar
+                    src={getUrlImages(
+                      "/AREA-" +
+                        reserva?.area?.id +
+                        "-" +
+                        reserva?.area?.images?.[0]?.id +
+                        ".webp" +
+                        "?" +
+                        reserva?.area?.updated_at
+                    )}
+                  />
+
+                  <div
                     style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      backgroundColor: "var(--cAccent)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                      fontSize: "20px",
                       fontWeight: "bold",
+                      color: "var(--cWhite)",
+                      fontSize: "16px",
+                      marginBottom: "4px",
                     }}
                   >
-                    {reserva.area?.title?.[0] || "A"}
-                  </div> */}
-                  <div>
-                    <div
-                      style={{
-                        fontWeight: "bold",
-                        color: "var(--cWhite)",
-                        fontSize: "16px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      {reserva.area?.title || "Área sin nombre"}
-                    </div>
+                    {reserva.area?.title || "Área sin nombre"}
                   </div>
                 </div>
 
@@ -308,18 +339,22 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     <span style={{ color: "var(--cWhite)" }}>
                       Fecha de inicio:
                     </span>{" "}
-                    {reserva.date_at}
+                    {getDateStrMes(reserva.date_at) + " "}
+                    {reserva.start_time}
                   </div>
+                  {reserva.date_end && (
+                    <div style={{ color: "var(--cWhiteV1)" }}>
+                      <span style={{ color: "var(--cWhite)" }}>
+                        Fecha de fin:
+                      </span>{" "}
+                      {getDateStrMes(reserva.date_end) + " "}
+                      {reserva.end_time}
+                    </div>
+                  )}
                   <div style={{ color: "var(--cWhiteV1)" }}>
                     <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
                     {reserva.reason || "No especificado"}
                   </div>
-                  {reserva.date_end && (
-                    <div style={{ color: "var(--cWhiteV1)" }}>
-                      <span style={{ color: "var(--cWhite)" }}>Fin:</span>{" "}
-                      {reserva.date_end}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -337,6 +372,35 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             )}
           </div>
         </>
+      )}
+      {openConfirm.open && (
+        <DataModal
+          title="Cancelar mantenimiento"
+          open={openConfirm.open}
+          onClose={() => setOpenConfirm({ open: false, id: null })}
+          onSave={() => handleCancelMaintenance(openConfirm.id)}
+        >
+          <div
+            style={{
+              padding: "20px",
+              color: "var(--cWhite)",
+              textAlign: "center",
+            }}
+          >
+            <p>
+              ¿Está seguro que desea cancelar el mantenimiento de esta área?
+            </p>
+            <p
+              style={{
+                marginTop: "10px",
+                color: "var(--cWhiteV1)",
+                fontSize: "14px",
+              }}
+            >
+              Esta acción no se puede deshacer.
+            </p>
+          </div>
+        </DataModal>
       )}
     </DataModal>
   );
