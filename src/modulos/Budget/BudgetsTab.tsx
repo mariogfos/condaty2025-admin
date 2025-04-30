@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons"; 
 import styles from "./BudgetsTab.module.css"; 
 import { useAuth } from "@/mk/contexts/AuthProvider"; 
-import Budget from "./Budget";
+import Budget from "./Budget/Budget";
 import BudgetDir from "./BudgetDir/BudgetDir";
 
 
