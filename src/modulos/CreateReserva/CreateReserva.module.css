@@ -4,7 +4,6 @@
   min-height: 100vh; /* Opcional: asegura altura mínima */
   position: relative; /* Contexto para el botón absoluto */
   padding-top: 50px; /* Espacio reservado arriba para el botón. Ajusta '50px' si es necesario */
-                    /* Alternativa: podrías quitar este padding y ajustar 'top' en .backButton */
   box-sizing: border-box; /* Incluye padding en el tamaño total */
 }
 
@@ -74,14 +73,6 @@
   background-color: var(--cBigSidebar); /* #246950 */
   transition: width 0.3s ease-in-out;
 }
-/* Podrías tener una clase adicional para el color verde claro */
-/* .progressFillActive { background-color: var(--cAccent); } */
-
-
-.formContainer {
-  /* Contenedor si necesitas separar el header de la tarjeta */
-}
-
 .formCard {
   display: flex;
   flex-direction: column;
@@ -203,7 +194,6 @@
   flex-direction: row; /* Lado a lado */
   gap: var(--spL); /* 1rem */
   margin-top: 12px;
- 
   padding: var(--spL);
   border-radius: var(--bRadiusS);
   background-color: var(--cBlackV2); /* Fondo ligeramente diferente opcional */
@@ -227,10 +217,6 @@
   background-color: var(--cBlackV1); /* Fondo mientras carga */
 }
 
-
-/* En tu CreateReserva.module.css */
-
-/* Estilo para el CONTENEDOR de la paginación si necesitas */
 .imagePagination {
   display: flex;
   align-items: center;
@@ -275,14 +261,13 @@
 .imagePagination button svg.paginationIcon circle {
   fill: none;             /* SIN relleno */
   stroke: currentColor;   /* CON borde (hereda color blanco del botón) */
-  /* stroke-width se hereda de svg.paginationIcon */
+
 }
 
 /* ESTILO ESPECÍFICO para el PATH (flecha) DENTRO de estos iconos */
 .imagePagination button svg.paginationIcon path {
   fill: none;             /* <-- CORREGIDO: SIN relleno */
   stroke: currentColor;   /* <-- CORREGIDO: CON borde (hereda color blanco) */
-  /* stroke-width se hereda de svg.paginationIcon */
 }
 /* Contenedor Info */
 .areaInfo {

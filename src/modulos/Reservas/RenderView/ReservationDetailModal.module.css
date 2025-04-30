@@ -144,11 +144,10 @@
   font-weight: var(--bRegular, 400);
   font-size: var(--sM, 14px);
   color: var(--cWhiteV1, #a7a7a7);
-  /* Para truncar texto en web si es necesario */
-  /* display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
+  display: -webkit-box;
   -webkit-box-orient: vertical;
-  overflow: hidden; */
+  overflow: hidden;
 }
 
 .specificDetails {
@@ -199,12 +198,31 @@
 /* .totalPrice { color: var(--cWhite, #fafafa); font-weight: var(--bMedium, 500); margin-left: var(--spXs); } */
 
 
-/* Botones de Acción */
+/* ReservationDetailModal.module.css */
+
+/* ... (tus otros estilos) ... */
+
 .actionButtonsContainer {
-  display: flex; /* Asegúrate que esto esté presente */
-  gap: var(--spS, 8px); /* O el gap que prefieras */
-  margin-top: var(--spM, 12px); /* O el margen que prefieras */
+  display: flex;
+  gap: var(--spS, 8px); /* Mantiene el espacio entre botones */
+  margin-top: var(--spM, 12px);
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
 }
+
+.rejectButtonProportional {
+  flex-grow: 3; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 para que flex-grow distribuya todo el espacio */
+  min-width: 0; /* Permite que el botón se encoja si es necesario (aunque flex-grow domina aquí) */
+}
+
+.approveButtonProportional {
+  flex-grow: 5; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 */
+  min-width: 0; /* Permite que el botón se encoja */
+
+}
+
+
 
 .secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
   flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
@@ -266,4 +284,10 @@
   color: var(--cWhiteV1);
   font-size: var(--sM);
   line-height: 1.4;
+}
+.divider {
+  height: 0.5px;
+  width: 100%;
+  background-color: var(--cWhiteV1);
+  margin-bottom: var(--spM, 12px);
 }
