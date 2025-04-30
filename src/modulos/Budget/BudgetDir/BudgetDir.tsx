@@ -7,6 +7,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider"; // Probablemente no necesites importar useAuth aquí directamente
+import BudgetApprovalView from "./RenderView/BudgetDirApprovalModal";
 
 // ... (paramsInitial, formatters, options, mod - sin cambios) ...
 const paramsInitial = {
@@ -29,19 +30,19 @@ const formatStatus = (statusCode: string): string => {
     return map[statusCode] || statusCode;
 };
 const getPeriodOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "", name: "Todos" }] : []),
+    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
     { id: "M", name: "Mensual" }, { id: "B", name: "Bimestral" }, { id: "Q", name: "Trimestral" }, { id: "S", name: "Semestral" }, { id: "Y", name: "Anual" }
 ];
 const getTypeOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "", name: "Todos" }] : []),
+    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
     { id: "F", name: "Fijo" }, { id: "V", name: "Variable" }
 ];
 const getStatusOptions = (addDefault = false) => [
-    ...(addDefault ? [{ id: "", name: "Todos" }] : []),
+    ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
     { id: "D", name: "Borrador" }, { id: "P", name: "Pendiente Aprobación" }, { id: "A", name: "Aprobado" }, { id: "R", name: "Rechazado" }, { id: "C", name: "Completado" }, { id: "X", name: "Cancelado" }
 ];
 const getCategoryOptionsForFilter = (extraData: any) => [
-    { id: "", name: "Todos" },
+    { id: "T", name: "Todos" },
     ...(extraData?.categories || []).map((cat: any) => ({ id: cat.id, name: cat.name }))
 ];
 
@@ -58,6 +59,7 @@ const mod: ModCrudType = {
     },
     filter: true,
     saveMsg: { add: "Presupuesto creado con éxito", edit: "Presupuesto actualizado con éxito", del: "Presupuesto eliminado con éxito" },
+    renderView: (props: any) => <BudgetApprovalView {...props} />,
 };
 
 
