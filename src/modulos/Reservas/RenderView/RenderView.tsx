@@ -15,6 +15,7 @@ import {
 } from '@/components/layout/icons/IconsBiblioteca';
 // Eliminado import de TextArea si no se usa directamente en ReservationDetailModal
 import Input from '@/mk/components/forms/Input/Input';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 
 // --- INICIO: Nuevo Componente Memoizado ---
 
@@ -51,6 +52,14 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
         <div className={styles.reservationBlock}>
           <div className={styles.requesterSection}>
              <div className={styles.requesterInfoContainer}>
+              <Avatar
+                src={getUrlImages(
+                  `/OWNER-${details.owner.id}.webp?d=${details.owner.updated_at}`
+                )}
+                name={getFullName(details.owner)}
+                w={40}
+                h={40}
+              />
                 <div className={styles.requesterText}>
                   <span className={styles.requesterName}>{getFullName(details.owner)}</span>
                   {details.dpto && (
@@ -63,6 +72,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
               {/* Usa la función pasada por props */}
               <span className={styles.requestTime}>{details.created_at ? getFormattedRequestTime(details.created_at): ''}</span>
           </div>
+          <div className={styles.divider}></div>
 
           <div className={styles.mainDetailsContainer}>
              <div className={styles.imageWrapper}>
@@ -127,22 +137,25 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             </div>
         )}
 
-        {/* Muestra los botones de acción si el estado es 'W' */}
-        {details.status === 'W' && (
+       {details.status === 'W' && (
           <div className={styles.actionButtonsContainer}>
             <Button
-              onClick={onRejectClick} // Usa la prop
+              onClick={onRejectClick}
               variant="secondary"
               disabled={isActionLoading}
+              // --- USA ESTA NUEVA CLASE ---
+              className={styles.rejectButtonProportional} // Para 3 partes
             >
-              Rechazar
+              Cancelar Solicitud
             </Button>
             <Button
-              onClick={onAcceptClick} // Usa la prop
+              onClick={onAcceptClick}
               variant="primary"
               disabled={isActionLoading}
+              // --- USA ESTA NUEVA CLASE ---
+              className={styles.approveButtonProportional} // Para 5 partes
             >
-              Aprobar
+              Aprobar Solicitud
             </Button>
           </div>
         )}
@@ -150,14 +163,8 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
   );
 };
 
-// 3. Envolver con React.memo para la optimización
+
 const MemoizedReservationDetailsView = React.memo(ReservationDetailsView);
-
-// --- FIN: Nuevo Componente Memoizado ---
-
-
-// --- INICIO: Componente Principal ReservationDetailModal ---
-
 const ReservationDetailModal = ({
   open,
   onClose,
@@ -172,7 +179,7 @@ const ReservationDetailModal = ({
   reLoad?: () => void;
 }) => {
 
-  // --- Estados ---
+
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [displayedData, setDisplayedData] = useState<any | null>(null);
@@ -180,7 +187,7 @@ const ReservationDetailModal = ({
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
 
-  // --- Hooks ---
+
   const {
     execute: fetchDetails,
     data: fetchedData,
@@ -201,8 +208,6 @@ const ReservationDetailModal = ({
 
       if (item && item.id) {
         setDisplayedData(item);
-        // Resetear estado de carga/error del fetch por si acaso
-        // No podemos resetear el hook directamente, pero el 'loaded' cambiará si hacemos fetch
       } else if (reservationId) {
          setDisplayedData(null); // Limpiar datos previos antes de buscar
          const paramsInitial = { fullType: "DET", searchBy: reservationId };
@@ -218,31 +223,24 @@ const ReservationDetailModal = ({
         setDisplayedData(null);
       }
     } else {
-       // Limpiar todo al cerrar el modal principal
       setDisplayedData(null);
       setActionError(null);
       setIsActionLoading(false);
       setIsRejectModalOpen(false); // Asegurarse que el modal de rechazo también se cierre
       setRejectionReason("");
       setRejectErrors({});
-      // No es necesario limpiar el estado del hook fetchDetails aquí explícitamente
     }
   }, [open, item, reservationId]); // Ejecutar si cambia la apertura, el item o el ID
 
-  // Efecto para actualizar displayedData cuando el fetch (GET) termina
   useEffect(() => {
-    // Solo actualizar si NO se usó 'item' (es decir, se hizo fetch)
     if (!item && detailsLoaded) {
         if (fetchedData?.data && Array.isArray(fetchedData.data) && fetchedData.data.length > 0) {
             setDisplayedData(fetchedData.data[0]);
-            setActionError(null); // Limpiar errores previos si el fetch es exitoso
+            setActionError(null); 
         } else if (detailsError) {
             setDisplayedData(null);
-            // Podrías poner el error del fetch en actionError si quieres mostrarlo
-            // setActionError(`Error al cargar detalles: ${detailsError.message || 'Error desconocido'}`);
-            console.error("Error fetching details:", detailsError); // Mantener log de error
+            console.error("Error fetching details:", detailsError); 
         } else {
-             // Caso: fetch exitoso pero no devolvió datos (raro si buscas por ID)
              setDisplayedData(null);
         }
     }
@@ -372,21 +370,19 @@ const ReservationDetailModal = ({
     }
   };
 
-  // --- Lógica de Renderizado Principal ---
   const isLoadingDetails = !item && !detailsLoaded && !detailsError;
-  // El error de carga de detalles se maneja dentro del useEffect ahora
-  // const hasLoadingError = !item && detailsLoaded && detailsError;
 
   return (
     <>
-      {/* --- PRIMER MODAL (DETALLES) --- */}
       <DataModal
         open={open}
         onClose={onClose}
         title="Detalle de la Reserva"
-        buttonText="" // Ocultar botones por defecto del DataModal
-        buttonCancel="" // Ocultar botones por defecto del DataModal
+        buttonText="" 
+        buttonCancel="" 
+        style={{ width: '739px', maxWidth: '80%' }}
       >
+        <div className={styles.divider}></div>
         <div className={styles.modalContent}>
           {/* Renderizado condicional principal */}
           {isLoadingDetails ? (
@@ -397,7 +393,7 @@ const ReservationDetailModal = ({
                {detailsError ? `Error al cargar: ${detailsError.message || 'Error desconocido'}` : 'No hay datos de reserva para mostrar.'}
              </div>
           ) : (
-            // --- USA EL COMPONENTE MEMOIZADO ---
+            
             <MemoizedReservationDetailsView
               details={displayedData}
               isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
