@@ -166,19 +166,23 @@ const useCrud = ({
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
-
-  const [params, setParams] = useState(paramsInitial);
+  // console.log("Etradata00", mod.extraData);
+  const [params, setParams] = useState({
+    ...paramsInitial,
+    ...(mod?.extraData ? { extraData: mod?.extraData } : {}),
+  });
   const [searchs, setSearchs]: any = useState({});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
 
+  // console.log("Etradata", params, mod.extraData);
   const { data, reLoad, execute, loaded } = useAxios(
     "/" + mod.modulo,
     "GET",
     params,
     mod?.noWaiting
   );
-
+  // setParams({ ...paramsInitial });
   const { isMobile } = useScreenSize();
 
   const onChange = useCallback((e: any) => {
@@ -460,12 +464,19 @@ const useCrud = ({
     );
     setExtraData(extraData?.data);
   };
+  // useEffect(() => {
+  //   if (mod.extraData) {
+  //     getExtraData();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
   useEffect(() => {
-    if (mod.extraData) {
-      getExtraData();
+    if (data?.extraData) {
+      setExtraData(data?.extraData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data?.extraData]);
 
   const Detail = memo(({ open, onClose, item, i }: PropsDetail) => {
     const getHeader = () => {
