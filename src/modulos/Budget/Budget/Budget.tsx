@@ -7,8 +7,10 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider"; // Probablemente no necesites importar useAuth aquí directamente
+import Button from "@/mk/components/forms/Button/Button";
+import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 
-// ... (paramsInitial, formatters, options, mod - sin cambios) ...
+
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -58,7 +60,11 @@ const mod: ModCrudType = {
 
 
 const Budget = () => {
-  // No necesitas useAuth aquí si useCrud ya te da showToast y userCan
+  // --- Estado para controlar el modal de confirmación ---
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  // --- Estado opcional para la carga de la acción de envío ---
+  const [isSending, setIsSending] = useState(false);
+
   // const { setStore, userCan } = useAuth();
 
   const handleGetFilter = useCallback((opt: string, value: string, oldFilterState: any) => {
@@ -73,7 +79,6 @@ const Budget = () => {
 
   const fields = useMemo(
     () => ({
-        // ... tu definición de fields completa (incluyendo status y approved_id corregidos) ...
         id: { rules: [], api: "e" },
         name: { rules: ["required"], api: "ae", label: "Nombre", form: { type: "text" }, list: {}, },
         start_date: { rules: ["required"], api: "ae", label: "Fecha Inicio", form: { type: "date" }, list: { onRender: (props: any) => getDateStrMes(props.item.start_date) }, },
@@ -88,46 +93,77 @@ const Budget = () => {
     }),
     []
   );
+  const handleConfirmSendToApproval = async () => {
+    console.log("Enviando presupuestos a aprobación...");
+    setIsSending(true); // Inicia estado de carga
 
-  // --- Desestructura 'data', 'loaded' y 'showToast' de useCrud ---
-  const { List, extraData, data, loaded, showToast, userCan } =
+    try {
+        // Llama al endpoint específico con POST, sin payload adicional
+        const { data: response, error } = await execute(
+             '/send-budget-approval', // El endpoint que especificaste
+             'POST',                 // Método POST
+             {},                     // Payload vacío (un objeto vacío es lo más seguro)
+             false,                  // noWaiting: esperar la respuesta
+             false                   // noGenericError: podemos manejar el error aquí
+         );
+
+         // Revisa la respuesta de la API
+         if (response?.success) {
+             // Éxito: Muestra mensaje, recarga la lista y cierra el modal
+             showToast(response?.message || 'Presupuestos enviados a aprobación exitosamente.', 'success');
+             if (reLoad) reLoad(); // Recarga la lista para reflejar cambios
+             setIsConfirmModalOpen(false); // Cierra el modal de confirmación
+         } else {
+            // Si success no es true, o hubo un error capturado por useAxios
+            throw new Error(response?.message || error?.message || 'Error desconocido al enviar los presupuestos.');
+         }
+    } catch (err: any) {
+         // Muestra el error en un toast
+         showToast(err.message, 'error');
+         console.error("Error enviando presupuestos a aprobación:", err);
+         // Considera si quieres cerrar el modal aquí o dejarlo abierto
+         // setIsConfirmModalOpen(false);
+    } finally {
+         setIsSending(false); // Termina estado de carga, haya éxito o error
+    }
+  };
+  const sendToApprovalButton = (
+    <Button
+        onClick={() => {
+          setIsConfirmModalOpen(true);
+        }}
+        variant="secondary"
+        style={{ minWidth: '180px' }}
+    >
+        Enviar a Aprobación
+    </Button>
+);
+
+  const { List, extraData, data, loaded, showToast, userCan ,execute, reLoad} =
     useCrud({
       paramsInitial,
       mod,
       fields,
       getFilter: handleGetFilter,
+      extraButtons: [sendToApprovalButton]
     });
 
-  // --- useEffect para detectar el mensaje específico en la respuesta ---
   useEffect(() => {
-    // Solo actuar si la carga terminó (loaded es true) y hay datos (data existe)
     if (loaded && data) {
-      // Condición: La API dice success: true, PERO data.data NO es un array
-      // Y ADEMÁS, data.data es un objeto que contiene una propiedad 'msg' de tipo string.
       if (data.success === true && data.data && !Array.isArray(data.data) && typeof data.data.msg === 'string') {
-        // Muestra el mensaje de la API como un toast de error
         showToast(data.data.msg, 'error');
-
-        // Opcional: Podrías querer hacer algo más aquí, como limpiar
-        // algún estado local si fuera necesario, aunque usualmente
-        // el toast es suficiente para informar al usuario.
       }
     }
-    // Dependencias: Ejecutar este efecto si 'data', 'loaded' o 'showToast' cambian.
   }, [data, loaded, showToast]);
-
-
-  // Este chequeo puede ser redundante si la API ya controla el acceso
-  // y devuelve el mensaje que estamos capturando en el useEffect.
-  // Puedes comentarlo o quitarlo si prefieres confiar en la respuesta de la API.
-  // if (!userCan(mod.permiso, "R")) return <NotAccess />;
-
   return (
     <div className={styles.container}>
-      {/* El componente List internamente mostrará "No existen datos"
-          si data.data no es un array (como en el caso del mensaje de error).
-          El toast que añadimos explicará por qué. */}
       <List />
+      <SendBudgetApprovalModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)} // Cierra el modal al cancelar
+        onConfirm={handleConfirmSendToApproval}     // Llama a la función de confirmación
+        isLoading={isSending}                       // Pasa el estado de carga
+      />
     </div>
   );
 };
