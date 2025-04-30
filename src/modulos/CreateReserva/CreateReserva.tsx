@@ -31,7 +31,7 @@ const initialState: FormState = {
   area_social: "",
   fecha: "",
   // REMOVIDOS: hora_inicio, hora_fin
-  cantidad_personas: "",
+  cantidad_personas: "1",
   motivo: "",
   nombre_responsable: "",
   telefono_responsable: "",
@@ -808,7 +808,7 @@ return (
                             onClick={decrementPeople}
                             className={styles.quantityButton}
                             // Deshabilita si el valor actual es 1 o menos, o si no es un número válido
-                            disabled={Number(formState.cantidad_personas || 1) <= 1 || isSubmitting}
+                            disabled={Number(formState.cantidad_personas || 0) <= 1 || isSubmitting}
                             aria-label="Disminuir cantidad"
                         >
                             - {/* O un icono */}
