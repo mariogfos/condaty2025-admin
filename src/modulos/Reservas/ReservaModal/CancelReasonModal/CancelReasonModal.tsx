@@ -40,12 +40,13 @@ const CancelReasonModal = ({ open, onClose, onSubmit }: any) => {
       onSave={handleSubmitClick}
       buttonCancel=''
       buttonText=''
+      style={{ width: '480px'}}
       
     >
       {/* Cabecera personalizada */}
       <div className={styles.header}>
         <div className={styles.titleContainer}>
-          <span className={styles.title}>Cancelar solicitud</span>
+          <span className={styles.title}>Cancelar solicitude</span>
         </div>
        
       </div>
@@ -92,7 +93,7 @@ const CancelReasonModal = ({ open, onClose, onSubmit }: any) => {
           Salir
         </button>
         <button className={styles.confirmCancelButton} onClick={handleSubmitClick}>
-          Cancelar solicitud
+          Cancelar solicitude
         </button>
       </div>
     </DataModal>

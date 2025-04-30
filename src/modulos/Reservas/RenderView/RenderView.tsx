@@ -428,7 +428,9 @@ const ReservationDetailModal = ({
             title="Cancelar Solicitud"
             buttonText="" // Sin botones por defecto
             buttonCancel="" // Sin botones por defecto
+            style={{ width: '486px', maxWidth: '80%' }}
           >
+            <div className={styles.divider}></div>
             <div className={styles.modalContentContainer}> {/* Contenedor para padding/gap interno */}
               <p>Por favor indica el motivo para que el residente pueda comprender e intente solicitar esta área social de manera correcta</p>
               <Input

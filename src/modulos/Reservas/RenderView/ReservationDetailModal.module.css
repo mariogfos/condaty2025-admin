@@ -267,3 +267,9 @@
   font-size: var(--sM);
   line-height: 1.4;
 }
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--cWhite);
+  margin-bottom: var(--spM, 12px);
+}
