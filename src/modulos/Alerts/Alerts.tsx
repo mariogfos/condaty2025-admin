@@ -65,7 +65,8 @@ const Alerts = () => {
   const getAlertLevelClass = (level: any) => {
     switch (level) {
       case 4:
-        return styles.nivelPanico;
+        // return styles.nivelPanico;
+        return styles.nivelAlto;
       case 3:
         return styles.nivelAlto;
       case 2:
