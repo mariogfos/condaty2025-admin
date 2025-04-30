@@ -201,21 +201,29 @@
 
 /* Botones de Acción */
 .actionButtonsContainer {
-  display: flex;
-  gap: var(--spS, 8px);
-  margin-top: var(--spM, 12px);
+  display: flex; /* Asegúrate que esto esté presente */
+  gap: var(--spS, 8px); /* O el gap que prefieras */
+  margin-top: var(--spM, 12px); /* O el margen que prefieras */
 }
 
-/* Estilos base para Button de MK (ajusta según cómo funcione tu Button) */
-/* Si Button usa className, define estilos aquí. Si usa 'variant', no son necesarios */
+.secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
+  flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+  /* Puedes añadir otros estilos si son necesarios */
+}
+
+.primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
+  flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+}
+
+
 .rejectButton {
-  /* Estilos específicos si usas className para el botón de rechazar */
-  /* Ejemplo: border-color: var(--cWhiteV1); color: var(--cWhiteV1); */
+
   flex-grow: 1; /* Ocupa espacio */
 }
 .acceptButton {
-  /* Estilos específicos si usas className para el botón de aceptar */
-  /* Ejemplo: background-color: var(--cAccent); color: var(--cBlack); */
+
    flex-grow: 1; /* Ocupa espacio */
 }
 
@@ -231,4 +239,31 @@
     justify-content: center;
     align-items: center;
     min-height: 200px; /* Altura mínima mientras carga */
+}
+/* En TuComponentePadre.module.css */
+
+.confirmCancelButton {
+  /* Estilos para replicar el botón verde de tu imagen */
+  background-color: #00E38C; /* Verde brillante */
+  color: #212121; /* Texto oscuro */
+  border: none; /* Sin borde */
+  padding: var(--spM) var(--spXl); /* Ajusta el padding si es necesario */
+  border-radius: var(--bRadiusS); /* Ajusta el border-radius */
+  font-weight: var(--bSemibold); /* Peso de fuente */
+  flex-grow: 1; /* Intenta que ocupe más espacio si hay dos botones */
+}
+
+
+
+/* Ajustes al contenido del modal si es necesario */
+.modalContentContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.modalContentContainer p {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.4;
 }

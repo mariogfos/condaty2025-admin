@@ -1,0 +1,38 @@
+/* ReservationsTabs.module.css */
+
+/* Estilo para el contenedor principal del componente de pestañas */
+.container {
+    /* Puedes añadir padding, margen u otros estilos generales aquí */
+    /* padding: var(--spM); */ /* Ejemplo */
+  }
+  
+  /* Estilos si decides añadir un título general encima de las pestañas */
+  .title {
+    color: var(--cWhite);
+    font-size: var(--sXL); /* Ajusta según tus variables de tamaño */
+    font-weight: 600;     /* O el peso que uses */
+    margin-bottom: var(--spXS); /* Espacio debajo del título */
+  }
+  
+  /* Estilos si decides añadir un subtítulo general */
+  .subtitle {
+    color: var(--cWhiteV2);
+    font-size: var(--sM); /* Ajusta tamaño */
+    margin-bottom: var(--spL); /* Espacio antes de las pestañas */
+  }
+  
+  /* Contenedor específico para los botones de las pestañas (si necesitas limitarlo) */
+  /* Similar a como limitaste el primer div en Config.module.css */
+  /* Asegúrate que el div que envuelve a TabsButtons en tu JSX tenga esta clase si la usas */
+  .tabsContainer {
+     /* max-width: 500px; */ /* Ejemplo para limitar ancho de las tabs */
+     margin-bottom: var(--spL); /* Espacio debajo de las tabs */
+  }
+  
+  
+  /* Estilo para el div que envuelve el contenido de la pestaña activa (<Reserva /> o <ReservaPending />) */
+  .tabContent {
+    margin-top: var(--spL); /* Espacio entre las pestañas y la lista */
+  }
+  
+  /* Puedes añadir más estilos específicos que necesites para este layout */

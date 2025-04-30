@@ -471,6 +471,7 @@ const prevStep = (): void => {
             setErrors({});
             setBusyDays([]);
             setAvailableTimeSlots([]);
+            router.push('/reservas');
         } else {
             showToast(response?.data?.message || "Error al crear la reserva.", "error");
         }
