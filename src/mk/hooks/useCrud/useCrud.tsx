@@ -1201,6 +1201,7 @@ const useCrud = ({
                   onAdd,
                   openList,
                   setOpenList,
+                  reLoad: reLoad,
                 })
               ) : (
                 <Detail

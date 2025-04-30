@@ -229,6 +229,7 @@ const Reserva = () => {
     onDel,
     extraData,
     findOptions,
+    reLoad
   } = useCrud({
     paramsInitial,
     mod,
