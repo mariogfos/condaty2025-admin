@@ -77,6 +77,7 @@ const MainMenu = ({
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
+              { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -111,8 +112,8 @@ const MainMenu = ({
             icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
-              { href: "/events", label: "Eventos" },
-              { href: "/surveys", label: "Encuestas" },
+              // { href: "/events", label: "Eventos" },
+              // { href: "/surveys", label: "Encuestas" },
               { href: "/alerts", label: "Alertas" },
             ]}
             collapsed={collapsed}
@@ -134,7 +135,7 @@ const MainMenu = ({
           <MainmenuItem
             href="/reservas"
             label="Reservas"
-            icon={<IconCalendar/>}
+            icon={<IconCalendar />}
             collapsed={collapsed}
           />
 

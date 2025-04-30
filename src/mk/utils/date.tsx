@@ -182,18 +182,40 @@ export const getNow = (): string => {
 
 export const getDateDesdeHasta = (date: any) => {
   const fechaActual = new Date();
-
+  //convertir fechaActual a hora local
+  fechaActual.setHours(
+    fechaActual.getHours() + fechaActual.getTimezoneOffset() / 60
+  );
+  console.log(date, "dadada");
   // obtener fecha de inicio del mes actual y fecha de fin del mes actual
-  const primerDia = new Date(
+  let primerDia = new Date(
     fechaActual.getFullYear(),
     fechaActual.getMonth(),
     1
   );
-  const ultimoDia = new Date(
+  let ultimoDia = new Date(
     fechaActual.getFullYear(),
     fechaActual.getMonth() + 1,
     0
   );
+  // Manejar fechas personalizadas
+  if (typeof date === "string" && date.startsWith("c:")) {
+    const [fechaInicio, fechaFin] = date.substring(2).split(",");
+    primerDia = new Date(fechaInicio);
+    ultimoDia = new Date(fechaFin);
+    //convertir a primerDia y ultimo dia a hora local
+    primerDia.setHours(
+      primerDia.getHours() + primerDia.getTimezoneOffset() / 60
+    );
+    ultimoDia.setHours(
+      ultimoDia.getHours() + ultimoDia.getTimezoneOffset() / 60
+    );
+    return `${primerDia.getDate()}/${
+      primerDia.getMonth() + 1
+    }/${primerDia.getFullYear()} al ${ultimoDia.getDate()}/${
+      ultimoDia.getMonth() + 1
+    }/${ultimoDia.getFullYear()}`;
+  }
 
   if (date === "m") {
     // return `${primerDia.getDate()}/${
@@ -205,8 +227,8 @@ export const getDateDesdeHasta = (date: any) => {
 
   if (date === "lm") {
     const mesActual = fechaActual.getMonth();
-    const primerDia = new Date(fechaActual.getFullYear(), mesActual - 1, 1);
-    const ultimoDia = new Date(fechaActual.getFullYear(), mesActual, 0);
+    primerDia = new Date(fechaActual.getFullYear(), mesActual - 1, 1);
+    ultimoDia = new Date(fechaActual.getFullYear(), mesActual, 0);
 
     // return `${primerDia.getDate()}/${
     //   primerDia.getMonth() + 1
@@ -216,8 +238,8 @@ export const getDateDesdeHasta = (date: any) => {
   }
 
   if (date === "y") {
-    const primerDia = new Date(fechaActual.getFullYear(), 0, 1);
-    const ultimoDia = new Date(fechaActual.getFullYear(), 11, 31);
+    primerDia = new Date(fechaActual.getFullYear(), 0, 1);
+    ultimoDia = new Date(fechaActual.getFullYear(), 11, 31);
     // return `${primerDia.getDate()}/${
     //   primerDia.getMonth() + 1
     // }/${primerDia.getFullYear()} al ${ultimoDia.getDate()}/${
@@ -227,8 +249,8 @@ export const getDateDesdeHasta = (date: any) => {
 
   if (date === "ly") {
     const añoAnterior = fechaActual.getFullYear() - 1;
-    const primerDia = new Date(añoAnterior, 0, 1);
-    const ultimoDia = new Date(añoAnterior, 11, 31);
+    primerDia = new Date(añoAnterior, 0, 1);
+    ultimoDia = new Date(añoAnterior, 11, 31);
     // return `${primerDia.getDate()}/${
     //   primerDia.getMonth() + 1
     // }/${primerDia.getFullYear()} al ${ultimoDia.getDate()}/${

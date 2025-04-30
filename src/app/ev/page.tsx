@@ -1,5 +1,8 @@
-import { CalendarExample } from "@/mk/components/Calendar";
-import { Reservation } from "@/mk/components/Calendar/CalendarExample";
+import CalendarExample, {
+  Reservation,
+} from "@/mk/components/Calendar/CalendarExample";
+import UnitsType from "@/modulos/UnitTypes/UnitsTypes";
+
 const page = () => {
   const initialReservations: Reservation[] = [
     {
@@ -31,7 +34,8 @@ const page = () => {
     },
   ];
   return (
-    <CalendarExample area_id={1} initialReservations={initialReservations} />
+    <UnitsType />
+    // <CalendarExample area_id={1} initialReservations={initialReservations} />
   );
 };
 

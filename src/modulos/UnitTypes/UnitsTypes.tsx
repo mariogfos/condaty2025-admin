@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import RenderItem from "../shared/RenderItem";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./UnitsType.module.css";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
 const mod = {
   modulo: "types",
@@ -23,7 +24,7 @@ const mod = {
   },
   permiso: "",
   extraData: true,
-  noWaiting: true,
+  // noWaiting: true,
   renderForm: (props: {
     item: any;
     setItem: any;
@@ -143,13 +144,12 @@ const UnitsType = () => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, loaded } =
+    useCrud({
       paramsInitial,
       mod,
       fields,
-    }
-  );
+    });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -175,11 +175,18 @@ const UnitsType = () => {
       </RenderItem>
     );
   };
+  console.log(loaded, "loaded");
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
+      {/* {!loaded ? (
+        <LoadingScreen loaded={false} type="TableSkeleton" onlyLoading/>
+      ) : ( */}
+
       <List onTabletRow={renderItem} />
+
+      {/* )} */}
     </div>
   );
 };

@@ -186,75 +186,98 @@ const RenderForm = ({
   }, [open]);
   
   // Efecto específico para cargar deudas cuando cambia dpto_id
-  useEffect(() => {
-    // Simple condición para evitar cargas innecesarias o cuando no hay datos suficientes
-    if (
-      _formState.dpto_id &&
-      _formState.subcategory_id &&
-      _formState.subcategory_id === extraData?.client_config?.cat_expensas
-    ) {
-      // Verificar si ya cargamos estas deudas antes (prevenir carga repetida)
-      const deudasKey = `${_formState.dpto_id}_${_formState.subcategory_id}`;
-      if (deudasKey !== lastLoadedDeudas.current) {
-        lastLoadedDeudas.current = deudasKey;
-        getDeudas(_formState.dpto_id);
-      }
+// --- NUEVO useEffect para dpto_id / subcategory_id (Carga de Deudas) ---
+useEffect(() => {
+  console.log("Effect dpto/subcat:", _formState.dpto_id, _formState.subcategory_id); // Debug
+
+  const isExpensasSelected = _formState.subcategory_id === extraData?.client_config?.cat_expensas;
+
+  if (_formState.dpto_id && isExpensasSelected) {
+    // Si es expensas y hay dpto, intentar cargar deudas
+    const deudasKey = `${_formState.dpto_id}_${_formState.subcategory_id}`;
+    if (deudasKey !== lastLoadedDeudas.current) {
+      console.log("Cargando deudas para:", deudasKey); // Debug
+      lastLoadedDeudas.current = deudasKey;
+      // Importante resetear selección al cargar NUEVAS deudas para una unidad
+      setSelectedPeriodo([]);
+      setSelectPeriodoTotal(0);
+      getDeudas(_formState.dpto_id);
     }
-  }, [
+  } else {
+    // Si no es expensas o no hay dpto_id, limpiar las deudas
+    if (deudas.length > 0 || isLoadingDeudas) { // Evita limpieza innecesaria
+        console.log("Limpiando deudas"); // Debug
+        setDeudas([]);
+        setSelectedPeriodo([]);
+        setSelectPeriodoTotal(0);
+        lastLoadedDeudas.current = "";
+    }
+  }
+}, [ // Dependencias CLAVE:
     _formState.dpto_id,
     _formState.subcategory_id,
     extraData?.client_config?.cat_expensas,
-  ]); // quitar getDeudas
-
+    getDeudas // Es estable por useCallback
+]);
+// --- FIN DEL NUEVO useEffect para dpto_id / subcategory_id ---
   // Cargar subcategorías cuando cambia la categoría
-  useEffect(() => {
-    if (_formState.category_id && extraData?.categories) {
-      const selectedCategory = extraData.categories.find(
-        (category) => category.id === _formState.category_id
+// --- NUEVO useEffect para category_id ---
+useEffect(() => {
+  console.log("Effect category_id:", _formState.category_id); // Debug
+  let newSubcategories = [];
+  let newSubcategoryId = ''; // Por defecto, resetea la subcategoría seleccionada
+  let lockSubcategory = false;
+
+  if (_formState.category_id && extraData?.categories) {
+    const selectedCategory = extraData.categories.find(
+      (category) => category.id === _formState.category_id
+    );
+
+    if (selectedCategory && selectedCategory.hijos) {
+      newSubcategories = selectedCategory.hijos || [];
+
+      // ¿Es el caso de auto-selección de expensas?
+      const catExpensasChild = newSubcategories.find(
+        (hijo) => hijo.id === extraData?.client_config?.cat_expensas
       );
-  
-      // Actualizar el estado del formulario con la subcategoría adecuada
-      if (selectedCategory && selectedCategory.hijos) {
-        // Verificar si entre los hijos está cat_expensas
-        const catExpensasChild = selectedCategory.hijos.find(
-          (hijo) => hijo.id === extraData?.client_config?.cat_expensas
-        );
-  
-        if (catExpensasChild) {
-          // Auto-seleccionar cat_expensas y actualizar el formulario
-          _setFormState((prev) => ({
-            ...prev,
-            subcategories: selectedCategory.hijos || [],
-            subcategory_id: extraData?.client_config?.cat_expensas,
-            isSubcategoryLocked: true // Agregar este flag para bloquear el input
-          }));
-          
-          // Si tenemos dpto_id, cargar las deudas
-          if (_formState.dpto_id) {
-            getDeudas(_formState.dpto_id);
-          }
-        } else {
-          // No tiene cat_expensas como hijo, comportamiento normal
-          _setFormState((prev) => ({
-            ...prev,
-            subcategories: selectedCategory.hijos || [],
-            isSubcategoryLocked: false
-          }));
-          
-          // Limpiar deudas si hay cambio de categoría
-          setDeudas([]);
-          setSelectedPeriodo([]);
-          setSelectPeriodoTotal(0);
-        }
+
+      if (catExpensasChild) {
+        newSubcategoryId = extraData.client_config.cat_expensas; // Auto-seleccionar
+        lockSubcategory = true;
       }
     }
-  }, [
+  }
+
+  // Actualiza el estado preservando los demás campos existentes
+  _setFormState(prev => {
+    // Si la subcategoría va a cambiar (de ID o a ''), resetea las deudas/selección
+    // O si la categoría se está limpiando
+    if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
+      setDeudas([]);
+      setSelectedPeriodo([]);
+      setSelectPeriodoTotal(0);
+      lastLoadedDeudas.current = ""; // Permite recargar deudas si se vuelve a seleccionar expensas
+    }
+
+    // Devuelve el nuevo estado completo
+    return {
+      ...prev,
+      subcategories: newSubcategories,
+      // Solo actualiza subcategory_id si es diferente al valor actual O si se limpia la categoría
+      subcategory_id: prev.subcategory_id !== newSubcategoryId || !_formState.category_id
+                       ? newSubcategoryId
+                       : prev.subcategory_id,
+      isSubcategoryLocked: lockSubcategory
+    };
+  });
+
+}, [ // Dependencias CLAVE: Solo estas deben estar aquí
     _formState.category_id,
-    _formState.dpto_id,
     extraData?.categories,
-    extraData?.client_config?.cat_expensas,
-    getDeudas
-  ]);
+    extraData?.client_config?.cat_expensas
+    // NO incluir _formState.dpto_id aquí
+]);
+// --- FIN DEL NUEVO useEffect para category_id ---
   
 
   // Handler para cambio de campos del formulario
@@ -642,7 +665,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
             
   
             {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
-            {!isExpensasWithoutDebt && (
+          
               <>
                 {/* Sección de monto y medio de pago */}
                 <div className={styles["payment-section"]}>
@@ -878,26 +901,34 @@ const handleSelectPeriodo = useCallback((periodo) => {
                                 onClick={() => handleSelectPeriodo(periodo)}
                                 className={styles["deuda-item"]}
                               >
+                                {/* Asegúrate de que este div tenga 5 hijos directos */}
                                 <div className={styles["deuda-row"]}>
+
+                                  {/* 1. Celda Periodo */}
                                   <div className={styles["deuda-cell"]}>
-                                    {periodo.debt
-                                      ? MONTHS_S[periodo.debt.month] +
-                                        "/" +
-                                        periodo.debt.year
-                                      : "N/A"}
+                                    {periodo.debt && typeof periodo.debt === 'object' && periodo.debt.month && periodo.debt.year
+                                    ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
+                                    : "N/A"}
                                   </div>
+
+                                  {/* 2. Celda Monto (¡ESTA FALTABA!) */}
                                   <div className={styles["deuda-cell"]}>
-                                    {"Bs " + periodo.amount}
+                                    {"Bs " + (Number(periodo.amount ?? 0)).toFixed(2)} {/* Muestra el monto base */}
                                   </div>
+
+                                  {/* 3. Celda Multa */}
                                   <div className={styles["deuda-cell"]}>
-                                    {"Bs " + periodo.penalty_amount}
+                                    {"Bs " + (Number(periodo.penalty_amount ?? 0)).toFixed(2)} {/* Muestra la multa */}
                                   </div>
+
+                                  {/* 4. Celda SubTotal */}
                                   <div className={styles["deuda-cell"]}>
-                                    {"Bs " +
-                                      (Number(periodo.amount) +
-                                        Number(periodo.penalty_amount))}
+                                    {"Bs " + (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)).toFixed(2)} {/* Calcula y muestra subtotal */}
                                   </div>
-                                  <div className={styles["deuda-check"]}>
+
+                                  {/* 5. Celda Seleccionar (Checkbox) */}
+                                  {/* Puedes aplicar ambas clases si ayuda o solo deuda-check si ya centra */}
+                                  <div className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}>
                                     {selectedPeriodo.some(
                                       (item) => item.id === periodo.id
                                     ) ? (
@@ -906,6 +937,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                                       <IconCheckOff className={styles["check-icon"]} />
                                     )}
                                   </div>
+
                                 </div>
                               </div>
                             ))}
@@ -943,7 +975,7 @@ const handleSelectPeriodo = useCallback((periodo) => {
                   </div>
                 </div>
               </>
-            )}
+           
           </div>
         </div>
       </DataModal>

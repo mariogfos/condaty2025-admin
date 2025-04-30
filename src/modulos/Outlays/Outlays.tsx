@@ -10,8 +10,9 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { getDateDesdeHasta } from "@/mk/utils/date";
-import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
+import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -41,6 +42,14 @@ const Outlays = () => {
     permiso: "",
     extraData: true,
     renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
+    renderView: (props: any) => (
+      <RenderView // Usa el nuevo componente
+        {...props}
+        outlay_id={props?.item?.id} // Pasa el ID del egreso
+        extraData={extraData} // Pasa extraData para las categorías
+      />
+    ),
+    loadView: { fullType: "DET" },
     saveMsg: {
       add: "Egreso creado con éxito",
       edit: "Egreso actualizado con éxito",
@@ -103,6 +112,7 @@ const Outlays = () => {
         },
       },
       category_id: {
+        // <--- Columna "Categoría"
         rules: ["required"],
         api: "ae",
         label: "Categoria",
@@ -110,9 +120,12 @@ const Outlays = () => {
           type: "select",
           options: (items: any) => {
             let data: any = [];
-            // Filtrar solo categorías padres
+            // Filtrar por los que no tienen objeto padre (o category_id es null)
             items?.extraData?.categories
-              ?.filter((c: { padre_id: any }) => !c.padre_id)
+              ?.filter(
+                (c: { padre: any; category_id: any }) =>
+                  !c.padre && !c.category_id
+              )
               ?.map((c: any) => {
                 data.push({
                   id: c.id,
@@ -123,8 +136,21 @@ const Outlays = () => {
           },
         },
         list: {
+          // <--- Lógica de renderizado para la columna "Categoría"
           onRender: (props: any) => {
-            return props.item.category?.padre?.name || `sin datos disponibles`;
+            const category = props.item.category;
+            if (!category) {
+              return `sin datos`;
+            }
+            // *** CORRECCIÓN LÓGICA ***
+            // Verificar si el objeto 'padre' existe y NO es null
+            if (category.padre && typeof category.padre === "object") {
+              // Si existe el objeto padre, esta es una subcategoría. Mostramos el nombre del padre.
+              return category.padre.name || `(Padre sin nombre)`;
+            } else {
+              // Si NO existe el objeto padre (es null o no está), esta es la categoría principal. Mostramos su nombre.
+              return category.name || `(Sin nombre)`;
+            }
           },
         },
         filter: {
@@ -133,18 +159,33 @@ const Outlays = () => {
           extraData: "categories",
         },
       },
+
       subcategory_id: {
-        rules: ["required"],
+        // <--- Columna "Subcategoría"
+        rules: ["required"], // Considera si realmente es requerido
         api: "ae",
         label: "Subcategoria",
         form: {
           type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
-          options: () => [], // Lo manejamos en el OutlaysForm
+          options: () => [], // Se maneja en RenderForm
         },
         list: {
+          // <--- Lógica de renderizado para la columna "Subcategoría"
           onRender: (props: any) => {
-            return props.item.category?.name || `sin datos disponibles`;
+            const category = props.item.category;
+            if (!category) {
+              return `sin datos`;
+            }
+            // *** CORRECCIÓN LÓGICA ***
+            // Verificar si el objeto 'padre' existe y NO es null
+            if (category.padre && typeof category.padre === "object") {
+              // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
+              return category.name || `(Sin nombre)`;
+            } else {
+              // Si NO existe el objeto padre, no hay subcategoría aplicable.
+              return "-/-";
+            }
           },
         },
       },

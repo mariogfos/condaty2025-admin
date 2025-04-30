@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./mainmenu.module.css";
 import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface MainmenuDropdownProps {
   label: string;
@@ -23,31 +23,37 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
   const [isRouteActive, setIsRouteActive] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const searchParams = useSearchParams();
+  const type = searchParams?.get("type");
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   // Manejo del click fuera del dropdown para cerrarlo
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       dropdownRef.current &&
+  //       !dropdownRef.current.contains(event.target as Node)
+  //     ) {
+  //       setIsOpen(false);
+  //     }
+  //   };
 
-    document.addEventListener("mouseup", handleClickOutside);
-    return () => {
-      document.removeEventListener("mouseup", handleClickOutside);
-    };
-  }, []);
+  //   document.addEventListener("mouseup", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mouseup", handleClickOutside);
+  //   };
+  // }, []);
 
   // Verifica si la ruta está activa para gestionar el estado del dropdown
   useEffect(() => {
-    const isActive = items.some((item) => pathname === item.href);
+    const isActive = items.some(
+      (item) =>
+        pathname === item.href ||
+        (pathname === "/categories" && item.href === "/payments") ||
+        (item.href === "/units" && pathname?.startsWith("/dashDpto/"))
+    );
     setIsRouteActive(isActive);
 
     if (!isActive) {
@@ -64,6 +70,30 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     if (setSideBarOpen) {
       setSideBarOpen(false); // Cierra el sidebar
     }
+  };
+
+  const validatePathname = (item: any) => {
+    if (pathname === item.href) {
+      return true;
+    }
+    if (
+      pathname === "/categories" &&
+      item.href === "/payments" &&
+      type === "I"
+    ) {
+      return true;
+    }
+    if (
+      pathname === "/categories" &&
+      item.href === "/outlays" &&
+      type === "E"
+    ) {
+      return true;
+    }
+    if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -87,7 +117,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
             <Link
               key={index}
               href={item.href}
-              className={pathname === item.href ? styles.active : ""}
+              className={validatePathname(item) ? styles.active : ""}
               onClick={handleLinkClick} // Llama a handleLinkClick para cerrar
             >
               {item.label}

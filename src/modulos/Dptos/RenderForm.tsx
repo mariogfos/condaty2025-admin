@@ -116,12 +116,12 @@ const RenderForm = ({
       key: "dimension",
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.homeowner_id,
-      rules: ["required"],
-      key: "homeowner_id",
-      errors: errs,
-    });
+    // errs = checkRules({
+    //   value: formState.homeowner_id,
+    //   rules: ["required"],
+    //   key: "homeowner_id",
+    //   errors: errs,
+    // });
     setErrors(errs);
     return errs;
   };
@@ -195,7 +195,7 @@ const RenderForm = ({
       />
 
       <Input
-        label="Cuota (Bs)"
+        label="Expensa"
         name="expense_amount"
         value={formState.expense_amount}
         onChange={handleChange}
@@ -221,6 +221,7 @@ const RenderForm = ({
         error={errors}
       />
 
+      {/* campos extra --- para un futuro quiza
       {typeFields.map((field: any) => (
         <div key={field.id} style={{ marginBottom: 'var(--spS)',display:'flex' ,gap:5}}>
           <div style={{ display: 'flex', alignItems: 'center',width:'50%'}}>
@@ -255,7 +256,7 @@ const RenderForm = ({
             />
           )}
         </div>
-      ))}
+      ))} */}
 
     </DataModal>
   );

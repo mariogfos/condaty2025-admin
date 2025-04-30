@@ -1,0 +1,293 @@
+/* ReservationDetailModal.module.css */
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 12px); /* Usa variable o valor */
+  background-color: var(--cBlack, #212121); /* Variable de tema */
+  padding: var(--spL, 16px);
+  border-radius: var(--bRadius, 12px);
+  color: var(--cWhite, #fafafa);
+  font-family: var(--fPrimary, "Inter", sans-serif);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spS, 8px);
+  /* border-bottom: 1px solid var(--cWhiteV1, #a7a7a7); Opcional */
+}
+
+.modalTitle {
+  font-weight: var(--bMedium, 500); /* Usando variable */
+  font-size: var(--sXxl, 24px); /* Variable (cuidado, tienes dos --sXl) */
+  color: var(--cWhite, #fafafa);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: var(--spS, 8px);
+  cursor: pointer;
+  color: var(--cWhite, #fafafa); /* Color del icono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.closeButton:hover {
+  background-color: var(--cHover, #ffffff0d);
+}
+
+
+.reservationBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 12px);
+  background-color: var(--cBlackV2, #333536); /* Variable */
+  padding: var(--spM, 12px);
+  border-radius: var(--bRadius, 12px);
+  border: 0.5px solid var(--cWhiteV1, #a7a7a7); /* Variable */
+}
+
+.requesterSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.requesterInfoContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spL, 16px);
+}
+
+.requesterText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs, 4px);
+}
+
+.requesterName {
+  font-weight: var(--bMedium, 500);
+  font-size: var(--sM, 14px);
+  color: var(--cWhite, #fafafa);
+}
+
+.requesterApt {
+  font-weight: var(--bRegular, 400);
+  font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7); /* Variable */
+}
+
+.requestTime {
+  font-weight: var(--bRegular, 400);
+  font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7);
+  text-align: center;
+}
+
+.mainDetailsContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spM, 12px);
+}
+
+.imageWrapper {
+   width: 218px;
+   height: 218px;
+   flex-shrink: 0;
+   border-radius: var(--bRadiusS, 8px); /* Variable */
+   overflow: hidden;
+}
+
+.areaImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Estándar web */
+  display: block; /* Para img */
+}
+
+.imagePlaceholder {
+  background-color: var(--cBlackV3, #393c3f); /* Fondo placeholder */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagePlaceholderText {
+    color: var(--cWhiteV1, #a7a7a7);
+    font-size: var(--sM, 14px);
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 12px);
+  flex-grow: 1;
+}
+
+.areaTextInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS, 8px);
+  min-height: 59px; /* Mantener si es necesario */
+}
+
+.areaTitle {
+  font-weight: var(--bMedium, 500);
+  font-size: var(--sL, 16px); /* Variable */
+  color: var(--cWhite, #fafafa);
+}
+
+.areaDescription {
+  font-weight: var(--bRegular, 400);
+  font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7);
+  -webkit-line-clamp: 4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.specificDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS, 8px);
+}
+
+.detailsHeader {
+  font-weight: var(--bMedium, 500);
+  font-size: var(--sL, 16px);
+  color: var(--cWhite, #fafafa);
+}
+
+.detailsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS, 8px);
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spXs, 4px);
+}
+
+.detailIcon {
+  /* El componente Icon maneja su tamaño, pero podemos darle color */
+  color: var(--cWhiteV1, #a7a7a7); /* Color por defecto para iconos */
+  flex-shrink: 0; /* Evita que el icono se encoja */
+  width: 20px; /* Asegura espacio para el icono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailText {
+  font-weight: var(--bRegular, 400);
+  font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7);
+}
+.priceDetailText {
+    font-weight: var(--bRegular, 400);
+    font-size: var(--sM, 14px);
+    color: var(--cWhiteV1, #a7a7a7);
+}
+/* Puedes añadir un estilo específico para el total si usas un <strong> o <span> */
+/* .totalPrice { color: var(--cWhite, #fafafa); font-weight: var(--bMedium, 500); margin-left: var(--spXs); } */
+
+
+/* ReservationDetailModal.module.css */
+
+/* ... (tus otros estilos) ... */
+
+.actionButtonsContainer {
+  display: flex;
+  gap: var(--spS, 8px); /* Mantiene el espacio entre botones */
+  margin-top: var(--spM, 12px);
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+}
+
+.rejectButtonProportional {
+  flex-grow: 3; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 para que flex-grow distribuya todo el espacio */
+  min-width: 0; /* Permite que el botón se encoja si es necesario (aunque flex-grow domina aquí) */
+}
+
+.approveButtonProportional {
+  flex-grow: 5; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 */
+  min-width: 0; /* Permite que el botón se encoja */
+
+}
+
+
+
+.secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
+  flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+  /* Puedes añadir otros estilos si son necesarios */
+}
+
+.primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
+  flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+}
+
+
+.rejectButton {
+
+  flex-grow: 1; /* Ocupa espacio */
+}
+.acceptButton {
+
+   flex-grow: 1; /* Ocupa espacio */
+}
+
+
+.errorText {
+    color: var(--cError, #e46055); /* Variable de error */
+    text-align: center;
+    padding: var(--spXl, 24px);
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* Altura mínima mientras carga */
+}
+/* En TuComponentePadre.module.css */
+
+.confirmCancelButton {
+  /* Estilos para replicar el botón verde de tu imagen */
+  background-color: #00E38C; /* Verde brillante */
+  color: #212121; /* Texto oscuro */
+  border: none; /* Sin borde */
+  padding: var(--spM) var(--spXl); /* Ajusta el padding si es necesario */
+  border-radius: var(--bRadiusS); /* Ajusta el border-radius */
+  font-weight: var(--bSemibold); /* Peso de fuente */
+  flex-grow: 1; /* Intenta que ocupe más espacio si hay dos botones */
+}
+
+
+
+/* Ajustes al contenido del modal si es necesario */
+.modalContentContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.modalContentContainer p {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.4;
+}
+.divider {
+  height: 0.5px;
+  width: 100%;
+  background-color: var(--cWhiteV1);
+  margin-bottom: var(--spM, 12px);
+}

@@ -12,6 +12,8 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -36,6 +38,19 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
     }) => <RenderView {...props} />,
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      mod: ModCrudType;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+    }) => {
+      return (
+        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
+
+      );
+    }
     // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -126,7 +141,6 @@ const Owners = () => {
         list: true,
       },
       avatar: {
-        rules: ["requiredFile*a"],
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
@@ -137,7 +151,7 @@ const Owners = () => {
         },
       },
       password: {
-        rules: ["required*add"],
+        rules: ["_disabled_", "required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -293,8 +307,10 @@ const Owners = () => {
     searchs,
     onEdit,
     onDel,
+    reLoad,
     showToast,
     execute,
+    errors,
   } = useCrud({
     paramsInitial,
     mod,

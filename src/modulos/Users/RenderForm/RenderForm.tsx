@@ -144,25 +144,22 @@ const RenderForm = ({
       title="Editar administrador"
       onSave={onSave}
     >
+        <Avatar
+          src={getUrlImages(
+            "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+          )}
+          name={getFullName(item.item)}
+          square
+        />
 
-  
-                <Avatar
-                  src={getUrlImages(
-                    "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
-                  )}
-                  name={getFullName(item.item)}
-                  square
-                />
+        <fieldset className={styles.fieldSet}>
+        <div>
+          <div>Información de acceso</div>
+          <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
+            busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
+          </div>
 
-              
-<fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>Ingrese el número de carnet y haga click fuera del campo para que el sistema
-                    busque automáticamente al administrador si el carnet no existe ,continúa con el proceso de registro
-                  </div>
-
-                </div>
+        </div>
           <div>
           <Input 
             name="ci"

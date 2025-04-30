@@ -48,7 +48,7 @@
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     color: var(--cWhiteV1);
-    background-color:transparent;
+    background-color: transparent;
     &.selected {
       font-weight: var(--bBold);
       color: var(--cWhite);

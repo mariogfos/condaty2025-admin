@@ -5,10 +5,10 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
-import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowLeft, IconBackAround, IconNextAround, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
-import { getUrlImages } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useRouter } from 'next/navigation';
 // Importa TODAS las interfaces necesarias desde Type.ts
 import {
@@ -21,6 +21,7 @@ import {
     FormState
 } from "./Type"; // Asegúrate que la ruta sea correcta
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 // --- Interfaces del Formulario (Definidas localmente) ---
 
@@ -122,13 +123,25 @@ const CreateReserva = () => {
 
 
   // --- Efecto para actualizar busyDays ---
-   useEffect(() => {
+  useEffect(() => {
+    // <---- AÑADE UN CONSOLE.LOG AQUÍ para ver qué llega
+    console.log("useEffect [busyDays] - Response:", JSON.stringify(reservaCalendarResponse), "Loaded:", reservaCalendarLoaded, "Area:", formState.area_social);
+
     if (reservaCalendarLoaded && formState.area_social && reservaCalendarResponse?.data && 'reserved' in reservaCalendarResponse.data) {
+        console.log("useEffect [busyDays] - Setting busyDays:", reservaCalendarResponse.data.reserved); // Verifica qué se va a setear
         setBusyDays(reservaCalendarResponse.data.reserved || []);
     } else if (!formState.area_social) {
+         console.log("useEffect [busyDays] - Resetting busyDays (no area)");
         setBusyDays([]);
-    } else if (reservaCalendarLoaded && formState.area_social && !(reservaCalendarResponse?.data && 'reserved' in reservaCalendarResponse.data)) {
-       setBusyDays([]);
+    } else if (reservaCalendarLoaded && formState.area_social) {
+        // Si loaded es true y hay area, pero la condición principal falló, loguea por qué
+        console.log("useEffect [busyDays] - Condition failed. Response data:", reservaCalendarResponse?.data);
+        if (!reservaCalendarResponse?.data) {
+             console.log("useEffect [busyDays] - Reason: reservaCalendarResponse.data is falsy");
+        } else if (!('reserved' in reservaCalendarResponse.data)) {
+             console.log("useEffect [busyDays] - Reason: 'reserved' key NOT found in reservaCalendarResponse.data. Keys:", Object.keys(reservaCalendarResponse.data));
+        }
+        setBusyDays([]);
     }
   }, [reservaCalendarResponse, reservaCalendarLoaded, formState.area_social]);
 
@@ -206,41 +219,81 @@ try {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const isAreaChange = name === 'area_social';
+
+    // Actualiza el estado del formulario
     setFormState((prev) => ({
         ...prev,
         [name]: value,
-        // Si cambia el área, resetea fecha y selección de periodos
+        // Si cambia el área, OBLIGATORIAMENTE resetea la fecha
         ...(isAreaChange && { fecha: '' }),
     }));
+
+    // Limpia el error del campo que cambió
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+
+    // Lógica específica cuando cambia el ÁREA SOCIAL
      if (isAreaChange) {
-        setBusyDays([]);
-        setAvailableTimeSlots([]);
-        setSelectedPeriods([]); // Limpia periodos seleccionados
-        setErrors(prev => ({ ...prev, selectedPeriods: undefined })); // Limpia error de periodo
-        if (!value) setFormState(prev => ({...prev, fecha: ''}));
+        // 1. Resetea estados dependientes del área y fecha
+        setBusyDays([]); // Resetea días ocupados inmediatamente para feedback visual
+        setAvailableTimeSlots([]); // Resetea horarios disponibles
+        setSelectedPeriods([]); // Resetea periodos seleccionados
+        // Limpia errores relacionados con fecha y periodos
+        setErrors(prev => ({
+            ...prev,
+            fecha: undefined,
+            selectedPeriods: undefined
+        }));
+        // Asegura que el estado de la fecha se limpie (aunque ya se hizo en setFormState)
+        // setFormState(prev => ({...prev, fecha: ''})); // Redundante si ya se hizo arriba
+
+        // 2. === LA CORRECCIÓN ES AQUÍ ===
+        // Si se seleccionó un área válida (no se deseleccionó a vacío)
+        if (value) {
+            console.log(`Área cambiada a ${value}. Obteniendo días ocupados...`);
+            // Ejecuta la llamada a la API para obtener los días ocupados (SIN date_at)
+            executeCalendarApi(
+                "/reservations-calendar", // URL (ya definida en el hook, pero podemos pasarla)
+                "GET",                   // Método
+                { area_id: value },      // Parámetros: SOLO el area_id
+                true,                   // skipAbort (normalmente false)
+                false                    // skipLoading (ajusta si usas el estado 'loading' del hook)
+            );
+            // El useEffect que depende de reservaCalendarResponse se encargará
+            // de actualizar busyDays cuando esta llamada termine.
+        } else {
+             // Si se deseleccionó el área, asegura que busyDays esté vacío
+             setBusyDays([]);
+        }
+        // 3. Resetea el índice de la imagen del carrusel si cambias de área
+        setCurrentImageIndex(0);
      }
   };
   // --- NUEVO: Handler para click en los botones de periodo ---
-  const handlePeriodToggle = (period: string) => {
-    setSelectedPeriods(prevSelected => {
-        const isSelected = prevSelected.includes(period);
-        if (isSelected) {
-            // Si ya estaba seleccionado, lo quita
-            return prevSelected.filter(p => p !== period);
-        } else {
-            // Si no estaba, lo añade
-            // Opcional: ordenar al añadir para mantener consistencia
-            return [...prevSelected, period].sort();
-        }
-    });
-    // Limpia el error de selección de periodo si el usuario interactúa
-    if (errors.selectedPeriods) {
-        setErrors(prev => ({ ...prev, selectedPeriods: undefined }));
-    }
-  };
+// Dentro del componente CreateReserva
+
+const handlePeriodToggle = (period: string) => {
+  setSelectedPeriods(prevSelected => {
+      // Verifica si el periodo clickeado ya era el único seleccionado
+      const isCurrentlySelected = prevSelected.length === 1 && prevSelected[0] === period;
+
+      if (isCurrentlySelected) {
+          // Si se hace clic en el ya seleccionado, se deselecciona (queda vacío)
+          return [];
+      } else {
+          // Si se hace clic en uno nuevo (o no había selección), se selecciona SOLO ese
+          return [period];
+      }
+  });
+
+  // Limpia el error de selección de periodo si el usuario interactúa
+  if (errors.selectedPeriods) {
+      setErrors(prev => ({ ...prev, selectedPeriods: undefined }));
+  }
+};
+
+// --- FIN Modificación handlePeriodToggle ---
 
   const handleDateChange = (dateString: string | undefined) => {
     const newDate = dateString || "";
@@ -270,27 +323,45 @@ const validateStep1 = (): boolean => {
 };
 
 const validateStep2 = (): boolean => {
-  const errs: FormErrors = {};
+  const errs: FormErrors = {}; // Inicia objeto de errores vacío
+
+  // Validación de Fecha (sin cambios)
   if (!formState.fecha) errs.fecha = "Selecciona una fecha";
 
-  // MODIFICADO: Validar que se haya seleccionado al menos un periodo si no es reserva por día
+  // Validación de Periodos Seleccionados (sin cambios)
   if (selectedAreaDetails?.booking_mode !== 'day') {
       if (selectedPeriods.length === 0) {
           // Usa la nueva clave de error
           errs.selectedPeriods = "Debes seleccionar al menos un periodo disponible";
       }
-      // Opcional: Podrías añadir validación de contigüidad aquí si es un requisito estricto
-      // const isContiguous = checkContiguity(selectedPeriods);
-      // if (!isContiguous) errs.selectedPeriods = "La selección de periodos debe ser continua";
   }
 
-  // Validación de cantidad de personas (sin cambios)
-  if (!formState.cantidad_personas) {
-    errs.cantidad_personas = "Ingresa la cantidad de personas";
-  } else { /* ... validación de número y capacidad ... */ }
+  // --- VALIDACIÓN DE CANTIDAD DE PERSONAS (CORREGIDA Y COMPLETA) ---
+  const maxCapacity = selectedAreaDetails?.max_capacity; // Obtiene la capacidad máxima del área seleccionada
 
-  setErrors(errs);
-  return Object.keys(errs).length === 0;
+  if (!formState.cantidad_personas) {
+    // 1. Verifica si el campo está vacío
+    errs.cantidad_personas = "Ingresa la cantidad de personas";
+  } else {
+    // 2. Si no está vacío, convierte el valor a número
+    const numPeople = Number(formState.cantidad_personas);
+
+    if (isNaN(numPeople)) {
+      // 3. Verifica si la conversión a número fue exitosa
+      errs.cantidad_personas = "Ingresa un número válido";
+    } else if (numPeople < 1) {
+      // 4. Verifica si el número es menor que el mínimo permitido (1)
+      errs.cantidad_personas = "La cantidad debe ser al menos 1";
+    } else if (maxCapacity !== undefined && maxCapacity !== null && numPeople > maxCapacity) {
+      // 5. Verifica si se definió una capacidad máxima Y si el número ingresado la excede
+      errs.cantidad_personas = `La cantidad máxima de personas permitida para esta área es ${maxCapacity}.`; // Mensaje de error específico
+    }
+    // Si ninguna de las condiciones anteriores se cumple, el valor es válido respecto a la capacidad.
+  }
+  // --- FIN VALIDACIÓN PERSONAS ---
+
+  setErrors(errs); // Actualiza el estado de errores con los encontrados
+  return Object.keys(errs).length === 0; // Devuelve true solo si NO hubo errores
 };
 
 const validateStep3 = (): boolean => {
@@ -400,6 +471,7 @@ const prevStep = (): void => {
             setErrors({});
             setBusyDays([]);
             setAvailableTimeSlots([]);
+            router.push('/reservas');
         } else {
             showToast(response?.data?.message || "Error al crear la reserva.", "error");
         }
@@ -410,11 +482,59 @@ const prevStep = (): void => {
         setIsSubmitting(false);
     }
   };
-  console.log("RENDERIZANDO - Fecha:", formState.fecha);
-  console.log("RENDERIZANDO - Loading Times:", loadingTimes);
-  console.log("RENDERIZANDO - AvailableTimeSlots:", availableTimeSlots);
-  console.log("RENDERIZANDO - SelectedPeriods:", selectedPeriods);
-// --- RENDER ---
+// Dentro del componente CreateReserva, antes del return
+
+const handleQuantityChange = (newValue: number | string) => {
+  // Asegurarse de que siempre guardamos un string o un número válido
+  let finalValue: string;
+  const numValue = Number(newValue); // Convertir a número
+
+  // Obtener límites
+  const min = 1;
+  const max = selectedAreaDetails?.max_capacity;
+
+  if (isNaN(numValue)) {
+      finalValue = ''; // Si no es número, guardar vacío
+  } else if (max !== undefined && max !== null && numValue > max) {
+      finalValue = String(max); // Si excede el máximo, fijar al máximo
+  } else if (numValue < min) {
+      finalValue = String(min); // Si es menor al mínimo, fijar al mínimo (o vacío si prefieres)
+  } else {
+      finalValue = String(numValue); // Si es válido, guardar como string
+  }
+
+  // Actualizar el estado principal del formulario
+  setFormState(prev => ({
+      ...prev,
+      cantidad_personas: finalValue
+  }));
+
+  // Limpiar error si existía
+  if (errors.cantidad_personas) {
+      setErrors(prev => ({ ...prev, cantidad_personas: undefined }));
+  }
+};
+
+const incrementPeople = () => {
+  const currentValue = Number(formState.cantidad_personas || 0); // Si está vacío, empieza desde 0
+  const max = selectedAreaDetails?.max_capacity;
+  const newValue = currentValue + 1;
+
+  // Aplicar la nueva lógica de manejo de cambio que respeta límites
+  handleQuantityChange(newValue);
+};
+
+const decrementPeople = () => {
+  const currentValue = Number(formState.cantidad_personas || 1); // Si está vacío, empieza desde 1
+  const min = 1;
+  const newValue = currentValue - 1;
+
+  // Aplicar la nueva lógica de manejo de cambio que respeta límites
+  handleQuantityChange(newValue);
+};
+
+
+
 return (
   <div className={styles.pageWrapper}>
 
@@ -495,25 +615,29 @@ return (
                       }}
                     />
                     {/* Paginación de Imagen */}
-                    <div className={styles.imagePagination}>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : (selectedAreaDetails?.images?.length || 1) - 1))}
-                        disabled={selectedAreaDetails?.images?.length <= 1}
-                        aria-label="Imagen anterior"
-                      >
-                        {"<"}
-                      </button>
-                      <span>{currentImageIndex + 1} / {selectedAreaDetails?.images?.length || 1}</span>
-                      <button
-                         type="button"
-                         onClick={() => setCurrentImageIndex((prev) => (prev < (selectedAreaDetails?.images?.length || 1) - 1 ? prev + 1 : 0))}
-                         disabled={selectedAreaDetails?.images?.length <= 1}
-                         aria-label="Siguiente imagen"
-                      >
-                        {">"}
-                      </button>
-                    </div>
+                  <div className={styles.imagePagination}>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : (selectedAreaDetails?.images?.length || 1) - 1))}
+                      disabled={selectedAreaDetails?.images?.length <= 1}
+                      aria-label="Imagen anterior"
+                    >
+                      {/* Añade la className aquí */}
+                      <IconBackAround className={styles.paginationIcon} />
+                    </button>
+
+                    <span>{currentImageIndex + 1} / {selectedAreaDetails?.images?.length || 1}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex((prev) => (prev < (selectedAreaDetails?.images?.length || 1) - 1 ? prev + 1 : 0))}
+                      disabled={selectedAreaDetails?.images?.length <= 1}
+                      aria-label="Siguiente imagen"
+                    >
+                      {/* Añade la className aquí */}
+                      <IconNextAround className={styles.paginationIcon} />
+                    </button>
+                  </div>
                   </div>
                   )}
                   {/* Si no hay imágenes */}
@@ -561,17 +685,18 @@ return (
                       </div>
                        <hr className={styles.areaSeparator} />
                        {/* Reglas */}
-                    <div className={styles.detailBlock}>
-                        <span className={styles.detailLabel}>Reglas y restricciones</span>
-                        {/* MODIFICAR onClick */}
-                        <button
-                          type='button'
-                          className={styles.rulesButton}
-                          onClick={() => setIsRulesModalVisible(true)} // <-- CAMBIAR AQUÍ
-                        >
-                          Ver Reglas
-                        </button>
-                    </div>
+                       <div className={styles.detailBlock}>
+                    <span className={styles.detailLabel}>Reglas y restricciones</span>
+                    {/* Botón ahora contiene solo el icono */}
+                    <button
+                      type='button'
+                      className={styles.rulesButton} // Mantenemos la clase para aplicar estilos CSS
+                      onClick={() => setIsRulesModalVisible(true)}
+                      aria-label="Ver reglas de uso" // IMPORTANTE para accesibilidad
+                    >
+                      <IconZoomDetail /> {/* <-- Icono en lugar de texto */}
+                    </button>
+                </div>
                   </div> {/* Fin areaInfo */}
               </div> // Fin areaPreview
             )}
@@ -655,36 +780,65 @@ return (
                   )}
                   {/* === FIN Sección de Selección de Periodos === */}
 
-                 {/* Mensaje si SÍ es reserva por día (sin cambios) */}
-                 {/* Nota: Este mensaje podría ser redundante si el label ya lo indica */}
-                 {/* {selectedAreaDetails?.booking_mode === 'day' && (
-                     <p className={styles.sectionSubtitle}>Esta área se reserva por día completo.</p>
-                 )} */}
                </>
             )}
                </>
             )}
 
-            {/* Sección Cantidad Personas */}
+            {/* Sección Cantidad Personas */ }
             <div className={styles.peopleSection}>
                 <div className={styles.peopleLabelContainer}>
                     <label className={styles.sectionLabel}>Cantidad de personas</label>
                     <span className={styles.sectionSubtitle}>
-                      Máx. {selectedAreaDetails?.max_capacity ?? 'N/A'} personas
+                        Máx. {selectedAreaDetails?.max_capacity ?? 'N/A'} personas
                     </span>
                 </div>
+
+                {/* --- REEMPLAZO DEL INPUT --- */}
+                {/* Este es el contenedor donde estaba tu Input de MK */}
+                {/* Ahora contendrá tu nuevo componente de botones +/- */}
                 <div className={styles.peopleInputContainer}>
-                    <Input
-                        label="" // Sin label flotante visible
-                        name="cantidad_personas" type="number"
-                        value={formState.cantidad_personas} onChange={handleChange}
-                        error={errors.cantidad_personas} min={1}
-                        max={selectedAreaDetails?.max_capacity ?? undefined}
-                        className={styles.peopleInput} placeholder="Nº"
-                    />
+
+                    {/* --- Estructura del Nuevo Componente (Ejemplo) --- */}
+                    {/* Necesitarás crear un componente reutilizable para esto, ej: <QuantityInput /> */}
+                    {/* Aquí simulamos su estructura básica */}
+                    <div className={styles.quantitySelector}> {/* Nuevo contenedor */}
+                        <button
+                            type="button"
+                            onClick={decrementPeople}
+                            className={styles.quantityButton}
+                            // Deshabilita si el valor actual es 1 o menos, o si no es un número válido
+                            disabled={Number(formState.cantidad_personas || 1) <= 1 || isSubmitting}
+                            aria-label="Disminuir cantidad"
+                        >
+                            - {/* O un icono */}
+                        </button>
+                        <span className={styles.quantityValue}>
+                            {/* Muestra 0 o 1 si está vacío/inválido, o el valor numérico */}
+                            {Number(formState.cantidad_personas) >= 1 ? formState.cantidad_personas : '1'}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={incrementPeople}
+                            className={styles.quantityButton}
+                            // Deshabilita si se alcanza la capacidad máxima
+                            disabled={
+                                (selectedAreaDetails?.max_capacity !== undefined &&
+                                selectedAreaDetails?.max_capacity !== null &&
+                                Number(formState.cantidad_personas || 0) >= selectedAreaDetails.max_capacity) || isSubmitting
+                            }
+                            aria-label="Aumentar cantidad"
+                        >
+                            + {/* O un icono */}
+                        </button>
+                    </div>
+                    {/* --- Fin Estructura Nuevo Componente --- */}
+
                 </div>
-                 {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
+                {/* El mensaje de error sigue igual aquí debajo */}
+                {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
             </div>
+            {/* --- FIN REEMPLAZO --- */ }
 
             {/* Opcional: Campo Motivo/Observaciones */}
             <div className={styles.formSection} style={{ marginTop: 'var(--spL)' }}>
@@ -705,13 +859,57 @@ return (
           </div> // Fin Step 2
         )}
 
-        {/* === PASO 3: Datos del Responsable y Resumen === */}
-        {currentStep === 3 && (
+       {/* === PASO 3: Resumen === */}
+       {currentStep === 3 && (
           <div className={`${styles.stepContent} ${styles.step3Content}`}>
-            
+             <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
+            {(() => {
+              // Encuentra los detalles de la unidad seleccionada
+              const selectedUnitDetails = unidadesResponse?.data?.find(
+                (u: ApiUnidad) => String(u.id) === formState.unidad
+              );
 
-            {/* Resumen de la reserva */}
-            <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
+              // Accede a titular y LUEGO a owner
+              const ownerData = selectedUnitDetails?.titular?.owner;
+              const unitNumber = selectedUnitDetails?.nro;
+
+              // Solo renderiza si tenemos los datos del owner
+              if (!ownerData || !unitNumber) {
+                return <div style={{ minHeight: '56px', display:'flex', alignItems:'center', color:'var(--cWhiteV1)' }}>Cargando datos del propietario...</div>; // Placeholder
+              }
+
+              // Renderiza la información del propietario
+              return (
+                <div className={styles.summaryOwnerInfoContainer}>
+                  <div className={styles.summaryOwnerInfo}>
+                    <div className={styles.ownerIdentifier}>
+                      <Avatar
+                        src={getUrlImages(
+                          `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
+                        )}
+                        name={getFullName(ownerData)}
+                        w={40}
+                        h={40}
+                      />
+                      <div className={styles.ownerText}>
+                        <span className={styles.ownerName}>
+                          {getFullName(ownerData)}
+                        </span>
+                        <span className={styles.ownerUnit}>
+                          Unidad {unitNumber}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={styles.reservationStatus}>
+                      Reservación: En proceso
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* --- FIN BLOQUE INFO DEL OWNER --- */}
+
+           
             <div className={styles.summaryContainer}>
                {selectedAreaDetails ? (
                   <div className={styles.summaryContent}>
@@ -720,7 +918,7 @@ return (
                          {selectedAreaDetails.images && selectedAreaDetails.images.length > 0 ? (
                              <img
                               className={styles.previewImage} // Reutiliza estilo
-                              src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`)}
+                              src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[0].id}.webp?d=${selectedAreaDetails.updated_at}`)} // Muestra siempre la primera imagen o la actual si tienes carrusel aquí
                               alt={selectedAreaDetails.title}
                              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                                  (e.target as HTMLImageElement).src = '/api/placeholder/150/120'; // Placeholder más pequeño
@@ -734,25 +932,19 @@ return (
                       <div className={styles.summaryDetailsContainer}>
                            <div className={styles.summaryAreaInfo}>
                              <span className={styles.summaryAreaName}>{selectedAreaDetails.title}</span>
-                             {/* Opcional: Descripción corta si quieres */}
-                             {/* <p className={styles.summaryAreaDescription}>
-                                 {selectedAreaDetails.description?.substring(0, 50) || "Sin descripci\u00F3n."}...
-                             </p> */}
-                          </div>
+                             {/* <p className={styles.summaryAreaDescription}> ... </p> */}
+                           </div>
                            <div className={styles.summaryBookingDetails}>
                              <span className={styles.summaryDetailsTitle}>Detalles de tu reserva</span>
                              {/* Fecha */}
                              <div className={styles.summaryDetailItem}>
-                                {/* Placeholder para Icono Calendario */}
                                 <span className={styles.detailIcon}>📅</span>
                                 <span>{formState.fecha || "Fecha no seleccionada"}</span>
                              </div>
-                             {/* Hora (si aplica) */}
-                             {/* Hora/Periodos (si aplica) - MODIFICADO */}
+                             {/* Hora/Periodos */}
                              {selectedAreaDetails.booking_mode !== 'day' && (
                                  <div className={styles.summaryDetailItem}>
                                     <span className={styles.detailIcon}>🕒</span>
-                                    {/* Muestra los periodos seleccionados, separados por coma o como prefieras */}
                                     <span>
                                         {selectedPeriods.length > 0
                                             ? selectedPeriods.map(p => p.replace('-', ' a ')).join(', ')
@@ -769,24 +961,51 @@ return (
                              )}
                               {/* Personas */}
                               <div className={styles.summaryDetailItem}>
-                                {/* Placeholder para Icono Personas */}
                                 <span className={styles.detailIcon}>👥</span>
                                 <span>{formState.cantidad_personas || 0} personas</span>
                              </div>
-                              {/* Costo (Ejemplo estático/simple) */}
-                              <div className={styles.summaryDetailItem}>
-                                 {/* Placeholder para Icono Dinero */}
-                                <span className={styles.detailIcon}>💲</span>
-                                {selectedAreaDetails.is_free === 'X' ? (
-                                    <span className={styles.summaryTotalCost}>Gratis</span>
-                                ) : (
-                                   <>
-                                     {/* Aquí necesitarías lógica para calcular el costo real */}
-                                     {/* <span className={styles.summaryCostPerHour}>Bs {selectedAreaDetails.price || 0}/h</span> */}
-                                     <span className={styles.summaryTotalCost}>Total: Bs {Number(selectedAreaDetails.price || 0)}</span>
-                                   </>
-                                )}
-                             </div>
+                              {/* --- Costo (MODIFICADO) --- */}
+                            <div className={styles.summaryDetailItem}>
+                              <span className={styles.detailIcon}>💲</span> {/* Icono */}
+
+                              {selectedAreaDetails.is_free === 'A' ? (
+                                // Si es Gratis
+                                <span className={styles.summaryPricePerUnit}>Gratis</span>
+                              ) : selectedAreaDetails.price != null ? (
+                                // Si tiene precio
+                                <>
+                                  {/* Precio por Unidad (Hora/Día/Periodo) */}
+                                  <span className={styles.summaryPricePerUnit}>
+                                    Bs {Number(selectedAreaDetails.price).toFixed(2)}
+                                    {selectedAreaDetails.booking_mode === 'day' ? '/día' : '/h'} {/* Muestra /h o /día */}
+                                  </span>
+
+                                  {/* Costo Total (Calculado) */}
+                                  <span className={styles.summaryTotalCost}>
+                                    {(() => {
+                                      // Calcula el total
+                                      let total = Number(selectedAreaDetails.price);
+                                      let quantityLabel = "";
+                                      // Si no es por día, multiplica por número de periodos
+                                      if (selectedAreaDetails.booking_mode !== 'day') {
+                                        const numPeriods = selectedPeriods.length || 1; // Asume 1 si no hay seleccionados (aunque debería haber validación)
+                                        // Intenta calcular la duración total en horas si es posible (esto es un extra opcional)
+                                         // Por defecto, 1 periodo = 1 hora (simplificación)
+                                        // Podrías intentar parsear HH:mm para calcular duración real si lo necesitas
+                                         // Etiqueta para el total
+                                      } else {
+                                        quantityLabel = `Total: `; // Etiqueta simple para reserva por día
+                                      }
+                                      return `${quantityLabel}Bs ${total.toFixed(2)}`;
+                                    })()}
+                                  </span>
+                                </>
+                              ) : (
+                                // Si no es gratis y no hay precio
+                                <span className={styles.summaryPricePerUnit}>Precio no disponible</span>
+                              )}
+                            </div>
+                            {/* --- Fin Costo (MODIFICADO) --- */}
                           </div>
                       </div>
                   </div>
@@ -794,29 +1013,60 @@ return (
                   <p>No se pudo cargar el resumen.</p>
                )}
             </div>
+             {/* ----- FIN DE TU CÓDIGO ORIGINAL DEL RESUMEN ----- */}
+
           </div> // Fin Step 3
         )}
 
-        {/* === Acciones (Botones) === */}
-        <div className={styles.formActions}>
-           {/* Botón Atrás (visible desde paso 2 en adelante) */}
-           {currentStep > 1 && (
-            <button type="button" className={`${styles.button} ${styles.backBtn}`} onClick={prevStep} disabled={isSubmitting}>
-              Atras
-            </button>
-          )}
-          {/* Botón Siguiente/Continuar (visible hasta antes del último paso) */}
-          {currentStep < 3 ? (
-            <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting}>
-              {/* Cambia el texto en el paso 2 */}
-              {currentStep === 2 ? "Continuar" : "Siguiente"}
-            </button>
-          ) : (
-            // Botón Reservar (visible solo en el último paso)
-            <button type="button" className={`${styles.button} ${styles.submitBtn}`} onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? "Reservando..." : "Reservar"}
-            </button>
-          )}
+        {/* === Acciones (Botones) y Precio Condicional === */}
+    <div className={styles.formActions}> {/* CSS: justify-content: space-between; align-items: center; */}
+
+        {/* --- Contenedor para Info de Precio (SOLO EN PASO 1) --- */}
+        {currentStep === 1 && selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
+          <div className={styles.priceInfoBottom}>
+              <span className={styles.priceValueBottom}>
+                {selectedAreaDetails.is_free === 'A'
+                  ? 'Gratis'
+                  : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(2)}`
+                }
+              </span>
+          </div>
+          )}  
+        {/* Si no es paso 1 o no hay area, no muestra nada aquí (a la izquierda) */}
+        {/* Opcional: podrías poner un div vacío o un spacer si necesitas mantener el espacio */}
+        {currentStep !== 1 && <div style={{ flexGrow: 1 }}></div>} {/* Placeholder para empujar botones a la derecha en otros pasos */}
+        {/* --- FIN Contenedor Precio --- */}
+
+
+        {/* --- Contenedor para los Botones (siempre a la derecha) --- */}
+        <div className={styles.actionButtonsContainer}>
+            {/* Botón Atrás (visible desde paso 2 en adelante) */}
+            {currentStep > 1 && (
+              <button type="button" className={`${styles.button} ${styles.backBtn}`} onClick={prevStep} disabled={isSubmitting}>
+                Atras
+              </button>
+            )}
+            {/* Botón Siguiente (visible solo en Paso 1) */}
+            {currentStep === 1 && (
+              <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting || !selectedAreaDetails}>
+                Reservar
+              </button>
+            )}
+            {/* Botón Continuar (visible solo en Paso 2) */}
+            {currentStep === 2 && (
+              <button type="button" className={`${styles.button} ${styles.nextBtn}`} onClick={nextStep} disabled={isSubmitting}>
+                Continuar
+              </button>
+            )}
+            {/* Botón Reservar (visible solo en el último paso - Paso 3) */}
+            {currentStep === 3 && (
+              <button type="button" className={`${styles.button} ${styles.submitBtn}`} onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? "Reservando..." : "Reservar"}
+              </button>
+            )}
+        </div>
+        {/* --- FIN Contenedor Botones --- */}
+
         </div>
 
       </div> {/* Fin formCard */}
@@ -828,7 +1078,7 @@ return (
        onClose={() => setIsRulesModalVisible(false)} // Función para cerrar
        title={`Reglas de Uso - ${selectedAreaDetails.title}`} // Título del modal
        buttonText="" // Oculta el botón de "Guardar"
-       buttonCancel="Cerrar" // Texto del botón para cerrar
+       buttonCancel="" // Texto del botón para cerrar
        iconClose={true} // Muestra el icono 'X' para cerrar si no es fullscreen
        // fullScreen={false} // Puedes ajustar si lo necesitas a pantalla completa
      >

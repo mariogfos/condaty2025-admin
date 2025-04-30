@@ -3,11 +3,10 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName } from "@/mk/utils/string";
-import useCrudUtils from "../shared/useCrudUtils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -81,6 +80,19 @@ const HomeOwners = () => {
     // extraData: true,
     export: true,
     import: true,
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      mod: ModCrudType;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+    }) => {
+      return (
+        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
+
+      );
+    }
   };
 
   const fields = useMemo(() => {
@@ -210,15 +222,6 @@ const HomeOwners = () => {
     paramsInitial,
     mod,
     fields,
-  });
-
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
