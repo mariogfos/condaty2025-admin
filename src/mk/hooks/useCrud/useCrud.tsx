@@ -169,7 +169,7 @@ const useCrud = ({
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
-    ...(mod?.extraData ? { extraData: mod?.extraData } : {}),
+    ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
   const [searchs, setSearchs]: any = useState({});
   const [action, setAction] = useState<ActionType>("add");
@@ -1213,7 +1213,7 @@ const useCrud = ({
                   openList,
                   setOpenList,
                   reLoad: reLoad,
-                  showToast: showToast, 
+                  showToast: showToast,
                 })
               ) : (
                 <Detail
