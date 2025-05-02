@@ -13,6 +13,7 @@ import { getDateDesdeHasta } from "@/mk/utils/date";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
+import PerformBudget from "./PerformBudget/PerformBudget";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -30,6 +31,7 @@ const paramsInitial = {
 const Outlays = () => {
   const router = useRouter();
   const [openGraph, setOpenGraph] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
 
@@ -267,6 +269,14 @@ const Outlays = () => {
   // Definición de botones extras para enviar al useCrud
   const extraButtons = [
     <Button
+      key="presupuesto-button"
+      // onClick={() => goToCategories("E")}
+      onClick={() => setOpenModal(true)}
+      className={styles.categoriesButton}
+    >
+      Ejecutar presupuesto
+    </Button>,
+    <Button
       key="categories-button"
       onClick={() => goToCategories("E")}
       className={styles.categoriesButton}
@@ -374,6 +384,16 @@ const Outlays = () => {
             />
           </>
         </DataModal>
+      )}
+      {/* Modal para ejecutar presupuesto */}
+      {openModal && (
+        <PerformBudget
+          reLoad={reLoad}
+          open={openModal}
+          onClose={() => {
+            setOpenModal(false);
+          }}
+        />
       )}
     </div>
   );
