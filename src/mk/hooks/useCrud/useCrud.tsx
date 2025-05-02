@@ -1213,6 +1213,7 @@ const useCrud = ({
                   openList,
                   setOpenList,
                   reLoad: reLoad,
+                  showToast: showToast, 
                 })
               ) : (
                 <Detail
