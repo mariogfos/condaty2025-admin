@@ -295,12 +295,13 @@ const Areas = () => {
     //  className={styles.style}
     >
       <List />
-
-      <MaintenanceModal
-        open={openMaintenance}
-        onClose={() => setOpenMaintenance(false)}
-        areas={data?.data}
-      />
+      {openMaintenance && (
+        <MaintenanceModal
+          open={openMaintenance}
+          onClose={() => setOpenMaintenance(false)}
+          areas={data?.data}
+        />
+      )}
     </div>
   );
 };

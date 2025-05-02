@@ -7,23 +7,12 @@ import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import RenderView from "./RenderView/RenderView";
-
-const mod = {
-  modulo: "alerts",
-  singular: "alerta",
-  plural: "alertas",
-  permiso: "",
-  extraData: false,
-  hideActions: { edit: true, del: true, add: true },
-  export: true,
-  filter: true,
-  renderView: (props: {
-    open: boolean;
-    onClose: any;
-    item: Record<string, any>;
-    onConfirm?: Function;
-  }) => <RenderView {...props} />,
-};
+import {
+  IconAlert,
+  IconAmbulance,
+  IconFlame,
+  IconTheft,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   perPage: 20,
@@ -37,14 +26,47 @@ const lLevels = [
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
+export const getAlertLevelText = (level: any) => {
+  switch (level) {
+    case 4:
+      return "Nivel panico";
+    case 3:
+      return "Nivel alto";
+    case 2:
+      return "Nivel medio";
+    case 1:
+      return "Nivel bajo";
+    default:
+      return "Nivel medio";
+  }
+};
 
 const Alerts = () => {
+  const mod = {
+    modulo: "alerts",
+    singular: "alerta",
+    plural: "alertas",
+    permiso: "",
+    extraData: false,
+    hideActions: { edit: true, del: true, add: true },
+    export: true,
+    filter: true,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+    }) => <RenderView {...props} reLoad={reLoad} />,
+  };
   const { setStore } = useAuth();
   useEffect(() => {
     setStore({ title: mod.plural.toUpperCase() });
   }, []);
   const getAlertLevelClass = (level: any) => {
     switch (level) {
+      case 4:
+        // return styles.nivelPanico;
+        return styles.nivelAlto;
       case 3:
         return styles.nivelAlto;
       case 2:
@@ -56,16 +78,18 @@ const Alerts = () => {
     }
   };
 
-  const getAlertLevelText = (level: any) => {
-    switch (level) {
-      case 3:
-        return "Nivel alto";
-      case 2:
-        return "Nivel medio";
-      case 1:
-        return "Nivel bajo";
+  const getAlertLevelIcon = (type: any) => {
+    switch (type) {
+      case "E":
+        return <IconAmbulance />;
+      case "F":
+        return <IconFlame />;
+      case "T":
+        return <IconTheft />;
+      case "O":
+        return <IconAlert />;
       default:
-        return "Nivel medio";
+        return <IconAlert />;
     }
   };
 
@@ -75,23 +99,29 @@ const Alerts = () => {
       guard_id: {
         rules: ["required"],
         api: "ae",
-        label: "Guardia",
+        label: "Informador",
         list: {
-          onRender: (props: any) => {
+          onRender: ({ item }: any) => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  src={getUrlImages(
-                    "/GUARD-" +
-                      props?.item?.guardia?.id +
-                      ".webp?d=" +
-                      props?.item?.guardia?.updated_at
-                  )}
-                  name={getFullName(props?.item.guardia)}
-                  square
-                />
+                {item?.level == 4 ? (
+                  getAlertLevelIcon(item?.type)
+                ) : (
+                  <Avatar
+                    src={getUrlImages(
+                      "/GUARD-" +
+                        item?.guardia?.id +
+                        ".webp?d=" +
+                        item?.guardia?.updated_at
+                    )}
+                    name={getFullName(item.guardia)}
+                    square
+                  />
+                )}
                 <div>
-                  <p>{getFullName(props?.item.guardia)} </p>
+                  <p>
+                    {getFullName(item?.level == 4 ? item?.owner : item.guardia)}{" "}
+                  </p>
                 </div>
               </div>
             );
@@ -145,7 +175,7 @@ const Alerts = () => {
     []
   );
 
-  const { userCan, List } = useCrud({
+  const { userCan, List, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,

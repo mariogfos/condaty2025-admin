@@ -6,34 +6,39 @@ import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
 
 import { WidgetSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
-import { WidgetDashCard } from "../ Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { WidgetDashCard } from "../Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
-import WidgetBase from "../ Widgets/WidgetBase/WidgetBase";
-import WidgetGraphResume from "../ Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
+import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
+import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import Button from "@/mk/components/forms/Button/Button";
-import WidgetCalculatePenalty from "../ Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
-import { WidgetList } from "../ Widgets/WidgetsDashboard/WidgetList/WidgetList";
+import WidgetCalculatePenalty from "../Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
+import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
+import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+// Asegúrate que la ruta al modal sea correcta
 
 const paramsInitial = {
   fullType: "L",
   searchBy: "",
 };
+
 const HomePage = () => {
-  const { store,setStore, userCan ,showToast,user } = useAuth();
+  const { store, setStore, userCan, showToast, user } = useAuth();
   const [histParams, setHistParams] = useState<any[]>([]);
   const [params, setParams] = useState<any>(paramsInitial);
-  const [ openActive , setOpenActive ] = useState(false);
-  const [ openPayment , setOpenPayment ] = useState(false);
-  const [ dataOwner , setDataOwner ]:any = useState({});
-  const [ dataPayment , setDataPayment ]:any = useState({});
-
+  const [openActive, setOpenActive] = useState(false);
+  const [openPayment, setOpenPayment] = useState(false);
+  const [dataOwner, setDataOwner]: any = useState({});
+  const [dataPayment, setDataPayment]: any = useState({});
+  const [openReservation, setOpenReservation] = useState(false);
+  // Estado para guardar el ID de la reserva seleccionada
+  const [selectedReservationId, setSelectedReservationId]: any = useState(null);
 
   useEffect(() => {
     setStore({
@@ -41,234 +46,254 @@ const HomePage = () => {
     });
   }, []);
 
-   const {
-     data: dashboard,
-     reLoad,
-     loaded,
-   } = useAxios("/dashboard", "GET", {
-     ...params,
-   });
+  const {
+    data: dashboard,
+    reLoad,
+    loaded,
+  } = useAxios("/dashboard", "GET", {
+    ...params,
+  });
 
-  const today = getNow()
-  const formattedDate =`Al ${getDateStrMes(today)}`
+  const today = getNow();
+  const formattedDate = `Al ${getDateStrMes(today)}`;
   let balance: any =
-  Number(dashboard?.data?.TotalIngresos) -
-  Number(dashboard?.data?.TotalEgresos);
+    Number(dashboard?.data?.TotalIngresos) -
+    Number(dashboard?.data?.TotalEgresos);
   const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
 
-
-  const paymentProps : any = {
-    open:openPayment,
-    onClose:()=>setOpenPayment(false),
-    item:dataPayment,
+  const paymentProps: any = {
+    open: openPayment,
+    onClose: () => setOpenPayment(false),
+    item: dataPayment,
     payment_id: dataPayment?.id,
-    reLoad:reLoad
-  }
+    reLoad: reLoad,
+  };
 
-    
-    const pagosList = (data:any) => {
-      // console.log(data,'pagoslist')
-      // Función para eliminar duplicados
-      const removeDuplicates = (string:string) => {
-        const uniqueArray = string.split(",").filter((item, index, self) => {
-          return self.indexOf(item) === index;
-        });
-        return uniqueArray.join(" ");
-      };
-  
-  // console.log(paymentProps,'paymentProps')
+  const removeDuplicates = (str: string | undefined | null): string => {
+    if (!str) return "";
+    const uniqueArray = str.split(",").filter((item, index, self) => {
+      const trimmedItem = item.trim();
       return (
-        <ItemList
-          title={getFullName(data?.owner)}
-          subtitle={store.UnitsType + " " + removeDuplicates(data?.dptos)}
-          right={
-            <Button
-              onClick={() => {
-                if (userCan("home", "C") == false)
-                  return showToast(
-                    "No tiene permisos para aceptar pagos",
-                    "error"
-                  );
-                 setDataPayment(data);
-                 setOpenPayment(true);
-              }}
-              
-            >
-              Revisar
-            </Button>
-          }
-        >
-          {/* <div className="items-center justify-between gap-4 hidden">
-            <div>Periodos: {data.details?.length}</div>
-            <div>Monto: {data.amount}</div>
-          </div> */}
-        </ItemList>
+        trimmedItem !== "" &&
+        self.findIndex((s) => s.trim() === trimmedItem) === index
       );
-    };
+    });
+    return uniqueArray.join(" ");
+  };
 
-    const registroList = (data:any) => {
-      return (
-        <ItemList
-          title={getFullName({
-            last_name: data.owner.last_name,
-            middle_name: data.owner.middle_name,
-            mother_last_name: data.owner.mother_last_name,
-            name: data.owner.name,
-          })}
-          right={
-            <Button
-              onClick={() => {
-                if (userCan("home", "C") == false)
-                  return showToast(
-                    "No tiene permisos para aceptar cuentas pre-registradas",
-                    "error"
-                  );
-                setDataOwner(data.owner);
-                setOpenActive(true);
-              }}
-              
-            >
-              Ver
-            </Button>
-          }
-        ></ItemList>
-      );
-    };
-   
+  const pagosList = (data: any) => {
+    return (
+      <ItemList
+        title={getFullName(data?.owner)}
+        subtitle={store.UnitsType + " " + removeDuplicates(data?.dptos)}
+        right={
+          <Button
+            onClick={() => {
+              if (userCan("payments", "C") == false) {
+                return showToast(
+                  "No tiene permisos para aceptar pagos",
+                  "error"
+                );
+              }
+              setDataPayment(data);
+              setOpenPayment(true);
+            }}
+          >
+            Revisar
+          </Button>
+        }
+      />
+    );
+  };
 
-    const alertasList = (data:any) => {
-      return (
-        <div title={""} className={styles.alertsList}>
-         <section> 
+  // Modificado para guardar y enviar solo el ID
+  const reservasList = (data: any) => {
+    return (
+      <ItemList
+        title={getFullName(data?.owner)}
+        subtitle={`Área: ${data?.area?.title || "No especificada"}`}
+        right={
+          <Button
+            onClick={() => {
+              setSelectedReservationId(data.id); // <- Guarda solo el ID
+              setOpenReservation(true);
+            }}
+          >
+            Aprobar
+          </Button>
+        }
+      />
+    );
+  };
+
+  const registroList = (data: any) => {
+    return (
+      <ItemList
+        title={getFullName(data?.owner)}
+        right={
+          <Button
+            onClick={() => {
+              if (userCan("owners", "C") == false) {
+                return showToast(
+                  "No tiene permisos para aceptar cuentas pre-registradas",
+                  "error"
+                );
+              }
+              setDataOwner(data.owner);
+              setOpenActive(true);
+            }}
+          >
+            Ver
+          </Button>
+        }
+      />
+    );
+  };
+
+  const alertasList = (data: any) => {
+    return (
+      <div title={""} className={styles.alertsList}>
+        <section>
           <div>
-              <div>
-                {getFullName(data?.guardia)}{" "}
-              </div>
-              <div>
-                Descripción: {data.descrip}
-              </div>
-              
-                <div>
-                  {getDateTimeStrMes(data.created_at)}
-                </div>
-          </div>
-            <div className="flex justify-end items-center -mt-6">
-              <div
-                className={`${styles.levelText}  ${
-                  data?.level === 1
-                    ? styles.levelLow
-                    : data.level === 2
-                    ? styles.levelMedium
-                    : styles.levelHigh
-                }`}
-              >
-                <p className="text-xs">
-                  {`Nivel ${
-                    data.level === 1
-                      ? "bajo"
-                      : data.level === 2
-                      ? "medio"
-                      : "alto"
-                  }`}
-                </p>
-              </div>
+            <div>
+              {data?.guardia ? getFullName(data.guardia) : "Alerta Sistema/App"}
             </div>
-          
-          </section>
-        </div>
-      );
-    };
-  if (!userCan("home", "R")) return <NotAccess />;
-  // if (!loaded) return <WidgetSkeleton />;
-  return <>
-  
-  <div className={styles.container}>
+            <div>Descripción: {data.descrip}</div>
+            <div>{getDateTimeStrMes(data.created_at)}</div>
+          </div>
+          <div className="flex justify-end items-center -mt-6">
+            <div
+              className={`${styles.levelText} ${
+                data?.level === 1
+                  ? styles.levelLow
+                  : data.level === 2
+                  ? styles.levelMedium
+                  : styles.levelHigh
+              }`}
+            >
+              <p className="text-xs">
+                {`Nivel ${
+                  data.level === 1
+                    ? "bajo"
+                    : data.level === 2
+                    ? "medio"
+                    : "alto"
+                }`}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  };
 
-<section>
-    <WidgetDashCard
-      title="Ingresos"
-      subtitle={formattedDate}
-      data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
-      onClick={()=> window.location.href = "/payments"} 
-   />
-     <WidgetDashCard
-     title="Egresos"
-     subtitle={formattedDate}
-     data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
-     onClick={()=> window.location.href = "/outlays"}
- 
-   />
-     <WidgetDashCard
-     title={balanceMessage}
-     color={balance < 0 ? "var(--cError)" : ""}
-     subtitle={formattedDate}
-     data={
-       "Bs. " +
-       formatNumber(
-         Number(dashboard?.data?.TotalIngresos) -
-           Number(dashboard?.data?.TotalEgresos)
-       )
-     }
-     
-   
-   />
-     <WidgetDashCard
-     title="Cartera vencida"
-     subtitle={formattedDate}
-     data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
-     onClick={()=> window.location.href = "/defaultersview"} 
-   
-   />
-   </section>
-   <section>
-    
-    <WidgetGraphResume
-                  saldoInicial={dashboard?.data?.saldoInicial}
-                  ingresos={dashboard?.data?.ingresosHist}
-                  egresos={dashboard?.data?.egresosHist}
-                  periodo="y"
-                />
- 
-   </section>
-   <section >
-   <div className={styles.widgetsContainer}>
-      <WidgetCalculatePenalty />
-    
-  
-        <WidgetList
-        className={styles.widgetAlerts}
-        title="Solicitudes de pago"
-        message="En este momento no tienes pagos por revisar"
-        data={dashboard?.data?.porConfirmar}
-        renderItem={pagosList}
-        />
-        <WidgetList        
-            className={styles.widgetAlerts}
-            title="Cuentas pre-registro"
-            message="En este momento no tienes cuentas por activar"
-            data={dashboard?.data?.porActivar}
-            renderItem={registroList}
+  if (!userCan("home", "R")) return <NotAccess />;
+
+  return (
+    <>
+      <div className={styles.container}>
+        <section>
+          <WidgetDashCard
+            title="Ingresos"
+            subtitle={formattedDate}
+            data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
+            onClick={() => (window.location.href = "/payments")}
           />
-    </div>
-    <WidgetList
-       className={styles.widgetAlerts}
-       title="Últimas alertas"
-       message="En este momento no tienes ninguna alerta"
-       data={dashboard?.data?.alertas}
-       renderItem={alertasList}
-     />                                   
-   </section>
-  </div>
-  <OwnersRender
-  open={openActive}
-  onClose={()=>setOpenActive(false)}
-  item={dataOwner}
-/>
- <PaymentRender
-{ ...paymentProps}
- payment_id={paymentProps?.payment_id}
- />
-  </>;
+          <WidgetDashCard
+            title="Egresos"
+            subtitle={formattedDate}
+            data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
+            onClick={() => (window.location.href = "/outlays")}
+          />
+          <WidgetDashCard
+            title={balanceMessage}
+            color={balance < 0 ? "var(--cError)" : ""}
+            subtitle={formattedDate}
+            data={
+              "Bs. " +
+              formatNumber(
+                Number(dashboard?.data?.TotalIngresos) -
+                  Number(dashboard?.data?.TotalEgresos)
+              )
+            }
+          />
+          <WidgetDashCard
+            title="Cartera vencida"
+            subtitle={formattedDate}
+            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            onClick={() => (window.location.href = "/defaultersview")}
+          />
+        </section>
+
+        <section>
+          <WidgetGraphResume
+            saldoInicial={dashboard?.data?.saldoInicial}
+            ingresos={dashboard?.data?.ingresosHist}
+            egresos={dashboard?.data?.egresosHist}
+            periodo="y"
+          />
+        </section>
+
+        <section>
+          <div className={styles.widgetsContainer}>
+            <WidgetCalculatePenalty />
+
+            <WidgetList
+              className={styles.widgetAlerts}
+              title="Solicitudes de pago"
+              message="En este momento no tienes pagos por revisar"
+              data={dashboard?.data?.porConfirmar}
+              renderItem={pagosList}
+            />
+
+            <WidgetList
+              className={styles.widgetAlerts}
+              title="Solicitudes de Reservas"
+              message="No hay solicitudes de reserva pendientes"
+              data={dashboard?.data?.porReservar}
+              renderItem={reservasList} // <- Usa la función modificada
+            />
+
+            <WidgetList
+              className={styles.widgetAlerts}
+              title="Cuentas pre-registro"
+              message="En este momento no tienes cuentas por activar"
+              data={dashboard?.data?.porActivar}
+              renderItem={registroList}
+            />
+          </div>
+
+          <WidgetList
+            className={styles.widgetAlerts}
+            title="Últimas alertas"
+            message="En este momento no tienes ninguna alerta"
+            data={dashboard?.data?.alertas}
+            renderItem={alertasList}
+          />
+        </section>
+      </div>
+
+      <OwnersRender
+        open={openActive}
+        onClose={() => setOpenActive(false)}
+        item={dataOwner}
+        reLoad={reLoad}
+      />
+
+      <PaymentRender {...paymentProps} />
+
+      {/* Modificado para pasar solo el ID a través de la prop 'reservationId' */}
+      <ReservationDetailModal
+        open={openReservation}
+        onClose={() => {
+          setOpenReservation(false);
+          setSelectedReservationId(null);
+        }}
+        reservationId={selectedReservationId}
+        reLoad={() => reLoad()}
+      />
+    </>
+  );
 };
 
 export default HomePage;

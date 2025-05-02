@@ -144,11 +144,10 @@
   font-weight: var(--bRegular, 400);
   font-size: var(--sM, 14px);
   color: var(--cWhiteV1, #a7a7a7);
-  /* Para truncar texto en web si es necesario */
-  /* display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
+  display: -webkit-box;
   -webkit-box-orient: vertical;
-  overflow: hidden; */
+  overflow: hidden;
 }
 
 .specificDetails {
@@ -199,23 +198,50 @@
 /* .totalPrice { color: var(--cWhite, #fafafa); font-weight: var(--bMedium, 500); margin-left: var(--spXs); } */
 
 
-/* Botones de Acción */
+/* ReservationDetailModal.module.css */
+
+/* ... (tus otros estilos) ... */
+
 .actionButtonsContainer {
   display: flex;
-  gap: var(--spS, 8px);
+  gap: var(--spS, 8px); /* Mantiene el espacio entre botones */
   margin-top: var(--spM, 12px);
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
 }
 
-/* Estilos base para Button de MK (ajusta según cómo funcione tu Button) */
-/* Si Button usa className, define estilos aquí. Si usa 'variant', no son necesarios */
+.rejectButtonProportional {
+  flex-grow: 3; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 para que flex-grow distribuya todo el espacio */
+  min-width: 0; /* Permite que el botón se encoja si es necesario (aunque flex-grow domina aquí) */
+}
+
+.approveButtonProportional {
+  flex-grow: 5; /* Define la proporción de crecimiento */
+  flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 */
+  min-width: 0; /* Permite que el botón se encoja */
+
+}
+
+
+
+.secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
+  flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+  /* Puedes añadir otros estilos si son necesarios */
+}
+
+.primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
+  flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
+  flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+}
+
+
 .rejectButton {
-  /* Estilos específicos si usas className para el botón de rechazar */
-  /* Ejemplo: border-color: var(--cWhiteV1); color: var(--cWhiteV1); */
+
   flex-grow: 1; /* Ocupa espacio */
 }
 .acceptButton {
-  /* Estilos específicos si usas className para el botón de aceptar */
-  /* Ejemplo: background-color: var(--cAccent); color: var(--cBlack); */
+
    flex-grow: 1; /* Ocupa espacio */
 }
 
@@ -231,4 +257,37 @@
     justify-content: center;
     align-items: center;
     min-height: 200px; /* Altura mínima mientras carga */
+}
+/* En TuComponentePadre.module.css */
+
+.confirmCancelButton {
+  /* Estilos para replicar el botón verde de tu imagen */
+  background-color: #00E38C; /* Verde brillante */
+  color: #212121; /* Texto oscuro */
+  border: none; /* Sin borde */
+  padding: var(--spM) var(--spXl); /* Ajusta el padding si es necesario */
+  border-radius: var(--bRadiusS); /* Ajusta el border-radius */
+  font-weight: var(--bSemibold); /* Peso de fuente */
+  flex-grow: 1; /* Intenta que ocupe más espacio si hay dos botones */
+}
+
+
+
+/* Ajustes al contenido del modal si es necesario */
+.modalContentContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.modalContentContainer p {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.4;
+}
+.divider {
+  height: 0.5px;
+  width: 100%;
+  background-color: var(--cWhiteV1);
+  margin-bottom: var(--spM, 12px);
 }

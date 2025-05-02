@@ -26,6 +26,7 @@ const mod = {
   hideActions: { edit: true, del: true, add: true },
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
+  filter:true
   // Esto cargará los detalles completos al hacer clic
 };
 
@@ -38,6 +39,18 @@ const paramsInitial = {
 
 const Reserva = () => {
   const router = useRouter();
+
+  // --- MODIFICACIÓN AQUÍ: Actualizar opciones del filtro ---
+  // Define los nuevos estados para el filtro, incluyendo "Todos" con valor vacío
+  const getReservaStatusOptions = () => [
+    { id: "T", name: "Todos" },     // Opción para mostrar todos (envía vacío)
+    { id: "W", name: "En espera" },
+    { id: "A", name: "Aprobado" },
+    { id: "X", name: "Rechazado" },
+    { id: "C", name: "Cancelado" },
+  ];
+  // --- FIN MODIFICACIÓN ---
+
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -63,31 +76,24 @@ const Reserva = () => {
         label: "Área Social",
         form: { type: "text" },
         list: {
-          // MODIFICACIÓN AQUÍ (area.onRender)
           onRender: (props: any) => {
-            // Guarda el área y el nombre en variables con comprobación
             const area = props?.item?.area;
-            const areaName = area?.title; // Acceso seguro a 'name'
+            const areaName = area?.title;
             const imageUrl = area?.images?.[0]
               ? getUrlImages(
                   `/AREA-${area.images[0].area_id}-${area.images[0].id}.webp?d=${area.updated_at}`
                 )
-              : undefined; // Genera URL solo si hay datos
+              : undefined;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  src={imageUrl} // Pasa la URL segura (puede ser undefined)
-                  
-                />
+                <Avatar src={imageUrl} />
                 <div>
-                  {/* Muestra el nombre o un texto alternativo si no existe */}
                   <p>{areaName || "Área no disponible"}</p>
                 </div>
               </div>
             );
           },
-          // FIN MODIFICACIÓN (area.onRender)
         },
       },
       owner: {
@@ -96,38 +102,52 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
-          // MODIFICACIÓN AQUÍ (owner.onRender)
           onRender: (props: any) => {
-            // Guarda el owner en una variable
             const owner = props?.item?.owner;
-            // Llama a getFullName solo si owner existe, sino usa texto alternativo
+            const dpto = props?.item?.dpto;
+
             const ownerName = owner
               ? getFullName(owner)
               : "Residente no disponible";
+            const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
+
             const imageUrl = owner
-              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at}`)
-              : undefined; // Genera URL solo si hay owner
+              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`)
+              : undefined;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
-                  src={imageUrl} // Pasa la URL segura (puede ser undefined)
-                  name={ownerName} // Pasa el nombre seguro
+                  src={imageUrl}
+                  name={ownerName}
                 />
                 <div>
-                  <p>{ownerName}</p> {/* Muestra el nombre seguro */}
+                  <p style={{ margin: 0, lineHeight: '1.3' }}>
+                    {ownerName}
+                  </p>
+                  {dpto && (
+                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
+                       {dptoNro}
+                     </p>
+                  )}
+                  {!owner && dpto && (
+                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
+                       {dptoNro}
+                     </p>
+                  )}
                 </div>
               </div>
             );
           },
-          // FIN MODIFICACIÓN (owner.onRender)
         },
       },
-      
+
       status: {
         rules: ["required"],
         api: "ae",
         label: "Estado",
+        // NOTA: Las opciones del 'form' no se pidieron cambiar,
+        // pero podrían necesitar ajuste si este campo se edita en algún formulario.
         form: {
           type: "select",
           options: [
@@ -138,22 +158,22 @@ const Reserva = () => {
         },
         list: {
           onRender: (props: any) => {
-            // NUEVO: Tipo actualizado para incluir los nuevos estados
             const status = props?.item?.status as
-              | "X"
               | "W"
-              | "Y"
-              | "N"
-              | undefined;
+              | "A"
+              | "X"
+              | "C"
+              | undefined; // Quitamos N y A (si no aplica a reservas listadas)
 
-            // NUEVO: Mapeo actualizado con los nuevos estados y clases
+            // Mapeo actualizado con los nuevos estados, textos y clases CSS
             const statusMap = {
-              X: { label: "Cancelado", class: styles.statusX },
-              W: { label: "En espera", class: styles.statusW },
-              Y: { label: "Aprobado", class: styles.statusY },
-              N: { label: "Rechazado", class: styles.statusN },
-              A: { label: "Disponible", class: styles.statusA },
+              W: { label: "En espera", class: styles.statusW }, // En espera
+              A: { label: "Aprobado", class: styles.statusA },  // Aprobado
+              X: { label: "Rechazado", class: styles.statusX }, // Rechazado
+              C: { label: "Cancelado", class: styles.statusC }, // Cancelado (Asegúrate de tener styles.statusC)
+              // Quitamos N y A (si no aplica a reservas listadas)
             };
+            // --- FIN MODIFICACIÓN ---
 
             const currentStatus = status ? statusMap[status] : null;
 
@@ -168,16 +188,22 @@ const Reserva = () => {
             );
           },
         },
+        filter: {
+          label: "Estado Reserva",
+          width: "180px",
+          // Usa la función actualizada para las opciones del filtro
+          options: getReservaStatusOptions,
+        },
       },
     }),
     []
   );
   const customAddButton = (
     <Button
-      key="custom-add-reserva" // Añadir key única
-      onClick={() => router.push("/create-reservas")} // Acción de navegación
-      variant="primary" // O el variant que uses
-      style={{ height: 48 }} // Mantener estilo consistente si es necesario
+      key="custom-add-reserva"
+      onClick={() => router.push("/create-reservas")}
+      variant="primary"
+      style={{ height: 48 }}
     >
       Crear Reserva
     </Button>
@@ -186,21 +212,18 @@ const Reserva = () => {
   const {
     userCan,
     List,
-    // Ya no necesitas onAdd del hook si no lo usas
-    // onAdd,
-    // ...otros elementos que sí uses ...
     setStore,
     onSearch,
     searchs,
-    onEdit, // Mantienes onEdit/onDel si los usas en otro lugar (ej. onLongPress)
+    onEdit,
     onDel,
     extraData,
     findOptions,
+    reLoad
   } = useCrud({
     paramsInitial,
     mod,
     fields,
-    // NUEVO: Pasar el botón personalizado como extraButton
     extraButtons: [customAddButton],
   });
   const { onLongPress, selItem } = useCrudUtils({
@@ -216,6 +239,7 @@ const Reserva = () => {
   return (
     <div>
       <List />
+      {/* Asegúrate de que ReservaModal/RenderView también manejen los nuevos estados si es necesario */}
     </div>
   );
 };

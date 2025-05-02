@@ -6,8 +6,8 @@ import React from "react";
 
 const DashDpto = () => {
   const params = useParams();
-  const id = params.id as string;
-  
+  const id = params?.id as string;
+
   return <DashDptos id={id} />;
 };
 

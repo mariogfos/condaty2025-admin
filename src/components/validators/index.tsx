@@ -6,6 +6,7 @@ import {
   validDateGreater,
   validDateLess,
   validDateFuture,
+  validDateTimeGreater,
 } from "./rulesApp";
 
 export const validators = {
@@ -16,5 +17,6 @@ export const validators = {
   greaterDate: validDateGreater,
   lessDate: validDateLess,
   futureDate: validDateFuture,
+  greaterDateTime: validDateTimeGreater,
   // Añadir otros validadores aquí
 };

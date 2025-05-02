@@ -10,8 +10,10 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { getDateDesdeHasta } from "@/mk/utils/date";
-import WidgetGrafEgresos from "@/components/ Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
+import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
+import PerformBudget from "./PerformBudget/PerformBudget";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -29,6 +31,7 @@ const paramsInitial = {
 const Outlays = () => {
   const router = useRouter();
   const [openGraph, setOpenGraph] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
 
@@ -41,6 +44,17 @@ const Outlays = () => {
     permiso: "",
     extraData: true,
     renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
+    renderView: (props: any) => (
+      <RenderView // Usa el nuevo componente
+        {...props}
+        outlay_id={props?.item?.id} // Pasa el ID del egreso
+        extraData={extraData} // Pasa extraData para las categorías
+      />
+    ),
+    hideActions: {
+      edit: true,
+    },
+    loadView: { fullType: "DET" },
     saveMsg: {
       add: "Egreso creado con éxito",
       edit: "Egreso actualizado con éxito",
@@ -102,7 +116,8 @@ const Outlays = () => {
           options: getPeriodOptions,
         },
       },
-      category_id: { // <--- Columna "Categoría"
+      category_id: {
+        // <--- Columna "Categoría"
         rules: ["required"],
         api: "ae",
         label: "Categoria",
@@ -112,7 +127,10 @@ const Outlays = () => {
             let data: any = [];
             // Filtrar por los que no tienen objeto padre (o category_id es null)
             items?.extraData?.categories
-              ?.filter((c: { padre: any; category_id: any }) => !c.padre && !c.category_id)
+              ?.filter(
+                (c: { padre: any; category_id: any }) =>
+                  !c.padre && !c.category_id
+              )
               ?.map((c: any) => {
                 data.push({
                   id: c.id,
@@ -122,7 +140,8 @@ const Outlays = () => {
             return data;
           },
         },
-        list: { // <--- Lógica de renderizado para la columna "Categoría"
+        list: {
+          // <--- Lógica de renderizado para la columna "Categoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
@@ -130,7 +149,7 @@ const Outlays = () => {
             }
             // *** CORRECCIÓN LÓGICA ***
             // Verificar si el objeto 'padre' existe y NO es null
-            if (category.padre && typeof category.padre === 'object') {
+            if (category.padre && typeof category.padre === "object") {
               // Si existe el objeto padre, esta es una subcategoría. Mostramos el nombre del padre.
               return category.padre.name || `(Padre sin nombre)`;
             } else {
@@ -146,7 +165,8 @@ const Outlays = () => {
         },
       },
 
-      subcategory_id: { // <--- Columna "Subcategoría"
+      subcategory_id: {
+        // <--- Columna "Subcategoría"
         rules: ["required"], // Considera si realmente es requerido
         api: "ae",
         label: "Subcategoria",
@@ -155,16 +175,17 @@ const Outlays = () => {
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [], // Se maneja en RenderForm
         },
-        list: { // <--- Lógica de renderizado para la columna "Subcategoría"
+        list: {
+          // <--- Lógica de renderizado para la columna "Subcategoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
-               return `sin datos`;
+              return `sin datos`;
             }
             // *** CORRECCIÓN LÓGICA ***
             // Verificar si el objeto 'padre' existe y NO es null
-            if (category.padre && typeof category.padre === 'object') {
-               // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
+            if (category.padre && typeof category.padre === "object") {
+              // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
               return category.name || `(Sin nombre)`;
             } else {
               // Si NO existe el objeto padre, no hay subcategoría aplicable.
@@ -247,6 +268,14 @@ const Outlays = () => {
 
   // Definición de botones extras para enviar al useCrud
   const extraButtons = [
+    <Button
+      key="presupuesto-button"
+      // onClick={() => goToCategories("E")}
+      onClick={() => setOpenModal(true)}
+      className={styles.categoriesButton}
+    >
+      Ejecutar presupuesto
+    </Button>,
     <Button
       key="categories-button"
       onClick={() => goToCategories("E")}
@@ -355,6 +384,16 @@ const Outlays = () => {
             />
           </>
         </DataModal>
+      )}
+      {/* Modal para ejecutar presupuesto */}
+      {openModal && (
+        <PerformBudget
+          reLoad={reLoad}
+          open={openModal}
+          onClose={() => {
+            setOpenModal(false);
+          }}
+        />
       )}
     </div>
   );

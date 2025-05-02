@@ -1,0 +1,31 @@
+/* components/budgets/SendBudgetApprovalModal.module.css */
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spM, 1rem); /* Espacio entre párrafos */
+    padding-bottom: var(--spL, 1.5rem); /* Espacio antes de los botones */
+  }
+  
+  .contentContainer p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--White); /* Ajusta el color si es necesario */
+  }
+  
+  .contentContainer strong {
+    font-weight: 600; /* O el peso que uses para énfasis */
+  }
+  
+  .actionButtonsContainer {
+    display: flex;
+    justify-content: flex-end; /* Alinea botones a la derecha */
+    gap: var(--spM, 1rem); /* Espacio entre botones */
+    padding-top: var(--spM, 1rem); /* Espacio sobre los botones */
+    border-top: 1px solid var(--cSeparator, #eee); /* Línea separadora opcional */
+  }
+  
+  /* Opcional: si quieres que los botones ocupen espacio equitativo */
+  /* .cancelButton,
+  .confirmButton {
+    flex-grow: 1;
+  } */

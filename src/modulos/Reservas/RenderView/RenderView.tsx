@@ -1,379 +1,479 @@
-// ./RenderView/RenderView.tsx (O ReservationDetailModal.tsx)
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Button from '@/mk/components/forms/Button/Button';
-
-import useAxios from '@/mk/hooks/useAxios'; // Asegúrate que la ruta sea correcta
-// import { useAuth } from '@/mk/contexts/AuthProvider'; // Descomenta si useAxios lo necesita o si usas showToast
-import { getFullName, getUrlImages } from '@/mk/utils/string'; // Asegúrate que las rutas sean correctas
+import useAxios from '@/mk/hooks/useAxios';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { format, parseISO, formatDistanceToNowStrict, format as formatDateFns } from 'date-fns';
 import { es } from 'date-fns/locale';
-import styles from './ReservationDetailModal.module.css'; // Asegúrate que la ruta sea correcta
+import styles from './ReservationDetailModal.module.css';
 import {
     IconCalendar,
     IconClock,
     IconCash,
     IconGroup
-    // IconX, // No se usa, se puede quitar si no se prevé usar
-} from '@/components/layout/icons/IconsBiblioteca'; // Asegúrate que la ruta sea correcta
+} from '@/components/layout/icons/IconsBiblioteca';
+// Eliminado import de TextArea si no se usa directamente en ReservationDetailModal
+import Input from '@/mk/components/forms/Input/Input';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 
-// --- INTERFAZ DE DATOS ACTUALIZADA ---
-interface Image {
-    id: number | string;
-    area_id: string;
-    ext: string;
+// --- INICIO: Nuevo Componente Memoizado ---
+
+// 1. Define las props que este componente necesita
+interface ReservationDetailsViewProps {
+  details: any; // El objeto displayedData
+  isActionLoading: boolean;
+  actionError: string | null;
+  onAcceptClick: () => void; // Función para manejar el clic en Aceptar
+  onRejectClick: () => void; // Función para manejar el clic en Rechazar
+  // Funciones auxiliares pasadas como props
+  getFormattedRequestTime: (isoDate: string) => string;
+  getFormattedReservationDate: (dateStr: string) => string;
+  getFormattedReservationTime: (periods: any[] | undefined | null) => string;
+  getPriceDetails: (area: any | undefined | null, totalAmount: string) => string;
 }
 
-interface Area {
-    id: string;
-    title: string;
-    description: string;
-    price: string; // Puede ser '0.00' o un valor numérico como string
-    is_free: 'A' | 'X' | string; // 'A' podría ser Gratis, 'X' No Gratis (basado en tu ejemplo)
-    booking_mode: 'hour' | 'day' | string;
-    cancellable?: 'A' | 'X' | string; // Añadido desde la API
-    min_cancel_hours?: number | null; // Añadido desde la API
-    late_cancellation_penalty?: 'A' | 'X' | string; // Añadido desde la API
-    cancellation_policy?: string | null; // Añadido desde la API
-    penalty_fee?: string | null; // Añadido desde la API
-    images: Image[];
-    updated_at?: string; // Manteniendo como opcional
-}
-
-interface Dpto {
-    id: number | string;
-    nro?: string | null;
-    description?: string | null;
-}
-
-interface Owner {
-    id: string;
-    name?: any;
-    middle_name?: any;
-    last_name?: any;
-    mother_last_name?: any;
-    created_at: any; // ISO 8601
-    updated_at: any; // ISO 8601
-}
-
-interface Period {
-    id: number | string;
-    area_id: string;
-    time_from: string; // HH:MM:SS
-    time_to: string; // HH:MM:SS
-    // pivot no es necesario usualmente en el frontend
-}
-
-interface ReservationData {
-    id: string | number;
-    area_id: string;
-    owner_id: string;
-    client_id: string;
-    dpto_id: number | null;
-    date_at: string; // YYYY-MM-DD
-    date_end?: string | null; // Puede no estar presente o ser null
-    people_count: number;
-    amount: string; // Monto total como string
-    paid_at?: string | null; // Fecha de pago
-    approved_at?: string | null; // YYYY-MM-DD HH:MM:SS
-    is_approved?: 'Y' | 'N' | string | null; // Estado de aprobación
-    approved_by?: string | null; // ID del usuario que aprobó
-    obs?: string | null; // Observaciones
-    reason?: string | null; // Razón (quizás para rechazo)
-    start_time: string; // HH:MM:SS
-    status: string; // 'A' (Approved), 'W' (Waiting), 'R' (Rejected), etc.
-    created_at: string; // ISO 8601
-    updated_at: string; // ISO 8601
-    deleted_at?: string | null; // Fecha de borrado lógico
-    periods: Period[];
-    area: Area; // Area es obligatoria según la API de ejemplo
-    dpto: Dpto | null; // Dpto puede ser null según la API de ejemplo
-    owner: Owner; // Owner es obligatorio según la API de ejemplo
-}
-// --- FIN INTERFAZ DE DATOS ---
-
-
-// --- INTERFAZ DE PROPS (Sin cambios respecto a la versión anterior) ---
-interface ReservationDetailModalProps {
-  open: boolean;
-  onClose: () => void;
-  item: ReservationData | null;
-  reLoad?: () => void; // Para refrescar la lista en el componente padre
-}
-
-const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
-  open,
-  onClose,
-  item: reservationData,
-  reLoad
+// 2. El componente funcional que contiene la vista de detalles
+const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
+  details,
+  isActionLoading,
+  actionError,
+  onAcceptClick,
+  onRejectClick,
+  getFormattedRequestTime,
+  getFormattedReservationDate,
+  getFormattedReservationTime,
+  getPriceDetails
 }) => {
 
+  // El JSX es el mismo que tenías dentro de renderContent()
+  return (
+      <>
+        <div className={styles.reservationBlock}>
+          <div className={styles.requesterSection}>
+             <div className={styles.requesterInfoContainer}>
+              <Avatar
+                src={getUrlImages(
+                  `/OWNER-${details.owner.id}.webp?d=${details.owner.updated_at}`
+                )}
+                name={getFullName(details.owner)}
+                w={40}
+                h={40}
+              />
+                <div className={styles.requesterText}>
+                  <span className={styles.requesterName}>{getFullName(details.owner)}</span>
+                  {details.dpto && (
+                    <span className={styles.requesterApt}>
+                       Dpto: {details.dpto.nro || details.dpto.description || '-'}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {/* Usa la función pasada por props */}
+              <span className={styles.requestTime}>{details.created_at ? getFormattedRequestTime(details.created_at): ''}</span>
+          </div>
+          <div className={styles.divider}></div>
+
+          <div className={styles.mainDetailsContainer}>
+             <div className={styles.imageWrapper}>
+              {details.area?.images?.length > 0 ? (
+                <img
+                  // Asegúrate de tener getUrlImages disponible (ya está importado globalmente)
+                  src={getUrlImages(`/AREA-${details.area.id}-${details.area.images[0].id}.${details.area.images[0].ext}?d=${details.area.updated_at || Date.now()}`)}
+                  alt={`Imagen de ${details.area.title}`}
+                  className={styles.areaImage}
+                  onError={(e: any) => { e.currentTarget.src = '/placeholder-image.png'; }} // Considera un placeholder local
+                />
+              ) : (
+                <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
+                  <span className={styles.imagePlaceholderText}>Sin Imagen</span>
+                </div>
+              )}
+            </div>
+            <div className={styles.detailsColumn}>
+                <div className={styles.areaTextInfo}>
+                   <span className={styles.areaTitle}>{details.area?.title ?? 'Área desconocida'}</span>
+                   <span className={styles.areaDescription}>{details.area?.description ?? 'Sin descripción'}</span>
+                </div>
+                 <div className={styles.specificDetails}>
+                   <span className={styles.detailsHeader}>Detalles de la Reserva</span>
+                   <div className={styles.detailsList}>
+                     <div className={styles.detailItem}>
+                        <IconCalendar size={18} className={styles.detailIcon} />
+                        {/* Usa la función pasada por props */}
+                        <span className={styles.detailText}>{details.date_at ? getFormattedReservationDate(details.date_at) : ''}</span>
+                     </div>
+                     <div className={styles.detailItem}>
+                        <IconClock size={18} className={styles.detailIcon} />
+                        {/* Usa la función pasada por props */}
+                        <span className={styles.detailText}>{getFormattedReservationTime(details.periods)}</span>
+                     </div>
+                     <div className={styles.detailItem}>
+                        <IconGroup size={18} className={styles.detailIcon} />
+                        <span className={styles.detailText}>{details.people_count ?? 0} persona{details.people_count !== 1 ? 's' : ''}</span>
+                     </div>
+                     <div className={styles.detailItem}>
+                        <IconCash size={18} className={styles.detailIcon} />
+                        {/* Usa la función pasada por props */}
+                        <span className={styles.priceDetailText}>{getPriceDetails(details.area, details.amount)}</span>
+                     </div>
+                     {details.obs && (
+                        <div className={styles.detailItem}>
+                            {/* Podrías usar un ícono aquí también si tienes uno para notas/observaciones */}
+                            <span className={styles.detailIcon}>📝</span>
+                            <span className={styles.detailText}>Obs: {details.obs}</span>
+                         </div>
+                     )}
+                   </div>
+                 </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Muestra el error de acción */}
+        {actionError && (
+            <div className={styles.errorText} style={{color: 'red', marginTop: '10px', textAlign: 'center', padding: '5px', border: '1px solid red', borderRadius: '4px'}}>
+                Error: {actionError}
+            </div>
+        )}
+
+       {details.status === 'W' && (
+          <div className={styles.actionButtonsContainer}>
+            <Button
+              onClick={onRejectClick}
+              variant="secondary"
+              disabled={isActionLoading}
+              // --- USA ESTA NUEVA CLASE ---
+              className={styles.rejectButtonProportional} // Para 3 partes
+            >
+              Cancelar Solicitud
+            </Button>
+            <Button
+              onClick={onAcceptClick}
+              variant="primary"
+              disabled={isActionLoading}
+              // --- USA ESTA NUEVA CLASE ---
+              className={styles.approveButtonProportional} // Para 5 partes
+            >
+              Aprobar Solicitud
+            </Button>
+          </div>
+        )}
+      </>
+  );
+};
+
+
+const MemoizedReservationDetailsView = React.memo(ReservationDetailsView);
+const ReservationDetailModal = ({
+  open,
+  onClose,
+  item,
+  reservationId,
+  reLoad
+}: {
+  open: boolean;
+  onClose: () => void;
+  item?: any | null;
+  reservationId?: string | number | null;
+  reLoad?: () => void;
+}) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [displayedData, setDisplayedData] = useState<any | null>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectErrors, setRejectErrors] = useState<any>({});
+  const {
+    execute: fetchDetails,
+    data: fetchedData,
+    error: detailsError,
+    loaded: detailsLoaded
+  } = useAxios();
+  const {
+    execute: executeAction
+  } = useAxios();
 
-  const { execute } = useAxios();
-  // const { showToast } = useAuth(); // Descomenta si usas notificaciones
+  useEffect(() => {
+    if (open) {
+      setActionError(null);
+      setIsActionLoading(false); // Resetear carga de acción al abrir/cambiar item
+      setRejectErrors({}); // Limpiar errores de rechazo
+      setRejectionReason(""); // Limpiar razón de rechazo
 
-  // --- Funciones Helper (Ajuste en getPriceDetails) ---
+      if (item && item.id) {
+        setDisplayedData(item);
+      } else if (reservationId) {
+         setDisplayedData(null); 
+         const paramsInitial = { fullType: "DET", searchBy: reservationId };
+         fetchDetails(
+          '/reservations',
+          'GET',
+          paramsInitial, 
+          true,
+          false,
+          paramsInitial 
+         );
+      } else {
+        setDisplayedData(null);
+      }
+    } else {
+      setDisplayedData(null);
+      setActionError(null);
+      setIsActionLoading(false);
+      setIsRejectModalOpen(false); // Asegurarse que el modal de rechazo también se cierre
+      setRejectionReason("");
+      setRejectErrors({});
+    }
+  }, [open, item, reservationId]); // Ejecutar si cambia la apertura, el item o el ID
+
+  useEffect(() => {
+    if (!item && detailsLoaded) {
+        if (fetchedData?.data && Array.isArray(fetchedData.data) && fetchedData.data.length > 0) {
+            setDisplayedData(fetchedData.data[0]);
+            setActionError(null); 
+        } else if (detailsError) {
+            setDisplayedData(null);
+            console.error("Error fetching details:", detailsError); 
+        } else {
+             setDisplayedData(null);
+        }
+    }
+  }, [fetchedData, detailsLoaded, detailsError, item]); // Dependencias clave
+
+  // --- Funciones Auxiliares (se quedan en el padre y se pasan como props) ---
   const getFormattedRequestTime = (isoDate: string): string => {
+    if (!isoDate) return 'Fecha inválida';
     try { return formatDistanceToNowStrict(parseISO(isoDate), { addSuffix: true, locale: es }); }
     catch { return 'Fecha inválida'; }
   };
 
   const getFormattedReservationDate = (dateStr: string): string => {
-    // Asegurarse que dateStr es solo la fecha YYYY-MM-DD
     if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return 'Fecha inválida';
     try {
-        // Añadir hora fija para evitar problemas de zona horaria al parsear solo fecha
-        const date = parseISO(dateStr + 'T00:00:00');
+        const date = parseISO(dateStr + 'T00:00:00'); // Asumir inicio del día
         return format(date, "EEEE, d 'de' MMMM", { locale: es });
     } catch {
         return 'Fecha inválida';
     }
   };
 
-  const getFormattedReservationTime = (periods: Period[] | undefined | null): string => {
-    // 1. Validar entrada (sin cambios)
+  const getFormattedReservationTime = (periods: any[] | undefined | null): string => {
     if (!periods || periods.length === 0) return 'Horario no especificado';
-
     try {
-      // 2. Ordenar periodos (buena práctica, sin cambios)
-      const sortedPeriods = [...periods].sort((a, b) => a.time_from.localeCompare(b.time_from));
-
-      // 3. Mapear CADA periodo a su string formateado "HH:MM - HH:MM"
+      // Asegurarse de que periods sea un array antes de ordenar
+      const validPeriods = Array.isArray(periods) ? periods : [];
+      const sortedPeriods = [...validPeriods].sort((a, b) => (a.time_from || "").localeCompare(b.time_from || ""));
       const formattedPeriodStrings = sortedPeriods.map(period => {
-        // Extraer solo HH:MM de las horas
-        const startTime = period.time_from.substring(0, 5);
-        const endTime = period.time_to.substring(0, 5);
-        // Devolver el string para este periodo específico
+        const startTime = (period.time_from || "00:00:00").substring(0, 5);
+        const endTime = (period.time_to || "00:00:00").substring(0, 5);
         return `${startTime} - ${endTime}`;
       });
-
-      // 4. Unir todos los strings formateados con " / " como separador
       return formattedPeriodStrings.join(' / ');
-
     } catch (error) {
-      // Manejo de error (sin cambios)
       console.error("Error formateando horario de reserva:", error);
       return 'Horario inválido';
     }
   };
 
-  const getPriceDetails = (area: Area | undefined | null, totalAmount: string): string => {
+  const getPriceDetails = (area: any | undefined | null, totalAmount: string | number | undefined | null): string => {
+      const safeTotalAmount = totalAmount ?? 0; // Valor por defecto si es null/undefined
       if (!area) return 'Detalles de precio no disponibles';
-      // Ajuste: Asumiendo 'X' significa No Gratis, y cualquier otra cosa (o 'A') es Gratis
-      if (area.is_free !== 'X' && parseFloat(area.price) <= 0) return 'Gratis';
 
+      // Convertir a número y validar
       const price = parseFloat(area.price);
-      const mode = area.booking_mode === 'hour' ? '/h' : '/día';
-      const total = parseFloat(totalAmount);
+      const total = parseFloat(String(safeTotalAmount)); // Convertir a string primero
 
-      if (isNaN(price) || isNaN(total)) return 'Precio no disponible';
+      if (isNaN(price)) return 'Precio base inválido'; // O manejar de otra forma
+      if (isNaN(total)) return 'Monto total inválido'; // O manejar de otra forma
 
-      // Mostrar precio por unidad solo si es mayor a 0
-      if (price > 0) {
-          return `Bs ${price.toFixed(2)}${mode} - Total: Bs ${total.toFixed(2)}`;
+      const isFreeExplicit = area.is_free === 'A'; // Asumiendo 'X' significa gratis
+      const isPriceZero = price <= 0;
+
+      if (isFreeExplicit || isPriceZero) {
+           // Si es explícitamente gratis O el precio es 0 o menos
+           if (total > 0) {
+               // Si aun así hay un total (quizás por otros cargos?), mostrarlo
+               return `Gratis - Total: Bs ${total.toFixed(2)}`;
+           } else {
+               // Si no hay total o es 0, simplemente "Gratis"
+               return 'Gratis';
+           }
       } else {
-          // Si el precio por unidad es 0 pero hay un total, mostrar solo el total
-          return `Total: Bs ${total.toFixed(2)}`;
+           // Si tiene precio > 0
+          const mode = area.booking_mode === 'hour' ? '/h' : '/día'; // O '/reserva' si no es por hora/día
+          return `Bs ${price.toFixed(2)}`;
       }
   };
 
-  // --- Handlers (Sin cambios respecto a la versión anterior) ---
-  const handleAcceptClick = async () => {
-    if (!reservationData) return;
 
+  // --- Handlers de Acción ---
+  const handleAcceptClick = async () => {
+    if (!displayedData?.id || isActionLoading) return;
     setIsActionLoading(true);
     setActionError(null);
-
     const now = new Date();
     const formattedDate = formatDateFns(now, 'yyyy-MM-dd HH:mm:ss');
-
-    const payload = {
-      approved_at: formattedDate,
-      is_approved: 'Y',
-      obs: 'Aprobado' // Opcional: Cambiar o añadir input
-    };
-
+    const payload = { approved_at: formattedDate, is_approved: 'Y', obs: 'Aprobado' };
     try {
-      await execute({
-        url: `/reservations/${reservationData.id}`,
-        method: 'PUT',
-        data: payload,
-      });
-      // showToast('Reserva aprobada exitosamente.', 'success');
+      await executeAction(`/reservations/${displayedData.id}`, 'PUT', payload, false, false);
       if (reLoad) reLoad();
-      onClose();
+      onClose(); // Cierra el modal principal al tener éxito
     } catch (error: any) {
       console.error("Error al aprobar reserva:", error);
       setActionError(error?.response?.data?.message || error?.message || 'Ocurrió un error al aprobar.');
-      // showToast(`Error: ${error?.response?.data?.message || 'No se pudo aprobar'}`, 'error');
     } finally {
       setIsActionLoading(false);
     }
   };
 
-  const handleRejectClick = async () => {
-    if (!reservationData) return;
+  const handleRejectClick = () => {
+    // Solo abre el modal de rechazo, reseteando su estado interno
+    if (!displayedData?.id) return;
+    setRejectionReason("");
+    setRejectErrors({});
+    setIsRejectModalOpen(true);
+  };
 
-     // Usar un prompt simple para la observación (mejorar UX si es necesario)
-     const obs = prompt("Por favor, introduce un motivo para el rechazo (opcional):");
-     // Si el usuario cancela el prompt, no continuar
-     // if (obs === null) return; // Descomenta si quieres que cancelar el prompt detenga la acción
+  const confirmRejection = async () => {
+    if (!displayedData?.id || isActionLoading) return;
+
+    if (!rejectionReason || rejectionReason.trim() === "") {
+      setRejectErrors({ reason: "Debe ingresar un motivo para el rechazo." });
+      return;
+    }
+    setRejectErrors({}); // Limpiar error si la validación pasa
 
     setIsActionLoading(true);
-    setActionError(null);
+    setActionError(null); // Limpiar error principal por si acaso
 
-    const payload = {
-      is_approved: 'N',
-      obs: obs || 'Rechazado' // Usar observación o valor por defecto
-    };
+    const payload = { is_approved: 'N', obs: rejectionReason.trim() };
 
     try {
-      await execute({
-        url: `/reservations/${reservationData.id}`,
-        method: 'PUT',
-        data: payload,
-      });
-      // showToast('Reserva rechazada.', 'info');
+      await executeAction(`/reservations/${displayedData.id}`, 'PUT', payload, false, false);
+      // Éxito: cerrar ambos modales y recargar
+      setIsRejectModalOpen(false);
+      onClose(); // Cierra el modal principal
       if (reLoad) reLoad();
-      onClose();
     } catch (error: any) {
-      console.error("Error al rechazar reserva:", error);
+      console.error("Error al confirmar rechazo:", error);
+      // Mostrar error en el modal principal después de cerrar el de rechazo
       setActionError(error?.response?.data?.message || error?.message || 'Ocurrió un error al rechazar.');
-      // showToast(`Error: ${error?.response?.data?.message || 'No se pudo rechazar'}`, 'error');
+      setIsRejectModalOpen(false); // Asegurarse de cerrar el modal de rechazo incluso si hay error
     } finally {
       setIsActionLoading(false);
     }
   };
 
-  // --- Renderizado ---
+  const isLoadingDetails = !item && !detailsLoaded && !detailsError;
+
   return (
-    <DataModal
-      open={open}
-      onClose={onClose}
-      title="Detalle de la Reserva"
-      buttonText=""
-      buttonCancel=""
-    >
-      <div className={styles.modalContent}>
-
-        {!reservationData ? (
-          <div className={styles.loadingContainer}>Cargando datos...</div>
-        ) : (
-          <>
-            <div className={styles.reservationBlock}>
-              {/* Info Solicitante */}
-              <div className={styles.requesterSection}>
-                 <div className={styles.requesterInfoContainer}>
-                    <div className={styles.requesterText}>
-                      {/* Usa getFullName que debería manejar nombres/apellidos nulos */}
-                      <span className={styles.requesterName}>{getFullName(reservationData.owner)}</span>
-                      {/* Muestra Dpto solo si existe */}
-                      {reservationData.dpto && (
-                        <span className={styles.requesterApt}>
-                           Dpto: {reservationData.dpto.nro || reservationData.dpto.description || '-'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* Muestra hace cuánto se creó */}
-                  <span className={styles.requestTime}>{getFormattedRequestTime(reservationData.created_at)}</span>
-              </div>
-
-              {/* Imagen + Detalles */}
-              <div className={styles.mainDetailsContainer}>
-                {/* Imagen */}
-                <div className={styles.imageWrapper}>
-                  {reservationData.area?.images?.length > 0 ? (
-                    <img
-                      // Construye la URL de la imagen (ajusta getUrlImages si es necesario)
-                      src={getUrlImages(`/AREA-${reservationData.area.id}-${reservationData.area.images[0].id}.${reservationData.area.images[0].ext}?d=${reservationData.area.updated_at || Date.now()}`)}
-                      alt={`Imagen de ${reservationData.area.title}`}
-                      className={styles.areaImage}
-                      onError={(e) => { e.currentTarget.src = '/placeholder-image.png'; /* Opcional: Imagen por defecto */ }}
-                    />
-                  ) : (
-                    <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
-                      <span className={styles.imagePlaceholderText}>Sin Imagen</span>
-                    </div>
-                  )}
-                </div>
-                {/* Detalles */}
-                <div className={styles.detailsColumn}>
-                    <div className={styles.areaTextInfo}>
-                       <span className={styles.areaTitle}>{reservationData.area?.title ?? 'Área desconocida'}</span>
-                       <span className={styles.areaDescription}>{reservationData.area?.description ?? 'Sin descripción'}</span>
-                    </div>
-                     <div className={styles.specificDetails}>
-                       <span className={styles.detailsHeader}>Detalles de la Reserva</span>
-                       <div className={styles.detailsList}>
-                         {/* Fecha */}
-                         <div className={styles.detailItem}>
-                            <IconCalendar size={18} className={styles.detailIcon} />
-                            <span className={styles.detailText}>{getFormattedReservationDate(reservationData.date_at)}</span>
-                         </div>
-                         {/* Hora */}
-                         <div className={styles.detailItem}>
-                            <IconClock size={18} className={styles.detailIcon} />
-                            <span className={styles.detailText}>{getFormattedReservationTime(reservationData.periods)}</span>
-                         </div>
-                         {/* Personas */}
-                         <div className={styles.detailItem}>
-                            <IconGroup size={18} className={styles.detailIcon} />
-                            <span className={styles.detailText}>{reservationData.people_count} persona{reservationData.people_count !== 1 ? 's' : ''}</span>
-                         </div>
-                          {/* Precio */}
-                         <div className={styles.detailItem}>
-                            <IconCash size={18} className={styles.detailIcon} />
-                            <span className={styles.priceDetailText}>{getPriceDetails(reservationData.area, reservationData.amount)}</span>
-                         </div>
-                         {/* Observación del usuario (si existe) */}
-                         {reservationData.obs && (
-                            <div className={styles.detailItem}>
-                                <span className={styles.detailIcon}>📝</span> {/* Puedes usar un icono real */}
-                                <span className={styles.detailText}>Obs: {reservationData.obs}</span>
-                             </div>
-                         )}
-                       </div>
-                     </div>
-                </div>
-              </div>
-            </div> {/* Fin reservationBlock */}
-
-             {/* Mensaje de error de la acción */}
-            {actionError && (
-                <div className={styles.errorText} style={{color: 'red', marginTop: '10px', textAlign: 'center', padding: '5px', border: '1px solid red', borderRadius: '4px'}}>
-                    Error: {actionError}
-                </div>
-            )}
-
-            {/* Botones Condicionales (Solo si status es 'W' - Waiting/Pendiente) */}
-            {reservationData.status === 'W' && (
-              <div className={styles.actionButtonsContainer}>
-                <Button
-                  onClick={handleRejectClick}
-                  variant="secondary"
-                  disabled={isActionLoading}
-                >
-                  Rechazar
-                </Button>
-                <Button
-                  onClick={handleAcceptClick}
-                  variant="primary"
-                  disabled={isActionLoading}
-                >
-                  Aprobar
-                </Button>
-              </div>
-            )}
+    <>
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title="Detalle de la Reserva"
+        buttonText="" 
+        buttonCancel="" 
+        style={{ width: '739px', maxWidth: '80%' }}
+      >
+        <div className={styles.divider}></div>
+        <div className={styles.modalContent}>
+          {/* Renderizado condicional principal */}
+          {isLoadingDetails ? (
+            <div className={styles.loadingContainer}>Cargando detalles...</div>
+          ) : !displayedData ? (
+             // Esto cubre tanto el error de carga como el caso de no encontrar datos
+             <div className={styles.loadingContainer}>
+               {detailsError ? `Error al cargar: ${detailsError.message || 'Error desconocido'}` : 'No hay datos de reserva para mostrar.'}
+             </div>
+          ) : (
             
+            <MemoizedReservationDetailsView
+              details={displayedData}
+              isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
+              actionError={actionError} // Error de las *acciones*
+              onAcceptClick={handleAcceptClick}
+              onRejectClick={handleRejectClick}
+              // Pasa las funciones auxiliares
+              getFormattedRequestTime={getFormattedRequestTime}
+              getFormattedReservationDate={getFormattedReservationDate}
+              getFormattedReservationTime={getFormattedReservationTime}
+              getPriceDetails={getPriceDetails}
+            />
+          )}
+        </div>
+      </DataModal>
 
-          </>
-        )}
-      </div>
-    </DataModal>
+      {/* --- SEGUNDO MODAL (RECHAZO) --- */}
+      {/* Este modal solo se renderiza si isRejectModalOpen es true */}
+      {isRejectModalOpen && (
+        <DataModal
+            open={isRejectModalOpen}
+            onClose={() => {
+                // Solo cierra el modal de rechazo, no el principal
+                setIsRejectModalOpen(false);
+                // Opcional: limpiar errores si el usuario cierra sin confirmar
+                setRejectErrors({});
+            }}
+            title="Cancelar Solicitud"
+            buttonText="" // Sin botones por defecto
+            buttonCancel="" // Sin botones por defecto
+            style={{ width: '486px', maxWidth: '80%' }}
+          >
+            <div className={styles.divider}></div>
+            <div className={styles.modalContentContainer}> {/* Contenedor para padding/gap interno */}
+              <p>Por favor indica el motivo para que el residente pueda comprender e intente solicitar esta área social de manera correcta</p>
+              <Input
+                  name="reason"
+                  value={rejectionReason}
+                  onChange={(e) => {
+                      setRejectionReason(e.target.value);
+                      // Limpiar error al empezar a escribir de nuevo
+                      if (rejectErrors.reason) {
+                          setRejectErrors({});
+                      }
+                  }}
+                  placeholder="Escribe aquí por qué se rechaza la reserva..."
+                  required // Añade indicación visual si tu CSS lo soporta
+                  // Podrías añadir aria-invalid si hay error
+                  aria-invalid={!!rejectErrors.reason}
+                  aria-describedby={rejectErrors.reason ? "rejection-error-message" : undefined}
+                  // Considera usar <TextArea /> si el motivo puede ser largo
+              />
+              {/* Mensaje de error específico para el campo de motivo */}
+              {rejectErrors.reason && (
+                <span id="rejection-error-message" style={{ color: 'var(--cError, #e46055)', fontSize: '12px', marginTop: '4px' }}>
+                  {rejectErrors.reason}
+                </span>
+              )}
+            </div>
+
+            {/* Footer con botones de acción específicos para este modal */}
+            <div className={styles.actionButtonsContainer} style={{ marginTop: 'var(--spL, 16px)' }}> {/* Añadir margen superior si es necesario */}
+                {/* Botón secundario (Salir/Cancelar) */}
+                <Button
+                  className={styles.secondaryActionButton} // Clase para estilo (flex-grow: 1)
+                  onClick={() => setIsRejectModalOpen(false)} // Solo cierra este modal
+                  variant="secondary"
+                  disabled={isActionLoading} // Deshabilitar durante la acción
+                >
+                  Salir
+                </Button>
+
+                {/* Botón primario (Confirmar Rechazo) */}
+                <Button
+                  className={styles.primaryActionButton} // Clase para estilo (flex-grow: 2)
+                  onClick={confirmRejection} // Ejecuta la acción de rechazo
+                  variant="primary" // O el variant que corresponda al botón de confirmación
+                  disabled={isActionLoading} // Deshabilitar durante la acción
+                >
+                  Confirmar cancelación
+                </Button>
+            </div>
+          </DataModal>
+      )}
+    </>
   );
 };
 
