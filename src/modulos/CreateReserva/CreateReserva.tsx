@@ -113,12 +113,15 @@ const CreateReserva = () => {
 
   // NUEVO: Hook para ENVIAR la reserva (configurado para no ejecutar al inicio)
   // Usamos 'execute' directamente, no necesitamos el estado 'data' aquí
-  const { execute: executeCreateReservation } = useAxios(
-      '/reservations', // Endpoint POST
-      'POST',         // Método
-      {},             // Payload inicial vacío
-      true            // No ejecutar al montar (implícito al no pasar params y usar execute)
-  );
+// En CreateReserva.tsx, donde defines los hooks
+
+// Hook para ENVIAR la reserva (MODIFICADO: URL inicial es null)
+const { execute: executeCreateReservation } = useAxios(
+  null,             // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
+  'POST',           // Método (se usará como default si no se pasa a execute)
+  {},               // Payload inicial (no se usa si la URL es null)
+  true              // Este flag ahora es menos relevante, pero mantenlo por consistencia
+);
 
 
   // --- Efecto para actualizar busyDays ---
@@ -544,19 +547,21 @@ const prevStep = (): void => {
 
     console.log("Payload a enviar:", payload);
 
-    // 4. Llamar a la API POST (sin cambios en la llamada)
     try {
-        const response = await executeCreateReservation('/reservations', 'POST', payload, false, false);
+        // Llama a execute pasando la URL y el Método explícitamente
+        const response = await executeCreateReservation(
+            '/reservations', // <-- Argumento 1: URL real
+            'POST',         // <-- Argumento 2: Método real
+            payload,        // Argumento 3: Payload (tu objeto con los datos)
+            false,          // Argumento 4: 'Act' (generalmente false si no necesitas que este hook actualice su propio estado 'data')
+            false           // Argumento 5: 'notWaiting' (generalmente false para indicar que sí quieres manejar el estado de carga global si existe)
+        );
         console.log("Respuesta API Reserva:", JSON.stringify(response));
+    
+        // El resto del manejo de la respuesta sigue igual...
         if (response?.data?.success) {
             showToast(response?.data?.message || "Reserva creada exitosamente", "success");
-            // Resetear estado y selección
-            setFormState(initialState);
-            setSelectedPeriods([]); // Resetea periodos seleccionados
-            setCurrentStep(1);
-            setErrors({});
-            setBusyDays([]);
-            setAvailableTimeSlots([]);
+            // ... resetear estado ...
             router.push('/reservas');
         } else {
             showToast(response?.data?.message || "Error al crear la reserva.", "error");
