@@ -112,10 +112,6 @@ const BudgetDir = () => {
       if (data.success === true && data.data && !Array.isArray(data.data) && typeof data.data.msg === 'string') {
         // Muestra el mensaje de la API como un toast de error
         showToast(data.data.msg, 'error');
-
-        // Opcional: Podrías querer hacer algo más aquí, como limpiar
-        // algún estado local si fuera necesario, aunque usualmente
-        // el toast es suficiente para informar al usuario.
       }
     }
     // Dependencias: Ejecutar este efecto si 'data', 'loaded' o 'showToast' cambian.

@@ -178,16 +178,12 @@ const ReservationDetailModal = ({
   reservationId?: string | number | null;
   reLoad?: () => void;
 }) => {
-
-
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [displayedData, setDisplayedData] = useState<any | null>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
-
-
   const {
     execute: fetchDetails,
     data: fetchedData,
@@ -198,7 +194,6 @@ const ReservationDetailModal = ({
     execute: executeAction
   } = useAxios();
 
-  // --- Efectos ---
   useEffect(() => {
     if (open) {
       setActionError(null);
@@ -209,15 +204,15 @@ const ReservationDetailModal = ({
       if (item && item.id) {
         setDisplayedData(item);
       } else if (reservationId) {
-         setDisplayedData(null); // Limpiar datos previos antes de buscar
+         setDisplayedData(null); 
          const paramsInitial = { fullType: "DET", searchBy: reservationId };
          fetchDetails(
           '/reservations',
           'GET',
-          paramsInitial, // Params en el tercer argumento para GET con useAxios (si así lo maneja tu hook)
+          paramsInitial, 
           true,
           false,
-          paramsInitial // O pasar como query params si tu hook lo requiere así para GET
+          paramsInitial 
          );
       } else {
         setDisplayedData(null);

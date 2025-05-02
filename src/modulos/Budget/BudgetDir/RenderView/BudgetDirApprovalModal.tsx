@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Button from '@/mk/components/forms/Button/Button';
-import KeyValue from '@/mk/components/ui/KeyValue/KeyValue'; // Asumiendo que tienes este componente
+import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
-import styles from "./BudgetDirApprovalModal.module.css"; // Puedes usar los mismos estilos o crear unos nuevos
+import styles from "./BudgetDirApprovalModal.module.css"; // Ajusta el nombre si es diferente
+import TextArea from '@/mk/components/forms/TextArea/TextArea';
 
-// Funciones de formato (puedes importarlas desde BudgetDir o definirlas aquí si prefieres)
 const formatPeriod = (periodCode: string): string => {
     const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
     return map[periodCode] || periodCode;
@@ -17,16 +17,14 @@ const formatStatus = (statusCode: string): string => {
     return map[statusCode] || statusCode;
 };
 
-
-// Tipos para las props que recibe de useCrud
 type BudgetApprovalViewProps = {
     open: boolean;
     onClose: () => void;
-    item: any; // El objeto del presupuesto seleccionado
-    execute: (url: string, method: string, payload: any, noWaiting?: boolean, noGenericError?: boolean) => Promise<{ data?: any, error?: any }>; // Función para llamadas API
-    reLoad: () => void; // Función para recargar la lista
-    showToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void; // Función para mostrar notificaciones
-    extraData?: any; // Datos extra si los necesitas
+    item: any;
+    execute: (url: string, method: string, payload: any, noWaiting?: boolean, noGenericError?: boolean) => Promise<{ data?: any, error?: any }>;
+    reLoad: () => void;
+    showToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
+    extraData?: any;
 };
 
 const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
@@ -40,31 +38,61 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
 }) => {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
+    const [comment, setComment] = useState("");
+
+// Dentro del componente BudgetApprovalView
 
     const handleAction = async (newStatus: 'A' | 'R') => {
         const isLoadingSetter = newStatus === 'A' ? setIsApproving : setIsRejecting;
+        // Mantenemos el texto descriptivo de la acción
         const actionText = newStatus === 'A' ? 'aprobado' : 'rechazado';
+
+        const budgetId = item?.id;
+        if (!budgetId) {
+            showToast("Error: No se encontró el ID del presupuesto.", "error");
+            return;
+        }
 
         isLoadingSetter(true);
         try {
-            const url = `/budgets/${item.id}`; // Endpoint para actualizar el presupuesto
-            const method = 'PUT'; // o 'PATCH' si tu API lo prefiere
-            const payload = { status: newStatus };
+            const payload = {
+                status: newStatus,
+                id: budgetId,
+                comment: comment || ""
+            };
+            const url = '/change-budget'; // Ajusta si es necesario
 
-            // noGenericError = true para manejar el error manualmente aquí
-            const { data: response, error } = await execute(url, method, payload, false, true);
+            console.log("Enviando (Approve/Reject):", { url, method: 'POST', payload });
 
-            if (response?.success) {
-                showToast(`Presupuesto ${actionText} correctamente.`, 'success');
-                reLoad(); // Recarga la lista para reflejar el cambio
-                onClose(); // Cierra el modal
-            } else {
-                // Muestra el mensaje de error de la API o uno genérico
-                throw new Error(response?.message || error?.message || `Error al ${actionText} el presupuesto.`);
-            }
+            const { data: response } = await execute(
+                url,
+                'POST',
+                payload,
+                false, // noWaiting = false
+                true   // noGenericError = true
+            );
+
+            // --- INICIO: Modificación del Tipo de Toast ---
+
+            // 1. Determina el tipo de toast basado en newStatus
+            const toastType: 'success' | 'info' | 'warning' = newStatus === 'A'
+                ? 'success' // Éxito si es Aprobado
+                : 'info';   // Información (o 'warning') si es Rechazado
+
+            // 2. Llama a showToast con el tipo determinado
+            showToast(
+                response?.message || `Presupuesto ${actionText} correctamente.`, // El mensaje puede seguir siendo el mismo o personalizado
+                toastType // Usa la variable para el tipo
+            );
+
+            // --- FIN: Modificación del Tipo de Toast ---
+
+            reLoad(); // Recarga la lista
+            onClose(); // Cierra el modal
 
         } catch (err: any) {
-            showToast(err.message || `Ocurrió un error al ${actionText}.`, 'error');
+            const errorMessage = err?.response?.data?.message || err?.message || `Ocurrió un error al ${actionText}.`;
+            showToast(errorMessage, 'error');
             console.error(`Error on budget ${actionText}:`, err);
         } finally {
             isLoadingSetter(false);
@@ -74,25 +102,18 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
     const handleApprove = () => handleAction('A');
     const handleReject = () => handleAction('R');
 
-    // Prevenir cierre si está cargando
-    const handleCloseModal = () => {
-        if (!isApproving && !isRejecting) {
-            onClose();
-        }
-    }
+    const handleCloseModal = () => { onClose() };
 
     return (
         <DataModal
             open={open}
             onClose={handleCloseModal}
             title="Aprobar / Rechazar Presupuesto"
-            // Quitamos botones por defecto del footer para usar los nuestros
             buttonText=""
             buttonCancel=""
         >
-            {/* Cuerpo del Modal: Detalles del Presupuesto */}
-            <div className={styles.viewDetailsContainer}> {/* Añade un estilo si es necesario */}
-                <KeyValue title="ID" value={item?.id} />
+            <div className={styles.divider}></div>
+            <div className={styles.viewDetailsContainer}>
                 <KeyValue title="Nombre" value={item?.name} />
                 <KeyValue title="Categoría" value={item?.category?.name || 'N/A'} />
                 <KeyValue title="Monto" value={`Bs ${formatNumber(item?.amount)}`} />
@@ -105,25 +126,31 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
                     </div>
                 } />
                 <KeyValue title="Creado por" value={getFullName(item?.user) || 'Sistema'} />
-                {/* Puedes añadir más campos si son relevantes */}
             </div>
 
-            {/* Footer del Modal: Botones de Acción */}
-            <div className={styles.viewActionsFooter}> {/* Añade un estilo para el footer */}
+            <div style={{ marginTop: '15px', marginBottom: '15px' }}>
+                <TextArea
+                    label="Comentario"
+                    name="comment"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Ingrese un comentario..."
+                />
+            </div>
+            <div className={styles.actionButtonsContainer}>
                 <Button
+                    className={styles.secondaryActionButton}
                     onClick={handleReject}
-                    variant="cancel" // Estilo para rechazar
+                    variant="cancel"
                     disabled={isApproving || isRejecting}
-                   
                 >
                     Rechazar
                 </Button>
                 <Button
+                    className={styles.primaryActionButton}
                     onClick={handleApprove}
-                    variant="primary" // Estilo para aprobar
+                    variant="primary"
                     disabled={isApproving || isRejecting}
-                
-                    
                 >
                     Aprobar
                 </Button>
