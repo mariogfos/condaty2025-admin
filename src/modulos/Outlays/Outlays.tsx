@@ -49,6 +49,9 @@ const Outlays = () => {
         extraData={extraData} // Pasa extraData para las categorías
       />
     ),
+    hideActions: {
+      edit: true,
+    },
     loadView: { fullType: "DET" },
     saveMsg: {
       add: "Egreso creado con éxito",
