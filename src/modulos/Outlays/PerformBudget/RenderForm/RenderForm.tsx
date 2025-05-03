@@ -5,7 +5,7 @@ import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getUrlImages } from "@/mk/utils/string";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatNumber } from "../../../../mk/utils/numbers";
 
 interface PropsType {
@@ -17,7 +17,7 @@ interface PropsType {
 }
 
 const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
-  const [formState, setFormState]: any = useState({ budget_id: data?.id });
+  const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState([]);
   const handleChange = (e: any) => {
     setFormState({
@@ -25,6 +25,14 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       [e.target.name]: e.target.value,
     });
   };
+  useEffect(() => {
+    if (data?.action == "edit") {
+      let itemEdit = item?.find((item: any) => item?.budget_id == data?.id);
+      setFormState({
+        ...itemEdit,
+      });
+    }
+  }, []);
 
   const validate = () => {
     let errors: any = {};
@@ -37,9 +45,12 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
     });
     errors = checkRules({
       value: formState?.amount,
-      rules: ["required"],
+      rules: ["required", "less:amount"],
       key: "amount",
       errors,
+      data: {
+        amount: data?.amount,
+      },
     });
     errors = checkRules({
       value: formState?.description,
@@ -57,11 +68,36 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
     setErrors(errors);
     return errors;
   };
+  const handleEditItem = () => {
+    const updatedItems = item?.map((item: any) => {
+      if (item?.budget_id === data?.id) {
+        return {
+          ...formState,
+          budget_id: data?.id,
+        };
+      }
+      return item;
+    });
+    setItem(updatedItems);
+  };
+
+  const handleAddItem = () => {
+    setItem([
+      ...item,
+      {
+        ...formState,
+        budget_id: data?.id,
+      },
+    ]);
+  };
+
   const onSave = () => {
     if (hasErrors(validate())) return;
-    setItem([...item, formState]);
+
+    data?.action === "edit" ? handleEditItem() : handleAddItem();
     onClose();
   };
+
   return (
     <DataModal
       title="Ejecutar presupuesto"

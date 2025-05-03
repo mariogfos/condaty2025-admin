@@ -1,4 +1,5 @@
 import { validators as loadedValidators } from "@/components/validators";
+import { formatNumber } from "../numbers";
 
 export type ActionType = "add" | "edit" | "del" | "view" | "export";
 export type ValidFunctionType = (
@@ -34,7 +35,7 @@ export const validRule = (
 
   const [rule, params] = (_rule + ":").split(":");
   const param = params ? params.split(",") : [];
-
+  console.log(Number(value), Number(formState[param[0]]));
   const validations: Record<string, Function> = {
     validateIf: () =>
       param[1] !== formState[param[0]] ? "validar hasta aqui" : "",
@@ -101,7 +102,10 @@ export const validRule = (
       !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
-    less: () => (value >= param[0] ? `Debe ser menor que ${param[0]}` : ""),
+    less: () =>
+      Number(value) > Number(formState[param[0]])
+        ? `Debe ser menor o igual a ${formatNumber(formState[param[0]], 0)}`
+        : "",
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(
         value

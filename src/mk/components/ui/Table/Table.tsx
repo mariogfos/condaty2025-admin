@@ -32,6 +32,7 @@ type PropsType = {
     sumarize?: number | boolean;
     sumDec?: number;
     sortabled?: boolean;
+    onHide?: () => boolean; // Añadir esta línea
   }[];
   data: any;
   footer?: any;
@@ -198,26 +199,29 @@ const Head = memo(function Head({
   };
   return (
     <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
-      {header.map((item: any, index: number) => (
-        <div
-          key={"th" + index}
-          className={styles[item.responsive] + " " + item.className}
-          style={{
-            ...item.style,
-            overflow: "hidden",
-            ...getWidth(item.width),
-          }}
-          title={
-            onRenderHead
-              ? onRenderHead(item, index, onSort, sortCol, true)
-              : item.label
-          }
-        >
-          {onRenderHead
-            ? onRenderHead(item, index, onSort, sortCol)
-            : renderLabelTitle(item, index, onSort, sortCol)}
-        </div>
-      ))}
+      {header.map(
+        (item: any, index: number) =>
+          !item.onHide?.() && (
+            <div
+              key={"th" + index}
+              className={styles[item.responsive] + " " + item.className}
+              style={{
+                ...item.style,
+                overflow: "hidden",
+                ...getWidth(item.width),
+              }}
+              title={
+                onRenderHead
+                  ? onRenderHead(item, index, onSort, sortCol, true)
+                  : item.label
+              }
+            >
+              {onRenderHead
+                ? onRenderHead(item, index, onSort, sortCol)
+                : renderLabelTitle(item, index, onSort, sortCol)}
+            </div>
+          )
+      )}
 
       {onButtonActions && (
         <div className={styles.onlyDesktop} style={{ ...getWidth("100") }}>
@@ -354,26 +358,29 @@ const Body = memo(function Body({
             onRenderCard(row, index, onRowClick)
           ) : (
             <div key={"row" + index} onClick={(e) => onRowClick(row)}>
-              {header.map((item: any, i: number) => (
-                <span
-                  key={item.key + i}
-                  className={styles[item.responsive] + " " + item.className}
-                  style={{
-                    ...item.style,
-                    ...getWidth(item.width),
-                  }}
-                >
-                  {item.onRender &&
-                    item.onRender?.({
-                      value: row[item.key],
-                      key: item.key,
-                      item: row,
-                      i: index + 1,
-                      extraData,
-                    })}
-                  {!item.onRender && row[item.key]}
-                </span>
-              ))}
+              {header.map(
+                (item: any, i: number) =>
+                  !item.onHide?.() && (
+                    <span
+                      key={item.key + i}
+                      className={styles[item.responsive] + " " + item.className}
+                      style={{
+                        ...item.style,
+                        ...getWidth(item.width),
+                      }}
+                    >
+                      {item.onRender &&
+                        item.onRender?.({
+                          value: row[item.key],
+                          key: item.key,
+                          item: row,
+                          i: index + 1,
+                          extraData,
+                        })}
+                      {!item.onRender && row[item.key]}
+                    </span>
+                  )
+              )}
               {onButtonActions && (
                 <span
                   className={styles.onlyDesktop}

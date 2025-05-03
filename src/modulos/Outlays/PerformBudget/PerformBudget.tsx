@@ -1,7 +1,7 @@
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Table from "@/mk/components/ui/Table/Table";
 import useAxios from "@/mk/hooks/useAxios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatNumber } from "../../../mk/utils/numbers";
 import Check from "@/mk/components/forms/Check/Check";
 import Input from "@/mk/components/forms/Input/Input";
@@ -28,12 +28,34 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   const [openModal, setOpenModal] = useState(false);
   const { showToast } = useAuth();
   const [item, setItem]: any = useState(null);
+  const [approvedBudgets, setApprovedBudgets]: any = useState([]);
 
-  const { data, execute } = useAxios("/budgets", "GET", {
-    fullType: "A",
-    page: 1,
-    perPage: -1,
-  });
+  const { execute } = useAxios();
+  const getApprovedBudgets = async () => {
+    const { data } = await execute("/budgets", "GET", {
+      fullType: "A",
+      page: 1,
+      perPage: -1,
+    });
+    if (data?.success == true) {
+      setApprovedBudgets(data?.data);
+    }
+  };
+  useEffect(() => {
+    getApprovedBudgets();
+  }, []);
+  useEffect(() => {
+    const newData = approvedBudgets.map((budget: any) => {
+      const relatedPayment = formState.find(
+        (f: any) => f.budget_id === budget.id
+      );
+      return {
+        ...budget,
+        paid: relatedPayment ? relatedPayment.amount : "-/-",
+      };
+    });
+    setApprovedBudgets(newData);
+  }, [formState]);
 
   const onSave = async () => {
     const { data } = await execute("/execute-budget", "POST", formState);
@@ -82,7 +104,10 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
     //   };
     // });
   };
-  // const onEdit = (item: any) => {};
+  const onEdit = (item: any) => {
+    setItem({ ...item, action: "edit" });
+    setOpenModal(true);
+  };
 
   const header: any = [
     {
@@ -104,14 +129,10 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
-              gap: 8,
+              gap: 4,
             }}
           >
             <p>{"Bs " + formatNumber(item?.amount, 0)}</p>
-            {/* {formState?.find((f: any) => f?.budget_id === item?.id) && (
-              <IconEdit onClick={() => onEdit(item)} />
-            )} */}
             <Check
               // label=""
               name={"selected" + item?.id || ""}
@@ -119,12 +140,28 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
               onChange={() => handleToggle(item)}
               checked={!!formState?.find((f: any) => f?.budget_id === item?.id)}
             />
+            {formState?.find((f: any) => f?.budget_id === item?.id) && (
+              <IconEdit onClick={() => onEdit(item)} />
+            )}
           </div>
         );
       },
     },
+    {
+      key: "paid",
+      label: "Pagado",
+      width: "180px",
+      style: {
+        display: "flex",
+        borderLeft: "1px solid var(--cWhiteV1",
+        justifyContent: "center",
+      },
+      onHide: () => formState?.length === 0,
+      onRender: ({ item }: any) => {
+        return <p>{"Bs " + item?.paid}</p>;
+      },
+    },
   ];
-  console.log(formState);
   const calculateTotalPagado = () => {
     return formState.reduce(
       (acc: number, curr: any) => acc + (Number(curr?.amount) || 0),
@@ -132,12 +169,12 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
     );
   };
   const calculateTotal = () => {
-    return data?.data?.reduce(
+    return approvedBudgets?.reduce(
       (acc: number, curr: any) => acc + (Number(curr?.amount) || 0),
       0
     );
   };
-  console.log(formState);
+
   return (
     <>
       <DataModal
@@ -148,8 +185,8 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
         onClose={onClose}
         onSave={onSave}
       >
-        <Table data={data?.data} header={header} />
-        {formState.length > 0 && (
+        <Table data={approvedBudgets} header={header} />
+        {/* {formState.length > 0 && (
           <div
             style={{
               marginTop: 16,
@@ -172,14 +209,17 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
                   }}
                 >
                   <p>
-                    {data?.data?.find((d: any) => d?.id === f?.budget_id).name}{" "}
+                    {
+                      approvedBudgets?.find((d: any) => d?.id === f?.budget_id)
+                        .name
+                    }{" "}
                     - Bs {formatNumber(f?.amount, 0)}
                   </p>
                 </div>
               );
             })}
           </div>
-        )}
+        )} */}
         <div
           style={{
             padding: 8,
