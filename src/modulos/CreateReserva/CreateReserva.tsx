@@ -5,7 +5,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
-import { IconArrowLeft, IconBackAround, IconNextAround, IconX, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowLeft, IconBackAround, IconCalendar, IconClock, IconGroup, IconMonedas, IconNextAround, IconX, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -1030,13 +1030,17 @@ return (
                              <span className={styles.summaryDetailsTitle}>Detalles de tu reserva</span>
                              {/* Fecha */}
                              <div className={styles.summaryDetailItem}>
-                                <span className={styles.detailIcon}>📅</span>
+                                <span className={styles.detailIcon}>
+                                  <IconCalendar />
+                                </span>
                                 <span>{formState.fecha || "Fecha no seleccionada"}</span>
                              </div>
                              {/* Hora/Periodos */}
                              {selectedAreaDetails.booking_mode !== 'day' && (
                                  <div className={styles.summaryDetailItem}>
-                                    <span className={styles.detailIcon}>🕒</span>
+                                    <span className={styles.detailIcon}>
+                                      <IconClock />
+                                    </span>
                                     <span>
                                         {selectedPeriods.length > 0
                                             ? selectedPeriods.map(p => p.replace('-', ' a ')).join(', ')
@@ -1047,18 +1051,24 @@ return (
                              )}
                              {selectedAreaDetails.booking_mode === 'day' && (
                                   <div className={styles.summaryDetailItem}>
-                                    <span className={styles.detailIcon}>🕒</span>
+                                    <span className={styles.detailIcon}>
+                                      <IconClock />
+                                    </span>
                                     <span>Día completo</span>
                                  </div>
                              )}
                               {/* Personas */}
                               <div className={styles.summaryDetailItem}>
-                                <span className={styles.detailIcon}>👥</span>
+                                <span className={styles.detailIcon}>
+                                  <IconGroup />
+                                </span>
                                 <span>{formState.cantidad_personas || 0} personas</span>
                              </div>
                               {/* --- Costo (MODIFICADO) --- */}
                             <div className={styles.summaryDetailItem}>
-                              <span className={styles.detailIcon}>💲</span> {/* Icono */}
+                              <span className={styles.detailIcon}>
+                                <IconMonedas />
+                              </span> {/* Icono */}
 
                               {selectedAreaDetails.is_free === 'A' ? (
                                 // Si es Gratis
