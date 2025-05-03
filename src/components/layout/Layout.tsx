@@ -9,7 +9,7 @@ import Header from "../Header/Header";
 import useScreenSize from "@/mk/hooks/useScreenSize";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { getFormattedDate } from "@/mk/utils/date";
+import { getDateTimeStrMes, getDateTimeStrMesShort, getFormattedDate } from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -193,18 +193,20 @@ const Layout = ({ children }: any) => {
         onSave={onCloseAlert}
       >
         <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>Residente</p>
+        {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
         <ItemList
           variant="V1"
           title={openAlert?.item?.owner_name}
           subtitle={"Unidad: " + openAlert?.item?.unit}
+          right={getDateTimeStrMesShort(openAlert?.item?.created_at)}
           left={
             <Avatar
               src={getUrlImages(
                 "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
               )}
               name={openAlert?.item?.owner_name}
-            />
-          }
+              />
+            }
         />
         <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
           Tipo de emergencia

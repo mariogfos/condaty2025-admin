@@ -969,3 +969,50 @@
   text-align: center; /* Centrar el número */
 }
 
+
+/* En CreateReserva.module.css */
+
+.periodButton {
+  /* ... tus estilos existentes ... */
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease; /* Añade opacity a la transición */
+}
+
+.selectedPeriod {
+  /* ... tus estilos existentes para botón seleccionado ... */
+  background-color: var(--cAccent);
+  color: var(--cBgPrimary);
+  border-color: var(--cAccent);
+}
+
+.disabledPeriod {
+  opacity: 0.5; /* Reduce opacidad */
+  cursor: not-allowed; /* Cambia cursor */
+  /* Opcional: Cambia colores si quieres más feedback */
+  /* background-color: var(--cBgDisabled); */
+  /* border-color: var(--cBorderDisabled); */
+  /* color: var(--cTextDisabled); */
+}
+
+/* Opcional: Evita que el estilo hover afecte a botones deshabilitados */
+.periodButton:hover:not(:disabled) {
+   border-color: var(--cAccent);
+   background-color: rgba(var(--cAccentRGB), 0.1); /* Ejemplo de hover leve */
+}
+
+/* Asegúrate que el hover del seleccionado no se aplique si está deshabilitado */
+.selectedPeriod:hover:not(:disabled) {
+   background-color: var(--cAccent); /* Mantiene el color de fondo */
+   opacity: 0.9; /* Ejemplo leve de hover para seleccionado */
+}
+
+.warningText { /* Estilo para "No hay periodos..." o mensajes de bloqueo */
+    color: var(--cWarning);
+    font-size: var(--fsSmall);
+    margin-top: var(--spMedium);
+    display: block; /* O inline-block si prefieres */
+    text-align: center; /* Opcional */
+}
+
+/* ... otros estilos ... */
+

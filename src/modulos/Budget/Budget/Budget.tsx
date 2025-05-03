@@ -49,27 +49,19 @@ const getCategoryOptionsForFilter = (extraData: any) => [
     { id: "T", name: "Todos" },
     ...(extraData?.categories || []).map((cat: any) => ({ id: cat.id, name: cat.name }))
 ];
-// --- Fin Funciones de formato y opciones ---
-
 
 const Budget = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // --- MODIFICACIÓN AQUÍ: Nueva lógica simple en handleHideActions ---
   const handleHideActions = (item: any) => {
-    // Si el estado es 'X' (Cancelado), MOSTRAR ambos botones
     if (item?.status === 'X') {
-      // No ocultar ni editar ni borrar
-      return { hideEdit: false, hideDel: false }; // O return {};
+      return { hideEdit: false, hideDel: false };
     }
-    // Para CUALQUIER OTRO estado ('A', 'P', 'R', 'D', 'C', etc.), OCULTAR ambos botones
     else {
-      // Ocultar editar y ocultar borrar
       return { hideEdit: true, hideDel: true };
     }
   };
-  // --- FIN MODIFICACIÓN ---
 
   const mod: ModCrudType = useMemo(() => ({
       modulo: "budgets",
@@ -79,7 +71,7 @@ const Budget = () => {
       extraData: true,
       filter: true,
       saveMsg: { add: "Presupuesto creado con éxito", edit: "Presupuesto actualizado con éxito", del: "Presupuesto eliminado con éxito" },
-      renderForm: (props: any) => <RenderForm {...props} />,
+      /* renderForm: (props: any) => <RenderForm {...props} />, */
       onHideActions: handleHideActions, // <-- Se usa la función actualizada
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
@@ -95,26 +87,82 @@ const Budget = () => {
     return { filterBy: currentFilters };
   }, []);
 
-  const fields = useMemo(
-    () => ({
-        id: { rules: [], api: "e" },
-        name: { rules: ["required"], api: "ae", label: "Nombre", form: { type: "text" }, list: {}, },
-        start_date: { rules: ["required"], api: "ae", label: "Fecha Inicio", form: { type: "date" }, list: { onRender: (props: any) => getDateStrMes(props.item.start_date) }, },
-        end_date: { rules: ["required"], api: "ae", label: "Fecha Fin", form: { type: "date" }, list: { onRender: (props: any) => getDateStrMes(props.item.end_date) }, },
-        amount: { rules: ["required", "number"], api: "ae", label: "Monto", form: { type: "number", placeholder: "Ej: 5000.00" }, list: { onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}` }, },
-        period: { rules: ["required"], api: "ae", label: "Periodo", form: { type: "select", options: getPeriodOptions() }, list: { onRender: (props: any) => formatPeriod(props.item.period) }, filter: { label: "Periodo", options: () => getPeriodOptions(true), width: "150px" }, },
-        // Status: Asegúrate que la clase CSS exista para cada estado (statusA, statusR, etc.)
-        status: { rules: [], api: "ae*", label: "Estado", list: { onRender: (props: any) => { const statusText = formatStatus(props.item.status); return (<div className={`${styles.statusBadge} ${styles[`status${props.item.status}`] || ''}`}>{statusText}</div>); }, }, filter: { label: "Estado", options: () => getStatusOptions(true), width: "150px"}, },
-        category_id: { rules: ["required"], api: "ae", label: "Categoría", form: { type: "select", optionsExtra: "categories", placeholder: "Seleccione categoría" }, list: { onRender: (props: any) => props.item.category?.name || "N/A" }, filter: { label:"Categoría", options: getCategoryOptionsForFilter, width: "200px" } },
-        user_id: { api: "e", label: "Creado por", list: { onRender: (props: any) => getFullName(props.item.user) || 'Sistema' } },
-        approved: { api: "e", label: "Aprobado por", list: { onRender: (props: any) => getFullName(props.item.approved) || 'Pendiente' } },
-    }),
-    []
-  );
+// En Budget.tsx
 
-  // --- Lógica para enviar a aprobación (sin cambios relevantes para esta lógica) ---
+const fields = useMemo(
+  () => ({
+      id: { rules: [], api: "e" },
+      name: {
+          rules: ["required"], api: "ae", label: "Nombre",
+          form: { type: "text" },
+          list: {}, // Muestra el valor directo en la lista (Correcto)
+      },
+      start_date: {
+          rules: ["required"], api: "ae", label: "Fecha Inicio",
+          form: { type: "date" },
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => getDateStrMes(props.item.start_date) },
+      },
+      end_date: {
+          rules: ["required"], api: "ae", label: "Fecha Fin",
+          form: { type: "date" },
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => getDateStrMes(props.item.end_date) },
+      },
+      amount: {
+          rules: ["required", "number"], api: "ae", label: "Monto",
+          form: { type: "number", placeholder: "Ej: 5000.00" },
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}` },
+      },
+      period: {
+          rules: ["required"], api: "ae", label: "Periodo",
+          form: { type: "select", options: getPeriodOptions() },
+           // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => formatPeriod(props.item.period) },
+          filter: { label: "Periodo", options: () => getPeriodOptions(true), width: "150px" },
+      },
+      status: {
+          rules: [], api: "ae*", label: "Estado",
+          // Mantenemos la definición específica para la lista
+          list: {
+              onRender: (props: any) => {
+                  const statusText = formatStatus(props.item.status);
+                  return (<div className={`${styles.statusBadge} ${styles[`status${props.item.status}`] || ''}`}>{statusText}</div>);
+              },
+          },
+          filter: { label: "Estado", options: () => getStatusOptions(true), width: "150px"},
+      },
+      category_id: {
+          rules: ["required"], api: "ae", label: "Categoría",
+          form: { type: "select", optionsExtra: "categories", placeholder: "Seleccione categoría" },
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => props.item.category?.name || "N/A" },
+          filter: { label:"Categoría", options: getCategoryOptionsForFilter, width: "200px" }
+      },
+      user_id: {
+          api: "e", label: "Creado por",
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => getFullName(props.item.user) || 'Sistema' },
+          // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
+          onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
+           // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
+      },
+      approved: {
+          api: "e", label: "Aprobado por",
+          // Mantenemos la definición específica para la lista
+          list: { onRender: (props: any) => getFullName(props.item.approved) || 'Pendiente' },
+           // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
+           onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
+           // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
+      },
+  }),
+  // Dependencias del useMemo - asegúrate que las funciones externas sean estables
+  // o inclúyelas aquí si cambian (ej: [getFullName, getDateStrMes, ...])
+  // Si son importaciones estables, [] está bien.
+  []
+);
   const handleConfirmSendToApproval = async () => {
-    // ... (código sin cambios)
     setIsSending(true);
     try {
         const { data: response, error } = await execute(

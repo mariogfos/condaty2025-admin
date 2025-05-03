@@ -5,7 +5,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
-import { IconArrowLeft, IconBackAround, IconNextAround, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowLeft, IconBackAround, IconCalendar, IconClock, IconGroup, IconMonedas, IconNextAround, IconX, IconZoomDetail } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -18,7 +18,8 @@ import {
     ApiAreasResponse,
     ApiReservationsCalendarResponse,
     Option, // Importa Option también
-    FormState
+    FormState,
+    ApiCalendarAvailabilityData
 } from "./Type"; // Asegúrate que la ruta sea correcta
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
@@ -30,7 +31,6 @@ const initialState: FormState = {
   unidad: "",
   area_social: "",
   fecha: "",
-  // REMOVIDOS: hora_inicio, hora_fin
   cantidad_personas: "1",
   motivo: "",
   nombre_responsable: "",
@@ -43,8 +43,6 @@ interface FormErrors {
   unidad?: string;
   area_social?: string;
   fecha?: string;
-  // REMOVIDOS: hora_inicio, hora_fin
-  // AÑADIDO: para error de selección de periodos
   selectedPeriods?: string;
   cantidad_personas?: string;
   motivo?: string;
@@ -82,12 +80,13 @@ const CreateReserva = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState<boolean>(false);
-  // NUEVO: Estado para indicar si se está enviando el formulario
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState<boolean>(false); 
   const router = useRouter();
-
+  const [canMakeReservationForDate, setCanMakeReservationForDate] = useState<boolean | null>(null); // null = no data yet, true = puede, false = no puede
+  const [reservationBlockMessage, setReservationBlockMessage] = useState<string>('');
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   // --- Hooks ---
   const { showToast } = useAuth();
@@ -114,12 +113,15 @@ const CreateReserva = () => {
 
   // NUEVO: Hook para ENVIAR la reserva (configurado para no ejecutar al inicio)
   // Usamos 'execute' directamente, no necesitamos el estado 'data' aquí
-  const { execute: executeCreateReservation } = useAxios(
-      '/reservations', // Endpoint POST
-      'POST',         // Método
-      {},             // Payload inicial vacío
-      true            // No ejecutar al montar (implícito al no pasar params y usar execute)
-  );
+// En CreateReserva.tsx, donde defines los hooks
+
+// Hook para ENVIAR la reserva (MODIFICADO: URL inicial es null)
+const { execute: executeCreateReservation } = useAxios(
+  null,             // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
+  'POST',           // Método (se usará como default si no se pasa a execute)
+  {},               // Payload inicial (no se usa si la URL es null)
+  true              // Este flag ahora es menos relevante, pero mantenlo por consistencia
+);
 
 
   // --- Efecto para actualizar busyDays ---
@@ -174,47 +176,103 @@ const CreateReserva = () => {
 
 
   // --- Función para obtener horas disponibles ---
-  const fetchAvailableTimes = async (areaId: string, dateString: string) => {
-    if (!areaId || !dateString) {
-        setAvailableTimeSlots([]); return;
-    }
-    setLoadingTimes(true); setAvailableTimeSlots([]);
-    // Dentro de fetchAvailableTimes, después de la llamada a executeCalendarApi
-// Dentro de fetchAvailableTimes
-try {
-  const response = await executeCalendarApi(
-    "/reservations-calendar", "GET",
-    { area_id: areaId, date_at: dateString }, false, false
-  ) as any; // Puedes quitar el cast específico o ajustarlo si tienes una interfaz para { data: { data: ... } }
+// --- Función para obtener horas disponibles (MODIFICADA PARA owner_id y reservations/message) ---
+const fetchAvailableTimes = async (areaId: string, dateString: string, ownerId: string) => {
+  // Estado inicial de la carga y reseteo de datos previos
+  setLoadingTimes(true);
+  setAvailableTimeSlots([]); // Limpia siempre al iniciar
+  setSelectedPeriods([]);    // Limpia selección previa de periodos
+  setCanMakeReservationForDate(null); // Resetea permiso
+  setReservationBlockMessage('');     // Resetea mensaje
 
-  console.log("Respuesta API Horas:", JSON.stringify(response));
+  try {
+      // Llamada a la API con todos los parámetros necesarios
+      const response: any = await executeCalendarApi(
+          "/reservations-calendar", "GET",
+          {
+              area_id: areaId,
+              date_at: dateString,
+              owner_id: ownerId // Incluye owner_id
+          },
+          false, // skipAbort
+          false  // skipLoading
+      );
 
-  // --- CONDICIÓN CORREGIDA ---
-  // Verifica la ruta completa: response.data.data.available
-  if (response?.data?.data?.available && Array.isArray(response.data.data.available)) {
-                                       // ^^ ACCESO CORRECTO ^^
-    console.log("Datos 'available' encontrados - Estableciendo availableTimeSlots:", response.data.data.available);
-    setAvailableTimeSlots(response.data.data.available); // <-- ACCESO CORRECTO
-                                // ^^ ACCESO CORRECTO ^^
-  } else {
-    console.log("Datos 'available' NO encontrados en response.data.data o formato incorrecto, limpiando availableTimeSlots");
-    setAvailableTimeSlots([]);
-     if (response && response.success === false) {
-        showToast(response.message || "No se pudo cargar la disponibilidad horaria.", "warning");
-     }
+
+
+      // Declaraciones de variables para guardar los datos procesados
+      // Usa el tipo importado ApiCalendarAvailabilityData para apiData
+      let apiData: ApiCalendarAvailabilityData | null = null;
+      let canReserve: boolean | undefined | null = null;
+      let message: string = '';
+      let availableSlots: string[] | undefined = undefined;
+      let processed = false; // Flag para saber si encontramos un objeto de datos válido
+
+      // INICIO: Lógica para encontrar los datos dentro de la respuesta
+
+      // CASO 1: La respuesta directa de la API es un array vacío []
+      if (Array.isArray(response) && response.length === 0) {
+          apiData = null; // No hay objeto de datos
+      }
+      // CASO 2: Busca datos en response.data.data (estructura anidada)
+      else if (typeof response?.data?.data === 'object' && response.data.data !== null && !Array.isArray(response.data.data)) {
+          // Asigna el objeto encontrado. TypeScript debería reconocer el tipo si la importación es correcta.
+          apiData = response.data.data;
+          console.log("Datos leídos desde response.data.data");
+          processed = true;
+      }
+      // CASO 3: Busca datos en response.data (estructura menos anidada, fallback)
+      // Verifica también que tenga una propiedad esperada como 'reservations'
+      else if (typeof response?.data === 'object' && response.data !== null && !Array.isArray(response.data) && 'reservations' in response.data) {
+          // Asigna el objeto encontrado.
+          apiData = response.data;
+          console.warn("Usando datos de fallback response.data");
+          processed = true;
+      }
+      // CASO 4: La respuesta no es [] ni un objeto válido en las ubicaciones esperadas
+      else {
+          console.error("Respuesta inválida o estructura no reconocida:", response);
+          apiData = null; // No se encontraron datos válidos
+      }
+      // FIN: Lógica para encontrar los datos
+
+      // Extrae la información si encontramos un objeto de datos válido (apiData no es null)
+      if (apiData) { // Solo necesitamos chequear si apiData no es null aquí
+          canReserve = apiData.reservations; // Accede a las propiedades (TS usará el tipo ApiCalendarAvailabilityData)
+          message = apiData.message ?? '';
+          availableSlots = apiData.available;
+      }
+      // Si apiData es null (porque la respuesta fue [] o inválida),
+      // las variables canReserve, message, availableSlots mantendrán sus valores (null, '', undefined)
+
+      // Establece el estado del componente basado en los datos procesados
+      // Si canReserve no se pudo leer (es null o undefined), se tratará como 'false'
+      setCanMakeReservationForDate(canReserve === true);
+      // El mensaje solo se muestra si explícitamente 'reservations' es false
+      setReservationBlockMessage(canReserve === false ? message : '');
+
+      // Establece los slots disponibles solo si 'availableSlots' es realmente un array
+      if (Array.isArray(availableSlots)) {
+          setAvailableTimeSlots(availableSlots);
+          console.log('>>> Setting availableTimeSlots:', availableSlots);
+      } else {
+          // Si no es un array (undefined, null, etc.), asegura que el estado sea un array vacío
+          setAvailableTimeSlots([]);
+          console.log('>>> Setting availableTimeSlots: [] (Input not a valid array)');
+      }
+
+  } catch (error) {
+      // Captura errores de red o fallos inesperados durante el proceso
+      console.error("Error en fetchAvailableTimes:", error);
+      setAvailableTimeSlots([]);
+      setCanMakeReservationForDate(false); // Asume no disponible si hay error
+      setReservationBlockMessage("Error al cargar horarios. Intenta de nuevo.");
+  } finally {
+      // Siempre quita el indicador de carga al finalizar (éxito o error)
+      console.log('>>> Setting loadingTimes: false');
+      setLoadingTimes(false);
   }
-  // --- FIN CONDICIÓN CORREGIDA ---
-
-
-} catch (error) {
-  console.error("Error fetching available times:", error);
-  showToast("Error al cargar horarios disponibles.", "error");
-  setAvailableTimeSlots([]);
-} finally {
-  setLoadingTimes(false);
-}
-  };
-
+};
   // --- Funciones Handler ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -270,8 +328,12 @@ try {
         setCurrentImageIndex(0);
      }
   };
-  // --- NUEVO: Handler para click en los botones de periodo ---
-// Dentro del componente CreateReserva
+//PARA ERROR EN IMAGEN 
+useEffect(() => {
+    setImageLoadError(false);
+}, [currentImageIndex, selectedAreaDetails?.id]);
+
+
 
 const handlePeriodToggle = (period: string) => {
   setSelectedPeriods(prevSelected => {
@@ -295,21 +357,52 @@ const handlePeriodToggle = (period: string) => {
 
 // --- FIN Modificación handlePeriodToggle ---
 
-  const handleDateChange = (dateString: string | undefined) => {
-    const newDate = dateString || "";
-    // MODIFICADO: Resetea los periodos seleccionados
-    setFormState(prev => ({ ...prev, fecha: newDate }));
-    setSelectedPeriods([]); // Limpia la selección de periodos
-    // Limpia errores relacionados a la selección de tiempo/periodo
-    if (errors.fecha && newDate) setErrors(prev => ({ ...prev, fecha: undefined }));
-    setErrors(prev => ({ ...prev, selectedPeriods: undefined })); // Limpia error de periodo también
+const handleDateChange = (dateString: string | undefined) => {
+  const newDate = dateString || "";
 
-    if (formState.area_social && newDate) {
-      fetchAvailableTimes(formState.area_social, newDate);
-    } else {
-        setAvailableTimeSlots([]);
-    }
-  };
+  // Actualiza fecha y resetea periodos seleccionados
+  setFormState(prev => ({ ...prev, fecha: newDate }));
+  setSelectedPeriods([]);
+
+  // Resetea estados de disponibilidad y errores relacionados
+  setAvailableTimeSlots([]); // Limpia slots anteriores
+  setCanMakeReservationForDate(null);
+  setReservationBlockMessage('');
+  setErrors(prev => ({
+      ...prev,
+      fecha: newDate ? undefined : prev.fecha, // Limpia error fecha si hay nueva fecha
+      selectedPeriods: undefined // Limpia error de periodo
+  }));
+
+  // --- 👇 LÓGICA MEJORADA PARA OBTENER owner_id Y LLAMAR fetch 👇 ---
+  // Solo procede si tenemos área, fecha Y unidad seleccionadas
+  if (formState.area_social && newDate && formState.unidad) {
+      // Encuentra la unidad seleccionada para obtener el owner_id
+      const selectedUnit = unidadesResponse?.data?.find(
+          (u: ApiUnidad) => String(u.id) === formState.unidad
+      );
+      const ownerId = selectedUnit?.titular?.owner_id;
+
+      if (ownerId) {
+          // Llama a fetchAvailableTimes PASANDO el ownerId
+          fetchAvailableTimes(formState.area_social, newDate, ownerId);
+      } else {
+          // Manejo de error si no se encuentra el owner_id
+          console.error("Error: No se pudo encontrar owner_id para la unidad seleccionada:", formState.unidad);
+          showToast("No se pudo verificar la disponibilidad (error propietario).", "error");
+          // Asegura que los estados reflejen que no se pudo cargar
+          setAvailableTimeSlots([]);
+          setCanMakeReservationForDate(false); // Asume no disponible
+          setReservationBlockMessage("No se encontró información del propietario para validar límites.");
+      }
+  } else {
+      // Si falta área, fecha o unidad, simplemente limpia los slots
+      setAvailableTimeSlots([]);
+      setCanMakeReservationForDate(null); // Resetea
+      setReservationBlockMessage('');    // Resetea
+  }
+  // --- 👆 FIN LÓGICA MEJORADA 👆 ---
+};
 
 
 // --- Funciones de Validación ---
@@ -458,19 +551,21 @@ const prevStep = (): void => {
 
     console.log("Payload a enviar:", payload);
 
-    // 4. Llamar a la API POST (sin cambios en la llamada)
     try {
-        const response = await executeCreateReservation('/reservations', 'POST', payload, false, false);
+        // Llama a execute pasando la URL y el Método explícitamente
+        const response = await executeCreateReservation(
+            '/reservations', // <-- Argumento 1: URL real
+            'POST',         // <-- Argumento 2: Método real
+            payload,        // Argumento 3: Payload (tu objeto con los datos)
+            false,          // Argumento 4: 'Act' (generalmente false si no necesitas que este hook actualice su propio estado 'data')
+            false           // Argumento 5: 'notWaiting' (generalmente false para indicar que sí quieres manejar el estado de carga global si existe)
+        );
         console.log("Respuesta API Reserva:", JSON.stringify(response));
+    
+        // El resto del manejo de la respuesta sigue igual...
         if (response?.data?.success) {
             showToast(response?.data?.message || "Reserva creada exitosamente", "success");
-            // Resetear estado y selección
-            setFormState(initialState);
-            setSelectedPeriods([]); // Resetea periodos seleccionados
-            setCurrentStep(1);
-            setErrors({});
-            setBusyDays([]);
-            setAvailableTimeSlots([]);
+            // ... resetear estado ...
             router.push('/reservas');
         } else {
             showToast(response?.data?.message || "Error al crear la reserva.", "error");
@@ -603,16 +698,6 @@ return (
                       className={styles.previewImage}
                       src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`)}
                       alt={`Imagen ${currentImageIndex + 1} de ${selectedAreaDetails.title}`}
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        const target = e.target as HTMLImageElement;
-                        // Intenta cargar la siguiente imagen si hay error, o un placeholder
-                        if (selectedAreaDetails.images && selectedAreaDetails.images.length > 1) {
-                            // Simple fallback, podría ser más robusto
-                            setCurrentImageIndex((prev) => (prev + 1) % (selectedAreaDetails.images?.length || 1));
-                        } else {
-                            target.src = '/api/placeholder/350/280'; // Placeholder genérico
-                        }
-                      }}
                     />
                     {/* Paginación de Imagen */}
                   <div className={styles.imagePagination}>
@@ -643,7 +728,7 @@ return (
                   {/* Si no hay imágenes */}
                   {(!selectedAreaDetails.images || selectedAreaDetails.images.length === 0) && (
                        <div className={styles.imageContainer}>
-                          <img src="/api/placeholder/350/280" alt="Sin imagen" className={styles.previewImage} />
+                          <img src="/assets/no-image.png" alt="Sin imagen" className={styles.previewImage} />
                        </div>
                   )}
 
@@ -723,65 +808,72 @@ return (
             {/* Sección Hora (Condicional si hay fecha) */}
             {formState.fecha && (
                <>
-                 {/* === MODIFICADO: Sección de Selección de Periodos como Botones === */}
-                  {/* Sección Hora (Condicional si hay fecha) */}
+
+            {/* Mostrar solo si hay fecha seleccionada */}
             {formState.fecha && (
-               <>
-                 {/* === MODIFICADO: Sección de Selección de Periodos === */}
-                  {/* Mostrar solo si hay fecha */}
-                  {formState.fecha && (
-                     <div className={styles.durationSection}> {/* Contenedor general */}
-                        <label className={styles.sectionLabel}>
-                            {selectedAreaDetails?.booking_mode === 'day'
-                                ? "Periodo disponible (Día completo)"
-                                : "Selecciona los periodos disponibles"}
-                        </label>
+              <div className={styles.durationSection}>
+                <label className={styles.sectionLabel}>
+                  {selectedAreaDetails?.booking_mode === 'day'
+                    ? "Periodo disponible (Día completo)"
+                    : "Selecciona los periodos disponibles"}
+                </label>
 
-                        {/* Indicador carga horas */}
-                        {loadingTimes && <span className={styles.loadingText}>Cargando periodos...</span>}
+                {/* 1. Muestra el mensaje de bloqueo si aplica */}
+                {canMakeReservationForDate === false && reservationBlockMessage ? (
+                  <div className={styles.warningText} style={{display: 'flex', alignItems: 'center', gap: '8px', border:'1px solid var(--cWarning)', padding: '8px', borderRadius:'var(--brStandard)', background:'rgba(228, 96, 85, 0.1)'}}> {/* Estilo inline o clase CSS */}
+                    <IconX color='var(--cWarning)' size={16} /> {/* Icono X o similar */}
+                    <span>{reservationBlockMessage}</span>
+                  </div>
+                ) : null}
 
-                        {/* --- LÓGICA DE VISUALIZACIÓN CORREGIDA --- */}
-                        {/* Renderiza el contenido SOLO cuando NO esté cargando */}
-                        {!loadingTimes && (
-                            <>
-                                {/* Verifica si hay slots DESPUÉS de que la carga terminó */}
-                                {availableTimeSlots.length > 0 ? (
-                                    // Si hay slots, muestra los botones
-                                    <div className={styles.periodSelectionContainer}>
-                                        {availableTimeSlots
-                                          .sort((a,b) => a.localeCompare(b))
-                                          .map((period) => {
-                                            const isSelected = selectedPeriods.includes(period);
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={period}
-                                                    className={`${styles.periodButton} ${isSelected ? styles.selectedPeriod : ''}`}
-                                                    onClick={() => handlePeriodToggle(period)}
-                                                >
-                                                    {period.replace('-', ' a ')}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    // Si NO hay slots (y ya no está cargando), muestra el mensaje
-                                    // Añadimos una comprobación extra por si la fecha se deseleccionó mientras cargaba
-                                    formState.fecha && (
-                                        <span className={styles.warningText}>No hay periodos disponibles para esta fecha.</span>
-                                    )
-                                )}
-                                {/* Muestra el error de validación si existe (fuera del if/else de slots) */}
-                                {errors.selectedPeriods && <span className={styles.errorText}>{errors.selectedPeriods}</span>}
-                            </>
-                        )}
-                        {/* --- FIN LÓGICA CORREGIDA --- */}
-                     </div>
-                  )}
-                  {/* === FIN Sección de Selección de Periodos === */}
+                {/* 2. Muestra el Loader O el Contenido */}
+                {loadingTimes ? (
+                  <div style={{padding: '20px 0', textAlign: 'center'}}> {/* Contenedor para loader */}
+                     {/* Puedes usar un componente Spinner si tienes uno */}
+                     <span className={styles.loadingText}>Cargando periodos...</span>
+                  </div>
+                ) : (
+                  // Si NO está cargando:
+                  <>
+                    {/* 3. Muestra los slots SI existen en el estado */}
+                    {availableTimeSlots.length > 0 ? (
+                      <div className={styles.periodSelectionContainer}>
+                      {availableTimeSlots
+                        .sort((a, b) => a.localeCompare(b)) // Ordena los periodos
+                        .map((period) => {
+                          const isSelected = selectedPeriods.includes(period);
+                          // isDisabled es true si canMakeReservationForDate es false
+                          const isDisabled = canMakeReservationForDate === false;
 
-               </>
+                          return (
+                            <button
+                              type="button" // Importante para formularios
+                              key={period}
+                              // Aplica clases condicionales: base, seleccionado (si no está deshabilitado), deshabilitado
+                              className={`${styles.periodButton} ${isSelected && !isDisabled ? styles.selectedPeriod : ''} ${isDisabled ? styles.disabledPeriod : ''}`}
+                              onClick={() => handlePeriodToggle(period)} // Llama al handler
+                              disabled={isDisabled} // Deshabilita el botón si es necesario
+                            >
+                              {/* Muestra el periodo formateado */}
+                              {period.replace('-', ' a ')}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      canMakeReservationForDate === true && (
+                        <span className={styles.warningText}>No hay periodos disponibles para esta fecha.</span>
+                      )
+                    )}
+
+                    {/* 5. Muestra error de validación si el usuario intentó continuar sin seleccionar */}
+                    {errors.selectedPeriods && <span className={styles.errorText}>{errors.selectedPeriods}</span>}
+                    </>
+                )}
+              </div>
             )}
+          
+
                </>
             )}
 
@@ -938,13 +1030,17 @@ return (
                              <span className={styles.summaryDetailsTitle}>Detalles de tu reserva</span>
                              {/* Fecha */}
                              <div className={styles.summaryDetailItem}>
-                                <span className={styles.detailIcon}>📅</span>
+                                <span className={styles.detailIcon}>
+                                  <IconCalendar />
+                                </span>
                                 <span>{formState.fecha || "Fecha no seleccionada"}</span>
                              </div>
                              {/* Hora/Periodos */}
                              {selectedAreaDetails.booking_mode !== 'day' && (
                                  <div className={styles.summaryDetailItem}>
-                                    <span className={styles.detailIcon}>🕒</span>
+                                    <span className={styles.detailIcon}>
+                                      <IconClock />
+                                    </span>
                                     <span>
                                         {selectedPeriods.length > 0
                                             ? selectedPeriods.map(p => p.replace('-', ' a ')).join(', ')
@@ -955,18 +1051,24 @@ return (
                              )}
                              {selectedAreaDetails.booking_mode === 'day' && (
                                   <div className={styles.summaryDetailItem}>
-                                    <span className={styles.detailIcon}>🕒</span>
+                                    <span className={styles.detailIcon}>
+                                      <IconClock />
+                                    </span>
                                     <span>Día completo</span>
                                  </div>
                              )}
                               {/* Personas */}
                               <div className={styles.summaryDetailItem}>
-                                <span className={styles.detailIcon}>👥</span>
+                                <span className={styles.detailIcon}>
+                                  <IconGroup />
+                                </span>
                                 <span>{formState.cantidad_personas || 0} personas</span>
                              </div>
                               {/* --- Costo (MODIFICADO) --- */}
                             <div className={styles.summaryDetailItem}>
-                              <span className={styles.detailIcon}>💲</span> {/* Icono */}
+                              <span className={styles.detailIcon}>
+                                <IconMonedas />
+                              </span> {/* Icono */}
 
                               {selectedAreaDetails.is_free === 'A' ? (
                                 // Si es Gratis
