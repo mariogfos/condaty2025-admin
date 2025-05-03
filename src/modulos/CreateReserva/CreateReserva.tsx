@@ -86,7 +86,7 @@ const CreateReserva = () => {
   const router = useRouter();
   const [canMakeReservationForDate, setCanMakeReservationForDate] = useState<boolean | null>(null); // null = no data yet, true = puede, false = no puede
   const [reservationBlockMessage, setReservationBlockMessage] = useState<string>('');
-
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   // --- Hooks ---
   const { showToast } = useAuth();
@@ -198,7 +198,7 @@ const fetchAvailableTimes = async (areaId: string, dateString: string, ownerId: 
           false  // skipLoading
       );
 
-      console.log("Respuesta API Horas (con owner_id):", JSON.stringify(response));
+
 
       // Declaraciones de variables para guardar los datos procesados
       // Usa el tipo importado ApiCalendarAvailabilityData para apiData
@@ -212,7 +212,6 @@ const fetchAvailableTimes = async (areaId: string, dateString: string, ownerId: 
 
       // CASO 1: La respuesta directa de la API es un array vacío []
       if (Array.isArray(response) && response.length === 0) {
-          console.log("API devolvió directamente []. Tratando como sin slots.");
           apiData = null; // No hay objeto de datos
       }
       // CASO 2: Busca datos en response.data.data (estructura anidada)
@@ -329,6 +328,11 @@ const fetchAvailableTimes = async (areaId: string, dateString: string, ownerId: 
         setCurrentImageIndex(0);
      }
   };
+//PARA ERROR EN IMAGEN 
+useEffect(() => {
+    setImageLoadError(false);
+}, [currentImageIndex, selectedAreaDetails?.id]);
+
 
 
 const handlePeriodToggle = (period: string) => {
@@ -694,16 +698,6 @@ return (
                       className={styles.previewImage}
                       src={getUrlImages(`/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`)}
                       alt={`Imagen ${currentImageIndex + 1} de ${selectedAreaDetails.title}`}
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        const target = e.target as HTMLImageElement;
-                        // Intenta cargar la siguiente imagen si hay error, o un placeholder
-                        if (selectedAreaDetails.images && selectedAreaDetails.images.length > 1) {
-                            // Simple fallback, podría ser más robusto
-                            setCurrentImageIndex((prev) => (prev + 1) % (selectedAreaDetails.images?.length || 1));
-                        } else {
-                            target.src = '/api/placeholder/350/280'; // Placeholder genérico
-                        }
-                      }}
                     />
                     {/* Paginación de Imagen */}
                   <div className={styles.imagePagination}>
@@ -734,7 +728,7 @@ return (
                   {/* Si no hay imágenes */}
                   {(!selectedAreaDetails.images || selectedAreaDetails.images.length === 0) && (
                        <div className={styles.imageContainer}>
-                          <img src="/api/placeholder/350/280" alt="Sin imagen" className={styles.previewImage} />
+                          <img src="/assets/no-image.png" alt="Sin imagen" className={styles.previewImage} />
                        </div>
                   )}
 
@@ -814,9 +808,7 @@ return (
             {/* Sección Hora (Condicional si hay fecha) */}
             {formState.fecha && (
                <>
-                 {/* === MODIFICADO: Sección de Selección de Periodos como Botones === */}
-                  {/* Sección Hora (Condicional si hay fecha) */}
-            {/* --- SECCIÓN PERIODOS (WEB - REESTRUCTURADA) --- */}
+
             {/* Mostrar solo si hay fecha seleccionada */}
             {formState.fecha && (
               <div className={styles.durationSection}>
@@ -846,40 +838,37 @@ return (
                     {/* 3. Muestra los slots SI existen en el estado */}
                     {availableTimeSlots.length > 0 ? (
                       <div className={styles.periodSelectionContainer}>
-                        {availableTimeSlots
-                          .sort((a, b) => a.localeCompare(b)) // Ordena los periodos
-                          .map((period) => {
-                            const isSelected = selectedPeriods.includes(period);
-                            // isDisabled es true si canMakeReservationForDate es false
-                            const isDisabled = canMakeReservationForDate === false;
+                      {availableTimeSlots
+                        .sort((a, b) => a.localeCompare(b)) // Ordena los periodos
+                        .map((period) => {
+                          const isSelected = selectedPeriods.includes(period);
+                          // isDisabled es true si canMakeReservationForDate es false
+                          const isDisabled = canMakeReservationForDate === false;
 
-                            return (
-                              <button
-                                type="button" // Importante para formularios
-                                key={period}
-                                className={`${styles.periodButton} ${isSelected && !isDisabled ? styles.selectedPeriod : ''} ${isDisabled ? styles.disabledPeriod : ''}`} // Añade clase disabled
-                                onClick={() => handlePeriodToggle(period)}
-                                disabled={isDisabled} // Deshabilita el botón
-                              >
-                                {period.replace('-', ' a ')}
-                              </button>
-                            );
-                          })}
+                          return (
+                            <button
+                              type="button" // Importante para formularios
+                              key={period}
+                              // Aplica clases condicionales: base, seleccionado (si no está deshabilitado), deshabilitado
+                              className={`${styles.periodButton} ${isSelected && !isDisabled ? styles.selectedPeriod : ''} ${isDisabled ? styles.disabledPeriod : ''}`}
+                              onClick={() => handlePeriodToggle(period)} // Llama al handler
+                              disabled={isDisabled} // Deshabilita el botón si es necesario
+                            >
+                              {/* Muestra el periodo formateado */}
+                              {period.replace('-', ' a ')}
+                            </button>
+                          );
+                        })}
                       </div>
                     ) : (
-                      // 4. Muestra "No hay periodos" SÓLO si:
-                      //    - NO hay slots en el estado
-                      //    - Y TAMPOCO hay un mensaje de bloqueo activo
-                      //    - Y TAMPOCO estamos en el estado inicial (canMakeReservationForDate no es null)
-                      !reservationBlockMessage && canMakeReservationForDate !== null && (
+                      canMakeReservationForDate === true && (
                         <span className={styles.warningText}>No hay periodos disponibles para esta fecha.</span>
                       )
-                      // No mostramos nada si estamos en estado inicial (null) y no hay slots aún
                     )}
 
                     {/* 5. Muestra error de validación si el usuario intentó continuar sin seleccionar */}
-                     {errors.selectedPeriods && <span className={styles.errorText}>{errors.selectedPeriods}</span>}
-                  </>
+                    {errors.selectedPeriods && <span className={styles.errorText}>{errors.selectedPeriods}</span>}
+                    </>
                 )}
               </div>
             )}
