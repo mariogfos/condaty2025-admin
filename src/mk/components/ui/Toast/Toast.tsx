@@ -1,8 +1,5 @@
 "use client";
 import {
-  IconAlert,
-  IconCheck,
-  IconErrorToast,
   IconInfoToast,
   IconSuccessToast,
   IconX,
@@ -11,24 +8,24 @@ import { ToastType } from "@/mk/hooks/useToast";
 import { useEffect, useState } from "react";
 import styles from "./toast.module.css";
 
-// const ToastMsg = {
-//   success: "¡GENIAL!",
-//   error: "¡ERROR!",
-//   warning: "¡ALERTA!",
-//   info: "¡INFO!",
-// };
-
 const ToastIcon = {
-  success: <IconSuccessToast size={24} color="var(--cSuccess)" />,
-  error: <IconErrorToast size={24} color="var(--cError)" />,
-  warning: (
-    <IconInfoToast
-      size={24}
-      color="var(--cWarning)"
-      style={{ transform: "scaleY(-1)" }}
-    />
-  ),
-  info: <IconInfoToast size={24} color="var(--cInfo)" />,
+  success: <IconSuccessToast size={18} color="var(--cWhite)" />,
+  error: <IconX size={18} color="var(--cWhite)" />,
+  warning: <IconX size={18} color="var(--cWhite)" />,
+  info: <IconInfoToast size={18} color="var(--cWhite)" />,
+};
+
+const StatusColor = {
+  success: "var(--cSuccess)",
+  error: "var(--cError)",
+  warning: "var(--cWarning)",
+  info: "var(--cInfo)",
+};
+const ToastColor = {
+  success: "var(--cToastSuccess)",
+  error: "var(--cToastError)",
+  warning: "var(--cToastWarning)",
+  info: "var(--cToastInfo)",
 };
 const Toast = ({
   toast,
@@ -67,14 +64,31 @@ const Toast = ({
 
   return (
     <>
-      <div className={clase}>
-        <div>{ToastIcon[toast?.type || "info"]}</div>
+      <div
+        className={clase}
+        style={{
+          backgroundColor: ToastColor[toast?.type || "info"],
+          border: `1px solid ${StatusColor[toast?.type || "info"]}`,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: StatusColor[toast?.type || "info"],
+            padding: 4,
+            borderRadius: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {ToastIcon[toast?.type || "info"]}
+        </div>
         <div>
           {/* <p>{ToastMsg[toast?.type || "info"]}</p> */}
           <div>{toast?.msg}</div>
         </div>
         <div className={styles.close} onClick={() => _close()}>
-          <IconX size={14} />
+          <IconX size={24} />
         </div>
       </div>
     </>
