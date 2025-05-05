@@ -21,6 +21,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import { IconBriefCaseMoney, IconEgresos, IconIngresos, IconWallet } from "../layout/icons/IconsBiblioteca";
 // Asegúrate que la ruta al modal sea correcta
 
 const paramsInitial = {
@@ -195,20 +196,23 @@ const HomePage = () => {
         <section>
           <WidgetDashCard
             title="Ingresos"
-            subtitle={formattedDate}
+            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
             onClick={() => (window.location.href = "/payments")}
+            icon={<IconIngresos color={'var(--cAccent)'}  style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
           />
           <WidgetDashCard
             title="Egresos"
-            subtitle={formattedDate}
+            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
             onClick={() => (window.location.href = "/outlays")}
+            icon={<IconEgresos color={'var(--cError)'}  style={{backgroundColor:'var(--cHoverError)'}} circle size={38}/>}
+
           />
           <WidgetDashCard
             title={balanceMessage}
             color={balance < 0 ? "var(--cError)" : ""}
-            subtitle={formattedDate}
+            // subtitle={formattedDate}
             data={
               "Bs. " +
               formatNumber(
@@ -216,12 +220,16 @@ const HomePage = () => {
                   Number(dashboard?.data?.TotalEgresos)
               )
             }
+            icon={<IconBriefCaseMoney color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo)'}} circle size={38}/>}
+
           />
           <WidgetDashCard
             title="Cartera vencida"
-            subtitle={formattedDate}
+            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
             onClick={() => (window.location.href = "/defaultersview")}
+            icon={<IconWallet color={'var(--cAlert)'}  style={{backgroundColor:'var(--cHoverAlert)'}} circle size={38}/>}
+            
           />
         </section>
 

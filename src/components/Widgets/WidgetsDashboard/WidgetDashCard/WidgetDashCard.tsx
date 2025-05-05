@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./WidgetDashCard.module.css";
+import { IconAccess, IconInterrogation } from "@/components/layout/icons/IconsBiblioteca";
 
 interface ItemProps {
   title: string;
@@ -8,6 +9,7 @@ interface ItemProps {
   data: string;
   onClick?: () => void;
   color?: string;
+  icon?:any;
 }
 
 export const WidgetDashCard = ({
@@ -16,6 +18,7 @@ export const WidgetDashCard = ({
   className = styles.flexGrow,
   color,
   data,
+  icon,
   onClick,
 }: ItemProps) => {
   return (
@@ -24,8 +27,9 @@ export const WidgetDashCard = ({
       onClick={onClick}
     >
       <div >
-        <p>{title}</p>
-
+        <p>{title} <IconInterrogation  /> </p>
+       
+           {icon}
       </div>
       <p>{subtitle}</p>
       <p
