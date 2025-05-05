@@ -28,26 +28,33 @@ const LoginView = ({
   const [openModal, setOpenModal] = useState(false);
   return (
     <div className={styles.container}>
+      {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/loginAdmin.webp"
+          src="/assets/images/loginAdmin.webp" // Asegúrate que esta es la ruta correcta
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
           priority
         />
       </div>
+  
+      {/* Logo en la esquina superior izquierda */}
+      <div className={styles.topLeftLogoContainer}>
+        <Image
+          src="/assets/images/Condaty-completo-1.svg" // Logo que estaba en el form
+          alt="Logo Condaty"
+          width={164} // O el tamaño que prefieras para la esquina
+          height={49}
+          priority
+        />
+      </div>
+  
+      {/* Formulario Centrado */}
       <div className={styles.formCenter}>
         <div className={styles.formWrapper}>
-          <div className={styles.logo}>
-            <Image
-            src="/assets/images/Condaty-completo-1.svg"
-            alt="Logo Condaty"
-            width={164}
-            height={49}
-            className={styles.logoImage}
-            priority/>
-          </div>
+          {/* Quitamos el logo de aquí */}
+          {/* <div className={styles.logo}>...</div> */}
   
           <div className={styles.titleSection}>
             <div className={styles.title}>
@@ -96,12 +103,21 @@ const LoginView = ({
               Iniciar sesión
             </Button>
           <div className={styles.termsContainer}>
-            Al iniciar sesión aceptas los <a href="#">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
+            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
           </div>
           </form>
   
         </div>
       </div>
+  
+      {/* Texto Inferior */}
+      <div className={styles.footerTextContainer}>
+        <span className={styles.footerText}>
+          <b>Simplifica </b>procesos, <b>multiplica </b>resultados
+        </span>
+      </div>
+  
+      {/* Modal (sin cambios) */}
       <ForgotPass open={openModal} setOpen={setOpenModal} mod="adm" />
     </div>
   );

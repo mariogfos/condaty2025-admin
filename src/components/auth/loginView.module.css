@@ -3,8 +3,11 @@
   height: 100vh;
   display: flex;
   overflow: hidden;
-  background-color: var(--darkColor);
   position: relative;
+  background-image: url('/assets/images/loginAdmin.webp');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .imageBackground {
@@ -13,16 +16,19 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 1; /* Como lo tenías */
 }
 
-/* La regla .overlay se elimina completamente */
+.topLeftLogoContainer {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 2; /* Encima del fondo y formCenter */
+}
 
-.wrapper {
-  width: 100%;
-  height: 100vh;
-  max-width: 100%;
-  background-color: transparent;
+.logoImage {
+  width: 164px;
+  height: auto;
 }
 
 .formCenter {
@@ -31,12 +37,8 @@
   align-items: center;
   width: 100%;
   height: 100%;
-  position: relative; /* Mantenemos esto por si acaso */
-  z-index: 1; /* Asegura que el form esté sobre el fondo */
-}
-
-.formContainer {
-  background-color: transparent;
+  position: relative;
+  z-index: 1; /* Como lo tenías */
 }
 
 .formWrapper {
@@ -46,25 +48,19 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background-color: rgba(41, 41, 41, 0.94); /* Fondo del formulario */
+  background-color: rgba(41, 41, 41, 0.94);
   border-radius: 1.875rem;
+  position: relative; /* Añadido por si acaso, para contexto z-index */
+  z-index: 1; /* Asegura que esté al mismo nivel que formCenter si es necesario */
 }
 
-.logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.logoImage {
-  width: 164px;
-  height: auto;
-}
+/* Se elimina .logo { display: flex... } ya que no está en formWrapper */
 
 .titleSection {
   color: var(--lightColor);
   text-align: center;
   margin-bottom: 1.5rem;
+  margin-top: 1rem; /* Añadido para compensar el logo eliminado */
 }
 
 .mobileTitle {
@@ -95,7 +91,10 @@
   gap: 1rem;
 }
 
-
+/* inputContainer sin estilos específicos aquí, se aplican dentro del componente Input/InputPassword */
+.inputContainer {
+  width: 100%;
+}
 
 .forgotPassword {
   text-align: center;
@@ -136,22 +135,44 @@
   cursor: pointer;
 }
 
+.footerTextContainer {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2; /* Encima del fondo y formCenter */
+}
+
+.footerText {
+  font-size: 2rem;
+  line-height: 1.5;
+  color: var(--neutral-50);
+  text-align: center;
+  white-space: nowrap;
+  font-family: 'Poppins', sans-serif;
+}
+
+
 @media (max-width: 768px) {
+  .topLeftLogoContainer {
+     top: 1rem;
+     left: 1rem;
+  }
+  .logoImage {
+     width: 130px;
+  }
   .formWrapper {
     padding: 1.5rem;
     max-width: 90%;
     gap: 1rem;
   }
 
-  .logo {
-    margin-bottom: 0.75rem;
-  }
-
   .titleSection {
     margin-bottom: 1rem;
+    margin-top: 0.5rem;
   }
 
-  .desktopTitle, .title {
+  .title {
     font-size: 1.75rem;
   }
 
@@ -173,6 +194,14 @@
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
   }
+  .footerTextContainer {
+     bottom: 1rem;
+     width: 90%;
+  }
+   .footerText {
+     font-size: 1.2rem;
+   }
+
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -180,3 +209,4 @@
     max-width: 60%;
   }
 }
+
