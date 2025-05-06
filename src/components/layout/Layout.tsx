@@ -156,6 +156,7 @@ const Layout = ({ children }: any) => {
               user={user}
               client={client}
               setLogout={setOnLogout}
+              setOpenClient={setOpenClient}
             />
           </SideMenu>
         )}
