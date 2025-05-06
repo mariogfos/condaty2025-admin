@@ -204,8 +204,8 @@ const WidgetContentsResume = ({data}:any) => {
                   )}
                 />
                 <section>
-                  <div>{item?.user?.name}</div>
-                  <div className={styles.textSecond}>{item?.title}</div>
+                  <div>{getFullName(item?.user)}</div>
+                  <div className={styles.textSecond}>Administrador</div>
                 </section>
          </div>
             <div className={styles.textSecond}>
