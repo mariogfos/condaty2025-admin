@@ -229,6 +229,7 @@ const Config = () => {
       //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
+  console.log(formState);
 
   return (
     <div className={styles.Config}>
