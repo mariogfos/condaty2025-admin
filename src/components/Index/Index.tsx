@@ -22,6 +22,7 @@ import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import { IconBriefCaseMoney, IconEgresos, IconIngresos, IconWallet } from "../layout/icons/IconsBiblioteca";
+import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 // Asegúrate que la ruta al modal sea correcta
 
 const paramsInitial = {
@@ -269,6 +270,8 @@ const HomePage = () => {
             egresos={dashboard?.data?.egresosHist}
             periodo="y"
           />
+
+          <WidgetContentsResume data={dashboard?.data?.publicacion}/>
         </section>
 
         <section>

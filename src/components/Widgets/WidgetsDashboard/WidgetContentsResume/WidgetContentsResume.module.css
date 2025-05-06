@@ -1,0 +1,42 @@
+.contentContainer{
+   display: flex; 
+   justify-content: center;
+   flex-direction: column;
+  margin-top: var(--spS);
+  
+}
+.avatarContainer{
+  display: flex;
+  /* align-items: center; */
+  justify-content: space-between;
+   /* background-color: aqua;  */
+  width:100%;
+  & > div {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.descriptionArea {
+  margin-top: var(--spL);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spL);
+  & > div:nth-child(3){
+    display: flex;
+    /* background-color: aqua; */
+    width: 100%;
+    align-items: center;
+    color: var(--cWhiteV1)
+    
+  }
+}
+
+.textSecond {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+}
