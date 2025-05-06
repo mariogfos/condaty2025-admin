@@ -1,88 +1,81 @@
 .defaulterContainer {
-    width: 100%;
-    max-width: 739px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .headerTitle {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--cWhite, #FFFFFF);
-    margin-bottom: 0.25rem;
-  }
-  
-  .headerSubtitle {
-    font-size: 14px;
-    color: var(--cWhiteV1, #A7A7A7);
-    margin-bottom: 1rem;
-  }
-  
-  .formContainer {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-   
-    background-color: #333536;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 0.5px solid #A7A7A7;
-  }
-  
-  .sectionContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-  }
-  
-  .sectionTitle {
-    font-size: 16px;
-    color: var(--cWhite, #FFFFFF);
-    font-weight: normal;
-    margin-bottom: 0.25rem;
-  }
-  
-  .sectionSubtitle {
-    font-size: 14px;
-    color: var(--cWhiteV1, #A7A7A7);
-    margin-bottom: 0.75rem;
-  }
-  
+  width: 100%;
+  max-width: 739px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
+.headerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
 
+.headerSubtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1, #a7a7a7);
+}
 
-  
-  .saveButtonContainer {
-    display: flex;
-    justify-content: flex-end;
-    
-  }
-  
-  .saveButton {
-    height: 3rem;
-    width: 281px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.625rem;
-    background-color: #00E38C;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 16px;
-    text-align: center;
-    color: #212121;
-  }
-  /* Agregar estos estilos al archivo DefaulterConfig.module.css */
+.formContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  background-color: #333536;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 0.5px solid #a7a7a7;
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  color: var(--cWhite, #ffffff);
+  font-weight: normal;
+  margin-bottom: 0.25rem;
+}
+
+.sectionSubtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1, #a7a7a7);
+  margin-bottom: 0.75rem;
+}
+
+.saveButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  height: 3rem;
+  width: 281px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  background-color: #00e38c;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  color: #212121;
+}
+/* Agregar estos estilos al archivo DefaulterConfig.module.css */
 
 .percentInputContainer {
   position: relative;
-  width: 100%;
+  /* width: 100%; */
 }
 
 .percentSymbol {

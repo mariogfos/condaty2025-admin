@@ -237,7 +237,7 @@ const Config = () => {
         <TabsButtons
           tabs={[
             { value: "C", text: "Condominio" },
-            { value: "P", text: "Pagos" },
+            { value: "P", text: "Cuentas de pagos" },
             { value: "M", text: "Morosidad" },
             { value: "T", text: "Tipos de unidades" },
           ]}
