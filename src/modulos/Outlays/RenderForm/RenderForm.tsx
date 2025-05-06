@@ -355,7 +355,7 @@ const RenderForm = ({
         // Quitamos validateOnSubmit ya que lo hacemos manualmente
         // validateOnSubmit={true}
       >
-       
+        <div className={styles.divider}></div>
           <div className={styles["outlays-form-container"]}>
             {/* Campos del formulario... (Fecha, Categoría, Subcategoría, Monto, Método) */}
             {/* ... (código de los inputs/selects igual que antes) ... */}

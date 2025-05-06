@@ -42,8 +42,6 @@ const RenderForm = ({
   reLoad,
   user,
 }) => {
-  console.log('Payments RenderForm - MONTADO/ACTUALIZADO. Item prop:', item); // <--- AÑADE ESTO
-
   const [_formState, _setFormState] = useState(() => {
     // Obtener la fecha actual en formato YYYY-MM-DD
     const today = new Date();
@@ -246,7 +244,10 @@ useEffect(() => {
     }
   }
 
+  // Actualiza el estado preservando los demás campos existentes
   _setFormState(prev => {
+    // Si la subcategoría va a cambiar (de ID o a ''), resetea las deudas/selección
+    // O si la categoría se está limpiando
     if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
       setDeudas([]);
       setSelectedPeriodo([]);
@@ -254,10 +255,11 @@ useEffect(() => {
       lastLoadedDeudas.current = ""; // Permite recargar deudas si se vuelve a seleccionar expensas
     }
 
-
+    // Devuelve el nuevo estado completo
     return {
       ...prev,
       subcategories: newSubcategories,
+      // Solo actualiza subcategory_id si es diferente al valor actual O si se limpia la categoría
       subcategory_id: prev.subcategory_id !== newSubcategoryId || !_formState.category_id
                        ? newSubcategoryId
                        : prev.subcategory_id,
@@ -265,13 +267,13 @@ useEffect(() => {
     };
   });
 
-}, [ 
+}, [ // Dependencias CLAVE: Solo estas deben estar aquí
     _formState.category_id,
     extraData?.categories,
     extraData?.client_config?.cat_expensas
-   
+    // NO incluir _formState.dpto_id aquí
 ]);
-
+// --- FIN DEL NUEVO useEffect para category_id ---
   
 
   // Handler para cambio de campos del formulario
@@ -297,29 +299,96 @@ useEffect(() => {
     }));
   }, []);
 
+// Handler para selección de períodos de deuda
+const handleSelectPeriodo = useCallback((periodo) => {
+  // El subtotal ya contiene la suma del monto + multa
+  const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
 
-  const handleSelectPeriodo = useCallback((periodo) => {
-    // El subtotal ya contiene la suma del monto + multa
-    const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
+  setSelectedPeriodo((prev) => {
+    const exists = prev.some((item) => item.id === periodo.id);
+    
+    let newSelectedPeriodos;
+    if (exists) {
+      // Quitar si ya existe
+      newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
+    } else {
+      // Agregar si no existe
+      newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
+    }
+    
+    // Recalcular el total basado en los períodos seleccionados
+    const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
+    setSelectPeriodoTotal(newTotal);
+    
+    return newSelectedPeriodos;
+  });
+}, []);
 
-    setSelectedPeriodo((prev) => {
-      const exists = prev.some((item) => item.id === periodo.id);
-      
-      let newSelectedPeriodos;
-      if (exists) {
-     
-        newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
-      } else {
-        
-        newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
+  // Handler para manejo de archivos
+  const onChangeFile = useCallback(
+    (e) => {
+      try {
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        const file = e.target.files[0];
+       
+
+        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+        if (!extem.includes(fileExtension)) {
+          alert("Solo se permiten archivos " + extem.join(", "));
+          return;
+        }
+
+        _setFormState((prev) => ({
+          ...prev,
+          ext: fileExtension,
+          file: file.name,
+        }));
+      } catch (error) {
+        console.error("Error al procesar el archivo:", error);
       }
-      
-      // Recalcular el total basado en los períodos seleccionados
-      const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
-      setSelectPeriodoTotal(newTotal);
-      
-      return newSelectedPeriodos;
-    });
+    },
+    [extem]
+  );
+
+  // Manejadores de eventos para arrastrar y soltar
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+        const droppedFile = e.dataTransfer.files[0];
+        const fileExtension =
+          droppedFile.name.split(".").pop()?.toLowerCase() || "";
+
+        if (!extem.includes(fileExtension)) {
+          alert("Solo se permiten archivos " + extem.join(", "));
+          return;
+        }
+
+        _setFormState((prev) => ({
+          ...prev,
+          ext: fileExtension,
+          file: droppedFile.name,
+        }));
+      } catch (error) {
+        console.error("Error al procesar el archivo:", error);
+      }
+    },
+    [extem]
+  );
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
   }, []);
 
   // Validación del formulario
@@ -494,9 +563,9 @@ useEffect(() => {
         buttonCancel={"Cancelar"}
         buttonText={"Registrar ingreso"}
         disabled={isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0)}
-        title={"Nuevo ingreso"}
+        title={"Estás registrando un nuevo ingreso"}
       >
-         
+          <div className={styles.divider}></div>
         <div className={styles["income-form-container"]}>
           {/* Fecha de pago */}
           <div className={styles.section}>
