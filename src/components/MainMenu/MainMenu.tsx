@@ -49,7 +49,7 @@ const MainMenu = ({
   // };
 
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client.type_dpto] });
+    setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
 
   return (
