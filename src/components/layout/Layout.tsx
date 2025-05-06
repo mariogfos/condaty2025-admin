@@ -9,7 +9,11 @@ import Header from "../Header/Header";
 import useScreenSize from "@/mk/hooks/useScreenSize";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { getDateTimeStrMes, getDateTimeStrMesShort, getFormattedDate } from "@/mk/utils/date";
+import {
+  getDateTimeStrMes,
+  getDateTimeStrMesShort,
+  getFormattedDate,
+} from "@/mk/utils/date";
 import SideMenu from "@/mk/components/ui/SideMenu/SideMenu";
 import { useEvent } from "@/mk/hooks/useEvents";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -21,6 +25,7 @@ import {
   IconFlame,
   IconTheft,
 } from "./icons/IconsBiblioteca";
+import ChooseClient from "../ChooseClient/ChooseClient";
 
 // const soundBell = new Audio("/sounds/bellding.mp3");
 const typeAlerts: any = {
@@ -60,13 +65,18 @@ const Layout = ({ children }: any) => {
   const [soundBell] = useState(
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
+  const [openClient, setOpenClient] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      const client = user.clients?.find((c: any) => c.id === user.client_id);
-      setClient(client);
+    // if (user) {
+    //   const client = user.clients?.find((c: any) => c.id === user.client_id);
+    //   setClient(client);
+    // }
+    if (!user?.client_id) {
+      setOpenClient(true);
+      return;
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     // Habilitar el audio después de la primera interacción del usuario
@@ -181,7 +191,6 @@ const Layout = ({ children }: any) => {
           ¿Estás seguro de que deseas cerrar sesión?
         </p>
       </DataModal>
-
       <DataModal
         style={{ border: "1px solid var(--cError)" }}
         title="Nueva emergencia"
@@ -205,8 +214,8 @@ const Layout = ({ children }: any) => {
                 "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
               )}
               name={openAlert?.item?.owner_name}
-              />
-            }
+            />
+          }
         />
         <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
           Tipo de emergencia
@@ -229,6 +238,14 @@ const Layout = ({ children }: any) => {
           <p>{openAlert?.item?.name}</p>
         </div>
       </DataModal>
+      {openClient && (
+        <ChooseClient
+          open={openClient}
+          onClose={() => {
+            setOpenClient(false);
+          }}
+        />
+      )}
     </main>
   );
 };
