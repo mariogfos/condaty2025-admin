@@ -35,7 +35,7 @@
 .tabsButton {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+
   padding-bottom: 12px;
   & > button {
     width: 100%;
@@ -44,19 +44,20 @@
     background: transparent;
     cursor: pointer;
     transition: color 0.3s ease-in-out;
-    padding: 16px 8px;
+    padding: 12px 40px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     color: var(--cWhiteV1);
     background-color: transparent;
+    border: var(--bWidth) solid trasparent;
+    white-space: nowrap;
     &.selected {
-      font-weight: var(--bBold);
+      font-weight: 700;
       color: var(--cWhite);
-      padding-bottom: var(--spS);
+      /* padding-bottom: var(--spS); */
       border: var(--bWidth) solid var(--cAccent);
-      transition: color 0.3s ease-in-out;
-      border-width: 2px 2px 0px 2px;
-      border-style: solid;
+      /* transition: color 0.3s ease-in-out; */
+      border-bottom-width: 0px;
       border-color: var(--cAccent);
       background-color: var(--cHoverBigSidebar);
     }
