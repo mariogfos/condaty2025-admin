@@ -46,6 +46,15 @@
         transform: scale(0.9);
       }
     }
+    .headerDivider {
+         height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+         background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
+         width: 100%; 
+        
+          width: calc(100% - (var(--spM) * 2));
+          margin-left: var(--spM); 
+          margin-right: var(--spM); 
+      }
     & > section {
       overflow-y: auto;
       flex-grow: 1;

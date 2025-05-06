@@ -169,11 +169,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             <div className={styles.paymentDate}>
               {getDateTimeStrMesShort(item.paid_at)}
             </div>
-          </div>
-
-          {/* Separador horizontal */}
-          <div className={styles.divider}></div>
-
+          </div> 
           {/* Contenedor para la información detallada */}
           <div className={styles.detailsContainer}>
             <div className={styles.detailRow}>

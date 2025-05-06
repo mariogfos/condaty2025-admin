@@ -103,7 +103,7 @@ const LoginView = ({
               Iniciar sesión
             </Button>
           <div className={styles.termsContainer}>
-            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
+            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="https://www.condaty.com/politicas">Políticas de Privacidad</a>
           </div>
           </form>
   

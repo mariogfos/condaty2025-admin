@@ -28,6 +28,7 @@ import Toast from "@/mk/components/ui/Toast/Toast";
 import { UnitsType } from '@/mk/utils/utils'
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css"
+import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 
 const RenderForm = ({
   open,
@@ -41,6 +42,8 @@ const RenderForm = ({
   reLoad,
   user,
 }) => {
+  console.log('Payments RenderForm - MONTADO/ACTUALIZADO. Item prop:', item); // <--- AÑADE ESTO
+
   const [_formState, _setFormState] = useState(() => {
     // Obtener la fecha actual en formato YYYY-MM-DD
     const today = new Date();
@@ -56,9 +59,6 @@ const RenderForm = ({
   const [deudas, setDeudas] = useState([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState([]);
   const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
-  const [selectedFiles, setSelectedFiles] = useState({});
-  const [fileUploaded, setFileUploaded] = useState(false);
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: ToastType }>({
@@ -179,8 +179,6 @@ const RenderForm = ({
         _setFormState({});
         setSelectedPeriodo([]);
         setSelectPeriodoTotal(0);
-        setSelectedFiles({});
-        setFileUploaded(false);
       }
     };
   }, [open]);
@@ -248,10 +246,7 @@ useEffect(() => {
     }
   }
 
-  // Actualiza el estado preservando los demás campos existentes
   _setFormState(prev => {
-    // Si la subcategoría va a cambiar (de ID o a ''), resetea las deudas/selección
-    // O si la categoría se está limpiando
     if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
       setDeudas([]);
       setSelectedPeriodo([]);
@@ -259,11 +254,10 @@ useEffect(() => {
       lastLoadedDeudas.current = ""; // Permite recargar deudas si se vuelve a seleccionar expensas
     }
 
-    // Devuelve el nuevo estado completo
+
     return {
       ...prev,
       subcategories: newSubcategories,
-      // Solo actualiza subcategory_id si es diferente al valor actual O si se limpia la categoría
       subcategory_id: prev.subcategory_id !== newSubcategoryId || !_formState.category_id
                        ? newSubcategoryId
                        : prev.subcategory_id,
@@ -271,18 +265,29 @@ useEffect(() => {
     };
   });
 
-}, [ // Dependencias CLAVE: Solo estas deben estar aquí
+}, [ 
     _formState.category_id,
     extraData?.categories,
     extraData?.client_config?.cat_expensas
-    // NO incluir _formState.dpto_id aquí
+   
 ]);
-// --- FIN DEL NUEVO useEffect para category_id ---
+
   
 
   // Handler para cambio de campos del formulario
   const handleChangeInput = useCallback((e) => {
     const { name, value, type } = e.target;
+    
+    // Manejo especial para el campo de archivo
+    if (name === 'file') {
+      _setFormState((prev) => ({
+        ...prev,
+        file: value?.file || "",
+        ext: value?.ext || ""
+      }));
+      return;
+    }
+
     const newValue =
       type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
 
@@ -292,127 +297,29 @@ useEffect(() => {
     }));
   }, []);
 
-// Handler para selección de períodos de deuda
-const handleSelectPeriodo = useCallback((periodo) => {
-  // El subtotal ya contiene la suma del monto + multa
-  const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
 
-  setSelectedPeriodo((prev) => {
-    const exists = prev.some((item) => item.id === periodo.id);
-    
-    let newSelectedPeriodos;
-    if (exists) {
-      // Quitar si ya existe
-      newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
-    } else {
-      // Agregar si no existe
-      newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
-    }
-    
-    // Recalcular el total basado en los períodos seleccionados
-    const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
-    setSelectPeriodoTotal(newTotal);
-    
-    return newSelectedPeriodos;
-  });
-}, []);
+  const handleSelectPeriodo = useCallback((periodo) => {
+    // El subtotal ya contiene la suma del monto + multa
+    const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
 
-  // Handler para manejo de archivos
-  const onChangeFile = useCallback(
-    (e) => {
-      try {
-        if (!e.target.files || e.target.files.length === 0) return;
-
-        const file = e.target.files[0];
-       
-
-        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
-        if (!extem.includes(fileExtension)) {
-          alert("Solo se permiten archivos " + extem.join(", "));
-          return;
-        }
-
-        setSelectedFiles(file);
-        setFileUploaded(true);
-        let partes = file.name.split(".");
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (!e.target || !e.target.result) return;
-
-          const result = e.target.result;
-          let base64String = result.replace("data:", "").replace(/^.+,/, "");
-          base64String = encodeURIComponent(base64String);
-
-          _setFormState((prev) => ({
-            ...prev,
-            ext: partes[partes.length - 1],
-            file: base64String,
-          }));
-        };
-        reader.readAsDataURL(file);
-      } catch (error) {
-        console.error("Error al procesar el archivo:", error);
+    setSelectedPeriodo((prev) => {
+      const exists = prev.some((item) => item.id === periodo.id);
+      
+      let newSelectedPeriodos;
+      if (exists) {
+     
+        newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
+      } else {
+        
+        newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
       }
-    },
-    [extem]
-  );
-
-  // Manejadores de eventos para arrastrar y soltar
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingFile(true);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDraggingFile(false);
-
-      try {
-        if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
-
-        const droppedFile = e.dataTransfer.files[0];
-        const fileExtension =
-          droppedFile.name.split(".").pop()?.toLowerCase() || "";
-
-        if (!extem.includes(fileExtension)) {
-          alert("Solo se permiten archivos " + extem.join(", "));
-          return;
-        }
-
-        setSelectedFiles(droppedFile);
-        setFileUploaded(true);
-        let partes = droppedFile.name.split(".");
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (!e.target || !e.target.result) return;
-
-          const result = e.target.result;
-          let base64String = result.replace("data:", "").replace(/^.+,/, "");
-          base64String = encodeURIComponent(base64String);
-
-          _setFormState((prev) => ({
-            ...prev,
-            ext: partes[partes.length - 1],
-            file: base64String,
-          }));
-        };
-        reader.readAsDataURL(droppedFile);
-      } catch (error) {
-        console.error("Error al procesar el archivo:", error);
-      }
-    },
-    [extem]
-  );
-
-  const handleDragLeave = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingFile(false);
+      
+      // Recalcular el total basado en los períodos seleccionados
+      const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
+      setSelectPeriodoTotal(newTotal);
+      
+      return newSelectedPeriodos;
+    });
   }, []);
 
   // Validación del formulario
@@ -574,9 +481,6 @@ const handleSelectPeriodo = useCallback((periodo) => {
 
   // Handler para cerrar el modal
   const onCloseModal = useCallback(() => {
-    setFileUploaded(false);
-    setIsDraggingFile(false);
-    setSelectedFiles({});
     onClose();
   }, [onClose]);
 
@@ -590,9 +494,9 @@ const handleSelectPeriodo = useCallback((periodo) => {
         buttonCancel={"Cancelar"}
         buttonText={"Registrar ingreso"}
         disabled={isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0)}
-        title={"Estás registrando un nuevo ingreso"}
+        title={"Nuevo ingreso"}
       >
-          <div className={styles.divider}></div>
+         
         <div className={styles["income-form-container"]}>
           {/* Fecha de pago */}
           <div className={styles.section}>
@@ -718,79 +622,16 @@ const handleSelectPeriodo = useCallback((periodo) => {
                 {/* Sección de subir comprobante */}
                 <div className={styles["upload-section"]}>
                   <p className={styles["section-title"]}>Subir comprobante</p>
-                  <div
-                    className={`${styles["file-upload-area"]} ${
-                      isDraggingFile ? styles.dragging : ""
-                    } ${errors.file ? styles.error : ""}`}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    onDragEnter={() => setIsDraggingFile(true)}
-                    onDragLeave={handleDragLeave}
-                  >
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className={styles["hidden-input"]}
-                      onChange={onChangeFile}
-                      required
-                    />
-                    {!_formState.file || _formState.file === "" ? (
-                      <div className={styles["upload-instructions"]}>
-                        <div className={styles["upload-text"]}>
-                          <label htmlFor="file-upload" className={styles["upload-link"]}>
-                            <span>Cargar un archivo</span>
-                          </label>
-                          <p className={styles["upload-alternative"]}>o arrastrar y soltar</p>
-                        </div>
-                        <p className={styles["file-types"]}>{extem.join(", ")}</p>
-                        {errors.file && (
-                          <p className={styles["error-message"]}>{errors.file}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div className={styles["file-preview"]}>
-                        <div className={styles["file-preview-content"]}>
-                          {selectedFiles &&
-                          "type" in selectedFiles &&
-                          selectedFiles.type ? (
-                            selectedFiles.type.startsWith("image/") ? (
-                              <img
-                                src={URL.createObjectURL(selectedFiles)}
-                                alt="Preview"
-                                className={styles["file-thumbnail"]}
-                              />
-                            ) : selectedFiles.type === "application/pdf" ? (
-                              <IconPDF size={70} />
-                            ) : (
-                              <IconDocs size={70} />
-                            )
-                          ) : null}
-                          <div className={styles["file-info"]}>
-                            <p className={styles["file-name"]}>
-                              Archivo seleccionado:{" "}
-                              <span>
-                                {"name" in selectedFiles ? selectedFiles.name : ""}
-                              </span>
-                            </p>
-                            <button
-                              onClick={() => {
-                                const fileUpload =
-                                  document.getElementById("file-upload");
-                                if (fileUpload) {
-                                  fileUpload.click();
-                                }
-                              }}
-                              type="button"
-                              className={styles["edit-file-button"]}
-                            >
-                              <span>Editar elemento</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <UploadFile
+                    name="file"
+                    ext={extem}
+                    value={_formState.file ? { file: _formState.file, ext: _formState.ext } : ""}
+                    onChange={handleChangeInput}
+                    error={errors}
+                    setError={setErrors}
+                    required={true}
+                    placeholder="Cargar un archivo o arrastrar y soltar"
+                  />
                 </div>
   
                 {/* Sección de código de comprobante */}

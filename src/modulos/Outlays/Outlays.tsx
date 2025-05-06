@@ -53,6 +53,7 @@ const Outlays = () => {
     ),
     hideActions: {
       edit: true,
+      del:true
     },
     loadView: { fullType: "DET" },
     saveMsg: {
