@@ -38,6 +38,10 @@
   flex-direction: column;
   gap: var(--spS);
 }
+.widgetsResumeContainer{
+  display: flex;
+  gap: 8px
+}
 .widgetAlerts {
   background-color: var(--cBlackV2);
   padding: var(--spL);

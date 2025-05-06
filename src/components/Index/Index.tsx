@@ -56,7 +56,7 @@ const HomePage = () => {
   });
 
   const today = getNow();
-  const formattedDate = `Al ${getDateStrMes(today)}`;
+  const formattedDate = `Resumen ala fecha actual, ${getDateStrMes(today)}`;
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
@@ -194,6 +194,8 @@ const HomePage = () => {
     <>
       <div className={styles.container}>
         <section>
+          <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate}>
+            <div className={styles.widgetsResumeContainer}>
           <WidgetDashCard
             title="Ingresos"
             // subtitle={formattedDate}
@@ -231,6 +233,13 @@ const HomePage = () => {
             icon={<IconWallet color={'var(--cAlert)'}  style={{backgroundColor:'var(--cHoverAlert)'}} circle size={38}/>}
             
           />
+          </div>
+          </WidgetBase>
+
+          <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate}>
+a
+          </WidgetBase>
+
         </section>
 
         <section>

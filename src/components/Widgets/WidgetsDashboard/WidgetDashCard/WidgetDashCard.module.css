@@ -5,6 +5,7 @@
     border-radius: var(--bRadiusS); 
     margin-bottom: var(--spS); 
     position: relative;
+    border: solid 1px var(--cWhiteV2);
     & > div:nth-child(1){
         display: flex;
         justify-content: space-between;
@@ -72,9 +73,10 @@
   
   /* Estilos para el dato principal */
   .data {
-    font-size: var(--sXl); 
+    font-size: var(--sXl) !important; 
     font-weight: 600;
     color: var(--cWhite); 
+    margin-top: var(--spS);
   }
   
 

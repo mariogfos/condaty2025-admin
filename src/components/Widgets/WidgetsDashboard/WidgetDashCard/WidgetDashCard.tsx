@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./WidgetDashCard.module.css";
 import { IconAccess, IconInterrogation } from "@/components/layout/icons/IconsBiblioteca";
+import Tooltip from "@/components/Tooltip/Tooltip";
 
 interface ItemProps {
   title: string;
@@ -10,6 +11,8 @@ interface ItemProps {
   onClick?: () => void;
   color?: string;
   icon?:any;
+  tooltip?:boolean;
+  tooltipTitle?: string; 
 }
 
 export const WidgetDashCard = ({
@@ -19,6 +22,8 @@ export const WidgetDashCard = ({
   color,
   data,
   icon,
+  tooltip,
+  tooltipTitle='',
   onClick,
 }: ItemProps) => {
   return (
@@ -27,7 +32,7 @@ export const WidgetDashCard = ({
       onClick={onClick}
     >
       <div >
-        <p>{title} <IconInterrogation  /> </p>
+        <p>{title} {tooltip && <Tooltip title={tooltipTitle} position="right"><IconInterrogation  /> </Tooltip>}</p>
        
            {icon}
       </div>
