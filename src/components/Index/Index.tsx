@@ -271,7 +271,7 @@ const HomePage = () => {
             periodo="y"
           />
 
-          <WidgetContentsResume data={dashboard?.data?.publicacion}/>
+          <WidgetContentsResume data={dashboard?.data?.publications}/>
         </section>
 
         <section>

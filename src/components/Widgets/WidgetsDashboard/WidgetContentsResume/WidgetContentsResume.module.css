@@ -2,8 +2,8 @@
    display: flex; 
    justify-content: center;
    flex-direction: column;
-  margin-top: var(--spS);
-  
+   margin-top: var(--spS);
+   padding: 0 var(--spM);
 }
 .avatarContainer{
   display: flex;
@@ -26,14 +26,22 @@
   align-items: center;
   justify-content: center;
   gap: var(--spL);
+  width: 100%;
   & > div:nth-child(3){
     display: flex;
-    /* background-color: aqua; */
     width: 100%;
     align-items: center;
-    color: var(--cWhiteV1)
-    
+    color: var(--cWhiteV1);
+    justify-content: flex-start;
+    /* background-color: antiquewhite; */
+
   }
+  /* & img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  } */
 }
 
 .textSecond {
