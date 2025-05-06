@@ -141,13 +141,15 @@ const MainMenu = ({
             icon={<IconCalendar />}
             collapsed={collapsed}
           />
-          <MainmenuItem
-            href="#"
-            onclick={() => setOpenClient(true)}
-            label="Cambiar de condominio"
-            icon={<IconDepartments />}
-            collapsed={collapsed}
-          />
+          {user?.clients?.length > 1 && (
+            <MainmenuItem
+              href="#"
+              onclick={() => setOpenClient(true)}
+              label="Cambiar de condominio"
+              icon={<IconDepartments />}
+              collapsed={collapsed}
+            />
+          )}
 
           <MainmenuItem
             href="/ev"
