@@ -14,6 +14,7 @@ import {
   IconGuard,
   IconBitacora,
   IconCalendar,
+  IconDepartments,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -29,6 +30,7 @@ type PropsType = {
   setLogout: any;
   collapsed: boolean;
   setSideBarOpen?: any;
+  setOpenClient?: any;
 };
 // const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
 const MainMenu = ({
@@ -36,6 +38,7 @@ const MainMenu = ({
   collapsed,
   setLogout,
   setSideBarOpen,
+  setOpenClient,
 }: PropsType) => {
   const { isMobile } = useScreenSize();
   const { setStore } = useAuth();
@@ -136,6 +139,13 @@ const MainMenu = ({
             href="/reservas"
             label="Reservas"
             icon={<IconCalendar />}
+            collapsed={collapsed}
+          />
+          <MainmenuItem
+            href="#"
+            onclick={() => setOpenClient(true)}
+            label="Cambiar de condominio"
+            icon={<IconDepartments />}
             collapsed={collapsed}
           />
 
