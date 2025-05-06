@@ -12,6 +12,7 @@ interface PropsType {
   variant?: "V1" | "V2" | "V3" | "";
   active?: boolean;
   icon?: any;
+  onClick?: any;
 }
 const ItemList = ({
   title,
@@ -23,6 +24,7 @@ const ItemList = ({
   style = {},
   variant = "",
   active = false,
+  onClick,
   icon,
 }: PropsType) => {
   return (
@@ -36,6 +38,7 @@ const ItemList = ({
       }
       style={style}
       // key={key}
+      onClick={onClick ? onClick : () => {}}
     >
       <div>
         {icon && <span className={styles.icon}>{icon}</span>}

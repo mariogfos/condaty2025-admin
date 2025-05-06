@@ -26,109 +26,98 @@ const LoginView = ({
   config,
 }: PropsLogin) => {
   const [openModal, setOpenModal] = useState(false);
-
   return (
     <div className={styles.container}>
-      <div className={styles.wrapper}>
-        <div className={styles.imageContainer}>
-          <Image
-            src="/assets/images/Resident2.png"
-            alt="adminDesktop"
-            width={1024}
-            height={768}
-            className={styles.desktopImage}
-            priority
-          />
-          <Image
-            src="/assets/images/adminTablet.png"
-            alt="admTablet"
-            width={768}
-            height={476}
-            className={styles.tabletImage}
-            priority
-          />
-          <Image
-            src="/assets/images/adminLogin.png"
-            alt="admMobile"
-            width={375}
-            height={476}
-            className={styles.mobileImage}
-            priority
-          />
-        </div>      
-        <div className={styles.formContainer}>
-          <div className={styles.formWrapper}>
-            <div className={styles.logo}>
-              <Image
-              src="/assets/images/Condaty-completo-1.svg"
-              alt="adminDesktop"
-              width={164}
-              height={49}
-              className={styles.desktopLogoImage}
-              priority/>
-              
+      {/* Imagen de fondo */}
+      <div className={styles.imageBackground}>
+        <Image
+          src="/assets/images/loginAdmin.webp" // Asegúrate que esta es la ruta correcta
+          alt="Fondo de Login"
+          fill
+          style={{ objectFit: "cover" }}
+          priority
+        />
+      </div>
+  
+      {/* Logo en la esquina superior izquierda */}
+      <div className={styles.topLeftLogoContainer}>
+        <Image
+          src="/assets/images/Condaty-completo-1.svg" // Logo que estaba en el form
+          alt="Logo Condaty"
+          width={164} // O el tamaño que prefieras para la esquina
+          height={49}
+          priority
+        />
+      </div>
+  
+      {/* Formulario Centrado */}
+      <div className={styles.formCenter}>
+        <div className={styles.formWrapper}>
+          {/* Quitamos el logo de aquí */}
+          {/* <div className={styles.logo}>...</div> */}
+  
+          <div className={styles.titleSection}>
+            <div className={styles.title}>
+              ¡Bienvenido Administrador!
             </div>
-            
-            <div className={styles.titleSection}>
-              <div className={styles.mobileTitle}>
-                Administrador
-              </div>
-              <div className={styles.desktopTitle}>
-                Bienvenido administrador
-              </div>
-              
-            </div>
-            
-            <form className={styles.form} onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}>
-              <div className={styles.inputContainer}>
-                <Input
-                  required
-                  label={config?.app?.loginLabel || "Carnet de identidad"}
-                  type="number"
-                  name="email"
-                  error={errors}
-                  value={formState.email}
-                  onChange={handleChange}
-                  maxLength={11}
-                />
-              </div>
-              
-              <div className={styles.inputContainer}>
-                <InputPassword
-                  label="Contraseña"
-                  required
-                  name="password"
-                  error={errors}
-                  value={formState.password}
-                  onChange={handleChange}
-                  maxLength={10}
-                />
-              </div>
-              <div
-              className={styles.forgotPassword}
-              onClick={() => setOpenModal(true)}
-            >
-              Olvidé mi contraseña
-            </div>
-              <Button
-                className={styles.button}
-                
-              >
-                Iniciar sesión
-              </Button>
-              {/* Añade esto después del "Olvidé mi contraseña" */}
-            <div className={styles.termsContainer}>
-              Al iniciar sesión aceptas los <a href="#">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
-            </div>
-            </form>
-            
-            
           </div>
+  
+          <form className={styles.form} onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}>
+            <div className={styles.inputContainer}>
+              <Input
+                required
+                label={config?.app?.loginLabel || "Carnet de identidad"}
+                type="number"
+                name="email"
+                error={errors}
+                value={formState.email}
+                onChange={handleChange}
+                maxLength={11}
+              />
+            </div>
+  
+            <div className={styles.inputContainer}>
+              <InputPassword
+                label="Contraseña"
+                required
+                name="password"
+                error={errors}
+                value={formState.password}
+                onChange={handleChange}
+                maxLength={10}
+              />
+            </div>
+            <div
+            className={styles.forgotPassword}
+            onClick={() => setOpenModal(true)}
+          >
+            Olvidé mi contraseña
+          </div>
+            <Button
+              className={styles.button}
+  
+            >
+              Iniciar sesión
+            </Button>
+          <div className={styles.termsContainer}>
+            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
+          </div>
+          </form>
+  
         </div>
       </div>
+  
+      {/* Texto Inferior */}
+      <div className={styles.footerTextContainer}>
+        <span className={styles.footerText}>
+          <b>Simplifica </b>procesos, <b>multiplica </b>resultados
+        </span>
+      </div>
+  
+      {/* Modal (sin cambios) */}
       <ForgotPass open={openModal} setOpen={setOpenModal} mod="adm" />
     </div>
   );

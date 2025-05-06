@@ -64,19 +64,26 @@
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
-  --cHoverSuccess: #00af9033;
-  --cHoverInfo: #39acec33;
-  --cHoverError: #da5d5d33;
-  --cHoverWarning: #e1c15133;
   --cHoverBigSidebar: #1f2d27;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
   --cLowAlertHover: #fdd67133;
-  /* Paleta de los toast */
+
+  /* Paleta acciones o estados */
   --cError: #e46055;
   --cSuccess: #34a853;
   --cInfo: #4285fa;
   --cWarning: #e9b01e;
+  --cHoverSuccess: #00af9033;
+  --cHoverInfo: #596376;
+  --cHoverError: #da5d5d33;
+  --cHoverWarning: #e1c15133;
+
+  /* Paleta de toast*/
+  --cToastError: #6e4b48;
+  --cToastSuccess: #246950;
+  --cToastInfo: #596376;
+  --cToastWarning: #6e6648;
 
   --cAlert:#F37F3D;
   --cHoverAlert:#F37F3D33;
