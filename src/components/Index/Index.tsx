@@ -245,17 +245,17 @@ const HomePage = () => {
           <div className={styles.widgetsResumeContainer}>  
           <WidgetDashCard
             title="Administradores"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.adminsCount,0)}
             
           />
                <WidgetDashCard
             title="Residentes"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.ownersCount,0)}
             
           />
                <WidgetDashCard
             title="Guardias"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.guardsCount,0)}
             
           />
           </div>
@@ -270,8 +270,9 @@ const HomePage = () => {
             egresos={dashboard?.data?.egresosHist}
             periodo="y"
           />
-
-          <WidgetContentsResume data={dashboard?.data?.posts}/>
+           <div className={styles.widgetContents}>
+           <WidgetContentsResume data={dashboard?.data?.posts}/>
+           </div>
         </section>
 
         <section>

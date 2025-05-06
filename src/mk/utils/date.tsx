@@ -467,18 +467,17 @@ export const getDateTimeAgo = (
 
   if (diffMinutes < 1) {
     return 'Hace un momento';
-  } else if (diffDays > 0) {
-    console.log(true, diffHours < 48)
-    return `Hace ${diffDays} ${diffDays === 1? 'día' : 'días'}`;
-  
+  } else if (diffHours < 1) {
+    return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
+  } 
+    else if (diffMinutes < 5) {
+    return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
   } else if (diffHours < 24) {
     console.log(true, diffHours < 24)
     return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
-  } else if (diffHours < 1) {
-  return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
-} 
-  else if (diffMinutes < 5) {
-    return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
+  }else if (diffDays > 0) {
+    console.log(true, diffHours < 48)
+    return `Hace ${diffDays} ${diffDays === 1? 'día' : 'días'}`;
   }else {
     return getDateTimeStrMes(dateStr);
   }
