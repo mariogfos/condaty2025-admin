@@ -48,6 +48,12 @@
     flex-wrap: wrap;
   }
 }
+.widgetResumeCard{
+   width: 200px;
+   @media (max-width: 768px) {
+    width: 100%;
+   }
+}
 .widgetAlerts {
   background-color: var(--cBlackV2);
   padding: var(--spL);

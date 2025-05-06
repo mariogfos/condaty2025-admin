@@ -202,12 +202,15 @@ const HomePage = () => {
             data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
             onClick={() => (window.location.href = "/payments")}
             icon={<IconIngresos color={'var(--cAccent)'}  style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
           />
           <WidgetDashCard
             title="Egresos"
             data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
             onClick={() => (window.location.href = "/outlays")}
             icon={<IconEgresos color={'var(--cError)'}  style={{backgroundColor:'var(--cHoverError)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
 
           />
           <WidgetDashCard
@@ -221,6 +224,8 @@ const HomePage = () => {
               )
             }
             icon={<IconBriefCaseMoney color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
 
           />
           <WidgetDashCard
@@ -228,6 +233,8 @@ const HomePage = () => {
             data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
             onClick={() => (window.location.href = "/defaultersview")}
             icon={<IconWallet color={'var(--cAlert)'}  style={{backgroundColor:'var(--cHoverAlert)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
             
           />
           </div>

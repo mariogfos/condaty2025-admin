@@ -7,11 +7,11 @@
     margin-bottom: var(--spS); 
     position: relative;
     border: solid 1px var(--cWhiteV2);
-    min-width: 210px;
+    /* min-width: 210px; */
     & > div:nth-child(1){
         display: flex;
         justify-content: space-between;
-        min-width: 190px;
+        /* min-width: 190px; */
     & > p {
         color: var(--cWhiteV1); 
         font-size: var(--sM);
