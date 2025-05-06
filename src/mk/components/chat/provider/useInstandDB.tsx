@@ -129,7 +129,7 @@ const useInstandDB = (): useInstantDbType => {
             type: user.type,
             created_at: user.created_at,
             condominio_id: user.client_id,
-            condominio: user.clients.find((c: any) => c.id == user.client_id)
+            condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
               ?.name,
             rol: user.role.name,
             permisos: user.role.abilities,
