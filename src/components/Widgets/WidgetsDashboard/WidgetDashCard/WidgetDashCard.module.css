@@ -1,14 +1,17 @@
 
 .container {
+    min-width: 180px;
     background-color: var(--cBlackV2); 
     padding: var(--spL); 
     border-radius: var(--bRadiusS); 
     margin-bottom: var(--spS); 
     position: relative;
     border: solid 1px var(--cWhiteV2);
+    min-width: 210px;
     & > div:nth-child(1){
         display: flex;
         justify-content: space-between;
+        min-width: 190px;
     & > p {
         color: var(--cWhiteV1); 
         font-size: var(--sM);
@@ -17,11 +20,11 @@
         text-align: center;
         display:flex;
       };
-    @media (min-width: 768px) {
+    /* @media (min-width: 768px) {
        
               display: block;
             
-          };
+          }; */
     @media (min-width: 1440px) {
         /* background-color: blue; */
               display: flex;

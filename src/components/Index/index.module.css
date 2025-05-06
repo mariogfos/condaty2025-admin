@@ -9,8 +9,9 @@
     width: 100%;
     gap: var(--spS);
     margin-bottom: var(--spS);
-    @media (min-width: 1024px) {
+    @media (min-width: 1195px) {
       display: flex;
+      /* flex-wrap: wrap; */
     }
     & > div {
       width: 100%;
@@ -40,7 +41,12 @@
 }
 .widgetsResumeContainer{
   display: flex;
-  gap: 8px
+  gap: 8px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
 }
 .widgetAlerts {
   background-color: var(--cBlackV2);

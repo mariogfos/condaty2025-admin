@@ -205,7 +205,6 @@ const HomePage = () => {
           />
           <WidgetDashCard
             title="Egresos"
-            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
             onClick={() => (window.location.href = "/outlays")}
             icon={<IconEgresos color={'var(--cError)'}  style={{backgroundColor:'var(--cHoverError)'}} circle size={38}/>}
@@ -214,7 +213,6 @@ const HomePage = () => {
           <WidgetDashCard
             title={balanceMessage}
             color={balance < 0 ? "var(--cError)" : ""}
-            // subtitle={formattedDate}
             data={
               "Bs. " +
               formatNumber(
@@ -227,7 +225,6 @@ const HomePage = () => {
           />
           <WidgetDashCard
             title="Cartera vencida"
-            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
             onClick={() => (window.location.href = "/defaultersview")}
             icon={<IconWallet color={'var(--cAlert)'}  style={{backgroundColor:'var(--cHoverAlert)'}} circle size={38}/>}
@@ -236,8 +233,24 @@ const HomePage = () => {
           </div>
           </WidgetBase>
 
-          <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate}>
-a
+          <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'}>
+          <div className={styles.widgetsResumeContainer}>  
+          <WidgetDashCard
+            title="Administradores"
+            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            
+          />
+               <WidgetDashCard
+            title="Residentes"
+            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            
+          />
+               <WidgetDashCard
+            title="Guardias"
+            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            
+          />
+          </div>
           </WidgetBase>
 
         </section>
