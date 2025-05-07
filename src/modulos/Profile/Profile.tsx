@@ -336,8 +336,8 @@ const Profile = () => {
         onSave={onSave}
         buttonText="Guardar cambios"
         buttonCancel="Cancelar"
-        variant="V2"
-        fullScreen
+        // variant="V2"
+        // fullScreen
       >
         <div className={styles.profileModal}>
           <Avatar
