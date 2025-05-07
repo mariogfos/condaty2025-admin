@@ -49,7 +49,7 @@
 }
 .uploadPlaceholder > span:last-of-type {
     font-size: 10px;
-    color: var(--cWhiteV3);
+    color: var(--cPrimary);
 }
 
 .filePreviewRow {

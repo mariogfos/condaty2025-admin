@@ -335,31 +335,7 @@ const RenderForm = ({
     });
   }, []);
 
-  // Handler para manejo de archivos
-  const onChangeFile = useCallback(
-    (e) => {
-      try {
-        if (!e.target.files || e.target.files.length === 0) return;
 
-        const file = e.target.files[0];
-
-        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
-        if (!exten.includes(fileExtension)) {
-          alert("Solo se permiten archivos " + exten.join(", "));
-          return;
-        }
-
-        _setFormState((prev) => ({
-          ...prev,
-          ext: fileExtension,
-          file: file.name,
-        }));
-      } catch (error) {
-        console.error("Error al procesar el archivo:", error);
-      }
-    },
-    [exten]
-  );
 
   // Manejadores de eventos para arrastrar y soltar
   const handleDragOver = useCallback((e) => {
@@ -512,10 +488,7 @@ const RenderForm = ({
     let params: any = { // Usa 'any' o una interfaz más específica
       paid_at: _formState.paid_at,
       type: _formState.type,
-      file: {
-        file: _formState.file,
-        ext: _formState.ext,
-      },
+      file: _formState.file,
       voucher: _formState.voucher,
       obs: _formState.obs,
       category_id: _formState.subcategory_id, // Envía la subcategoría
@@ -629,10 +602,11 @@ const RenderForm = ({
             <div className={styles["input-container"]}>
               <Select
                 name="dpto_id"
+                label="Unidad"
                 required={true}
                 value={_formState.dpto_id}
                 onChange={handleChangeInput}
-                placeholder="Seleccionar la unidad"
+                
                 options={lDptos}
                 error={_errors}
                 filter={true}
@@ -646,8 +620,9 @@ const RenderForm = ({
               <div className={styles["input-half"]}>
                 <Select
                   name="category_id"
+                  label="Categoría"
                   value={_formState.category_id}
-                  placeholder="Categoría*"
+                 
                   onChange={handleChangeInput}
                   options={extraData?.categories || []}
                   error={_errors}
@@ -659,8 +634,9 @@ const RenderForm = ({
               <div className={styles["input-half"]}>
                 <Select
                   name="subcategory_id"
+                  label="Subcategoría"
                   value={_formState.subcategory_id}
-                  placeholder="Subcategoría"
+                  
                   onChange={handleChangeInput}
                   options={_formState.subcategories || []}
                   error={_errors}
@@ -687,7 +663,8 @@ const RenderForm = ({
                     <Input
                       type="text" // Cambiar a text para permitir nuestra validación personalizada
                       name="amount"
-                      placeholder="Monto del ingreso"
+                      label="Monto del ingreso"
+                      
                       onChange={(e) => {
                         // Solo permitir números y limitar a 10 dígitos
                         const value = e.target.value.replace(/[^0-9]/g, "");
@@ -720,8 +697,9 @@ const RenderForm = ({
                   <div className={styles["input-half"]}>
                     <Select
                       name="type"
+                      label="Tipo de pago"
                       value={_formState.type}
-                      placeholder="Tipo de pago*"
+                      
                       onChange={handleChangeInput}
                       options={[
                         { id: "Q", name: "Pago QR" },
@@ -747,7 +725,7 @@ const RenderForm = ({
                   ext={exten}
                   value={
                     _formState.file
-                      ? { file: _formState.file, ext: _formState.ext }
+                      ? { file: _formState.file }
                       : ""
                   }
                   onChange={handleChangeInput}
@@ -962,7 +940,7 @@ const RenderForm = ({
                 <div className={styles["obs-input"]}>
                   <TextArea
                     label="Descripción"
-                    placeholder="Escribe una descripción(Opcional)"
+                    
                     name="obs"
                     onChange={(e) => {
                       // Limitar a 500 caracteres

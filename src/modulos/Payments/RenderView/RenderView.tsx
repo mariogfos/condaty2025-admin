@@ -19,12 +19,12 @@ interface DetailPaymentProps {
   extraData?: any;
   reLoad?: () => void;
   payment_id: string | number;
-
+  onDel?: () => void;
 }
 
 // eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
-  const { open, onClose, extraData, reLoad, payment_id } = props;
+  const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
   const [formState, setFormState] = useState<{confirm_obs?: string}>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{confirm_obs?: string}>({});
@@ -134,6 +134,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     if (!item?.details || !item.details.length) return item?.amount || 0;
     return item.details.reduce((sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0), 0);
   };
+  const handleAnularClick = () => {
+    if (item && onDel) { // Verifica que item y onDel existan
+      onDel(item);
+    }
+  };
 
   if (!item) {
     return (
@@ -163,6 +168,18 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
+        {item && onDel && item.status === 'P' && (
+        <div className={styles.headerActionContainer}>
+          {/* REEMPLAZO DEL BOTÓN */}
+          <button
+            type="button" // Es buena práctica especificar el type para botones fuera de forms
+            onClick={handleAnularClick}
+            className={styles.textButtonDanger} // Nueva clase para el text button rojo
+          >
+            Anular egreso
+          </button>
+        </div>
+      )}
         <div className={styles.container}>
           <div className={styles.headerSection}>
             <div className={styles.amountDisplay}>Bs {item.amount}</div>
