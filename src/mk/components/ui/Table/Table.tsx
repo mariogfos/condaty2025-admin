@@ -32,12 +32,12 @@ type PropsType = {
     sumarize?: number | boolean;
     sumDec?: number;
     sortabled?: boolean;
-    onHide?: () => boolean; // Añadir esta línea
+    onHide?: () => boolean;
   }[];
   data: any;
   footer?: any;
   sumarize?: boolean;
-  onRenderBody?: null | ((row: any, i: number) => any);
+  onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
   onRowClick?: (e: any) => void;
@@ -321,7 +321,7 @@ const Body = memo(function Body({
   onButtonActions: any;
   height?: any;
   setScrollbarWidth?: Function;
-  onRenderBody?: null | ((row: any, i: number) => any);
+  onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
 }) {
@@ -342,7 +342,6 @@ const Body = memo(function Body({
               flexDirection: onRenderCard ? "row" : "column",
               gridTemplateColumns: onRenderCard ? "1fr 1fr 1fr 1fr 1fr" : "",
               gap: onRenderCard ? "16px" : "0px",
-              // border: onRenderCard ? "none" : "",
             }
       }
     >
@@ -351,8 +350,8 @@ const Body = memo(function Body({
           {isMobile && onTabletRow ? (
             onTabletRow(row, index, onRowClick)
           ) : onRenderBody ? (
-            <div key={"row" + index} onClick={(e) => onRowClick(row)}>
-              {renderBody?.(row, index + 1)}
+            <div key={"row" + index}>
+              {onRenderBody(row, index + 1, onRowClick)}
             </div>
           ) : onRenderCard ? (
             onRenderCard(row, index, onRowClick)
