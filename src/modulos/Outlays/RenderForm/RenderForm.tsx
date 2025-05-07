@@ -276,8 +276,7 @@ const RenderForm = ({
       >
        
           <div className={styles["outlays-form-container"]}>
-            {/* Campos del formulario... (Fecha, Categoría, Subcategoría, Monto, Método) */}
-            {/* ... (código de los inputs/selects igual que antes) ... */}
+       
 
              {/* Fecha de pago */}
             <div className={styles.section}>
@@ -303,7 +302,7 @@ const RenderForm = ({
                     <Select
                       name="category_id"
                       value={_formState.category_id || ""}
-                      placeholder="Seleccionar una categoría"
+                      
                       label="Categoría"
                       onChange={handleChangeInput}
                       options={extraData?.categories || []}
@@ -345,7 +344,7 @@ const RenderForm = ({
                       type="text"
                       name="amount"
                       label="Monto del pago"
-                      placeholder="Ej: 10000"
+                      
                       value={_formState.amount || ""}
                       onChange={handleChangeInput}
                       error={_errors}
@@ -361,8 +360,9 @@ const RenderForm = ({
                   <div className={styles["input-container"]}>
                     <Select
                       name="payment_method"
+                      
                       value={_formState.payment_method || ""}
-                      placeholder="Seleccionar método de pago"
+                      
                       label="Método de pago"
                       onChange={handleChangeInput}
                       options={paymentMethods}
