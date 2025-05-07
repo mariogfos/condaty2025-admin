@@ -151,9 +151,11 @@
   display: flex;
   gap: var(--spM);
   width: 100%;
+  margin-bottom: var(--spM);
 }
 
 .input-half {
+  gap: var(--spM);
   flex: 1;
 }
 
