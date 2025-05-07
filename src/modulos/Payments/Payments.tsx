@@ -87,6 +87,7 @@ const Payments = () => {
     { id: "E", name: "Por subir comprobante" },
     { id: "A", name: "Por pagar" },
     { id: "M", name: "Moroso" },
+    { id: "X", name: "Anulado" },
   ];
   const removeCommas = (text: string | number): string => {
     return String(text).replace(/[,]/g, "");
@@ -240,6 +241,7 @@ const Payments = () => {
               E: "Por subir comprobante",
               A: "Por pagar",
               M: "Moroso",
+              X: "Anulado",
             };
             return (
               <div
