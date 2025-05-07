@@ -49,6 +49,7 @@ const Outlays = () => {
         {...props}
         outlay_id={props?.item?.id} // Pasa el ID del egreso
         extraData={extraData} // Pasa extraData para las categorías
+        
       />
     ),
     hideActions: {
@@ -99,7 +100,7 @@ const Outlays = () => {
   const getStatusOptions = () => [
     { id: "", name: "Todos" },
     { id: "A", name: "Pagado" },
-    { id: "C", name: "Anulado" },
+    { id: "X", name: "Anulado" },
   ];
 
   const fields = useMemo(() => {

@@ -37,8 +37,7 @@ const RenderForm = ({
   onSave,
   extraData,
   execute,
-  errors,
-  setErrors,
+
   reLoad,
   user,
 }) => {
@@ -227,11 +226,8 @@ const RenderForm = ({
     extraData?.client_config?.cat_expensas,
     getDeudas, // Es estable por useCallback
   ]);
-  // --- FIN DEL NUEVO useEffect para dpto_id / subcategory_id ---
-  // Cargar subcategorías cuando cambia la categoría
-  // --- NUEVO useEffect para category_id ---
+
   useEffect(() => {
-    console.log("Effect category_id:", _formState.category_id); // Debug
     let newSubcategories = [];
     let newSubcategoryId = ""; // Por defecto, resetea la subcategoría seleccionada
     let lockSubcategory = false;
@@ -405,16 +401,17 @@ const RenderForm = ({
     e.stopPropagation();
   }, []);
 
-  // Validación del formulario
+
+  // Validación del formulario (usa set_Errors interno)
   const validar = useCallback(() => {
-    let err = {};
+    let err = {}; // Usa un objeto local para acumular errores
 
     // Si es expensas sin deudas, bloqueamos completamente el guardado
     if (isExpensasWithoutDebt) {
       err.general =
         "No se puede registrar un pago de expensas cuando no hay deudas pendientes";
-      setErrors(err);
-      return false;
+      set_Errors(err); // Actualiza el estado INTERNO de errores
+      return false; // Indica que la validación falló
     }
 
     // Si es expensas con deudas pero ninguna seleccionada, también bloqueamos
@@ -424,8 +421,8 @@ const RenderForm = ({
       selectedPeriodo.length === 0
     ) {
       err.general = "Debe seleccionar al menos una deuda para pagar";
-      setErrors(err);
-      return false;
+      set_Errors(err); // Actualiza el estado INTERNO de errores
+      return false; // Indica que la validación falló
     }
 
     // Validaciones básicas siempre presentes
@@ -444,31 +441,32 @@ const RenderForm = ({
     if (!_formState.voucher) {
       err.voucher = "Este campo es requerido";
     } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
+      // Expresión regular para validar número de 1 a 10 dígitos
       err.voucher = "Debe contener solo números (máximo 10 dígitos)";
     }
 
-    // Validamos los demás campos
-    if (!_formState.type) {
-      err.type = "Tiene que asignar un tipo de pago";
-    }
-
+    // Validación de Monto (solo si NO es expensas con deudas)
     if (
-      deudas?.length === 0 &&
-      _formState.subcategory_id !== extraData?.client_config?.cat_expensas
+      _formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
+      deudas?.length === 0
     ) {
       if (!_formState.amount) {
         err.amount = "Este campo es requerido";
       }
+      // Puedes añadir más validaciones para amount si es necesario (ej: > 0)
     }
 
+    // Validación de archivo
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
+
+    // Validación de fecha de pago
     if (!_formState.paid_at) {
       err.paid_at = "Este campo es requerido";
     } else {
       // Validar que la fecha no sea futura
-      const selectedDate = new Date(_formState.paid_at);
+      const selectedDate = new Date(_formState.paid_at + 'T00:00:00'); // Asegura comparar solo fecha
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Resetear la hora para comparar solo fechas
 
@@ -477,48 +475,41 @@ const RenderForm = ({
       }
     }
 
-    setErrors(err);
-    return Object.keys(err).length === 0;
+    set_Errors(err); // Actualiza el estado INTERNO de errores con todos los encontrados
+    return Object.keys(err).length === 0; // Devuelve true si NO hay errores
   }, [
-    _formState,
-    deudas,
-    setErrors,
-    isExpensasWithoutDebt,
-    selectedPeriodo,
-    extraData?.client_config?.cat_expensas,
+    _formState, // Depende del estado del formulario
+    deudas, // Depende de las deudas cargadas
+    isExpensasWithoutDebt, // Depende de la variable calculada
+    selectedPeriodo, // Depende de los periodos seleccionados
+    extraData?.client_config?.cat_expensas, // Depende de la config
+    set_Errors, // Depende del setter de errores INTERNO
   ]);
 
+
+  // Función para guardar el pago (usa set_Errors interno)
   const _onSavePago = useCallback(async () => {
-    // Validar y salir temprano si hay errores
+    // 1. Validar usando la función actualizada
     if (!validar()) {
-      // Si es el caso de expensas sin deudas, mostrar un mensaje al usuario
-      if (isExpensasWithoutDebt) {
-        showToast(
-          "No se puede registrar un pago de expensas cuando no hay deudas pendientes",
-          "error"
-        );
-        return;
+      // Los mensajes específicos de error ya se muestran en la validación
+      // showToast(...) ya no es necesario aquí para esos casos específicos.
+      // Solo nos aseguramos de no continuar si la validación falla.
+      if (isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0) ){
+        showToast( _errors.general || "Por favor revise los errores", "error"); // Muestra el error general si existe
+      }else{
+         showToast("Por favor revise los campos marcados", "warning");
       }
-
-      // Si es expensas con deudas pero ninguna seleccionada
-      if (
-        _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-        deudas?.length > 0 &&
-        selectedPeriodo.length === 0
-      ) {
-        showToast("Debe seleccionar al menos una deuda para pagar", "error");
-        return;
-      }
-
       return;
     }
 
+    // 2. Obtener owner_id (sin cambios)
     const selectedDpto = extraData?.dptos.find(
       (dpto) => dpto.nro === _formState.dpto_id
     );
     const owner_id = selectedDpto?.titular?.owner?.id;
 
-    let params = {
+    // 3. Construir payload (sin cambios, pero verifica la lógica)
+    let params: any = { // Usa 'any' o una interfaz más específica
       paid_at: _formState.paid_at,
       type: _formState.type,
       file: {
@@ -527,59 +518,71 @@ const RenderForm = ({
       },
       voucher: _formState.voucher,
       obs: _formState.obs,
-      category_id: _formState.subcategory_id,
-      nro_id: _formState.dpto_id,
+      category_id: _formState.subcategory_id, // Envía la subcategoría
+      nro_id: _formState.dpto_id, // Parece que nro_id es el nro del dpto
       owner_id: owner_id,
     };
 
-    // Verificar si es un pago de expensa y hay deudas seleccionadas
+    // Ajusta el payload si es un pago de expensa con deudas seleccionadas
     if (
       extraData?.client_config?.cat_expensas === _formState.subcategory_id &&
       selectedPeriodo.length > 0
     ) {
       params = {
         ...params,
-        asignados: selectedPeriodo,
-        amount: selecPeriodoTotal,
+        asignados: selectedPeriodo, // Array de {id, amount} de las deudas seleccionadas
+        amount: selecPeriodoTotal, // El total calculado
       };
     } else {
+      // Si no es expensas, usa el monto ingresado manualmente
       params = {
         ...params,
         amount: parseFloat(_formState.amount || "0"),
       };
     }
 
+    // 4. Ejecutar la llamada a la API (sin cambios)
     try {
       console.log("Enviando datos:", params);
+      // Asume que 'execute' viene de las props y es para guardar/crear
       const { data, error } = await execute("/payments", "POST", params);
 
+      // 5. Manejar la respuesta
       if (data?.success) {
         showToast("Pago agregado con éxito", "success");
-        reLoad();
-        onClose();
-      } else if (error) {
-        console.error("Error al guardar el pago:", error);
-        showToast("Error al guardar el pago", "error");
-        if (error.data && error.data.errors) {
-          setErrors(error.data.errors);
+        reLoad(); // Recarga la lista en el componente padre (Payments)
+        onClose(); // Cierra el modal
+      } else {
+        // Si la API devuelve success:false o hay un error estructurado
+        console.error("Error al guardar el pago:", error || data?.message);
+        showToast(error?.message || data?.message || "Error al guardar el pago", "error");
+        // Intenta establecer los errores de validación del backend si existen
+        if (error?.data?.errors) {
+          set_Errors(error.data.errors); // Actualiza el estado INTERNO de errores
+        } else if (data?.errors){
+           set_Errors(data.errors); // Si vienen en data.errors
         }
       }
     } catch (err) {
-      console.error("Error en _onSavePago:", err);
+      // Captura errores de red u otros errores inesperados
+      console.error("Error en _onSavePago (catch):", err);
       showToast("Error inesperado al guardar el pago", "error");
     }
   }, [
+    // Dependencias: todas las variables/estados/props que usa la función
     _formState,
     extraData?.client_config?.cat_expensas,
+    extraData?.dptos, // Añadido porque se usa para buscar owner_id
     selectedPeriodo,
     selecPeriodoTotal,
-    validar,
+    validar, // Depende de la función validar (que ya está con useCallback)
     execute,
     reLoad,
     onClose,
-    setErrors,
+    set_Errors, // Depende del setter de errores INTERNO
     showToast,
-    isExpensasWithoutDebt,
+    isExpensasWithoutDebt, // Variable calculada, pero depende de estado
+    deudas, // Añadido porque se usa en la validación y lógica condicional
   ]);
 
   // Handler para cerrar el modal
@@ -603,9 +606,8 @@ const RenderForm = ({
             deudas?.length > 0 &&
             selectedPeriodo.length === 0)
         }
-        title={"Estás registrando un nuevo ingreso"}
+        title={"Nuevo ingreso"}
       >
-        <div className={styles.divider}></div>
         <div className={styles["income-form-container"]}>
           {/* Fecha de pago */}
           <div className={styles.section}>
@@ -617,7 +619,7 @@ const RenderForm = ({
                 required={true}
                 value={_formState.paid_at || ""}
                 onChange={handleChangeInput}
-                error={errors}
+                error={_errors}
                 max={new Date().toISOString().split("T")[0]} // Impide seleccionar fechas futuras
               />
             </div>
@@ -632,7 +634,7 @@ const RenderForm = ({
                 onChange={handleChangeInput}
                 placeholder="Seleccionar la unidad"
                 options={lDptos}
-                error={errors}
+                error={_errors}
                 filter={true}
               />
             </div>
@@ -648,7 +650,7 @@ const RenderForm = ({
                   placeholder="Categoría*"
                   onChange={handleChangeInput}
                   options={extraData?.categories || []}
-                  error={errors}
+                  error={_errors}
                   required
                   optionLabel="name"
                   optionValue="id"
@@ -661,7 +663,7 @@ const RenderForm = ({
                   placeholder="Subcategoría"
                   onChange={handleChangeInput}
                   options={_formState.subcategories || []}
-                  error={errors}
+                  error={_errors}
                   required
                   optionLabel="name"
                   optionValue="id"
@@ -706,7 +708,7 @@ const RenderForm = ({
                           : _formState.amount
                       }
                       required={true}
-                      error={errors}
+                      error={_errors}
                       disabled={
                         _formState.subcategory_id ===
                           extraData?.client_config?.cat_expensas &&
@@ -728,7 +730,7 @@ const RenderForm = ({
                         { id: "C", name: "Cheque" },
                         { id: "O", name: "Pago en oficina" },
                       ]}
-                      error={errors}
+                      error={_errors}
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -749,6 +751,8 @@ const RenderForm = ({
                       : ""
                   }
                   onChange={handleChangeInput}
+                  img={true}
+                  sizePreview={{ width: "40%", height: "auto" }}
                   error={_errors}
                   setError={set_Errors}
                   required={true}
@@ -783,7 +787,7 @@ const RenderForm = ({
                       }
                     }}
                     value={_formState.voucher || ""}
-                    error={errors}
+                    error={_errors}
                     maxLength={10}
                     required
                   />

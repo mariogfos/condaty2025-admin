@@ -26,7 +26,7 @@ export const UploadFile = ({
   onChange = (e: any) => {},
   value = "",
   item = {},
-  img = false,
+  img = false, // Renombrado a props.img en renderVisualElement para evitar conflicto si se desestructura img allí
   editor = false,
   sizePreview = { width: "100px", height: "100px" },
   ...props
@@ -57,7 +57,6 @@ export const UploadFile = ({
     });
   };
 
-  // Verificar si el archivo es una imagen por extensión
   const isImageFile = (fileName: string) => {
     if (!fileName) return false;
     const ext = fileName
@@ -89,9 +88,9 @@ export const UploadFile = ({
         return;
       }
       
-      const isImage = ["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt);
+      const isAnImage = ["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt); // Renombrada para evitar conflicto con la prop 'img'
       
-      if (isImage) {
+      if (isAnImage) {
         try {
           const image: any = await resizeImage(file, 720, 1024, 0.7);
           let base64String = image.replace("data:", "").replace(/^.+,/, "");
@@ -99,7 +98,6 @@ export const UploadFile = ({
           
           if (editor) setLoadedImage(image);
           
-          // Mantener la extensión original para webp (evita conversiones extra)
           const outputExt = fileExt === "webp" ? "webp" : "webp";
           
           onChange({
@@ -157,18 +155,18 @@ export const UploadFile = ({
   };
 
   const accept = () => {
-    let accept: any = [];
+    let acceptArray: any = []; // Renombrada para evitar conflicto con la prop
     props.ext.map((ext) => {
-      accept.push(`.${ext}`);
+      acceptArray.push(`.${ext}`);
     });
-    return accept.join(",");
+    return acceptArray.join(",");
   };
 
   const deleteImg = (del = true) => {
     props.setError({ ...props.error, [props.name]: "" });
     setIsFileError(false);
 
-    if (value && value.file != "") {
+    if (value && (value as any).file != "") { // Asegurar que value se trate como objeto con 'file'
       onChange({
         target: {
           name: props.name,
@@ -186,132 +184,102 @@ export const UploadFile = ({
     setSelectedFiles({});
   };
 
+  const getSizeWithUnit = (sizeValue:any) => { // Renombrado parámetro para claridad
+    if (sizeValue === undefined || sizeValue === null) return "100px";
+    if (typeof sizeValue === 'number') return `${sizeValue}px`;
+    return sizeValue;
+  };
 
-  // Determinar qué mostrar según el tipo de archivo
-  const renderFilePreview = () => {
-    // Si estamos cargando una imagen pero hay un error
+  // Función para construir URL de imagen desde base64 si es necesario
+  const getImageUrl = () => {
+    if (editedImage) {
+      return editedImage;
+    }
+    
+    if (selectedFiles?.name) {
+      return URL.createObjectURL(selectedFiles);
+    }
+    
+    if (typeof value === 'object' && value && (value as any).file && (value as any).ext) {
+      try {
+        const decoded = decodeURIComponent((value as any).file);
+        return `data:image/${(value as any).ext};base64,${decoded}`;
+      } catch (e) {
+        console.error("Error decodificando image:", e);
+        return "";
+      }
+    }
+    
+    if (typeof value === 'string' && value) { // Asegurar que no sea un string vacío
+      return value;
+    }
+    
+    return "";
+  };
+
+  // Función para renderizar solo el elemento visual (imagen o icono)
+  const renderVisualElement = () => {
     if (isFileError) {
-      return img ? (
-        <IconImage size={40} color={"var(--cWhite)"} />
+      return img ? ( // Aquí 'img' es la prop desestructurada
+        <IconImage className={styles.visualElementIcon} />
       ) : (
-        <IconDocs size={40} color={"var(--cWhite)"} />
+        <IconDocs className={styles.visualElementIcon} />
       );
     }
 
-    // Función para construir URL de imagen desde base64 si es necesario
-    const getImageUrl = () => {
-      if (editedImage) {
-        return editedImage;
-      }
-      
-      if (selectedFiles?.name) {
-        return URL.createObjectURL(selectedFiles);
-      }
-      
-      // Si value es un objeto con formato {ext, file} y contiene datos base64
-      if (typeof value === 'object' && value?.file && value?.ext) {
-        // Decodificar el base64 que está codificado con encodeURIComponent
-        try {
-          const decoded = decodeURIComponent(value.file);
-          return `data:image/${value.ext};base64,${decoded}`;
-        } catch (e) {
-          console.error("Error decodificando image:", e);
-          return "";
-        }
-      }
-      
-      // Si value es una string (url directa)
-      if (typeof value === 'string') {
-        return value;
-      }
-      
-      return "";
-    };
-    
-    // Si es una imagen basada en las condiciones
-    const isImageToShow = (editedImage || 
+    const shouldShowImage = (editedImage || 
       selectedFiles?.type?.startsWith("image/") || 
       (selectedFiles?.name && isImageFile(selectedFiles.name)) ||
-      (typeof value === 'object' && value?.ext) ||
-      (typeof value === 'string' && value)) && 
-      img;
-    
-    if (isImageToShow) {
+      (typeof value === 'object' && value && (value as any).ext && isImageFile(`.${(value as any).ext}`)) ||
+      (typeof value === 'string' && value && isImageFile(value))) && 
+      img; // Aquí 'img' es la prop desestructurada
+
+    if (shouldShowImage) {
       const imageUrl = getImageUrl();
+      if (!imageUrl) {
+           return <IconImage className={styles.visualElementIcon} />;
+      }
       return (
-        <>
-          <img
-            src={imageUrl}
-            onError={(e) => {
-              console.log("error imagen", e);
-              setIsFileError(true);
-            }}
-            alt={selectedFiles?.name || "Preview"}
-            style={{
-              objectFit: "cover",
-              width: getSizeWithUnit(sizePreview?.width),
-              height: getSizeWithUnit(sizePreview?.height)
-            }}
-          />
-          <p>
-            Archivo: <span>{selectedFiles?.name || "Imagen"}</span>
-          </p>
-        </>
+        <img
+          src={imageUrl}
+          onError={(e) => {
+            console.log("error imagen", e);
+            setIsFileError(true);
+          }}
+          alt={selectedFiles?.name || "Preview"}
+          className={styles.previewImageTag}
+        />
       );
     }
     
-    // Si es un PDF
     if (selectedFiles.type === "application/pdf") {
-      return (
-        <>
-          <IconPDF size={80} color={"var(--cWhite)"} />
-          <p>
-            Archivo seleccionado: <br />
-            <span>{selectedFiles.name}</span>
-          </p>
-        </>
-      );
+      return <IconPDF className={styles.visualElementIcon} />;
     }
     
-    // Si es otro tipo de documento
     if (selectedFiles.name) {
-      return (
-        <>
-          <IconDocs size={40} color={"var(--cWhite)"} />
-          <p>
-            Archivo seleccionado: <br />
-            <span>{selectedFiles.name}</span>
-          </p>
-        </>
-      );
+      return <IconDocs className={styles.visualElementIcon} />;
     }
     
-    // Si no hay archivo seleccionado
-    return img ? (
-      <IconImage size={40} color={"var(--cWhite)"} />
+    return img ? ( // Aquí 'img' es la prop desestructurada
+      <IconImage className={styles.visualElementIcon} />
     ) : (
-      <IconDocs size={40} color={"var(--cWhite)"} />
+      <IconDocs className={styles.visualElementIcon} />
     );
   };
 
-  // Verificar si el valor es un número y devolver con 'px', o usar el valor como está si es string
-  const getSizeWithUnit = (size:any) => {
-    if (size === undefined || size === null) return "100px";
-    if (typeof size === 'number') return `${size}px`;
-    return size;
-  };
 
   return (
     <ControlLabel
       {...props}
       value={value}
-      className={styles.uploadFile + " " + className}
+      className={`${styles.uploadFile} ${className}`}
     >
       <section
+        className={styles.uploadSection} // Añadida clase para posible estilizado general de la sección
         style={{
           borderColor: props.error[props.name]
             ? "var(--cError)"
-            : value?.file || isDraggingFile
+            : (value && (value as any).file) || isDraggingFile // Asegurar que value se trate como objeto con 'file'
             ? "var(--cPrimary)"
             : "var(--cWhiteV3)",
         }}
@@ -325,15 +293,16 @@ export const UploadFile = ({
           name={props.name}
           id={props.name}
           onChange={onChangeFile}
-          value=""
+          value="" // Siempre vacío para permitir reseleccionar el mismo archivo
           required={props.required}
           disabled={props.disabled}
           accept={accept()}
+          className={styles.fileInput} // Añadida clase
         />
         {
-          (!selectedFiles?.name || selectedFiles?.name == "") &&
-          (!value || value == "") ? (
+          (!selectedFiles?.name && !(value && (value as any).file)) ? ( // Modificada la condición para chequear 'value.file'
             <div
+              className={styles.uploadPlaceholder} // Añadida clase
               onClick={() => {
                 const fileUpload = document.getElementById(props.name);
                 if (fileUpload) {
@@ -341,7 +310,7 @@ export const UploadFile = ({
                 }
               }}
             >
-              {img ? (
+              {img ? ( // Aquí 'img' es la prop desestructurada
                 <IconImage size={40} color={"var(--cWhite)"} />
               ) : (
                 <IconDocs size={40} color={"var(--cWhite)"} />
@@ -352,75 +321,72 @@ export const UploadFile = ({
               <span>{props.ext.join(", ")}</span>
             </div>
           ) : (
-            <div style={{ position: "relative" }}>
-              {renderFilePreview()}
+            // ----- NUEVA ESTRUCTURA PARA LA PREVISUALIZACIÓN -----
+            <div className={styles.filePreviewRow}>
               
-              <IconEdit
-                size={20}
+              <div 
+                className={styles.imageActionColumn} 
                 style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 2,
-                  padding: 2,
-                  backgroundColor: "var(--cBlack)",
+                  width: getSizeWithUnit(sizePreview?.width),
+                  height: getSizeWithUnit(sizePreview?.height)
                 }}
-                color={"var(--cWarning)"}
-                circle
-                onClick={() => {
-                  const fileUpload = document.getElementById(props.name);
-                  if (fileUpload) {
-                    fileUpload.click();
-                  }
-                }}
-              />
-              
-              {item[props.name]?.file == "delete" ? (
-                <>
-                  <IconTrash
-                    size={100}
-                    style={{
-                      cursor: "",
-                      padding: "2px",
-                      position: "absolute",
-                      color: "red",
-                      top: 0,
-                      left: 0,
-                    }}
-                  />
-                  <IconArrowLeft
-                    size={20}
-                    circle={true}
-                    color="var(--cSuccess)"
-                    style={{
-                      position: "absolute",
-                      top: 2,
-                      left: 2,
-                      padding: 2,
-                      backgroundColor: "var(--cBlack)",
-                    }}
-                    onClick={() => {
-                      deleteImg(false);
-                    }}
-                  />
-                </>
-              ) : (
-                <IconTrash
+              >
+                {renderVisualElement()}
+                
+                <IconEdit
                   size={20}
-                  style={{
-                    position: "absolute",
-                    top: 2,
-                    left: 2,
-                    padding: 2,
-                    backgroundColor: "var(--cBlack)",
-                  }}
-                  color={"var(--cError)"}
+                  className={styles.editButton}
+                  color={"var(--cWhiteV1)"}
                   circle
                   onClick={() => {
-                    deleteImg();
+                    const fileUpload = document.getElementById(props.name);
+                    if (fileUpload) {
+                      fileUpload.click();
+                    }
                   }}
+                  style={{ backgroundColor: 'black' }}
                 />
-              )}
+                
+                {item[props.name]?.file == "delete" ? (
+                  <>
+                    <IconTrash 
+                       size={30} 
+                       className={styles.mainDeleteIconWhenMarked} 
+                       style={{ backgroundColor: 'black' }}
+                    />
+                    <IconArrowLeft
+                      size={20}
+                      circle={true}
+                      color="var(--cWhiteV1)"
+                      
+                      className={styles.undoDeleteButton}
+                      onClick={() => {
+                        deleteImg(false);
+                      }}
+                    />
+                  </>
+                ) : (
+                  <IconTrash
+                    size={20}
+                    className={styles.deleteButton}
+                    color={"var(--cWhiteV1)"}
+                    circle
+                    onClick={() => {
+                      deleteImg();
+                    }}
+                    style={{ backgroundColor: 'black' }}
+                  />
+                )}
+              </div>
+
+              <div className={styles.fileNameColumn}>
+                <p>
+                  <span>{selectedFiles?.name || (typeof value === 'object' && value && (value as any).name) || (img ? "Imagen" : "Archivo")}</span>
+                </p>
+              </div>
+
             </div>
+            // ----- FIN DE LA NUEVA ESTRUCTURA -----
           )
         }
       </section>

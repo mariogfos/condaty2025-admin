@@ -31,7 +31,7 @@ const LoginView = ({
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/loginAdmin.webp" // Asegúrate que esta es la ruta correcta
+          src="/assets/images/portadaLogin.webp" // Asegúrate que esta es la ruta correcta
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
