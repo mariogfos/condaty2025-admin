@@ -96,7 +96,7 @@ const Categories = ({ type = "" }) => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Nombre",
+        label: "Categoría",
         form: { type: "text" },
         list: { /* ... */ },
       },
@@ -221,7 +221,7 @@ const Categories = ({ type = "" }) => {
             width: "auto",
           }}
         >
-          Registrar Categoría Principal
+          Nueva categoría
         </Button>
       </div>
 

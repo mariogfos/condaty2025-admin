@@ -241,6 +241,7 @@
   border-bottom: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
   border-top: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
   gap: 16px; /* Añadir espacio entre nombre, descripción y acciones */
+  
 }
 
 .subcategoryItem:hover {
@@ -253,7 +254,7 @@
   gap: 2px;
   flex: 1;
   min-width: 0;
-  padding-left: 40px;
+  
 }
 
 .subcategoryName {
@@ -263,6 +264,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 35px;
   flex-shrink: 0; /* Para que no se encoja si la descripción es larga */
   /* Opcional: darle un flex-basis o width si quieres un tamaño más fijo */
   /* flex-basis: 150px; */
