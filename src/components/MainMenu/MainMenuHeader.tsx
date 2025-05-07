@@ -12,7 +12,7 @@ interface MainMenuHeaderProps {
 }
 
 const MainMenuHeader: React.FC<MainMenuHeaderProps> = ({ user, collapsed }) => {
-  const client = user?.clients.find((c: any) => c.id == user?.client_id);
+  const client = user?.clients?.find((c: any) => c.id == user?.client_id);
   // console.log(user,'usrrr')
   return (
     <div className={styles.menuHeader}>

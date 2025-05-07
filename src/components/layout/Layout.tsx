@@ -68,10 +68,6 @@ const Layout = ({ children }: any) => {
   const [openClient, setOpenClient] = useState(false);
 
   useEffect(() => {
-    // if (user) {
-    //   const client = user.clients?.find((c: any) => c.id === user.client_id);
-    //   setClient(client);
-    // }
     if (!user?.client_id) {
       setOpenClient(true);
       return;
