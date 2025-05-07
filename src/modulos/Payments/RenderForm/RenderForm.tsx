@@ -488,10 +488,7 @@ const RenderForm = ({
     let params: any = { // Usa 'any' o una interfaz más específica
       paid_at: _formState.paid_at,
       type: _formState.type,
-      file: {
-        file: _formState.file,
-        ext: _formState.ext,
-      },
+      file: _formState.file,
       voucher: _formState.voucher,
       obs: _formState.obs,
       category_id: _formState.subcategory_id, // Envía la subcategoría
