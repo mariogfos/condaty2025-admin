@@ -39,6 +39,12 @@
       border-radius: 0;
       max-height: 100%;
     }
+    &.V2{
+      /* background-color: aquamarine; */
+      padding-left:20%;
+      padding-right:20%;
+    }
+ 
     & > .head-title > span {
       cursor: pointer;
       color: var(--cWhite);

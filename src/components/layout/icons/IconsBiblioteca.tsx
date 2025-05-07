@@ -3567,3 +3567,20 @@ export const IconDepartment = (props: IconType) => {
     </IconWrap>
   );
 };
+
+export const IconLockEmail = (props: IconType) => {
+  return (
+    <IconWrap {...props}>
+      <path
+        d="M20 11.625V6H4V17.25H12"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M4 6L12 11.625L20 6M18.4 15V13.875C18.4 13.5766 18.2736 13.2905 18.0485 13.0795C17.8235 12.8685 17.5183 12.75 17.2 12.75C16.8817 12.75 16.5765 12.8685 16.3515 13.0795C16.1264 13.2905 16 13.5766 16 13.875V15M14.8 15H19.6V18H14.8V15Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </IconWrap>
+  );
+};

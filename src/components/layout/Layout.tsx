@@ -26,6 +26,7 @@ import {
   IconTheft,
 } from "./icons/IconsBiblioteca";
 import ChooseClient from "../ChooseClient/ChooseClient";
+import ProfileModal from "../ProfileModal/ProfileModal";
 
 // const soundBell = new Audio("/sounds/bellding.mp3");
 const typeAlerts: any = {
@@ -52,7 +53,7 @@ const typeAlerts: any = {
 };
 
 const Layout = ({ children }: any) => {
-  const { user, logout, store, showToast } = useAuth();
+  const { user, logout, store,setStore, showToast } = useAuth();
   const { isTablet, isDesktop } = useScreenSize();
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -66,8 +67,15 @@ const Layout = ({ children }: any) => {
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
   const [openClient, setOpenClient] = useState(false);
+ 
+  
 
   useEffect(() => {
+    // if (user) {
+    //   const client = user.clients?.find((c: any) => c.id === user.client_id);
+    //   setClient(client);
+    // }
+    // setStore({ ...store, openProfileModal:false });
     if (!user?.client_id) {
       setOpenClient(true);
       return;
@@ -174,6 +182,15 @@ const Layout = ({ children }: any) => {
       </section>
       <section>{children}</section>
       <section>{/* Fotter Here!! */}</section>
+
+      <ProfileModal
+        open={store?.openProfileModal}
+        onClose={() => {
+          setStore({openProfileModal:false})
+        }}
+        titleBack="Volver atras"
+        type="admin"
+      />
       <DataModal
         open={onLogout}
         title="Cerrar sesión"
