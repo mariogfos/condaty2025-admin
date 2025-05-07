@@ -93,6 +93,7 @@ const Header = ({
             name={getFullName(user)}
             src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
             onClick={() => {
+              console.log('click')
               setStore({...store, openProfileModal: true});
             }}
             square={true}

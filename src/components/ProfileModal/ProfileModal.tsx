@@ -95,7 +95,11 @@ const ProfileModal = ({
       <section >
        
       <WidgetBase title={'Datos Personales'} variant={'V1'} titleStyle={{fontSize:16}}>
-        a
+        
+        <div>Carnet de identidad</div>
+        <div>12122112212</div>
+
+
       </WidgetBase >
       <WidgetBase variant={'V1'}>
         as

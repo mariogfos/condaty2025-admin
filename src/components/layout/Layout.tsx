@@ -75,7 +75,7 @@ const Layout = ({ children }: any) => {
     //   const client = user.clients?.find((c: any) => c.id === user.client_id);
     //   setClient(client);
     // }
-    setStore({ ...store, openProfileModal:false });
+    // setStore({ ...store, openProfileModal:false });
     if (!user?.client_id) {
       setOpenClient(true);
       return;
