@@ -145,7 +145,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonCancel=""
       >
         <div className={styles.container}>
-          <p>No se encontró información del pago</p>
+          <div className={styles.notFoundContainer}>
+            <p className={styles.notFoundText}>No se encontró información del pago.</p>
+            <p className={styles.notFoundSuggestion}>Por favor, verifica el ID del pago o intenta de nuevo más tarde.</p>
+          </div>
         </div>
       </DataModal>
     );
@@ -156,87 +159,83 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       <DataModal
         open={open}
         onClose={onClose}
-        title="Detalle del ingreso"
+        title="Detalle del ingreso" // Mantén o quita el título del DataModal según tu preferencia global
         buttonText=""
         buttonCancel=""
       >
         <div className={styles.container}>
-          {/* Sección para mostrar el monto total y la fecha */}
-          <div className={styles.totalAmountSection}>
-            <div className={styles.totalAmount}>
-              Bs {item.amount}
-            </div>
-            <div className={styles.paymentDate}>
+          <div className={styles.headerSection}>
+            <div className={styles.amountDisplay}>Bs {item.amount}</div>
+            <div className={styles.dateDisplay}>
               {getDateTimeStrMesShort(item.paid_at)}
             </div>
           </div>
 
-          {/* Separador horizontal */}
-          <div className={styles.divider}></div>
+          {/* Divisor antes de la sección de info y botón */}
+          <hr className={styles.sectionDivider} />
 
-          {/* Contenedor para la información detallada */}
-          <div className={styles.detailsContainer}>
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Estado del ingreso</div>
-              <div className={styles.successValue}>
-                {getStatus(item.status)}
+          <div className={styles.mainInfoGrid}>
+            <div className={styles.infoColumn}>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Unidad</span>
+                <span className={styles.infoValue}>{getDptoName()}</span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Propietario</span>
+                <span className={styles.infoValue}>{getFullName(item.propietario) || getFullName(item.owner) || "Sin propietario"}</span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Concepto</span>
+                <span className={styles.infoValue}>
+                  {/* Asumiendo que item.concept es un array o string formateado.
+                      La imagen muestra "-Expensas", "-Multas", "-Reservas".
+                      Si es un array, podrías hacer item.concept.map(c => <div>-{c}</div>)
+                      o si es un string formateado, usarlo directamente.
+                      Asegúrate que tus datos 'item.concept' o 'item.description'
+                      reflejen el formato de la imagen.
+                  */}
+                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) || item.description || "No especificado"}
+                </span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Observación</span>
+                <span className={styles.infoValue}>{item.obs || "Sin observación"}</span>
               </div>
             </div>
 
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Unidad</div>
-              <div className={styles.value}>
-                {getDptoName()}
+            <div className={styles.infoColumn}>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Estado</span>
+                <span className={`${styles.infoValue} ${
+                  item.status === 'P' ? styles.statusPaid :
+                  item.status === 'S' ? styles.statusPending :
+                  item.status === 'R' ? styles.statusRejected : ''
+                }`}>
+                  {getStatus(item.status)}
+                </span>
               </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Titular</div>
-              <div className={styles.value}>
-                {getFullName(item.owner) || "Sin titular"}
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Forma de pago</span>
+                <span className={styles.infoValue}>{getPaymentType(item.type)}</span>
               </div>
-            </div>
-
-            {/* Propietario - si existe la propiedad */}
-            {item.propietario && (
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Propietario</div>
-                <div className={styles.value}>
-                  {getFullName(item.propietario) || "Sin propietario"}
-                </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Titular</span>
+                <span className={styles.infoValue}>{getFullName(item.owner) || "Sin titular"}</span>
               </div>
-            )}
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Tipo de pago</div>
-              <div className={styles.value}>
-                {getPaymentType(item.type)}
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación</div>
-              <div className={styles.value}>
-                {item.obs || "Sin observación"}
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Número de comprobante</div>
-              <div className={styles.value}>
-                {item.voucher || "Sin comprobante"}
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Número de comprobante</span>
+                <span className={styles.infoValue}>{item.voucher || "Sin comprobante"}</span>
               </div>
             </div>
           </div>
+          {/* Divisor después de la sección de info y botón */}
+          <hr className={styles.sectionDivider} />
 
-          {/* Separador horizontal */}
-          <div className={styles.divider}></div>
-
-          {/* Botón de comprobante */}
           {item.ext && (
-            <div className={styles.buttonContainer}>
-              <Button 
-                className={`${styles.downloadButton}`}
+            <div className={styles.voucherButtonContainer}>
+              <Button
+                variant="outline"
+                className={styles.voucherButton}
                 onClick={() => {
                   window.open(
                     getUrlImages(
@@ -251,78 +250,74 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   );
                 }}
               >
-                Revisar comprobante
+                Ver comprobante
               </Button>
             </div>
           )}
 
-          {/* Sección de periodos pagados */}
+          
+
           {item?.details?.length > 0 && (
-            <div className={styles.periodsSection}>
-              <div className={styles.periodsHeader}>
-                <div className={styles.periodsTitle}>Periodos pagados</div>
-                <div className={styles.totalPaid}>
-                  Total pagado: <span className={styles.totalPaidAmount}>Bs {getTotalAmount()}</span>
-                </div>
+            <div className={styles.periodsDetailsSection}>
+              <div className={styles.periodsDetailsHeader}>
+                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
               </div>
 
-              {/* Tabla de periodos */}
-              <div className={styles.tableContainer}>
-                <div className={styles.tableHeader}>
-                  <div className={`${styles.headerCell} ${styles.headerCellLeft}`}>Periodo</div>
-                  <div className={styles.headerCell}>Monto</div>
-                  <div className={styles.headerCell}>Multa</div>
-                  <div className={`${styles.headerCell} ${styles.headerCellRight}`}>Subtotal</div>
-                </div>
-
-                <div className={styles.tableBody}>
-                  {item.details.map((periodo: any, index: number) => {
-                    const isLastRow = index === item.details.length - 1;
-                    const isEvenRow = index % 2 === 1;
-                    
-                    return (
-                      <div 
-                        key={periodo.id} 
-                        className={`${styles.tableRow} 
-                                   ${isEvenRow ? styles.tableRowEven : ''} 
-                                   ${isLastRow ? styles.tableLastRow : ''}`}
-                      >
-                        <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellLeft : ''}`}>
+              <div className={styles.periodsTableWrapper}>
+                <div className={styles.periodsTable}>
+                  <div className={styles.periodsTableHeader}>
+                    <div className={styles.periodsTableCell}>Periodo</div>
+                    <div className={styles.periodsTableCell}>Concepto</div>
+                    <div className={styles.periodsTableCell}>Monto</div>
+                    <div className={styles.periodsTableCell}>Multa</div>
+                    <div className={styles.periodsTableCell}>Subtotal</div>
+                  </div>
+                  <div className={styles.periodsTableBody}>
+                    {item.details.map((periodo: any, index: number) => (
+                      <div className={styles.periodsTableRow} key={periodo.id || index}>
+                        <div className={styles.periodsTableCell} data-label="Periodo">
                           {periodo?.debt_dpto?.debt?.month}/{periodo?.debt_dpto?.debt?.year}
                         </div>
-                        <div className={styles.tableCell}>
-                          Bs {periodo?.debt_dpto?.amount}
+                        <div className={styles.periodsTableCell} data-label="Concepto">
+                          {periodo?.concepto || periodo?.debt_dpto?.debt?.description || "Gasto Común"}
                         </div>
-                        <div className={styles.tableCell}>
-                          Bs {periodo?.debt_dpto?.penalty_amount}
+                        <div className={styles.periodsTableCell} data-label="Monto">
+                          Bs {parseFloat(periodo?.debt_dpto?.amount || 0).toFixed(2)}
                         </div>
-                        <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellRight : ''}`}>
-                          Bs {periodo?.amount}
+                        <div className={styles.periodsTableCell} data-label="Multa">
+                          Bs {parseFloat(periodo?.debt_dpto?.penalty_amount || 0).toFixed(2)}
+                        </div>
+                        <div className={styles.periodsTableCell} data-label="Subtotal">
+                          Bs {parseFloat(periodo?.amount || 0).toFixed(2)}
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.periodsDetailsFooter}>
+                <div className={styles.periodsDetailsTotal}>
+                  Total pagado: <span className={styles.totalAmountValue}>Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Botones de acción (confirmar/rechazar) */}
           {item?.status === "S" && (
-            <div className={styles.buttonActions}>
+            <div className={styles.actionButtonsContainer}>
               <Button
-                className="btn-cancel"
+                variant="danger"
+                className={`${styles.actionButton} ${styles.rejectButton}`}
                 onClick={() => {
                   setOnRechazar(true);
                 }}
-                style={{ marginRight: "10px", flex: 1 }}
               >
                 Rechazar pago
               </Button>
               <Button
-                className="btn btn-primary"
+                variant="success"
+                className={`${styles.actionButton} ${styles.confirmButton}`}
                 onClick={() => onConfirm(true)}
-                style={{ flex: 1 }}
               >
                 Confirmar pago
               </Button>

@@ -31,7 +31,7 @@ const LoginView = ({
       {/* Imagen de fondo */}
       <div className={styles.imageBackground}>
         <Image
-          src="/assets/images/loginAdmin.webp" // Asegúrate que esta es la ruta correcta
+          src="/assets/images/portadaLogin.webp" // Asegúrate que esta es la ruta correcta
           alt="Fondo de Login"
           fill
           style={{ objectFit: "cover" }}
@@ -103,7 +103,7 @@ const LoginView = ({
               Iniciar sesión
             </Button>
           <div className={styles.termsContainer}>
-            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="#">Políticas de Privacidad</a>
+            Al iniciar sesión aceptas los <a href="https://www.condaty.com/terminos">Términos y Condiciones</a> y nuestras <a href="https://www.condaty.com/politicas">Políticas de Privacidad</a>
           </div>
           </form>
   
