@@ -81,6 +81,7 @@ const DataModal = ({
             !fullScreen && <IconX className="" onClick={() => _close(false)} />
           }
         />
+        <div className={styles.headerDivider} />
         <section className={className}>{children}</section>
         {(buttonText != "" || buttonCancel != "") && (
           <footer>

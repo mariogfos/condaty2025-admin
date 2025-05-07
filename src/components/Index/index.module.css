@@ -48,6 +48,14 @@
     flex-wrap: wrap;
   }
 }
+.widgetContents{
+  width:93% !important ;
+  /* background-color: aliceblue; */
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+
+}
 .widgetResumeCard{
    width: 200px;
    @media (max-width: 768px) {

@@ -238,6 +238,18 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             );
           },
         },
+        filter: {
+          label: "Tipo de Acceso",
+          width: "180px",
+          options: () => [
+            { id: "", name: "Todos" },
+            { id: "C", name: "Control" },
+            { id: "G", name: "Grupo" },
+            { id: "I", name: "Individual" },
+            { id: "P", name: "Pedido" },
+            { id: "O", name: "Llave QR" }
+          ]
+        }
       },
     };
   }, []);

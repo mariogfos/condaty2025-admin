@@ -389,3 +389,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-radius: 50%;
   padding: 8px;
 }
+.bottomLine {
+  border-bottom: 1px solid var(--cWhiteV1);
+}

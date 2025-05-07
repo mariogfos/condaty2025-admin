@@ -18,6 +18,20 @@
   height: 100%;
   z-index: 1; /* Como lo tenías */
 }
+/* Añade este nuevo bloque para el overlay con blur verde */
+/* Busca o reemplaza el bloque .imageBackground::after que te di antes */
+/* Alternativa para .imageBackground::after (puedes usar esta o la anterior) */
+.imageBackground::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(31, 45, 39, 0.7); /* Color #1f2d27 con 70% de opacidad */
+  z-index: 1;
+  /* opacity: 1; /* Si usas rgba para la opacidad del fondo, el opacity del elemento puede ser 1 */
+}
 
 .topLeftLogoContainer {
   position: absolute;
@@ -38,7 +52,7 @@
   width: 100%;
   height: 100%;
   position: relative;
-  z-index: 1; /* Como lo tenías */
+  z-index: 2; /* Como lo tenías */
 }
 
 .formWrapper {

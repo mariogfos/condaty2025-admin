@@ -22,6 +22,7 @@ import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import { IconBriefCaseMoney, IconEgresos, IconIngresos, IconWallet } from "../layout/icons/IconsBiblioteca";
+import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 // Asegúrate que la ruta al modal sea correcta
 
 const paramsInitial = {
@@ -244,17 +245,17 @@ const HomePage = () => {
           <div className={styles.widgetsResumeContainer}>  
           <WidgetDashCard
             title="Administradores"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.adminsCount,0)}
             
           />
                <WidgetDashCard
             title="Residentes"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.ownersCount,0)}
             
           />
                <WidgetDashCard
             title="Guardias"
-            data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
+            data={formatNumber(dashboard?.data?.guardsCount,0)}
             
           />
           </div>
@@ -269,6 +270,9 @@ const HomePage = () => {
             egresos={dashboard?.data?.egresosHist}
             periodo="y"
           />
+           <div className={styles.widgetContents}>
+           <WidgetContentsResume data={dashboard?.data?.posts}/>
+           </div>
         </section>
 
         <section>
