@@ -97,10 +97,27 @@
  & > div{
     width:100%;
  }
+ & > div:nth-child(1){
+    & > div{
+        margin-top: 10px;
+        color:var(--cWhite);
+        & > div:nth-child(1){
+            color:var(--cWhiteV1);        }
+    }
+ } 
 } 
 
 }
 
-.widgetBase {
-  background-color: aquamarine;
+
+.buttonChange {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap:4px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    & > div:nth-child(2){
+        width: 180px;
+    }
 }
