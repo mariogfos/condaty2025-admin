@@ -84,8 +84,8 @@ const DataModal = ({
             iconClose &&
             !fullScreen && <IconX className="" onClick={() => _close(false)} />
           }
-          className={styles['headTitle']}
-          style={{color: variant === "V2"? "var(--cAccent)" : "var(--cWhite)"}}
+         colorBack={variant === 'V2' ? 'var(--cAccent)':'' }
+         colorTitle={variant === 'V2'? 'var(--cAccent)':'' }
         />
         <div className={styles.headerDivider} />
         <section className={className}>{children}</section>
