@@ -128,7 +128,7 @@ const ProfileModal = ({
         </div> 
         
       </section>
-      <section >
+      <section>
        
       <WidgetBase title={'Datos Personales'} variant={'V1'} titleStyle={{fontSize:16}}>
       <div className='bottomLine' />
@@ -158,7 +158,7 @@ const ProfileModal = ({
       <WidgetBase variant={'V1'}>
         as
       </WidgetBase>
-      <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16,height:'100%'}}>
+      <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16}} >
       <div className='bottomLine'/>
         
         <div className={styles.buttonChange} onClick={onChangeEmail}>
