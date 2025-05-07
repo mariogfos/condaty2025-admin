@@ -15,6 +15,7 @@ type PropsType = {
   right?: any;
   customTitle?: any;
   colorBack?: string;
+  colorTitle?: string;
 };
 
 const HeadTitle = ({
@@ -26,7 +27,8 @@ const HeadTitle = ({
   left = null,
   right = null,
   customTitle = null,
-  colorBack = "var(--cWhite)" 
+  colorBack = "var(--cWhite)",
+  colorTitle = "var(--cWhite)", 
 }: PropsType) => {
   const router = useRouter();
   const goBack = () => {
@@ -57,7 +59,7 @@ const HeadTitle = ({
           marginRight: left === false ? undefined : "var(--spM)",
         }}
       >
-        {customTitle ? customTitle : <h1>{title}</h1>}
+        {customTitle ? customTitle : <h1 style={{color:colorTitle}}>{title}</h1>}
       </div>
       <span>{right}</span>
     </div>

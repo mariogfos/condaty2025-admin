@@ -40,7 +40,7 @@ const Header = ({
   },
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
-  const { store } = useAuth();
+  const { store,setStore } = useAuth();
   
   const menuItems = [
     { name: "Roles", route: "/roles" },
@@ -56,7 +56,8 @@ const Header = ({
           name={getFullName(user)}
           src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
           onClick={() => {
-            router.push("/profile");
+            // router.push("/profile");
+            setStore({openProfileModal:true});
           }}
         />
         <p>{getFullName(user)}</p>
@@ -92,10 +93,10 @@ const Header = ({
             name={getFullName(user)}
             src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
             onClick={() => {
-              router.push("/profile");
+              console.log('click')
+              setStore({...store, openProfileModal: true});
             }}
-            square={true} 
-            
+            square={true}
           />
         </div>
       </div>

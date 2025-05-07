@@ -8,6 +8,12 @@
     color: var(--cBlack);
     padding: var(--spS);
   }
+  &.square {
+    background-color: var(--cWhite);
+    color: var(--cBlack);
+    padding: var(--spS);
+    border-radius: var(--bRadiusS);
+  }
   &.responsive {
     width: 24px;
     height: 24px;
