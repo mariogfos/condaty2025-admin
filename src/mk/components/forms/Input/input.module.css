@@ -12,6 +12,7 @@
   display: flex;
   gap: var(--spXs);
   /*margin-bottom: calc(var(--spS) * 2.5);*/
+  margin-bottom: calc(var(--spM));
   font-weight: var(--bRegular);
   color: var(--cWhite);
   & > div > input::placeholder {
