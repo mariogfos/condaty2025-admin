@@ -1,48 +1,64 @@
+// src/components/Categories/Type/CategoryType.ts (o donde tengas tus tipos)
+
 export interface CategoryItem {
   id?: string | number;
   name?: string;
   description?: string;
   category_id?: string | number | null;
-  category?: {
+  category?: { // Objeto de la categoría padre si se carga
     id?: string | number;
     name?: string;
   };
-  hijos?: CategoryItem[]; // Para manejar las subcategorías según la API
-  subcategories?: CategoryItem[]; // Mantenido para compatibilidad
-  type?: string;
-  fixed?: string;
-  [key: string]: any;
+  hijos?: CategoryItem[];     // Para las subcategorías anidadas desde la API
+  type?: 'I' | 'E' | string;  // 'I' para Ingresos, 'E' para Egresos, o string genérico
+  fixed?: string;             // Si es una categoría fija y no editable/eliminable
+  
+  // Bandera temporal para el flujo de UI al agregar subcategorías desde una tarjeta padre.
+  // No se guarda en el backend.
+  _isAddingSubcategoryFlow?: boolean; 
+
+  // Permite otras propiedades que puedan venir de la API o del hook useCrud
+  [key: string]: any; 
 }
 
 export interface CategoryFormProps {
   open: boolean;
   onClose: () => void;
-  item: CategoryItem;
+  item: Partial<CategoryItem>; // El item puede ser parcial al iniciar (ej. solo con category_id y la bandera)
   setItem: (
-    item: CategoryItem | ((prev: CategoryItem) => CategoryItem)
-  ) => void;
-  errors: Record<string, any>;
-  setErrors: (errors: Record<string, any>) => void;
-  onSave: (item: CategoryItem) => void;
-  extraData: Record<string, any>;
-  getExtraData: Function;
-  action: string;
-  execute?: any;
-  categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)
+    item: Partial<CategoryItem> | ((prev: Partial<CategoryItem>) => Partial<CategoryItem>)
+  ) => void; // Permite actualizar el item del formulario
+  errors: Record<string, any>; // Objeto para errores de validación
+  // setErrors no es usualmente pasado directamente, useCrud lo maneja internamente o
+  // los errores se reflejan en la prop 'errors'. Si CategoryForm necesita setear errores
+  // específicos que useCrud no maneja, entonces sí se pasaría.
+  // setErrors?: (errors: Record<string, any>) => void; 
+  onSave: (item: Partial<CategoryItem>) => void; // Función para guardar el item
+  extraData?: Record<string, any>; // Datos adicionales como la lista de categorías padre
+  getExtraData?: () => void;      // Función para recargar extraData si es necesario
+  action: 'add' | 'edit' | string; // Acción actual (agregar o editar)
+  categoryType: 'I' | 'E';       // Tipo de categoría (Ingresos o Egresos)
 }
 
 export interface CategoryCardProps {
-  item: CategoryItem;
-  onClick?: (item: CategoryItem) => void; // Opcional para permitir usarlo sin onClick
-  onEdit: (item: CategoryItem) => void;
-  onDel: (item: CategoryItem) => void;
-  categoryType?: string; // Añadido para manejar el tipo de categoría (ingresos o egresos)
-  onAddSubcategory: (categoryId: string) => void;
+  item: CategoryItem; // El objeto de la categoría a mostrar
+  onClick?: (item: CategoryItem) => void; // Click en una subcategoría
+  onEdit: (item: CategoryItem) => void;    // Acción de editar la categoría/subcategoría
+  onDel: (item: CategoryItem) => void;     // Acción de eliminar la categoría/subcategoría
+  categoryType: 'I' | 'E';                 // Para asegurar que el tipo se propague correctamente
+  onAddSubcategory: (parentCategoryId: string) => void; // Acción para agregar una nueva subcategoría a esta categoría
+  className?: string; // Clase opcional para la categoría/subcategoría
+  isSelected?: boolean;
+  onSelectCard?: () => void; // Clase opcional para la categoría/subcategoría
 }
 
+// Tipo genérico para eventos de input, si es necesario.
+// React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> es más específico.
 export interface InputEvent {
   target: {
     name: string;
     value: any;
+    type?: string; // Para distinguir checkboxes, radios, etc.
+    checked?: boolean; // Para checkboxes/radios
   };
 }
