@@ -81,7 +81,7 @@ const Dptos = () => {
         rules: ["required"],
         api: "ae",
         // label: "Número de " + store?.UnitsType,
-        label: "Número de unidad",
+        label: "Unidad",
         form: { type: "text" },
         list: { width: "100px" },
       },
