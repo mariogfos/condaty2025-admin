@@ -335,31 +335,7 @@ const RenderForm = ({
     });
   }, []);
 
-  // Handler para manejo de archivos
-  const onChangeFile = useCallback(
-    (e) => {
-      try {
-        if (!e.target.files || e.target.files.length === 0) return;
 
-        const file = e.target.files[0];
-
-        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
-        if (!exten.includes(fileExtension)) {
-          alert("Solo se permiten archivos " + exten.join(", "));
-          return;
-        }
-
-        _setFormState((prev) => ({
-          ...prev,
-          ext: fileExtension,
-          file: file.name,
-        }));
-      } catch (error) {
-        console.error("Error al procesar el archivo:", error);
-      }
-    },
-    [exten]
-  );
 
   // Manejadores de eventos para arrastrar y soltar
   const handleDragOver = useCallback((e) => {
@@ -747,7 +723,7 @@ const RenderForm = ({
                   ext={exten}
                   value={
                     _formState.file
-                      ? { file: _formState.file, ext: _formState.ext }
+                      ? { file: _formState.file }
                       : ""
                   }
                   onChange={handleChangeInput}

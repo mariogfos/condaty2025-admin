@@ -202,11 +202,8 @@ const RenderForm = ({
       description: _formState.description,
       amount: parseFloat(_formState.amount || "0"),
       payment_method: _formState.payment_method,
-      file: {
-        file: _formState.file,
-        ext: _formState.ext,
-        filename: _formState.filename || "documento",
-      },
+      file: _formState.file,
+        
     };
 
     try {
@@ -389,7 +386,7 @@ const RenderForm = ({
                   ext={exten}
                   value={
                     _formState.file
-                      ? { file: _formState.file, ext: _formState.ext }
+                      ? { file: _formState.file }
                       : ""
                   }
                   onChange={handleChangeInput}
