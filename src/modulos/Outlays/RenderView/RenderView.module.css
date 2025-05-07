@@ -1,212 +1,235 @@
-.container {
-    background-color: var(--cBlack);
-    border-radius: var(--bRadius);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spL);
-    padding: var(--spL);
-  }
-  
-  /* Sección para mostrar el monto total y la fecha */
-  .totalAmountSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .totalAmount {
-    color: var(--cWhite);
-    font-size: var(--sXxl);
-    font-weight: var(--bBold);
-    margin-top: -1px;
-    text-align: center;
-    width: 100%;
-  }
-  
-  .paymentDate {
-    color: var(--cWhiteV1);
-    font-size: var(--sL);
-    line-height: 24px;
-    text-align: center;
-    width: 100%;
-  }
-  
-  /* Separador horizontal */
-  .divider {
-    height: 1px;
-    background-color: var(--cWhiteV1);
-    width: 100%;
-    margin: var(--spS) 0;
-  }
-  
-  /* Contenedor para la información detallada */
-  .detailsContainer {
-    padding: 0 40px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spM);
-    width: 100%;
-  }
-  
-  .detailRow {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: var(--spM);
-  }
-  
-  .label {
-    color: var(--cWhiteV1);
-    font-size: var(--sL);
-    flex: 1;
-    margin-top: -1px;
-  }
-  
-  .value {
-    color: var(--tWhite);
-    font-size: var(--sL);
-    flex: 1;
-    text-align: right;
-    margin-top: -1px;
-  }
-  
-  .successValue {
-    color: var(--cPrimary);
-    font-size: var(--sL);
-    flex: 1;
-    text-align: right;
-    margin-top: -1px;
-  }
-  
-  /* Botón de Revisar comprobante */
-  .buttonContainer {
-    display: flex;
-    width: 100%;
-    margin-top: var(--spL);
-  }
-  
-  .downloadButton {
-    width: 100%;
-    color: var(--cBlack) !important;
-   
-    font-size: var(--sL) !important;
-    padding: var(--spM) var(--spL) !important;
-    border-width: var(--bWidth) !important;
-    border-style: solid !important;
-    border-radius: var(--bRadiusS) !important;
-    text-align: center !important;
-    font-weight: var(--bMedium) !important;
-    transition: all 0.2s ease !important;
-  }
-  
+/* RenderView.module.css (para Egresos) */
 
+.container {
+  background-color: var(--cBlackV2); /* Usando variables del CSS de Ingresos */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spXl);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV1);
+  min-width: 550px; /* Ajusta según sea necesario */
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spXs);
+  padding-bottom: var(--spL);
+  text-align: center;
+}
+
+.amountDisplay {
+  color: var(--cWhite);
+  font-size: 36px; /* Coincide con el de Ingresos */
+  font-weight: var(--bBold);
+  line-height: 1.1;
+}
+
+.dateDisplay {
+  color: var(--cWhiteV1);
+  font-size: var(--sM); /* Coincide con el de Ingresos */
+  line-height: 1.5;
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+  margin: var(--spS) 0;
+}
+
+.mainInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  gap: var(--spXl); /* Un poco más de espacio que spL para separar mejor */
+  width: 100%;
+  padding: var(--spL) 0;
+  box-sizing: border-box;
+}
+.mainInfoGrid > .infoColumn:first-child {
+  margin-left: 50%;
   
-  .buttonActions {
-    display: flex;
+}
+
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  min-width: 0;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  font-weight: var(--bRegular);
+  line-height: 1.4;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+/* Estatus específico para egresos si se necesita colorear */
+.statusPaid { /* Ejemplo, si 'Pagado' es un estado */
+  color: var(--cSuccess) !important; /* Asumiendo que tienes esta variable */
+  font-weight: var(--bSemibold);
+}
+.statusCancelled { /* Ejemplo, si 'Anulado' es un estado */
+  color: var(--cError) !important; /* Asumiendo que tienes esta variable */
+  font-weight: var(--bSemibold);
+}
+
+
+.voucherButtonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--spL) 0;
+  position: relative; /* Si necesitas posicionar elementos dentro absolutamente */
+}
+
+.voucherButton {
+  background-color: transparent;
+  color: var(--cWhite);
+  border: 1px solid var(--cWhiteV1);
+  font-size: var(--sM);
+  padding: var(--spM) var(--spXl);
+  border-radius: var(--bRadiusS);
+  text-align: center;
+  font-weight: var(--bMedium);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  min-width: 220px;
+  max-width: 35%;
+}
+
+.voucherButton:hover {
+  background-color: var(--cWhiteV3); /* Asumiendo que tienes esta variable */
+  border-color: var(--cWhite);
+}
+
+/* Estilos para el mensaje de 'cargando' o 'no encontrado' */
+.messageContainer {
+  padding: var(--spXl) var(--spL);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.messageText {
+  font-size: var(--sL);
+  color: var(--cWhite);
+  font-weight: var(--bMedium);
+  margin-bottom: var(--spS);
+}
+
+.messageSuggestion {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+}
+
+/* Media Query para responsividad (tomado del CSS de Ingresos) */
+@media (max-width: 768px) { /* Usar var(--responsive-tablet) si está definido globalmente */
+  .container {
+    padding: var(--spL);
     gap: var(--spM);
-    width: 100%;
+    min-width: auto;
   }
-  
-  /* Sección de periodos pagados */
-  .periodsSection {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+  .headerSection {
+    padding-bottom: var(--spM);
+  }
+  .amountDisplay {
+    font-size: 30px;
+  }
+  .dateDisplay {
+    font-size: var(--sS);
+  }
+  .sectionDivider {
+    margin: var(--spXs) 0;
+  }
+  .mainInfoGrid {
+    grid-template-columns: 1fr; /* Cambia a una columna en móviles */
+    gap: var(--spM);
+    padding: var(--spM) 0;
+  }
+  .infoColumn {
     gap: var(--spM);
   }
-  
-  .periodsHeader {
-    display: flex;
-    width: 100%;
-    gap: var(--spM);
+  .voucherButtonContainer {
+    padding: var(--spM) 0;
   }
-  
-  .periodsTitle {
-    color: var(--cWhiteV1);
-    font-size: var(--sM);
-    flex: 1;
-    margin-top: -1px;
-  }
-  
-  .totalPaid {
-    color: var(--cWhiteV1);
-    font-size: var(--sM);
-    white-space: nowrap;
-    margin-top: -1px;
-  }
-  
-  .totalPaidAmount {
-    color: var(--cWhite);
-  }
-  
-  /* Tabla de periodos */
-  .tableContainer {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .tableHeader {
-    display: flex;
+  .voucherButton {
+    padding: var(--spS) var(--spM);
+    font-size: var(--sS);
+    min-width: auto;
     width: 100%;
   }
-  
-  .headerCell {
-    flex: 1;
-    background-color: var(--cBlackV2);
-    color: var(--cWhiteV1);
-    padding: var(--spM);
-    text-align: center;
-    font-size: var(--sM);
-  }
-  
-  .headerCellLeft {
-    border-radius: var(--bRadiusM) 0 0 0;
-  }
-  
-  .headerCellRight {
-    border-radius: 0 var(--bRadiusM) 0 0;
-  }
-  
-  .tableBody {
-    width: 100%;
-  }
-  
-  .tableRow {
-    display: flex;
-    width: 100%;
-  }
-  
-  .tableCell {
-    flex: 1;
-    background-color: var(--cBlackV1);
-    color: var(--cWhite);
-    padding: 20px var(--spM);
-    text-align: center;
-    font-size: var(--sM);
-  }
-  
-  .tableRowEven .tableCell {
-    background-color: var(--cBlackV2);
-  }
-  
-  .tableLastRow .tableCellLeft {
-    border-radius: 0 0 0 var(--bRadiusM);
-  }
-  
-  .tableLastRow .tableCellRight {
-    border-radius: 0 0 var(--bRadiusM) 0;
-  }
-  
-  @media (max-width: 768px) {
-    .detailsContainer {
-      padding: 0 var(--spL);
-    }
-    
-    .tableHeader, .tableRow {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
+}
+.statusPaid {
+  color: var(--cSuccess) !important; /* Asumiendo que var(--cSuccess) es verde */
+  font-weight: var(--bSemibold);
+}
+.statusCancelled {
+  color: var(--cError) !important; /* Asumiendo que var(--cError) es rojo */
+  font-weight: var(--bSemibold);
+}
+/* RenderView.module.css */
+
+/* ... (tus estilos existentes) ... */
+
+.headerActionContainer {
+  /* Puedes añadir estilos aquí si necesitas posicionar el botón de anular,
+     por ejemplo, alinearlo a la derecha. */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+  padding-bottom: var(--spM); /* Espacio antes del contenido principal del modal */
+}
+
+.textButtonDanger {
+  background-color: transparent;
+  border: none;
+  color: var(--cError);           /* Asumiendo que --cError es tu variable para el color rojo */
+  padding: 8px 12px;              /* Padding para hacerlo clickeable */
+  cursor: pointer;
+  font-family: var(--fPrimary);   /* Consistencia con tu fuente primaria */
+  font-size: var(--sM);           /* Consistencia con otros tamaños de texto (ej. .infoValue) */
+  font-weight: var(--bMedium);    /* Consistencia con otros pesos de fuente */
+  text-align: center;
+  border-radius: var(--bRadiusXs, 4px); /* Un radio de borde sutil, opcional */
+  transition: color 0.2s ease, background-color 0.2s ease; /* Transiciones suaves */
+}
+
+.textButtonDanger:hover,
+.textButtonDanger:focus { /* :focus para accesibilidad con teclado */
+  /* color: #cc0000;  Puedes oscurecer el rojo si lo deseas, o usar otra variable */
+  text-decoration: underline; /* Un subrayado es común para text buttons al hacer hover/focus */
+  background-color: rgba(255, 0, 0, 0.05); /* Un sutil color de fondo al interactuar, opcional */
+  outline: none; /* Quita el outline por defecto en focus si añades otros indicadores */
+}
+
+/* Estilos para cuando el botón pudiera estar deshabilitado (aunque tu lógica actual lo oculta) */
+.textButtonDanger:disabled {
+  color: var(--cWhiteV3, #999999); /* Color de texto apagado */
+  cursor: not-allowed;
+  text-decoration: none;
+  background-color: transparent;
+}

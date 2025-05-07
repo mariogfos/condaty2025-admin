@@ -87,6 +87,7 @@ const DataModal = ({
           className={styles['headTitle']}
           style={{color: variant === "V2"? "var(--cAccent)" : "var(--cWhite)"}}
         />
+        <div className={styles.headerDivider} />
         <section className={className}>{children}</section>
         {(buttonText != "" || buttonCancel != "") && (
           <footer>
