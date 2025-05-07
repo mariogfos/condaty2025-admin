@@ -85,6 +85,9 @@
   --cToastInfo: #596376;
   --cToastWarning: #6e6648;
 
+  --cAlert:#F37F3D;
+  --cHoverAlert:#F37F3D33;
+
   --cBigSidebar: #246950;
 
   --cCompl1: #faff7f;
@@ -380,4 +383,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.iconRounded {
+  border-radius: 50%;
+  padding: 8px;
+}
+.bottomLine {
+  border-bottom: 1px solid var(--cWhiteV1);
 }

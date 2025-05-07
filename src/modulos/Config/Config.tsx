@@ -229,6 +229,7 @@ const Config = () => {
       //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
+  console.log(formState);
 
   return (
     <div className={styles.Config}>
@@ -236,7 +237,7 @@ const Config = () => {
         <TabsButtons
           tabs={[
             { value: "C", text: "Condominio" },
-            { value: "P", text: "Pagos" },
+            { value: "P", text: "Cuentas de pagos" },
             { value: "M", text: "Morosidad" },
             { value: "T", text: "Tipos de unidades" },
           ]}

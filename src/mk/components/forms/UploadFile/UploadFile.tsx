@@ -20,6 +20,7 @@ interface PropsType extends PropsTypeInputBase {
   item?: any;
   editor?: boolean | { width: number; height: number };
   sizePreview?: { width: string | number; height: string | number };
+  onError?: Function;
 }
 export const UploadFile = ({
   className = "",
@@ -29,6 +30,7 @@ export const UploadFile = ({
   img = false, // Renombrado a props.img en renderVisualElement para evitar conflicto si se desestructura img allí
   editor = false,
   sizePreview = { width: "100px", height: "100px" },
+  onError,
   ...props
 }: PropsType) => {
   const [selectedFiles, setSelectedFiles]: any = useState({});
@@ -36,7 +38,7 @@ export const UploadFile = ({
   const [isFileError, setIsFileError] = useState(false);
   const { showToast } = useAuth();
 
-  const onError = (err: any) => {
+  const _onError = (err: any) => {
     console.log("reader error", err);
   };
 
@@ -72,9 +74,9 @@ export const UploadFile = ({
       let file: any = null;
       if (e.dataTransfer) file = e.dataTransfer.files[0];
       else file = e.target.files[0];
-      
+
       if (!file) return;
-      
+
       setSelectedFiles(file);
 
       const fileExt = file.name
@@ -95,11 +97,11 @@ export const UploadFile = ({
           const image: any = await resizeImage(file, 720, 1024, 0.7);
           let base64String = image.replace("data:", "").replace(/^.+,/, "");
           base64String = encodeURIComponent(base64String);
-          
+
           if (editor) setLoadedImage(image);
           
           const outputExt = fileExt === "webp" ? "webp" : "webp";
-          
+
           onChange({
             target: {
               name: props.name,
@@ -127,7 +129,7 @@ export const UploadFile = ({
             },
           });
         };
-        reader.onerror = onError;
+        reader.onerror = _onError;
         reader.readAsDataURL(file);
       }
     } catch (error) {
@@ -142,12 +144,12 @@ export const UploadFile = ({
       });
     }
   };
-  
+
   const handleDragOver = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
   };
-  
+
   const handleDrop = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -394,7 +396,9 @@ export const UploadFile = ({
         <ImageEditor
           imageBase64={loadedImage || false}
           onImageProcessed={handleImageProcessed}
-          size={typeof editor === 'object' ? editor : { width: 720, height: 1024 }}
+          size={
+            typeof editor === "object" ? editor : { width: 720, height: 1024 }
+          }
         />
       )}
     </ControlLabel>

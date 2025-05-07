@@ -21,6 +21,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import { IconBriefCaseMoney, IconEgresos, IconIngresos, IconWallet } from "../layout/icons/IconsBiblioteca";
+import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 // Asegúrate que la ruta al modal sea correcta
 
 const paramsInitial = {
@@ -55,7 +57,7 @@ const HomePage = () => {
   });
 
   const today = getNow();
-  const formattedDate = `Al ${getDateStrMes(today)}`;
+  const formattedDate = `Resumen ala fecha actual, ${getDateStrMes(today)}`;
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
@@ -193,22 +195,28 @@ const HomePage = () => {
     <>
       <div className={styles.container}>
         <section>
+          <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate}>
+            <div className={styles.widgetsResumeContainer}>
           <WidgetDashCard
             title="Ingresos"
-            subtitle={formattedDate}
+            // subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalIngresos)}
             onClick={() => (window.location.href = "/payments")}
+            icon={<IconIngresos color={'var(--cAccent)'}  style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
           />
           <WidgetDashCard
             title="Egresos"
-            subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.TotalEgresos)}
             onClick={() => (window.location.href = "/outlays")}
+            icon={<IconEgresos color={'var(--cError)'}  style={{backgroundColor:'var(--cHoverError)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
+
           />
           <WidgetDashCard
             title={balanceMessage}
             color={balance < 0 ? "var(--cError)" : ""}
-            subtitle={formattedDate}
             data={
               "Bs. " +
               formatNumber(
@@ -216,13 +224,43 @@ const HomePage = () => {
                   Number(dashboard?.data?.TotalEgresos)
               )
             }
+            icon={<IconBriefCaseMoney color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
+
           />
           <WidgetDashCard
             title="Cartera vencida"
-            subtitle={formattedDate}
             data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
             onClick={() => (window.location.href = "/defaultersview")}
+            icon={<IconWallet color={'var(--cAlert)'}  style={{backgroundColor:'var(--cHoverAlert)'}} circle size={38}/>}
+            className={styles.widgetResumeCard}
+
+            
           />
+          </div>
+          </WidgetBase>
+
+          <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'}>
+          <div className={styles.widgetsResumeContainer}>  
+          <WidgetDashCard
+            title="Administradores"
+            data={formatNumber(dashboard?.data?.adminsCount,0)}
+            
+          />
+               <WidgetDashCard
+            title="Residentes"
+            data={formatNumber(dashboard?.data?.ownersCount,0)}
+            
+          />
+               <WidgetDashCard
+            title="Guardias"
+            data={formatNumber(dashboard?.data?.guardsCount,0)}
+            
+          />
+          </div>
+          </WidgetBase>
+
         </section>
 
         <section>
@@ -232,6 +270,9 @@ const HomePage = () => {
             egresos={dashboard?.data?.egresosHist}
             periodo="y"
           />
+           <div className={styles.widgetContents}>
+           <WidgetContentsResume data={dashboard?.data?.posts}/>
+           </div>
         </section>
 
         <section>

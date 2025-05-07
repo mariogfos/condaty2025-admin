@@ -6,12 +6,13 @@ interface Props {
   subtitle?: string | React.ReactNode;
   className?: string;
   children: React.ReactNode;
+  variant?: string; // TODO: add more variants if needed
   style?: any;
 }
 
-const WidgetBase = ({ title, subtitle, className, children, style }: Props) => {
+const WidgetBase = ({ title, subtitle, className, children, style ,variant}: Props) => {
   return (
-    <div style={style} className={styles.widgetBase + " " + (className || "")}>
+    <div style={style} className={variant === "V1" ? styles.widgetBaseV1 : styles.widgetBase + " " + (className || "")}>
       {typeof title === "string" ? (
         <h1 className={styles.title}>{title}</h1>
       ) : (
