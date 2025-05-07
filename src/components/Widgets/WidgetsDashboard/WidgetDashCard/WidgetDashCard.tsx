@@ -1,6 +1,9 @@
 import React from "react";
 import styles from "./WidgetDashCard.module.css";
-import { IconAccess, IconInterrogation } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconAccess,
+  IconInterrogation,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Tooltip from "@/components/Tooltip/Tooltip";
 
 interface ItemProps {
@@ -10,9 +13,10 @@ interface ItemProps {
   data: string;
   onClick?: () => void;
   color?: string;
-  icon?:any;
-  tooltip?:boolean;
-  tooltipTitle?: string; 
+  icon?: any;
+  tooltip?: boolean;
+  tooltipTitle?: string;
+  style?: React.CSSProperties;
 }
 
 export const WidgetDashCard = ({
@@ -23,24 +27,32 @@ export const WidgetDashCard = ({
   data,
   icon,
   tooltip,
-  tooltipTitle='',
+  tooltipTitle = "",
   onClick,
+  style,
 }: ItemProps) => {
   return (
     <div
-      className={`${styles.container} ${onClick ? styles.clickable : ""} ${className}`}
+      className={`${styles.container} ${
+        onClick ? styles.clickable : ""
+      } ${className}`}
       onClick={onClick}
+      style={style}
     >
-      <div >
-        <p>{title} {tooltip && <Tooltip title={tooltipTitle} position="right"><IconInterrogation  /> </Tooltip>}</p>
-       
-           {icon}
+      <div>
+        <p>
+          {title}{" "}
+          {tooltip && (
+            <Tooltip title={tooltipTitle} position="right">
+              <IconInterrogation />{" "}
+            </Tooltip>
+          )}
+        </p>
+
+        {icon}
       </div>
       <p>{subtitle}</p>
-      <p
-        className={styles.data}
-        style={color ? { color: color } : undefined}
-      >
+      <p className={styles.data} style={color ? { color: color } : undefined}>
         {data}
       </p>
     </div>

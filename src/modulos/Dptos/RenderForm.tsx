@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
@@ -23,19 +23,21 @@ const RenderForm = ({
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
-  console.log(item,'itetetet')
+  console.log(item, "itetetet");
 
   useEffect(() => {
     if (item?.type_id) {
-      const selectedType = extraData?.type?.find((t: any) => t.id === parseInt(item.type_id));
+      const selectedType = extraData?.type?.find(
+        (t: any) => t.id === parseInt(item.type_id)
+      );
       if (selectedType) {
         const fields = selectedType.fields || [];
         setTypeFields(fields);
-        
+
         // Inicializar los campos habilitados y sus valores
-        const enabledFieldsInit:any = {};
+        const enabledFieldsInit: any = {};
         const formStateUpdate = { ...item, type: item.type_id };
-        
+
         // Procesar field_values si existen
         if (item.field_values && Array.isArray(item.field_values)) {
           item.field_values.forEach((fieldValue: any) => {
@@ -43,7 +45,7 @@ const RenderForm = ({
             formStateUpdate[`field_${fieldValue.field_id}`] = fieldValue.value;
           });
         }
-        
+
         setEnabledFields(enabledFieldsInit);
         setFormState(formStateUpdate);
       }
@@ -52,9 +54,11 @@ const RenderForm = ({
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name === 'type') {
-      const selectedType = extraData?.type?.find((t: any) => t.id === parseInt(value));
+
+    if (name === "type") {
+      const selectedType = extraData?.type?.find(
+        (t: any) => t.id === parseInt(value)
+      );
       const fields = selectedType?.fields || [];
       setTypeFields(fields);
       setEnabledFields({});
@@ -63,26 +67,26 @@ const RenderForm = ({
         [name]: value,
         // Limpiar los valores de los campos adicionales al cambiar el tipo
         ...fields.reduce((acc: any, field: any) => {
-          acc[`field_${field.id}`] = '';
+          acc[`field_${field.id}`] = "";
           return acc;
-        }, {})
+        }, {}),
       }));
-    } else if (name.startsWith('enable_')) {
-      const fieldId = name.replace('enable_', '');
+    } else if (name.startsWith("enable_")) {
+      const fieldId = name.replace("enable_", "");
       setEnabledFields((prev: any) => ({
         ...prev,
-        [fieldId]: checked
+        [fieldId]: checked,
       }));
       if (!checked) {
         setFormState((prev: any) => ({
           ...prev,
-          [`field_${fieldId}`]: ''
+          [`field_${fieldId}`]: "",
         }));
       }
     } else {
       setFormState((prev: any) => ({ ...prev, [name]: value }));
+    }
   };
-}
 
   const validate = () => {
     let errs: any = {};
@@ -135,7 +139,7 @@ const RenderForm = ({
       .filter((field: any) => enabledFields[field.id])
       .map((field: any) => ({
         field_id: field.id,
-        value: formState[`field_${field.id}`] || ""
+        value: formState[`field_${field.id}`] || "",
       }));
 
     const { data: response } = await execute(
@@ -148,7 +152,7 @@ const RenderForm = ({
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         homeowner_id: formState.homeowner_id,
-        fields: fields
+        fields: fields,
       },
       false
     );
@@ -162,13 +166,19 @@ const RenderForm = ({
     }
   };
 
-  const homeownerOptions = extraData?.homeowners?.map((c: any) => ({
-    id: c.id,
-    name: getFullName(c),
-  })) || [];
+  const homeownerOptions =
+    extraData?.homeowners?.map((c: any) => ({
+      id: c.id,
+      name: getFullName(c),
+    })) || [];
 
   return (
-    <DataModal open={open} onClose={onClose} title={formState.id ? "Editar Unidad" : "Crear Unidad"} onSave={onSave}>
+    <DataModal
+      open={open}
+      onClose={onClose}
+      title={formState.id ? "Editar Unidad" : "Crear Unidad"}
+      onSave={onSave}
+    >
       <Input
         label="Número de Unidad"
         name="nro"
@@ -193,24 +203,24 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       />
-
-      <Input
-        label="Expensa"
-        name="expense_amount"
-        value={formState.expense_amount}
-        onChange={handleChange}
-        type="number"
-        error={errors}
-      />
-
-      <Input
-        label="Dimensiones en m²"
-        name="dimension"
-        value={formState.dimension}
-        onChange={handleChange}
-        type="number"
-        error={errors}
-      />
+      <div style={{ display: "flex", gap: 12 }}>
+        <Input
+          label="Dimensiones en m²"
+          name="dimension"
+          value={formState.dimension}
+          onChange={handleChange}
+          type="number"
+          error={errors}
+        />
+        <Input
+          label="Monto de expensa (Bs)"
+          name="expense_amount"
+          value={formState.expense_amount}
+          onChange={handleChange}
+          type="number"
+          error={errors}
+        />
+      </div>
 
       <Select
         label="Propietario"
@@ -257,7 +267,6 @@ const RenderForm = ({
           )}
         </div>
       ))} */}
-
     </DataModal>
   );
 };

@@ -3,7 +3,7 @@
 import styles from "./Dptos.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useEffect, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -15,6 +15,12 @@ import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
 import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import {
+  IconDepartment,
+  IconDepartments,
+  IconHome,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   fullType: "L",
@@ -31,6 +37,7 @@ const lTitulars = [
 const Dptos = () => {
   const router = useRouter();
   const { user, store } = useAuth();
+  const [typeUnits, setTypeUnits] = useState([]);
 
   const client = user.clients.filter(
     (item: any) => item.id === user.client_id
@@ -229,7 +236,9 @@ const Dptos = () => {
     onEdit,
     onDel,
     showToast,
+    extraData,
     execute,
+    data,
     reLoad,
   } = useCrud({
     paramsInitial,
@@ -267,9 +276,100 @@ const Dptos = () => {
     );
   };
 
+  const getFormatTypeUnit = () => {
+    let untis: any = [];
+
+    extraData?.type?.map((c: any) => {
+      untis.push({ id: c.id, name: c.name, value: 0 });
+    });
+
+    data?.data?.map((c: any) => {
+      let index = untis.findIndex((item: any) => item.id === c.type.id);
+      if (index !== -1) {
+        untis[index].value += 1;
+      }
+    });
+    return untis;
+  };
+
+  type RoundProps = {
+    children: React.ReactNode;
+    style?: React.CSSProperties;
+  };
+  const Round = ({ children, style }: RoundProps) => {
+    return (
+      <div
+        style={{
+          ...style,
+          padding: 8,
+          borderRadius: "50%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+        }}
+      >
+        <WidgetDashCard
+          title={"Unidades totales"}
+          data={data?.message?.total}
+          style={{}}
+          icon={
+            <Round
+              style={{
+                backgroundColor: "var(--cHoverInfo)",
+                color: "var(--cInfo)",
+              }}
+            >
+              <IconDepartments />
+            </Round>
+          }
+        />
+        {getFormatTypeUnit().map((item: any, i: number) => {
+          return (
+            <WidgetDashCard
+              key={i}
+              title={item.name}
+              data={item.value}
+              style={{}}
+              icon={
+                item?.name === "Casa" ? (
+                  <Round
+                    style={{
+                      backgroundColor: "var(--cHoverSuccess)",
+                      color: "var(--cSuccess)",
+                    }}
+                  >
+                    <IconHome />
+                  </Round>
+                ) : item.name == "Departamento" ? (
+                  <Round
+                    style={{
+                      backgroundColor: "var(--cHoverWarning)",
+                      color: "var(--cWarning)",
+                    }}
+                  >
+                    <IconDepartment />
+                  </Round>
+                ) : null
+              }
+            />
+          );
+        })}
+      </div>
+
       <List onTabletRow={renderItem} onRowClick={handleRowClick} />
       {openImport && (
         <ImportDataModal
