@@ -71,6 +71,10 @@
   padding: var(--spL) 0;
   box-sizing: border-box;
 }
+.mainInfoGrid > .infoColumn:first-child {
+  margin-left: 50%;
+  
+}
 
 .infoColumn {
   display: flex;
@@ -101,7 +105,7 @@
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0; /* Para que el texto largo no impida que el contenedor se encoja */
-  text-align: right; /* Alineación a la derecha para todos los valores */
+  text-align: left; /* Alineación a la derecha para todos los valores */
 }
 
 .infoValue div {
@@ -323,6 +327,27 @@
     gap: var(--spM);
     padding: var(--spM) 0;
   }
+  .mainInfoGrid > .infoColumn:first-child {
+    /* Si tenías "margin-left: 50%;" aquí, cámbialo por un valor más pequeño.
+       Si no tenías esta regla, añádela con el valor deseado. */
+    margin-left: var(--spL); /* Ejemplo: usa una de tus variables de espaciado existentes */
+    /* Alternativas:
+       margin-left: 20px;  // Un valor fijo en píxeles
+       margin-left: 1.5rem; // Un valor fijo en rems
+    */
+  }
+  .mainInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  gap: var(--spXl); /* Un poco más de espacio que spL para separar mejor */
+  width: 100%;
+  padding: var(--spL) 0;
+  box-sizing: border-box;
+}
+.mainInfoGrid > .infoColumn:first-child {
+  margin-left: 50%;
+  
+}
   .infoColumn {
     gap: var(--spM);
   }
@@ -418,4 +443,43 @@
   .infoValue {
     font-size: 0.875rem;
   }
+}
+
+.headerActionContainer {
+  /* Puedes añadir estilos aquí si necesitas posicionar el botón de anular,
+     por ejemplo, alinearlo a la derecha. */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+  padding-bottom: var(--spM); /* Espacio antes del contenido principal del modal */
+}
+
+.textButtonDanger {
+  background-color: transparent;
+  border: none;
+  color: var(--cError);           /* Asumiendo que --cError es tu variable para el color rojo */
+  padding: 8px 12px;              /* Padding para hacerlo clickeable */
+  cursor: pointer;
+  font-family: var(--fPrimary);   /* Consistencia con tu fuente primaria */
+  font-size: var(--sM);           /* Consistencia con otros tamaños de texto (ej. .infoValue) */
+  font-weight: var(--bMedium);    /* Consistencia con otros pesos de fuente */
+  text-align: center;
+  border-radius: var(--bRadiusXs, 4px); /* Un radio de borde sutil, opcional */
+  transition: color 0.2s ease, background-color 0.2s ease; /* Transiciones suaves */
+}
+
+.textButtonDanger:hover,
+.textButtonDanger:focus { /* :focus para accesibilidad con teclado */
+  /* color: #cc0000;  Puedes oscurecer el rojo si lo deseas, o usar otra variable */
+  text-decoration: underline; /* Un subrayado es común para text buttons al hacer hover/focus */
+  background-color: rgba(255, 0, 0, 0.05); /* Un sutil color de fondo al interactuar, opcional */
+  outline: none; /* Quita el outline por defecto en focus si añades otros indicadores */
+}
+
+/* Estilos para cuando el botón pudiera estar deshabilitado (aunque tu lógica actual lo oculta) */
+.textButtonDanger:disabled {
+  color: var(--cWhiteV3, #999999); /* Color de texto apagado */
+  cursor: not-allowed;
+  text-decoration: none;
+  background-color: transparent;
 }
