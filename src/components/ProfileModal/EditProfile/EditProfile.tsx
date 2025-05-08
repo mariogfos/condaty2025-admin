@@ -7,7 +7,7 @@ import { IconCamera, IconImage } from '@/components/layout/icons/IconsBiblioteca
 import { getFullName, getUrlImages } from '@/mk/utils/string'
 import Button from '@/mk/components/forms/Button/Button'
 
-const EditProfile = ({open,onClose,formState,errors}:any) => {
+const EditProfile = ({open,onClose,formState, urlImages,errors}:any) => {
     const [preview, setPreview] = useState<string | null>(null);
   
 

@@ -125,7 +125,7 @@ const ProfileModal = ({
                         <div>
                             <Avatar 
                             src={getUrlImages(
-                                "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
+                                "/ADM-" + data?.data[0]?.id + ".webp?d=" + data?.data[0]?.updated_at
                             )}
                                 name={user?.name}
                                 w={191}
@@ -134,7 +134,7 @@ const ProfileModal = ({
                                 />
                                 <div>
                                 <span> {getFullName(user)}</span>
-                                {/* <span>{data?.data[0]?.}</span> */}
+                                <span>{data?.data[0]?.role[0]?.name}</span>
 
                                 </div>
                         </div>
@@ -159,10 +159,11 @@ const ProfileModal = ({
         <div className='bottomLine' />
         <div>
             <div>Condominio</div>
-            <div>766737</div>
-            <div>12122112212</div>
-            <div>12122112212</div>
-        </div>
+            {data?.data[0]?.clients.map((item:any)=> (
+              <div key={item.id}>- {item.name}</div>
+            ))}
+        </div>      
+ 
         <div className='bottomLine' />
 
         <div>
