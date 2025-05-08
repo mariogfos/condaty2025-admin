@@ -23,6 +23,7 @@ interface ProfileModalProps {
 
 }
 interface FormState {
+    id?: string | number;
     ci?: string;
     name?: string;
     middle_name?: string;
@@ -58,15 +59,16 @@ const ProfileModal = ({
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> : <IconUser color={'var(--cWhiteV1)'} size={32}/>;
+    const url = type === 'admin'? `/users` : type === 'owners'?  `/owners` : `/guards`;
     
-    const { data, } = useAxios(
+    const { data,reLoad } = useAxios(
       "/users",
       "GET",
       {
         searchBy: dataID,  
         fullType: "DET",
       },
-      true
+      // true
     );
     const imageUrl = () => {
       const userId = data?.data[0]?.id;
@@ -83,11 +85,12 @@ const ProfileModal = ({
     };
     
     const urlImages = imageUrl();
-      console.log(data,'dadada',dataID,'did')
+      // console.log(data,'dadada',dataID,'did')
 
       useEffect(() => {
         if (data?.data[0]) {
           setFormState({
+            id: data?.data[0]?.id,
             ci: data?.data[0]?.ci,
             name: data?.data[0]?.name,
             middle_name: data?.data[0]?.middle_name,
@@ -99,7 +102,7 @@ const ProfileModal = ({
             email: data?.data[0]?.email,
           })
         }
-      },[openEdit]);
+      },[openEdit,data]);
 
 
 
@@ -260,6 +263,8 @@ const ProfileModal = ({
       errors={errors}
       urlImages={urlImages}
       setErrors={setErrors}
+      url={url}
+      reLoad={reLoad}
     />
 }  
    
