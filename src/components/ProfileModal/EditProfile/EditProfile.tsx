@@ -1,6 +1,6 @@
 import Input from '@/mk/components/forms/Input/Input'
 import DataModal from '@/mk/components/ui/DataModal/DataModal'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './EditProfile.module.css'
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar'
 import { IconCamera, IconImage } from '@/components/layout/icons/IconsBiblioteca'
@@ -11,13 +11,16 @@ const EditProfile = ({open,onClose,formState, urlImages,errors}:any) => {
     const [preview, setPreview] = useState<string | null>(null);
   
 
+    // useEffect(() => {
+    //   setF
+    // })
     const getAvatarUrl = () => {
         // Si hay una vista previa (al subir nueva imagen), usamos esa
         if (preview) {
           return preview;
         }
         // Si no, generamos la URL con la función getUrlImages
-        return' getUrlImages(`/ADM-${user?.id}.webp?d=${user?.updated_at}`);'
+        return getUrlImages(urlImages);
       };
   return (
     <DataModal 

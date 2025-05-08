@@ -58,17 +58,59 @@ const ProfileModal = ({
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> : <IconUser color={'var(--cWhiteV1)'} size={32}/>;
-   
+    
     const { data, } = useAxios(
-        "/users",
-        "GET",
-        {
-          searchBy: dataID,  
-          fullType: "DET",
-        },
-        true
-      );
+      "/users",
+      "GET",
+      {
+        searchBy: dataID,  
+        fullType: "DET",
+      },
+      true
+    );
+    const imageUrl = () => {
+      const userId = data?.data[0]?.id;
+      const timestamp = data?.data[0]?.updated_at;
+      
+      switch(type) {
+        case 'admin':
+          return `/ADM-${userId}.webp?d=${timestamp}`;
+        case 'owner':
+          return `/OWNER-${userId}.webp?d=${timestamp}`;
+        default:
+          return `/GUA-${userId}.webp?d=${timestamp}`;
+      }
+    };
+    
+    const urlImages = imageUrl();
       console.log(data,'dadada',dataID,'did')
+
+      useEffect(() => {
+        if (data?.data[0]) {
+          setFormState({
+            ci: data?.data[0]?.ci,
+            name: data?.data[0]?.name,
+            middle_name: data?.data[0]?.middle_name,
+            last_name: data?.data[0]?.last_name,
+            mother_last_name: data?.data[0]?.mother_last_name,
+            phone: data?.data[0]?.phone,
+            avatar: data?.data[0]?.avatar,
+            address: data?.data[0]?.address,
+            email: data?.data[0]?.email,
+          })
+        }
+      },[openEdit]);
+
+
+
+
+
+      const onChange = (e: any) => {
+        setFormState({
+          ...formState,
+          [e.target.name]: e.target.value,
+        });
+      };
      
 
     
@@ -124,16 +166,14 @@ const ProfileModal = ({
                 <div>
                         <div>
                             <Avatar 
-                            src={getUrlImages(
-                                "/ADM-" + data?.data[0]?.id + ".webp?d=" + data?.data[0]?.updated_at
-                            )}
-                                name={user?.name}
+                            src={getUrlImages(urlImages)}
+                                name={data?.data[0]}
                                 w={191}
                                 h={191}
                                 
                                 />
                                 <div>
-                                <span> {getFullName(user)}</span>
+                                <span> {getFullName(data?.data[0])}</span>
                                 <span>{data?.data[0]?.role[0]?.name}</span>
 
                                 </div>
@@ -216,8 +256,9 @@ const ProfileModal = ({
       open={openEdit}
       onClose={() => setOpenEdit(false)}
       formState={formState}
-      setFormState={setFormState}
+      onChange={onChange}
       errors={errors}
+      urlImages={urlImages}
       setErrors={setErrors}
     />
 }  

@@ -10,10 +10,9 @@
             /* background-color: greenyellow; */
         }
         .modalAvatar {
-            /* width: 100px;
-            height: 100px; */
             position: relative;
             border-radius: 50%;
+            opacity: 0.5;
             background-color: var(--darkColor);
             display: flex;
             justify-content: center;
