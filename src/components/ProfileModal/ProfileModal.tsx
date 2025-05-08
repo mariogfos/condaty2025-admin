@@ -232,10 +232,16 @@ const ProfileModal = ({
 
 
       </WidgetBase >
-      <WidgetBase variant={'V1'}>
-        as
+      <WidgetBase title={'Documentos Personales' } variant={'V1'} titleStyle={{fontSize:16}}>
+        <div className='bottomLine'></div>
+        <div style={{marginTop:16}}>Sin datos para mostrar</div>
       </WidgetBase>
-      <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16}} >
+
+
+
+{  user.id === data?.data[0]?.id &&     
+  
+  <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16}} >
       <div className='bottomLine'/>
         
         <div className={styles.buttonChange} onClick={onChangeEmail}>
@@ -247,7 +253,7 @@ const ProfileModal = ({
         </div>
       <div className='bottomLine'/>
 
-      </WidgetBase>
+      </WidgetBase>}
       </section>
 
 
