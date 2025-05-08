@@ -31,7 +31,6 @@ const paramsInitial = {
 const lTitulars = [
   { id: "S", name: "Sin Titular" },
   { id: "C", name: "Con Titular" },
-  { id: "T", name: "Todos" },
 ];
 
 const Dptos = () => {
@@ -60,8 +59,8 @@ const Dptos = () => {
     hideActions: {
       view: true,
       add: false,
-      edit: false,
-      del: false,
+      edit: true,
+      del: true,
     },
     renderForm: (props: {
       item: any;
@@ -73,6 +72,31 @@ const Dptos = () => {
       execute: any;
     }) => <RenderForm {...props} />,
   };
+
+  type StateLabelProps = {
+    children: React.ReactNode;
+    backgroundColor?: string;
+    color?: string;
+  };
+
+  const StateLabel = ({
+    children,
+    backgroundColor,
+    color,
+  }: StateLabelProps) => {
+    return (
+      <div
+        className={styles.stateLabel}
+        style={{
+          backgroundColor: backgroundColor,
+          color: color,
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -91,7 +115,7 @@ const Dptos = () => {
         api: "ae",
         label: "Descripción",
         form: { type: "text" },
-        list: true,
+        list: false,
       },
       type: {
         rules: ["required"],
@@ -170,7 +194,17 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
-            return getFullName(props?.item?.homeowner) || "Sin propietario";
+            return props?.item?.homeowner ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar name={getFullName(props?.item?.homeowner)} />
+                <div>
+                  <p>{getFullName(props?.item?.homeowner)}</p>
+                  <p>CI: {props?.item?.homeowner?.ci || "Sin registro"}</p>
+                </div>
+              </div>
+            ) : (
+              "Sin propietario"
+            );
           },
         },
       },
@@ -202,10 +236,10 @@ const Dptos = () => {
                       props?.item?.titular?.owner?.updated_at
                   )}
                   name={getFullName(props?.item?.titular?.owner)}
-                  square
                 />
                 <div>
                   <p>{getFullName(props?.item?.titular?.owner)}</p>
+                  <p>CI: {props?.item?.titular?.owner?.ci || "Sin registro"}</p>
                 </div>
               </div>
             );
@@ -214,11 +248,34 @@ const Dptos = () => {
         filter: {
           label: "Titular",
 
-          options: () => [{ id: "", name: "Todos" }, ...lTitulars],
+          options: () => [{ id: "T", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
           optionValue: "id",
         },
         import: true,
+      },
+      status: {
+        rules: [""],
+        api: "",
+        label: "Estado",
+        form: false,
+        list: {
+          width: "160px",
+          onRender: (props: any) => {
+            return props?.item?.titular ? (
+              <StateLabel
+                color="var(--cSuccess)"
+                backgroundColor="var(--cHoverSuccess)"
+              >
+                Habitada
+              </StateLabel>
+            ) : (
+              <StateLabel backgroundColor="var(--cHover)">
+                Disponible
+              </StateLabel>
+            );
+          },
+        },
       },
     };
   }, []);
