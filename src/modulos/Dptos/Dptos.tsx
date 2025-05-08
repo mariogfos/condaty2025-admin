@@ -3,7 +3,7 @@
 import styles from "./Dptos.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useEffect, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -15,6 +15,12 @@ import { useRouter } from "next/navigation";
 import { UnitsType } from "@/mk/utils/utils";
 import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import {
+  IconDepartment,
+  IconDepartments,
+  IconHome,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   fullType: "L",
@@ -25,12 +31,12 @@ const paramsInitial = {
 const lTitulars = [
   { id: "S", name: "Sin Titular" },
   { id: "C", name: "Con Titular" },
-  { id: "T", name: "Todos" },
 ];
 
 const Dptos = () => {
   const router = useRouter();
   const { user, store } = useAuth();
+  const [typeUnits, setTypeUnits] = useState([]);
 
   const client = user.clients.filter(
     (item: any) => item.id === user.client_id
@@ -53,8 +59,8 @@ const Dptos = () => {
     hideActions: {
       view: true,
       add: false,
-      edit: false,
-      del: false,
+      edit: true,
+      del: true,
     },
     renderForm: (props: {
       item: any;
@@ -66,6 +72,31 @@ const Dptos = () => {
       execute: any;
     }) => <RenderForm {...props} />,
   };
+
+  type StateLabelProps = {
+    children: React.ReactNode;
+    backgroundColor?: string;
+    color?: string;
+  };
+
+  const StateLabel = ({
+    children,
+    backgroundColor,
+    color,
+  }: StateLabelProps) => {
+    return (
+      <div
+        className={styles.stateLabel}
+        style={{
+          backgroundColor: backgroundColor,
+          color: color,
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -74,7 +105,7 @@ const Dptos = () => {
         rules: ["required"],
         api: "ae",
         // label: "Número de " + store?.UnitsType,
-        label: "Número de unidad",
+        label: "Unidad",
         form: { type: "text" },
         list: { width: "100px" },
       },
@@ -84,7 +115,7 @@ const Dptos = () => {
         api: "ae",
         label: "Descripción",
         form: { type: "text" },
-        list: true,
+        list: false,
       },
       type: {
         rules: ["required"],
@@ -163,7 +194,19 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
-            return getFullName(props?.item?.homeowner) || "Sin propietario";
+            return props?.item?.homeowner ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar name={getFullName(props?.item?.homeowner)} />
+                <div>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(props?.item?.homeowner)}
+                  </p>
+                  <p>CI: {props?.item?.homeowner?.ci || "Sin registro"}</p>
+                </div>
+              </div>
+            ) : (
+              "Sin propietario"
+            );
           },
         },
       },
@@ -195,10 +238,12 @@ const Dptos = () => {
                       props?.item?.titular?.owner?.updated_at
                   )}
                   name={getFullName(props?.item?.titular?.owner)}
-                  square
                 />
                 <div>
-                  <p>{getFullName(props?.item?.titular?.owner)}</p>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(props?.item?.titular?.owner)}
+                  </p>
+                  <p>CI: {props?.item?.titular?.owner?.ci || "Sin registro"}</p>
                 </div>
               </div>
             );
@@ -207,11 +252,34 @@ const Dptos = () => {
         filter: {
           label: "Titular",
 
-          options: () => [{ id: "", name: "Todos" }, ...lTitulars],
+          options: () => [{ id: "T", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
           optionValue: "id",
         },
         import: true,
+      },
+      status: {
+        rules: [""],
+        api: "",
+        label: "Estado",
+        form: false,
+        list: {
+          width: "160px",
+          onRender: (props: any) => {
+            return props?.item?.titular ? (
+              <StateLabel
+                color="var(--cSuccess)"
+                backgroundColor="var(--cHoverSuccess)"
+              >
+                Habitada
+              </StateLabel>
+            ) : (
+              <StateLabel backgroundColor="var(--cHover)">
+                Disponible
+              </StateLabel>
+            );
+          },
+        },
       },
     };
   }, []);
@@ -229,7 +297,9 @@ const Dptos = () => {
     onEdit,
     onDel,
     showToast,
+    extraData,
     execute,
+    data,
     reLoad,
   } = useCrud({
     paramsInitial,
@@ -267,9 +337,100 @@ const Dptos = () => {
     );
   };
 
+  const getFormatTypeUnit = () => {
+    let untis: any = [];
+
+    extraData?.type?.map((c: any) => {
+      untis.push({ id: c.id, name: c.name, value: 0 });
+    });
+
+    data?.data?.map((c: any) => {
+      let index = untis.findIndex((item: any) => item.id === c.type.id);
+      if (index !== -1) {
+        untis[index].value += 1;
+      }
+    });
+    return untis;
+  };
+
+  type RoundProps = {
+    children: React.ReactNode;
+    style?: React.CSSProperties;
+  };
+  const Round = ({ children, style }: RoundProps) => {
+    return (
+      <div
+        style={{
+          ...style,
+          padding: 8,
+          borderRadius: "50%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+        }}
+      >
+        <WidgetDashCard
+          title={"Unidades totales"}
+          data={data?.message?.total}
+          style={{}}
+          icon={
+            <Round
+              style={{
+                backgroundColor: "var(--cHoverInfo)",
+                color: "var(--cInfo)",
+              }}
+            >
+              <IconDepartments />
+            </Round>
+          }
+        />
+        {getFormatTypeUnit().map((item: any, i: number) => {
+          return (
+            <WidgetDashCard
+              key={i}
+              title={item.name}
+              data={item.value}
+              style={{}}
+              icon={
+                item?.name === "Casa" ? (
+                  <Round
+                    style={{
+                      backgroundColor: "var(--cHoverSuccess)",
+                      color: "var(--cSuccess)",
+                    }}
+                  >
+                    <IconHome />
+                  </Round>
+                ) : item.name == "Departamento" ? (
+                  <Round
+                    style={{
+                      backgroundColor: "var(--cHoverWarning)",
+                      color: "var(--cWarning)",
+                    }}
+                  >
+                    <IconDepartment />
+                  </Round>
+                ) : null
+              }
+            />
+          );
+        })}
+      </div>
+
       <List onTabletRow={renderItem} onRowClick={handleRowClick} />
       {openImport && (
         <ImportDataModal

@@ -88,7 +88,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
     });
 
   const pendingClients = user.clients.filter(
-    (client: any) => client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
+    (client: any) =>
+      client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
   );
   return (
     <DataModal
