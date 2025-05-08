@@ -188,6 +188,7 @@ const Layout = ({ children }: any) => {
         onClose={() => {
           setStore({openProfileModal:false})
         }}
+        dataID={user?.id}
         titleBack="Volver atras"
         type="admin"
       />

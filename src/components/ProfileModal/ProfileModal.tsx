@@ -68,10 +68,10 @@ const ProfileModal = ({
         },
         true
       );
-      console.log(data,'dadada')
+      console.log(data,'dadada',dataID,'did')
      
 
-
+    
 
 
 
@@ -134,16 +134,16 @@ const ProfileModal = ({
                                 />
                                 <div>
                                 <span> {getFullName(user)}</span>
-                                <span> {getFullName(user)}</span>
+                                {/* <span>{data?.data[0]?.}</span> */}
 
                                 </div>
                         </div>
                 </div>
 
                 <div>
-                <div>{IconType} assaas</div> 
-                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data?.phone}</div> 
-                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/> {data?.data?.mail}</div>
+                <div>{IconType} {data?.data[0]?.type === 'ADM' ? 'Administrador' : 'Usuario'}</div> 
+                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.phone}</div> 
+                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.email}</div>
                 </div>
         </div> 
         
@@ -154,7 +154,7 @@ const ProfileModal = ({
       <div className='bottomLine' />
         <div>
             <div>Carnet de identidad</div>
-            <div>data?.data?.ci</div>
+            <div>{data?.data[0]?.ci}</div>
         </div>
         <div className='bottomLine' />
         <div>
@@ -167,7 +167,7 @@ const ProfileModal = ({
 
         <div>
             <div>Domicilio</div>
-            <div>{data?.data?.address}</div>
+            <div>{data?.data[0]?.address || 'Sin registro'}</div>
         </div> 
          
       <div className='bottomLine'/>
