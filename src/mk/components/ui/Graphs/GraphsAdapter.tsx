@@ -74,14 +74,34 @@ const GraphsAdapter = ({
       fontFamily: "Inter",
       labels: {
         colors: colorWhite,
+        useSeriesColors: false,
       },
       position: "bottom",
       offsetY: 8,
       offsetX: 0,
-      // position: "bottom", // O 'top', 'left', 'right'
-      // horizontalAlign: "center",
-      // offsetX: 0, // Ajusta la posición horizontal del texto de la leyenda
-      // offsetY: 0, //
+      formatter: function(seriesName: string, opts: any) {
+        const value = opts.w.globals.seriesTotals[opts.seriesIndex];
+        return [seriesName, options?.money ? formatNumber(value, 2) + " Bs" : formatNumber(value, 2)];
+      },
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 50,
+        offsetX: 0,
+        offsetY: 0
+      },
+      itemMargin: {
+        horizontal: 20,
+        vertical: 5
+      },
+      containerMargin: {
+        top: 10,
+        right: 0,
+        bottom: 0,
+        left: 0
+      },
+      horizontalAlign: 'space-between',
+      width: '100%'
     },
     xaxis: {
       labels: {
