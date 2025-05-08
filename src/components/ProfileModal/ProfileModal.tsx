@@ -163,8 +163,8 @@ const ProfileModal = ({
       <section>  
       <h1>{title}</h1>
       <div>
-    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}} onClick={()=>setOpenEdit(true)}/>}
-    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}} onClick={()=>setOpenDel(true)}/>}
+    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)',cursor:'pointer'}} onClick={()=>setOpenEdit(true)}/>}
+    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)',cursor:'pointer'}} onClick={()=>setOpenDel(true)}/>}
       </div>
       </section>
 
