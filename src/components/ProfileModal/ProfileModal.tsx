@@ -55,6 +55,7 @@ const ProfileModal = ({
     const [openAuthModal, setOpenAuthModal] = useState(false);
     const [authType, setAuthType] = useState("");
     const [openEdit, setOpenEdit] = useState(false);
+    const [openDel, setOpenDel] = useState(false);
     const client = user?.clients?.filter(
         (item: any) => item?.id === user?.client_id
       )[0];
@@ -130,7 +131,19 @@ const ProfileModal = ({
         setAuthType("P");
         setOpenAuthModal(true);
       };
-      
+    const onDel = async() =>{
+
+
+      const { data } = await execute(url + "/" + formState.id, "DELETE", {
+        is_canceled: "Y",
+      });
+      if (data?.success == true) {
+        // getAreasM();
+        showToast("Mantenimiento cancelado con éxito", "success");
+        // setOpenConfirm({ open: false, id: null });
+      }
+    }
+
 
 
 
@@ -151,7 +164,7 @@ const ProfileModal = ({
       <h1>{title}</h1>
       <div>
     {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}} onClick={()=>setOpenEdit(true)}/>}
-    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}}/>}
+    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}} onClick={()=>setOpenDel(true)}/>}
       </div>
       </section>
 
@@ -266,7 +279,21 @@ const ProfileModal = ({
       url={url}
       reLoad={reLoad}
     />
-}  
+   }
+   {openDel && <DataModal
+    title={`Desvincular ${data?.data[0]?.role[0]?.name}`}
+    open={openDel}
+    onClose={() => setOpenDel(false)}
+     buttonText="Desvincular"
+     buttonCancel="Cancelar"
+    onSave={onDel}
+  >
+    <div>
+    <p style={{fontSize:'var(--sL)'}}>¿Estás seguro de que quieres eliminar este registro?</p>
+    <p>Esta acción no se puede deshacer.</p>
+    </div>
+  </DataModal>}
+  
    
   </DataModal>
   )
