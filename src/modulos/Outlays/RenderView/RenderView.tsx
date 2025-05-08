@@ -121,7 +121,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         <div className={styles.headerSection}>
           <div className={styles.amountDisplay}>Bs {formatNumber(item.amount)}</div>
           <div className={styles.dateDisplay}>
-            {getDateStrMes(item.date_at)} {/* Usar formato consistente */}
+            {getDateTimeStrMesShort(item.date_at)} {/* Usar formato consistente */}
           </div>
         </div>
 
