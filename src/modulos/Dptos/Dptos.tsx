@@ -198,7 +198,9 @@ const Dptos = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar name={getFullName(props?.item?.homeowner)} />
                 <div>
-                  <p>{getFullName(props?.item?.homeowner)}</p>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(props?.item?.homeowner)}
+                  </p>
                   <p>CI: {props?.item?.homeowner?.ci || "Sin registro"}</p>
                 </div>
               </div>
@@ -238,7 +240,9 @@ const Dptos = () => {
                   name={getFullName(props?.item?.titular?.owner)}
                 />
                 <div>
-                  <p>{getFullName(props?.item?.titular?.owner)}</p>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(props?.item?.titular?.owner)}
+                  </p>
                   <p>CI: {props?.item?.titular?.owner?.ci || "Sin registro"}</p>
                 </div>
               </div>
