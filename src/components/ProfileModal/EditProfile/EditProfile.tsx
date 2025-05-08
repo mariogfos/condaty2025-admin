@@ -5,6 +5,7 @@ import styles from './EditProfile.module.css'
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar'
 import { IconCamera, IconImage } from '@/components/layout/icons/IconsBiblioteca'
 import { getFullName, getUrlImages } from '@/mk/utils/string'
+import Button from '@/mk/components/forms/Button/Button'
 
 const EditProfile = ({open,onClose,formState,errors}:any) => {
     const [preview, setPreview] = useState<string | null>(null);
@@ -24,7 +25,9 @@ const EditProfile = ({open,onClose,formState,errors}:any) => {
     open={open}
     onClose={onClose}
     buttonText=""
-    buttonCancel=""   >
+    buttonCancel=""  
+    // style={{minWidth:600}}
+    >
 
     <div className={styles.EditProfile}>  
     <section>
@@ -104,6 +107,12 @@ const EditProfile = ({open,onClose,formState,errors}:any) => {
             //    onChange={(e) => setFormState({...formState, address: e.target.value })}
             error={errors.address}
             />
+       <div>
+         <div>
+          <Button onClick={()=>{}} style={{width:100}}variant='secondary'>Cancelar</Button>
+          <Button onClick={()=>{}}variant='primary'>Guardar Cambios</Button>
+         </div>
+       </div>     
     </section>
     </div>   
     </DataModal>
