@@ -29,8 +29,8 @@ const paramsInitial = {
   searchBy: "",
 };
 const lTitulars = [
-  { id: "S", name: "Sin Titular" },
-  { id: "C", name: "Con Titular" },
+  { id: "S", name: "Disponibles" },
+  { id: "C", name: "Habitadas" },
 ];
 
 const Dptos = () => {
@@ -250,7 +250,7 @@ const Dptos = () => {
           },
         },
         filter: {
-          label: "Titular",
+          label: "Estado",
 
           options: () => [{ id: "T", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
