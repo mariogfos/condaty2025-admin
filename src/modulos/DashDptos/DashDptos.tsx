@@ -62,8 +62,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
-
-  // Hooks y configuración
   const {
     data: dashData,
     reLoad,
@@ -207,6 +205,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
       </div>
     );
   };
+  const onDel = async () => {
+    const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
+    if (data?.success) {
+      showToast("Unidad eliminada", "success");
+      router.push("/units");
+    } else {
+      showToast(data?.message || "Error al eliminar unidad", "error");
+    }
+  };
   return (
     <div className={styles.container}>
       <section
@@ -236,7 +243,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   <IconEdit size={30} onClick={() => setOpenEdit(true)} />
                 </div>
                 <div className={styles.iconActions}>
-                  <IconTrash size={30} />
+                  <IconTrash size={30} onClick={onDel} />
                 </div>
               </div>
             </div>
@@ -786,6 +793,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             open={openEdit}
             onClose={() => setOpenEdit(false)}
             item={datas?.data}
+            reLoad={reLoad}
           />
         )}
       </section>

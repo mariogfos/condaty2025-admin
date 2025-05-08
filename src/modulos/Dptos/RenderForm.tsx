@@ -103,9 +103,9 @@ const RenderForm = ({
       errors: errs,
     });
     errs = checkRules({
-      value: formState.type,
+      value: formState.type_id,
       rules: ["required"],
-      key: "type",
+      key: "type_id",
       errors: errs,
     });
     errs = checkRules({
@@ -148,7 +148,7 @@ const RenderForm = ({
       {
         nro: formState.nro,
         description: formState.description,
-        type_id: parseInt(formState.type),
+        type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         homeowner_id: formState.homeowner_id,
@@ -158,7 +158,7 @@ const RenderForm = ({
     );
     if (response?.success === true) {
       reLoad();
-      setItem(formState);
+      if (setItem) setItem(formState);
       showToast(response?.message, "success");
       onClose();
     } else {
@@ -197,8 +197,8 @@ const RenderForm = ({
 
       <Select
         label="Tipo de unidad"
-        name="type"
-        value={formState.type}
+        name="type_id"
+        value={formState.type_id}
         options={extraData?.type || []}
         onChange={handleChange}
         error={errors}
