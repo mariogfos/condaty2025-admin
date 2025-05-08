@@ -332,7 +332,7 @@ const HomePage = () => {
 
           {/* Columna Derecha (35%) */}
           <div className={styles.rightColumn}>
-            <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'}               className={styles.summaryWidgetEqualHeight} // <--- AÑADE ESTA CLASE
+            <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'} className={styles.summaryWidgetEqualHeight} // <--- AÑADE ESTA CLASE
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard

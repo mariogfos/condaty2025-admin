@@ -45,37 +45,10 @@
 .widgetContents{
   width: 100%;
 }
-
-@media (min-width: 1195px) { /* O el breakpoint que uses para "pantallas grandes" */
-  .summaryWidgetEqualHeight {
-    min-height: 162px;
-    box-sizing: border-box; /* Para que padding y border se incluyan en min-height */
-    display: flex;          /* Para controlar mejor el contenido interno */
-    flex-direction: column; /* Apila el título/subtítulo y el contenido principal (children) */
-  }
-
-  /* Opcional: Si quieres que el área de contenido (donde van las WidgetDashCard)
-     se expanda para llenar el espacio vertical dentro del WidgetBase */
-  .summaryWidgetEqualHeight > div:not([class*="widgetHeader"]) { /* Asumiendo que el contenido principal no tiene clase "widgetHeader" o es el último div principal */
-    flex-grow: 1;
-    display: flex; /* Para controlar alineación de .widgetsResumeContainer si es necesario */
-    flex-direction: column; /* Opcional, dependiendo de la estructura interna de WidgetBase */
-  }
-
-  /* Si quieres que las cards dentro de .widgetsResumeContainer se alineen de alguna forma
-     específica (ej. centradas verticalmente) cuando hay espacio extra: */
-  .summaryWidgetEqualHeight .widgetsResumeContainer {
-    /* Por ejemplo, para centrar las cards si hay pocas y sobra espacio:
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center; // Centra verticalmente las filas de cards
-    align-content: center; // Centra las filas de cards si hay múltiples filas
-    flex-grow: 1; // Para que ocupe el espacio disponible
-    */
-    /* Las propiedades display:flex y gap:8px ya están en .widgetsResumeContainer,
-       así que podrías solo necesitar ajustar align-items o align-content si es necesario. */
-  }
+.summaryWidgetEqualHeight {
+  height: 162px;
 }
+
 
 .fourWidgetSection {
   display: flex;
