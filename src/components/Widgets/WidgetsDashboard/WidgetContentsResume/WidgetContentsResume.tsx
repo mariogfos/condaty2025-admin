@@ -215,8 +215,9 @@ const WidgetContentsResume = ({data}:any) => {
         
       </div>  
          <section className={styles.descriptionArea}>
-            <div className={styles.textSecond} style={{fontSize:14}}>{item?.description}</div>
+            <div className={styles.textSecond} style={{fontSize:14,textAlign:'left',justifyContent:'flex-start',alignItems:'flex-start'}}>{item?.description}</div>
            {item?.images && item?.images[0] && (
+            <div>
              <img
              src={getUrlImages(
               "/CONT-" +
@@ -228,10 +229,11 @@ const WidgetContentsResume = ({data}:any) => {
                 item?.updated_at
             )}
                alt={item?.title}
-               width={502}
+              //  width={502}
                height={387}
                style={{borderRadius:'var(--bRadiusS)'}}
              />
+             </div>
            )} 
             <div>
               
