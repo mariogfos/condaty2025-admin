@@ -79,7 +79,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
   const activeClients = user.clients
     .filter(
       (client: any) =>
-        client.pivot.status === "P" || client.pivot.status === "A"
+        client?.pivot?.status === "P" || client?.pivot?.status === "A"
     )
     .sort((a: any, b: any) => {
       const isActiveA: any = a.id === user.client_id;
@@ -88,7 +88,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
     });
 
   const pendingClients = user.clients.filter(
-    (client: any) => client.pivot.status !== "P" && client.pivot.status !== "A"
+    (client: any) =>
+      client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
   );
   return (
     <DataModal

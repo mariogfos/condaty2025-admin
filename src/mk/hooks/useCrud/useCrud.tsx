@@ -1208,12 +1208,17 @@ const useCrud = ({
                   extraData,
                   execute,
                   onEdit,
-                  onDel,
+                 
                   onAdd,
                   openList,
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
+                  
+                  onDel: (itemToDelete: any) => { // Envolvemos para asegurar que se pasa el item correcto
+                    onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
+                    onDel(itemToDelete || formState);  // Llama al onDel del hook
+                  },
                 })
               ) : (
                 <Detail

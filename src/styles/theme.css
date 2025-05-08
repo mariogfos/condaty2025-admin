@@ -56,7 +56,7 @@
   --cAccent: #00e38c;
   --cWhite: #fafafa;
   --cWhiteV1: #a7a7a7;
-  --cWhiteV2: #4a4a4a;
+  --cWhiteV2: #414141;
   --cWhiteV3: #ffffff0d;
   --cBlack: #212121;
   --cBlackV1: #292929;
@@ -388,4 +388,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .iconRounded {
   border-radius: 50%;
   padding: 8px;
+}
+.bottomLine {
+  border-bottom: 1px solid var(--cWhiteV1);
+
 }

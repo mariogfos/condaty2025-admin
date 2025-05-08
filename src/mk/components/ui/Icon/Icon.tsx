@@ -10,6 +10,7 @@ export interface IconType {
   viewBox?: string;
   circle?: boolean;
   reverse?: boolean;
+  square?: boolean;
 }
 
 interface IconWrapType extends IconType {
@@ -30,6 +31,7 @@ export const IconWrap = ({
   reverse = false,
   circle = false,
   responsive = false,
+  square = false,
 }: IconWrapType) => {
   return (
     <svg
@@ -39,7 +41,8 @@ export const IconWrap = ({
         " " +
         className +
         (circle ? " " + styles["circle"] : "") +
-        (responsive ? " " + styles["responsive"] : "")
+        (responsive ? " " + styles["responsive"] : "")+
+        (square? " " + styles["square"] : "") 
       }
       style={style}
       fill={reverse ? fillStroke : color}
