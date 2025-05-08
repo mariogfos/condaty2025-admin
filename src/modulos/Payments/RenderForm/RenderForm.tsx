@@ -51,6 +51,9 @@ const RenderForm = ({
       // Si no hay fecha en 'item', usa la fecha actual
       paid_at: (item && item.paid_at) || formattedDate,
       payment_method: (item && item.payment_method) || "",
+      file: (item && item.file) || null,
+      filename: (item && item.filename) || null,
+      ext: (item && item.ext) || null,
     };
   });
   const [_errors, set_Errors] = useState({});
@@ -288,15 +291,6 @@ const RenderForm = ({
   const handleChangeInput = useCallback((e) => {
     const { name, value, type } = e.target;
 
-    // Manejo especial para el campo de archivo
-    if (name === "file") {
-      _setFormState((prev) => ({
-        ...prev,
-        file: value?.file || "",
-        ext: value?.ext || "",
-      }));
-      return;
-    }
 
     const newValue =
       type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
