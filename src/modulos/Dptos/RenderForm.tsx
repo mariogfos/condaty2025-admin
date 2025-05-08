@@ -7,13 +7,13 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
+import useAxios from "@/mk/hooks/useAxios";
 
 const RenderForm = ({
   open,
   onClose,
   item,
   setItem,
-  execute,
   extraData,
   user,
   reLoad,
@@ -23,7 +23,7 @@ const RenderForm = ({
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
-  console.log(item, "itetetet");
+  const { execute } = useAxios();
 
   useEffect(() => {
     if (item?.type_id) {
