@@ -42,7 +42,7 @@ const Dptos = () => {
     (item: any) => item.id === user.client_id
   )[0];
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client.type_dpto] });
+    setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
 
   const mod: ModCrudType = {
