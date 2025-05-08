@@ -87,6 +87,11 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  /* background-color: #00e38c; */
+  
+  @media screen and (max-width: 768px) {
+    
+  }
 }
 
 .widgetResumeCard{
@@ -107,6 +112,7 @@
   }
   .widgetResumeCard{
     width: 100%;
+
   }
   .widgetRow {
     flex-direction: column;

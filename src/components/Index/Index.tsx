@@ -332,24 +332,25 @@ const HomePage = () => {
 
           {/* Columna Derecha (35%) */}
           <div className={styles.rightColumn}>
-            <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'} className={styles.summaryWidgetEqualHeight} 
+            <WidgetBase variant={'V1'} title={'Resumen de usuarios'} subtitle={'Cantidad de todos los usuarios en general del condominio'} 
+            className={styles.summaryWidgetEqualHeight} style={{maxHeight:'max-content'}}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount,0)}
-                  style={{maxWidth:160}}
+                  style={{width:130}}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount,0)}
-                  style={{maxWidth:160}}
+                  style={{width:130}}
 
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount,0)}
-                  style={{maxWidth:160}}
+                  style={{width:130}}
 
                 />
               </div>
