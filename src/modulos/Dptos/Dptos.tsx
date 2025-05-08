@@ -59,8 +59,8 @@ const Dptos = () => {
     hideActions: {
       view: true,
       add: false,
-      // edit: true,
-      // del: true,
+      edit: true,
+      del: true,
     },
     renderForm: (props: {
       item: any;
