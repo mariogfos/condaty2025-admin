@@ -176,7 +176,7 @@ const RenderForm = ({
     <DataModal
       open={open}
       onClose={onClose}
-      title={formState.id ? "Editar Unidad" : "Crear Unidad"}
+      title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
     >
       <Input
@@ -185,14 +185,7 @@ const RenderForm = ({
         value={formState.nro}
         onChange={handleChange}
         error={errors}
-      />
-
-      <TextArea
-        label="Descripción"
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        error={errors}
+        required={true}
       />
 
       <Select
@@ -202,6 +195,7 @@ const RenderForm = ({
         options={extraData?.type || []}
         onChange={handleChange}
         error={errors}
+        required={true}
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -211,6 +205,7 @@ const RenderForm = ({
           onChange={handleChange}
           type="number"
           error={errors}
+          required={true}
         />
         <Input
           label="Monto de expensa (Bs)"
@@ -219,8 +214,17 @@ const RenderForm = ({
           onChange={handleChange}
           type="number"
           error={errors}
+          required={true}
         />
       </div>
+      <TextArea
+        label="Dirrección"
+        name="description"
+        value={formState.description}
+        onChange={handleChange}
+        error={errors}
+        required={true}
+      />
 
       <Select
         label="Propietario"
@@ -229,6 +233,7 @@ const RenderForm = ({
         onChange={handleChange}
         options={homeownerOptions}
         error={errors}
+        required={true}
       />
 
       {/* campos extra --- para un futuro quiza
