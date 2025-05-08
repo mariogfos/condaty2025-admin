@@ -5,6 +5,7 @@ import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css"
+import { formatNumber } from "@/mk/utils/numbers";
 
 
 type PropsType = {
@@ -113,32 +114,32 @@ const WidgetGraphResume = ({
   const formattedTodayDate = getDateStrMes(today);
   return (
     <div className={styles.widgetGraphResume + " " + className}>
-     <section>   
-      <p >
-        {title || "Resumen general"}
-      </p>
-      <p>
-        {subtitle ||
-          `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
-      </p>
-      </section>
       <WidgetBase className={styles.widgetBase}>
-      <GraphBase
-        data={{
-          labels: meses,
-          values: [
-            { name: "Saldo inicial", values: balance?.inicial },
-            { name: "Ingresos", values: balance?.ingresos },
-            { name: "Egresos", values: balance?.egresos },
-            { name: "Saldo Acumulado", values: balance?.saldos },
-          ],
-        }}
-        chartTypes={chartTypes}
-        options={{
-          height: h,
-          colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
-        }}
-      />
+        <section>
+          <p className={styles.title}>
+            {title || "Resumen general"}
+          </p>
+          <p className={styles.subtitle}>
+            {subtitle ||
+              `Este es un resumen general de ${formattedTodayDate}`}
+          </p>
+        </section>
+        <GraphBase
+          data={{
+            labels: meses,
+            values: [
+              { name: "Saldo inicial", values: balance?.inicial },
+              { name: "Ingresos", values: balance?.ingresos },
+              { name: "Egresos", values: balance?.egresos },
+              { name: "Saldo Acumulado", values: balance?.saldos },
+            ],
+          }}
+          chartTypes={chartTypes}
+          options={{
+            height: h,
+            colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
+          }}
+        />
       </WidgetBase>
     </div>
   );

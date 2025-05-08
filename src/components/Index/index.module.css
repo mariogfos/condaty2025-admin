@@ -1,111 +1,184 @@
-
 .container {
-  /* padding: 0px var(--spXl); */
-
   @media (max-width: 1024px) {
     padding-bottom: 15%;
   }
-  & > section {
-    width: 100%;
-    gap: var(--spS);
-    margin-bottom: var(--spS);
-    @media (min-width: 1195px) {
-      display: flex;
-      /* flex-wrap: wrap; */
-    }
-    & > div {
-      width: 100%;
-      margin-bottom: var(--spS);
-      @media (min-width: 1024px) {
-        /* width: 50%; */
-      }
-    }
-  }
 }
-.bar {
-  background-color: aquamarine;
-  border-radius: 5px;
-  & > div > div {
-    background-color: beige;
+
+.mainLayout {
+  display: flex;
+  gap: var(--spM, 1rem);
+  width: 100%;
+}
+
+.leftColumn {
+  width: 65%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 1rem);
+}
+
+.rightColumn {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 1rem);
+}
+
+.leftColumn > div,
+.rightColumn > div,
+.leftColumn > section,
+.rightColumn > section {
+  width: 100%;
+}
+
+.solicitudesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 1rem);
+  width: 100%;
+}
+
+.widgetGraphResumeContainer {
+  width: 100%;
+}
+
+.widgetContents{
+  width: 100%;
+}
+
+@media (min-width: 1195px) { /* O el breakpoint que uses para "pantallas grandes" */
+  .summaryWidgetEqualHeight {
+    min-height: 162px;
+    box-sizing: border-box; /* Para que padding y border se incluyan en min-height */
+    display: flex;          /* Para controlar mejor el contenido interno */
+    flex-direction: column; /* Apila el título/subtítulo y el contenido principal (children) */
+  }
+
+  /* Opcional: Si quieres que el área de contenido (donde van las WidgetDashCard)
+     se expanda para llenar el espacio vertical dentro del WidgetBase */
+  .summaryWidgetEqualHeight > div:not([class*="widgetHeader"]) { /* Asumiendo que el contenido principal no tiene clase "widgetHeader" o es el último div principal */
+    flex-grow: 1;
+    display: flex; /* Para controlar alineación de .widgetsResumeContainer si es necesario */
+    flex-direction: column; /* Opcional, dependiendo de la estructura interna de WidgetBase */
+  }
+
+  /* Si quieres que las cards dentro de .widgetsResumeContainer se alineen de alguna forma
+     específica (ej. centradas verticalmente) cuando hay espacio extra: */
+  .summaryWidgetEqualHeight .widgetsResumeContainer {
+    /* Por ejemplo, para centrar las cards si hay pocas y sobra espacio:
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center; // Centra verticalmente las filas de cards
+    align-content: center; // Centra las filas de cards si hay múltiples filas
+    flex-grow: 1; // Para que ocupe el espacio disponible
+    */
+    /* Las propiedades display:flex y gap:8px ya están en .widgetsResumeContainer,
+       así que podrías solo necesitar ajustar align-items o align-content si es necesario. */
   }
 }
 
+.fourWidgetSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM, 1rem);
+  width: 100%;
+}
+
+.widgetRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spM, 1rem);
+  width: 100%;
+}
+
+.widgetGrow {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-height: 177px;
+}
+
+.bar {
+  background-color: aquamarine;
+  border-radius: 5px;
+}
+.bar > div > div {
+  background-color: beige;
+}
 
 .widgetBase {
   background-color: var(--cBlackV2) !important;
 }
-.widgetsContainer{
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS);
-}
+
 .widgetsResumeContainer{
+  
   display: flex;
   gap: 8px;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    flex-wrap: wrap;
-  }
+  flex-wrap: wrap;
 }
-.widgetContents{
-  width:93% !important ;
-  /* background-color: aliceblue; */
-  @media screen and (max-width: 768px) {
-    width: 100%;
-  }
 
-}
 .widgetResumeCard{
-   width: 200px;
-   @media (max-width: 768px) {
-    width: 100%;
-   }
+   width: calc(25% - 6px);
+   min-width: 180px;
+   flex-grow: 1;
 }
+
+@media (max-width: 1024px) {
+  .widgetResumeCard {
+    width: calc(50% - 4px);
+  }
+}
+
+@media (max-width: 768px) {
+  .widgetsResumeContainer {
+    flex-direction: column;
+  }
+  .widgetResumeCard{
+    width: 100%;
+  }
+  .widgetRow {
+    flex-direction: column;
+  }
+}
+
 .widgetAlerts {
-  background-color: var(--cBlackV2);
-  padding: var(--spL);
-  border-radius: var(--bRadiusS);
+  background-color: var(--cBlackV2, #333536);
+  padding: var(--spL, 1rem);
+  border-radius: var(--bRadiusL, 1rem);
+  border: 0.5px solid var(--cBorder, #a7a7a7);
   display: flex;
   flex-direction: column;
-  gap: var(--spS);
-  & > div:nth-child(1) {
-  /* background-color: green; */
-  font-size: var(--spL);
-  }
+  gap: var(--spM, 1rem);
 }
+
+.widgetAlerts > div:nth-child(1) {
+  font-size: var(--sL, 20px);
+}
+
 .alertsList {
- 
- display: flex;
- flex-direction: column;
- gap: 16px;
- 
-  & > section {
-    /* background-color: blueviolet;  */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spS);
-    & > div {
-      color: var(--cWhite) !important;  
-      font-size: var(--sM);
-      display: flex;
-  
-      
-    }
-    & > div:nth-child(1){
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-
-    }
-    & > div:nth-child(1) > div:nth-child(3){
-      color: var(--cWhiteV1) !important;
-      font-size: var(--sS);
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-
+.alertsList > section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spS);
+}
+.alertsList > section > div {
+  color: var(--cWhite) !important;  
+  font-size: var(--sM);
+  display: flex;
+}
+.alertsList > section > div:nth-child(1){
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.alertsList > section > div:nth-child(1) > div:nth-child(3){
+  color: var(--cWhiteV1) !important;
+  font-size: var(--sS);
+}
 
 .levelText {
   font-size: var(--sM); 
@@ -114,17 +187,139 @@
   width:112px;
 }
 
-
 .levelLow {
-  background-color:var(--cBigSidebar);
-  color: var(--accentColor); 
+  /* Usamos el color base #00af90 -> rgb(0, 175, 144) con transparencia */
+  background-color: rgba(0, 175, 144, 0.2); /* Ajusta el 0.2 (alfa) si quieres más o menos transparencia */
+  color: var(--cLowAlertText, #34a853);
+  /* Opcional: para un efecto neón más pronunciado en el texto y un pequeño resplandor */
+  /* text-shadow: 0 0 2px var(--cLowAlertText, #34a853); */
+  /* box-shadow: 0 0 8px rgba(0, 175, 144, 0.3); */
 }
 
 .levelMedium {
-  background-color: var(--cMediumAlertHover); 
-  color: var(--mediumAlert); 
+  /* Usamos el color base #e1c151 -> rgb(225, 193, 81) con transparencia */
+  background-color: rgba(225, 193, 81, 0.2); /* Ajusta el 0.2 (alfa) */
+  color: var(--cMediumAlertText, #e9b01e);
+  /* Opcional: para un efecto neón más pronunciado */
+  /* text-shadow: 0 0 2px var(--cMediumAlertText, #e9b01e); */
+  /* box-shadow: 0 0 8px rgba(225, 193, 81, 0.3); */
 }
 
 .levelHigh {
-  background-color: var(--cHightAlertHover); 
-  color: var(--hightAlert); }
+  /* Usamos el color base #da5d5d -> rgb(218, 93, 93) con transparencia */
+  background-color: rgba(218, 93, 93, 0.2); /* Ajusta el 0.2 (alfa) */
+  color: var(--cHightAlertText, #e46055); /* Nota: el nombre original era --cHightAlertBg, asumo que querías --cHightAlertText o un color de texto similar */
+  /* Opcional: para un efecto neón más pronunciado */
+  /* text-shadow: 0 0 2px var(--cHightAlertText, #e46055); */
+  /* box-shadow: 0 0 8px rgba(218, 93, 93, 0.3); */
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0; 
+}
+.itemRowAlert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+  padding: 0.25rem 0;
+}
+
+.itemImageContainer {
+  width: 40px; 
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%; 
+  overflow: hidden;
+  background-color: #555; 
+}
+
+.itemImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemImagePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #777; 
+}
+
+.itemTextInfo {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0; 
+  gap: 0.25rem;
+}
+
+.itemPrimaryText {
+  font-weight: 500; 
+  font-size: 14px;
+  color: #fafafa;   
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemSecondaryText {
+  font-weight: 400; 
+  font-size: 14px;
+  color: #a7a7a7;
+  white-space: normal;
+  overflow: hidden;
+}
+.itemDateText {
+  font-weight: 400;
+  font-size: 10px;
+  color: #888;
+}
+
+.itemActionContainer {
+  flex-shrink: 0; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.itemAlertLevelContainer {
+  justify-content: center;
+  min-width: 65px;
+}
+
+.alertLevelIndicator {
+  font-size: 10px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-weight: 400;
+}
+
+.itemActionButton { 
+  font-weight: 400; 
+  font-size: 12px;
+  color: #00e38c;
+  text-decoration: underline;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem; 
+  text-align: center;
+}
+
+@media (max-width: 1194px) {
+  .mainLayout {
+    flex-direction: column;
+  }
+  .leftColumn, .rightColumn {
+    width: 100%;
+  }
+}
