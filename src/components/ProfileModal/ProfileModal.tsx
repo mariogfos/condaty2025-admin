@@ -1,6 +1,6 @@
 import DataModal from '@/mk/components/ui/DataModal/DataModal'
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconAdmin, IconArrowRight, IconEdit, IconEmail, IconLockEmail, IconLook, IconPhone, IconTrash, IconUser } from '../layout/icons/IconsBiblioteca';
 import styles from './ProfileModal.module.css'
 import WidgetBase from '../Widgets/WidgetBase/WidgetBase';
@@ -8,6 +8,8 @@ import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Authentication from '@/modulos/Profile/Authentication';
 import useAxios from '@/mk/hooks/useAxios';
+import Input from '@/mk/components/forms/Input/Input';
+import EditProfile from './EditProfile/EditProfile';
 
 interface ProfileModalProps {
     open:boolean;
@@ -37,6 +39,7 @@ interface FormState {
 const ProfileModal = ({
     open,
     onClose,
+    dataID,
     titleBack ="Volver", 
     title='Mi Perfil',
     edit = true,
@@ -50,11 +53,28 @@ const ProfileModal = ({
     const [errors, setErrors] = useState<any>({});
     const [openAuthModal, setOpenAuthModal] = useState(false);
     const [authType, setAuthType] = useState("");
+    const [openEdit, setOpenEdit] = useState(false);
     const client = user?.clients?.filter(
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> : <IconUser color={'var(--cWhiteV1)'} size={32}/>;
    
+    const { data, } = useAxios(
+        "/users",
+        "GET",
+        {
+          searchBy: dataID,  
+          fullType: "DET",
+        },
+        true
+      );
+      console.log(data,'dadada')
+     
+
+
+
+
+
 
     const onChangeEmail = () => {
         setAuthType("M");
@@ -77,15 +97,15 @@ const ProfileModal = ({
     onClose={onClose}
     fullScreen
     variant="V2"
-    // buttonText="Cerrar sesión"
-    // buttonCancel="Cancelar"
+     buttonText=""
+     buttonCancel=""
     // onSave={() => logout()}
   >
     <div className={styles.ProfileModal}>
       <section>  
       <h1>{title}</h1>
       <div>
-    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}}/>}
+    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}} onClick={()=>setOpenEdit(true)}/>}
     {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}}/>}
       </div>
       </section>
@@ -122,8 +142,8 @@ const ProfileModal = ({
 
                 <div>
                 <div>{IconType} assaas</div> 
-                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/> assaas</div> 
-                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/> assaas</div>
+                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data?.phone}</div> 
+                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/> {data?.data?.mail}</div>
                 </div>
         </div> 
         
@@ -134,12 +154,12 @@ const ProfileModal = ({
       <div className='bottomLine' />
         <div>
             <div>Carnet de identidad</div>
-            <div>12122112212</div>
+            <div>data?.data?.ci</div>
         </div>
         <div className='bottomLine' />
         <div>
             <div>Condominio</div>
-            <div>12122112212</div>
+            <div>766737</div>
             <div>12122112212</div>
             <div>12122112212</div>
         </div>
@@ -147,7 +167,7 @@ const ProfileModal = ({
 
         <div>
             <div>Domicilio</div>
-            <div>12122112212</div>
+            <div>{data?.data?.address}</div>
         </div> 
          
       <div className='bottomLine'/>
@@ -190,6 +210,16 @@ const ProfileModal = ({
           showToast={showToast}
         />
       )}
+
+    {openEdit && <EditProfile
+      open={openEdit}
+      onClose={() => setOpenEdit(false)}
+      formState={formState}
+      setFormState={setFormState}
+      errors={errors}
+      setErrors={setErrors}
+    />
+}  
    
   </DataModal>
   )
