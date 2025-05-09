@@ -43,7 +43,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         false,
         true
       );
-      setItem(data?.data?.[0]);
+      setItem(data?.data);
     }
   };
   console.log(item);
