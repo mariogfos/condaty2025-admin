@@ -11,6 +11,8 @@
   border-color: inherit;
   margin-bottom: 10px; /* Espacio entre widgets cuando estén en columna */
   transition: all 0.3s ease; /* Transición suave para cambios responsivos */
+  min-width: 230px;
+  width:100%
 }
 
 .contentWrapper {
