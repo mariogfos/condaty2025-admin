@@ -294,6 +294,7 @@ const HomePage = () => {
               title={"Resumen actual"}
               subtitle={formattedDate}
               className={styles.summaryWidgetEqualHeight}
+              style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
@@ -432,20 +433,24 @@ const HomePage = () => {
               subtitle={
                 "Cantidad de todos los usuarios en general del condominio"
               }
-              className={styles.summaryWidgetEqualHeight} // <--- AÑADE ESTA CLASE
+              className={styles.summaryWidgetEqualHeight}
+              style={{ maxHeight: "max-content" }}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
+                  style={{ width: 130 }}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
+                  style={{ width: 130 }}
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
+                  style={{ width: 130 }}
                 />
               </div>
             </WidgetBase>
