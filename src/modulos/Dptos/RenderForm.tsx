@@ -7,13 +7,13 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { getFullName } from "@/mk/utils/string";
+import useAxios from "@/mk/hooks/useAxios";
 
 const RenderForm = ({
   open,
   onClose,
   item,
   setItem,
-  execute,
   extraData,
   user,
   reLoad,
@@ -23,7 +23,7 @@ const RenderForm = ({
   const [typeFields, setTypeFields]: any = useState([]);
   const [enabledFields, setEnabledFields]: any = useState({});
   const { showToast } = useAuth();
-  console.log(item, "itetetet");
+  const { execute } = useAxios();
 
   useEffect(() => {
     if (item?.type_id) {
@@ -103,9 +103,9 @@ const RenderForm = ({
       errors: errs,
     });
     errs = checkRules({
-      value: formState.type,
+      value: formState.type_id,
       rules: ["required"],
-      key: "type",
+      key: "type_id",
       errors: errs,
     });
     errs = checkRules({
@@ -148,7 +148,7 @@ const RenderForm = ({
       {
         nro: formState.nro,
         description: formState.description,
-        type_id: parseInt(formState.type),
+        type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
         homeowner_id: formState.homeowner_id,
@@ -158,7 +158,7 @@ const RenderForm = ({
     );
     if (response?.success === true) {
       reLoad();
-      setItem(formState);
+      if (setItem) setItem(formState);
       showToast(response?.message, "success");
       onClose();
     } else {
@@ -176,7 +176,7 @@ const RenderForm = ({
     <DataModal
       open={open}
       onClose={onClose}
-      title={formState.id ? "Editar Unidad" : "Crear Unidad"}
+      title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
     >
       <Input
@@ -185,23 +185,17 @@ const RenderForm = ({
         value={formState.nro}
         onChange={handleChange}
         error={errors}
-      />
-
-      <TextArea
-        label="Descripción"
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        error={errors}
+        required={true}
       />
 
       <Select
         label="Tipo de unidad"
-        name="type"
-        value={formState.type}
+        name="type_id"
+        value={formState.type_id}
         options={extraData?.type || []}
         onChange={handleChange}
         error={errors}
+        required={true}
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -211,6 +205,7 @@ const RenderForm = ({
           onChange={handleChange}
           type="number"
           error={errors}
+          required={true}
         />
         <Input
           label="Monto de expensa (Bs)"
@@ -219,8 +214,17 @@ const RenderForm = ({
           onChange={handleChange}
           type="number"
           error={errors}
+          required={true}
         />
       </div>
+      <TextArea
+        label="Dirrección"
+        name="description"
+        value={formState.description}
+        onChange={handleChange}
+        error={errors}
+        required={true}
+      />
 
       <Select
         label="Propietario"
@@ -229,6 +233,7 @@ const RenderForm = ({
         onChange={handleChange}
         options={homeownerOptions}
         error={errors}
+        required={true}
       />
 
       {/* campos extra --- para un futuro quiza

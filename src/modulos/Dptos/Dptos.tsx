@@ -29,8 +29,8 @@ const paramsInitial = {
   searchBy: "",
 };
 const lTitulars = [
-  { id: "S", name: "Sin Titular" },
-  { id: "C", name: "Con Titular" },
+  { id: "S", name: "Disponibles" },
+  { id: "C", name: "Habitadas" },
 ];
 
 const Dptos = () => {
@@ -42,7 +42,7 @@ const Dptos = () => {
     (item: any) => item.id === user.client_id
   )[0];
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client.type_dpto] });
+    setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
 
   const mod: ModCrudType = {
@@ -250,7 +250,7 @@ const Dptos = () => {
           },
         },
         filter: {
-          label: "Titular",
+          label: "Estado",
 
           options: () => [{ id: "T", name: "Todos" }, ...lTitulars],
           optionLabel: "name",

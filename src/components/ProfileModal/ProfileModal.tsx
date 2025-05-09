@@ -1,6 +1,6 @@
 import DataModal from '@/mk/components/ui/DataModal/DataModal'
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconAdmin, IconArrowRight, IconEdit, IconEmail, IconLockEmail, IconLook, IconPhone, IconTrash, IconUser } from '../layout/icons/IconsBiblioteca';
 import styles from './ProfileModal.module.css'
 import WidgetBase from '../Widgets/WidgetBase/WidgetBase';
@@ -8,6 +8,8 @@ import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Authentication from '@/modulos/Profile/Authentication';
 import useAxios from '@/mk/hooks/useAxios';
+import Input from '@/mk/components/forms/Input/Input';
+import EditProfile from './EditProfile/EditProfile';
 
 interface ProfileModalProps {
     open:boolean;
@@ -21,6 +23,7 @@ interface ProfileModalProps {
 
 }
 interface FormState {
+    id?: string | number;
     ci?: string;
     name?: string;
     middle_name?: string;
@@ -37,6 +40,7 @@ interface FormState {
 const ProfileModal = ({
     open,
     onClose,
+    dataID,
     titleBack ="Volver", 
     title='Mi Perfil',
     edit = true,
@@ -50,11 +54,73 @@ const ProfileModal = ({
     const [errors, setErrors] = useState<any>({});
     const [openAuthModal, setOpenAuthModal] = useState(false);
     const [authType, setAuthType] = useState("");
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openDel, setOpenDel] = useState(false);
     const client = user?.clients?.filter(
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> : <IconUser color={'var(--cWhiteV1)'} size={32}/>;
-   
+    const url = type === 'admin'? `/users` : type === 'owners'?  `/owners` : `/guards`;
+    
+    const { data,reLoad } = useAxios(
+      "/users",
+      "GET",
+      {
+        searchBy: dataID,  
+        fullType: "DET",
+      },
+      // true
+    );
+    const imageUrl = () => {
+      const userId = data?.data[0]?.id;
+      const timestamp = data?.data[0]?.updated_at;
+      
+      switch(type) {
+        case 'admin':
+          return `/ADM-${userId}.webp?d=${timestamp}`;
+        case 'owner':
+          return `/OWNER-${userId}.webp?d=${timestamp}`;
+        default:
+          return `/GUA-${userId}.webp?d=${timestamp}`;
+      }
+    };
+    
+    const urlImages = imageUrl();
+      // console.log(data,'dadada',dataID,'did')
+
+      useEffect(() => {
+        if (data?.data[0]) {
+          setFormState({
+            id: data?.data[0]?.id,
+            ci: data?.data[0]?.ci,
+            name: data?.data[0]?.name,
+            middle_name: data?.data[0]?.middle_name,
+            last_name: data?.data[0]?.last_name,
+            mother_last_name: data?.data[0]?.mother_last_name,
+            phone: data?.data[0]?.phone,
+            avatar: data?.data[0]?.avatar,
+            address: data?.data[0]?.address,
+            email: data?.data[0]?.email,
+          })
+        }
+      },[openEdit,data]);
+
+
+
+
+
+      const onChange = (e: any) => {
+        setFormState({
+          ...formState,
+          [e.target.name]: e.target.value,
+        });
+      };
+     
+
+    
+
+
+
 
     const onChangeEmail = () => {
         setAuthType("M");
@@ -65,7 +131,19 @@ const ProfileModal = ({
         setAuthType("P");
         setOpenAuthModal(true);
       };
-      
+    const onDel = async() =>{
+
+
+      const { data } = await execute(url + "/" + formState.id, "DELETE", {
+        is_canceled: "Y",
+      });
+      if (data?.success == true) {
+        // getAreasM();
+        showToast("Mantenimiento cancelado con éxito", "success");
+        // setOpenConfirm({ open: false, id: null });
+      }
+    }
+
 
 
 
@@ -77,16 +155,16 @@ const ProfileModal = ({
     onClose={onClose}
     fullScreen
     variant="V2"
-    // buttonText="Cerrar sesión"
-    // buttonCancel="Cancelar"
+     buttonText=""
+     buttonCancel=""
     // onSave={() => logout()}
   >
     <div className={styles.ProfileModal}>
       <section>  
       <h1>{title}</h1>
       <div>
-    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}}/>}
-    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)'}}/>}
+    {edit &&  <IconEdit className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)',cursor:'pointer'}} onClick={()=>setOpenEdit(true)}/>}
+    {del &&  <IconTrash className='' square size={32} color={'var(--cWhite)'} style={{backgroundColor:'var(--cWhiteV2)',cursor:'pointer'}} onClick={()=>setOpenDel(true)}/>}
       </div>
       </section>
 
@@ -104,26 +182,24 @@ const ProfileModal = ({
                 <div>
                         <div>
                             <Avatar 
-                            src={getUrlImages(
-                                "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
-                            )}
-                                name={user?.name}
+                            src={getUrlImages(urlImages)}
+                                name={data?.data[0]}
                                 w={191}
                                 h={191}
                                 
                                 />
                                 <div>
-                                <span> {getFullName(user)}</span>
-                                <span> {getFullName(user)}</span>
+                                <span> {getFullName(data?.data[0])}</span>
+                                <span>{data?.data[0]?.role[0]?.name}</span>
 
                                 </div>
                         </div>
                 </div>
 
                 <div>
-                <div>{IconType} assaas</div> 
-                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/> assaas</div> 
-                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/> assaas</div>
+                <div>{IconType} {data?.data[0]?.type === 'ADM' ? 'Administrador' : 'Usuario'}</div> 
+                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.phone}</div> 
+                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.email}</div>
                 </div>
         </div> 
         
@@ -134,20 +210,21 @@ const ProfileModal = ({
       <div className='bottomLine' />
         <div>
             <div>Carnet de identidad</div>
-            <div>12122112212</div>
+            <div>{data?.data[0]?.ci}</div>
         </div>
         <div className='bottomLine' />
         <div>
             <div>Condominio</div>
-            <div>12122112212</div>
-            <div>12122112212</div>
-            <div>12122112212</div>
-        </div>
+            {data?.data[0]?.clients.map((item:any)=> (
+              <div key={item.id}>- {item.name}</div>
+            ))}
+        </div>      
+ 
         <div className='bottomLine' />
 
         <div>
             <div>Domicilio</div>
-            <div>12122112212</div>
+            <div>{data?.data[0]?.address || 'Sin registro'}</div>
         </div> 
          
       <div className='bottomLine'/>
@@ -155,10 +232,16 @@ const ProfileModal = ({
 
 
       </WidgetBase >
-      <WidgetBase variant={'V1'}>
-        as
+      <WidgetBase title={'Documentos Personales' } variant={'V1'} titleStyle={{fontSize:16}}>
+        <div className='bottomLine'></div>
+        <div style={{marginTop:16}}>Sin datos para mostrar</div>
       </WidgetBase>
-      <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16}} >
+
+
+
+{  user.id === data?.data[0]?.id &&     
+  
+  <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{fontSize:16}} >
       <div className='bottomLine'/>
         
         <div className={styles.buttonChange} onClick={onChangeEmail}>
@@ -170,7 +253,7 @@ const ProfileModal = ({
         </div>
       <div className='bottomLine'/>
 
-      </WidgetBase>
+      </WidgetBase>}
       </section>
 
 
@@ -190,6 +273,33 @@ const ProfileModal = ({
           showToast={showToast}
         />
       )}
+
+    {openEdit && <EditProfile
+      open={openEdit}
+      onClose={() => setOpenEdit(false)}
+      formState={formState}
+      onChange={onChange}
+      errors={errors}
+      urlImages={urlImages}
+      setErrors={setErrors}
+      url={url}
+      reLoad={reLoad}
+    />
+   }
+   {openDel && <DataModal
+    title={`Desvincular ${data?.data[0]?.role[0]?.name}`}
+    open={openDel}
+    onClose={() => setOpenDel(false)}
+     buttonText="Desvincular"
+     buttonCancel="Cancelar"
+    onSave={onDel}
+  >
+    <div>
+    <p style={{fontSize:'var(--sL)'}}>¿Estás seguro de que quieres eliminar este registro?</p>
+    <p>Esta acción no se puede deshacer.</p>
+    </div>
+  </DataModal>}
+  
    
   </DataModal>
   )

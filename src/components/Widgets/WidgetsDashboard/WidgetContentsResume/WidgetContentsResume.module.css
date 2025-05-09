@@ -23,10 +23,18 @@
   margin-top: var(--spL);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* align-items: center; */
+  /* justify-content: center; */
   gap: var(--spL);
   width: 100%;
+  & > div:nth-child(2){
+   /* background-color: blue; */
+   & > img{
+   width: 100%;
+   @media screen and (max-width: 768px) {
+    object-fit: contain;
+   }
+}  }
   & > div:nth-child(3){
     display: flex;
     width: 100%;
