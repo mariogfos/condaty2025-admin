@@ -461,6 +461,9 @@ const getGestionAnio = (filterDateValue: string) => {
                 />
 
                 <div className={styles.divider} />
+                <h2 className={styles.chartSectionTitle}>
+                  {`Resumen detallado de todos los egresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                </h2>
 
                 <TableEgresos
                   title="Egresos"
@@ -475,7 +478,9 @@ const getGestionAnio = (filterDateValue: string) => {
                 />
 
                 <div className={styles.divider} />
-
+                <h2 className={styles.chartSectionTitle}>
+                  {`Resumen detallado de todos los totalesde ${getGestionAnio(formStateFilter.filter_date)}`}
+                </h2>
                 <TableResumenGeneral
                   subcategoriasE={finanzas?.data?.egresos}
                   subcategoriasI={finanzas?.data?.ingresos}

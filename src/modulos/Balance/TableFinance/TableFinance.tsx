@@ -97,6 +97,31 @@ const TableFinance = ({
     }
   }
 
+  const getTotalLabelCellVariantClass = () => {
+    switch (variant) {
+      case 'income':
+        return styles['totalLabelCell-income'];
+      case 'expense':
+        return styles['totalLabelCell-expense'];
+      case 'summary':
+        return styles['totalLabelCell-summary'];
+      default:
+        return "";
+    }
+  };
+
+  const getTotalAmountCellVariantClass = () => {
+    switch (variant) {
+      case 'income':
+        return styles['totalAmountCell-income'];
+      case 'expense':
+        return styles['totalAmountCell-expense'];
+      case 'summary':
+        return styles['totalAmountCell-summary'];
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className={getContainerClass()}>
@@ -164,21 +189,21 @@ const TableFinance = ({
       {/* Fila de Total General */}
       {typeof total !== 'undefined' && (
         <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()}`}>
-          <div className={`${styles.totalLabelCell} ${getTotalTextColorClass()}`}>
+          <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
             <span>{titleTotal || "Total de " + title}</span>
             {tooltip && (
-            <div className={styles.tooltipContainer}>
+              <div className={styles.tooltipContainer}>
                 <IconTableHelp className={styles.tooltipIcon} />
                 <span className={styles.tooltip}>
-                {tooltip}
+                  {tooltip}
                 </span>
-            </div>
+              </div>
             )}
           </div>
           {/* Celdas vacías para alinear con meses si es necesario, o una celda que ocupe ese espacio */}
-          <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div> {/* Ocupa el espacio de las columnas de meses */}
+          <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
           
-          <div className={`${styles.totalAmountCell} ${getTotalTextColorClass()}`}>
+          <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()}`}>
             <span>Bs {formatNumber(total)}</span>
           </div>
         </div>
