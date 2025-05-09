@@ -16,7 +16,7 @@ import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
 import TableResumenGeneral from "./TableResumenGeneral";
 // Icons
-import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowDown, IconExport, LineGraphic, PointGraphic } from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
@@ -24,6 +24,7 @@ import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGr
 import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { formatNumber } from "@/mk/utils/numbers";
 // Interfaces
 interface CategoryOption {
   id: string | number;
@@ -260,6 +261,33 @@ const BalanceGeneral: React.FC = () => {
     }
     return data;
   };
+
+
+const getGestionAnio = (filterDateValue: string) => {
+  const now = new Date();
+  let year = now.getFullYear();
+
+  if (filterDateValue === "ly") {
+    year = now.getFullYear() - 1;
+  } else if (filterDateValue === "lm") {
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    year = prevMonthDate.getFullYear();
+  } else if (filterDateValue.startsWith("c:")) {
+    const dates = filterDateValue.substring(2).split(',');
+    if (dates[0]) {
+      const startDate = new Date(dates[0] + "T00:00:00");
+      year = startDate.getFullYear();
+      if (dates[1]) {
+        const endDate = new Date(dates[1] + "T00:00:00");
+        const endYear = endDate.getFullYear();
+        if (year !== endYear) {
+          return `gestión ${year} - ${endYear}`;
+        }
+      }
+    }
+  }
+  return `gestión ${year}`;
+};
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -336,50 +364,89 @@ const BalanceGeneral: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.filterItem}>
-            <Select
-              label="Tipo de grafica"
-              value={charType?.filter_charType}
-              name="chatType"
-              error={errors}
-              onChange={(e) => {
-                setCharType({
-                  filter_charType: e.target.value as ChartType,
-                });
-              }}
-              options={lchars}
-              required
-              iconLeft={<IconArrowDown />}
-            />
+          <div className={`${styles.filterItem} ${styles.chartTypeSelectorContainer}`}> {/* Contenedor especial para los botones de tipo de gráfico */}
+            <div className={styles.chartTypeButtonWrapper}>
+              <button
+                type="button"
+                title="Gráfico de Barras"
+                className={`${styles.chartTypeButton} ${
+                  charType.filter_charType === 'bar' ? styles.chartTypeButtonActive : ''
+                }`}
+                onClick={() => {
+                  // Solo permitir 'bar' si está en las opciones disponibles en lchars
+                  if (lchars.some(c => c.id === 'bar')) {
+                    setCharType({ filter_charType: 'bar' });
+                  }
+                }}
+                // Deshabilitar si 'bar' no es una opción en lchars
+                disabled={!lchars.some(c => c.id === 'bar')} 
+              >
+                <LineGraphic // Este ícono parece más de barras
+                  size={20} // Ajusta el tamaño según necesites
+                  color={charType.filter_charType === 'bar' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'} 
+                />
+              </button>
+              <button
+                type="button"
+                title="Gráfico de Línea"
+                className={`${styles.chartTypeButton} ${
+                  charType.filter_charType === 'line' ? styles.chartTypeButtonActive : ''
+                }`}
+                onClick={() => {
+                  // Solo permitir 'line' si está en las opciones disponibles en lchars
+                  if (lchars.some(c => c.id === 'line')) {
+                    setCharType({ filter_charType: 'line' });
+                  }
+                }}
+                // Deshabilitar si 'line' no es una opción en lchars
+                disabled={!lchars.some(c => c.id === 'line')}
+              >
+                <PointGraphic // Este ícono parece más de líneas/puntos
+                  size={20} // Ajusta el tamaño según necesites
+                  color={charType.filter_charType === 'line' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'}
+                />
+              </button>
+
+            </div>
           </div>
         </div>
 
         <div className={styles.loadingContainer}>
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && finanzas?.data?.ingresos && (
+
               <>
+              <h2 className={styles.chartSectionTitle}>
+                {`Balance desde ${getDateDesdeHasta(formStateFilter.filter_date)}`}
+              </h2>
                 <div className={styles.chartContainer}>
+                <div className={styles.chartActionsHeader}>
+                    <Button
+                      className={styles.exportButtonAsIcon} // Nueva clase para el botón de ícono
+                      onClick={exportar}
+                      variant="secondary"
+                      
+                    >
+                      <IconExport size={22} /> {/* Ajusta el tamaño del ícono si es necesario */}
+                    </Button>
+                  </div>
                   <WidgetGrafBalance
                     saldoInicial={finanzas?.data?.saldoInicial}
                     ingresos={finanzas?.data?.ingresosHist}
                     egresos={finanzas?.data?.egresosHist}
                     chartTypes={[charType.filter_charType as ChartType]}
-                    title={" "}
-                    subtitle={
-                      "Resumen de la gestión " +
-                      getDateDesdeHasta(formStateFilter.filter_date)
-                    }
+                    subtitle={`Total de saldo acumulado, ${getGestionAnio(formStateFilter.filter_date)}`} 
+                    title={`Bs ${formatNumber(finanzas?.data?.saldoInicial || 0)}`}
                     periodo={formStateFilter?.filter_date}
                   />
                 </div>
 
-                <div className={styles.exportButtonContainer}>
-                  <Button className={styles.exportButton} onClick={exportar}>
-                    Exportar tablas
-                  </Button>
-                </div>
+               
 
                 <div className={styles.divider} />
+                <h2 className={styles.chartSectionTitle}>
+                  {`Resumen detallado de todos los ingresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                </h2>
 
                 <TableIngresos
                   title="Ingresos"
