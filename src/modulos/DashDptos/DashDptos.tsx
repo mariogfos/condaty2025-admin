@@ -660,6 +660,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       >
                         <ItemList
                           title={res?.area?.title}
+                          subtitle={res?.area?.description}
                           left={
                             <Avatar
                               name={res?.area?.title}
