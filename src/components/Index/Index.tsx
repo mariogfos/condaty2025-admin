@@ -235,7 +235,7 @@ const HomePage = () => {
         <div className={styles.mainLayout}>
           {/* Columna Izquierda (65%) */}
           <div className={styles.leftColumn}>
-            <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate} className={styles.summaryWidgetEqualHeight} 
+            <WidgetBase variant={'V1'} title={'Resumen actual'} subtitle={formattedDate} className={styles.summaryWidgetEqualHeight} style={{maxHeight:'max-content'}}
             >
               <div className={styles.widgetsResumeContainer}>
                 <WidgetDashCard
