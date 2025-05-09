@@ -20,6 +20,7 @@
   padding: 8;
   background-color: var(--cWhiteV2);
   border-radius: 8;
+  cursor: pointer;
 }
 
 .firtsPanel {
@@ -33,7 +34,7 @@
 .secondPanel {
   width: 100%;
   display: flex;
-  gap: 16px;
+  gap: var(--spL);
   /* height: calc(100vh - 50px); */
 }
 

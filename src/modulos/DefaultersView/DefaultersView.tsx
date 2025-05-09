@@ -12,6 +12,8 @@ import {
   IconBilletera,
   IconMultas,
   IconHandcoin,
+  IconMonedas,
+  IconHousing,
 } from "../../components/layout/icons/IconsBiblioteca";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
@@ -20,6 +22,10 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 const DefaultersView = () => {
   const { setStore } = useAuth();
+
+  useEffect(() => {
+    
+  })
 
   // Definir opciones para los filtros
   const getUnidadOptions = () => [
@@ -60,6 +66,8 @@ const DefaultersView = () => {
   // Parámetros iniciales para la carga de datos
   const paramsInitial = {
     fullType: "L",
+    page: 1,
+    perPage:-1
   };
 
   // Definición de campos para el CRUD con filtros
@@ -193,7 +201,7 @@ const DefaultersView = () => {
     execute,
     setParams,
     data,
-    extraData,
+    // extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -203,20 +211,34 @@ const DefaultersView = () => {
 
   // Estado para controlar el número total de defaulters
   const [defaultersLength, setDefaultersLength] = useState(0);
+  const [extraData, setExtraData] = useState<any>({});
+  const { data:extraDat } = useAxios(
+    "/defaulters",
+    "GET",
+    {
+      fullType: "EXTRA",
+    },
+    false
+  );
 
   // Actualizar datos cuando cambia extraData
   useEffect(() => {
     if (data?.data) {
+      chargeExtraData();
       setDefaultersLength(data.data.length || 0);
     }
   }, [data]);
 
-  useEffect(() => {
-    setStore({ title: "Morosos" });
 
-    // Log para depuración
-    console.log("Parámetros iniciales:", paramsInitial);
-  }, []);
+  const chargeExtraData = async () => {
+   
+    if (extraDat) {
+      setExtraData(extraDat?.data);
+    }
+  };
+  // console.log(extraData,'extraDat')
+
+
 
   // Calcular el total de morosidad
   const totalMorosidad =
@@ -250,20 +272,22 @@ const DefaultersView = () => {
                 title={"Total de expensas"}
                 amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
                 pointColor={"var(--cInfo)"}
-                icon={<IconBilletera size={26} color={expensaColor} />}
+                icon={<IconHandcoin size={26} color={'var(--cWarning)'} style={{borderColor:'var(--cWarning)',borderWidth:1}}/>}
+                iconBorderColor="var(--cWarning)"
                 backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
                 textColor="white"
-                style={{width:'100%'}}
+                style={{width:'100%', borderColor:'var(--cWarning)'}}
               />
 
               <WidgetDefaulterResume
                 title={"Total de multas"}
                 amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
                 pointColor={"var(--cError)"}
-                icon={<IconMultas size={26} color={multaColor} />}
+                icon={<IconMultas size={26} color={'#B382D9'} />}
+                iconBorderColor="#B382D9"
                 backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
                 textColor="white"
-                style={{width:'100%'}}
+                style={{width:'100%', borderColor:'#B382D9'}}
 
               />
           </section>
@@ -271,7 +295,9 @@ const DefaultersView = () => {
 
         </div>
         <div className={styles.graphPanel}>
-          
+       {/* {   !extraData?.porCobrarMulta && !extraData?.porCobrarExpensa && (
+            <div>ASAS</div>
+          )} */}
           <GraphBase
             data={{
               labels: ["Expensas", "Multas"],
@@ -300,6 +326,11 @@ const DefaultersView = () => {
             }}
           />
         </div>
+        <div  style={{fontWeight:'Bold',display:'flex',justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
+        <div>Total de morosidad general
+        entre expensas y multas:  </div>
+        <div style={{fontSize:'var(--spL)'}}>Bs {formatNumber(totalMorosidad)} </div>
+        </div>
 
        
       </div>
@@ -323,23 +354,26 @@ const DefaultersView = () => {
     <LoadingScreen>
       <div className={styles.container}>
         <h1 className={styles.title}>Morosos</h1>
-        <p className={styles.subtitle}>
+        {/* <p className={styles.subtitle}>
           En esta sección tendrás una visión clara y detallada del estado
           financiero.
           <br />
           Podrás mantener un control sobre los pagos atrasados de los residentes
           y tomar medidas para garantizar la estabilidad financiera de tu
           condominio
-        </p>
+        </p> */}
 
-        {/* <WidgetDefaulterResume
-            title={"Total de morosidad"}
-            amount={`Bs ${formatNumber(totalMorosidad)}`}
+         <WidgetDefaulterResume
+            title={"Total de unidades morosas"}
+            amount={`${defaultersLength}`}
             pointColor={"var(--cSuccess)"}
-            icon={<IconHandcoin size={26} color={totalColor} />}
-            backgroundColor={`rgba(${hexToRgb(totalColor)}, 0.2)`}
+            icon={<IconHousing reverse size={26} color={'var(--cInfo)'} />}
+            iconBorderColor="var(--cInfo)"
+            iconColor="white"
+            // backgroundColor={`red`}
+            style={{maxWidth:200}}
             textColor="white"
-          /> */}
+          /> 
 
         <div className={styles.listContainer}>
           <List renderRight={renderRightPanel} />
