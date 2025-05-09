@@ -72,7 +72,7 @@ const MainMenu = ({
             label="Finanzas"
             icon={<IconPayments />}
             items={[
-              { href: "/balance", label: "Balance general" },
+              { href: "/balance", label: "Flujo de efectivo " },
               {
                 href: "/payments",
                 label: "Ingresos",

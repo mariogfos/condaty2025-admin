@@ -14,6 +14,9 @@ import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,6 +26,62 @@ const paramsInitial = {
 };
 
 const Owners = () => {
+  const [unitsModalOpen, setUnitsModalOpen] = useState(false);
+  const [selectedHomeowner, setSelectedHomeowner] = useState(null);
+
+  const openUnitsModal = (homeowner: any) => {
+    setSelectedHomeowner(homeowner);
+    setUnitsModalOpen(true);
+  };
+
+  const closeUnitsModal = () => {
+    setUnitsModalOpen(false);
+    setSelectedHomeowner(null);
+  };
+
+  const UnitsModal = ({
+    open,
+    onClose,
+    homeowner,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    homeowner: any;
+  }) => {
+    if (!homeowner) return null;
+
+    return (
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title={`Unidades de ${getFullName(homeowner)}`}
+        buttonText=""
+      >
+        <div className={styles.unitsContainer}>
+          {homeowner.dptos &&
+            homeowner.dptos.map((dpto: any, index: number) => (
+              <div key={dpto.id} className={styles.unitCard}>
+                <KeyValue title="Nro" value={dpto.nro} />
+                <KeyValue title="Descripción" value={dpto.description} />
+                <KeyValue title="Dimensión" value={`${dpto.dimension} m²`} />
+                <KeyValue
+                  title="Monto de gastos"
+                  value={`$${dpto.expense_amount}`}
+                />
+                <KeyValue
+                  title="Estado"
+                  value={dpto.status === "A" ? "Activo" : "Inactivo"}
+                />
+                {index < homeowner.dptos.length - 1 && (
+                  <hr className={styles.unitDivider} />
+                )}
+              </div>
+            ))}
+        </div>
+      </DataModal>
+    );
+  };
+
   const mod: ModCrudType = {
     modulo: "owners",
     singular: "Residente",
@@ -31,6 +90,10 @@ const Owners = () => {
     export: true,
     import: true,
     permiso: "",
+    hideActions: {
+      edit: true,
+      del: true,      
+    },
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -102,43 +165,59 @@ const Owners = () => {
       fullName: {
         // rules: ["required"],
         api: "ae",
-        label: "Nombre del residente",
+        label: "Nombre",
         form: false,
+        // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
+          // Asegúrate que 'item.item' contiene los datos del residente
+          const residente = item?.item; 
+          const nombreCompleto = getFullName(residente);
+          const cedulaIdentidad = residente?.ci; // Obtener el CI
+
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
                   "/OWNER-" +
-                    item?.item?.id +
+                    residente?.id + // Usar residente?.id
                     ".webp?d=" +
-                    item?.item?.updated_at
+                    residente?.updated_at // Usar residente?.updated_at
                 )}
-                name={getFullName(item.item)}
-                square
+                name={nombreCompleto} // Usar nombreCompleto
               />
-              <div>
-                <p>{getFullName(item?.item)} </p>
-                {item.item.is_main == "M" && (
+              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+                {/* Nombre */}
+                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
+                  {nombreCompleto} 
+                </p>
+                
+                {/* CI (si existe) */}
+                {cedulaIdentidad && (
+                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                    CI: {cedulaIdentidad}
+                  </span>
+                )}
+
+                {/* Estado de Administrador Principal (si aplica) */}
+                {residente?.is_main == "M" && ( 
                   <span
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: 4,
+                      backgroundColor: "#00af900D", // Fondo verde muy transparente
+                      padding: '2px 4px', // Ajustar padding si es necesario
                       borderRadius: 4,
+                      display: 'inline-block' // Para que el padding/fondo funcione bien
                     }}
                   >
-                    {item.item.is_main == "M"
-                      ? "Administrador principal"
-                      : null}
+                    Administrador principal
                   </span>
                 )}
               </div>
             </div>
           );
         },
-        list: true,
+        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
       avatar: {
         api: "a*e*",
@@ -259,13 +338,13 @@ const Owners = () => {
       units: {
         rules: [""],
         api: "",
-        label: "Unidades",
+        label: "Unidad",
         form: false,
         list: {
           onRender: (props: any) => {
-            return props?.item?.dpto[0]?.nro || "Sin datos";
+            return "Unidad " + props?.item?.dpto[0]?.nro || "Sin datos";
           },
-          width: "90px",
+          
         },
       },
       email: {
@@ -276,7 +355,7 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+        list: { },
       },
       // rep_email: {
 
@@ -294,7 +373,36 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+        
+      },
+      type: { // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
+        rules: [""],
+        api: "", // No se envía a la API
+        label: "Tipo", // Etiqueta de la columna
+        list: {
+          width: "110px", // Ajusta el ancho si es necesario
+          onRender: (props: any) => {
+            const dptos = props?.item?.dpto; // Accede al array de departamentos/unidades
+            let esTitular = false;
+
+            // Verifica si el array dpto existe y si en ALGUNA de las relaciones es titular
+            if (Array.isArray(dptos) && dptos.length > 0) {
+              esTitular = dptos.some(d => d?.pivot?.is_titular === 'Y');
+            }
+
+            const texto = esTitular ? "Titular" : "Dependiente";
+            // Asigna clases CSS diferentes según el tipo
+            const badgeClass = esTitular ? styles.isTitular : styles.isDependiente;
+
+            return (
+              // Aplica la clase base y la clase específica (Titular/Dependiente)
+              <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
+                <span>{texto}</span>
+              </div>
+            );
+          },
+        },
+        // form: false, // Si no quieres que aparezca en el formulario
       },
     };
   }, []);
@@ -311,6 +419,8 @@ const Owners = () => {
     showToast,
     execute,
     errors,
+    getExtraData,
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -344,8 +454,35 @@ const Owners = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.users}>
-      <List onTabletRow={renderItem} />
+    <div className={styles.style}>
+     <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+        <WidgetDashCard
+          title="Residentes Totales"
+          data={String(data?.message?.total || 0)}
+          // Icono Azul (colores directos)
+          icon={<IconHome color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Titulares"
+          data={String(data?.message?.total || 0)}
+          // Icono Verde (usa variables CSS, como estaba bien)
+          icon={<IconHome color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Dependientes"
+          data="0"  
+          icon={<IconHome color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+      </div>
+      <List />
+      <UnitsModal
+        open={unitsModalOpen}
+        onClose={closeUnitsModal}
+        homeowner={selectedHomeowner}
+      />
     </div>
   );
 };

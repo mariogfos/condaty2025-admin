@@ -11,10 +11,11 @@ import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAccess, IconAdd, IconAdmin } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
 const paramsInitial = {
   perPage: 20,
@@ -31,6 +32,10 @@ const Users = () => {
     plural: "Administradores",
     filter: true,
     permiso: "",
+    hideActions:{
+      edit:true,
+      del:true,
+    },
     //export: true,
     // import: true,
     renderView: (props: {
@@ -123,37 +128,39 @@ const Users = () => {
         label: "Nombre del administrador",
         form: false,
         onRender: (item: any) => {
+          // Asegúrate que 'item.item' contiene los datos del residente
+          const administrador = item?.item; 
+          const nombreCompleto = getFullName(administrador);
+          const cedulaIdentidad = administrador?.ci; // Obtener el CI
+
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/USER-" +
+                    administrador?.id + // Usar administrador?.id
+                    ".webp?d=" +
+                    administrador?.updated_at // Usar administrador?.updated_at
                 )}
-                name={getFullName(item.item)}
-                square
+                name={nombreCompleto} // Usar nombreCompleto
               />
-              <div>
-                <p>{getFullName(item?.item)} </p>
-                {item.item.is_main == "M" && (
-                  <span
-                    style={{
-                      color: "var(--cSuccess)",
-                      fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: 4,
-                      borderRadius: 4,
-                    }}
-                  >
-                    {item.item.is_main == "M"
-                      ? "Administrador principal"
-                      : null}
+              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+                {/* Nombre */}
+                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
+                  {nombreCompleto} 
+                </p>
+                
+                {/* CI (si existe) */}
+                {cedulaIdentidad && (
+                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                    CI: {cedulaIdentidad}
                   </span>
                 )}
               </div>
             </div>
           );
         },
-        list: true,
+        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
       avatar: {
         api: "a*e*",
@@ -218,7 +225,7 @@ const Users = () => {
           },
         },
 
-        list: { width: "120px" },
+       
       },
       name: {
         rules: ["required"],
@@ -254,46 +261,40 @@ const Users = () => {
         list: false,
       },
       role_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Rol",
-        form: {
+        rules: ["required"], // Reglas para el formulario
+        api: "ae", // Se envía a la API al agregar/editar
+        label: "Rol", // Etiqueta general
+        form: { // Configuración para el formulario
           type: "select",
-          optionsExtra: "roles",
-          optionLabel: "name",
-          optionValue: "id",
+          optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
+          optionLabel: "name", // Muestra el campo 'name' del rol
+          optionValue: "id", // Usa el campo 'id' del rol como valor
         },
-
-        list: {
-          width: "150px",
+        list: { // Configuración para la lista/tabla
+          
           onRender: (props: any) => {
+            // Encontrar el objeto rol correspondiente al role_id del item
+            const role = props?.extraData?.roles?.find(
+              (r: any) => r.id === props?.item?.role_id
+            );
+            // Obtener el nombre del rol o un texto por defecto
+            const roleName = role?.name || "Sin Rol";
+
+            // Verificar si el rol es 'Administrador' (ignorando mayúsculas/minúsculas)
+            const isAdmin = roleName.toLowerCase() === "administrador";
+
+            // Asignar la clase CSS correspondiente
+            const badgeClass = isAdmin ? styles.isAdminRole : styles.isDefaultRole;
+
             return (
-              <div>
-                {
-                  props?.extraData?.roles.find(
-                    (i: any) => i.id === props.item.role_id
-                  )?.name
-                }
+              // Renderizar el div con la clase base y la clase específica
+              <div className={`${styles.roleBadge} ${badgeClass}`}>
+                <span>{roleName}</span> {/* Mostrar el nombre del rol */}
               </div>
             );
           },
         },
-        // filter: {
-        //   label: "Filtrar por Rol",
-        //   width: "200px",
-        //   options: (extraData: any) => {
-        //     // console.log(extraData, "extraData");
-        //     let data: any = [{ id: "T", name: "Todos" }];
-        //     extraData?.roles?.map((c: any) => {
-        //       data.push({
-        //         id: c.id,
-        //         name: c.name,
-        //         description:c.description
-        //       });
-        //     });
-        //     return data;
-        //   },
-        // },
+        // filter: { ... } // Tu configuración de filtro (comentada en tu código)
       },
 
       email: {
@@ -304,7 +305,7 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "190px" },
+        list: {  },
       },
       // rep_email: {
 
@@ -322,12 +323,7 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: {
-          width: "200px",
-          onRender: (props: any) => (
-            <div>{props?.item?.address || "Sin domicilio"}</div>
-          ),
-        },
+        
       },
       phone: {
         rules: ["number"],
@@ -337,7 +333,7 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+       
       },
     };
   }, []);
@@ -358,6 +354,7 @@ const Users = () => {
     execute,
     reLoad,
     getExtraData,
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -398,6 +395,14 @@ const Users = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
+      <div style={{ marginBottom: '20px' }}>
+        <WidgetDashCard
+          title="Total de Administradores"
+          data={data?.message?.total || 0}
+          icon={<IconAdmin color={'var(--cPrimary)'} style={{backgroundColor:'var(--cHoverPrimary)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+      </div>
       <List onTabletRow={renderItem} />
     </div>
   );

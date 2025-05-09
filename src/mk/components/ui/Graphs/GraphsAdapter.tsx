@@ -81,7 +81,7 @@ const GraphsAdapter = ({
       offsetX: 0,
       formatter: function(seriesName: string, opts: any) {
         const value = opts.w.globals.seriesTotals[opts.seriesIndex];
-        return [seriesName, options?.money ? formatNumber(value, 2) + " Bs" : formatNumber(value, 2)];
+        return [seriesName, formatNumber(value, 2) + " Bs"];
       },
       markers: {
         width: 12,
@@ -100,7 +100,7 @@ const GraphsAdapter = ({
         bottom: 0,
         left: 0
       },
-      horizontalAlign: 'space-between',
+      horizontalAlign: 'center',
       width: '100%'
     },
     xaxis: {
@@ -121,10 +121,9 @@ const GraphsAdapter = ({
         fontSize: "12px",
         fontFamily: "Inter",
       },
-
       y: {
         formatter: function (val: any) {
-          return options?.money ? formatNumber(val) + " Bs" : val; // Personaliza el modal cunado hacen hover
+          return formatNumber(val) + " Bs";
         },
       },
     },
@@ -136,7 +135,7 @@ const GraphsAdapter = ({
           fontFamily: "Inter, Arial,",
         },
         formatter: (value: any) => {
-          return options?.money ? formatNumber(value) + " Bs" : value;
+          return formatNumber(value) + " Bs";
         },
       },
     },

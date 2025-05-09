@@ -3,10 +3,13 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
 import { useMemo, useState } from "react";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   perPage: 20,
@@ -77,9 +80,12 @@ const HomeOwners = () => {
     singular: "Propietario",
     plural: "Propietarios",
     permiso: "",
-    // extraData: true,
     export: true,
     import: true,
+    hideActions:{
+      edit:true,
+      del:true,
+    },
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -90,7 +96,6 @@ const HomeOwners = () => {
     }) => {
       return (
         <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
-
       );
     }
   };
@@ -98,59 +103,6 @@ const HomeOwners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      ci: {
-        rules: ["required"],
-        api: "ae",
-        label: "Cédula de identidad",
-        form: { type: "number" },
-        list: { width: "120px" },
-      },
-      email: {
-        rules: ["required"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-        },
-        list: {},
-      },
-      unidades: {
-        rules: [],
-        api: "",
-        label: "Unidades",
-        list: {
-          width: "150px",
-          onRender: (props: any) => {
-            const { item } = props;
-            if (!item.dptos || item.dptos.length === 0) {
-              return "Sin unidades";
-            }
-
-            if (item.dptos.length === 1) {
-              const dpto = item.dptos[0];
-              return (
-                <div className={styles.singleUnit}>
-                  <span>
-                    {dpto.nro} - {dpto.description}
-                  </span>
-                </div>
-              );
-            }
-
-            return (
-              <button
-                className={styles.viewUnitsButton}
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent row click
-                  openUnitsModal(item);
-                }}
-              >
-                Ver unidades ({item.dptos.length})
-              </button>
-            );
-          },
-        },
-      },
       name: {
         rules: ["required"],
         api: "ae",
@@ -160,11 +112,31 @@ const HomeOwners = () => {
           style: { width: "49%" },
           label: "Primer nombre",
         },
-        list: {
-          onRender: (props: any) => {
-            return getFullName(props.item);
-          },
+        onRender: (item: any) => {
+          const propietario = item?.item; 
+          const nombreCompleto = getFullName(propietario);
+          const cedulaIdentidad = propietario?.ci;
+
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Avatar
+                src={getUrlImages("/HOMEOWNER-" + propietario?.id + ".webp?d=" + propietario?.updated_at)}
+                name={nombreCompleto}
+              />
+              <div>
+                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
+                  {nombreCompleto} 
+                </p>
+                {cedulaIdentidad && (
+                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                    CI: {cedulaIdentidad}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
         },
+        list: true,
       },
       middle_name: {
         rules: [""],
@@ -187,6 +159,45 @@ const HomeOwners = () => {
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
+      ci: {
+        rules: ["required"],
+        api: "ae",
+        label: "Cédula de identidad",
+        form: { type: "number" },
+        
+      },
+      email: {
+        rules: ["required"],
+        api: "ae",
+        label: "Correo electrónico",
+        form: {
+          type: "text",
+        },
+        list: {},
+      },
+      unidades: {
+        rules: [],
+        api: "",
+        label: "Cantidad de Unidades",
+        list: {
+          onRender: (props: any) => {
+            const dptosArray = props?.item?.dptos;
+
+            if (Array.isArray(dptosArray) && dptosArray.length > 0) {
+              const numerosDeUnidades = dptosArray
+                .map(dpto => dpto?.nro)
+                .filter(nro => nro);
+
+              return numerosDeUnidades.join(', ');
+
+            } else {
+              return "Sin unidades";
+            }
+          },
+        },
+      },
+      
+    
       status: {
         rules: [""],
         api: "ae",
@@ -201,7 +212,7 @@ const HomeOwners = () => {
             { id: "X", name: "Inactivo" },
           ],
         },
-        list: { width: "80px" },
+        
       },
     };
   }, []);
@@ -218,6 +229,7 @@ const HomeOwners = () => {
     execute,
     reLoad,
     getExtraData,
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -225,9 +237,16 @@ const HomeOwners = () => {
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
-
   return (
     <div className={styles.style}>
+      <div style={{ marginBottom: '20px' }}>
+        <WidgetDashCard
+          title="Propietarios Registrados"
+          data={data?.message?.total || 0}
+          icon={<IconHome color={'var(--cPrimary)'} style={{backgroundColor:'var(--cHoverPrimary)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+      </div>
       <List />
       <UnitsModal
         open={unitsModalOpen}
