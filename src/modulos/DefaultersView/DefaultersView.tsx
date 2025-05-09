@@ -236,7 +236,7 @@ const DefaultersView = () => {
       setExtraData(extraDat?.data);
     }
   };
-  console.log(extraData,'extraDat')
+  // console.log(extraData,'extraDat')
 
 
 
@@ -326,6 +326,11 @@ const DefaultersView = () => {
             }}
           />
         </div>
+        <div  style={{fontWeight:'Bold',display:'flex',justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
+        <div>Total de morosidad general
+        entre expensas y multas:  </div>
+        <div style={{fontSize:'var(--spL)'}}>Bs {formatNumber(totalMorosidad)} </div>
+        </div>
 
        
       </div>
@@ -359,8 +364,8 @@ const DefaultersView = () => {
         </p> */}
 
          <WidgetDefaulterResume
-            title={"Total de morosidad"}
-            amount={`Bs ${formatNumber(totalMorosidad)}`}
+            title={"Total de unidades morosas"}
+            amount={`${defaultersLength}`}
             pointColor={"var(--cSuccess)"}
             icon={<IconHousing reverse size={26} color={'var(--cInfo)'} />}
             iconBorderColor="var(--cInfo)"
