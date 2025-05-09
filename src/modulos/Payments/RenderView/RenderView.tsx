@@ -1,5 +1,4 @@
 // @ts-nocheck
- 
 
 import React, { memo, useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -25,30 +24,37 @@ interface DetailPaymentProps {
 // eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
-  const [formState, setFormState] = useState<{confirm_obs?: string}>({});
+  const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
-  const [errors, setErrors] = useState<{confirm_obs?: string}>({});
+  const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const [item, setItem] = useState(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
   const fetchPaymentData = async () => {
     if (payment_id && open) {
-      const { data } = await execute("/payments", "GET", {
-        fullType: "DET",
-        searchBy: payment_id,
-      },false,true);
-      setItem(data?.data);
+      const { data } = await execute(
+        "/payments",
+        "GET",
+        {
+          fullType: "DET",
+          searchBy: payment_id,
+        },
+        false,
+        true
+      );
+      setItem(data?.data?.[0]);
     }
   };
+  console.log(item);
   useEffect(() => {
-
     fetchPaymentData();
   }, [payment_id]);
   // console.log(item,)
 
-
-  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeInput = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === "checkbox") {
       value = (e.target as HTMLInputElement).checked ? "P" : "N";
@@ -84,11 +90,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Función para mapear el tipo de pago
   const getPaymentType = (type: string) => {
     const typeMap: Record<string, string> = {
-      "T": "Transferencia bancaria",
-      "E": "Efectivo",
-      "C": "Cheque",
-      "Q": "QR",
-      "O": "Pago en oficina"
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "QR",
+      O: "Pago en oficina",
     };
     return typeMap[type] || type;
   };
@@ -96,12 +102,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      "P": "Cobrado",
-      "S": "Por confirmar",
-      "R": "Rechazado",
-      "E": "Por subir comprobante",
-      "A": "Por pagar",
-      "M": "Moroso"
+      P: "Cobrado",
+      S: "Por confirmar",
+      R: "Rechazado",
+      E: "Por subir comprobante",
+      A: "Por pagar",
+      M: "Moroso",
     };
     return statusMap[status] || status;
   };
@@ -109,20 +115,28 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Busca la categoría en extraData
   const getCategoryName = () => {
     if (item?.category) return item.category.name;
-    if (!extraData || !extraData.categories) return `Categoría ID: ${item?.category_id}`;
-    const category = extraData.categories.find((c: any) => c.id === item?.category_id);
+    if (!extraData || !extraData.categories)
+      return `Categoría ID: ${item?.category_id}`;
+    const category = extraData.categories.find(
+      (c: any) => c.id === item?.category_id
+    );
     return category ? category.name : `Categoría ID: ${item?.category_id}`;
   };
 
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData || !extraData.dptos) return (item?.dptos || "No especificada").replace(/,/g, "");
-    
-    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
-    
+    if (!extraData || !extraData.dptos)
+      return (item?.dptos || "No especificada").replace(/,/g, "");
+
+    const dpto = extraData.dptos.find(
+      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
+    );
+
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
-      const descSinComa = dpto.description ? dpto.description.replace(/,/g, "") : "";
+      const descSinComa = dpto.description
+        ? dpto.description.replace(/,/g, "")
+        : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
       return (item?.dptos || "No especificada").replace(/,/g, "");
@@ -132,10 +146,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Calcular monto total de los detalles
   const getTotalAmount = () => {
     if (!item?.details || !item.details.length) return item?.amount || 0;
-    return item.details.reduce((sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0), 0);
+    return item.details.reduce(
+      (sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0),
+      0
+    );
   };
   const handleAnularClick = () => {
-    if (item && onDel) { // Verifica que item y onDel existan
+    if (item && onDel) {
+      // Verifica que item y onDel existan
       onDel(item);
     }
   };
@@ -151,8 +169,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       >
         <div className={styles.container}>
           <div className={styles.notFoundContainer}>
-            <p className={styles.notFoundText}>No se encontró información del pago.</p>
-            <p className={styles.notFoundSuggestion}>Por favor, verifica el ID del pago o intenta de nuevo más tarde.</p>
+            <p className={styles.notFoundText}>
+              No se encontró información del pago.
+            </p>
+            <p className={styles.notFoundSuggestion}>
+              Por favor, verifica el ID del pago o intenta de nuevo más tarde.
+            </p>
           </div>
         </div>
       </DataModal>
@@ -168,18 +190,18 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === 'P' && (
-        <div className={styles.headerActionContainer}>
-          {/* REEMPLAZO DEL BOTÓN */}
-          <button
-            type="button" // Es buena práctica especificar el type para botones fuera de forms
-            onClick={handleAnularClick}
-            className={styles.textButtonDanger} // Nueva clase para el text button rojo
-          >
-            Anular egreso
-          </button>
-        </div>
-      )}
+        {item && onDel && item.status === "P" && (
+          <div className={styles.headerActionContainer}>
+            {/* REEMPLAZO DEL BOTÓN */}
+            <button
+              type="button" // Es buena práctica especificar el type para botones fuera de forms
+              onClick={handleAnularClick}
+              className={styles.textButtonDanger} // Nueva clase para el text button rojo
+            >
+              Anular egreso
+            </button>
+          </div>
+        )}
         <div className={styles.container}>
           <div className={styles.headerSection}>
             <div className={styles.amountDisplay}>Bs {item.amount}</div>
@@ -199,7 +221,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Propietario</span>
-                <span className={styles.infoValue}>{getFullName(item.propietario) || getFullName(item.owner) || "Sin propietario"}</span>
+                <span className={styles.infoValue}>
+                  {getFullName(item.propietario) ||
+                    getFullName(item.owner) ||
+                    "Sin propietario"}
+                </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
@@ -211,37 +237,55 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                       Asegúrate que tus datos 'item.concept' o 'item.description'
                       reflejen el formato de la imagen.
                   */}
-                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) || item.description || "No especificado"}
+                  {item.concept?.map((c: string, i: number) => (
+                    <div key={i}>-{c}</div>
+                  )) ||
+                    item.description ||
+                    "No especificado"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Observación</span>
-                <span className={styles.infoValue}>{item.obs || "Sin observación"}</span>
+                <span className={styles.infoValue}>
+                  {item.obs || "Sin observación"}
+                </span>
               </div>
             </div>
 
             <div className={styles.infoColumn}>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Estado</span>
-                <span className={`${styles.infoValue} ${
-                  item.status === 'P' ? styles.statusPaid :
-                  item.status === 'S' ? styles.statusPending :
-                  item.status === 'R' ? styles.statusRejected : ''
-                }`}>
+                <span
+                  className={`${styles.infoValue} ${
+                    item.status === "P"
+                      ? styles.statusPaid
+                      : item.status === "S"
+                      ? styles.statusPending
+                      : item.status === "R"
+                      ? styles.statusRejected
+                      : ""
+                  }`}
+                >
                   {getStatus(item.status)}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>{getPaymentType(item.type)}</span>
+                <span className={styles.infoValue}>
+                  {getPaymentType(item.type)}
+                </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
-                <span className={styles.infoValue}>{getFullName(item.owner) || "Sin titular"}</span>
+                <span className={styles.infoValue}>
+                  {getFullName(item.owner) || "Sin titular"}
+                </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
-                <span className={styles.infoValue}>{item.voucher || "Sin comprobante"}</span>
+                <span className={styles.infoValue}>
+                  {item.voucher || "Sin comprobante"}
+                </span>
               </div>
             </div>
           </div>
@@ -272,8 +316,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             </div>
           )}
 
-          
-
           {item?.details?.length > 0 && (
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
@@ -291,20 +333,47 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   </div>
                   <div className={styles.periodsTableBody}>
                     {item.details.map((periodo: any, index: number) => (
-                      <div className={styles.periodsTableRow} key={periodo.id || index}>
-                        <div className={styles.periodsTableCell} data-label="Periodo">
-                          {periodo?.debt_dpto?.debt?.month}/{periodo?.debt_dpto?.debt?.year}
+                      <div
+                        className={styles.periodsTableRow}
+                        key={periodo.id || index}
+                      >
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Periodo"
+                        >
+                          {periodo?.debt_dpto?.debt?.month}/
+                          {periodo?.debt_dpto?.debt?.year}
                         </div>
-                        <div className={styles.periodsTableCell} data-label="Concepto">
-                          {periodo?.concepto || periodo?.debt_dpto?.debt?.description || "Gasto Común"}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Concepto"
+                        >
+                          {periodo?.concepto ||
+                            periodo?.debt_dpto?.debt?.description ||
+                            "Gasto Común"}
                         </div>
-                        <div className={styles.periodsTableCell} data-label="Monto">
-                          Bs {parseFloat(periodo?.debt_dpto?.amount || 0).toFixed(2)}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Monto"
+                        >
+                          Bs{" "}
+                          {parseFloat(periodo?.debt_dpto?.amount || 0).toFixed(
+                            2
+                          )}
                         </div>
-                        <div className={styles.periodsTableCell} data-label="Multa">
-                          Bs {parseFloat(periodo?.debt_dpto?.penalty_amount || 0).toFixed(2)}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Multa"
+                        >
+                          Bs{" "}
+                          {parseFloat(
+                            periodo?.debt_dpto?.penalty_amount || 0
+                          ).toFixed(2)}
                         </div>
-                        <div className={styles.periodsTableCell} data-label="Subtotal">
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Subtotal"
+                        >
                           Bs {parseFloat(periodo?.amount || 0).toFixed(2)}
                         </div>
                       </div>
@@ -314,7 +383,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               </div>
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
-                  Total pagado: <span className={styles.totalAmountValue}>Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}</span>
+                  Total pagado:{" "}
+                  <span className={styles.totalAmountValue}>
+                    Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>

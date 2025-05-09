@@ -1,9 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
-import HeadTitle from "@/components/HeadTitle/HeadTitle";
 import {
   IconArrowDown,
   IconEdit,
@@ -12,7 +11,6 @@ import {
 import Button from "@/mk/components/forms/Button/Button";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -30,6 +28,7 @@ import Switch from "@/mk/components/forms/Switch/Switch";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
+import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 
 interface DashDptosProps {
   id: string | number;
@@ -50,18 +49,19 @@ const getStatus = (status: string) => {
 const DashDptos = ({ id }: DashDptosProps) => {
   const { user, showToast } = useAuth();
   const router = useRouter();
-  const [tipoUnidad, setTipoUnidad] = useState("");
+  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
-  const [formState, setFormState] = useState<any>({});
+  const [formState, setFormState] = useState<any>({ isTitular: "I" });
   const [errorsT, setErrorsT] = useState<any>({});
   const [openAccesos, setOpenAccesos] = useState(false);
   const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
+  const [openDel, setOpenDel] = useState(false);
   const {
     data: dashData,
     reLoad,
@@ -69,23 +69,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
   } = useAxios("/dptos", "GET", {
     fullType: "DET",
     dpto_id: id,
+    extraData: true,
   });
 
   const datas = dashData?.data || {};
 
-  useEffect(() => {
-    if (user?.clients) {
-      const tipo = user.clients.find(
-        (item: any) => item.id === user.client_id
-      )?.type_dpto;
-      const tipoMap: Record<string, string> = {
-        D: "Departamento",
-        C: "Casa",
-        L: "Lote",
-      };
-      setTipoUnidad(tipoMap[tipo] || "");
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user?.clients) {
+  //     const tipo = user.clients.find(
+  //       (item: any) => item.id === user.client_id
+  //     )?.type_dpto;
+  //     const tipoMap: Record<string, string> = {
+  //       D: "Departamento",
+  //       C: "Casa",
+  //       L: "Lote",
+  //     };
+  //     setTipoUnidad(tipoMap[tipo] || "");
+  //   }
+  // }, [user]);
 
   const onSave = async () => {
     if (!formState.owner_id) {
@@ -205,6 +206,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
       </div>
     );
   };
+  type TitleRenderProps = {
+    title: string;
+    onClick?: () => void;
+  };
+  const TitleRender = ({ title, onClick }: TitleRenderProps) => {
+    return (
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h3 className={styles.accountTitle}>{title}</h3>
+        {onClick && (
+          <span className={styles.viewMore} onClick={onClick}>
+            Ver más
+          </span>
+        )}
+      </div>
+    );
+  };
   const onDel = async () => {
     const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
     if (data?.success) {
@@ -214,27 +231,44 @@ const DashDptos = ({ id }: DashDptosProps) => {
       showToast(data?.message || "Error al eliminar unidad", "error");
     }
   };
+
+  const getHourPeriod = (start_time: any, end_time: any) => {
+    const start =
+      typeof start_time === "string"
+        ? new Date(`1970-01-01T${start_time}`)
+        : new Date(start_time);
+    const end =
+      typeof end_time === "string"
+        ? new Date(`1970-01-01T${end_time}`)
+        : new Date(end_time);
+
+    const diff = end.getTime() - start.getTime();
+    const hours = Math.floor(diff / 1000 / 60 / 60);
+    const minutes = Math.floor((diff / 1000 / 60) % 60);
+
+    if (hours === 0 && minutes > 0) {
+      return `${minutes}m`;
+    } else if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    }
+    return "0m";
+  };
+
   return (
     <div className={styles.container}>
-      <section
-        style={{ display: "flex", justifyContent: "flex-start" }}
+      <HeaderBack
+        label="Volver a lista de unidades"
         onClick={() => router.push("/units")}
-      >
-        <HeadTitle
-          className={styles.backButton}
-          onBack={() => router.push("/units")}
-          colorBack={"var(--accent)"}
-        />
-
-        <span> Volver a sección unidades </span>
-      </section>
+      />
       <section>
         <div className={styles.firtsPanel}>
           <div className={styles.infoCard}>
             <div className={styles.cardHeader}>
               <div>
                 <p className={styles.title}>
-                  {tipoUnidad} {datas?.data?.nro}
+                  {datas?.data?.type.name} {datas?.data?.nro}
                 </p>
                 <p className={styles.subtitle}> {datas?.data?.description}</p>
               </div>
@@ -243,7 +277,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   <IconEdit size={30} onClick={() => setOpenEdit(true)} />
                 </div>
                 <div className={styles.iconActions}>
-                  <IconTrash size={30} onClick={onDel} />
+                  <IconTrash size={30} onClick={() => setOpenDel(true)} />
                 </div>
               </div>
             </div>
@@ -278,11 +312,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   <div className={styles.SwitchContainer}>
                     <Switch
                       name="isTitular"
-                      checked={datas?.data?.isTitular}
-                      onChange={(e: any) => {
+                      // optionValue={["P", "I"]}
+                      disabled={true}
+                      checked={formState.isTitular == "P"}
+                      onChange={() => {
                         setFormState({
                           ...formState,
-                          isTitular: e.target.checked,
+                          isTitular: formState.isTitular == "P" ? "I" : "P",
                         });
                       }}
                       value={formState.isTitular}
@@ -295,15 +331,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
             <div>
               {/* Info Grid */}
-              <div
-                style={{
-                  display: "grid",
-                  width: "100%",
-                  gridTemplateColumns: "1fr 1fr 1fr",
-                  gap: 16,
-                  marginBottom: "var(--spL)",
-                }}
-              >
+              <div className={styles.infoGrid}>
                 <LabelValue
                   value={datas?.titular ? "Habitada" : "Disponible"}
                   label="Estado"
@@ -371,12 +399,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       right={
                         <div className={styles.SwitchContainer}>
                           <Switch
+                            optionValue={["I", "P"]}
                             name="isTitular"
-                            checked={datas?.data?.isTitular}
+                            checked={formState?.isTitular == "I"}
                             onChange={(e: any) => {
                               setFormState({
                                 ...formState,
-                                isTitular: e.target.checked,
+                                isTitular:
+                                  formState.isTitular == "I" ? "P" : "I",
                               });
                             }}
                             value={formState.isTitular}
@@ -470,15 +500,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
           <WidgetBase
             title={
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h3 className={styles.accountTitle}>Historial de pagos</h3>
-                <span
-                  className={styles.viewMore}
-                  onClick={() => setOpenPaymentsHist(true)}
-                >
-                  Ver más
-                </span>
-              </div>
+              <TitleRender
+                title="Historial de pagos"
+                onClick={() => setOpenPaymentsHist(true)}
+              />
             }
             variant="V1"
           >
@@ -493,14 +518,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   header={header}
                   data={datas?.payments?.slice(0, 4)}
                   className="striped"
-                  // onRowClick={(row) => {
-                  //   if (row.status === "A") {
-                  //     setOpenPagar(true);
-                  //   } else {
-                  //     setOpenComprobante(true);
-                  //     setIdPago(row.payment_id);
-                  //   }
-                  // }}
                 />
               )}
             </div>
@@ -511,15 +528,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
           {/* Historial de Visitas Mini Lista */}
           <WidgetBase
             title={
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h3 className={styles.accountTitle}>Historial de accesos</h3>
-                <span
-                  className={styles.viewMore}
-                  onClick={() => setOpenAccesos(true)}
-                >
-                  Ver más
-                </span>
-              </div>
+              <TitleRender
+                title="Historial de accesos"
+                onClick={() => setOpenAccesos(true)}
+              />
             }
             variant="V1"
             style={{ width: "50%" }}
@@ -539,10 +551,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     gap: 16,
                   }}
                 >
-                  {datas.access.map((acc: any) => {
+                  {datas.access.map((acc: any, index: any) => {
                     return (
                       <div
-                        key={acc.id}
+                        key={index}
                         style={{
                           width: 468,
                           border: "1px solid var(--cWhiteV1)",
@@ -612,15 +624,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
           </WidgetBase>
           <WidgetBase
             title={
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h3 className={styles.accountTitle}>Historial de reservas</h3>
-                <span
-                  className={styles.viewMore}
-                  onClick={() => setOpenPaymentsHist(true)}
-                >
-                  Ver más
-                </span>
-              </div>
+              <TitleRender
+                title="Historial de reservas"
+                // onClick={() => setOpenPaymentsHist(true)}
+              />
             }
             variant="V1"
             style={{ width: "50%" }}
@@ -640,10 +647,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     gap: 16,
                   }}
                 >
-                  {datas.reservations.map((res: any) => {
+                  {datas.reservations.map((res: any, index: any) => {
                     return (
                       <div
-                        key={res.id}
+                        key={index}
                         style={{
                           width: 468,
                           border: "1px solid var(--cWhiteV1)",
@@ -653,14 +660,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       >
                         <ItemList
                           title={res?.title}
-                          // subtitle={"CI: " + res.visit?.ci}
                           left={
                             <Avatar
                               name={res.title}
                               src={getUrlImages(
                                 "/AREA-" +
                                   res?.id +
-                                  ".webp?d=" +
+                                  "-" +
+                                  res?.images?.[0]?.id +
+                                  ".webp" +
+                                  "?" +
                                   res?.updated_at
                               )}
                               w={40}
@@ -670,9 +679,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                           right={
                             <p>
                               {res.status === "A"
-                                ? "Pendiente"
-                                : res.status === "P"
-                                ? "Pagado"
+                                ? "Aprovada "
+                                : res.status === "W"
+                                ? "En espera"
+                                : res.status === "X"
+                                ? "Rechazado"
                                 : "Cancelado"}
                             </p>
                           }
@@ -680,12 +691,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         <KeyValue
                           title={"Fecha y hora de reserva"}
                           value={
-                            res.start_time + " " + res.date_at || "Sin fecha"
+                            res.start_time.slice(0, 5) + " - " + res.date_at ||
+                            "Sin fecha"
                           }
                         />
                         <KeyValue
                           title={"Cantidad de personas"}
-                          value={res.people_count || "Sin cantidad"}
+                          value={
+                            res.people_count + " personas" || "Sin cantidad"
+                          }
+                        />
+                        <KeyValue
+                          title={"Tiempo de reserva"}
+                          value={
+                            getHourPeriod(res.start_time, res?.end_time) ||
+                            "Sin fecha"
+                          }
                         />
                       </div>
                     );
@@ -794,7 +815,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
             onClose={() => setOpenEdit(false)}
             item={datas?.data}
             reLoad={reLoad}
+            extraData={dashData?.extraData}
           />
+        )}
+        {openDel && (
+          <DataModal
+            title="Eliminar unidad"
+            open={openDel}
+            onSave={onDel}
+            onClose={() => setOpenDel(false)}
+            buttonText="Eliminar"
+          >
+            <div className={styles.modalContent}>
+              <p>
+                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción
+                no se puede deshacer.
+              </p>
+            </div>
+          </DataModal>
         )}
       </section>
     </div>

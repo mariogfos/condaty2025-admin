@@ -112,6 +112,7 @@ const Expenses = () => {
         api: "",
         label: "Periodo",
         list: {
+          width: "150px",
           onRender: (props: any) => {
             return (
               <div>
@@ -171,16 +172,16 @@ const Expenses = () => {
         },
       },
 
-      assignedUnits: {
-        rules: [""],
-        api: "",
-        label: "Unidades asignadas",
-        list: {
-          onRender: (props: any) => {
-            return units(props?.item?.asignados) + " U";
-          },
-        },
-      },
+      // assignedUnits: {
+      //   rules: [""],
+      //   api: "",
+      //   label: "Unidades asignadas",
+      //   list: {
+      //     onRender: (props: any) => {
+      //       return units(props?.item?.asignados) + " U";
+      //     },
+      //   },
+      // },
       totalExpensesSum: {
         rules: [""],
         api: "",
