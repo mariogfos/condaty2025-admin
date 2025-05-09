@@ -159,24 +159,3 @@
   color: var(--cWhite);
 }
 
-/* Estilos para la tabla */
-:global(.apexcharts-table) {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-:global(.apexcharts-table td) {
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid var(--cWhiteV1) !important;
-  border-bottom: 1px solid var(--cWhiteV1) !important;
-  opacity: 0.1;
-}
-
-:global(.apexcharts-table th) {
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid var(--cWhiteV1) !important;
-  border-bottom: 1px solid var(--cWhiteV1) !important;
-  opacity: 0.1;
-}
