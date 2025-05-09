@@ -659,25 +659,39 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         }}
                       >
                         <ItemList
-                          title={res?.title}
+                          title={res?.area?.title}
                           left={
                             <Avatar
-                              name={res.title}
+                              name={res?.area?.title}
                               src={getUrlImages(
                                 "/AREA-" +
-                                  res?.id +
+                                  res?.area?.id +
                                   "-" +
-                                  res?.images?.[0]?.id +
+                                  res?.area?.images?.[0]?.id +
                                   ".webp" +
                                   "?" +
-                                  res?.updated_at
+                                  res?.area?.updated_at
                               )}
                               w={40}
                               h={40}
                             />
                           }
                           right={
-                            <p>
+                            <p
+                              style={{
+                                color:
+                                  res.status === "A"
+                                    ? "var(--cSuccess)"
+                                    : res.status === "W"
+                                    ? "var(--cWarning)"
+                                    : res.status === "X"
+                                    ? "var(--cError)"
+                                    : "var(--cError)",
+                                fontSize: 12,
+                                display: "flex",
+                                justifyContent: "end",
+                              }}
+                            >
                               {res.status === "A"
                                 ? "Aprovada "
                                 : res.status === "W"
