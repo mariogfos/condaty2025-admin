@@ -68,3 +68,115 @@
     }
   }
 
+/* Estilos para la "etiqueta" de Titular/Dependiente */
+.residentTypeBadge {
+  display: inline-flex; /* Ajusta el contenedor al tamaño del texto + padding */
+  padding: 0.375rem 0.5rem; /* Equivalente a py-1.5 px-2 de Tailwind */
+  border-radius: 0.25rem; /* Equivalente a rounded de Tailwind */
+  font-size: 14px;        /* Equivalente a text-[14px] de Tailwind */
+  font-weight: 400;       /* Equivalente a font-normal de Tailwind */
+  text-align: center;     /* Centra el texto dentro del span */
+  /* Las propiedades flex/col/justify/items de tu ejemplo no son estrictamente necesarias */
+  /* si solo hay un span adentro, pero puedes añadirlas si quieres un control más fino */
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* justify-content: center; */
+  /* align-items: center; */
+}
+
+.residentTypeBadge span {
+  /* El span hereda la mayoría de los estilos, solo definimos color específico abajo */
+  line-height: 1; /* Ayuda a centrar verticalmente el texto simple */
+}
+
+/* Estilos específicos para "Titular" */
+.isTitular {
+  /* background-color: #00af90; */ /* Color original opaco */
+  background-color: rgba(0, 175, 144, 0.2); /* Color verde/teal con 20% opacidad */
+}
+.isTitular span {
+  color: #34a853; /* Color de texto verde (se mantiene) */
+}
+
+/* Estilos específicos para "Dependiente" */
+.isDependiente {
+  /* background-color: #e1c151; */ /* Color original opaco */
+  background-color: rgba(225, 193, 81, 0.2); /* Color amarillo con 20% opacidad */
+}
+.isDependiente span {
+  color: #e9b01e; /* Color de texto amarillo/naranja oscuro (se mantiene) */
+}
+
+.style {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.widgetResumeCard {
+  width: 216px !important;
+  height: 120px;
+  padding: var(--spM);
+  border-radius: var(--bRadiusM);
+  background-color: var(--cBlackV1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.widgetResumeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.unitsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.unitCard {
+  padding: var(--spM);
+  background-color: var(--cBlackV1);
+  border-radius: 0;
+  border-top: 1px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--cWhiteV1);
+  opacity: 0.1;
+}
+
+.unitDivider {
+  margin: var(--spM) 0;
+  border: none;
+  border-top: 1px solid var(--cWhiteV1);
+  opacity: 0.1;
+}
+
+.singleUnit {
+  font-size: 14px;
+  color: var(--cWhite);
+}
+
+/* Estilos para la tabla */
+:global(.apexcharts-table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:global(.apexcharts-table td) {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: 1px solid var(--cWhiteV1) !important;
+  border-bottom: 1px solid var(--cWhiteV1) !important;
+  opacity: 0.1;
+}
+
+:global(.apexcharts-table th) {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: 1px solid var(--cWhiteV1) !important;
+  border-bottom: 1px solid var(--cWhiteV1) !important;
+  opacity: 0.1;
+}
