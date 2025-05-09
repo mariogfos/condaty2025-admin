@@ -34,7 +34,7 @@ const RenderView = (props: {
     if (status == "P") return styles.statusCobrado;
     return styles.value;
   };
-
+  console.log(props?.item);
   return (
     <DataModal
       open={props.open}
@@ -47,11 +47,9 @@ const RenderView = (props: {
       <div className={styles.container}>
         {/* Sección para mostrar el monto total y la fecha */}
         <div className={styles.totalAmountSection}>
-          <div className={styles.totalAmount}>
-            Bs {props?.item?.amount}
-          </div>
+          <div className={styles.totalAmount}>Bs {props?.item?.amount}</div>
           <div className={styles.paymentDate}>
-            {getDateStrMes(props?.item?.paid_at) || 'Sin fecha'}
+            {getDateStrMes(props?.item?.paid_at) || "Sin fecha"}
           </div>
         </div>
 
@@ -70,14 +68,16 @@ const RenderView = (props: {
           <div className={styles.detailRow}>
             <div className={styles.label}>Periodo</div>
             <div className={styles.value}>
-              {MONTHS_S[props?.item?.debt?.month] + "/" + props?.item?.debt?.year}
+              {MONTHS_S[props?.item?.debt?.month] +
+                "/" +
+                props?.item?.debt?.year}
             </div>
           </div>
 
           <div className={styles.detailRow}>
             <div className={styles.label}>Fecha de pago</div>
             <div className={styles.value}>
-              {getDateStrMes(props?.item?.paid_at) || 'Sin fecha'}
+              {getDateStrMes(props?.item?.paid_at) || "Sin fecha"}
             </div>
           </div>
 
@@ -90,16 +90,12 @@ const RenderView = (props: {
 
           <div className={styles.detailRow}>
             <div className={styles.label}>Unidad</div>
-            <div className={styles.value}>
-              {props?.item?.dpto?.nro}
-            </div>
+            <div className={styles.value}>{props?.item?.dpto?.nro}</div>
           </div>
 
           <div className={styles.detailRow}>
             <div className={styles.label}>Descripción</div>
-            <div className={styles.value}>
-              {props?.item?.dpto?.description}
-            </div>
+            <div className={styles.value}>{props?.item?.dpto?.description}</div>
           </div>
 
           <div className={styles.detailRow}>
@@ -109,61 +105,86 @@ const RenderView = (props: {
             </div>
           </div>
 
-          {props?.item?.dpto?.owners && props?.item?.dpto?.owners.length > 1 && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Propietario</div>
-              <div className={styles.value}>
-                {getFullName(props?.item?.dpto?.owners[1])}
+          {props?.item?.dpto?.owners &&
+            props?.item?.dpto?.owners.length > 1 && (
+              <div className={styles.detailRow}>
+                <div className={styles.label}>Propietario</div>
+                <div className={styles.value}>
+                  {getFullName(props?.item?.dpto?.owners[1])}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* Sección de periodos por pagar si existen */}
-        {props?.item?.pendingPeriods && props?.item?.pendingPeriods.length > 0 && (
-          <div className={styles.periodsSection}>
-            <div className={styles.periodsTitle}>Periodos por pagar</div>
-            
-            <div className={styles.tableContainer}>
-              <div className={styles.tableHeader}>
-                <div className={`${styles.headerCell} ${styles.headerCellLeft}`}>Periodo</div>
-                <div className={styles.headerCell}>Monto</div>
-                <div className={styles.headerCell}>Multa</div>
-                <div className={`${styles.headerCell} ${styles.headerCellRight}`}>Subtotal</div>
+        {props?.item?.pendingPeriods &&
+          props?.item?.pendingPeriods.length > 0 && (
+            <div className={styles.periodsSection}>
+              <div className={styles.periodsTitle}>Periodos por pagar</div>
+
+              <div className={styles.tableContainer}>
+                <div className={styles.tableHeader}>
+                  <div
+                    className={`${styles.headerCell} ${styles.headerCellLeft}`}
+                  >
+                    Periodo
+                  </div>
+                  <div className={styles.headerCell}>Monto</div>
+                  <div className={styles.headerCell}>Multa</div>
+                  <div
+                    className={`${styles.headerCell} ${styles.headerCellRight}`}
+                  >
+                    Subtotal
+                  </div>
+                </div>
+
+                <div className={styles.tableBody}>
+                  {props?.item?.pendingPeriods.map(
+                    (periodo: any, index: number) => {
+                      const isLastRow =
+                        index === props?.item?.pendingPeriods.length - 1;
+
+                      return (
+                        <div
+                          key={index}
+                          className={`${styles.tableRow} ${
+                            isLastRow ? styles.tableLastRow : ""
+                          }`}
+                        >
+                          <div
+                            className={`${styles.tableCell} ${
+                              isLastRow ? styles.tableCellLeft : ""
+                            }`}
+                          >
+                            {MONTHS_S[periodo.month]}/{periodo.year}
+                          </div>
+                          <div className={styles.tableCell}>
+                            Bs {periodo.amount}
+                          </div>
+                          <div className={styles.tableCell}>
+                            Bs {periodo.penalty || 0}
+                          </div>
+                          <div
+                            className={`${styles.tableCell} ${
+                              isLastRow ? styles.tableCellRight : ""
+                            }`}
+                          >
+                            Bs{" "}
+                            {parseFloat(periodo.amount) +
+                              parseFloat(periodo.penalty || 0)}
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
               </div>
-              
-              <div className={styles.tableBody}>
-                {props?.item?.pendingPeriods.map((periodo: any, index: number) => {
-                  const isLastRow = index === props?.item?.pendingPeriods.length - 1;
-                  
-                  return (
-                    <div 
-                      key={index} 
-                      className={`${styles.tableRow} ${isLastRow ? styles.tableLastRow : ''}`}
-                    >
-                      <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellLeft : ''}`}>
-                        {MONTHS_S[periodo.month]}/{periodo.year}
-                      </div>
-                      <div className={styles.tableCell}>
-                        Bs {periodo.amount}
-                      </div>
-                      <div className={styles.tableCell}>
-                        Bs {periodo.penalty || 0}
-                      </div>
-                      <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellRight : ''}`}>
-                        Bs {parseFloat(periodo.amount) + parseFloat(periodo.penalty || 0)}
-                      </div>
-                    </div>
-                  );
-                })}
+
+              <div className={styles.totalPaid}>
+                Total pagado: Bs {props?.item?.amount}
               </div>
             </div>
-            
-            <div className={styles.totalPaid}>
-              Total pagado: Bs {props?.item?.amount}
-            </div>
-          </div>
-        )}
+          )}
 
         {/* Botón para ver detalles de pago si está pagado */}
         {props?.item?.status == "P" && (

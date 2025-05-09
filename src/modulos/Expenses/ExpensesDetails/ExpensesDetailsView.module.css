@@ -53,52 +53,6 @@
 
 /* Eliminados: .statGroupLeft, .statGroupRight, .divider */
 
-.statCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--cBlackV2);
-  padding: var(--spM);
-  border-radius: var(--bRadiusL);
-  border: 0.5px solid var(--cWhiteV1);
-  /* NUEVO: Control de flexibilidad para cada tarjeta */
-  /* Crecer (1), Encoger (1), Base ideal de 160px */
-  flex: 1 1 160px;
-  /* Ancho mínimo para forzar el salto de línea */
-  min-width: 160px;
-  height: 94px; /* O considera min-height si el texto puede necesitar más espacio */
-  /* min-height: 94px; */
-  overflow: hidden;
-  box-sizing: border-box; /* Incluye padding y borde en el tamaño */
-}
-/* --- Fin Fila de Estadísticas --- */
-
-.statContent {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS);
-  flex: 1; /* Ocupa espacio disponible dentro de la card */
-  min-width: 0; /* Permite encogerse */
-  overflow: hidden;
-}
-
-.statValue {
-  font-size: var(--sXl);
-  font-weight: var(--bSemibold);
-  color: var(--cWhite);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.statLabel {
-  font-size: var(--sL);
-  color: var(--cWhiteV1);
-  white-space: normal;
-  word-break: break-word;
-  line-height: 1.3;
-}
-
 .statIconContainer {
   width: 40px;
   height: 40px;

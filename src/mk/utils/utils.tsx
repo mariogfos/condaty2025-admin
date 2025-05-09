@@ -129,7 +129,7 @@ export let lIdeologies = [
 export const lStatusActive: any = {
   A: { name: "Activo" },
   X: { name: "Inactivo" },
-  R: { name: "Por activar" },
+  W: { name: "Por activar" },
   P: { name: "Debe cambiar contraseña" },
   // en un futuro el estado inactivo se manejara de acuerdo al campo delete_at
 };

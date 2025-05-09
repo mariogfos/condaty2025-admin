@@ -26,7 +26,7 @@ const mod = {
   hideActions: { edit: true, del: true, add: true },
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
-  filter:true
+  filter: true,
   // Esto cargará los detalles completos al hacer clic
 };
 
@@ -43,7 +43,7 @@ const Reserva = () => {
   // --- MODIFICACIÓN AQUÍ: Actualizar opciones del filtro ---
   // Define los nuevos estados para el filtro, incluyendo "Todos" con valor vacío
   const getReservaStatusOptions = () => [
-    { id: "T", name: "Todos" },     // Opción para mostrar todos (envía vacío)
+    { id: "T", name: "Todos" }, // Opción para mostrar todos (envía vacío)
     { id: "W", name: "En espera" },
     { id: "A", name: "Aprobado" },
     { id: "X", name: "Rechazado" },
@@ -64,7 +64,10 @@ const Reserva = () => {
             return (
               <div>
                 {getDateStrMes(props?.item?.date_at)}{" "}
-                {format(parse(props?.item?.start_time, "HH:mm:ss", new Date()), "H:mm")}
+                {format(
+                  parse(props?.item?.start_time, "HH:mm:ss", new Date()),
+                  "H:mm"
+                )}
               </div>
             );
           },
@@ -112,28 +115,39 @@ const Reserva = () => {
             const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
 
             const imageUrl = owner
-              ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`)
+              ? getUrlImages(
+                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+                )
               : undefined;
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  src={imageUrl}
-                  name={ownerName}
-                />
+                <Avatar src={imageUrl} name={ownerName} />
                 <div>
-                  <p style={{ margin: 0, lineHeight: '1.3' }}>
-                    {ownerName}
-                  </p>
+                  <p style={{ margin: 0, lineHeight: "1.3" }}>{ownerName}</p>
                   {dpto && (
-                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
-                       {dptoNro}
-                     </p>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "0.85em",
+                        color: "#666",
+                        lineHeight: "1.3",
+                      }}
+                    >
+                      {dptoNro}
+                    </p>
                   )}
                   {!owner && dpto && (
-                     <p style={{ margin: 0, fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
-                       {dptoNro}
-                     </p>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "0.85em",
+                        color: "#666",
+                        lineHeight: "1.3",
+                      }}
+                    >
+                      {dptoNro}
+                    </p>
                   )}
                 </div>
               </div>
@@ -168,7 +182,7 @@ const Reserva = () => {
             // Mapeo actualizado con los nuevos estados, textos y clases CSS
             const statusMap = {
               W: { label: "En espera", class: styles.statusW }, // En espera
-              A: { label: "Aprobado", class: styles.statusA },  // Aprobado
+              A: { label: "Aprobado", class: styles.statusA }, // Aprobado
               X: { label: "Rechazado", class: styles.statusX }, // Rechazado
               C: { label: "Cancelado", class: styles.statusC }, // Cancelado (Asegúrate de tener styles.statusC)
               // Quitamos N y A (si no aplica a reservas listadas)
@@ -219,7 +233,7 @@ const Reserva = () => {
     onDel,
     extraData,
     findOptions,
-    reLoad
+    reLoad,
   } = useCrud({
     paramsInitial,
     mod,

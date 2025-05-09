@@ -1,8 +1,6 @@
 /* Balance General Component Styles */
 .container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .description {
@@ -13,22 +11,107 @@
   line-height: 1.5;
 }
 
+/* Contenedor principal de todos los filtros */
 .filterContainer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
+  flex-wrap: wrap; 
+  gap: 0.75rem; 
+  align-items: flex-start; /* Alinea los filtros por su borde inferior */
+  
   margin-bottom: 1.5rem;
-  background-color: var(--darkv1);
-  padding: 1.5rem;
+  
+  
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ 
+
+  /* Por defecto, ocupa todo el ancho disponible en pantallas pequeñas */
+  width: 100%; 
 }
 
+/* En pantallas más grandes, ajustamos el ancho del contenedor de filtros y lo alineamos a la derecha */
+@media (min-width: 1024px) { /* Puedes ajustar este breakpoint */
+  .filterContainer {
+    width: 50%; /* Que ocupe aproximadamente el 60% del ancho de su padre */
+    min-width: 500px; /* Un ancho mínimo para que no se comprima demasiado si el 60% es muy poco */
+                      /* (3 * 177px) + 98px + gaps ~ 531 + 98 + 24 = 653px. Ajusta min-width según esto. */
+                      /* Si quieres que se parezca más a los 665px de Figma, usa max-width y margin-left: auto */
+    /* max-width: 680px; */ /* Alternativa: ancho máximo fijo */
+    margin-right: auto;   /* Empuja el contenedor a la derecha */
+    margin-right: 0;
+  }
+}
+
+/* Estilo para cada item de filtro individual (los Selects) */
 .filterItem {
-  flex: 1 1 200px;
-  position: relative;
+  flex-grow: 1;    /* Permite que crezcan para llenar el espacio */
+  flex-shrink: 1;  /* Permite que se encojan si no hay espacio */
+  flex-basis: 177px; /* Ancho base deseado */
+  min-width: 177px; /* No más pequeño que esto antes de envolver (wrap) */
+  display: flex;
+  flex-direction: column; /* Si los Selects tienen etiquetas internas que quieres arriba */
 }
 
+/* Contenedor específico para los botones de tipo de gráfico */
+.chartTypeSelectorContainer {
+  flex-grow: 0;     /* No crece */
+  flex-shrink: 0;   /* No se encoge */
+  width: 98px;      /* Ancho fijo como en Figma */
+  min-width: 98px;
+  display: flex;
+  flex-direction: column; /* Para alinear la etiqueta (si la usas) con los Selects */
+}
+
+/* Etiqueta opcional para los filtros (si tus componentes Select no la incluyen visualmente) */
+.filterLabel {
+  font-size: 12px;
+  color: #a7a7a7;
+  margin-bottom: 0.25rem; /* Espacio entre etiqueta y control */
+  display: block;
+}
+
+/* Contenedor que envuelve los dos botones de tipo de gráfico */
+.chartTypeButtonWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%; /* Ocupa el ancho de .chartTypeSelectorContainer (98px) */
+  height: 48px; /* Altura como en Figma (h-12) */
+  background-color: #414141; /* Fondo del wrapper */
+  border-radius: 0.5rem; /* Bordes redondeados del wrapper */
+  overflow: hidden; /* Para que los botones internos no rompan el redondeo */
+}
+
+.chartTypeButton {
+  flex: 1; /* Cada botón ocupa la mitad del espacio del wrapper */
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent; /* Fondo transparente por defecto */
+  border: none;
+  padding: 0.375rem; /* Espaciado interno */
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.chartTypeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chartTypeButton:not(:disabled):hover:not(.chartTypeButtonActive) {
+  background-color: #525252; /* Hover sutil para botones no activos */
+}
+
+.chartTypeButton.chartTypeButtonActive {
+  background-color: #1f2d27; /* Fondo para el botón activo */
+  outline: 0.5px solid var(--cAccent, #00e38c); /* Borde/Resalte para el activo */
+  outline-offset: -2px; /* Para que el outline parezca un borde interno */
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+
+/* Tus otros estilos existentes */
 .relativeContainer {
   position: relative;
   width: 100%;
@@ -40,9 +123,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 52px;
+  height: 52px; /* Asegúrate que coincida con la altura de tus Selects */
   background-color: rgba(0, 0, 0, 0.2);
-  z-index: 50;
+  z-index: 50; /* Debe estar por encima del Select deshabilitado */
   border-radius: 0.75rem;
   cursor: not-allowed;
 }
@@ -77,7 +160,6 @@
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: var(--primary-color);
-  
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -85,7 +167,6 @@
 }
 
 .exportButton:hover {
- 
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -99,20 +180,23 @@
   width: 100%;
   background-color: var(--light-v3);
   opacity: 0.2;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-
-
-/* Responsive adjustments */
+/* Ajustes responsivos para pantallas más pequeñas */
 @media (max-width: 768px) {
   .filterContainer {
-    flex-direction: column;
+    flex-direction: column; /* Apila los filtros verticalmente */
+    width: 100%; /* Ocupa todo el ancho en móviles */
+    margin-left: 0; /* Centrado o alineado a la izquierda por defecto */
+    align-items: stretch; /* Estira los items para que ocupen el ancho */
   }
   
-  .filterItem {
-    width: 100%;
+  .filterItem,
+  .chartTypeSelectorContainer {
+    width: 100%; /* Cada filtro ocupa todo el ancho disponible */
+    flex-basis: auto; /* Resetea la base para que el ancho sea 100% */
   }
   
   .exportButton {
@@ -120,7 +204,7 @@
   }
 }
 
-/* Animation for loading states */
+/* Animación (ya la tenías) */
 @keyframes pulse {
   0% {
     opacity: 0.6;
@@ -133,3 +217,48 @@
   }
 }
 
+.chartSectionTitle {
+  color: var(--cWhiteV1);
+  margin-bottom: 1rem;
+}
+/* Estilos para el contenedor de acciones del gráfico (ej. botón exportar) */
+.chartActionsHeader {
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+  align-items: center;
+  margin-bottom: 0.75rem; /* Espacio antes del gráfico */
+  min-height: 30px; /* Altura mínima para esta barra */
+}
+
+/* Estilo para el botón de exportar cuando es solo un ícono */
+.exportButtonAsIcon {
+  background-color: transparent; /* Fondo transparente como solicitaste */
+  border: 1px solid transparent; /* Sin borde visible, o un borde sutil var(--cBorderTransparent) */
+  padding: 0.6rem; /* Espacio alrededor del ícono para el área clickeable */
+  border-radius: 0.375rem; /* Bordes redondeados */
+  cursor: pointer;
+  line-height: 0; /* Importante para botones que solo contienen íconos */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  
+  /* Sobrescribir estilos que puedan venir de una clase Button genérica */
+  min-width: auto; 
+  width: auto;
+  color: var(--cWhiteV1, #a7a7a7); /* Color del ícono (si el SVG lo hereda) */
+}
+
+.exportButtonAsIcon:hover {
+  background-color: var(--cBlackV2, #333536); /* Fondo sutil en hover */
+  /* border-color: var(--cWhiteV2, #555); */ /* Borde sutil en hover si lo tuviera */
+}
+
+.exportButtonAsIcon svg {
+  fill: currentColor; /* Hereda el color del botón (.exportButtonAsIcon) */
+  /* O un color específico: fill: var(--cWhiteV1, #a7a7a7); */
+}
+
+.exportButtonAsIcon:hover svg {
+  fill: var(--cWhite, #fafafa); /* Color del ícono en hover */
+}

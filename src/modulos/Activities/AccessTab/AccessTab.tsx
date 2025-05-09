@@ -14,6 +14,8 @@ import {
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import RenderView from "./RenderView/RenderView";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Input from "@/mk/components/forms/Input/Input";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -26,13 +28,17 @@ const getPeriodOptions = () => [
   { id: "week", name: "Esta Semana" },
   { id: "lweek", name: "Ant. Semana" },
   { id: "month", name: "Este Mes" },
-  { id: "lmonth", name: "Ant. Mes" }
+  { id: "lmonth", name: "Ant. Mes" },
+  { id: "custom", name: "Rango Personalizado" }
 ];
 
 const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
   const [formStateFilter, setFormStateFilter] = useState<{filter_date?: string}>({});
+  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false); // Para el modal
+  const [customDateRange, setCustomDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+  const [customDateErrors, setCustomDateErrors] = useState<{ startDate?: string; endDate?: string }>({});
 
   // Función para convertir el filtro de fecha al formato esperado por la API
   const convertFilterDate = () => {
@@ -44,6 +50,64 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     if (formStateFilter.filter_date === "lmonth") periodo = "lm";
     
     return periodo;
+  };
+ 
+  const handleGetFilterForAccesses = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    // 'in_at' es el campo que tiene el filtro de período en AccessesTab
+    if (opt === 'in_at' && value === 'custom') {
+      setCustomDateRange({}); // Limpiar fechas anteriores
+      setCustomDateErrors({}); // Limpiar errores anteriores
+      setOpenCustomFilterModal(true); // Abrir el modal
+      // No aplicar 'custom' como filtro directo, el modal lo hará
+      delete currentFilters[opt]; 
+      return { filterBy: currentFilters };
+    }
+
+    // Lógica para otros filtros o valores no personalizados
+    if (value === "" || value === null || value === undefined || value === "t" /* si 't' es 'Todos' */) {
+        delete currentFilters[opt];
+    } else {
+        currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+  const onSaveCustomDateFilterForAccesses = () => {
+    let err: { startDate?: string; endDate?: string } = {};
+    if (!customDateRange.startDate) {
+      err.startDate = "La fecha de inicio es obligatoria";
+    }
+    if (!customDateRange.endDate) {
+      err.endDate = "La fecha de fin es obligatoria";
+    }
+    if (
+      customDateRange.startDate &&
+      customDateRange.endDate &&
+      customDateRange.startDate > customDateRange.endDate
+    ) {
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+    }
+  
+    if (Object.keys(err).length > 0) {
+      setCustomDateErrors(err);
+      return;
+    }
+  
+    const customDateFilterString = `c:<span class="math-inline">\{customDateRange\.startDate\},</span>{customDateRange.endDate}`;
+  
+    // Asumiendo que 'params' y 'setParams' vienen de tu hook useCrud
+    setParams((currentParams: any) => ({
+      ...currentParams,
+      filterBy: {
+        ...(currentParams.filterBy || {}),
+        in_at: customDateFilterString, // Aplicar al campo 'in_at'
+      },
+      page: 1 // Resetear a la página 1
+    }));
+  
+    setOpenCustomFilterModal(false);
+    setCustomDateErrors({});
   };
 
   // Función para manejar las acciones del RenderView
@@ -266,6 +330,8 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
+    getFilter: handleGetFilterForAccesses, 
+
   });
 
   // Efecto para manejar cambios en el filtro después de que setParams está disponible
@@ -308,7 +374,55 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
 
   if (!canAccess) return <NotAccess />;
 
-  return <List />;
+  return (
+    <> {/* O un div principal */}
+      <List />
+  
+      <DataModal
+        open={openCustomFilterModal}
+        title="Seleccionar Rango de Fechas Personalizado"
+        onSave={onSaveCustomDateFilterForAccesses} // <--- Usar la nueva función de guardado
+        onClose={() => {
+          setCustomDateRange({});
+          setOpenCustomFilterModal(false);
+          setCustomDateErrors({});
+        }}
+        buttonText="Aplicar Filtro"
+        buttonCancel="Cancelar"
+      >
+        <Input
+          type="date"
+          label="Fecha de inicio"
+          name="startDate"
+          error={customDateErrors.startDate}
+          value={customDateRange.startDate || ''}
+          onChange={(e) => {
+            setCustomDateRange({
+              ...customDateRange,
+              startDate: e.target.value,
+            });
+            if (customDateErrors.startDate) setCustomDateErrors(prev => ({...prev, startDate: undefined}));
+          }}
+          required
+        />
+        <Input
+          type="date"
+          label="Fecha de fin"
+          name="endDate"
+          error={customDateErrors.endDate}
+          value={customDateRange.endDate || ''}
+          onChange={(e) => {
+            setCustomDateRange({
+              ...customDateRange,
+              endDate: e.target.value,
+            });
+            if (customDateErrors.endDate) setCustomDateErrors(prev => ({...prev, endDate: undefined}));
+          }}
+          required
+        />
+      </DataModal>
+    </>
+  );
 };
 
 export default AccessesTab;

@@ -15,14 +15,21 @@ const ActiveOwner = ({
   data,
   typeActive,
   onCloseOwner,
-  reLoad
+  reLoad,
 }: any) => {
-  const { store, showToast } = useAuth();
+  const { store, showToast, user } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
   const [ldpto, setLdpto] = useState([]);
+  const client = data?.clients?.find(
+    (item: any) => item?.id === user?.client_id
+  );
+  // R:Rechazar
+  // X:"Rechazado"
+  // A:Aceptado
+  // W:En espera
 
-  const { data: dptos, execute  } = useAxios(
+  const { data: dptos, execute } = useAxios(
     "/dptos",
     "GET",
     {
@@ -38,7 +45,7 @@ const ActiveOwner = ({
         ?.filter((item: any) => item?.titular === null)
         .map((item: any) => ({
           id: item?.id,
-          nro: store?.UnitsType + " "  + item?.nro + " - " + item?.description,
+          nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
         })) || [];
 
     setLdpto(lista);
@@ -51,7 +58,7 @@ const ActiveOwner = ({
 
   const validate = () => {
     let errs: any = {};
-    if (typeActive === "R") {
+    if (typeActive === "X") {
       errs = checkRules({
         value: formState.obs,
         rules: ["required"],
@@ -69,14 +76,15 @@ const ActiveOwner = ({
     setErrors(errs);
     return errs;
   };
+  console.log(errors);
 
   const activeResident = async () => {
     const errs = validate();
     if (hasErrors(errs)) return;
 
     let params = {};
-    if (typeActive === "R") {
-      params = { id: data?.id, confirm: "R", obs: formState.obs };
+    if (typeActive === "X") {
+      params = { id: data?.id, confirm: "X", obs: formState.obs };
     } else {
       params = { id: data?.id, dpto_id: formState.dpto_id, confirm: "A" };
     }
@@ -87,7 +95,7 @@ const ActiveOwner = ({
       params
     );
     if (dataResident?.success === true) {
-      if (typeActive === "R") {
+      if (typeActive === "X") {
         showToast("La cuenta fue rechazada con éxito", "info");
       } else {
         showToast("La cuenta fue activada con éxito", "success");
@@ -100,16 +108,16 @@ const ActiveOwner = ({
       console.log("error:", error);
     }
   };
-
+  console.log(client);
   return (
     <DataModal
       open={open}
       onSave={activeResident}
-      title={typeActive === "R" ? "Rechazar cuenta" : "Asignar unidad"}
+      title={typeActive === "X" ? "Rechazar cuenta" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
     >
-      {typeActive === "S" ? (
+      {typeActive === "A" ? (
         <div className={styles.activeContainer}>
           <div>
             Selecciona la unidad para el residente
@@ -117,10 +125,11 @@ const ActiveOwner = ({
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
             El residente indicó que está en la unidad:{" "}
-            <span>{data?.client_owner?.preunidad || 'Sin especificar'}</span>
+            <span>{client?.pivot?.preunidad || "Sin especificar"}</span>
           </p>
           <div>
             <Select
+              label="Unidad"
               placeholder={"Número de " + store.UnitsType}
               name="dpto_id"
               required={true}

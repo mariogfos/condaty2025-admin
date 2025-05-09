@@ -10,7 +10,7 @@ interface ItemProps {
   title: string;
   subtitle?: string;
   className?: string;
-  data: string;
+  data: string | number;
   onClick?: () => void;
   color?: string;
   icon?: any;
