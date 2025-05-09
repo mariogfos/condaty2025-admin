@@ -727,7 +727,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                           }
                         />
                         <KeyValue
-                          title={"Tiempo de reserva"}
+                          title={"Cantidad de horas"}
                           value={
                             getHourPeriod(res.start_time, res?.end_time) ||
                             "Sin fecha"
