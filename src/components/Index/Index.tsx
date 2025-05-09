@@ -380,9 +380,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Solicitudes de pago"
                     viewAllText="Ver todas"
-                    onViewAllClick={() =>
-                      console.log("Ver todas las solicitudes de pago")
-                    }
+                    onViewAllClick={() => window.location.href = "/payments"}
                     emptyListMessage="No hay solicitudes de pago por revisar"
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
@@ -391,7 +389,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Alertas"
                     viewAllText="Ver todas"
-                    onViewAllClick={() => console.log("Ver todas las alertas")}
+                    onViewAllClick={() => window.location.href = "/alerts"}
                     emptyListMessage="No hay alertas"
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
@@ -402,9 +400,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
-                    onViewAllClick={() =>
-                      console.log("Ver todas las solicitudes de reserva")
-                    }
+                    onViewAllClick={() => window.location.href = "/reservas"}
                     emptyListMessage="No hay solicitudes de reserva pendientes"
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
@@ -413,9 +409,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Pre-registro"
                     viewAllText="Ver todos"
-                    onViewAllClick={() =>
-                      console.log("Ver todos los pre-registros")
-                    }
+                    onViewAllClick={() => window.location.href = "/owners"}
                     emptyListMessage="No hay cuentas por activar"
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
