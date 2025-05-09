@@ -7,7 +7,9 @@
     margin-bottom: var(--spS); 
     position: relative;
     border: solid 1px var(--cWhiteV2);
-    /* min-width: 210px; */
+    min-height: 104px; 
+    
+
     & > div:nth-child(1){
         display: flex;
         justify-content: space-between;

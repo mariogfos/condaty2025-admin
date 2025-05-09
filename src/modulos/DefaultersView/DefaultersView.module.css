@@ -43,6 +43,23 @@
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: var(--bRadiusL);
   border: 0.5px solid var(--cWhiteV1);
+  & > div {
+    font-size: var(--spL);
+    margin-top: var(--spL);
+    width:200px;
+    color:var(--cWhite);
+  };
+  & > div:nth-child(2) {
+    background-color: aqua;
+    width: 100%;
+  }
+  & > div >  section:nth-child(1){
+    display:flex;
+    gap: 4px;
+    width:100%;
+    flex:1;
+    /* background-color: antiquewhite; */
+  }
 }
 
 .graphPanel {

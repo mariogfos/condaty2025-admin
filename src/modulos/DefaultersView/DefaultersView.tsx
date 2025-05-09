@@ -242,7 +242,36 @@ const DefaultersView = () => {
 
     return (
       <div className={styles.rightPanel}>
+         <div className={styles.subtitle}>Representación gráfica del estado
+         general de morosos </div>
+         <div className={styles.widgetsPanel}>
+         <section>          
+              <WidgetDefaulterResume
+                title={"Total de expensas"}
+                amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
+                pointColor={"var(--cInfo)"}
+                icon={<IconBilletera size={26} color={expensaColor} />}
+                backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
+                textColor="white"
+                style={{width:'100%'}}
+              />
+
+              <WidgetDefaulterResume
+                title={"Total de multas"}
+                amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
+                pointColor={"var(--cError)"}
+                icon={<IconMultas size={26} color={multaColor} />}
+                backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
+                textColor="white"
+                style={{width:'100%'}}
+
+              />
+          </section>
+
+
+        </div>
         <div className={styles.graphPanel}>
+          
           <GraphBase
             data={{
               labels: ["Expensas", "Multas"],
@@ -261,7 +290,7 @@ const DefaultersView = () => {
             background="darkv2"
             downloadPdf
             options={{
-              title: "Representación gráfica del estado general de morosos",
+              // title: "Representación gráfica del estado general de morosos",
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
               // Usar exactamente los mismos colores que los fondos de los widgets
@@ -272,34 +301,7 @@ const DefaultersView = () => {
           />
         </div>
 
-        <div className={styles.widgetsPanel}>
-          <WidgetDefaulterResume
-            title={"Total de expensas"}
-            amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
-            pointColor={"var(--cInfo)"}
-            icon={<IconBilletera size={26} color={expensaColor} />}
-            backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
-            textColor="white"
-          />
-
-          <WidgetDefaulterResume
-            title={"Total de multas"}
-            amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
-            pointColor={"var(--cError)"}
-            icon={<IconMultas size={26} color={multaColor} />}
-            backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
-            textColor="white"
-          />
-
-          <WidgetDefaulterResume
-            title={"Total de morosidad"}
-            amount={`Bs ${formatNumber(totalMorosidad)}`}
-            pointColor={"var(--cSuccess)"}
-            icon={<IconHandcoin size={26} color={totalColor} />}
-            backgroundColor={`rgba(${hexToRgb(totalColor)}, 0.2)`}
-            textColor="white"
-          />
-        </div>
+       
       </div>
     );
   };
@@ -329,6 +331,15 @@ const DefaultersView = () => {
           y tomar medidas para garantizar la estabilidad financiera de tu
           condominio
         </p>
+
+        {/* <WidgetDefaulterResume
+            title={"Total de morosidad"}
+            amount={`Bs ${formatNumber(totalMorosidad)}`}
+            pointColor={"var(--cSuccess)"}
+            icon={<IconHandcoin size={26} color={totalColor} />}
+            backgroundColor={`rgba(${hexToRgb(totalColor)}, 0.2)`}
+            textColor="white"
+          /> */}
 
         <div className={styles.listContainer}>
           <List renderRight={renderRightPanel} />

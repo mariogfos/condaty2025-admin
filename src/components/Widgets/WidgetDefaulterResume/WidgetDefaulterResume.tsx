@@ -11,6 +11,7 @@ interface PropsType {
   backgroundColor?: string;
   textColor?: string;
   iconColor?: string;
+  style?: React.CSSProperties;
 }
 
 const WidgetDefaulterResume = ({ 
@@ -21,13 +22,14 @@ const WidgetDefaulterResume = ({
   icon,
   backgroundColor,
   textColor,
-  iconColor
+  iconColor,
+  style
 }: PropsType) => {
   return (
     <div 
       className={styles.container}
       style={{
-        backgroundColor: backgroundColor || 'var(--darkv2)'
+        backgroundColor: backgroundColor || 'var(--darkv2)',...style,
       }}
     >
       <div className={styles.contentWrapper}>

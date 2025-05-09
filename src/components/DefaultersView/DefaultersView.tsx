@@ -241,22 +241,7 @@ const DefaultersView = () => {
               width: 350,
             }}
           />
-          <WidgetDefaulterResume
-            title={"Expensas "}
-            amount={porCobrarExpensa.toString()}
-            units={defaultersLength + ""}
-            pointColor={"var(--cInfo)"}
-          />
-          <WidgetDefaulterResume
-            title={"Multas "}
-            amount={porCobrarMulta.toString()}
-            units={morososMultaCount + "/" + defaultersLength}
-            pointColor={"var(--cError)"}
-          />
-          <WidgetDefaulterResume
-            title={"Total de morosidad "}
-            amount={(porCobrarExpensa + porCobrarMulta).toString()}
-          />
+        
         </div>
 
         <div className={styles.listContainer}>
