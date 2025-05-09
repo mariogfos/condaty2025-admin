@@ -8,14 +8,14 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--cWhite);
   margin-bottom: var(--spL);
 }
 
 .subtitle {
   font-size: 14px;
   font-weight: 400;
-  color: #656f78;
+  color: var(--cWhiteV1);
   margin-bottom: var(--spL);
 }
 
