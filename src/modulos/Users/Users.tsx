@@ -16,6 +16,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -38,13 +39,21 @@ const Users = () => {
     },
     //export: true,
     // import: true,
+    // noWaiting:true,
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-    }) => <RenderView {...props} />,
+      noWaiting?: boolean;
+    }) => <ProfileModal  
+    open={props?.open} 
+    onClose={props?.onClose} 
+    dataID={props?.item?.id}
+    type={'admin'}
+    title="Perfil de Administrador"
+    />,
     renderDel: (props: {
       open: boolean;
       onClose: any;

@@ -1,7 +1,7 @@
 import DataModal from '@/mk/components/ui/DataModal/DataModal'
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React, { useEffect, useState } from 'react'
-import { IconAdmin, IconArrowRight, IconEdit, IconEmail, IconLockEmail, IconLook, IconPhone, IconTrash, IconUser } from '../layout/icons/IconsBiblioteca';
+import { IconAdmin, IconArrowRight, IconEdit, IconEmail, IconGuardShield, IconLockEmail, IconLook, IconPhone, IconTrash, IconUser } from '../layout/icons/IconsBiblioteca';
 import styles from './ProfileModal.module.css'
 import WidgetBase from '../Widgets/WidgetBase/WidgetBase';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
@@ -59,17 +59,20 @@ const ProfileModal = ({
     const client = user?.clients?.filter(
         (item: any) => item?.id === user?.client_id
       )[0];
-    const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> : <IconUser color={'var(--cWhiteV1)'} size={32}/>;
+    const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> 
+    : type === 'owner'? <IconUser color={'var(--cWhiteV1)'} size={32}/> 
+    : <IconGuardShield color={'var(--cAccent)'} size={32}/>
     const url = type === 'admin'? `/users` : type === 'owners'?  `/owners` : `/guards`;
     
+    const profileRole = type === 'admin'? 'Administrador' :type === 'owner'? 'Residente' : 'Guardia'
     const { data,reLoad } = useAxios(
-      "/users",
+      url,
       "GET",
       {
         searchBy: dataID,  
         fullType: "DET",
       },
-      // true
+      true
     );
     const imageUrl = () => {
       const userId = data?.data[0]?.id;
@@ -81,7 +84,7 @@ const ProfileModal = ({
         case 'owner':
           return `/OWNER-${userId}.webp?d=${timestamp}`;
         default:
-          return `/GUA-${userId}.webp?d=${timestamp}`;
+          return `/GUARD-${userId}.webp?d=${timestamp}`;
       }
     };
     
@@ -190,14 +193,14 @@ const ProfileModal = ({
                                 />
                                 <div>
                                 <span> {getFullName(data?.data[0])}</span>
-                                <span>{data?.data[0]?.role[0]?.name}</span>
+                                 <span>{profileRole}</span> 
 
                                 </div>
                         </div>
                 </div>
 
                 <div>
-                <div>{IconType} {data?.data[0]?.type === 'ADM' ? 'Administrador' : 'Usuario'}</div> 
+                <div>{IconType} {profileRole}</div> 
                 <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.phone}</div> 
                 <div><IconEmail size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.email}</div>
                 </div>
@@ -217,7 +220,7 @@ const ProfileModal = ({
             <div>Condominio</div>
             {data?.data[0]?.clients.map((item:any)=> (
               <div key={item.id}>- {item.name}</div>
-            ))}
+            ))} 
         </div>      
  
         <div className='bottomLine' />

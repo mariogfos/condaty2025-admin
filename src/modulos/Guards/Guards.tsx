@@ -15,6 +15,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -39,7 +40,14 @@ const Guards = () => {
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-    }) => <RenderView {...props} />,
+      noWaiting?: boolean;
+    }) => <ProfileModal  
+    open={props?.open} 
+    onClose={props?.onClose} 
+    dataID={props?.item?.id}
+    type={'guards'}
+    title="Perfil de Guardia"
+    />,
     renderDel: (props: {
       open: boolean;
       onClose: any;
