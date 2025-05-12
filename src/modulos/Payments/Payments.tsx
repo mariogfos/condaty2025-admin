@@ -353,8 +353,7 @@ const onSaveCustomFilter = () => {
     return;
   }
 
-  // **** CORRECCIÓN AQUÍ ****
-  // Construye la cadena correctamente usando los valores de las variables
+
   const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
 
   // Llama a la función onFilter del hook useCrud.

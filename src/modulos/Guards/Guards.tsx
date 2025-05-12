@@ -10,11 +10,12 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAccess, IconAdd, IconSecurity } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
 const paramsInitial = {
   perPage: 20,
@@ -31,6 +32,10 @@ const Guards = () => {
     filter: true,
     permiso: "",
     export: true,
+    hideActions: {
+      edit: true,
+      del: true,      
+    },
     // noWaiting: true,
     // import: true,
     renderView: (props: {
@@ -117,39 +122,39 @@ const Guards = () => {
         label: "Nombre del guardia",
         form: false,
         onRender: (item: any) => {
+          // Asegúrate que 'item.item' contiene los datos del residente
+          const guardia = item?.item; 
+          const nombreCompleto = getFullName(guardia);
+          const cedulaIdentidad = guardia?.ci; // Obtener el CI
+
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
                   "/GUARD-" +
-                    item?.item?.id +
+                    guardia?.id + // Usar residente?.id
                     ".webp?d=" +
-                    item?.item?.updated_at
+                    guardia?.updated_at // Usar residente?.updated_at
                 )}
-                name={getFullName(item.item)}
-                square
+                name={nombreCompleto} // Usar nombreCompleto
               />
-              <div>
-                <p>{getFullName(item?.item)} </p>
-                {item.item.is_main == "M" && (
-                  <span
-                    style={{
-                      color: "var(--cSuccess)",
-                      fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: 4,
-                      borderRadius: 4,
-                    }}
-                  >
-                    {item.item.is_main == "M"
-                      ? "Administrador principal"
-                      : null}
+              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+                {/* Nombre */}
+                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
+                  {nombreCompleto} 
+                </p>
+                
+                {/* CI (si existe) */}
+                {cedulaIdentidad && (
+                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                    CI: {cedulaIdentidad}
                   </span>
                 )}
               </div>
             </div>
           );
         },
+       
         list: true,
       },
       avatar: {
@@ -215,7 +220,7 @@ const Guards = () => {
           },
         },
 
-        list: { width: "120px" },
+        list:false,
       },
       name: {
         rules: ["required"],
@@ -254,7 +259,7 @@ const Guards = () => {
         api: "ae",
         label: "Celular",
         form: { type: "text", disabled: onDisbled },
-        list: { width: "110px" },
+        list: false,
       },
       email: {
         rules: ["required", "email"],
@@ -264,7 +269,7 @@ const Guards = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+        list: { },
       },
 
       address: {
@@ -275,7 +280,7 @@ const Guards = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+        list: {  },
       },
     };
   }, []);
@@ -293,10 +298,10 @@ const Guards = () => {
     onEdit,
     onDel,
     showToast,
-    
     execute,
     reLoad,
     getExtraData,
+    data
   } = useCrud({
     paramsInitial,
     mod,
@@ -337,6 +342,14 @@ const Guards = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
+      <div style={{ marginBottom: '20px' }}>
+        <WidgetDashCard
+          title="Total de Guardias"
+          data={String(data?.message?.total || 0)}
+          icon={<IconSecurity color={'#B382D9'} style={{backgroundColor:'rgba(179, 130, 217, 0.1)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+      </div>
       <List onTabletRow={renderItem} />
     </div>
   );

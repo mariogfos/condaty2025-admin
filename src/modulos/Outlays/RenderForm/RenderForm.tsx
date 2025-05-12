@@ -254,10 +254,11 @@ const RenderForm = ({
   }, [onClose, set_Errors]);
 
   const paymentMethods = [
-    { id: "transferencia", name: "Transferencia bancaria" },
-    { id: "efectivo", name: "Efectivo" },
-    { id: "tarjeta", name: "Tarjeta de crédito/débito" },
-    { id: "cheque", name: "Cheque" },
+    { id: 'T', name: 'Transferencia' },
+    { id: 'O', name: 'Pago en oficina' },
+    { id: 'Q', name: 'Qr' },
+    { id: 'E', name: 'Efectivo' },
+    { id: 'C', name: 'Cheque' }
   ];
 
   const hasSubcategories = filteredSubcategories.length > 0;
@@ -360,9 +361,7 @@ const RenderForm = ({
                   <div className={styles["input-container"]}>
                     <Select
                       name="payment_method"
-                      
                       value={_formState.payment_method || ""}
-                      
                       label="Método de pago"
                       onChange={handleChangeInput}
                       options={paymentMethods}
