@@ -5,6 +5,7 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Documents.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
 
 const lOptions = [
   { id: "O", name: "Residentes" },
@@ -25,6 +26,15 @@ const Documents = () => {
       fullType: "DET",
     },
     export: true,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+      noWaiting?: boolean;
+      reLoad?:any;
+    }) => <RenderView {...props}/>,
   };
 
   const paramsInitial = {
