@@ -179,7 +179,7 @@ import { IconComment, IconLike } from '@/components/layout/icons/IconsBiblioteca
 const WidgetContentsResume = ({data}:any) => {
   return (
     <WidgetBase variant={'V1'} title={'Comunidad'} >
-    <div style={{maxHeight: 800, overflowY: 'auto'}}>
+    <div style={{maxHeight: '79vh', overflowY: 'auto'}}>
     {data && data.map((item: any, index: number) => (
       <div key={item.id}>
       <div className='bottomLine'/>
