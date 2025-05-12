@@ -41,8 +41,8 @@ const RenderView = (props: {
        <section>
         <div>
                 <div className={styles.textsDiv}>
-                    <div>Creado por</div>
-                    <div>{}a</div>
+                    <div>Subido por</div>
+                    <div>{getFullName(props?.item?.user)}</div>
                 </div>
                 <div className={styles.textsDiv}>
                     <div>Segmentación</div>
