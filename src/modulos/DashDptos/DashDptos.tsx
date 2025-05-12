@@ -5,7 +5,10 @@ import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
 import {
   IconArrowDown,
+  IconDelivery,
   IconEdit,
+  IconOther,
+  IconTaxi,
   IconTrash,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Button from "@/mk/components/forms/Button/Button";
@@ -29,6 +32,7 @@ import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
+import HistoryReservations from "./HistoryReservations/HistoryReservations";
 
 interface DashDptosProps {
   id: string | number;
@@ -58,6 +62,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [errorsT, setErrorsT] = useState<any>({});
   const [openAccesos, setOpenAccesos] = useState(false);
   const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
+  const [openReservasHist, setOpenReservasHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
@@ -73,20 +78,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
   });
 
   const datas = dashData?.data || {};
-
-  // useEffect(() => {
-  //   if (user?.clients) {
-  //     const tipo = user.clients.find(
-  //       (item: any) => item.id === user.client_id
-  //     )?.type_dpto;
-  //     const tipoMap: Record<string, string> = {
-  //       D: "Departamento",
-  //       C: "Casa",
-  //       L: "Lote",
-  //     };
-  //     setTipoUnidad(tipoMap[tipo] || "");
-  //   }
-  // }, [user]);
 
   const onSave = async () => {
     if (!formState.owner_id) {
@@ -260,6 +251,45 @@ const DashDptos = ({ id }: DashDptosProps) => {
       return `${hours}h`;
     }
     return "0m";
+  };
+
+  const leftAccess = (item: any) => {
+    if (item?.other) {
+      let icon;
+      switch (item?.other?.other_type_id) {
+        case 1:
+          icon = <IconDelivery color="var(--cBlack)" />;
+          break;
+        case 2:
+          icon = <IconTaxi color="var(--cBlack)" />;
+          break;
+        default:
+          icon = <IconOther color="var(--cBlack)" />;
+          break;
+      }
+      return (
+        <div
+          style={{
+            padding: 8,
+            backgroundColor: "var(--cWhiteV1)",
+            borderRadius: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {icon}
+        </div>
+      );
+    }
+    return (
+      <Avatar
+        name={getFullName(item.visit)}
+        w={40}
+        h={40}
+        className={styles.visitorAvatar}
+      />
+    );
   };
 
   return (
@@ -572,14 +602,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         <ItemList
                           title={getFullName(acc.visit)}
                           subtitle={"CI: " + acc.visit?.ci}
-                          left={
-                            <Avatar
-                              name={getFullName(acc.visit)}
-                              w={40}
-                              h={40}
-                              className={styles.visitorAvatar}
-                            />
-                          }
+                          left={leftAccess(acc)}
                           right={
                             <p
                               style={{
@@ -633,7 +656,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title={
               <TitleRender
                 title="Historial de reservas"
-                // onClick={() => setOpenPaymentsHist(true)}
+                onClick={() => setOpenReservasHist(true)}
               />
             }
             subtitle={
@@ -797,6 +820,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
             accessData={datas?.access || []}
             open={openAccesos}
             close={() => setOpenAccesos(false)}
+          />
+        )}
+        {openReservasHist && (
+          <HistoryReservations
+            open={openReservasHist}
+            onClose={() => setOpenReservasHist(false)}
+            id={datas?.data?.id}
           />
         )}
 
