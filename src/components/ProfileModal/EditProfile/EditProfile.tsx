@@ -10,11 +10,26 @@ import { useAuth } from '@/mk/contexts/AuthProvider'
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules'
 import useAxios from '@/mk/hooks/useAxios'
 
-const EditProfile = ({open,onClose,formState,onChange , urlImages,errors,setErrors,url,reLoad}:any) => {
+const EditProfile = ({
+  open,
+  onClose,
+  formState, 
+  setFormState , 
+  onChange , 
+  urlImages,
+  errors,
+  setErrors,
+  url,
+  reLoad,
+  reLoadList
+}:any) => {
     const [preview, setPreview] = useState<string | null>(null);
     const {getUser,showToast} = useAuth();
     const { execute } = useAxios();
   
+
+
+    
 
 
 
@@ -46,13 +61,21 @@ const EditProfile = ({open,onClose,formState,onChange , urlImages,errors,setErro
             let base64String = result.replace("data:", "").replace(/^.+,/, "");
             base64String = encodeURIComponent(base64String);
             setPreview(result);
-            onChange({ ...formState, avatar: base64String });
+            // onChange({ ...formState, avatar:{ file: base64String ,ext:'webp' }});
+            setFormState({
+              ...formState,
+              avatar: { file: base64String, ext: 'webp' },
+            });
           };
           reader.readAsDataURL(file);
         } catch (error) {
           console.error(error);
           setPreview(null);
-          onChange({ ...formState, avatar: "" });
+          // onChange({ ...formState, avatar: { file:'',ext:'' } });
+          setFormState({
+            ...formState,
+            avatar: { file: '', ext: '' },
+          })
         }
       };
       
@@ -123,6 +146,7 @@ const EditProfile = ({open,onClose,formState,onChange , urlImages,errors,setErro
           // getUser();
           showToast("Perfil actualizado exitosamente", "success");
           reLoad();
+          reLoadList();
           onClose();
           // setOpenProfileModal(false);
         } else {
@@ -167,6 +191,7 @@ const EditProfile = ({open,onClose,formState,onChange , urlImages,errors,setErro
             onChange={onChangeFile}
             accept="image/*"
           />
+          
     </section>      
     <section>
         <div>
