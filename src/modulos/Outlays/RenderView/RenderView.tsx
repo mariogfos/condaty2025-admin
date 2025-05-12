@@ -21,6 +21,18 @@ interface DetailOutlayProps {
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   const { open, onClose, extraData, item, onDel } = props;
 
+  const paymentMethodMap: Record<string, string> = {
+    'T': 'Transferencia',
+    'O': 'Pago en oficina',
+    'Q': 'QR',
+    'E': 'Efectivo',
+    'C': 'Cheque',
+  };
+  
+  const getPaymentMethodText = (type: string): string => {
+    return paymentMethodMap[type] || type; // Devuelve el código si no se encuentra el mapeo
+  };
+
   const getCategoryNames = () => {
     let categoryName = "Desconocida";
     let subCategoryName = "-/-";
@@ -146,6 +158,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
                 {getStatusText(item.status)}
               </span>
             </div>
+            {item.type && ( // Solo mostrar si item.type tiene un valor
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Método de Pago</span>
+                <span className={styles.infoValue}>{getPaymentMethodText(item.type)}</span>
+              </div>
+                )}
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Descripción</span>
               <span className={styles.infoValue}>{item.description || "Sin descripción"}</span>

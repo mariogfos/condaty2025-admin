@@ -1,18 +1,24 @@
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Alerts.module.css";
-import { useEffect, useMemo } from "react";
+import RenderItem from "../shared/RenderItem";
+import useCrudUtils from "../shared/useCrudUtils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import RenderView from "./RenderView/RenderView";
 import {
   IconAlert,
+  IconAlert2,
   IconAmbulance,
   IconFlame,
+  IconGuardShield,
   IconTheft,
 } from "@/components/layout/icons/IconsBiblioteca";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 20,
@@ -47,7 +53,7 @@ const Alerts = () => {
     singular: "alerta",
     plural: "alertas",
     permiso: "",
-    extraData: false,
+    extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
     filter: true,
@@ -102,26 +108,78 @@ const Alerts = () => {
         label: "Informador",
         list: {
           onRender: ({ item }: any) => {
+            let entityToDisplay = null;
+            let avatarTypePrefix = ""; // "OWNER-" or "GUARD-"
+            const isPanic = item?.level === 4;
+
+            // Determinar la entidad a mostrar y el prefijo para el avatar
+            if (isPanic) {
+              // Para alertas de pánico, priorizar owner, fallback a guardia si owner no está
+              if (item.owner) {
+                entityToDisplay = item.owner;
+                avatarTypePrefix = "OWNER-";
+              } else if (item.guardia) { // En tu data de ejemplo, guardia es siempre null
+                entityToDisplay = item.guardia;
+                avatarTypePrefix = "GUARD-";
+              }
+            } else {
+              // Para alertas no pánico, priorizar guardia, fallback a owner
+              if (item.guardia) { // En tu data de ejemplo, guardia es siempre null
+                entityToDisplay = item.guardia;
+                avatarTypePrefix = "GUARD-";
+              } else if (item.owner) {
+                entityToDisplay = item.owner;
+                avatarTypePrefix = "OWNER-";
+              }
+            }
+            // Si después de esto entityToDisplay es null, se mostrará "Información no disponible"
+
+            const fullName = entityToDisplay ? getFullName(entityToDisplay) : "Información no disponible";
+            const ci = entityToDisplay?.ci;
+            const entityId = entityToDisplay?.id;
+            const updatedAt = entityToDisplay?.updated_at;
+
+            const avatarSrc = (entityId && avatarTypePrefix && updatedAt) 
+                              ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`) 
+                              : null;
+            
+            // Determinar si la entidad mostrada es un guardia para el estilo 'square' del Avatar
+            const isGuardBeingDisplayed = !!(entityToDisplay && item.guardia && entityToDisplay.id === item.guardia.id && avatarTypePrefix === "GUARD-");
+
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {item?.level == 4 ? (
-                  getAlertLevelIcon(item?.type)
-                ) : (
+                {/* Sección del Avatar */}
+                {avatarSrc ? (
                   <Avatar
-                    src={getUrlImages(
-                      "/GUARD-" +
-                        item?.guardia?.id +
-                        ".webp?d=" +
-                        item?.guardia?.updated_at
-                    )}
-                    name={getFullName(item.guardia)}
-                    square
+                    src={avatarSrc}
+                    name={fullName}
+                    square={isGuardBeingDisplayed}
+                  />
+                ) : (
+                  // Avatar de fallback con la inicial del nombre o un "?"
+                  <Avatar 
+                    name={fullName && fullName !== "Información no disponible" ? fullName.substring(0, 1) : "?"} 
+                    square={isGuardBeingDisplayed} 
                   />
                 )}
-                <div>
-                  <p>
-                    {getFullName(item?.level == 4 ? item?.owner : item.guardia)}{" "}
-                  </p>
+
+                {/* Sección de Texto e Icono de Pánico */}
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: '4px' }}>
+                    {/* Mostrar icono específico de alerta (IconAmbulance, IconFlame, etc.) si es pánico y tiene tipo */}
+                    {isPanic && item.type && (
+                      <span>{getAlertLevelIcon(item.type)}</span> 
+                    )}
+                    <p style={{ margin: 0, fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}>
+                      {fullName}
+                    </p>
+                  </div>
+                  {/* Mostrar CI si está disponible */}
+                  {ci && (
+                    <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block' }}>
+                      CI: {ci}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -139,7 +197,7 @@ const Alerts = () => {
       created_at: {
         rules: [""],
         api: "",
-        label: "Fecha",
+        label: "Fecha Y Hora de Creacion",
         list: {},
         onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
@@ -175,7 +233,18 @@ const Alerts = () => {
     []
   );
 
-  const { userCan, List, reLoad } = useCrud({
+  const {
+    userCan,
+    List,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    showToast,
+    execute,
+    reLoad,
+    data
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -183,7 +252,39 @@ const Alerts = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.style}>
+    <div className={styles.alerts}>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <WidgetDashCard
+          title="Alertas Registradas"
+          data={String(data?.extraData?.total_alerts || 0)}
+          icon={<IconAlert2 color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Alertas Nivel Bajo"
+          data={String(data?.extraData?.low_level || 0)}
+          icon={<IconAlert2 color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Alertas Nivel Medio"
+          data={String(data?.extraData?.medium_level || 0)}
+          icon={<IconAlert2 color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Alertas Nivel Alto"
+          data={String(data?.extraData?.high_level || 0)}
+          icon={<IconAlert2 color={'var(--danger)'} style={{backgroundColor:'var(--errorBg)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+        <WidgetDashCard
+          title="Botones de Emergencia"
+          data={String(data?.extraData?.emergency_buttons || 0)}
+          icon={<IconAlert2 color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
+          className={styles.widgetResumeCard}
+        />
+      </div>
       <List />
     </div>
   );
