@@ -292,6 +292,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
     );
   };
 
+  const onTitular = () => {
+    if (!datas?.data?.homeowner) {
+      showToast(
+        "No se puede asignar un titular a esta casa porque no existe un propietario registrado.",
+        "error"
+      );
+      return;
+    }
+    setOpenTitular(true);
+  };
+
   return (
     <div className={styles.container}>
       <HeaderBack
@@ -321,48 +332,56 @@ const DashDptos = ({ id }: DashDptosProps) => {
             <Br />
 
             <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
-              <ItemList
-                title={getFullName(datas?.data?.homeowner)}
-                subtitle={"Propietario"}
-                left={
-                  <Avatar
-                    src={
-                      datas?.data?.id
-                        ? getUrlImages(
-                            "/DPTO" +
-                              "-" +
-                              datas?.data?.id +
-                              ".webp" +
-                              (datas?.data?.updated_at
-                                ? "?d=" + datas?.data?.updated_at
-                                : "")
-                          )
-                        : ""
-                    }
-                    name={getFullName(datas?.data?.homeowner)}
-                    w={48}
-                    h={48}
-                  />
-                }
-                right={
-                  <div className={styles.SwitchContainer}>
-                    <Switch
-                      name="isTitular"
-                      // optionValue={["P", "I"]}
-                      disabled={true}
-                      checked={formState.isTitular == "P"}
-                      onChange={() => {
-                        setFormState({
-                          ...formState,
-                          isTitular: formState.isTitular == "P" ? "I" : "P",
-                        });
-                      }}
-                      value={formState.isTitular}
-                      label="A cargo de la unidad"
+              {!datas?.data?.homeowner ? (
+                <EmptyData
+                  message="No existe propietario registrado en esta casa"
+                  // centered={false}
+                  h={100}
+                />
+              ) : (
+                <ItemList
+                  title={getFullName(datas?.data?.homeowner)}
+                  subtitle={"Propietario"}
+                  left={
+                    <Avatar
+                      src={
+                        datas?.data?.id
+                          ? getUrlImages(
+                              "/DPTO" +
+                                "-" +
+                                datas?.data?.id +
+                                ".webp" +
+                                (datas?.data?.updated_at
+                                  ? "?d=" + datas?.data?.updated_at
+                                  : "")
+                            )
+                          : ""
+                      }
+                      name={getFullName(datas?.data?.homeowner)}
+                      w={48}
+                      h={48}
                     />
-                  </div>
-                }
-              />
+                  }
+                  right={
+                    <div className={styles.SwitchContainer}>
+                      <Switch
+                        name="isTitular"
+                        // optionValue={["P", "I"]}
+                        disabled={true}
+                        checked={formState.isTitular == "P"}
+                        onChange={() => {
+                          setFormState({
+                            ...formState,
+                            isTitular: formState.isTitular == "P" ? "I" : "P",
+                          });
+                        }}
+                        value={formState.isTitular}
+                        label="A cargo de la unidad"
+                      />
+                    </div>
+                  }
+                />
+              )}
             </div>
 
             <div>
@@ -400,10 +419,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       message="No existe titular registrado en esta casa"
                       centered={false}
                     />
-                    <Button
-                      className={styles.addButton}
-                      onClick={() => setOpenTitular(true)}
-                    >
+                    <Button className={styles.addButton} onClick={onTitular}>
                       Agregar Titular
                     </Button>
                   </div>
