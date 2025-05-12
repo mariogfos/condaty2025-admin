@@ -444,7 +444,7 @@ const Dptos = () => {
                     <IconDepartment />
                   </Round>
                 ) : (
-                  <div style={{ width: 34, height: 34 }} />
+                  <div style={{ width: 40, height: 40 }} />
                 )
               }
             />
