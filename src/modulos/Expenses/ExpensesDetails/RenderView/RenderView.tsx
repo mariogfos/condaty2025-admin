@@ -158,7 +158,7 @@ const RenderView = (props: {
           </div> */}
           <LabelValue
             label="Descripción"
-            value={props?.item?.dpto?.description || "Sin descripción"}
+            value={props?.item?.dpto?.description || "-/-"}
           />
 
           {/* <div className={styles.detailRow}>
@@ -169,7 +169,7 @@ const RenderView = (props: {
           </div> */}
           <LabelValue
             label="Titular"
-            value={getFullName(props?.item?.dpto?.titular?.owner)}
+            value={getFullName(props?.item?.dpto?.titular?.owner) || "-/-"}
           />
 
           {/* {props?.item?.dpto?.owners &&
@@ -184,7 +184,7 @@ const RenderView = (props: {
           {props?.item?.dpto?.homeowner && (
             <LabelValue
               label="Propietario"
-              value={getFullName(props?.item?.dpto?.homeowner)}
+              value={getFullName(props?.item?.dpto?.homeowner) || "-/-"}
             />
           )}
         </div>
