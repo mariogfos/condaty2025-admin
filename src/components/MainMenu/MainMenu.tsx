@@ -15,6 +15,7 @@ import {
   IconBitacora,
   IconCalendar,
   IconDepartments,
+  IconSecurity,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -102,7 +103,6 @@ const MainMenu = ({
             label="Usuarios"
             icon={<IconGroup />}
             items={[
-              { href: "/guards", label: "Guardias" },
               { href: "/owners", label: "Residentes" },
               { href: "/homeowners", label: "Propietarios" },
               { href: "/users", label: "Administradores" },
@@ -110,6 +110,7 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
+          
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}
@@ -117,18 +118,12 @@ const MainMenu = ({
               { href: "/contents", label: "Publicaciones" },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
-              { href: "/alerts", label: "Alertas" },
+              
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-          <MainmenuItem
-            href="/binnacle"
-            label="Bitácora"
-            icon={<IconBitacora />}
-            collapsed={collapsed}
-          />
-
+          
           <MainmenuItem
             href="/areas"
             label="Areas sociales"
@@ -150,6 +145,18 @@ const MainMenu = ({
               collapsed={collapsed}
             />
           )}
+          <MainmenuDropdown
+            label="Vigilancia y seguridad"
+            icon={<IconSecurity />}
+            items={[
+              { href: "/guards", label: "Guardias" },
+              { href: "/alerts", label: "Alertas" },
+              { href: "/binnacle", label: "Bitácora" },
+              { href: "/ev", label: "Soporte y ATC" },
+            ]}
+            collapsed={collapsed}
+            setSideBarOpen={setSideBarOpen}
+          />
 
           <MainmenuItem
             href="/ev"

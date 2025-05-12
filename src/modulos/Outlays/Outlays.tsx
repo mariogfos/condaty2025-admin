@@ -14,6 +14,7 @@ import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGraf
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import PerformBudget from "./PerformBudget/PerformBudget";
+import Input from "@/mk/components/forms/Input/Input";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -21,12 +22,7 @@ interface FormStateFilter {
   filter_mov?: string;
 }
 
-const paramsInitial = {
-  perPage: 20,
-  page: 1,
-  fullType: "L",
-  searchBy: "",
-};
+
 
 const Outlays = () => {
   const router = useRouter();
@@ -34,6 +30,28 @@ const Outlays = () => {
   const [openModal, setOpenModal] = useState(false);
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateRange, setCustomDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+  const [customDateErrors, setCustomDateErrors] = useState<{ startDate?: string; endDate?: string }>({});
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === 'date_at' && value === 'custom') {
+      setCustomDateRange({});
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined || value === "T") {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
 
   const mod: ModCrudType = {
     modulo: "expenses",
@@ -63,6 +81,12 @@ const Outlays = () => {
       del: "Egreso eliminado con éxito",
     },
   };
+  const paramsInitial = {
+    perPage: 20,
+    page: 1,
+    fullType: "L",
+    searchBy: "",
+  };
 
   // Función para convertir el filtro de fecha
   const convertFilterDate = () => {
@@ -90,6 +114,8 @@ const Outlays = () => {
     { id: "lmonth", name: "Mes anterior" },
     { id: "year", name: "Este año" },
     { id: "lyear", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" }, // Opción añadida
+    
   ];
 
   const getCategoryOptions = () => [
@@ -290,31 +316,31 @@ const Outlays = () => {
   const {
     userCan,
     List,
-    setStore,
-    onSearch,
-    searchs,
+    onView,
     onEdit,
     onDel,
-    showToast,
-    execute,
     reLoad,
-    getExtraData,
-    extraData,
+    onAdd,
+    execute,
+    params,
+    setParams,
+    onFilter,
+    extraData
   } = useCrud({
     paramsInitial,
     mod,
     fields,
-    _onImport: onImport,
-    extraButtons, // Pasando los botones extras al hook
+    extraButtons,
+    getFilter: handleGetFilter,
   });
 
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
+    onSearch: onFilter,
+    searchs: [],
+    setStore: setParams,
     mod,
     onEdit,
-    onDel,
+    onDel
   });
 
   const [openImport, setOpenImport] = useState(false);
@@ -343,6 +369,33 @@ const Outlays = () => {
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
     }
+  };
+
+  const onSaveCustomFilter = () => {
+    let err: { startDate?: string; endDate?: string } = {};
+    if (!customDateRange.startDate) {
+      err.startDate = "La fecha de inicio es obligatoria";
+    }
+    if (!customDateRange.endDate) {
+      err.endDate = "La fecha de fin es obligatoria";
+    }
+    if (
+      customDateRange.startDate &&
+      customDateRange.endDate &&
+      customDateRange.startDate > customDateRange.endDate
+    ) {
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+    }
+    if (Object.keys(err).length > 0) {
+      setCustomDateErrors(err);
+      return;
+    }
+
+    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
+    onFilter('date_at', customDateFilterString);
+    
+    setOpenCustomFilter(false);
+    setCustomDateErrors({});
   };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
@@ -397,6 +450,50 @@ const Outlays = () => {
           }}
         />
       )}
+
+      <DataModal
+        open={openCustomFilter}
+        title="Seleccionar Rango de Fechas"
+        onSave={onSaveCustomFilter}
+        onClose={() => {
+          setCustomDateRange({});
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        buttonText="Aplicar Filtro"
+        buttonCancel="Cancelar"
+      >
+        <Input
+          type="date"
+          label="Fecha de inicio"
+          name="startDate"
+          error={customDateErrors.startDate}
+          value={customDateRange.startDate || ''}
+          onChange={(e) => {
+            setCustomDateRange({
+              ...customDateRange,
+              startDate: e.target.value,
+            });
+            if (customDateErrors.startDate) setCustomDateErrors(prev => ({...prev, startDate: undefined}));
+          }}
+          required
+        />
+        <Input
+          type="date"
+          label="Fecha de fin"
+          name="endDate"
+          error={customDateErrors.endDate}
+          value={customDateRange.endDate || ''}
+          onChange={(e) => {
+            setCustomDateRange({
+              ...customDateRange,
+              endDate: e.target.value,
+            });
+            if (customDateErrors.endDate) setCustomDateErrors(prev => ({...prev, endDate: undefined}));
+          }}
+          required
+        />
+      </DataModal>
     </div>
   );
 };

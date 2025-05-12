@@ -1,6 +1,26 @@
 .Guards{
 
 }
+
+.widgetResumeCard {
+  width: 100%;
+  max-width: 300px;
+  height: 120px;
+  padding: var(--spM);
+  border-radius: var(--bRadiusM);
+  background-color: var(--cBlackV1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.widgetResumeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .fieldSet {
     width: 100%;
     /* background-color: aqua !important; */

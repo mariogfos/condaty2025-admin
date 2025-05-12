@@ -41,7 +41,7 @@ const RenderView = (props: any) => {
       </DataModal>
     );
   }
-  console.log(client);
+
   return (
     <>
       <DataModal

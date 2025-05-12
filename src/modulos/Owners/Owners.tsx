@@ -95,6 +95,7 @@ const Owners = () => {
       edit: true,
       del: true,      
     },
+    extraData: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -414,6 +415,7 @@ const Owners = () => {
       },
     };
   }, []);
+ 
 
   const {
     userCan,
@@ -443,6 +445,7 @@ const Owners = () => {
     onDel,
   });
 
+
   const renderItem = (
     item: Record<string, any>,
     i: number,
@@ -463,24 +466,22 @@ const Owners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-     <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <WidgetDashCard
           title="Residentes Totales"
-          data={String(data?.message?.total || 0)}
-          // Icono Azul (colores directos)
+          data={String(data?.extraData?.totals || 0)}
           icon={<IconHome color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Titulares"
-          data={String(data?.message?.total || 0)}
-          // Icono Verde (usa variables CSS, como estaba bien)
+          data={String(data?.extraData?.holders || 0)}
           icon={<IconHome color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Dependientes"
-          data="0"  
+          data={String(data?.extraData?.dependents || 0)}
           icon={<IconHome color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
