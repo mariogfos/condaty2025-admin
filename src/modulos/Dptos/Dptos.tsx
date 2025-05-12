@@ -405,7 +405,7 @@ const Dptos = () => {
         <WidgetDashCard
           title={"Unidades totales"}
           data={data?.message?.total}
-          style={{ minWidth: "280px" }}
+          style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <Round
               style={{
@@ -423,7 +423,7 @@ const Dptos = () => {
               key={i}
               title={item.name}
               data={item.value}
-              style={{ minWidth: "280px" }}
+              style={{ minWidth: "280px", maxWidth: "260px" }}
               icon={
                 item?.name === "Casa" ? (
                   <Round
