@@ -29,6 +29,7 @@ import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
+import HistoryReservations from "./HistoryReservations/HistoryReservations";
 
 interface DashDptosProps {
   id: string | number;
@@ -58,6 +59,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [errorsT, setErrorsT] = useState<any>({});
   const [openAccesos, setOpenAccesos] = useState(false);
   const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
+  const [openReservasHist, setOpenReservasHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
@@ -633,7 +635,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title={
               <TitleRender
                 title="Historial de reservas"
-                // onClick={() => setOpenPaymentsHist(true)}
+                onClick={() => setOpenReservasHist(true)}
               />
             }
             subtitle={
@@ -797,6 +799,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
             accessData={datas?.access || []}
             open={openAccesos}
             close={() => setOpenAccesos(false)}
+          />
+        )}
+        {openReservasHist && (
+          <HistoryReservations
+            open={openReservasHist}
+            onClose={() => setOpenReservasHist(false)}
+            id={datas?.data?.id}
           />
         )}
 
