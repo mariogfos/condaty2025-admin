@@ -48,7 +48,7 @@ const Documents = () => {
         rules: [],
         api: "ae",
         label: "Extensión",
-        list: {},
+        list: false,
       },
       descrip: {
         rules: ["required"],
@@ -62,17 +62,18 @@ const Documents = () => {
         api: "ae*",
         label: "Destino",
         form: { type: "select", options: lOptions },
-        list: {},
+        list: false,
       },
-      position: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Posición",
-        form: {
-          type: "text",
-          label: "Introduce un número del 0 al 5 para ordenar el documento",
-        },
-      },
+      // position: {
+      //   rules: ["required"],
+      //   api: "ae*",
+      //   label: "Posición",
+      //   form: {
+      //     type: "text",
+      //     label: "Introduce un número del 0 al 5 para ordenar el documento",
+      //   },
+      //   list:false
+      // },
       doc: {
         rules: ["required"],
         api: "ae*",

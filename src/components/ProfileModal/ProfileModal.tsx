@@ -233,7 +233,9 @@ const ProfileModal = ({
 
         <div>
             <div>Domicilio</div>
-            <div>{data?.data[0]?.address || 'Sin registro'}</div>
+            <div>{type==='owner'? `${data?.data[0]?.dpto[0]?.description} ${data?.data[0]?.dpto[0]?.nro}`|| 'Sin registro' 
+            : data?.data[0]?.address || 'Sin registro'}
+            </div>
         </div> 
          
       <div className='bottomLine'/>
