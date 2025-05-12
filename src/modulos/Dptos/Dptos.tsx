@@ -143,7 +143,7 @@ const Dptos = () => {
           label: "Tipo de unidad",
           options: (data: any) => {
             // console.log(data, "data")
-            let options = [{ id: "", name: "Todos" }];
+            let options = [{ id: "T", name: "Todos" }];
             data?.type?.forEach((type: any) => {
               options.push({
                 id: type.id,
