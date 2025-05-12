@@ -91,10 +91,13 @@ const Outlays = () => {
   // Función para convertir el filtro de fecha
   const convertFilterDate = () => {
     let periodo = "m";
-    if (formStateFilter.filter_date === "month") periodo = "m";
-    if (formStateFilter.filter_date === "lmonth") periodo = "lm";
-    if (formStateFilter.filter_date === "year") periodo = "y";
-    if (formStateFilter.filter_date === "lyear") periodo = "ly";
+    if (formStateFilter.filter_date === "ld") periodo = "ld";
+    if (formStateFilter.filter_date === "w") periodo = "w";
+    if (formStateFilter.filter_date === "lw") periodo = "lw";
+    if (formStateFilter.filter_date === "m") periodo = "m";
+    if (formStateFilter.filter_date === "lm") periodo = "lm";
+    if (formStateFilter.filter_date === "y") periodo = "y";
+    if (formStateFilter.filter_date === "ly") periodo = "ly";
     return periodo;
   };
 
@@ -110,12 +113,14 @@ const Outlays = () => {
   // Opciones para los filtros
   const getPeriodOptions = () => [
     { id: "", name: "Todos" },
-    { id: "month", name: "Este mes" },
-    { id: "lmonth", name: "Mes anterior" },
-    { id: "year", name: "Este año" },
-    { id: "lyear", name: "Año anterior" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
     { id: "custom", name: "Personalizado" }, // Opción añadida
-    
   ];
 
   const getCategoryOptions = () => [
@@ -334,20 +339,10 @@ const Outlays = () => {
     getFilter: handleGetFilter,
   });
 
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch: onFilter,
-    searchs: [],
-    setStore: setParams,
-    mod,
-    onEdit,
-    onDel
-  });
+
 
   const [openImport, setOpenImport] = useState(false);
 
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
 
   // Función para cargar y mostrar el gráfico
   const onClickGraph = async () => {

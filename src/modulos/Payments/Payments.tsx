@@ -63,10 +63,13 @@ const Payments = () => {
 
   const getPeriodOptions = () => [
     { id: "", name: "Todos" },
-    { id: "month", name: "Este mes" },
-    { id: "lmonth", name: "Mes anterior" },
-    { id: "year", name: "Este año" },
-    { id: "lyear", name: "Año anterior" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
     { id: "custom", name: "Personalizado" }, // Opción añadida
   ];
 
