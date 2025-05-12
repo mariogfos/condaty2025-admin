@@ -1,7 +1,10 @@
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 import Table from "@/mk/components/ui/Table/Table";
 import useAxios from "@/mk/hooks/useAxios";
 import { getDateStrMes } from "@/mk/utils/date";
+import { getUrlImages } from "@/mk/utils/string";
 import React from "react";
 interface Props {
   open: boolean;
@@ -9,47 +12,69 @@ interface Props {
   id?: any;
 }
 const HistoryReservations = ({ open, onClose, id }: Props) => {
-  const { data } = useAxios("/reservations", "GET", {
+  const { data, loaded } = useAxios("/reservations", "GET", {
     fullType: "L",
     dpto_id: id,
+    perPage: 10,
+    page: 1,
   });
-  console.log(data);
   const header = [
     {
-      key: "paid_at",
-      label: "Fecha de pago",
+      key: "date_at",
+      label: "Fecha de evento",
       responsive: "desktop",
       onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || "-";
+        return getDateStrMes(item?.date_at) || "-";
       },
     },
     {
-      key: "categorie",
-      label: "Categoría",
+      key: "avatar",
+      label: "Área social",
       responsive: "desktop",
       onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || "-";
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              color: "var(--cWhite)",
+            }}
+          >
+            <Avatar
+              src={getUrlImages(
+                "/AREA-" +
+                  item?.area?.id +
+                  "-" +
+                  item?.area?.images?.[0]?.id +
+                  ".webp?d="
+              )}
+              name={item?.area?.title}
+            />
+            <p>{item?.area?.title}</p>
+          </div>
+        );
       },
     },
     {
-      key: "sub_categorie",
-      label: "Sub Categoría",
+      key: "obs",
+      label: "Descripción",
       responsive: "desktop",
       onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || "-";
+        return item?.obs || "-";
       },
     },
-    {
-      key: "amount",
-      label: "Monto",
-      responsive: "desktop",
+    // {
+    //   key: "amount",
+    //   label: "Monto",
+    //   responsive: "desktop",
 
-      onRender: ({ item }: any) => {
-        return item?.amount && item?.penalty_amount
-          ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : "-";
-      },
-    },
+    //   onRender: ({ item }: any) => {
+    //     return item?.amount && item?.penalty_amount
+    //       ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
+    //       : "-";
+    //   },
+    // },
 
     // {
     //   key: "status",
@@ -76,7 +101,9 @@ const HistoryReservations = ({ open, onClose, id }: Props) => {
       buttonCancel=""
       //   fullScreen={true}
     >
-      <Table data={data?.data} header={header} />
+      {data?.data?.length == 0 && <p>No hay reservas</p>}
+      {!loaded && <SkeletonAdapterComponent type="TableSkeleton" />}
+      {data?.data?.length > 0 && <Table data={data?.data} header={header} />}
     </DataModal>
   );
 };
