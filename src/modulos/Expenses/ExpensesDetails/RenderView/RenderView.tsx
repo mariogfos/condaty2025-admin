@@ -56,10 +56,9 @@ const RenderView = (props: {
     className,
   }: LabelValueProps) => {
     return (
-      <div className={styles.LabelValue}>
+      <div className={`${styles.LabelValue} ${className}`}>
         <p>{label}</p>
         <p
-          className={className}
           style={{
             color: colorValue ? colorValue : "var(--cWhite)",
           }}
@@ -170,7 +169,7 @@ const RenderView = (props: {
           </div> */}
           <LabelValue
             label="Titular"
-            value={getFullName(props?.item?.dpto?.owners[0])}
+            value={getFullName(props?.item?.dpto?.titular?.owner)}
           />
 
           {/* {props?.item?.dpto?.owners &&
@@ -182,13 +181,12 @@ const RenderView = (props: {
                 </div>
               </div>
             )} */}
-          {props?.item?.dpto?.owners &&
-            props?.item?.dpto?.owners.length > 1 && (
-              <LabelValue
-                label="Propietario"
-                value={getFullName(props?.item?.dpto?.owners[1])}
-              />
-            )}
+          {props?.item?.dpto?.homeowner && (
+            <LabelValue
+              label="Propietario"
+              value={getFullName(props?.item?.dpto?.homeowner)}
+            />
+          )}
         </div>
 
         {/* Sección de periodos por pagar si existen */}

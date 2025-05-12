@@ -319,7 +319,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             {/* Tarjeta 4 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={formatNumber(statsData.totalAmount, 0)}
+              data={"Bs " + formatNumber(statsData.totalAmount, 0)}
               title="Monto total de expensa"
               icon={
                 <div className={styles.statIconContainer}>
@@ -330,7 +330,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             {/* Tarjeta 5 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={formatNumber(statsData.paidAmount, 0)}
+              data={"Bs " + formatNumber(statsData.paidAmount, 0)}
               title="Monto cobrado"
               icon={
                 <div
@@ -343,7 +343,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             {/* Tarjeta 6 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={formatNumber(statsData.penaltyAmount, 0)}
+              data={"Bs " + formatNumber(statsData.penaltyAmount, 0)}
               title="Monto por multas"
               icon={
                 <div
@@ -356,7 +356,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             {/* Tarjeta 7 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={formatNumber(statsData.pendingAmount, 0)}
+              data={"Bs " + formatNumber(statsData.pendingAmount, 0)}
               title="Monto por cobrar"
               icon={
                 <div
