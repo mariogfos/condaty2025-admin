@@ -192,7 +192,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
     return <div className={styles.br} />;
   };
 
-  const LabelValue = ({ value, label, colorValue }: any) => {
+  type LabelValueProps = {
+    value: string;
+    label: string;
+    colorValue?: string;
+  };
+
+  const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
     return (
       <div className={styles.LabelValue}>
         <p>{label}</p>
@@ -516,7 +522,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               ) : (
                 <Table
                   header={header}
-                  data={datas?.payments?.slice(0, 4)}
+                  data={datas?.payments}
                   className="striped"
                 />
               )}
@@ -527,6 +533,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Visitas Mini Lista */}
           <WidgetBase
+            subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
             title={
               <TitleRender
                 title="Historial de accesos"
@@ -534,7 +541,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               />
             }
             variant="V1"
-            style={{ width: "50%" }}
+            style={{ width: "48%" }}
           >
             <div
               style={{
@@ -629,8 +636,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 // onClick={() => setOpenPaymentsHist(true)}
               />
             }
+            subtitle={
+              "+" + datas.reservationsCount + " reservas nuevas este mes"
+            }
             variant="V1"
-            style={{ width: "50%" }}
+            style={{ width: "48%" }}
           >
             <div
               style={{
@@ -717,7 +727,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                           }
                         />
                         <KeyValue
-                          title={"Tiempo de reserva"}
+                          title={"Cantidad de horas"}
                           value={
                             getHourPeriod(res.start_time, res?.end_time) ||
                             "Sin fecha"

@@ -197,8 +197,8 @@
   box-sizing: border-box;
 }
 .statusP {
-  background-color: var(--accentBg);
-  color: var(--cPrimary);
+  background-color: var(--cHoverSuccess);
+  color: var(--cSuccess);
 }
 .statusS {
   background-color: var(--cHoverWarning);
@@ -213,8 +213,8 @@
   color: var(--cInfo);
 }
 .statusA {
-  background-color: var(--cHover);
-  color: var(--cWhite);
+  background-color: var(--cHoverInfo);
+  color: var(--cInfo);
 }
 .statusM {
   background-color: var(--cMediumAlertHover);

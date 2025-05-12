@@ -437,24 +437,23 @@ export const getCurrentYearWeek = () => {
   return `${isoYear}${weekNumber.toString().padStart(2, "0")}`;
 };
 
-
 export const getDateTimeAgo = (
-  dateStr: string | null = '',
-  utc: boolean = false,
+  dateStr: string | null = "",
+  utc: boolean = false
 ): string => {
-  if (!dateStr || dateStr === '') return '';
+  if (!dateStr || dateStr === "") return "";
 
   let date: any;
 
   if (esFormatoISO8601(dateStr) || utc) {
     date = convertirFechaUTCaLocal(dateStr);
-    if (!date) return 'Fecha inválida'; // Manejo de error en caso de que la conversión falle
+    if (!date) return "Fecha inválida"; // Manejo de error en caso de que la conversión falle
   } else {
     date = new Date(dateStr);
   }
 
   if (isNaN(date.getTime())) {
-    return 'Fecha inválida';
+    return "Fecha inválida";
   }
 
   const now: any = convertirFechaUTCaLocal(new Date().toISOString());
@@ -463,22 +462,21 @@ export const getDateTimeAgo = (
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
-  console.log(dateStr,'gdta',diffMinutes,diffHours,diffDays)
+  console.log(dateStr, "gdta", diffMinutes, diffHours, diffDays);
 
   if (diffMinutes < 1) {
-    return 'Hace un momento';
+    return "Hace un momento";
   } else if (diffHours < 1) {
-    return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
-  } 
-    else if (diffMinutes < 5) {
-    return `Hace ${diffMinutes} ${diffMinutes === 1 ? 'minuto' : 'minutos'}`;
+    return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
+  } else if (diffMinutes < 5) {
+    return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-    console.log(true, diffHours < 24)
-    return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
-  }else if (diffDays > 0) {
-    console.log(true, diffHours < 48)
-    return `Hace ${diffDays} ${diffDays === 1? 'día' : 'días'}`;
-  }else {
+    console.log(true, diffHours < 24);
+    return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
+  } else if (diffDays > 0) {
+    console.log(true, diffHours < 48);
+    return `Hace ${diffDays} ${diffDays === 1 ? "día" : "días"}`;
+  } else {
     return getDateTimeStrMes(dateStr);
   }
 };

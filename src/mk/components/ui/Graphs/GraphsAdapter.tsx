@@ -81,7 +81,7 @@ const GraphsAdapter = ({
       offsetX: 0,
       formatter: function(seriesName: string, opts: any) {
         const value = opts.w.globals.seriesTotals[opts.seriesIndex];
-        return [seriesName, ": Bs " + formatNumber(value)];
+        return [seriesName, ": Bs. " + formatNumber(value)];
       },
       markers: {
         width: 12,
@@ -123,7 +123,7 @@ const GraphsAdapter = ({
       },
       y: {
         formatter: function (val: any) {
-          return ": Bs" + formatNumber(val);
+          return ": Bs. " + formatNumber(val);
         },
       },
     },
@@ -135,7 +135,7 @@ const GraphsAdapter = ({
           fontFamily: "Inter, Arial,",
         },
         formatter: (value: any) => {
-          return "Bs" + formatNumber(value);
+          return "Bs. " + formatNumber(value);
         },
       },
     },

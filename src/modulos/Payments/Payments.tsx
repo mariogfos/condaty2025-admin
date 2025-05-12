@@ -331,41 +331,38 @@ const Payments = () => {
     return { filterBy: currentFilters };
   };
 
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = "La fecha de inicio es obligatoria";
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = "La fecha de fin es obligatoria";
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
+// En Payments.tsx
+// En Payments.tsx
+const onSaveCustomFilter = () => {
+  let err: { startDate?: string; endDate?: string } = {};
+  if (!customDateRange.startDate) {
+    err.startDate = "La fecha de inicio es obligatoria";
+  }
+  if (!customDateRange.endDate) {
+    err.endDate = "La fecha de fin es obligatoria";
+  }
+  if (
+    customDateRange.startDate &&
+    customDateRange.endDate &&
+    customDateRange.startDate > customDateRange.endDate
+  ) {
+    err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+  }
+  if (Object.keys(err).length > 0) {
+    setCustomDateErrors(err);
+    return;
+  }
 
-    const customDateFilterString = `c:${customDateRange.startDate},${customDateRange.endDate}`;
+  // **** CORRECCIÓN AQUÍ ****
+  // Construye la cadena correctamente usando los valores de las variables
+  const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
 
-    setParams({
-      ...params,
-      filterBy: {
-        ...(params.filterBy || {}),
-        paid_at: customDateFilterString,
-      },
-      page: 1
-    });
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
-
+  // Llama a la función onFilter del hook useCrud.
+  onFilter('paid_at', customDateFilterString);
+  
+  setOpenCustomFilter(false);
+  setCustomDateErrors({});
+};
   const extraButtons = [
     <Button
       key="categories-button"
@@ -376,7 +373,7 @@ const Payments = () => {
     </Button>,
   ];
 
-  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute, params, setParams } =
+  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute, params, setParams, onFilter } =
     useCrud({
       paramsInitial,
       mod,
