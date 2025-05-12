@@ -30,7 +30,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [item, setItem] = useState(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
-
+  console.log(payment_id);
   const fetchPaymentData = async () => {
     if (payment_id && open) {
       const { data } = await execute(
@@ -39,6 +39,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         {
           fullType: "DET",
           searchBy: payment_id,
+          page: 1,
+          perPage: 1,
         },
         false,
         true
