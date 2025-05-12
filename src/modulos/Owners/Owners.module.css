@@ -1,6 +1,3 @@
-.Owners{
-
-}
 
 
 .renderView {
@@ -116,7 +113,7 @@
 
 .widgetResumeCard {
   width: 216px !important;
-  height: 120px;
+  height: 72px;
   padding: var(--spM);
   border-radius: var(--bRadiusM);
   background-color: var(--cBlackV1);

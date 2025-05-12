@@ -132,7 +132,19 @@ const Users = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-
+      role_id: {
+        rules: ["required"], // Reglas para el formulario
+        api: "ae", // Se envía a la API al agregar/editar
+        label: "Rol", // Etiqueta general
+        form: { // Configuración para el formulario
+          type: "select",
+          optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
+          optionLabel: "name", // Muestra el campo 'name' del rol
+          optionValue: "id", // Usa el campo 'id' del rol como valor
+        },
+        
+        // filter: { ... } // Tu configuración de filtro (comentada en tu código)
+      },
       fullName: {
         // rules: ["required"],
         api: "ae",
@@ -177,12 +189,7 @@ const Users = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "ADM",
-          style: { width: "100%" },
-          // onRigth: rigthAvatar,
-        },
+      
       },
       password: {
         rules: ["_disabled_", "required*add"],
@@ -191,6 +198,113 @@ const Users = () => {
         form: false,
         list: false,
       },
+      
+      name: {
+        rules: ["required"],
+        api: "ae",
+        label: "Primer nombre",
+        form: {
+          type: "text",
+          style: { width: "49%" },
+          disabled: onDisbled,
+        },
+
+        list: false,
+      },
+      middle_name: {
+        rules: [""],
+        api: "ae",
+        label: "Segundo nombre",
+        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
+        list: false,
+      },
+      last_name: {
+        rules: ["required"],
+        api: "ae",
+        label: "Apellido paterno",
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        list: false,
+      },
+      mother_last_name: {
+        rules: [""],
+        api: "ae",
+        label: "Apellido materno",
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        list: false,
+      },
+      
+
+      
+      // rep_email: {
+
+      //   api: "",
+      //   label: "Repita el correo electrónico",
+      //   form: { type: "text" },
+      //   list: false,
+      //   style: { width: "500px" },
+      // },
+      rol: {
+        rules: [""],
+        api: "",
+        label: "Rol",
+        form: false,
+        list: { // Configuración para la lista/tabla
+          
+          onRender: (props: any) => {
+            // Encontrar el objeto rol correspondiente al role_id del item
+            const role = props?.extraData?.roles?.find(
+              (r: any) => r.id === props?.item?.role_id
+            );
+            // Obtener el nombre del rol o un texto por defecto
+            const roleName = role?.name || "Sin Rol";
+
+            // Verificar si el rol es 'Administrador' (ignorando mayúsculas/minúsculas)
+            const isAdmin = roleName.toLowerCase() === "administrador";
+
+            // Asignar la clase CSS correspondiente
+            const badgeClass = isAdmin ? styles.isAdminRole : styles.isDefaultRole;
+
+            return (
+              // Renderizar el div con la clase base y la clase específica
+              <div className={`${styles.roleBadge} ${badgeClass}`}>
+                <span>{roleName}</span> {/* Mostrar el nombre del rol */}
+              </div>
+            );
+          },
+        },
+      },
+      email: {
+        rules: ["required"],
+        api: "ae",
+        label: "Correo electrónico",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
+        list: {  },
+      },
+      
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
+       
+      },
+      address: {
+        rules: [""],
+        api: "ae",
+        label: "Dirección de Domicilio",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
+        
+      },
+
       ci: {
         rules: ["required"],
         api: "a",
@@ -236,114 +350,6 @@ const Users = () => {
           },
         },
 
-       
-      },
-      name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Primer nombre",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-        },
-
-        list: false,
-      },
-      middle_name: {
-        rules: [""],
-        api: "ae",
-        label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
-        list: false,
-      },
-      last_name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
-        list: false,
-      },
-      mother_last_name: {
-        rules: [""],
-        api: "ae",
-        label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
-        list: false,
-      },
-      role_id: {
-        rules: ["required"], // Reglas para el formulario
-        api: "ae", // Se envía a la API al agregar/editar
-        label: "Rol", // Etiqueta general
-        form: { // Configuración para el formulario
-          type: "select",
-          optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
-          optionLabel: "name", // Muestra el campo 'name' del rol
-          optionValue: "id", // Usa el campo 'id' del rol como valor
-        },
-        list: { // Configuración para la lista/tabla
-          
-          onRender: (props: any) => {
-            // Encontrar el objeto rol correspondiente al role_id del item
-            const role = props?.extraData?.roles?.find(
-              (r: any) => r.id === props?.item?.role_id
-            );
-            // Obtener el nombre del rol o un texto por defecto
-            const roleName = role?.name || "Sin Rol";
-
-            // Verificar si el rol es 'Administrador' (ignorando mayúsculas/minúsculas)
-            const isAdmin = roleName.toLowerCase() === "administrador";
-
-            // Asignar la clase CSS correspondiente
-            const badgeClass = isAdmin ? styles.isAdminRole : styles.isDefaultRole;
-
-            return (
-              // Renderizar el div con la clase base y la clase específica
-              <div className={`${styles.roleBadge} ${badgeClass}`}>
-                <span>{roleName}</span> {/* Mostrar el nombre del rol */}
-              </div>
-            );
-          },
-        },
-        // filter: { ... } // Tu configuración de filtro (comentada en tu código)
-      },
-
-      email: {
-        rules: ["required"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        list: {  },
-      },
-      // rep_email: {
-
-      //   api: "",
-      //   label: "Repita el correo electrónico",
-      //   form: { type: "text" },
-      //   list: false,
-      //   style: { width: "500px" },
-      // },
-      address: {
-        rules: [""],
-        api: "ae",
-        label: "Domicilio",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        
-      },
-      phone: {
-        rules: ["number"],
-        api: "ae",
-        label: "Celular (Opcional)",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
        
       },
     };
@@ -410,7 +416,7 @@ const Users = () => {
         <WidgetDashCard
           title="Total de Administradores"
           data={data?.message?.total || 0}
-          icon={<IconAdmin color={'var(--cPrimary)'} style={{backgroundColor:'var(--cHoverPrimary)'}} circle size={38}/>}
+          icon={<IconAdmin color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
       </div>

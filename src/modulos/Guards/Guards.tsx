@@ -10,7 +10,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd, IconSecurity } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAccess, IconAdd, IconGuardShield, IconSecurity } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
@@ -358,7 +358,7 @@ const Guards = () => {
         <WidgetDashCard
           title="Total de Guardias"
           data={String(data?.message?.total || 0)}
-          icon={<IconSecurity color={'#B382D9'} style={{backgroundColor:'rgba(179, 130, 217, 0.1)'}} circle size={38}/>}
+          icon={<IconGuardShield color={'#B382D9'} style={{backgroundColor:'rgba(179, 130, 217, 0.1)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
       </div>
