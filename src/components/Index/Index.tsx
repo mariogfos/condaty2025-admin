@@ -62,7 +62,7 @@ const HomePage = () => {
   const paymentProps: any = {
     open: openPayment,
     onClose: () => setOpenPayment(false),
-    item: dataPayment,
+    // item: dataPayment,
     payment_id: dataPayment?.id,
     reLoad: reLoad,
   };
@@ -380,7 +380,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Solicitudes de pago"
                     viewAllText="Ver todas"
-                    onViewAllClick={() => window.location.href = "/payments"}
+                    onViewAllClick={() => (window.location.href = "/payments")}
                     emptyListMessage="No hay solicitudes de pago por revisar"
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
@@ -389,7 +389,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Alertas"
                     viewAllText="Ver todas"
-                    onViewAllClick={() => window.location.href = "/alerts"}
+                    onViewAllClick={() => (window.location.href = "/alerts")}
                     emptyListMessage="No hay alertas"
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
@@ -400,7 +400,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
-                    onViewAllClick={() => window.location.href = "/reservas"}
+                    onViewAllClick={() => (window.location.href = "/reservas")}
                     emptyListMessage="No hay solicitudes de reserva pendientes"
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
@@ -409,7 +409,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Pre-registro"
                     viewAllText="Ver todos"
-                    onViewAllClick={() => window.location.href = "/owners"}
+                    onViewAllClick={() => (window.location.href = "/owners")}
                     emptyListMessage="No hay cuentas por activar"
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
