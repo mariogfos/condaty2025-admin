@@ -9,7 +9,19 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "50%", // Puedes ajustar el tamaño del donut según sea necesario
+          size: "50%",
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total",
+              fontSize: "16px",
+              color: "#00E38C",
+              formatter: function () {
+                return totalRadial + " Bs";
+              }
+            }
+          }
         },
       },
     },

@@ -10,6 +10,7 @@ import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -86,6 +87,20 @@ const HomeOwners = () => {
       edit:true,
       del:true,
     },
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+      noWaiting?: boolean;
+    }) => <ProfileModal  
+    open={props?.open} 
+    onClose={props?.onClose} 
+    dataID={props?.item?.id}
+    type={'homeOwner'}
+    title="Perfil de Propietario"
+    />,
     renderDel: (props: {
       open: boolean;
       onClose: any;

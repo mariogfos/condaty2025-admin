@@ -135,7 +135,7 @@ const Guards = () => {
                     item?.item?.updated_at
                 )}
                 name={getFullName(item.item)}
-                square
+                // square
               />
               <div>
                 <p>{getFullName(item?.item)} </p>

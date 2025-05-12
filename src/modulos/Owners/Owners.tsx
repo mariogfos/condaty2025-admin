@@ -17,6 +17,7 @@ import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -100,7 +101,14 @@ const Owners = () => {
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-    }) => <RenderView {...props} />,
+    }) =><ProfileModal  
+    open={props?.open} 
+    onClose={props?.onClose} 
+    dataID={props?.item?.id}
+    type={'owner'}
+    title="Perfil de Residente"
+    edit={false}
+    />,
     renderDel: (props: {
       open: boolean;
       onClose: any;

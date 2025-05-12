@@ -60,11 +60,11 @@ const ProfileModal = ({
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> 
-    : type === 'owner'? <IconUser color={'var(--cWhiteV1)'} size={32}/> 
-    : <IconGuardShield color={'var(--cAccent)'} size={32}/>
-    const url = type === 'admin'? `/users` : type === 'owners'?  `/owners` : `/guards`;
+    : type === 'owner'? <IconUser color={'var(--cAccent)'} size={18}/> 
+    : <IconGuardShield color={'var(--cAccent)'} size={20}/>
+    const url = type === 'admin'? `/users` : type === 'owner'?  `/owners` : type === 'homeOwner' ? `/homeowners`:`/guards`;
     
-    const profileRole = type === 'admin'? 'Administrador' :type === 'owner'? 'Residente' : 'Guardia'
+    const profileRole = type === 'admin'? 'Administrador' :type === 'owner'? 'Residente' :type === 'homeOwner'? 'Propietario' : 'Guardia';
     const { data,reLoad } = useAxios(
       url,
       "GET",
@@ -83,6 +83,8 @@ const ProfileModal = ({
           return `/ADM-${userId}.webp?d=${timestamp}`;
         case 'owner':
           return `/OWNER-${userId}.webp?d=${timestamp}`;
+        case 'homeOwner':
+          return `/HOMEOWNER-${userId}.webp?d=${timestamp}`;  
         default:
           return `/GUARD-${userId}.webp?d=${timestamp}`;
       }
@@ -186,7 +188,7 @@ const ProfileModal = ({
                         <div>
                             <Avatar 
                             src={getUrlImages(urlImages)}
-                                name={data?.data[0]}
+                                name={getFullName(data?.data[0])}
                                 w={191}
                                 h={191}
                                 
@@ -215,13 +217,15 @@ const ProfileModal = ({
             <div>Carnet de identidad</div>
             <div>{data?.data[0]?.ci}</div>
         </div>
+       { type !== 'homeOwner' && <>
         <div className='bottomLine' />
         <div>
             <div>Condominio</div>
             {data?.data[0]?.clients.map((item:any)=> (
               <div key={item.id}>- {item.name}</div>
             ))} 
-        </div>      
+        </div>   
+        </>   }
  
         <div className='bottomLine' />
 

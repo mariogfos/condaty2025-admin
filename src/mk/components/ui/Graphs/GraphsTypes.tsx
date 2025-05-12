@@ -37,6 +37,12 @@ type optionsType = {
   width?: number | string;
   offsetY?: number;
   money?: boolean;
+  centerText?: string;
+  centerTextStyle?: {
+    color?: string;
+    fontSize?: string;
+    fontWeight?: string;
+  };
 };
 type commonTypes = {
   data: any;
