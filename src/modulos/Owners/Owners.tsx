@@ -14,7 +14,7 @@ import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
-import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
+import { IconHome, IconHomePerson } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
@@ -230,16 +230,7 @@ const Owners = () => {
         },
         list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "OWNER",
-          style: { width: "100%" },
-        },
-      },
+
       password: {
         rules: ["_disabled_", "required*add"],
         api: "a",
@@ -472,19 +463,19 @@ const Owners = () => {
         <WidgetDashCard
           title="Residentes Totales"
           data={String(data?.extraData?.totals || 0)}
-          icon={<IconHome color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
+          icon={<IconHomePerson color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Titulares"
           data={String(data?.extraData?.holders || 0)}
-          icon={<IconHome color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
+          icon={<IconHomePerson color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Dependientes"
           data={String(data?.extraData?.dependents || 0)}
-          icon={<IconHome color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
+          icon={<IconHomePerson color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
       </div>

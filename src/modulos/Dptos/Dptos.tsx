@@ -143,7 +143,7 @@ const Dptos = () => {
           label: "Tipo de unidad",
           options: (data: any) => {
             // console.log(data, "data")
-            let options = [{ id: "", name: "Todos" }];
+            let options = [{ id: "T", name: "Todos" }];
             data?.type?.forEach((type: any) => {
               options.push({
                 id: type.id,
@@ -337,19 +337,37 @@ const Dptos = () => {
     );
   };
 
+  // const getFormatTypeUnit = () => {
+  //   let untis: any = [];
+
+  //   extraData?.type?.map((c: any) => {
+  //     untis.push({ id: c.id, name: c.name, value: 0 });
+  //   });
+
+  //   data?.data?.map((c: any) => {
+  //     let index = untis.findIndex((item: any) => item.id === c.type.id);
+  //     if (index !== -1) {
+  //       untis[index].value += 1;
+  //     }
+  //   });
+  //   return untis;
+  // };
   const getFormatTypeUnit = () => {
+    //  extraData ={
+    //     units:{
+    //       "total_units": 8,
+    //       "Casa": 5,
+    //       "Departamento": 2,
+    //       "Choza": 1
+    //   }
+    //   }
     let untis: any = [];
-
-    extraData?.type?.map((c: any) => {
-      untis.push({ id: c.id, name: c.name, value: 0 });
-    });
-
-    data?.data?.map((c: any) => {
-      let index = untis.findIndex((item: any) => item.id === c.type.id);
-      if (index !== -1) {
-        untis[index].value += 1;
+    Object?.keys(extraData?.units || {}).map((c: any, i: number) => {
+      if (i !== 0) {
+        untis.push({ id: c, name: c, value: extraData?.units[c] });
       }
     });
+
     return untis;
   };
 
@@ -381,12 +399,13 @@ const Dptos = () => {
         style={{
           display: "flex",
           gap: 12,
+          overflowX: "auto",
         }}
       >
         <WidgetDashCard
           title={"Unidades totales"}
           data={data?.message?.total}
-          style={{ maxWidth: "280px" }}
+          style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <Round
               style={{
@@ -404,7 +423,7 @@ const Dptos = () => {
               key={i}
               title={item.name}
               data={item.value}
-              style={{ maxWidth: "280px" }}
+              style={{ minWidth: "280px", maxWidth: "260px" }}
               icon={
                 item?.name === "Casa" ? (
                   <Round
@@ -424,7 +443,9 @@ const Dptos = () => {
                   >
                     <IconDepartment />
                   </Round>
-                ) : null
+                ) : (
+                  <div style={{ width: 40, height: 40 }} />
+                )
               }
             />
           );

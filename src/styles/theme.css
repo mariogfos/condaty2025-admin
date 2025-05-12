@@ -155,6 +155,22 @@
   /* --btn-width: 8rem; */
   --responsive-tablet: 768px;
   --responsive-mobile: 480px;
+
+
+  --figma-main-bg: #333536;
+  --figma-border-color: #a7a7a7; /* Similar a --cWhiteV1 */
+  --figma-text-gray: #a7a7a7;   /* Similar a --cWhiteV1 */
+  --figma-text-white: #fafafa;  /* Similar a --cWhite */
+  
+  --figma-emergency-box-bg: rgba(218, 93, 93, 0.5);
+  --figma-emergency-box-border: rgba(221, 41, 24, 0.849);
+  --figma-emergency-text-color: rgba(247, 32, 12, 0.723);
+
+  --figma-theft-box-bg: rgba(92, 62, 131, 0.5); /* Ejemplo para robo */
+  --figma-theft-box-border: rgba(90, 16, 164, 0.708); /* Ejemplo para robo */
+
+  --figma-warning-text-color: #e9b01e;
+  --figma-success-text-color: #34a853;
 }
 
 /* Reset */

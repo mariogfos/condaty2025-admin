@@ -9,7 +9,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import { IconHome } from "@/components/layout/icons/IconsBiblioteca";
+import { IconHomeOwner } from "@/components/layout/icons/IconsBiblioteca";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
@@ -260,7 +260,7 @@ const HomeOwners = () => {
         <WidgetDashCard
           title="Propietarios Registrados"
           data={data?.message?.total || 0}
-          icon={<IconHome color={'var(--cPrimary)'} style={{backgroundColor:'var(--cHoverPrimary)'}} circle size={38}/>}
+          icon={<IconHomeOwner color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
           className={styles.widgetResumeCard}
         />
       </div>

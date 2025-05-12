@@ -3,9 +3,8 @@
 }
 
 .widgetResumeCard {
-  width: 100%;
-  max-width: 300px;
-  height: 120px;
+  width: 216px !important;
+  height: 79px;
   padding: var(--spM);
   border-radius: var(--bRadiusM);
   background-color: var(--cBlackV1);

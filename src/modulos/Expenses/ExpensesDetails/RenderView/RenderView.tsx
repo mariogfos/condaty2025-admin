@@ -181,12 +181,11 @@ const RenderView = (props: {
                 </div>
               </div>
             )} */}
-          {props?.item?.dpto?.homeowner && (
-            <LabelValue
-              label="Propietario"
-              value={getFullName(props?.item?.dpto?.homeowner) || "-/-"}
-            />
-          )}
+
+          <LabelValue
+            label="Propietario"
+            value={getFullName(props?.item?.dpto?.homeowner) || "-/-"}
+          />
         </div>
 
         {/* Sección de periodos por pagar si existen */}

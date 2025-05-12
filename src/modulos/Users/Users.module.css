@@ -161,7 +161,7 @@
 .widgetResumeCard {
   width: 100%;
   max-width: 300px;
-  height: 120px;
+  height: 79px;
   padding: var(--spM);
   border-radius: var(--bRadiusM);
   background-color: var(--cBlackV1);
