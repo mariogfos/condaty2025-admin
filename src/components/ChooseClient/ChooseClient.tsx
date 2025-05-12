@@ -3,7 +3,11 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { IconCheckSquare, IconLogo } from "../layout/icons/IconsBiblioteca";
+import {
+  IconCheckOff,
+  IconCheckSquare,
+  IconLogo,
+} from "../layout/icons/IconsBiblioteca";
 import styles from "./ChooseClient.module.css";
 import List from "@/mk/components/ui/List/List";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -68,8 +72,10 @@ const ChooseClient = ({ open, onClose }: Props) => {
             >
               Sesión activa
             </p>
+          ) : sel == c.id ? (
+            <IconCheckSquare color="var(--cSuccess)" />
           ) : (
-            sel == c.id && <IconCheckSquare color="var(--cSuccess)" />
+            <IconCheckOff color="var(--cWhiteV1)" />
           )
         }
       />
@@ -99,8 +105,8 @@ const ChooseClient = ({ open, onClose }: Props) => {
       onSave={onSave}
       buttonText="Continuar"
       buttonCancel=""
-      iconClose={false}
-      fullScreen={true}
+      // iconClose={user?.client_id ? true : false}
+      fullScreen={user?.client_id ? false : true}
     >
       <div className={styles.container}>
         <div className={styles.logoContainer}>

@@ -73,19 +73,19 @@ const DataModal = ({
           "  " +
           (fullScreen ? styles["full"] : "") +
           " " +
-          (variant === "V2"? styles["V2"] : "" )
+          (variant === "V2" ? styles["V2"] : "")
         }
       >
         <HeadTitle
           title={title}
-          left={fullScreen ? null : false}
+          left={fullScreen && iconClose ? null : false}
           onBack={() => _close(false)}
           right={
             iconClose &&
             !fullScreen && <IconX className="" onClick={() => _close(false)} />
           }
-         colorBack={variant === 'V2' ? 'var(--cAccent)':'' }
-         colorTitle={variant === 'V2'? 'var(--cAccent)':'' }
+          colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorTitle={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
         />
         <div className={styles.headerDivider} />
         <section className={className}>{children}</section>
