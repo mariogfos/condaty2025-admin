@@ -306,7 +306,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
           label: "Tipo de Acceso",
           width: "180px",
           options: () => [
-            { id: "", name: "Todos" },
+            { id: "T", name: "Todos" },
             { id: "C", name: "Control" },
             { id: "G", name: "Grupo" },
             { id: "I", name: "Individual" },
