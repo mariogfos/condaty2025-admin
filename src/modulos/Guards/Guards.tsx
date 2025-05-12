@@ -40,14 +40,18 @@ const Guards = () => {
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-      noWaiting?: boolean;
-    }) => <ProfileModal  
+      reLoad?: any;
+      // noWaiting?: boolean;
+    
+    }) => {
+  return<ProfileModal  
     open={props?.open} 
     onClose={props?.onClose} 
     dataID={props?.item?.id}
-    type={'guards'}
+    type={'guard'}
     title="Perfil de Guardia"
-    />,
+    reLoad={props?.reLoad}
+    />},
     renderDel: (props: {
       open: boolean;
       onClose: any;

@@ -94,12 +94,14 @@ const HomeOwners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       noWaiting?: boolean;
+      reLoad?: any;
     }) => <ProfileModal  
     open={props?.open} 
     onClose={props?.onClose} 
     dataID={props?.item?.id}
     type={'homeOwner'}
     title="Perfil de Propietario"
+    reLoad={props?.reLoad}
     />,
     renderDel: (props: {
       open: boolean;

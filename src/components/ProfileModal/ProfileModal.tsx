@@ -14,6 +14,7 @@ import EditProfile from './EditProfile/EditProfile';
 interface ProfileModalProps {
     open:boolean;
     onClose:any;
+    reLoad?:any;
     dataID?:string | number;
     titleBack?:string;
     title?:string;
@@ -43,6 +44,7 @@ const ProfileModal = ({
     dataID,
     titleBack ="Volver", 
     title='Mi Perfil',
+    reLoad,
     edit = true,
     del = true,
     type
@@ -60,12 +62,12 @@ const ProfileModal = ({
         (item: any) => item?.id === user?.client_id
       )[0];
     const IconType = type === 'admin' ? <IconAdmin color={'var(--cAccent)'} size={16}/> 
-    : type === 'owner'? <IconUser color={'var(--cAccent)'} size={18}/> 
+    : (type === 'owner' || type === 'homeOwner' )? <IconUser color={'var(--cAccent)'} size={18}/> 
     : <IconGuardShield color={'var(--cAccent)'} size={20}/>
     const url = type === 'admin'? `/users` : type === 'owner'?  `/owners` : type === 'homeOwner' ? `/homeowners`:`/guards`;
     
     const profileRole = type === 'admin'? 'Administrador' :type === 'owner'? 'Residente' :type === 'homeOwner'? 'Propietario' : 'Guardia';
-    const { data,reLoad } = useAxios(
+    const { data,reLoad:reLoadDet } = useAxios(
       url,
       "GET",
       {
@@ -289,8 +291,10 @@ const ProfileModal = ({
       errors={errors}
       urlImages={urlImages}
       setErrors={setErrors}
+      setFormState={setFormState}
       url={url}
-      reLoad={reLoad}
+      reLoad={reLoadDet}
+      reLoadList={reLoad}
     />
    }
    {openDel && <DataModal

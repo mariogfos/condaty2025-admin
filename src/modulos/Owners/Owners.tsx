@@ -101,6 +101,7 @@ const Owners = () => {
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
+      reLoad?: any;
     }) =><ProfileModal  
     open={props?.open} 
     onClose={props?.onClose} 
@@ -108,6 +109,7 @@ const Owners = () => {
     type={'owner'}
     title="Perfil de Residente"
     edit={false}
+    reLoad={props?.reLoad}
     />,
     renderDel: (props: {
       open: boolean;

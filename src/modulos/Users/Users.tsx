@@ -47,12 +47,14 @@ const Users = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       noWaiting?: boolean;
+      reLoad?:any;
     }) => <ProfileModal  
     open={props?.open} 
     onClose={props?.onClose} 
     dataID={props?.item?.id}
     type={'admin'}
     title="Perfil de Administrador"
+    reLoad={reLoad}
     />,
     renderDel: (props: {
       open: boolean;
