@@ -1,8 +1,51 @@
 /* Añadir estos estilos a RenderView.module.css */
 .container {
     padding: 20px;
+    background-color: var(--cBlackV2);
+    border-radius: var(--bRadiusS);
+    border: 0.5px solid var(--cWhiteV1);
+    & > section {
+      display: flex;
+      flex-direction: column;
+      border-bottom: var(--cWhiteV1);
+      border-width: 1px;
+      padding: var(--spL);
+      justify-content: center;
+      align-items: center;
+    };
+    & > section:nth-child(1){
+      & > div:nth-child(2){
+      color:var(--cWhite);
+        }
+       }
+    & > section:nth-child(2){
+      & > div{
+        display: flex;
+        /* & > div{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        } */
+
+        /* justify-content: center;
+        align-items: center; */
+        
+      }
+      display: flex;
+       }   
     
   }
+  .textsDiv{
+    display: flex;
+    flex-direction: column;
+    max-width: 150px;
+    color: var(--cWhiteV1);
+    & > div:nth-child(2) {
+      color:var(--cWhite);
+    }
+}
+
   
   .iconHeader {
     display: flex;
