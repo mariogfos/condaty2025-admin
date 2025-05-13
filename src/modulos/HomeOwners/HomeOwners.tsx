@@ -12,6 +12,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import { IconHomeOwner } from "@/components/layout/icons/IconsBiblioteca";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Input from "@/mk/components/forms/Input/Input";
+import Select from "@/mk/components/forms/Select/Select";
 
 const paramsInitial = {
   perPage: 20,
@@ -130,6 +131,34 @@ const HomeOwners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      dptos: {
+        rules: ["required"],
+        api: "ae",
+        label: "Unidades",
+        form: {
+          type: "number",
+          style: { width: "100%" },
+          onRender: (props: any) => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Select
+                  name="dptos"
+                  options={extraData?.dptos || []}
+                  value={props?.item?.dptos} // Puede ser un valor único o un array si también es multiSelect
+                  onChange={props.onChange}
+                  filter={true}
+                  optionLabel="nro"
+                  optionValue="id"
+                  multiSelect={true}
+                  placeholder="Selecciona las unidades"
+
+                />
+              </div>
+            );
+          },
+        },
+        list: false,
+      },
       name: {
         rules: ["required"],
         api: "ae",
@@ -294,6 +323,7 @@ const HomeOwners = () => {
     execute,
     reLoad,
     getExtraData,
+    extraData,
     data,
   } = useCrud({
     paramsInitial,

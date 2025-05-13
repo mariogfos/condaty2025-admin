@@ -21,6 +21,7 @@ import {
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import Select from "@/mk/components/forms/Select/Select";
 
 const paramsInitial = {
   perPage: 20,
@@ -182,6 +183,32 @@ const Owners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      dpto: {
+        rules: ["required"],
+        api: "ae",
+        label: "Unidades",
+        form: {
+          type: "number",
+          style: { width: "100%" },
+          onRender: (props: any) => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Select
+                  name="dpto"
+                  options={extraData?.dptos || []}
+                  value={props?.item?.dpto} // Puede ser un valor único o un array si también es multiSelect
+                  onChange={props.onChange}
+                  filter={true}
+                  optionLabel="nro"
+                  optionValue="id"
+                  placeholder="Selecciona la unidad"
+                />
+              </div>
+            );
+          },
+        },
+        list: false,
+      },
 
       fullName: {
         // rules: ["required"],
@@ -425,6 +452,7 @@ const Owners = () => {
     execute,
     errors,
     getExtraData,
+    extraData,
     data,
   } = useCrud({
     paramsInitial,
