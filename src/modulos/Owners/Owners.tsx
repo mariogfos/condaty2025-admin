@@ -172,6 +172,32 @@ const Owners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      dpto: {
+        rules: ["required"],
+        api: "ae",
+        label: "Unidades",
+        form: {
+          type: "number",
+          style: { width: "100%" },
+          onRender: (props: any) => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Select
+                  name="dpto"
+                  options={extraData?.dptos || []}
+                  value={props?.item?.dpto} // Puede ser un valor único o un array si también es multiSelect
+                  onChange={props.onChange}
+                  filter={true}
+                  optionLabel="nro"
+                  optionValue="id"
+                  
+                />
+              </div>
+            );
+          },
+        },
+        list: false,
+      },
 
       fullName: {
         // rules: ["required"],
