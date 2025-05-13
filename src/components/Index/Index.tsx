@@ -95,14 +95,14 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-            src={getUrlImages(
-              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-            )}
-            name={primaryText}
-            w={40}
-            h={40}
-            className={styles.itemImage}
-          />
+              src={getUrlImages(
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+              )}
+              name={primaryText}
+              w={40}
+              h={40}
+              className={styles.itemImage}
+            />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}
@@ -147,14 +147,14 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-            src={getUrlImages(
-              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-            )}
-            name={primaryText}
-            w={40}
-            h={40}
-            className={styles.itemImage}
-          />
+              src={getUrlImages(
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+              )}
+              name={primaryText}
+              w={40}
+              h={40}
+              className={styles.itemImage}
+            />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}
@@ -442,17 +442,17 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
               </div>
             </WidgetBase>
