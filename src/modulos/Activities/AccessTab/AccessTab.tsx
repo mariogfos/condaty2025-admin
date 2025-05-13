@@ -216,8 +216,8 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               );
             }
             return (
-              <div className={styles.typeIconContainer}>
-                <div className={styles.iconCircle}>
+              <div  style={{display:'flex',gap:8}}>
+                {/* <div className={styles.iconCircle}> */}
                   {/* {props.item.plate ? (
                     <IconVehicle className={styles.typeIcon} />
                   ) : (
@@ -227,7 +227,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                    name={getFullName(props.item.visit)}
                    src={getUrlImages("/VISIT-"+ props.item.visit.id + ".webp?" + props.item.visit.updated_at )}
                    />
-                   </div>
+                   {/* </div> */}
                 <div className={styles.avatarText}>
                     <div className={styles.typeName}>
                       {getFullName(props.item.visit)}

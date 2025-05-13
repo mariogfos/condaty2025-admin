@@ -136,9 +136,10 @@
 }
 .avatarText{
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: 8px;
   flex-direction: column;
+  flex:1
 }
 
 /* Corrección para el centrado vertical de iconos */
