@@ -66,3 +66,24 @@
   font-size: 14px;
   color: var(--cWhite);
 }
+.fieldSet {
+  width: 100%;
+  /* background-color: aqua !important; */
+  padding: var(--spM);
+  display: flex;
+  flex-direction: column;
+  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV1);
+ 
+  gap: var(--spL);
+  & > div {
+    gap:var(--spL)
+  }
+  & > div:nth-child(1) > div:nth-child(1){
+    color:var(--cWhite);
+    font-size: var(--sL);
+    font-weight: var(--bBold);
+    margin-bottom: var(--spL);
+
+  }
+}

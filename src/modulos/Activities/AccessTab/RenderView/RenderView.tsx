@@ -1,7 +1,7 @@
 import React from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import {
@@ -11,6 +11,8 @@ import {
   IconFoot,
   IconOwner,
 } from "@/components/layout/icons/IconsBiblioteca";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import useAxios from "@/mk/hooks/useAxios";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -27,6 +29,16 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   onConfirm,
   extraData,
 }) => {
+  const { data } = useAxios(
+    "/accesses",
+    "GET",
+    {
+      searchBy: item.id,
+      fullType: "DET",
+    },
+    true
+  );
+  console.log(data, "data det", item);
   // Manejar la entrada de un visitante
   const handleEntrada = () => {
     if (onConfirm) {
@@ -53,18 +65,30 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   };
 
   // Determinar el tipo de acceso como texto
-  const getAccessType = () => {
-    const typeMap: Record<string, string> = {
-      C: "Control",
-      G: "Grupo",
-      I: "Individual",
-      P: "Pedido",
-      O: "Llave Virtual QR",
-    };
+  // const getAccessType = () => {
+  //   const typeMap: Record<string, string> = {
+  //     C: "Control",
+  //     G: "Grupo",
+  //     I: "Individual",
+  //     P: "Pedido",
+  //     O: "Llave Virtual QR"
+  //   };
 
-    return typeMap[item?.type] || "Acceso";
+  //   return typeMap[item?.type] || "Acceso";
+  // };
+  const getTypeAccess = (type: string, order: any) => {
+    if (type === "P") {
+      return "Pedido:" + order?.other?.other_type?.name;
+    }
+    return typeMap[type];
   };
-
+  const typeMap: Record<string, string> = {
+    C: "Control",
+    G: "Qr Grupal",
+    I: "Qr Individual",
+    P: "Pedido",
+    O: "Llave QR",
+  };
   return (
     <DataModal
       open={open}
@@ -74,11 +98,97 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       buttonCancel=""
     >
       <div className={styles.container}>
+        <section>
+          <Avatar
+            name={getFullName(data?.item?.visit)}
+            src={getUrlImages(
+              "/VISIT-" +
+                data?.item?.visit.id +
+                ".webp?" +
+                data?.item?.visit?.updated_at
+            )}
+          />
+          <div>{getFullName(item?.visit)}</div>
+          <div>
+            C.I. : {item?.visit?.ci}{" "}
+            {item?.plate ? `- Placa: ${item?.plate}` : ""}{" "}
+          </div>
+          <div className="bottomLine" />
+        </section>
+
+        <section>
+          <div>
+            <div className={styles.textsDiv}>
+              <div>Tipo de acceso</div>
+              {/* <div>{item?.    } </div> */}
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Fecha y hora de ingreso</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Acompañante</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Visitó a</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Guardia de ingreso</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Observación de entrada</div>
+              <div>s</div>
+            </div>
+          </div>
+
+          <div>
+            <div className={styles.textsDiv}>
+              <div>Estado</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Fecha y hora de salida</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Carnet de identidad</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Unidad</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Guardia de salida</div>
+              <div>s</div>
+            </div>
+            <div className={styles.textsDiv}>
+              <div>Observación de salida</div>
+              <div>s</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </DataModal>
+  );
+};
+
+export default RenderView;
+
+{
+  /* <div className={styles.container}>
         <div className={styles.iconHeader}>
-          <div className={styles.iconCircle}>{getAccessIcon()}</div>
+          <div className={styles.iconCircle}>
+            {getAccessIcon()}
+          </div>
         </div>
 
-        <div className={styles.accessTitle}>{getAccessType()}</div>
+        <div className={styles.accessTitle}>
+          {getAccessType()}
+        </div>
 
         <div className={styles.divider}></div>
 
@@ -203,10 +313,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </Button>
             )}
           </div>
-        )} */}
-      </div>
-    </DataModal>
-  );
-};
-
-export default RenderView;
+        )}
+        </div> */
+}

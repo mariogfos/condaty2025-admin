@@ -345,7 +345,7 @@ const Alerts = () => {
           data={String(data?.extraData?.high_level || 0)}
           icon={
             <IconAlert2
-              color={"var(--danger)"}
+              color={"#da5d5d"}
               style={{ backgroundColor: "var(--errorBg)" }}
               circle
               size={38}
@@ -358,8 +358,8 @@ const Alerts = () => {
           data={String(data?.extraData?.emergency_buttons || 0)}
           icon={
             <IconAlert2
-              color={"var(--cWhite)"}
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              color={"#da5d5d"}
+              style={{ backgroundColor: "var(--errorBg)" }}
               circle
               size={38}
             />
