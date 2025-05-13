@@ -33,6 +33,8 @@ const Users = () => {
     plural: "Administradores",
     filter: true,
     permiso: "",
+    export: true,
+    import: true,
     hideActions:{
       edit:true,
       del:true,

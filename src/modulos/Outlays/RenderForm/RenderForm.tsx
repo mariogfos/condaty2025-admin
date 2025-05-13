@@ -51,7 +51,7 @@ const RenderForm = ({
     return {
       ...item || {},
       date_at: (item && item.date_at) || formattedDate,
-      payment_method: (item && item.payment_method) || "",
+      type: (item && item.type) || "",
       // Inicializa los campos de archivo como nulos o vacíos
       file: (item && item.file) || null,
       filename: (item && item.filename) || null,
@@ -99,7 +99,7 @@ const RenderForm = ({
        _setFormState({
          ...item || {},
          date_at: (item && item.date_at) || formattedDate,
-         payment_method: (item && item.payment_method) || "",
+         type: (item && item.type) || "",
          file: (item && item.file) || null, // Asegúrate de manejar la estructura de 'item.file' si viene del backend
          filename: (item && item.filename) || null,
          ext: (item && item.ext) || null,
@@ -166,7 +166,7 @@ const RenderForm = ({
     if (!_formState.description) err.description = "Este campo es requerido";
     else if (_formState.description.length > 500) err.description = "El concepto no puede exceder los 500 caracteres";
     if (!_formState.amount) err.amount = "Este campo es requerido";
-    if (!_formState.payment_method) err.payment_method = "Este campo es requerido";
+    if (!_formState.type) err.type = "Este campo es requerido";
     // Valida que _formState.file (el base64) no esté vacío
     if (!_formState.file) {
         err.file = "El comprobante es requerido";
@@ -201,7 +201,7 @@ const RenderForm = ({
       subcategory_id: _formState.subcategory_id || null,
       description: _formState.description,
       amount: parseFloat(_formState.amount || "0"),
-      payment_method: _formState.payment_method,
+      type: _formState.type,
       file: _formState.file,
         
     };
@@ -235,7 +235,7 @@ const RenderForm = ({
     setIsInitialized(false);
     _setFormState(prev => ({
          date_at: new Date().toISOString().split('T')[0],
-         payment_method: "",
+         type: "",
          category_id: "",
          subcategory_id: "",
          description: "",
@@ -360,8 +360,8 @@ const RenderForm = ({
                 <div className={styles.section}>
                   <div className={styles["input-container"]}>
                     <Select
-                      name="payment_method"
-                      value={_formState.payment_method || ""}
+                      name="type"
+                      value={_formState.type || ""}
                       label="Método de pago"
                       onChange={handleChangeInput}
                       options={paymentMethods}
@@ -369,7 +369,7 @@ const RenderForm = ({
                       required
                       optionLabel="name"
                       optionValue="id"
-                      className={_errors.payment_method ? styles.error : ""}
+                      className={_errors.type ? styles.error : ""}
                     />
                   </div>
                 </div>
