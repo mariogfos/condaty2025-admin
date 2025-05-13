@@ -13,11 +13,11 @@ import { IconAlert, IconAmbulance, IconFlame, IconTheft, IconClock } from "@/com
 
 const getAlertLevelFigmaColor = (level: any) => {
   switch (level) {
-    case 4: return 'var(--figma-emergency-text-color, #e46055)';
-    case 3: return 'var(--figma-emergency-text-color, #e46055)';
-    case 2: return 'var(--figma-warning-text-color, #e9b01e)';
-    case 1: return 'var(--figma-success-text-color, #34a853)';
-    default: return 'var(--figma-text-gray, #a7a7a7)';
+    case 4: return '#e46055';
+    case 3: return '#e46055';
+    case 2: return '#e9b01e';
+    case 1: return '#34a853';
+    default: return '#a7a7a7';
   }
 };
 
@@ -31,18 +31,18 @@ const getAlertTypeBoxDetails = (item: any) => {
   };
 
   if (item.type === 'E') {
-    details.boxBgColor = 'var(--figma-emergency-box-bg, #da5d5d)';
-    details.borderColor = 'var(--figma-emergency-box-border, #e46055)';
+    details.boxBgColor = 'rgba(218, 94, 85, 0.55)';
+    details.borderColor = 'rgb(228, 96, 85)';
     details.icon = <IconAmbulance size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("emergencia medica") || item.descrip?.toLowerCase().includes("emergencia médica") ? item.descrip : "Emergencia Médica";
   } else if (item.type === 'F') {
-    details.boxBgColor = 'var(--figma-emergency-box-bg, #da5d5d)';
-    details.borderColor = 'var(--figma-emergency-box-border, #e46055)';
+    details.boxBgColor = 'rgb(218, 93, 85)';
+    details.borderColor = 'rgb(228, 96, 85)';
     details.icon = <IconFlame size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("incendio") ? item.descrip : "Incendio";
   } else if (item.type === 'T') {
-    details.boxBgColor = 'var(--figma-theft-box-bg, #704270)';
-    details.borderColor = 'var(--figma-theft-box-border, #502250)';
+    details.boxBgColor = 'rgb(112, 66, 112)';
+    details.borderColor = 'rgb(80, 34, 80)';
     details.icon = <IconTheft size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("robo") || item.descrip?.toLowerCase().includes("intrusi") ? item.descrip : "Robo o Intrusión";
   } else if (item.level >= 3 && item.descrip) {
