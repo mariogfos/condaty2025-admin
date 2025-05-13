@@ -24,7 +24,7 @@ interface AccessesTabProps {
 
 // Función actualizada para obtener las opciones de período
 const getPeriodOptions = () => [
-  { id: "t", name: "Todos" },
+  { id: "ALL", name: "Todos" },
   { id: "week", name: "Esta Semana" },
   { id: "lweek", name: "Ant. Semana" },
   { id: "month", name: "Este Mes" },
@@ -306,7 +306,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
           label: "Tipo de Acceso",
           width: "180px",
           options: () => [
-            { id: "T", name: "Todos" },
+            { id: "ALL", name: "Todos" },
             { id: "C", name: "Control" },
             { id: "G", name: "Grupo" },
             { id: "I", name: "Individual" },
