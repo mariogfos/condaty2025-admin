@@ -107,7 +107,9 @@
   padding: var(--spM);
   display: flex;
   flex-direction: column;
-  border-radius: var(--bRadiusS);
+  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV1);
+ 
   gap: var(--spL);
   & > div {
     gap:var(--spL)

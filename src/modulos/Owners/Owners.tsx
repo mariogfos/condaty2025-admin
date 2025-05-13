@@ -10,7 +10,7 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
@@ -231,63 +231,8 @@ const Owners = () => {
         list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
 
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
-      ci: {
-        rules: ["required*add"],
-        api: "a",
-        label: "Cédula de identidad",
-        // form: { type: "text", disabled: true, label: "2222" },
-        form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            return (
-              <fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al residente si
-                    el carnet no existe ,continúa con el proceso de registro
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="ci"
-                    value={props?.item?.ci}
-                    onChange={props.onChange}
-                    label="Carnet de Identidad"
-                    error={props.error}
-                    onBlur={(e: any) => onBlurCi(e, props)}
-                    disabled={props?.field?.action === "edit"}
-                  />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                      // disabled={
-                      //   props?.field?.action === "edit" ||
-                      //   props.item._disabled === true
-                      // }
-                    />
-                  )}
-                </div>
-              </fieldset>
-            );
-          },
-        },
 
-        list: false,
-      },
+      
       name: {
         openTag: { style: { display: "flex" } },
         rules: ["required"],
@@ -349,13 +294,14 @@ const Owners = () => {
           
         },
       },
-      email: {
-        rules: ["required"],
+      ci: {
+        rules: ["required*add"],
         api: "ae",
-        label: "Correo electrónico",
+        label: "Carnet de identidad",
         form: {
           type: "text",
           disabled: onDisbled,
+          
         },
         list: { },
       },
@@ -405,6 +351,39 @@ const Owners = () => {
           },
         },
         // form: false, // Si no quieres que aparezca en el formulario
+      },
+      email: {
+        rules: ["required"],
+        api: "a",
+        label: "Correo electrónico",
+        // form: { type: "text", disabled: true, label: "2222" },
+        form: {
+          type: "number",
+          label: "Cédula de identidad",
+          onRender: (props: any) => {
+            return (
+              <div className={styles.fieldSet}>
+                <div>
+                  <div>Información de acceso</div>
+                  <div>
+                    La contraseña sera enviada al correo que indiques en este campo
+                  </div>
+                </div>
+                <div>
+                  <Input
+                    name="email"
+                    value={props?.item?.email}
+                    onChange={props.onChange}
+                    label="Correo electrónico"
+                    error={props.error}
+                  />
+                </div>
+              </div>
+            );
+          },
+        },
+
+        list: false,
       },
     };
   }, []);

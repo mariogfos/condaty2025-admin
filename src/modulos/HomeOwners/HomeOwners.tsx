@@ -11,6 +11,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { IconHomeOwner } from "@/components/layout/icons/IconsBiblioteca";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import Input from "@/mk/components/forms/Input/Input";
 
 const paramsInitial = {
   perPage: 20,
@@ -87,6 +88,7 @@ const HomeOwners = () => {
       edit:true,
       del:true,
     },
+    extraData: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -180,15 +182,52 @@ const HomeOwners = () => {
         rules: ["required"],
         api: "ae",
         label: "Cédula de identidad",
-        form: { type: "number" },
+        form: {
+          style: { maxWidth: "49%" },
+          type: "number"
+         },
         
+      },
+      phone: {
+        rules: ["number"],
+        api: "ae",
+        label: "Celular (Opcional)",
+        form: {
+          style: { maxWidth: "49%" },
+          type: "text",
+          
+        },
+       
       },
       email: {
         rules: ["required"],
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "text",
+          type: "number",
+          label: "Correo electrónico",
+          onRender: (props: any) => {
+            return (
+              <div className={styles.fieldSet}>
+                <div>
+                  <div>Información de acceso</div>
+                  <div>
+                    La contraseña sera enviada al correo que indiques en este campo
+                  </div>
+                </div>
+                <div>
+                  <Input
+                    name="email"
+                    value={props?.item?.email}
+                    onChange={props.onChange}
+                    label="Correo electrónico"
+                    error={props.error}
+                    disabled={props?.field?.action === "edit"}
+                  />
+                </div>
+              </div>
+            );
+          },
         },
         list: {},
       },

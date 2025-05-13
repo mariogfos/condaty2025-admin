@@ -13,7 +13,7 @@ import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconAccess, IconAdd, IconAdmin } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
@@ -193,13 +193,7 @@ const Users = () => {
         list: false,
       
       },
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
+
       
       name: {
         rules: ["required"],
@@ -275,11 +269,13 @@ const Users = () => {
           },
         },
       },
-      email: {
+     
+      ci: {
         rules: ["required"],
         api: "ae",
-        label: "Correo electrónico",
+        label: "Carnet de Identidad",
         form: {
+          style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
         },
@@ -291,6 +287,7 @@ const Users = () => {
         api: "ae",
         label: "Celular (Opcional)",
         form: {
+          style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
         },
@@ -307,7 +304,7 @@ const Users = () => {
         
       },
 
-      ci: {
+      email: {
         rules: ["required"],
         api: "a",
         label: "Cédula de identidad",
@@ -318,36 +315,25 @@ const Users = () => {
           onRender: (props: any) => {
             // console.log(props,'propsval')
             return (
-              <fieldset className={styles.fieldSet}>
+              <div className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al administrador
-                    si el carnet no existe ,continúa con el proceso de registro
+                    La contraseña sera enviada al correo que indiques en este campo
                   </div>
                 </div>
                 <div>
                   <Input
-                    name="ci"
-                    value={props?.item?.ci}
+                    name="email"
+                    value={props?.item?.email}
                     onChange={props.onChange}
-                    label="Carnet de Identidad"
+                    label="Correo electrónico"
                     error={props.error}
                     disabled={props?.field?.action === "edit"}
-                    onBlur={(e: any) => onBlurCi(e, props)}
+                   
                   />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                    />
-                  )}
                 </div>
-              </fieldset>
+              </div>
             );
           },
         },
