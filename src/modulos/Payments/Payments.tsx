@@ -75,7 +75,7 @@ const Payments = () => {
 
   const getPaymentTypeOptions = () => [
     { id: "ALL", name: "Todos" },
-    { id: "TR", name: "Transferencia" },
+    { id: "T", name: "Transferencia" },
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
     { id: "Q", name: "QR" },
@@ -143,7 +143,7 @@ const Payments = () => {
         filter: {
           key: 'paid_at', // Asegura que la clave sea correcta
           label: "Periodo",
-          width: "150px",
+         
           options: getPeriodOptions,
         },
       },
@@ -168,7 +168,7 @@ const Payments = () => {
         },
         filter: {
           label: "Categoría",
-          width: "150px",
+         
           extraData: "categories",
         },
       },
@@ -227,7 +227,7 @@ const Payments = () => {
         },
         filter: {
           label: "Tipo de pago",
-          width: "150px",
+          
           options: getPaymentTypeOptions,
         },
       },
@@ -259,7 +259,7 @@ const Payments = () => {
         },
         filter: {
           label: "Estado del ingreso",
-          width: "180px",
+        
           options: getStatusOptions,
         },
       },
