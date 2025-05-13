@@ -183,31 +183,47 @@ const Owners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      dpto: {
+      dpto: { // Campo para seleccionar una única unidad (singular)
         rules: ["required"],
         api: "ae",
-        label: "Unidades",
+        label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
         form: {
-          type: "number",
+          type: "number", // Podría ser "select" para mayor claridad semántica
           style: { width: "100%" },
-          onRender: (props: any) => {
+          onRender: (renderProps: { // Tipado sugerido para las props de onRender
+            item: any;
+            onChange: (e: any) => void;
+            error?: any;
+            extraData?: { dptos?: any[] }; // Asumimos que las opciones de unidades están en extraData.dptos
+            // field?: any; // otras props que useCrud podría pasar
+          }) => {
+            // Utilizamos renderProps.extraData para obtener las opciones actualizadas
+            const dptosOptions = renderProps.extraData?.dptos || [];
+            const isLoadingOptions = dptosOptions.length === 0; // Verdadero si no hay opciones cargadas
+      
+            // Para depuración:
+            // console.log(`onRender dpto (singular) - renderProps.extraData:`, renderProps.extraData);
+            // console.log(`onRender dpto (singular) - dptosOptions:`, dptosOptions);
+      
             return (
               <div style={{ width: "100%" }}>
                 <Select
-                  name="dpto"
-                  options={extraData?.dptos || []}
-                  value={props?.item?.dpto} // Puede ser un valor único o un array si también es multiSelect
-                  onChange={props.onChange}
-                  filter={true}
-                  optionLabel="nro"
-                  optionValue="id"
-                  placeholder="Selecciona la unidad"
+                  name="dpto" // Nombre del campo en el formulario (singular)
+                  options={dptosOptions} // Opciones obtenidas de renderProps.extraData
+                  value={renderProps?.item?.dpto} // Valor actual del campo en el item del formulario
+                  onChange={renderProps.onChange}
+                  filter={true} // Habilita el filtrado en el Select
+                  optionLabel="nro" // Propiedad del objeto opción a mostrar como etiqueta
+                  optionValue="id"  // Propiedad del objeto opción a usar como valor
+                  placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona la unidad"}
+                  // multiSelect={false} // Por defecto es false, no es necesario si es selección única
+                  disabled={(isLoadingOptions && !renderProps?.item?.dpto) || dptosOptions.length === 0}
                 />
               </div>
             );
           },
         },
-        list: false,
+        list: false, // No se muestra en la lista principal
       },
 
       fullName: {

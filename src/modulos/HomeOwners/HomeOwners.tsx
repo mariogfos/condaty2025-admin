@@ -136,22 +136,40 @@ const HomeOwners = () => {
         api: "ae",
         label: "Unidades",
         form: {
-          type: "number",
+          type: "number", // Considera si esto debería ser "select" conceptualmente.
+                        // La funcionalidad la da onRender, pero type puede ser informativo.
           style: { width: "100%" },
-          onRender: (props: any) => {
+          // Modifica onRender para usar las props que recibe:
+          onRender: (renderProps: { // Puedes ser más específico con el tipado si quieres
+            item: any;
+            onChange: (e: any) => void;
+            error?: any;
+            extraData?: { dptos?: any[] }; // Asumiendo que extraData tiene una propiedad dptos
+            // field?: any; // y otras props que useCrud pasa
+          }) => {
+            // ¡Utiliza renderProps.extraData en lugar del extraData del scope de HomeOwners!
+            const dptosOptions = renderProps.extraData?.dptos || [];
+            const isLoadingOptions = dptosOptions.length === 0;
+  
+            // Para depuración, puedes añadir logs aquí:
+            // console.log("onRender dptos - renderProps.extraData:", renderProps.extraData);
+            // console.log("onRender dptos - dptosOptions:", dptosOptions);
+  
             return (
               <div style={{ width: "100%" }}>
                 <Select
                   name="dptos"
-                  options={extraData?.dptos || []}
-                  value={props?.item?.dptos} // Puede ser un valor único o un array si también es multiSelect
-                  onChange={props.onChange}
+                  options={dptosOptions} // <--- USA LAS OPCIONES DE renderProps.extraData
+                  value={renderProps?.item?.dptos} // Asumo que el valor seleccionado está en item.dptos
+                  onChange={renderProps.onChange}
                   filter={true}
                   optionLabel="nro"
                   optionValue="id"
                   multiSelect={true}
-                  placeholder="Selecciona las unidades"
-
+                  placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona las unidades"}
+                  // Ajusta la lógica de 'disabled' según necesites.
+                  // Quizás quieras deshabilitarlo si no hay opciones, incluso si no está "cargando".
+                  disabled={(isLoadingOptions && !renderProps?.item?.dptos) || dptosOptions.length === 0}
                 />
               </div>
             );
