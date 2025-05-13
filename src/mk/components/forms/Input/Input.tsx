@@ -232,7 +232,7 @@ const Input = (props: PropsType) => {
   const inputType = type === "currency" ? "text" : type;
 
   return (
-    <ControlLabel {...props} className={`${styles.input} ${className}`}>
+    <ControlLabel {...props} className={`${styles.input} ${className} ${disabled ? styles.disabled : '' }`}>
       <input
         id={name}
         type={inputType}

@@ -80,7 +80,7 @@ const HomePage = () => {
   };
 
   const pagosList = (data: any) => {
-    const imageUrl = data?.owner?.photo_url;
+    const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
     const secondaryText = `${store.UnitsType} ${removeDuplicates(data?.dptos)}`;
     const ownerInitials = primaryText
@@ -94,11 +94,15 @@ const HomePage = () => {
       <div className={styles.itemRow}>
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={primaryText}
-              className={styles.itemImage}
-            />
+            <Avatar
+            src={getUrlImages(
+              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+            )}
+            name={primaryText}
+            w={40}
+            h={40}
+            className={styles.itemImage}
+          />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}
@@ -128,7 +132,7 @@ const HomePage = () => {
   };
 
   const reservasList = (data: any) => {
-    const imageUrl = data?.owner?.photo_url;
+    const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
     const secondaryText = `Área: ${data?.area?.title || "No especificada"}`;
     const ownerInitials = primaryText
@@ -142,11 +146,15 @@ const HomePage = () => {
       <div className={styles.itemRow}>
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={primaryText}
-              className={styles.itemImage}
-            />
+            <Avatar
+            src={getUrlImages(
+              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+            )}
+            name={primaryText}
+            w={40}
+            h={40}
+            className={styles.itemImage}
+          />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}

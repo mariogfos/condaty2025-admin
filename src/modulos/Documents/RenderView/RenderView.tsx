@@ -13,7 +13,7 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  console.log(props,'propsassasas')
+  // console.log(props,'propsassasas')
   const DocDestiny: any = {
     O:{  name: "Residentes" },
     G:{  name: "Guardias" },
