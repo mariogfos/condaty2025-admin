@@ -2,7 +2,7 @@ import React from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
+import { getDateStr, getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import {
   IconArrowRight,
@@ -36,10 +36,29 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     {
       searchBy: item.id,  
       fullType: "DET",
+      perPage:-1,
+      page:1
     },
     true
   );
-  console.log(data,'data det',item)
+   
+
+  const statusAccess :any = {
+    A:'En espera de confirmación',
+    Y:'Ingresado',
+    O:'Completado',
+    N:'No autorizado',
+  }
+  // Desestructuración de data?.data[0]
+  const accessDetail = data?.data[0] || {};
+  const { visit,
+     in_at, 
+     out_at, 
+     guardia, 
+     out_guard, 
+     obs_in, obs_out, status,owner } = accessDetail;
+     console.log(accessDetail,'accs')
+
   // Manejar la entrada de un visitante
   const handleEntrada = () => {
     if (onConfirm) {
@@ -103,74 +122,70 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       <div className={styles.container}>
         <section>
            <Avatar
-              name={getFullName(data?.item?.visit)}
-              src={getUrlImages("/VISIT-"+ data?.item?.visit.id + ".webp?" + data?.item?.visit?.updated_at )}
+              name={getFullName(visit)}
+              src={getUrlImages("/VISIT-"+ visit?.id + ".webp?" + item?.visit?.updated_at )}
              />
-             <div>{getFullName(item?.visit)}</div>
+             <div>{getFullName(visit)}</div>
              <div>C.I. : {item?.visit?.ci} {item?.plate ? `- Placa: ${item?.plate}`:''} </div>
              <div className="bottomLine" />
         </section>
         
         <section>
-
         <div>   
             <div className={styles.textsDiv}>
               <div>Tipo de acceso</div>
-              {/* <div>{item?.    } </div> */}
+               <div>{getTypeAccess(item?.type, item)} </div> 
             </div>
             <div className={styles.textsDiv}>
               <div>Fecha y hora de ingreso</div>
-              <div>s</div>
+              <div>{getDateTimeStrMes(in_at)} </div>
             </div>
-            <div className={styles.textsDiv}>
+            {item?.accesses > 0 && <div className={styles.textsDiv}>
               <div>Acompañante</div>
-              <div>s</div>
-            </div>
+              <div>{item?.accesses.length}</div>
+            </div>}
             <div className={styles.textsDiv}>
               <div>Visitó a</div>
-              <div>s</div>
+              <div>{getFullName(item?.owner) || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Guardia de ingreso</div>
-              <div>s</div>
+              <div>{getFullName(guardia) || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Observación de entrada</div>
-              <div>s</div>
+              <div>{obs_in || 'Sin observaciones'}</div>
             </div>
        </div>
    
        <div>
              <div className={styles.textsDiv}>
               <div>Estado</div>
-              <div>s</div>
+              <div>{statusAccess[status] || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Fecha y hora de salida</div>
-              <div>s</div>
+              <div>{getDateTimeStrMes(out_at) || 'No registrada'}</div>
             </div>   
             <div className={styles.textsDiv}>
               <div>Carnet de identidad</div>
-              <div>s</div>
+              <div>{visit?.ci || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Unidad</div>
-              <div>s</div>
+              <div>{owner?.dpto[0]?.nro || 'No especificada'}</div>
             </div> 
             <div className={styles.textsDiv}>
               <div>Guardia de salida</div>
-              <div>s</div>
+              <div>{getFullName(out_guard) || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Observación de salida</div>
-              <div>s</div>
+              <div>{obs_out || 'Sin observaciones'}</div>
             </div> 
        </div> 
-
-          
         </section>
-
-
+        <div onClick={()=>{}} className="link">Ver detalles de la invitación</div>
       </div>
     </DataModal>
   );

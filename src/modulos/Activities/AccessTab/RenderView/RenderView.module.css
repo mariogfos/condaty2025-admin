@@ -23,11 +23,14 @@
       display: flex;
       justify-content: space-between;
       flex-direction: row;
+      align-items: flex-start;
       & > div > div{
         /* background-color: #ed8936; */
         /* height: ; */
         display: flex;
         flex-direction: column ;
+        /* gap: var(--spL); */
+        justify-content: center;
         /* & > div{
           display: flex;
           flex-direction: column;
@@ -46,11 +49,12 @@
   .textsDiv{
     display: flex;
     flex-direction: column;
-    max-width: 150px;
+    max-width: 250px;
     color: var(--cWhiteV1);
     & > div:nth-child(2) {
       color:var(--cWhite);
     }
+    margin-bottom: var(--spL);
 }
 
   
