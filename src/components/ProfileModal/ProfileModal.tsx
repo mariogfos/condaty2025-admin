@@ -300,7 +300,7 @@ const ProfileModal = ({
     />
    }
    {openDel && <DataModal
-    title={`Desvincular ${data?.data[0]?.role[0]?.name}`}
+    title={`Desvincular ${profileRole}`}
     open={openDel}
     onClose={() => setOpenDel(false)}
      buttonText="Desvincular"

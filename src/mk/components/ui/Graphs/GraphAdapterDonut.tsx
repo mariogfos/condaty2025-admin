@@ -14,7 +14,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
             show: true,
             total: {
               show: true,
-              label: "Total",
+              label: options?.centerText || "Total",
               fontSize: "16px",
               color: "#00E38C",
               formatter: function () {
@@ -28,7 +28,9 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
     dataLabels: {
       ...oDef.dataLabels,
       formatter: function (val: any, opts: any) {
+        
         if (val !== 0) return Number(val).toFixed(1) + "%";
+        
       },
       style: {
         fontSize: "16px",
@@ -64,7 +66,9 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       ...oDef.tooltip,
       y: {
         formatter: function (val: any) {
-          return val + " %";
+          // return val + " %";
+          return val.toFixed(1);
+
         },
       },
     },
@@ -80,7 +84,8 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   let totalRa = d.reduce((a: any, b: any) => a + b, 0);
   totalRadial = totalRa;
   d.map((v: any) => {
-    d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
+    // d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
+    d1.push(v);
   });
 
   return { options: p, data: d1 };

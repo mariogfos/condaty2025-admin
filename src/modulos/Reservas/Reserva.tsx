@@ -43,7 +43,7 @@ const Reserva = () => {
   // --- MODIFICACIÓN AQUÍ: Actualizar opciones del filtro ---
   // Define los nuevos estados para el filtro, incluyendo "Todos" con valor vacío
   const getReservaStatusOptions = () => [
-    { id: "T", name: "Todos" }, // Opción para mostrar todos (envía vacío)
+    { id: "ALL", name: "Todos" }, // Opción para mostrar todos (envía vacío)
     { id: "W", name: "En espera" },
     { id: "A", name: "Aprobado" },
     { id: "X", name: "Rechazado" },

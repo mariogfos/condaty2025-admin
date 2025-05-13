@@ -40,7 +40,7 @@ export const WidgetDashCard = ({
       style={style}
     >
       <div>
-        <p>
+        <p className={styles.title}>
           {title}{" "}
           {tooltip && (
             <Tooltip title={tooltipTitle} position="right">
@@ -48,13 +48,12 @@ export const WidgetDashCard = ({
             </Tooltip>
           )}
         </p>
-
-        {icon}
+        <p>{subtitle}</p>
+        <p className={styles.data} style={color ? { color: color } : undefined}>
+          {data}
+        </p>
       </div>
-      <p>{subtitle}</p>
-      <p className={styles.data} style={color ? { color: color } : undefined}>
-        {data}
-      </p>
+      <div> {icon}</div>
     </div>
   );
 };

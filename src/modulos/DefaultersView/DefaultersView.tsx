@@ -323,6 +323,7 @@ const DefaultersView = () => {
               colors: [expensaColor, multaColor],
               height: 400,
               width: 400,
+              centerText:'Total',
             }}
           />
         </div>
