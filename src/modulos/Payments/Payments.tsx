@@ -62,7 +62,7 @@ const Payments = () => {
   };
 
   const getPeriodOptions = () => [
-    { id: "", name: "Todos" },
+    { id: "ALL", name: "Todos" },
     { id: "ld", name: "Ayer" },
     { id: "w", name: "Esta semana" },
     { id: "lw", name: "Semana pasada" },
@@ -74,8 +74,8 @@ const Payments = () => {
   ];
 
   const getPaymentTypeOptions = () => [
-    { id: "", name: "Todos" },
-    { id: "T", name: "Transferencia" },
+    { id: "ALL", name: "Todos" },
+    { id: "TR", name: "Transferencia" },
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
     { id: "Q", name: "QR" },
@@ -83,7 +83,7 @@ const Payments = () => {
   ];
 
   const getStatusOptions = () => [
-    { id: "", name: "Todos" },
+    { id: "ALL", name: "Todos" },
     { id: "P", name: "Pagado" },
     { id: "S", name: "Por confirmar" },
     { id: "R", name: "Rechazado" },

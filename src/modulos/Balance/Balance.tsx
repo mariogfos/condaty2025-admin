@@ -189,12 +189,18 @@ const BalanceGeneral: React.FC = () => {
     }
   }, [formStateFilter]);
   const ldate = [
-    { id: "m", name: "Este Mes" },
-    { id: "lm", name: "Ant. Mes" },
-    { id: "y", name: "Este Año" },
-    { id: "ly", name: "Ant. Año" },
+    { id: "ALL", name: "Todos" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
     { id: "sc", name: "Personalizado" },
   ];
+
+
 
   const exportar = () => {
     reLoadFinanzas({ ...formStateFilter, exportar: true });

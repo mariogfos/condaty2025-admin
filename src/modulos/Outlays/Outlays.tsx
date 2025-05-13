@@ -112,7 +112,7 @@ const Outlays = () => {
 
   // Opciones para los filtros
   const getPeriodOptions = () => [
-    { id: "", name: "Todos" },
+    { id: "ALL", name: "Todos" },
     { id: "ld", name: "Ayer" },
     { id: "w", name: "Esta semana" },
     { id: "lw", name: "Semana pasada" },
@@ -129,7 +129,7 @@ const Outlays = () => {
   ];
 
   const getStatusOptions = () => [
-    { id: "", name: "Todos" },
+    { id: "ALL", name: "Todos" },
     { id: "A", name: "Pagado" },
     { id: "X", name: "Anulado" },
   ];
