@@ -873,6 +873,7 @@ const useCrud = ({
       if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
       const onChange = (e: any) => {
+        const name = e.target.name.split("_")[0];
         setFilterSel({ ...filterSel, [e.target.name]: e.target.value });
         onFilter(e.target.name, e.target.value);
       };
@@ -897,7 +898,7 @@ const useCrud = ({
                 <Select
                   key={f.key + i}
                   label={f.label}
-                  name={f.key}
+                  name={f.key + "_filter"}
                   onChange={onChange}
                   options={f.options || []}
                   value={filterSel[f.key] || ""}
@@ -1208,16 +1209,17 @@ const useCrud = ({
                   extraData,
                   execute,
                   onEdit,
-                 
+
                   onAdd,
                   openList,
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
-                  
-                  onDel: (itemToDelete: any) => { // Envolvemos para asegurar que se pasa el item correcto
+
+                  onDel: (itemToDelete: any) => {
+                    // Envolvemos para asegurar que se pasa el item correcto
                     onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
-                    onDel(itemToDelete || formState);  // Llama al onDel del hook
+                    onDel(itemToDelete || formState); // Llama al onDel del hook
                   },
                 })
               ) : (
