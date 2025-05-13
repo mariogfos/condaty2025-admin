@@ -14,7 +14,10 @@ import Input from "@/mk/components/forms/Input/Input";
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
-import { IconHome, IconHomePerson } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconHome,
+  IconHomePerson,
+} from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
@@ -93,7 +96,7 @@ const Owners = () => {
     permiso: "",
     hideActions: {
       edit: true,
-      del: true,      
+      del: true,
     },
     extraData: true,
     renderView: (props: {
@@ -103,15 +106,17 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-    }) =><ProfileModal  
-    open={props?.open} 
-    onClose={props?.onClose} 
-    dataID={props?.item?.id}
-    type={'owner'}
-    title="Perfil de Residente"
-    edit={false}
-    reLoad={props?.reLoad}
-    />,
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"owner"}
+        title="Perfil de Residente"
+        edit={false}
+        reLoad={props?.reLoad}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -121,10 +126,15 @@ const Owners = () => {
       extraData?: Record<string, any>;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
-
+        <UnlinkModal
+          open={props.open}
+          onClose={props.onClose}
+          mod={mod}
+          item={props.item}
+          reLoad={reLoad}
+        />
       );
-    }
+    },
     // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -181,7 +191,7 @@ const Owners = () => {
         // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
           // Asegúrate que 'item.item' contiene los datos del residente
-          const residente = item?.item; 
+          const residente = item?.item;
           const nombreCompleto = getFullName(residente);
           const cedulaIdentidad = residente?.ci; // Obtener el CI
 
@@ -196,29 +206,42 @@ const Owners = () => {
                 )}
                 name={nombreCompleto} // Usar nombreCompleto
               />
-              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+              <div>
+                {" "}
+                {/* Contenedor para Nombre, CI y Estado Admin */}
                 {/* Nombre */}
-                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
-                  {nombreCompleto} 
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
                 </p>
-                
                 {/* CI (si existe) */}
                 {cedulaIdentidad && (
-                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
-
                 {/* Estado de Administrador Principal (si aplica) */}
-                {residente?.is_main == "M" && ( 
+                {residente?.is_main == "M" && (
                   <span
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
                       backgroundColor: "#00af900D", // Fondo verde muy transparente
-                      padding: '2px 4px', // Ajustar padding si es necesario
+                      padding: "2px 4px", // Ajustar padding si es necesario
                       borderRadius: 4,
-                      display: 'inline-block' // Para que el padding/fondo funcione bien
+                      display: "inline-block", // Para que el padding/fondo funcione bien
                     }}
                   >
                     Administrador principal
@@ -291,7 +314,6 @@ const Owners = () => {
           onRender: (props: any) => {
             return "Unidad " + props?.item?.dpto[0]?.nro || "Sin datos";
           },
-          
         },
       },
       ci: {
@@ -303,7 +325,7 @@ const Owners = () => {
           disabled: onDisbled,
           
         },
-        list: { },
+        list: {},
       },
       // rep_email: {
 
@@ -321,9 +343,9 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        
       },
-      type: { // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
+      type: {
+        // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
         rules: [""],
         api: "", // No se envía a la API
         label: "Tipo", // Etiqueta de la columna
@@ -335,12 +357,14 @@ const Owners = () => {
 
             // Verifica si el array dpto existe y si en ALGUNA de las relaciones es titular
             if (Array.isArray(dptos) && dptos.length > 0) {
-              esTitular = dptos.some(d => d?.pivot?.is_titular === 'Y');
+              esTitular = dptos.some((d) => d?.pivot?.is_titular === "Y");
             }
 
             const texto = esTitular ? "Titular" : "Dependiente";
             // Asigna clases CSS diferentes según el tipo
-            const badgeClass = esTitular ? styles.isTitular : styles.isDependiente;
+            const badgeClass = esTitular
+              ? styles.isTitular
+              : styles.isDependiente;
 
             return (
               // Aplica la clase base y la clase específica (Titular/Dependiente)
@@ -387,7 +411,6 @@ const Owners = () => {
       },
     };
   }, []);
- 
 
   const {
     userCan,
@@ -417,7 +440,6 @@ const Owners = () => {
     onDel,
   });
 
-
   const renderItem = (
     item: Record<string, any>,
     i: number,
@@ -438,24 +460,45 @@ const Owners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+      <div style={{ display: "flex", gap: "12px" }}>
         <WidgetDashCard
           title="Residentes Totales"
           data={String(data?.extraData?.totals || 0)}
-          icon={<IconHomePerson color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cInfo"}
+              style={{ backgroundColor: "var(--cHoverInfo)" }}
+              circle
+              size={38}
+            />
+          }
         />
         <WidgetDashCard
           title="Titulares"
           data={String(data?.extraData?.holders || 0)}
-          icon={<IconHomePerson color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cSuccess)"}
+              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+              circle
+              size={38}
+            />
+          }
         />
         <WidgetDashCard
           title="Dependientes"
           data={String(data?.extraData?.dependents || 0)}
-          icon={<IconHomePerson color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cWarning)"}
+              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              circle
+              size={38}
+            />
+          }
         />
       </div>
       <List />

@@ -84,9 +84,9 @@ const HomeOwners = () => {
     permiso: "",
     export: true,
     import: true,
-    hideActions:{
-      edit:true,
-      del:true,
+    hideActions: {
+      edit: true,
+      del: true,
     },
     extraData: true,
     renderView: (props: {
@@ -97,14 +97,16 @@ const HomeOwners = () => {
       extraData?: Record<string, any>;
       noWaiting?: boolean;
       reLoad?: any;
-    }) => <ProfileModal  
-    open={props?.open} 
-    onClose={props?.onClose} 
-    dataID={props?.item?.id}
-    type={'homeOwner'}
-    title="Perfil de Propietario"
-    reLoad={props?.reLoad}
-    />,
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"homeOwner"}
+        title="Perfil de Propietario"
+        reLoad={props?.reLoad}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -114,9 +116,15 @@ const HomeOwners = () => {
       extraData?: Record<string, any>;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
+        <UnlinkModal
+          open={props.open}
+          onClose={props.onClose}
+          mod={mod}
+          item={props.item}
+          reLoad={reLoad}
+        />
       );
-    }
+    },
   };
 
   const fields = useMemo(() => {
@@ -132,22 +140,40 @@ const HomeOwners = () => {
           label: "Primer nombre",
         },
         onRender: (item: any) => {
-          const propietario = item?.item; 
+          const propietario = item?.item;
           const nombreCompleto = getFullName(propietario);
           const cedulaIdentidad = propietario?.ci;
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                src={getUrlImages("/HOMEOWNER-" + propietario?.id + ".webp?d=" + propietario?.updated_at)}
+                src={getUrlImages(
+                  "/HOMEOWNER-" +
+                    propietario?.id +
+                    ".webp?d=" +
+                    propietario?.updated_at
+                )}
                 name={nombreCompleto}
               />
               <div>
-                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
-                  {nombreCompleto} 
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
                 </p>
                 {cedulaIdentidad && (
-                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
@@ -182,22 +208,7 @@ const HomeOwners = () => {
         rules: ["required"],
         api: "ae",
         label: "Cédula de identidad",
-        form: {
-          style: { maxWidth: "49%" },
-          type: "number"
-         },
-        
-      },
-      phone: {
-        rules: ["number"],
-        api: "ae",
-        label: "Celular (Opcional)",
-        form: {
-          style: { maxWidth: "49%" },
-          type: "text",
-          
-        },
-       
+        form: { type: "number" },
       },
       email: {
         rules: ["required"],
@@ -212,7 +223,8 @@ const HomeOwners = () => {
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    La contraseña sera enviada al correo que indiques en este campo
+                    La contraseña sera enviada al correo que indiques en este
+                    campo
                   </div>
                 </div>
                 <div>
@@ -241,19 +253,17 @@ const HomeOwners = () => {
 
             if (Array.isArray(dptosArray) && dptosArray.length > 0) {
               const numerosDeUnidades = dptosArray
-                .map(dpto => dpto?.nro)
-                .filter(nro => nro);
+                .map((dpto) => dpto?.nro)
+                .filter((nro) => nro);
 
-              return numerosDeUnidades.join(', ');
-
+              return numerosDeUnidades.join(", ");
             } else {
               return "Sin unidades";
             }
           },
         },
       },
-      
-    
+
       status: {
         rules: [""],
         api: "ae",
@@ -268,7 +278,6 @@ const HomeOwners = () => {
             { id: "X", name: "Inactivo" },
           ],
         },
-        
       },
     };
   }, []);
@@ -295,14 +304,21 @@ const HomeOwners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-      <div style={{ marginBottom: '20px' }}>
-        <WidgetDashCard
-          title="Propietarios Registrados"
-          data={data?.message?.total || 0}
-          icon={<IconHomeOwner color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
-        />
-      </div>
+      <WidgetDashCard
+        title="Propietarios Registrados"
+        data={data?.message?.total || 0}
+        icon={
+          <IconHomeOwner
+            color={"var(--cWhite)"}
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+            circle
+            size={38}
+          />
+        }
+        style={{ width: "280px" }}
+        // className={styles.widgetResumeCard}
+      />
+
       <List />
       <UnitsModal
         open={unitsModalOpen}
