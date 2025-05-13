@@ -13,6 +13,8 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useAxios from "@/mk/hooks/useAxios";
+import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
+import PedidosDetail from "../../PedidosDetail/PedidosDetail";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -40,6 +42,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     },
     true
   );
+  const [openInvitation, setOpenInvitation] = React.useState(false);
+  const [openOrders, setOpenOrders] = React.useState(false);
    
 
   const statusAccess :any = {
@@ -185,6 +189,11 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         </section>
         <div onClick={()=>{}} className="link">Ver detalles de la invitación</div>
       </div>
+
+
+      {openInvitation && <InvitationsDetail open={openInvitation} onClose={()=>setOpenInvitation(false)} item={accessDetail}/>}
+      {openOrders &&  <PedidosDetail  open={openOrders} onClose={()=>setOpenOrders(false)} item={accessDetail}/>}
+
     </DataModal>
   );
 };
