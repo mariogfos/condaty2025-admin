@@ -121,6 +121,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
            <Avatar
               name={getFullName(visit)}
               src={getUrlImages("/VISIT-"+ visit?.id + ".webp?" + item?.visit?.updated_at )}
+              style={{marginBottom:'var(--spL)'}}
              />
              <div>{getFullName(visit)}</div>
              <div>C.I. : {item?.visit?.ci} {item?.plate ? `- Placa: ${item?.plate}`:''} </div>
