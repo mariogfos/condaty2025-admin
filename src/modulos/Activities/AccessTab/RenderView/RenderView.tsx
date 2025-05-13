@@ -66,18 +66,30 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   };
 
   // Determinar el tipo de acceso como texto
-  const getAccessType = () => {
-    const typeMap: Record<string, string> = {
-      C: "Control",
-      G: "Grupo",
-      I: "Individual",
-      P: "Pedido",
-      O: "Llave Virtual QR"
-    };
+  // const getAccessType = () => {
+  //   const typeMap: Record<string, string> = {
+  //     C: "Control",
+  //     G: "Grupo",
+  //     I: "Individual",
+  //     P: "Pedido",
+  //     O: "Llave Virtual QR"
+  //   };
     
-    return typeMap[item?.type] || "Acceso";
+  //   return typeMap[item?.type] || "Acceso";
+  // };
+  const getTypeAccess = (type: string,order:any) => {
+    if(type === "P"){
+      return "Pedido:" + order?.other?.other_type?.name
+    }
+    return typeMap[type];
+  }
+  const typeMap: Record<string, string> = {
+    C: "Control",
+    G: "Qr Grupal",
+    I: "Qr Individual",
+    P: "Pedido",
+    O: "Llave QR"
   };
-
   return (
     <DataModal
       open={open}
@@ -96,7 +108,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
              />
              <div>{getFullName(item?.visit)}</div>
              <div>C.I. : {item?.visit?.ci} {item?.plate ? `- Placa: ${item?.plate}`:''} </div>
-             <div className="bottomLine"></div>
+             <div className="bottomLine" />
         </section>
         
         <section>
@@ -104,7 +116,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         <div>   
             <div className={styles.textsDiv}>
               <div>Tipo de acceso</div>
-              <div>s</div>
+              {/* <div>{item?.    } </div> */}
             </div>
             <div className={styles.textsDiv}>
               <div>Fecha y hora de ingreso</div>
@@ -127,7 +139,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <div>s</div>
             </div>
        </div>
-
+   
        <div>
              <div className={styles.textsDiv}>
               <div>Estado</div>
