@@ -179,7 +179,7 @@ const EditProfile = ({
                 htmlFor="imagePerfil"
                 className={styles.imageButton}
               >
-                <IconImage className={styles.imageIcon} size={72} />
+                <IconImage className={styles.imageIcon} color={'var(--cWhite)'} size={72} />
               <p style={{overflow:'visible',color:'var(--cAccent)',borderBottom:'1px solid var(--cAccent)',fontWeight:'Bold'}}>Cambiar foto</p>
               </label>
               

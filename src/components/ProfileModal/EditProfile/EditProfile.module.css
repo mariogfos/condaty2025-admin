@@ -23,6 +23,9 @@
             margin-bottom: 1rem;
             
             z-index: 100;
+            & > div > img {
+                opacity:0.3;
+            }
           }
         .imageButton {
             position: absolute;
