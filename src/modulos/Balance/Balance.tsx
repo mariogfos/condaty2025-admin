@@ -189,6 +189,7 @@ const BalanceGeneral: React.FC = () => {
     }
   }, [formStateFilter]);
   const ldate = [
+    { id: "ALL", name: "Todos" },
     { id: "ld", name: "Ayer" },
     { id: "w", name: "Esta semana" },
     { id: "lw", name: "Semana pasada" },
