@@ -10,7 +10,6 @@ import {
   IconVehicle,
   IconFoot,
   IconOwner,
-
 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useAxios from "@/mk/hooks/useAxios";
@@ -28,13 +27,13 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   onClose,
   item,
   onConfirm,
-  extraData
+  extraData,
 }) => {
   const { data } = useAxios(
     "/accesses",
     "GET",
     {
-      searchBy: item.id,  
+      searchBy: item.id,
       fullType: "DET",
       perPage:-1,
       page:1
@@ -93,21 +92,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   //     P: "Pedido",
   //     O: "Llave Virtual QR"
   //   };
-    
+
   //   return typeMap[item?.type] || "Acceso";
   // };
-  const getTypeAccess = (type: string,order:any) => {
-    if(type === "P"){
-      return "Pedido:" + order?.other?.other_type?.name
+  const getTypeAccess = (type: string, order: any) => {
+    if (type === "P") {
+      return "Pedido:" + order?.other?.other_type?.name;
     }
     return typeMap[type];
-  }
+  };
   const typeMap: Record<string, string> = {
     C: "Control",
     G: "Qr Grupal",
     I: "Qr Individual",
     P: "Pedido",
-    O: "Llave QR"
+    O: "Llave QR",
   };
   return (
     <DataModal
@@ -117,8 +116,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       buttonText=""
       buttonCancel=""
     >
-
-
       <div className={styles.container}>
         <section>
            <Avatar
@@ -129,7 +126,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
              <div>C.I. : {item?.visit?.ci} {item?.plate ? `- Placa: ${item?.plate}`:''} </div>
              <div className="bottomLine" />
         </section>
-        
+
         <section>
         <div>   
             <div className={styles.textsDiv}>
@@ -156,10 +153,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <div>Observación de entrada</div>
               <div>{obs_in || 'Sin observaciones'}</div>
             </div>
-       </div>
-   
-       <div>
-             <div className={styles.textsDiv}>
+          </div>
+
+          <div>
+            <div className={styles.textsDiv}>
               <div>Estado</div>
               <div>{statusAccess[status] || 'No especificado'}</div>
             </div>
@@ -193,12 +190,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
 
 export default RenderView;
 
-
-
-
-
-
-      {/* <div className={styles.container}>
+{
+  /* <div className={styles.container}>
         <div className={styles.iconHeader}>
           <div className={styles.iconCircle}>
             {getAccessIcon()}
@@ -215,8 +208,8 @@ export default RenderView;
           <div className={styles.detailRow}>
             <div className={styles.label}>Visitante:</div>
             <div className={styles.value}>
-              {item?.type === "O" 
-                ? "Uso Llave Virtual QR" 
+              {item?.type === "O"
+                ? "Uso Llave Virtual QR"
                 : getFullName(item?.visit) || "No especificado"}
             </div>
           </div>
@@ -224,8 +217,8 @@ export default RenderView;
           <div className={styles.detailRow}>
             <div className={styles.label}>Documento:</div>
             <div className={styles.value}>
-              {item?.type === "O" 
-                ? item?.owner?.ci 
+              {item?.type === "O"
+                ? item?.owner?.ci
                 : item?.visit?.ci || "No especificado"}
             </div>
           </div>
@@ -268,7 +261,9 @@ export default RenderView;
             ) : item?.confirm_at ? (
               <div className={styles.value}>
                 {item.confirm === "Y" ? (
-                  <span className={styles.statusWaiting}>Esperando entrada</span>
+                  <span className={styles.statusWaiting}>
+                    Esperando entrada
+                  </span>
                 ) : (
                   <span className={styles.statusRejected}>No autorizado</span>
                 )}
@@ -309,7 +304,7 @@ export default RenderView;
           )}
         </div>
 
-{/*         Botones de acción según el estado del acceso 
+        {/*         Botones de acción según el estado del acceso 
         {item?.type !== "O" && (
           <div className={styles.actionContainer}>
             {!item?.in_at && item?.confirm === "Y" && (
@@ -331,4 +326,5 @@ export default RenderView;
             )}
           </div>
         )}
-        </div> */}
+        </div> */
+}

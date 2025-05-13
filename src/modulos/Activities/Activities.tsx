@@ -13,6 +13,8 @@ import useAxios from "@/mk/hooks/useAxios";
 import AccessesTab from "./AccessTab/AccessTab";
 import PedidosTab from "./PedidosTab/PedidosTab";
 import QRTab from "./QrTab/QrTab";
+import InvitationsDetail from "./InvitationsDetail/InvitationsDetail";
+import PedidosDetail from "./PedidosDetail/PedidosDetail";
 
 type TabType = {
   value: string;
@@ -178,6 +180,11 @@ const Activities = () => {
           </a>
         </div>
       </DataModal>
+      {/* <InvitationsDetail
+        open={true}
+        onClose={() => setOpenInvitationInfo(false)}
+      /> */}
+      {/* <PedidosDetail open={true} onClose={() => setOpenInvitationInfo(false)} /> */}
     </div>
   );
 };
