@@ -143,7 +143,7 @@ const Dptos = () => {
           label: "Tipo de unidad",
           options: (data: any) => {
             // console.log(data, "data")
-            let options = [{ id: "T", name: "Todos" }];
+            let options = [{ id: "ALL", name: "Todos" }];
             data?.type?.forEach((type: any) => {
               options.push({
                 id: type.id,
@@ -252,7 +252,7 @@ const Dptos = () => {
         filter: {
           label: "Estado",
 
-          options: () => [{ id: "T", name: "Todos" }, ...lTitulars],
+          options: () => [{ id: "ALL", name: "Todos" }, ...lTitulars],
           optionLabel: "name",
           optionValue: "id",
         },
