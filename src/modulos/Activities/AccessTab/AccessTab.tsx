@@ -148,25 +148,26 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   };
 
 
-  const typeOrder:any ={
-    T:'Taxi',
-    D:'Delivery',
-    O:'Otro tipo'
-  }
+  // const typeOrder:any ={
+  //   T:'Taxi',
+  //   D:'Delivery',
+  //   O:'Otro tipo'
+  // }
 
 
   const getTypeAccess = (type: string,order:any) => {
     if(type === "P"){
-      return "Pedido:" + typeOrder[order?.type];
+      return "Pedido:" + order?.other?.other_type?.name
     }
-    const typeMap: Record<string, string> = {
-      C: "Control",
-      G: "Grupo",
-      I: "Individual",
-      P: "Pedido",
-      O: "Llave QR"
-    };
+    return typeMap[type];
   }
+  const typeMap: Record<string, string> = {
+    C: "Control",
+    G: "Qr Grupal",
+    I: "Qr Individual",
+    P: "Pedido",
+    O: "Llave QR"
+  };
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
     return {
@@ -216,26 +217,33 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               );
             }
             return (
-              <div  style={{display:'flex',gap:8}}>
+              <div  style={{display:'flex',flexDirection:'column',gap:4}}>
                 {/* <div className={styles.iconCircle}> */}
                   {/* {props.item.plate ? (
                     <IconVehicle className={styles.typeIcon} />
                   ) : (
                     <IconFoot className={styles.typeIcon} />
                   )} */}
-                  <Avatar
-                   name={getFullName(props.item.visit)}
-                   src={getUrlImages("/VISIT-"+ props.item.visit.id + ".webp?" + props.item.visit.updated_at )}
-                   />
-                   {/* </div> */}
-                <div className={styles.avatarText}>
-                    <div className={styles.typeName}>
-                      {getFullName(props.item.visit)}
-                    </div>
-                    <div>
-                      {props?.item?.type}
-                    </div>
+
+                <div style={{display:'flex',gap:8}}>
+                      <Avatar
+                      name={getFullName(props.item.visit)}
+                      src={getUrlImages("/VISIT-"+ props.item.visit.id + ".webp?" + props.item.visit.updated_at )}
+                      />
+                      {/* </div> */}
+                        <div className={styles.avatarText}>
+                            <div className={styles.typeName}>
+                              {getFullName(props.item.visit)}
+                            </div>
+                            <div>
+                              {getTypeAccess(props?.item?.type,props?.item)}
+                            </div>
+                        </div>
                 </div>
+                     <div className={styles.companionsText}>{props?.item?.accesses.length > 0 && `+${props?.item?.accesses?.length} acompañante${props?.item?.accesses?.length > 1 ? 's' : ''}`}</div>
+                <div>
+                </div>
+                 
               </div>
             );
           },
