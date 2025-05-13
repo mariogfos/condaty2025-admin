@@ -118,13 +118,15 @@ const Alerts = () => {
               if (item.owner) {
                 entityToDisplay = item.owner;
                 avatarTypePrefix = "OWNER-";
-              } else if (item.guardia) { // En tu data de ejemplo, guardia es siempre null
+              } else if (item.guardia) {
+                // En tu data de ejemplo, guardia es siempre null
                 entityToDisplay = item.guardia;
                 avatarTypePrefix = "GUARD-";
               }
             } else {
               // Para alertas no pánico, priorizar guardia, fallback a owner
-              if (item.guardia) { // En tu data de ejemplo, guardia es siempre null
+              if (item.guardia) {
+                // En tu data de ejemplo, guardia es siempre null
                 entityToDisplay = item.guardia;
                 avatarTypePrefix = "GUARD-";
               } else if (item.owner) {
@@ -134,17 +136,27 @@ const Alerts = () => {
             }
             // Si después de esto entityToDisplay es null, se mostrará "Información no disponible"
 
-            const fullName = entityToDisplay ? getFullName(entityToDisplay) : "Información no disponible";
+            const fullName = entityToDisplay
+              ? getFullName(entityToDisplay)
+              : "Información no disponible";
             const ci = entityToDisplay?.ci;
             const entityId = entityToDisplay?.id;
             const updatedAt = entityToDisplay?.updated_at;
 
-            const avatarSrc = (entityId && avatarTypePrefix && updatedAt) 
-                              ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`) 
-                              : null;
-            
+            const avatarSrc =
+              entityId && avatarTypePrefix && updatedAt
+                ? getUrlImages(
+                    `/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`
+                  )
+                : null;
+
             // Determinar si la entidad mostrada es un guardia para el estilo 'square' del Avatar
-            const isGuardBeingDisplayed = !!(entityToDisplay && item.guardia && entityToDisplay.id === item.guardia.id && avatarTypePrefix === "GUARD-");
+            const isGuardBeingDisplayed = !!(
+              entityToDisplay &&
+              item.guardia &&
+              entityToDisplay.id === item.guardia.id &&
+              avatarTypePrefix === "GUARD-"
+            );
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -157,26 +169,54 @@ const Alerts = () => {
                   />
                 ) : (
                   // Avatar de fallback con la inicial del nombre o un "?"
-                  <Avatar 
-                    name={fullName && fullName !== "Información no disponible" ? fullName.substring(0, 1) : "?"} 
-                    square={isGuardBeingDisplayed} 
+                  <Avatar
+                    name={
+                      fullName && fullName !== "Información no disponible"
+                        ? fullName.substring(0, 1)
+                        : "?"
+                    }
+                    square={isGuardBeingDisplayed}
                   />
                 )}
 
                 {/* Sección de Texto e Icono de Pánico */}
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: '4px' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
                     {/* Mostrar icono específico de alerta (IconAmbulance, IconFlame, etc.) si es pánico y tiene tipo */}
                     {isPanic && item.type && (
-                      <span>{getAlertLevelIcon(item.type)}</span> 
+                      <span>{getAlertLevelIcon(item.type)}</span>
                     )}
-                    <p style={{ margin: 0, fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontWeight: 500,
+                        color: "var(--cWhite, #fafafa)",
+                      }}
+                    >
                       {fullName}
                     </p>
                   </div>
                   {/* Mostrar CI si está disponible */}
                   {ci && (
-                    <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block' }}>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--cWhiteV1, #a7a7a7)",
+                        display: "block",
+                      }}
+                    >
                       CI: {ci}
                     </span>
                   )}
@@ -243,7 +283,7 @@ const Alerts = () => {
     showToast,
     execute,
     reLoad,
-    data
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -253,36 +293,78 @@ const Alerts = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.alerts}>
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+        }}
+      >
         <WidgetDashCard
           title="Alertas Registradas"
           data={String(data?.extraData?.total_alerts || 0)}
-          icon={<IconAlert2 color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          icon={
+            <IconAlert2
+              color={"var(--cWhite)"}
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              circle
+              size={38}
+            />
+          }
+          // className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Alertas Nivel Bajo"
           data={String(data?.extraData?.low_level || 0)}
-          icon={<IconAlert2 color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          icon={
+            <IconAlert2
+              color={"var(--cSuccess)"}
+              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+              circle
+              size={38}
+            />
+          }
+          // className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Alertas Nivel Medio"
           data={String(data?.extraData?.medium_level || 0)}
-          icon={<IconAlert2 color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          icon={
+            <IconAlert2
+              color={"var(--cWarning)"}
+              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              circle
+              size={38}
+            />
+          }
+          // className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Alertas Nivel Alto"
           data={String(data?.extraData?.high_level || 0)}
-          icon={<IconAlert2 color={'var(--danger)'} style={{backgroundColor:'var(--errorBg)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          icon={
+            <IconAlert2
+              color={"#da5d5d"}
+              style={{ backgroundColor: "var(--errorBg)" }}
+              circle
+              size={38}
+            />
+          }
+          // className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Botones de Emergencia"
           data={String(data?.extraData?.emergency_buttons || 0)}
-          icon={<IconAlert2 color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          icon={
+            <IconAlert2
+              color={"#da5d5d"}
+              style={{ backgroundColor: "var(--errorBg)" }}
+              circle
+              size={38}
+            />
+          }
+          // className={styles.widgetResumeCard}
         />
       </div>
       <List />

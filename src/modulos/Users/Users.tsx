@@ -11,9 +11,13 @@ import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd, IconAdmin } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconAccess,
+  IconAdd,
+  IconAdmin,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
@@ -35,9 +39,9 @@ const Users = () => {
     permiso: "",
     export: true,
     import: true,
-    hideActions:{
-      edit:true,
-      del:true,
+    hideActions: {
+      edit: true,
+      del: true,
     },
     //export: true,
     // import: true,
@@ -49,15 +53,17 @@ const Users = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       noWaiting?: boolean;
-      reLoad?:any;
-    }) => <ProfileModal  
-    open={props?.open} 
-    onClose={props?.onClose} 
-    dataID={props?.item?.id}
-    type={'admin'}
-    title="Perfil de Administrador"
-    reLoad={reLoad}
-    />,
+      reLoad?: any;
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"admin"}
+        title="Perfil de Administrador"
+        reLoad={reLoad}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -138,13 +144,14 @@ const Users = () => {
         rules: ["required"], // Reglas para el formulario
         api: "ae", // Se envía a la API al agregar/editar
         label: "Rol", // Etiqueta general
-        form: { // Configuración para el formulario
+        form: {
+          // Configuración para el formulario
           type: "select",
           optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
           optionLabel: "name", // Muestra el campo 'name' del rol
           optionValue: "id", // Usa el campo 'id' del rol como valor
         },
-        
+
         // filter: { ... } // Tu configuración de filtro (comentada en tu código)
       },
       fullName: {
@@ -154,7 +161,7 @@ const Users = () => {
         form: false,
         onRender: (item: any) => {
           // Asegúrate que 'item.item' contiene los datos del residente
-          const administrador = item?.item; 
+          const administrador = item?.item;
           const nombreCompleto = getFullName(administrador);
           const cedulaIdentidad = administrador?.ci; // Obtener el CI
 
@@ -169,15 +176,29 @@ const Users = () => {
                 )}
                 name={nombreCompleto} // Usar nombreCompleto
               />
-              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+              <div>
+                {" "}
+                {/* Contenedor para Nombre, CI y Estado Admin */}
                 {/* Nombre */}
-                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
-                  {nombreCompleto} 
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
                 </p>
-                
                 {/* CI (si existe) */}
                 {cedulaIdentidad && (
-                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
@@ -191,7 +212,6 @@ const Users = () => {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-      
       },
       password: {
         rules: ["_disabled_", "required*add"],
@@ -200,7 +220,7 @@ const Users = () => {
         form: false,
         list: false,
       },
-      
+
       name: {
         rules: ["required"],
         api: "ae",
@@ -234,9 +254,7 @@ const Users = () => {
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
-      
 
-      
       // rep_email: {
 
       //   api: "",
@@ -250,8 +268,9 @@ const Users = () => {
         api: "",
         label: "Rol",
         form: false,
-        list: { // Configuración para la lista/tabla
-          
+        list: {
+          // Configuración para la lista/tabla
+
           onRender: (props: any) => {
             // Encontrar el objeto rol correspondiente al role_id del item
             const role = props?.extraData?.roles?.find(
@@ -264,7 +283,9 @@ const Users = () => {
             const isAdmin = roleName.toLowerCase() === "administrador";
 
             // Asignar la clase CSS correspondiente
-            const badgeClass = isAdmin ? styles.isAdminRole : styles.isDefaultRole;
+            const badgeClass = isAdmin
+              ? styles.isAdminRole
+              : styles.isDefaultRole;
 
             return (
               // Renderizar el div con la clase base y la clase específica
@@ -275,26 +296,28 @@ const Users = () => {
           },
         },
       },
-      email: {
+
+      ci: {
         rules: ["required"],
         api: "ae",
-        label: "Correo electrónico",
+        label: "Carnet de Identidad",
         form: {
+          style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
         },
-        list: {  },
+        list: {},
       },
-      
+
       phone: {
         rules: ["number"],
         api: "ae",
         label: "Celular (Opcional)",
         form: {
+          style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
         },
-       
       },
       address: {
         rules: [""],
@@ -304,10 +327,9 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
         },
-        
       },
 
-      ci: {
+      email: {
         rules: ["required"],
         api: "a",
         label: "Cédula de identidad",
@@ -318,41 +340,28 @@ const Users = () => {
           onRender: (props: any) => {
             // console.log(props,'propsval')
             return (
-              <fieldset className={styles.fieldSet}>
+              <div className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al administrador
-                    si el carnet no existe ,continúa con el proceso de registro
+                    La contraseña sera enviada al correo que indiques en este
+                    campo
                   </div>
                 </div>
                 <div>
                   <Input
-                    name="ci"
-                    value={props?.item?.ci}
+                    name="email"
+                    value={props?.item?.email}
                     onChange={props.onChange}
-                    label="Carnet de Identidad"
+                    label="Correo electrónico"
                     error={props.error}
                     disabled={props?.field?.action === "edit"}
-                    onBlur={(e: any) => onBlurCi(e, props)}
                   />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                    />
-                  )}
                 </div>
-              </fieldset>
+              </div>
             );
           },
         },
-
-       
       },
     };
   }, []);
@@ -414,14 +423,21 @@ const Users = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
-      <div style={{ marginBottom: '20px' }}>
-        <WidgetDashCard
-          title="Total de Administradores"
-          data={data?.message?.total || 0}
-          icon={<IconAdmin color={'var(--cWhite)'} style={{backgroundColor:'rgba(255, 255, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
-        />
-      </div>
+      <WidgetDashCard
+        title="Total de Administradores"
+        data={data?.message?.total || 0}
+        icon={
+          <IconAdmin
+            color={"var(--cWhite)"}
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+            circle
+            size={38}
+          />
+        }
+        style={{ width: "280px" }}
+        // className={styles.widgetResumeCard}
+      />
+
       <List onTabletRow={renderItem} />
     </div>
   );

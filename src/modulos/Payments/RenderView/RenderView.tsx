@@ -200,7 +200,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               onClick={handleAnularClick}
               className={styles.textButtonDanger} // Nueva clase para el text button rojo
             >
-              Anular egreso
+              Anular ingreso
             </button>
           </div>
         )}

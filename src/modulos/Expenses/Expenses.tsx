@@ -89,7 +89,7 @@ const Expenses = () => {
   const [detailItem, setDetailItem]: any = useState({});
 
   const getYearOptions = () => {
-    const lAnios: any = [{ id: "", name: "Todos" }];
+    const lAnios: any = [{ id: "ALL", name: "Todos" }];
     const lastYear = new Date().getFullYear();
     for (let i = lastYear; i >= 2000; i--) {
       lAnios.push({ id: i, name: i.toString() });
@@ -148,11 +148,10 @@ const Expenses = () => {
         filter: {
           label: "Meses",
           width: "200px",
-
           options: () =>
             MONTHS.map((month, index) => ({
-              id: index,
-              name: month,
+              id: index == 0 ? "ALL" : index,
+              name: index == 0 ? "Todos" : month,
             })),
         },
       },

@@ -914,12 +914,10 @@ const RenderForm = ({
                         ))}
                       </div>
                       <div className={styles["total-container"]}>
+                     
+
                         <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
-                        {selectedPeriodo.length === 0 && (
-                          <p className={styles["error-message"]}>
-                            Debe seleccionar al menos una deuda para pagar
-                          </p>
-                        )}
+                        
                       </div>
                     </div>
                   )}
