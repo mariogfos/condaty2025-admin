@@ -148,12 +148,13 @@ const Expenses = () => {
         filter: {
           label: "Meses",
           width: "200px",
-
-          options: () =>
-            MONTHS.map((month, index) => ({
+          options: () => [
+            { id: "ALL", name: "Todos" },
+            ...MONTHS.map((month, index) => ({
               id: index,
               name: month,
-            })),
+            }))
+          ],
         },
       },
       due_at: {

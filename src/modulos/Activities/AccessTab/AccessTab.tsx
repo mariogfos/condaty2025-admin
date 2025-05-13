@@ -25,11 +25,14 @@ interface AccessesTabProps {
 // Función actualizada para obtener las opciones de período
 const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
-  { id: "week", name: "Esta Semana" },
-  { id: "lweek", name: "Ant. Semana" },
-  { id: "month", name: "Este Mes" },
-  { id: "lmonth", name: "Ant. Mes" },
-  { id: "custom", name: "Rango Personalizado" }
+  { id: "ld", name: "Ayer" },
+  { id: "w", name: "Esta semana" },
+  { id: "lw", name: "Semana pasada" },
+  { id: "m", name: "Este mes" },
+  { id: "lm", name: "Mes anterior" },
+  { id: "y", name: "Este año" },
+  { id: "ly", name: "Año anterior" },
+  { id: "custom", name: "Personalizado" },
 ];
 
 const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
@@ -44,10 +47,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   const convertFilterDate = () => {
     let periodo = "m"; // valor por defecto
     
-    if (formStateFilter.filter_date === "thisweek") periodo = "w";
-    if (formStateFilter.filter_date === "lastweek") periodo = "lw";
-    if (formStateFilter.filter_date === "month") periodo = "m";
-    if (formStateFilter.filter_date === "lmonth") periodo = "lm";
+    if (formStateFilter.filter_date === "w") periodo = "w";
+    if (formStateFilter.filter_date === "lw") periodo = "lw";
+    if (formStateFilter.filter_date === "m") periodo = "m";
+    if (formStateFilter.filter_date === "lm") periodo = "lm";
+    if (formStateFilter.filter_date === "y") periodo = "y";
+    if (formStateFilter.filter_date === "ly") periodo = "ly";
     
     return periodo;
   };
