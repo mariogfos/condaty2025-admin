@@ -134,6 +134,12 @@
   gap: 8px;
   
 }
+.avatarText{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: column;
+}
 
 /* Corrección para el centrado vertical de iconos */
 .iconCircle {
@@ -146,6 +152,7 @@
   background-color: var(--darkv1);
   flex-shrink: 0;
   position: relative;
+  margin-right: 16px;
 }
 
 

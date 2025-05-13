@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import styles from "../Activities.module.css";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { 
@@ -16,6 +16,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -146,6 +147,26 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     }
   };
 
+
+  const typeOrder:any ={
+    T:'Taxi',
+    D:'Delivery',
+    O:'Otro tipo'
+  }
+
+
+  const getTypeAccess = (type: string,order:any) => {
+    if(type === "P"){
+      return "Pedido:" + typeOrder[order?.type];
+    }
+    const typeMap: Record<string, string> = {
+      C: "Control",
+      G: "Grupo",
+      I: "Individual",
+      P: "Pedido",
+      O: "Llave QR"
+    };
+  }
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
     return {
@@ -197,21 +218,52 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             return (
               <div className={styles.typeIconContainer}>
                 <div className={styles.iconCircle}>
-                  {props.item.plate ? (
+                  {/* {props.item.plate ? (
                     <IconVehicle className={styles.typeIcon} />
                   ) : (
                     <IconFoot className={styles.typeIcon} />
-                  )}
+                  )} */}
+                  <Avatar
+                   name={getFullName(props.item.visit)}
+                   src={getUrlImages("/VISIT-"+ props.item.visit.id + ".webp?" + props.item.visit.updated_at )}
+                   />
+                   </div>
+                <div className={styles.avatarText}>
+                    <div className={styles.typeName}>
+                      {getFullName(props.item.visit)}
+                    </div>
+                    <div>
+                      {props?.item?.type}
+                    </div>
                 </div>
-                <span className={styles.typeName}>
-                  {getFullName(props.item.visit)}
-                </span>
               </div>
             );
           },
         },
       },
-
+      owner_id: {
+        rules: [""],
+        api: "",
+        label: "Residente",
+        list: {
+          
+          onRender: (props: any) => {
+            return  <div style={{display:'flex',gap:8}}>
+              <div >
+                <Avatar
+                 name={getFullName(props.item.owner)}
+                 src={getUrlImages("/OWNER-"+ props.item.owner.id + ".webp?" + props.item.owner.updated_at )}
+                 />
+              </div>
+                <div className={styles.avatarText}>
+                    <div>{getFullName(props.item.owner)}</div>
+                    <div>Unidad: {props?.item?.owner?.dpto[0]?.nro}</div>
+                </div>
+            </div>
+            
+          },
+        },
+      },
       in_at: {
         rules: [""],
         api: "",
@@ -246,75 +298,69 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         },
       },
 
-      plate: {
-        rules: [""],
-        api: "",
-        label: "Placa",
-        list: {
-          width: "100px",
-          onRender: (props: any) => {
-            return <div>{props.item.plate || "Sin placa"}</div>;
-          },
-        },
-      },
 
-      owner_id: {
-        rules: [""],
-        api: "",
-        label: "Residente",
-        list: {
-          
-          onRender: (props: any) => {
-            return getFullName(props.item.owner);
-          },
-        },
-      },
 
-      guard_id: {
-        rules: [""],
-        api: "",
-        label: "Guardia",
-        list: {
-          onRender: (props: any) => {
-            return getFullName(props.item.guardia);
-          },
-        },
-      },
 
-      type: {
-        rules: [""],
-        api: "",
-        label: "Tipo",
-        list: {
-          width: "100px",
-          onRender: (props: any) => {
-            const typeMap: Record<string, string> = {
-              C: "Control",
-              G: "Grupo",
-              I: "Individual",
-              P: "Pedido",
-              O: "Llave QR"
-            };
-            return (
-              <div className={`${styles.typeTag} ${props.item.type === 'O' ? styles.typeTagQR : ''}`}>
-                {typeMap[props.item.type] || props.item.type || "Sin tipo"}
-              </div>
-            );
-          },
-        },
-        filter: {
-          label: "Tipo de Acceso",
-          width: "180px",
-          options: () => [
-            { id: "ALL", name: "Todos" },
-            { id: "C", name: "Control" },
-            { id: "G", name: "Grupo" },
-            { id: "I", name: "Individual" },
-            { id: "P", name: "Pedido" },
-            { id: "O", name: "Llave QR" }
-          ]
-        }
-      },
+      // NUEVO DISEÑO SIN ESTOS CAMPOS
+      // plate: {
+      //   rules: [""],
+      //   api: "",
+      //   label: "Placa",
+      //   list: {
+      //     width: "100px",
+      //     onRender: (props: any) => {
+      //       return <div>{props.item.plate || "Sin placa"}</div>;
+      //     },
+      //   },
+      // },
+
+     
+
+      // guard_id: {
+      //   rules: [""],
+      //   api: "",
+      //   label: "Guardia",
+      //   list: {
+      //     onRender: (props: any) => {
+      //       return getFullName(props.item.guardia);
+      //     },
+      //   },
+      // },
+
+      // type: {
+      //   rules: [""],
+      //   api: "",
+      //   label: "Tipo",
+      //   list: {
+      //     width: "100px",
+      //     onRender: (props: any) => {
+      //       const typeMap: Record<string, string> = {
+      //         C: "Control",
+      //         G: "Grupo",
+      //         I: "Individual",
+      //         P: "Pedido",
+      //         O: "Llave QR"
+      //       };
+      //       return (
+      //         <div className={`${styles.typeTag} ${props.item.type === 'O' ? styles.typeTagQR : ''}`}>
+      //           {typeMap[props.item.type] || props.item.type || "Sin tipo"}
+      //         </div>
+      //       );
+      //     },
+      //   },
+      //   filter: {
+      //     label: "Tipo de Acceso",
+      //     width: "180px",
+      //     options: () => [
+      //       { id: "ALL", name: "Todos" },
+      //       { id: "C", name: "Control" },
+      //       { id: "G", name: "Grupo" },
+      //       { id: "I", name: "Individual" },
+      //       { id: "P", name: "Pedido" },
+      //       { id: "O", name: "Llave QR" }
+      //     ]
+      //   }
+      // },
     };
   }, []);
 
