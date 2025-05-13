@@ -25,7 +25,7 @@ interface AccessesTabProps {
 // Función actualizada para obtener las opciones de período
 const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
-  { id: "ld", name: "Ayer" },
+
   { id: "w", name: "Esta semana" },
   { id: "lw", name: "Semana pasada" },
   { id: "m", name: "Este mes" },
