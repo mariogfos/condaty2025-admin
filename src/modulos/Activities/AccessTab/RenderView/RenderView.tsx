@@ -179,7 +179,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           <div>
             <div className={styles.textsDiv}>
               <div>Estado</div>
-              <div>{statusAccess[status] || 'No especificado'}</div>
+              <div style={{color:status === 'O'? 'var(--cAccent)' : ''}}>{statusAccess[status] || 'No especificado'}</div>
             </div>
             <div className={styles.textsDiv}>
               <div>Fecha y hora de salida</div>
