@@ -121,7 +121,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     return typeMap[type];
   };
   const typeMap: Record<string, string> = {
-    C: "Control",
+    C: "Sin Qr",
     G: "Qr Grupal",
     I: "Qr Individual",
     P: "Pedido",
@@ -172,7 +172,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             </div>
             <div className={styles.textsDiv}>
               <div>Observación de entrada</div>
-              <div>{obs_in || 'Sin observaciones'}</div>
+              <div>{obs_in || '-/-'}</div>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             </div>
             <div className={styles.textsDiv}>
               <div>Fecha y hora de salida</div>
-              <div>{getDateTimeStrMes(out_at) || 'No registrada'}</div>
+              <div>{getDateTimeStrMes(out_at) || '-/-'}</div>
             </div>   
             <div className={styles.textsDiv}>
               <div>Carnet de identidad</div>
@@ -199,7 +199,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             </div>
             <div className={styles.textsDiv}>
               <div>Observación de salida</div>
-              <div>{obs_out || 'Sin observaciones'}</div>
+              <div>{obs_out || '-/-'}</div>
             </div> 
        </div> 
         </section>
