@@ -90,7 +90,7 @@ const RenderView = (props: {
                             : (informer?.ci ? `C.I: ${informer.ci}` : "");
 
   const attendant = props.item.gua_attend || props.item.adm_attend;
-  const attendantPrefix = props.item.gua_attend ? "/GUARD-" : (props.item.adm_attend ? "/ADMIN-" : "/USER-");
+  const attendantPrefix = props.item.gua_attend ? "/GUARD-" : (props.item.adm_attend ? "/ADM-" : "/USER-");
 
   const alertTypeBoxDetails = isHighLevelAlert ? getAlertTypeBoxDetails(props.item) : null;
   const alertLevelColor = getAlertLevelFigmaColor(props.item.level);
