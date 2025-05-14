@@ -3,6 +3,8 @@ import { Card } from "@/mk/components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getDateStrMes } from "@/mk/utils/date";
 
 interface Props {
   item?: any;
@@ -10,7 +12,18 @@ interface Props {
   onClose: () => void;
 }
 
+const typeInvitation: any = {
+  C: "Sin QR",
+  I: "QR individual",
+  G: "QR grupal",
+  F: "QR frecuente",
+};
+
 const InvitationsDetail = ({ item, open, onClose }: Props) => {
+  const owner = item?.owner;
+  const visit = item?.visit;
+  const invitation = item?.invitation;
+  console.log(item);
   const Br = () => {
     return (
       <div
@@ -41,6 +54,22 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       </div>
     );
   };
+
+  const getStatus = () => {
+    let status = "";
+    if (item?.out_at) {
+      status = "Completado";
+    } else if (item?.in_at) {
+      status = "Por Salir";
+    } else if (!item?.confirm_at) {
+      status = "Por confirmar";
+    } else if (item?.confirm == "Y") {
+      status = "Por entrar";
+    } else {
+      status = "Denegado";
+    }
+    return status;
+  };
   return (
     <DataModal
       open={open}
@@ -51,25 +80,38 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       className={styles.InvitationsDetail}
     >
       <Card>
-        <Avatar name="Nando peña" h={60} w={60} />
-        <p
-          style={{ textAlign: "center", color: "var(--cWhite)", fontSize: 16 }}
-        >
-          Jimena Pedraza Maldonado
+        <Avatar
+          name="Nando peña"
+          h={60}
+          w={60}
+          src={getUrlImages(
+            "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at
+          )}
+        />
+        <p style={{ textAlign: "center", color: "var(--cWhite)" }}>
+          {getFullName(owner)}
         </p>
-        <p style={{ textAlign: "center", fontSize: 16, fontWeight: "300" }}>
-          C.I. 8475627 - Unidad: 12-A
+        <p style={{ textAlign: "center", fontWeight: "300" }}>
+          C.I. {owner?.ci} - Unidad: {owner?.dpto?.[0]?.nro}
         </p>
         <Br />
         <div className={styles.containerDetail}>
-          <LabelValue value="12-A" label="Tipo de invitación" />
-          <LabelValue label="Estado" value="Completado" />
-          <LabelValue label="Invitado" value="Daniel Carrillo Pedraza" />
-          <LabelValue value="04/05/2023" label="Fecha de invitación" />
           <LabelValue
-            value="Ingresará con sus mascotas, por favor dejarlo ingresar sin problemas"
-            label="Detalle"
+            value={typeInvitation[item?.type]}
+            label="Tipo de invitación"
           />
+          <LabelValue label="Estado" value={getStatus()} />
+          {item?.type == "G" && (
+            <LabelValue value={invitation?.title || "-/-"} label="Evento" />
+          )}
+          <LabelValue label="Invitado" value={getFullName(visit)} />
+          {item?.type != "C" && (
+            <LabelValue
+              value={getDateStrMes(invitation?.date_event)}
+              label="Fecha de invitación"
+            />
+          )}
+          <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
         </div>
         <Br />
       </Card>
