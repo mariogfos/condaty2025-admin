@@ -1,64 +1,111 @@
 .select {
   position: relative;
   width: 100%;
+  /* z-index: 30; */
+  /* & > section {
+    background-color: var(--cBlackV2);
+    border: var(--bWidth) solid var(--cWhiteV3);
+    border-radius: var(--bRadius);
+    position: absolute;
+    top: 100px;
+    width: calc(100% - var(--spS) * 2);
+    padding: var(--spS);
+    & > ul {
+      overflow-y: auto;
+      max-height: 250px;
+      padding: var(--spS) var(--spS);
+      & li {
+        list-style: none;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: var(--spS) var(--spS);
+      }
+      & li:hover,
+      & li.selected {
+        background-color: #00e38c0d;
+      }
+    }
+  } */
+
 }
 
 .selectOptions {
-  background-color: var(--cBlackV1, #2a2a2a);
-  border: var(--bWidth, 1px) solid var(--cWhiteV3, #4a4a4a);
-  border-radius: var(--bRadius, 4px);
+  background-color: var(--cBlackV1);
+  border: var(--bWidth) solid var(--cWhiteV3);
+  border-radius: var(--bRadius);
   position: fixed;
-  padding: var(--spS, 8px);
-  color: var(--cWhiteV1, #cccccc);
-  z-index: 1050; 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  top: 20px;
+  width: calc(100% - var(--spS) * 2);
+  padding: var(--spS);
+  color: var(--cWhiteV1);
+
+  &>ul {
+    overflow-y: auto;
+    max-height: 250px;
+    padding: var(--spS) var(--spS);
+
+    & li {
+      list-style: none;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spS) var(--spS);
+    }
+
+    & li:hover,
+    & li.selected {
+      background-color: var(--cWhiteV3);
+      color: var(--cWhite);
+    }
+
+    & div {
+      display: flex;
+    }
+
+  }
 }
 
-.selectOptions ul {
+
+
+
+
+
+/* 
+.select {
+  position: relative;
+  width: 100%;
+ 
+  & > section {
+  background-color: var(--cBlackV1);
+  color: var(--cBlackV2);
+  border: var(--bWidth) solid var(--cWhiteV3);
+  border-radius: var(--bRadius);
+  position: absolute;
+  top: 100px;
+  width: calc(100% - var(--spS) * 2);
+  padding: var(--spS);
+  & > ul {
   overflow-y: auto;
   max-height: 250px;
-  padding: 0;
-  margin: 0;
+  padding: var(--spS) var(--spS);
+  & li {
   list-style: none;
-}
-
-.selectOptions li {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: var(--spS, 8px) var(--spM, 12px);
-  cursor: pointer;
-  border-radius: var(--bRadiusS, 3px);
-}
-
-.selectOptions li:hover {
-  background-color: var(--cWhiteV3, #4a4a4a);
-  color: var(--cWhite, #ffffff);
-}
-
-.selectOptions li.selected {
-  background-color: var(--cAccent, #00e38c);
-  color: var(--cBlack, #1e1e1e); /* Ajusta este color si es necesario para el contraste con el fondo Accent */
-  font-weight: 500;
-  margin-top: 3px;
-}
-
-.filterInputContainer {
-  padding: 0 var(--spS, 8px) var(--spS, 8px) var(--spS, 8px);
-}
-
-/* Estilos específicos para el panel lateral del multiSelect si necesitas más personalización */
-.multiSelectSidePanel {
-  /* La posición (top, left, width) se establece vía inline styles desde JS. */
-  /* Aquí podrías añadir, por ejemplo, un borde o sombra distintiva si lo deseas. */
-}
-
-.avatar {
-  margin-right: 8px;
-}
-
-.rotate {
- transform: rotate(180deg);
- transition: transform 0.2s ease-in-out;
-}
+  padding: var(--spS) var(--spS);
+  }
+  & li:hover,
+  & li.selected {
+  background-color: var(--cWhiteV3);
+  color:var(--cWhite)
+  }
+  }
+  }
+  }
+  
+  Reaccionar
+  
+  Responder */

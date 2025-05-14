@@ -326,7 +326,7 @@ const Payments = () => {
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined || value === "T") {
+    if (value === "" || value === null || value === undefined) {
         delete currentFilters[opt];
     } else {
         currentFilters[opt] = value;
