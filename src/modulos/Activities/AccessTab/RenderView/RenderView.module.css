@@ -57,6 +57,18 @@
     margin-bottom: var(--spL);
 }
 
+.companionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXS);
+  text-align: right;
+}
+
+.companionItem {
+  color: var(--cWhite);
+  font-size: var(--fsS);
+}
+
   
   .iconHeader {
     display: flex;

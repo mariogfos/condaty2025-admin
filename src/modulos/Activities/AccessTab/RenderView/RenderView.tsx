@@ -44,6 +44,15 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   );
   const [openInvitation, setOpenInvitation] = React.useState(false);
   const [openOrders, setOpenOrders] = React.useState(false);
+
+  const openDetailsModal = () => {
+    if (item?.type === "P") {
+      setOpenOrders(true);
+    }
+    if (item?.type === "I") {
+      setOpenInvitation(true);
+    }
+  }
    
 
   const statusAccess :any = {
@@ -54,12 +63,18 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   }
   // Desestructuración de data?.data[0]
   const accessDetail = data?.data[0] || {};
-  const { visit,
+  const { 
+     visit,
      in_at, 
      out_at, 
      guardia, 
      out_guard, 
-     obs_in, obs_out, status,owner } = accessDetail;
+     obs_in, 
+     obs_out, 
+     status,
+     owner,
+     accesses,
+    } = accessDetail;
      console.log(accessDetail,'accs')
 
   // Manejar la entrada de un visitante
@@ -143,9 +158,9 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <div>Fecha y hora de ingreso</div>
               <div>{getDateTimeStrMes(in_at)} </div>
             </div>
-            {item?.accesses > 0 && <div className={styles.textsDiv}>
+            {accesses?.length > 0 && <div className={styles.textsDiv}>
               <div>Acompañante</div>
-              <div>{item?.accesses.length}</div>
+              {accesses.map((access:any,i:number)=><div key={i} style={{color:'var(--cWhite'}}>{getFullName(access?.visit)}</div>)}
             </div>}
             <div className={styles.textsDiv}>
               <div>Visitó a</div>
@@ -188,7 +203,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             </div> 
        </div> 
         </section>
-        <div onClick={()=>{setOpenInvitation(true)}} className="link">Ver detalles de la invitación</div>
+        <div onClick={openDetailsModal} className="link">Ver detalles de la invitación</div>
       </div>
 
 
