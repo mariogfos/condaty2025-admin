@@ -3,6 +3,8 @@ import { Card } from "@/mk/components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./PedidosDetail.module.css";
+import { getFullName } from "@/mk/utils/string";
+import { getDateTimeStrMes } from "@/mk/utils/date";
 
 interface Props {
   item?: any;
@@ -51,26 +53,28 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
       className={styles.PedidosDetail}
     >
       <Card>
-        <Avatar name="Nando peña" h={60} w={60} />
+        <Avatar name={getFullName(item?.owner)} h={60} w={60} style={{marginBottom:16}}/>
         <p
           style={{ textAlign: "center", color: "var(--cWhite)", fontSize: 16 }}
         >
-          Jimena Pedraza Maldonado
+         {getFullName(item?.owner)}
         </p>
         <p style={{ textAlign: "center", fontSize: 16, fontWeight: "300" }}>
-          C.I. 8475627 - Unidad: 12-A
+          C.I. {item?.owner?.ci} - Unidad: {item?.owner?.dpto[0]?.nro}
         </p>
+       
+        
         <Br />
         <div className={styles.containerDetail}>
-          <LabelValue value="Delivery" label="Tipo de pedido" />
-          <LabelValue label="Estado" value="Completado" />
+          <LabelValue value={item?.other?.other_type?.name} label="Tipo de pedido" />
+          <LabelValue label="Estado" value={item?.other?.status==='I' ? 'Ingresado' :item?.other?.status=== 'O'? 'Completado':''} colorValue="var(--cAccent)"/>
           <LabelValue
             label="Fecha y hora de notificación"
-            value="Lun, 12/04/2025 - 09:15"
+            value={getDateTimeStrMes(item?.updated_at)}
           />
 
           <LabelValue
-            value="Es un Uber, por favor dejarlo ingresar sin problemas, estoy apurado."
+            value={item?.other?.descrip}
             label="Observación"
           />
         </div>
