@@ -24,7 +24,7 @@
         height: 1.25rem;
         width: 1.25rem;
         border-radius: 0.375rem;
-        background-color: #e5e7eb;
+        background-color: var(--cBlackV2);
 
         &:nth-child(2) {
           margin-left: 0.5rem;
@@ -43,14 +43,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       border-radius: 0.75rem;
-      background-color: #ffffff;
+      background-color: var(--cBlackV2);
       padding: 2rem 1rem;
 
       & > div {
         height: 1.75rem;
         width: 5rem;
         border-radius: 0.375rem;
-        background-color: #e5e7eb;
+        background-color: var(--cBlackV2);
       }
     }
   }

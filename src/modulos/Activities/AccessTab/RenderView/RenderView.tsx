@@ -15,6 +15,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useAxios from "@/mk/hooks/useAxios";
 import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
 import PedidosDetail from "../../PedidosDetail/PedidosDetail";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -59,6 +60,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     Y: "Ingresado",
     O: "Completado",
     N: "No autorizado",
+  };
+  const getStatus = () => {
+    let status = "";
+    if (item?.out_at) {
+      status = "Completado";
+    } else if (item?.in_at) {
+      status = "Por Salir";
+    } else if (!item?.confirm_at) {
+      status = "Por confirmar";
+    } else if (item?.confirm == "Y") {
+      status = "Por entrar";
+    } else {
+      status = "Denegado";
+    }
+    return status;
   };
   // Desestructuración de data?.data[0]
   const accessDetail = data?.data[0] || {};
@@ -120,7 +136,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     return typeMap[type];
   };
   const typeMap: Record<string, string> = {
-    C: "Control",
+    C: "Sin Qr",
     G: "Qr Grupal",
     I: "Qr Individual",
     P: "Pedido",
@@ -131,10 +147,11 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       <DataModal
         open={open}
         onClose={onClose}
-        title=""
+        title="Detalle del acceso"
         buttonText=""
         buttonCancel=""
       >
+        <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
         <div className={styles.container}>
           <section>
             <Avatar
@@ -149,10 +166,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               C.I. : {item?.visit?.ci}{" "}
               {item?.plate ? `- Placa: ${item?.plate}` : ""}{" "}
             </div>
-            <div className="bottomLine" />
           </section>
+            
 
-          <section>
+          <section >
             <div>
               <div className={styles.textsDiv}>
                 <div>Tipo de acceso</div>
@@ -189,7 +206,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             <div>
               <div className={styles.textsDiv}>
                 <div>Estado</div>
-                <div>{statusAccess[status] || "No especificado"}</div>
+                {/* <div>{statusAccess[status] || "No especificado"}</div> */}
+                <div style={{color:item?.out_at ? 'var(--cAccent)':''}}>{getStatus()}</div>
               </div>
               <div className={styles.textsDiv}>
                 <div>Fecha y hora de salida</div>
@@ -213,10 +231,11 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </div>
             </div>
           </section>
-          <div onClick={openDetailsModal} className="link">
+          <div onClick={openDetailsModal} className="link" style={{marginTop:'var(--spS)'}}>
             Ver detalles de la invitación
           </div>
         </div>
+        </LoadingScreen>
       </DataModal>
       {openInvitation && (
         <InvitationsDetail

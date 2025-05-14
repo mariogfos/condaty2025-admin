@@ -16,10 +16,13 @@
     & > section:nth-child(1){
       & > div:nth-child(2){
       color:var(--cWhite);
+      
         }
+        border-bottom: 1px solid var(--cWhiteV1);
        }
     & > section:nth-child(2){
       /* background-color: #48bb78; */
+      border-bottom: 1px solid var(--cWhiteV1);
       display: flex;
       justify-content: space-between;
       flex-direction: row;
@@ -43,7 +46,10 @@
         
       }
       display: flex;
-       }   
+       }
+     & > section:nth-child(3){
+      marginTop:var(--spS);
+     }     
     
   }
   .textsDiv{

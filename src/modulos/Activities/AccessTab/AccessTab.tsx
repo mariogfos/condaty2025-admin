@@ -167,11 +167,11 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     return typeMap[type];
   }
   const typeMap: Record<string, string> = {
-    C: "Control",
+    C: "Sin Qr",
     G: "Qr Grupal",
     I: "Qr Individual",
     P: "Pedido",
-    O: "Llave QR"
+    O: "Llave Qr"
   };
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
@@ -235,7 +235,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                       name={getFullName(props.item.visit)}
                       src={getUrlImages("/VISIT-"+ props.item.visit.id + ".webp?" + props.item.visit.updated_at )}
                       />
-                      {/* </div> */}
+                      {/* </div> */}  
                         <div className={styles.avatarText}>
                             <div className={styles.typeName}>
                               {getFullName(props.item.visit)}
@@ -270,7 +270,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               </div>
                 <div className={styles.avatarText}>
                     <div>{getFullName(props.item.owner)}</div>
-                    <div>Unidad: {props?.item?.owner?.dpto[0]?.nro}</div>
+                    <div>Unidad: {props?.item?.owner?.dpto[0]?.nro || 'Sin unidad'}</div>
                 </div>
             </div>
             

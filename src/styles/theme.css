@@ -406,4 +406,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .bottomLine {
   border-bottom: 1px solid var(--cWhiteV1);
+  
 }
