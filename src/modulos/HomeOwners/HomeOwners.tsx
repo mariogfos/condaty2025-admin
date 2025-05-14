@@ -164,7 +164,7 @@ const HomeOwners = () => {
                   onChange={renderProps.onChange}
                   filter={true}
                   optionLabel="nro"
-                  optionValue="id"
+                  optionValue="dpto_id"
                   multiSelect={true}
                   error={renderProps.error}
                   required={true}
