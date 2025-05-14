@@ -213,13 +213,7 @@ const Users = () => {
         label: "Suba una Imagen",
         list: false,
       },
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
+
       
       name: {
         rules: ["required"],
