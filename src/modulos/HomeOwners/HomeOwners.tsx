@@ -166,6 +166,8 @@ const HomeOwners = () => {
                   optionLabel="nro"
                   optionValue="id"
                   multiSelect={true}
+                  error={renderProps.error}
+                  required={true}
                   placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona las unidades"}
                   // Ajusta la lógica de 'disabled' según necesites.
                   // Quizás quieras deshabilitarlo si no hay opciones, incluso si no está "cargando".
@@ -233,21 +235,21 @@ const HomeOwners = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre",
+        label: "Segundo nombre*",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido paterno",
+        label: "Apellido paterno*",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno",
+        label: "Apellido materno*",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },

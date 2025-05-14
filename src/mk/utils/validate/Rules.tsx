@@ -45,12 +45,23 @@ export const validRule = (
         : !value
         ? "Este campo es requerido"
         : "",
-    required: () =>
-      value === 0 || value === "0"
-        ? ""
-        : !value
-        ? "Este campo es requerido"
-        : "",
+    
+    required: () => {
+      // Si el valor es 0 o "0", se considera válido (mantiene tu lógica actual para estos casos)
+      if (value === 0 || value === "0") {
+        return ""; // Sin error
+      }
+      // NUEVA VERIFICACIÓN: Si es un array y está vacío, es requerido
+      if (Array.isArray(value) && value.length === 0) {
+        return "Este campo es requerido"; // Error, campo vacío
+      }
+      // Verificación original para otros valores "falsy" (null, undefined, "")
+      if (!value) {
+        return "Este campo es requerido"; // Error, campo vacío
+      }
+      // Si ninguna de las condiciones anteriores se cumple, el campo es válido
+      return ""; // Sin error
+    },
     requiredFile: () => (!value?.file ? "Este campo es requerido" : ""),
     onExist: async () => {
       if (!execute) return "no existe execute";
