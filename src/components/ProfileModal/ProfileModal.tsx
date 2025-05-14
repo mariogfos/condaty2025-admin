@@ -146,7 +146,8 @@ const ProfileModal = ({
       });
       if (data?.success == true) {
         // getAreasM();
-        showToast("Mantenimiento cancelado con éxito", "success");
+        showToast(profileRole+" desvinculado con éxito", "success");
+        onClose();
         // setOpenConfirm({ open: false, id: null });
       }
     }
