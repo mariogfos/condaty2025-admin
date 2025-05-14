@@ -206,8 +206,8 @@ const ProfileModal = ({
 
                 <div>
                 <div>{IconType} {profileRole}</div> 
-                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.phone}</div> 
-                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.email}</div>
+                <div><IconPhone size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.phone || 'Sin registrar'}</div> 
+                <div><IconEmail size={16} color={'var(--cWhiteV1)'}/>{data?.data[0]?.email || 'Sin registrar'}</div>
                 </div>
         </div> 
         
@@ -234,7 +234,7 @@ const ProfileModal = ({
 
         <div>
             <div>Domicilio</div>
-            <div>{type==='owner'? `${data?.data[0]?.dpto[0]?.description} ${data?.data[0]?.dpto[0]?.nro}`|| 'Sin registro' 
+            <div>{type==='owner'? ( !data?.data[0]?.dpto[0]?.description || !data?.data[0]?.dpto[0]?.nro ? 'Sin registrar': `${data?.data[0]?.dpto[0]?.description} ${data?.data[0]?.dpto[0]?.nro}`) 
             : data?.data[0]?.address || 'Sin registro'}
             </div>
         </div> 

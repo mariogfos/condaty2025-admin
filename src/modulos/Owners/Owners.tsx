@@ -355,7 +355,7 @@ const Owners = () => {
         form: false,
         list: {
           onRender: (props: any) => {
-            return "Unidad " + props?.item?.dpto[0]?.nro || "Sin datos";
+            return "Unidad: " +( props?.item?.dpto[0]?.nro ? props?.item?.dpto[0]?.nro  : "Sin datos");
           },
         },
       },
