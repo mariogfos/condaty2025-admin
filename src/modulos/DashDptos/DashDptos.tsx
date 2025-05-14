@@ -310,6 +310,18 @@ const DashDptos = ({ id }: DashDptosProps) => {
     return subtitle;
   };
 
+  const removeTitular = async () => {
+    const { data } = await execute("/dptos-remove-titular", "POST", {
+      dpto_id: datas?.data?.id,
+    });
+    if (data?.success) {
+      showToast("Titular eliminado", "success");
+      reLoad();
+    } else {
+      showToast(data?.message || "Error al eliminar titular", "error");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <HeaderBack
@@ -351,19 +363,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   subtitle={"Propietario"}
                   left={
                     <Avatar
-                      src={
-                        datas?.data?.id
-                          ? getUrlImages(
-                              "/DPTO" +
-                                "-" +
-                                datas?.data?.id +
-                                ".webp" +
-                                (datas?.data?.updated_at
-                                  ? "?d=" + datas?.data?.updated_at
-                                  : "")
-                            )
-                          : ""
-                      }
+                      // src={
+                      //   datas?.data?.id
+                      //     ? getUrlImages(
+                      //         "/DPTO" +
+                      //           "-" +
+                      //           datas?.data?.id +
+                      //           ".webp" +
+                      //           (datas?.data?.updated_at
+                      //             ? "?d=" + datas?.data?.updated_at
+                      //             : "")
+                      //       )
+                      //     : ""
+                      // }
                       name={getFullName(datas?.data?.homeowner)}
                       w={48}
                       h={48}
@@ -474,19 +486,38 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         </div>
                       }
                     />
-                    <Button
-                      onClick={() => setOpenTitular(true)}
-                      variant="terciary"
+                    <div
                       style={{
-                        padding: 0,
                         display: "flex",
-                        justifyContent: "flex-start",
-                        width: "fit-content",
+                        justifyContent: "space-between",
                       }}
-                      small
                     >
-                      Cambiar titular
-                    </Button>
+                      <Button
+                        onClick={() => setOpenTitular(true)}
+                        variant="terciary"
+                        style={{
+                          padding: 0,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          width: "fit-content",
+                        }}
+                        small
+                      >
+                        Cambiar titular
+                      </Button>
+                      <Button
+                        onClick={() => removeTitular()}
+                        variant="terciary"
+                        style={{
+                          padding: 0,
+                          color: "var(--cError)",
+                          width: "fit-content",
+                        }}
+                        small
+                      >
+                        Eliminar titular
+                      </Button>
+                    </div>
 
                     {/* Dependientes */}
                     {datas?.titular?.dependientes && (
@@ -657,11 +688,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         />
                         <KeyValue
                           title={"Ingreso"}
-                          value={getDateTimeStrMes(acc.in_at) || "Sin fecha"}
+                          value={getDateTimeStrMes(acc.in_at) || "-/-"}
                         />
                         <KeyValue
                           title={"Salida"}
-                          value={getDateTimeStrMes(acc.out_at) || "Sin fecha"}
+                          value={getDateTimeStrMes(acc.out_at) || "-/-"}
                         />
                       </div>
                     );

@@ -39,7 +39,7 @@ export const DAYS = [
   "Sábado",
 ];
 
-export const GMT = -3;
+export const GMT = -4;
 
 export function getFormattedDate() {
   const date = new Date();
@@ -87,6 +87,7 @@ export const getDateTimeStrMes = (
   utcBase: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
+  console.log(esFormatoISO8601(dateStr));
   if (esFormatoISO8601(dateStr) || utc) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
@@ -95,27 +96,27 @@ export const getDateTimeStrMes = (
       .replace(/-/g, "-")
       .replace("T", " ");
   }
+  console.log(dateStr);
 
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
-  const time = (datetime[1] + "").substr(0, 5);
-  // if(onlyHour)return `${time}`
-  // if (dateStrBase != "") {
-  //   if (esFormatoISO8601(dateStrBase)) {
-  //     const fechaLocal: any = convertirFechaUTCaLocal(dateStrBase);
-  //     dateStrBase = fechaLocal
-  //       ?.toISOString()
-  //       .slice(0, 19)
-  //       .replace(/-/g, "-")
-  //       .replace("T", " ");
-  //   }
-  //   dateStrBase = dateStrBase?.replace("T", " ");
-  //   dateStrBase = dateStrBase?.replace("/", "-");
-  //   const datetimeBase = dateStrBase?.split(" ");
-  //   if (datetimeBase[0] == datetime[0]) return time;
-  // }
-  // return `${time} del  ${date[2]} de ${MONTHS[parseInt(date[1])]}`;
-  return `${date[2]} de ${MONTHS[parseInt(date[1])]} del ${date[0]}, ${time}`;
+
+  // Convertir el tiempo a un objeto Date para restar 3 horas
+  const [hours, minutes] = (datetime[1] + "").substr(0, 5).split(":");
+  const timeDate = new Date();
+  console.log(hours);
+  timeDate.setHours(parseInt(hours) + GMT);
+  timeDate.setMinutes(parseInt(minutes));
+
+  // Formatear el nuevo tiempo
+  const adjustedTime = `${String(timeDate.getHours()).padStart(
+    2,
+    "0"
+  )}:${String(timeDate.getMinutes()).padStart(2, "0")}`;
+
+  return `${date[2]} de ${MONTHS[parseInt(date[1])]} del ${
+    date[0]
+  }, ${adjustedTime}`;
 };
 
 export const getDateStrMes = (
