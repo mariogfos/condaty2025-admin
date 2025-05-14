@@ -81,7 +81,7 @@ const MainMenu = ({
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
-              { href: "/budget", label: "Presupuestos" },
+              // { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -110,7 +110,7 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-          
+
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}
@@ -118,24 +118,23 @@ const MainMenu = ({
               { href: "/contents", label: "Publicaciones" },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
-              
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
-          
-          <MainmenuItem
+
+          {/* <MainmenuItem
             href="/areas"
             label="Areas sociales"
             icon={<IconBitacora />}
             collapsed={collapsed}
-          />
-          <MainmenuItem
+          /> */}
+          {/* <MainmenuItem
             href="/reservas"
             label="Reservas"
             icon={<IconCalendar />}
             collapsed={collapsed}
-          />
+          /> */}
           {user?.clients?.length > 1 && (
             <MainmenuItem
               href="#"
@@ -152,18 +151,18 @@ const MainMenu = ({
               { href: "/guards", label: "Guardias" },
               { href: "/alerts", label: "Alertas" },
               { href: "/binnacle", label: "Bitácora" },
-              { href: "/ev", label: "Soporte y ATC" },
+              // { href: "/ev", label: "Soporte y ATC" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
 
-          <MainmenuItem
+          {/* <MainmenuItem
             href="/ev"
             label="Soporte y ATC"
             icon={<IconInterrogation />}
             collapsed={collapsed}
-          />
+          /> */}
         </div>
       ) : (
         <div>

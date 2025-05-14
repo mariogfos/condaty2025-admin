@@ -2,7 +2,11 @@
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
-import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
+import {
+  IconMenu,
+  IconSetting,
+  IconNotification,
+} from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
 import { useRouter } from "next/router";
@@ -40,13 +44,12 @@ const Header = ({
   },
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
-  const { store,setStore } = useAuth();
-  
+  const { store, setStore } = useAuth();
+
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
-
   ];
 
   const Title = () => {
@@ -57,7 +60,7 @@ const Header = ({
           src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
           onClick={() => {
             // router.push("/profile");
-            setStore({openProfileModal:true});
+            setStore({ openProfileModal: true });
           }}
         />
         <p>{getFullName(user)}</p>
@@ -91,10 +94,12 @@ const Header = ({
         <div className={styles.profileContainer}>
           <Avatar
             name={getFullName(user)}
-            src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
+            src={getUrlImages(
+              "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
+            )}
             onClick={() => {
-              console.log('click')
-              setStore({...store, openProfileModal: true});
+              console.log("click");
+              setStore({ ...store, openProfileModal: true });
             }}
             square={true}
           />
@@ -122,10 +127,10 @@ const Header = ({
             path == "/" ? (
               <div className={styles.headerRightContainer}>
                 <NotificationIcon />
-                <Dropdown
+                {/* <Dropdown
                   trigger={<IconSetting circle size={32} />}
                   items={menuItems}
-                />
+                /> */}
               </div>
             ) : (
               right()
@@ -135,16 +140,19 @@ const Header = ({
       </>
     );
 
-    return (
-      <div className={styles["header-desktop"]}>
-        <div className={styles["header-greeting"]}>
-          <h1>¡Hola {getFullName(user)}!</h1>
-          <p>Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente jornada laboral</p>
-        </div>
+  return (
+    <div className={styles["header-desktop"]}>
+      <div className={styles["header-greeting"]}>
+        <h1>¡Hola {getFullName(user)}!</h1>
+        <p>
+          Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente
+          jornada laboral
+        </p>
+      </div>
 
-        <div className={styles["header-controls"]}>
+      <div className={styles["header-controls"]}>
         <NotificationIcon />
-        <Dropdown
+        {/* <Dropdown
           trigger={
             <div className={styles.iconOuterContainer}>
               <div className={styles.settingContainer}>
@@ -153,11 +161,11 @@ const Header = ({
             </div>
           }
           items={menuItems}
-        />
+        /> */}
         <ProfileIcon />
       </div>
-      </div>
-    );
+    </div>
+  );
 };
 
 export default Header;
