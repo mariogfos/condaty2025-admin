@@ -131,20 +131,20 @@ const Activities = () => {
   return (
     <div className={styles.container}>
       {/* Tabs de navegación */}
-      <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} />
+      {/* <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} /> */}
 
       {/* Contenedor principal */}
       <div className={styles.contentContainer}>
         {/* Contenido según pestaña activa */}
         <div className={styles.listWrapper}>
-          {typeSearch === "A" && (
+         
             <AccessesTab
               paramsInitial={paramsInitialAccess}
               onRowClick={handleItemClick}
             />
-          )}
+          
 
-          {typeSearch === "Q" && (
+          {/* {typeSearch === "Q" && (
             <QRTab
               paramsInitial={paramsInitialQR}
               onRowClick={handleItemClick}
@@ -156,7 +156,7 @@ const Activities = () => {
               paramsInitial={paramsInitialPedidos}
               onRowClick={handleItemClick}
             />
-          )}
+          )} */}
         </div>
       </div>
 
