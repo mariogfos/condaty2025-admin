@@ -41,6 +41,7 @@
   background-color: var(--cAccent, #00e38c);
   color: var(--cBlack, #1e1e1e); /* Ajusta este color si es necesario para el contraste con el fondo Accent */
   font-weight: 500;
+  margin-top: 3px;
 }
 
 .filterInputContainer {
