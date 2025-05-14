@@ -15,6 +15,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import useAxios from "@/mk/hooks/useAxios";
 import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
 import PedidosDetail from "../../PedidosDetail/PedidosDetail";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -150,6 +151,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         buttonText=""
         buttonCancel=""
       >
+        <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
         <div className={styles.container}>
           <section>
             <Avatar
@@ -233,6 +235,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             Ver detalles de la invitación
           </div>
         </div>
+        </LoadingScreen>
       </DataModal>
       {openInvitation && (
         <InvitationsDetail
