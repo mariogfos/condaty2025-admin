@@ -113,6 +113,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     O: "Llave QR",
   };
   return (
+    <>
     <DataModal
       open={open}
       onClose={onClose}
@@ -187,14 +188,16 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             </div> 
        </div> 
         </section>
-        <div onClick={()=>{}} className="link">Ver detalles de la invitación</div>
+        <div onClick={()=>{setOpenInvitation(true)}} className="link">Ver detalles de la invitación</div>
       </div>
 
 
-      {openInvitation && <InvitationsDetail open={openInvitation} onClose={()=>setOpenInvitation(false)} item={accessDetail}/>}
-      {openOrders &&  <PedidosDetail  open={openOrders} onClose={()=>setOpenOrders(false)} item={accessDetail}/>}
+      
 
     </DataModal>
+    {openInvitation && <InvitationsDetail open={openInvitation} onClose={()=>setOpenInvitation(false)} item={accessDetail}/>}
+    {openOrders &&  <PedidosDetail  open={openOrders} onClose={()=>setOpenOrders(false)} item={accessDetail}/>}
+    </>
   );
 };
 
