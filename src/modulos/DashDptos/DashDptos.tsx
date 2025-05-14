@@ -302,6 +302,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
     setOpenTitular(true);
   };
+  const renderSubtitle = (item: any) => {
+    let subtitle = "CI: " + item.visit?.ci;
+    if (item?.other) {
+      subtitle = item.other?.other_type?.name;
+    }
+    return subtitle;
+  };
 
   return (
     <div className={styles.container}>
@@ -617,7 +624,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       >
                         <ItemList
                           title={getFullName(acc.visit)}
-                          subtitle={"CI: " + acc.visit?.ci}
+                          subtitle={renderSubtitle(acc)}
                           left={leftAccess(acc)}
                           right={
                             <p

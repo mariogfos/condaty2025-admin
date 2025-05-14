@@ -95,14 +95,14 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-            src={getUrlImages(
-              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-            )}
-            name={primaryText}
-            w={40}
-            h={40}
-            className={styles.itemImage}
-          />
+              src={getUrlImages(
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+              )}
+              name={primaryText}
+              w={40}
+              h={40}
+              className={styles.itemImage}
+            />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}
@@ -147,14 +147,14 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
-            src={getUrlImages(
-              `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
-            )}
-            name={primaryText}
-            w={40}
-            h={40}
-            className={styles.itemImage}
-          />
+              src={getUrlImages(
+                `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
+              )}
+              name={primaryText}
+              w={40}
+              h={40}
+              className={styles.itemImage}
+            />
           ) : (
             <div className={styles.itemImagePlaceholder}>
               {ownerInitials || "?"}
@@ -228,46 +228,71 @@ const HomePage = () => {
   };
 
   const alertasList = (data: any) => {
-    const hasGuard = data?.guardia;
-    const primaryText = hasGuard
-      ? getFullName(data.guardia)
-      : data?.owner
-      ? getFullName(data.owner)
-      : "Alerta del Sistema";
-    const imageUrl = hasGuard
-      ? data?.guardia?.photo_url
-      : data?.owner?.photo_url;
+    const hasGuard = !!data?.guardia; // Verifica si el objeto guardia existe y no es nulo
+    const hasOwner = !!data?.owner;   // Verifica si el objeto owner existe y no es nulo
+
+    let dataSource = null; // Contendrá el objeto guardia o owner
+    let entityType = "";   // Será "GUARD" o "OWNER"
+    let primaryText = "Alerta del Sistema"; // Texto por defecto
+
+    if (hasGuard) {
+        dataSource = data.guardia;
+        entityType = "GUARD";
+        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto guardia
+    } else if (hasOwner) {
+        dataSource = data.owner;
+        entityType = "OWNER";
+        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
+    }
+    // Si ni guardia ni owner están presentes, primaryText permanece "Alerta del Sistema"
+
     const userInitials = primaryText
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
+        ?.split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
 
     const secondaryText = data.descrip || "Sin descripción";
 
     let levelClass = styles.levelLow;
     let levelTextIndicator = "Nivel bajo";
     if (data.level === 2) {
-      levelClass = styles.levelMedium;
-      levelTextIndicator = "Nivel medio";
-    } else if (data.level === 3 || data.level > 2) {
-      levelClass = styles.levelHigh;
-      levelTextIndicator = "Nivel alto";
+        levelClass = styles.levelMedium;
+        levelTextIndicator = "Nivel medio";
+    } else if (data.level === 3 || data.level > 2) { // Mayor que 2 también es alto
+        levelClass = styles.levelHigh;
+        levelTextIndicator = "Nivel alto";
+    }
+
+    // Determinar si podemos intentar cargar una imagen de avatar
+    // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
+    const canDisplayAvatarImage = dataSource && dataSource.id;
+    let avatarImageUrl = null;
+
+    if (canDisplayAvatarImage) {
+        // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
+        // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
+        const updatedAtTimestamp = dataSource.updated_at || dataSource.updatedAt || new Date().toISOString();
+        avatarImageUrl = getUrlImages(`/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`);
     }
 
     return (
       <div className={styles.itemRowAlert}>
         <div className={styles.itemImageContainer}>
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={primaryText}
+          {canDisplayAvatarImage && avatarImageUrl ? (
+            <Avatar
+              src={avatarImageUrl} // URL construida dinámicamente
+              name={primaryText}    // El componente Avatar debería manejar el fallback a iniciales si src falla
+              w={40}
+              h={40}
               className={styles.itemImage}
             />
           ) : (
+            // Fallback si no hay un usuario específico (guardia u owner) asociado,
+            // o si dataSource no tiene un ID, o si avatarImageUrl es null.
             <div className={styles.itemImagePlaceholder}>
-              {userInitials || "!"}
+              {userInitials || "!"} {/* Iniciales para "Alerta del Sistema" o si primaryText está vacío */}
             </div>
           )}
         </div>
@@ -442,17 +467,17 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
-                  style={{ width: 130 }}
+                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
               </div>
             </WidgetBase>

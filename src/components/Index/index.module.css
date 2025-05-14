@@ -42,16 +42,14 @@
   width: 100%;
 }
 
-.widgetContents{
+.widgetContents {
   width: 100%;
   display: flex;
-  flex:1
+  flex: 1;
 }
 .summaryWidgetEqualHeight {
   height: 162px;
-  
 }
-
 
 .fourWidgetSection {
   display: flex;
@@ -85,22 +83,21 @@
   background-color: var(--cBlackV2) !important;
 }
 
-.widgetsResumeContainer{
-
+.widgetsResumeContainer {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  width: 100%;
   /* background-color: #00e38c; */
 
   @media screen and (max-width: 768px) {
-
   }
 }
 
-.widgetResumeCard{
-   width: calc(25% - 6px);
-   min-width: 180px;
-   flex-grow: 1;
+.widgetResumeCard {
+  width: calc(25% - 6px);
+  min-width: 180px;
+  flex-grow: 1;
 }
 
 @media (max-width: 1024px) {
@@ -113,9 +110,8 @@
   .widgetsResumeContainer {
     flex-direction: column;
   }
-  .widgetResumeCard{
+  .widgetResumeCard {
     width: 100%;
-
   }
   .widgetRow {
     flex-direction: column;
@@ -152,12 +148,12 @@
   font-size: var(--sM);
   display: flex;
 }
-.alertsList > section > div:nth-child(1){
+.alertsList > section > div:nth-child(1) {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.alertsList > section > div:nth-child(1) > div:nth-child(3){
+.alertsList > section > div:nth-child(1) > div:nth-child(3) {
   color: var(--cWhiteV1) !important;
   font-size: var(--sS);
 }
@@ -166,12 +162,17 @@
   font-size: var(--sM);
   padding: var(--spL);
   border-radius: var(--bRadiusS);
-  width:112px;
+  width: 112px;
 }
 
 .levelLow {
   /* Usamos el color base #00af90 -> rgb(0, 175, 144) con transparencia */
-  background-color: rgba(0, 175, 144, 0.2); /* Ajusta el 0.2 (alfa) si quieres más o menos transparencia */
+  background-color: rgba(
+    0,
+    175,
+    144,
+    0.2
+  ); /* Ajusta el 0.2 (alfa) si quieres más o menos transparencia */
   color: var(--cLowAlertText, #34a853);
   /* Opcional: para un efecto neón más pronunciado en el texto y un pequeño resplandor */
   /* text-shadow: 0 0 2px var(--cLowAlertText, #34a853); */
@@ -190,7 +191,10 @@
 .levelHigh {
   /* Usamos el color base #da5d5d -> rgb(218, 93, 93) con transparencia */
   background-color: rgba(218, 93, 93, 0.2); /* Ajusta el 0.2 (alfa) */
-  color: var(--cHightAlertText, #e46055); /* Nota: el nombre original era --cHightAlertBg, asumo que querías --cHightAlertText o un color de texto similar */
+  color: var(
+    --cHightAlertText,
+    #e46055
+  ); /* Nota: el nombre original era --cHightAlertBg, asumo que querías --cHightAlertText o un color de texto similar */
   /* Opcional: para un efecto neón más pronunciado */
   /* text-shadow: 0 0 2px var(--cHightAlertText, #e46055); */
   /* box-shadow: 0 0 8px rgba(218, 93, 93, 0.3); */
@@ -301,7 +305,8 @@
   .mainLayout {
     flex-direction: column;
   }
-  .leftColumn, .rightColumn {
+  .leftColumn,
+  .rightColumn {
     width: 100%;
   }
 }

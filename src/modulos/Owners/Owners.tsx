@@ -14,10 +14,14 @@ import Input from "@/mk/components/forms/Input/Input";
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
-import { IconHome, IconHomePerson } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconHome,
+  IconHomePerson,
+} from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import Select from "@/mk/components/forms/Select/Select";
 
 const paramsInitial = {
   perPage: 20,
@@ -93,7 +97,7 @@ const Owners = () => {
     permiso: "",
     hideActions: {
       edit: true,
-      del: true,      
+      del: true,
     },
     extraData: true,
     renderView: (props: {
@@ -103,15 +107,17 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-    }) =><ProfileModal  
-    open={props?.open} 
-    onClose={props?.onClose} 
-    dataID={props?.item?.id}
-    type={'owner'}
-    title="Perfil de Residente"
-    edit={false}
-    reLoad={props?.reLoad}
-    />,
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"owner"}
+        title="Perfil de Residente"
+        edit={false}
+        reLoad={props?.reLoad}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -121,10 +127,15 @@ const Owners = () => {
       extraData?: Record<string, any>;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
-
+        <UnlinkModal
+          open={props.open}
+          onClose={props.onClose}
+          mod={mod}
+          item={props.item}
+          reLoad={reLoad}
+        />
       );
-    }
+    },
     // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -172,31 +183,47 @@ const Owners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      dpto: {
+      dpto: { // Campo para seleccionar una única unidad (singular)
         rules: ["required"],
         api: "ae",
-        label: "Unidades",
+        label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
         form: {
-          type: "number",
+          type: "number", // Podría ser "select" para mayor claridad semántica
           style: { width: "100%" },
-          onRender: (props: any) => {
+          onRender: (renderProps: { // Tipado sugerido para las props de onRender
+            item: any;
+            onChange: (e: any) => void;
+            error?: any;
+            extraData?: { dptos?: any[] }; // Asumimos que las opciones de unidades están en extraData.dptos
+            // field?: any; // otras props que useCrud podría pasar
+          }) => {
+            // Utilizamos renderProps.extraData para obtener las opciones actualizadas
+            const dptosOptions = renderProps.extraData?.dptos || [];
+            const isLoadingOptions = dptosOptions.length === 0; // Verdadero si no hay opciones cargadas
+      
+            // Para depuración:
+            // console.log(`onRender dpto (singular) - renderProps.extraData:`, renderProps.extraData);
+            // console.log(`onRender dpto (singular) - dptosOptions:`, dptosOptions);
+      
             return (
               <div style={{ width: "100%" }}>
                 <Select
-                  name="dpto"
-                  options={extraData?.dptos || []}
-                  value={props?.item?.dpto} // Puede ser un valor único o un array si también es multiSelect
-                  onChange={props.onChange}
-                  filter={true}
-                  optionLabel="nro"
-                  optionValue="id"
-                  
+                  name="dpto" // Nombre del campo en el formulario (singular)
+                  options={dptosOptions} // Opciones obtenidas de renderProps.extraData
+                  value={renderProps?.item?.dpto} // Valor actual del campo en el item del formulario
+                  onChange={renderProps.onChange}
+                  filter={true} // Habilita el filtrado en el Select
+                  optionLabel="nro" // Propiedad del objeto opción a mostrar como etiqueta
+                  optionValue="id"  // Propiedad del objeto opción a usar como valor
+                  placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona la unidad"}
+                  // multiSelect={false} // Por defecto es false, no es necesario si es selección única
+                  disabled={(isLoadingOptions && !renderProps?.item?.dpto) || dptosOptions.length === 0}
                 />
               </div>
             );
           },
         },
-        list: false,
+        list: false, // No se muestra en la lista principal
       },
 
       fullName: {
@@ -207,7 +234,7 @@ const Owners = () => {
         // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
           // Asegúrate que 'item.item' contiene los datos del residente
-          const residente = item?.item; 
+          const residente = item?.item;
           const nombreCompleto = getFullName(residente);
           const cedulaIdentidad = residente?.ci; // Obtener el CI
 
@@ -222,29 +249,42 @@ const Owners = () => {
                 )}
                 name={nombreCompleto} // Usar nombreCompleto
               />
-              <div> {/* Contenedor para Nombre, CI y Estado Admin */}
+              <div>
+                {" "}
+                {/* Contenedor para Nombre, CI y Estado Admin */}
                 {/* Nombre */}
-                <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}> 
-                  {nombreCompleto} 
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
                 </p>
-                
                 {/* CI (si existe) */}
                 {cedulaIdentidad && (
-                  <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)', display: 'block', marginBottom: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
-
                 {/* Estado de Administrador Principal (si aplica) */}
-                {residente?.is_main == "M" && ( 
+                {residente?.is_main == "M" && (
                   <span
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
                       backgroundColor: "#00af900D", // Fondo verde muy transparente
-                      padding: '2px 4px', // Ajustar padding si es necesario
+                      padding: "2px 4px", // Ajustar padding si es necesario
                       borderRadius: 4,
-                      display: 'inline-block' // Para que el padding/fondo funcione bien
+                      display: "inline-block", // Para que el padding/fondo funcione bien
                     }}
                   >
                     Administrador principal
@@ -317,7 +357,6 @@ const Owners = () => {
           onRender: (props: any) => {
             return "Unidad " + props?.item?.dpto[0]?.nro || "Sin datos";
           },
-          
         },
       },
       ci: {
@@ -329,7 +368,7 @@ const Owners = () => {
           disabled: onDisbled,
           
         },
-        list: { },
+        list: {},
       },
       // rep_email: {
 
@@ -347,9 +386,9 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        
       },
-      type: { // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
+      type: {
+        // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
         rules: [""],
         api: "", // No se envía a la API
         label: "Tipo", // Etiqueta de la columna
@@ -361,12 +400,14 @@ const Owners = () => {
 
             // Verifica si el array dpto existe y si en ALGUNA de las relaciones es titular
             if (Array.isArray(dptos) && dptos.length > 0) {
-              esTitular = dptos.some(d => d?.pivot?.is_titular === 'Y');
+              esTitular = dptos.some((d) => d?.pivot?.is_titular === "Y");
             }
 
             const texto = esTitular ? "Titular" : "Dependiente";
             // Asigna clases CSS diferentes según el tipo
-            const badgeClass = esTitular ? styles.isTitular : styles.isDependiente;
+            const badgeClass = esTitular
+              ? styles.isTitular
+              : styles.isDependiente;
 
             return (
               // Aplica la clase base y la clase específica (Titular/Dependiente)
@@ -413,7 +454,6 @@ const Owners = () => {
       },
     };
   }, []);
- 
 
   const {
     userCan,
@@ -428,6 +468,7 @@ const Owners = () => {
     execute,
     errors,
     getExtraData,
+    extraData,
     data,
   } = useCrud({
     paramsInitial,
@@ -442,7 +483,6 @@ const Owners = () => {
     onEdit,
     onDel,
   });
-
 
   const renderItem = (
     item: Record<string, any>,
@@ -464,24 +504,45 @@ const Owners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+      <div style={{ display: "flex", gap: "12px" }}>
         <WidgetDashCard
           title="Residentes Totales"
           data={String(data?.extraData?.totals || 0)}
-          icon={<IconHomePerson color={'#007BFF'} style={{backgroundColor:'rgba(0, 123, 255, 0.1)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cInfo"}
+              style={{ backgroundColor: "var(--cHoverInfo)" }}
+              circle
+              size={38}
+            />
+          }
         />
         <WidgetDashCard
           title="Titulares"
           data={String(data?.extraData?.holders || 0)}
-          icon={<IconHomePerson color={'var(--cSuccess)'} style={{backgroundColor:'var(--cHoverSuccess)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cSuccess)"}
+              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+              circle
+              size={38}
+            />
+          }
         />
         <WidgetDashCard
           title="Dependientes"
           data={String(data?.extraData?.dependents || 0)}
-          icon={<IconHomePerson color={'var(--cWarning)'} style={{backgroundColor:'var(--cHoverWarning)'}} circle size={38}/>}
-          className={styles.widgetResumeCard}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cWarning)"}
+              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              circle
+              size={38}
+            />
+          }
         />
       </div>
       <List />
