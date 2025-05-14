@@ -5,10 +5,10 @@
   gap: var(--sPs);
   padding: var(--spL);
   border-radius: var(--bRadius);
-  background-color: var(--cHover);
+  background-color: var(--cBlackV2);
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
   /* margin-top: 16px; */
-  border: 1px solid var(--cBlackV3);
+  border: 0.5px solid var(--cWhiteV1);
 }
 .V1 {
   background-color: var(--cHover);

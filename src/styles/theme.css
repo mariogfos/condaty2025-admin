@@ -156,12 +156,11 @@
   --responsive-tablet: 768px;
   --responsive-mobile: 480px;
 
-
   --figma-main-bg: #333536;
   --figma-border-color: #a7a7a7; /* Similar a --cWhiteV1 */
-  --figma-text-gray: #a7a7a7;   /* Similar a --cWhiteV1 */
-  --figma-text-white: #fafafa;  /* Similar a --cWhite */
-  
+  --figma-text-gray: #a7a7a7; /* Similar a --cWhiteV1 */
+  --figma-text-white: #fafafa; /* Similar a --cWhite */
+
   --figma-emergency-box-bg: rgba(218, 93, 93, 0.5);
   --figma-emergency-box-border: rgba(221, 41, 24, 0.849);
   --figma-emergency-text-color: rgba(247, 32, 12, 0.723);
@@ -371,7 +370,7 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px var(--cBlack) inset;
+  -webkit-box-shadow: 0 0 0px 1000px var(--cWhiteV2) inset;
   -webkit-text-fill-color: var(--cWhite);
 }
 

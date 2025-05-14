@@ -5,6 +5,7 @@ import React from "react";
 import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStrMes } from "@/mk/utils/date";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
 
 interface Props {
   item?: any;
@@ -114,6 +115,24 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
         </div>
         <Br />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 12,
+          }}
+        >
+          {invitation?.guests.map((acc: any) => {
+            return (
+              <ItemList
+                variant="V3"
+                key={acc.id}
+                title={getFullName(acc.visit)}
+                left={<Avatar name={getFullName(acc.visit)} />}
+              />
+            );
+          })}
+        </div>
       </Card>
     </DataModal>
   );
