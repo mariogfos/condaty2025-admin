@@ -97,9 +97,8 @@ const DefaultersView = () => {
             const titularId = titular?.id;
 
             return (
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
+              <div >
+               {titular? <div  style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <Avatar
                   src={
                     titularId
@@ -119,6 +118,7 @@ const DefaultersView = () => {
                   h={32}
                 />
                 {getFullName(titular)}
+                </div>: ' Sin titular'}
               </div>
             );
           },
