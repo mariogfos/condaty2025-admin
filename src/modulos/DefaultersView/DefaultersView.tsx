@@ -372,7 +372,7 @@ const DefaultersView = () => {
             iconBorderColor="var(--cInfo)"
             iconColor="white"
             // backgroundColor={`red`}
-            style={{maxWidth:200}}
+            style={{maxWidth:250}}
             textColor="white"
           /> 
 

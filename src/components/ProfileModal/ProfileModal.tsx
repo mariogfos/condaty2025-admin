@@ -148,6 +148,8 @@ const ProfileModal = ({
         // getAreasM();
         showToast(profileRole+" desvinculado con éxito", "success");
         onClose();
+        reLoad();
+        reLoadDet();
         // setOpenConfirm({ open: false, id: null });
       }
     }
@@ -298,6 +300,7 @@ const ProfileModal = ({
       url={url}
       reLoad={reLoadDet}
       reLoadList={reLoad}
+      type={type}
     />
    }
    {openDel && <DataModal

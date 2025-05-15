@@ -160,9 +160,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   // }
 
 
-  const getTypeAccess = (type: string,order:any) => {
+  const getTypeAccess = (type: string,param:any) => {
     if(type === "P"){
-      return "Pedido:" + order?.other?.other_type?.name
+      return "Pedido:" + param?.other?.other_type?.name
+    }
+    if(type === "I" &&  param?.invitation?.is_frequent === "Y"){
+      return "Qr Frecuente"
     }
     return typeMap[type];
   }
@@ -215,10 +218,10 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                   {/* <div className={styles.iconCircle}> */}
                     <IconOwner  size={48} circle style={{backgroundColor:'var(--cWhiteV1)'}}/>
                   {/* </div> */}
-                  <div >
-                  <span className={styles.typeName}>
-                    Llave Virtual QR
-                  </span>
+                  <div className={styles.avatarText}>
+                      <div className={styles.typeName}>
+                        Llave Virtual QR
+                      </div>
                   </div> 
                 </div>
               );
@@ -239,11 +242,11 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                       />
                       {/* </div> */}  
                         <div className={styles.avatarText}>
-                            <div className={styles.typeName}>
+                            <div style={{color:'var(--cWhite)'}}>
                               {getFullName(props.item.visit)}
                             </div>
                             <div>
-                              {getTypeAccess(props?.item?.type,props?.item)}
+                              { getTypeAccess(props?.item?.type,props?.item)}
                             </div>
                         </div>
                 </div>
