@@ -5,8 +5,8 @@ import {
   IconCheckOff,
   IconCheckSquare,
 } from "@/components/layout/icons/IconsBiblioteca";
-import { CSSProperties, useEffect, useRef, useState, useCallback } from "react";
-import Input from "../Input/Input"; // Asumiendo que Input maneja la prop 'error' para mostrarse en rojo
+import { CSSProperties, useEffect, useRef, useState } from "react";
+import Input from "../Input/Input";
 import styles from "./select.module.css";
 import { PropsTypeInputBase } from "../ControlLabel";
 import { createPortal } from "react-dom";
@@ -19,16 +19,15 @@ interface PropsType extends PropsTypeInputBase {
   options: any[];
   optionLabel?: string;
   optionValue?: string;
-  inputStyle?: CSSProperties;
+  inputStyle?: any;
   selectOptionsClassName?: string;
   style?: CSSProperties;
-  multiSelectPanelWidth?: number;
 }
 
 const Select = ({
   value,
   name,
-  error = null, // Esta prop debe venir del hook useCrud (o el formulario)
+  error = null,
   className = "",
   selectOptionsClassName = "",
   multiSelect = false,
@@ -43,339 +42,309 @@ const Select = ({
   label = "",
   inputStyle = {},
   style = {},
-  multiSelectPanelWidth = 300,
   onBlur = () => {},
   onChange = (e: any) => {},
 }: PropsType) => {
-  const [selectValue, setSelectValue] = useState<string | any[]>(multiSelect ? [] : "");
+  const [selectValue, setSelectValue] = useState(
+    value || (multiSelect ? [] : "")
+  );
   const [openOptions, setOpenOptions] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
-  const [selectedNames, setSelectedNames] = useState<string>("");
-  const [position, setPosition] = useState<{top: number; left: number; width: number} | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const [selectedNames, setSelectedNames]: any = useState([]);
+  const [position, setPosition]: any = useState(null);
+  const selectRef1 = useRef<HTMLDivElement>(null);
 
-  const calcPosition = useCallback(() => {
-    const inputEl = selectRef.current;
-    const panelEl = panelRef.current;
-
-    if (!inputEl) return;
-
-    const inputRect = inputEl.getBoundingClientRect();
-
-    if (multiSelect) {
-      const panelWidth = multiSelectPanelWidth;
-      const horizontalOffset = 8;
-
-      let newLeft = inputRect.right + horizontalOffset;
-      let newTop = inputRect.top;
-
-      if (newLeft + panelWidth > window.innerWidth) {
-        newLeft = inputRect.left - panelWidth - horizontalOffset;
+  const findParentWithClass = (element: any, className: string) => {
+    while (element && element !== document) {
+      if (element.classList.contains(className)) {
+        return element;
       }
-      if (newLeft < 0) {
-        newLeft = horizontalOffset;
-      }
-      if (newLeft + panelWidth > window.innerWidth) {
-        newLeft = window.innerWidth - panelWidth - horizontalOffset;
-      }
-      
-      const panelCurrentHeight = panelEl ? panelEl.offsetHeight : 250;
-      if (newTop + panelCurrentHeight > window.innerHeight) {
-        newTop = window.innerHeight - panelCurrentHeight - 5;
-      }
-      if (newTop < 0) {
-        newTop = 5;
-      }
-
-      setPosition({
-        top: newTop,
-        left: newLeft,
-        width: panelWidth,
-      });
-
-    } else {
-      const panelCurrentHeight = panelEl ? panelEl.offsetHeight : 250;
-      let calculatedTop = inputRect.bottom;
-
-      if ((inputRect.bottom + panelCurrentHeight > window.innerHeight) && (inputRect.top - panelCurrentHeight > 0)) {
-          calculatedTop = inputRect.top - panelCurrentHeight;
-      }
-      else if (inputRect.bottom + panelCurrentHeight > window.innerHeight) {
-            calculatedTop = window.innerHeight - panelCurrentHeight - 5;
-            if (calculatedTop < 0) calculatedTop = 5;
-      }
-      if (calculatedTop < 0) calculatedTop = 5;
-
-      setPosition({
-        top: calculatedTop,
-        left: inputRect.left,
-        width: inputRect.width,
-      });
+      element = element.parentElement;
     }
-  }, [multiSelect, multiSelectPanelWidth, panelRef]); // selectRef es estable, no necesita estar en deps si no cambia
+    return null;
+  };
+
+  const [_options, setOptions]: any = useState([]);
 
   useEffect(() => {
+    if (options) setOptions(options || []);
     if (multiSelect) {
-      if (Array.isArray(options) && Array.isArray(selectValue)) {
-        const selectedOptionObjects = options.filter((option: any) =>
-          (selectValue as any[]).includes(option[optionValue])
+      if (
+        Array.isArray(options) &&
+        options.length > 0 &&
+        Array.isArray(selectValue)
+      ) {
+        const selectedValues = options.filter((option: any) =>
+          selectValue.includes(option.id)
         );
-        let displayValue = "";
-        if (selectedOptionObjects.length === 0) {
-          displayValue = "";
-        } else if (selectedOptionObjects.length > 2) {
-          displayValue = `${selectedOptionObjects.length} elementos seleccionados`;
+        let selectedDisplay = "";
+        if (selectedValues.length > 2) {
+          selectedDisplay = selectedValues.length + " elementos seleccionados";
         } else {
-          displayValue = selectedOptionObjects
-            .map((opt: any) => opt[optionLabel] || "")
-            .join(", ");
+          const selectedNames = selectedValues.map(
+            (option: any) => option.name || option.label
+          );
+          selectedDisplay = selectedNames.join(", ");
         }
-        setSelectedNames(displayValue);
-      } else {
-        setSelectedNames("");
+        setSelectedNames(selectedDisplay);
       }
     }
-  }, [selectValue, options, multiSelect, optionLabel, optionValue]);
+  }, [selectValue, options]);
 
   useEffect(() => {
-    if (multiSelect) {
-      const currentPropValue = Array.isArray(value) ? value : [];
-      if (JSON.stringify(selectValue) !== JSON.stringify(currentPropValue)) {
-        setSelectValue(currentPropValue);
+    const parentWithClass = findParentWithClass(
+      selectRef.current,
+      "contScrollable"
+    );
+    if (parentWithClass) {
+      parentWithClass.addEventListener("scroll", calcPosition);
+    }
+    return () => {
+      if (parentWithClass) {
+        parentWithClass.removeEventListener("scroll", calcPosition);
       }
-    } else {
-      let textForSingleSelect = "";
-      if (value !== null && value !== undefined && value !== "" && Array.isArray(options) && options.length > 0) {
-        const foundOption = options.find((o: any) => o[optionValue] === value);
-        if (foundOption) {
-          textForSingleSelect = foundOption[optionLabel] || "";
-        }
-      }
-      if (selectValue !== textForSingleSelect) {
-        setSelectValue(textForSingleSelect);
+    };
+  }, []);
+
+  const calcPosition = () => {
+    const select: any = selectRef.current;
+
+    const child: any = selectRef1.current;
+
+    let parent: any = select.getBoundingClientRect();
+    let childPosition: any = child?.getBoundingClientRect();
+
+    let up = 34;
+    if (childPosition) {
+      if (parent.top + 34 + childPosition.height > window.innerHeight) {
+        up = childPosition.height * -1;
       }
     }
-  }, [value, options, multiSelect, optionLabel, optionValue, selectValue]);
-
+    setPosition({
+      top: parent.top + up,
+      left: parent.left,
+      width: parent.width,
+    });
+  };
 
   useEffect(() => {
     if (openOptions) {
+      // handleSelectPosition();
       calcPosition();
-      
-      const findScrollableParent = (element: HTMLElement | null): HTMLElement | Window => {
-        if (!element) return window;
-        let parent = element.parentElement;
-        while (parent) {
-          if (parent === document.body || parent === document.documentElement) return window;
-          const { overflowY, overflowX } = window.getComputedStyle(parent);
-          if (/(auto|scroll)/.test(overflowY + overflowX)) {
-            return parent;
-          }
-          parent = parent.parentElement;
+    }
+  }, [openOptions]);
+
+  useEffect(() => {
+    if (!multiSelect) {
+      if (selectValue !== value) {
+        let valueText = options?.filter(
+          (o: any) => o[optionValue] === value
+        )[0];
+        if (valueText) {
+          valueText = valueText[optionLabel];
         }
-        return window;
-      };
-      const scrollableParent = findScrollableParent(selectRef.current);
-      
-      window.addEventListener("resize", calcPosition);
-      if (scrollableParent !== window) {
-         (scrollableParent as HTMLElement).addEventListener("scroll", calcPosition, true);
+        setSelectValue(valueText);
       }
-      window.addEventListener("scroll", calcPosition, true);
-
-      return () => {
-        window.removeEventListener("resize", calcPosition);
-        if (scrollableParent !== window) {
-          (scrollableParent as HTMLElement).removeEventListener("scroll", calcPosition, true);
-        }
-        window.removeEventListener("scroll", calcPosition, true);
-      };
     }
-  }, [openOptions, calcPosition]);
+  }, [value, selectValue]);
 
-  if (!Array.isArray(options)) return null;
-
-  const handleSelectClickElement = (elementValue: any) => {
-    const option = options.find(opt => opt[optionValue] === elementValue);
-    if (option) {
-        setSelectValue(option[optionLabel] || "");
+  if (!options) return null;
+  let valueText: any = "";
+  if (readOnly) {
+    if (options.filter) {
+      valueText = options.filter((o: any) => o[optionValue] === value)[0];
+      if (valueText) {
+        valueText = valueText[optionLabel];
+      }
     } else {
-        setSelectValue("");
+      valueText = options[value]?.label || "";
     }
+  }
+
+  const handleSelectClickElement = (element: any) => {
+    setSelectValue(element);
     setOpenOptions(false);
-    onChange({ target: { name: name, value: elementValue } });
+    onChange({ target: { name: name, value: element } });
   };
 
-  const handleSelectMultiClickElement = (elementValue: any) => {
-    const currentSelectedValues = Array.isArray(selectValue) ? [...selectValue] : [];
-    const index = currentSelectedValues.indexOf(elementValue);
+  const handleSelectMultiClickElement = (element: any) => {
+    const selectedValues = Array.isArray(selectValue) ? [...selectValue] : [];
+    const index = selectedValues.indexOf(element);
     if (index !== -1) {
-      currentSelectedValues.splice(index, 1);
+      selectedValues.splice(index, 1);
     } else {
-      currentSelectedValues.push(elementValue);
+      selectedValues.push(element);
     }
-    setSelectValue(currentSelectedValues);
-    onChange({ target: { name: name, value: currentSelectedValues } });
+    setSelectValue(selectedValues);
+    onChange({ target: { name: name, value: selectedValues } });
   };
 
-  const handleSelectClickIcon = (e: React.MouseEvent) => {
+  const handleSelectClickIcon = (e: any) => {
     e.stopPropagation();
-    if (!disabled) {
-      setOpenOptions((old) => !old);
-    }
+    setOpenOptions((old: boolean) => !old);
   };
+
+  // const handleSelectPosition = () => {
+  //   // const select = selectRef.current;
+  //   // if (select) {
+  //   //   const top = select.getBoundingClientRect().top;
+  //   //   const bottom = window.innerHeight - select.getBoundingClientRect().bottom;
+  //   //   return top > bottom ? "bottom-full" : "top-full";
+  //   // }
+  //   // return "";
+  // };
 
   const Section = () => {
     const [search, setSearch] = useState("");
-    const [filteredOptions, setFilteredOptions] = useState(options);
-
-     useEffect(() => {
-        setFilteredOptions(options || []);
-    }, [options]);
-
-    const onChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const searchValue = e.target.value;
-      setSearch(searchValue);
-      const normalizedSearchValue = searchValue
+    const [_options, setFilterOptions]: any = useState(options);
+    const normalizeText = (text: string) =>
+      text
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase();
-      const newFilteredOptions = (options || []).filter((option: any) =>
-        (option[optionLabel] || "")
-          .toString()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toUpperCase()
-          .includes(normalizedSearchValue)
+
+    const onChangeSearch = (e: any) => {
+      const searchValue = normalizeText(e.target.value);
+      setSearch(e.target.value);
+
+      const filteredOptions = options.filter((option: any) =>
+        normalizeText(option[optionLabel]).includes(searchValue)
       );
-      setFilteredOptions(newFilteredOptions);
+
+      setFilterOptions(filteredOptions);
     };
 
     useOnClickOutside(
-      panelRef,
-      () => {
+      selectRef1,
+      (e: any) => {
         setOpenOptions(false);
       },
-      null
+      selectRef as any
     );
-
     return (
       <section
-        ref={panelRef}
-        className={`${styles.selectOptions} ${multiSelect ? styles.multiSelectSidePanel : ''} ${selectOptionsClassName}`}
-        style={position ? {
-          top: `${position.top}px`,
-          left: `${position.left}px`,
-          width: `${position.width}px`,
-        } : { display: 'none' }}
+        ref={selectRef1}
+        className={styles.selectOptions + " " + selectOptionsClassName}
+        style={{
+          top: (position?.top || 0) + "px",
+          left: (position?.left || 0) + "px",
+          width: (position?.width || 0) + "px",
+        }}
       >
-        {filter && (
-          <div className={styles.filterInputContainer}>
-            <Input
-              type="text"
-              value={search}
-              onChange={onChangeSearch}
-              name={"search-" + name} // Nombre único para el input de búsqueda
-              placeholder={"Buscar..."}
-            />
-          </div>
-        )}
+        <div className={filter ? "" : "hidden"}>
+          <Input
+            type="text"
+            value={search}
+            onChange={onChangeSearch}
+            name={"search" + name}
+            placeholder={"Buscar..."}
+          />
+        </div>
         <ul>
-          {(filteredOptions || []).map((option: any, key: any) => (
-            <li
-              className={
-                Array.isArray(selectValue)
-                  ? (selectValue as any[]).includes(option[optionValue])
-                    ? styles["selected"]
-                    : ""
-                  : selectValue === (option[optionLabel] || "") 
-                  ? styles["selected"]
-                  : ""
-              }
-              key={"li" + name + (option[optionValue] !== undefined ? option[optionValue] : key)}
-              onClick={
-                !multiSelect
-                  ? (e) => {
-                      handleSelectClickElement(option[optionValue] !== undefined ? option[optionValue] : key);
-                      e.stopPropagation();
-                    }
-                  : (e) => {
-                      handleSelectMultiClickElement(
-                        option[optionValue] !== undefined ? option[optionValue] : key
-                      );
-                      e.stopPropagation();
-                    }
-              }
-            >
-              <div style={{ alignItems: "center", gap: "8px", display: "flex", width: "100%"}}>
-                {option["img"] && (
-                  <Avatar
-                    className={styles.avatar}
-                    name={option[optionLabel] || ""}
-                    src={option["img"]}
-                    h={32}
-                    w={32}
-                  />
-                )}
-                <span style={{ flexGrow: 1 }}>{option[optionLabel] || ""}</span>
-                {multiSelect && (
-                  Array.isArray(selectValue) &&
-                  (selectValue as any[]).includes(option[optionValue]) ? (
-                    <IconCheckSquare size={18} />
-                  ) : (
-                    <IconCheckOff size={18} />
-                  )
-                )}
-              </div>
-            </li>
-          ))}
+          {_options.map
+            ? _options.map((option: any, key: any) => (
+                <li
+                  className={
+                    Array.isArray(selectValue)
+                      ? selectValue.includes(option[optionValue])
+                        ? styles["selected"]
+                        : ""
+                      : selectValue === option[optionValue]
+                      ? styles["selected"]
+                      : ""
+                  }
+                  key={"li" + name + (option[optionValue] || key)}
+                  onClick={
+                    !multiSelect
+                      ? (e) => {
+                          handleSelectClickElement(option[optionValue] || key);
+                          e.stopPropagation();
+                        }
+                      : (e) => {
+                          handleSelectMultiClickElement(
+                            option[optionValue] || key
+                          );
+                          e.stopPropagation();
+                        }
+                  }
+                >
+                  <div style={{ alignItems: "center", gap: "8px" }}>
+                    {option["img"] && (
+                      <Avatar
+                        className={styles.avatar}
+                        name={option[optionLabel] || option.label}
+                        src={option["img"]}
+                        h={32}
+                        w={32}
+                      />
+                    )}
+                    {option[optionLabel] || option.label}
+                    {multiSelect ? (
+                      Array.isArray(selectValue) &&
+                      selectValue.includes(option[optionValue]) ? (
+                        <IconCheckSquare size={18} />
+                      ) : (
+                        <IconCheckOff size={18} />
+                      )
+                    ) : null}
+                  </div>
+                </li>
+              ))
+            : Object.keys(_options).map((key) => (
+                <li
+                  key={"li" + name + key}
+                  onClick={() =>
+                    handleSelectClickElement(
+                      _options[key][optionValue] || _options[key].label
+                    )
+                  }
+                >
+                  {_options[key][optionValue] || _options[key].label}
+                </li>
+              ))}
         </ul>
       </section>
     );
   };
-
-  let displayValueInInput: string = "";
-  if (multiSelect) {
-    displayValueInInput = selectedNames;
-  } else {
-    if (typeof selectValue === 'string' && selectValue) {
-        displayValueInInput = selectValue;
-    } else if (value !== null && value !== undefined && value !== "" && Array.isArray(options) && options.length > 0) {
-        const foundOption = options.find(opt => opt[optionValue] === value);
-        if (foundOption) {
-            displayValueInInput = foundOption[optionLabel] || "";
-        }
-    }
-  }
-
   return (
     <div
       ref={selectRef}
-      className={`${styles.select} ${className}`}
+      className={styles.select + " " + className}
       style={style}
     >
-      <div onClick={handleSelectClickIcon} style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}>
+      <div onClick={disabled ? () => {} : handleSelectClickIcon}>
         <Input
           type={"text"}
-          value={displayValueInInput}
+          value={
+            multiSelect
+              ? selectedNames
+              : options.find
+              ? options.find((i: any) => {
+                  return i[optionValue] == value;
+                })
+                ? options.find((i: any) => {
+                    return i[optionValue] == value;
+                  })[optionLabel]
+                : ""
+              : options[value]?.label
+          }
+          onChange={onChange}
           readOnly={true}
           label={label}
-          name={name} // CORRECCIÓN: Restaurado a 'name' (el nombre original del campo)
-          // onChange={undefined} // CORRECCIÓN: El Input de display no necesita el onChange principal
-          iconRight={<IconArrowDown className={openOptions ? styles.rotate : ""} />}
+          name={name}
+          iconRight={<IconArrowDown className={openOptions ? "rotate" : ""} />}
           placeholder={placeholder}
-          required={required} // La prop 'required' en el Input visual es más para ARIA o estilos.
-                              // La validación real se hace sobre el 'value' del Select.
-          onBlur={onBlur} // Se pasa el onBlur por si el Input interno lo usa para algo.
+          required={required}
+          onBlur={onBlur}
           disabled={disabled}
-          error={error} // Esta prop es la que debería hacer que Input se muestre en rojo.
+          error={error}
           style={inputStyle}
         />
       </div>
-      {openOptions && typeof document !== 'undefined' &&
+      {openOptions &&
         createPortal(
           <Section />,
-          document.getElementById("portal-root") || document.body
+          document.getElementById("portal-root") as any
         )}
     </div>
   );

@@ -180,7 +180,7 @@ const WidgetContentsResume = ({data}:any) => {
   return (
     <WidgetBase variant={'V1'} title={'Comunidad'} >
     <div style={{maxHeight: 800, overflowY: 'auto'}}>
-    {data && data.map((item: any, index: number) => (
+    {data?.length > 0 ? data.map((item: any, index: number) => (
       <div key={item.id}>
       <div className='bottomLine'/>
       <div className={styles.contentContainer}>
@@ -248,7 +248,8 @@ const WidgetContentsResume = ({data}:any) => {
         </section>
     </div>
     </div>
-    ))}
+    )) :<div style={{display:'flex',justifyContent:'center',alignItems:'center',height: 800}}>Aún no hay publicaciones</div>
+  }
     </div>
    </WidgetBase>
   )

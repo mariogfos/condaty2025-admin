@@ -55,7 +55,7 @@ export default function RootLayout({
               }}
             ></div>
             <Layout>{children}</Layout>
-            <ChatInstantDb />
+            {/* <ChatInstantDb /> */}
           </AuthProvider>
         </AxiosInstanceProvider>
       </body>

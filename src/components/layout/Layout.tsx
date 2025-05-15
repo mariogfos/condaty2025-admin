@@ -191,6 +191,7 @@ const Layout = ({ children }: any) => {
         dataID={user?.id}
         titleBack="Volver atras"
         type="admin"
+        del={false}
       />
       <DataModal
         open={onLogout}
