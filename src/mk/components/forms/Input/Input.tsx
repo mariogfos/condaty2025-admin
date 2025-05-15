@@ -46,27 +46,23 @@ const Input = (props: PropsType) => {
   const cursorPositionRef = useRef<number | null>(null);
 
   const formatForDisplayWhileTyping = (val: string | number | undefined): string => {
-    // console.log(`[Input Debug formatWhileTyping] Input: "${val}"`);
-    if (val === undefined || val === null || String(val).trim() === "") {
-      // console.log(`[Input Debug formatWhileTyping] Output: "" (empty/null input)`);
-      return "";
-    }
+    if (val === undefined || val === null || String(val).trim() === "") return "";
     let [integerPart, decimalPart] = String(val).split('.');
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    let result;
     if (decimalPart !== undefined) {
-      result = `${integerPart}.${decimalPart}`;
-    } else {
-      result = integerPart;
+      return `${integerPart}.${decimalPart}`;
     }
-    // console.log(`[Input Debug formatWhileTyping] Output: "${result}"`);
-    return result;
+    return integerPart;
   };
 
   const formatForDisplayOnBlur = (val: string | number | undefined): string => {
     if (val === undefined || val === null) return "";
     const num = parseFloat(String(val).replace(/,/g, ''));
-    if (isNaN(num)) return "";
+    if (isNaN(num)) {
+      // Si es solo un punto o inválido, no mostrar nada o "0.00"
+      if (String(val).trim() === ".") return formatForDisplayOnBlur("0"); // Formatea "0" como "0.00"
+      return ""; // Para otros inválidos, no mostrar nada en el display
+    }
     const parts = num.toFixed(2).split('.');
     const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return `${integerPart}.${parts[1]}`;
@@ -74,25 +70,24 @@ const Input = (props: PropsType) => {
 
   useEffect(() => {
     if (type === "currency") {
-      const currentSanitizedPropValue = String(value || "").replace(/,/g, '');
-      const currentSanitizedDisplayValue = displayValue.replace(/,/g, '');
-
-      // console.log(`[Input Debug useEffect props.value] Trigger. value: "${value}", displayValue: "${displayValue}", rawProp: "${currentSanitizedPropValue}", rawDisplay: "${currentSanitizedDisplayValue}", focused: ${document.activeElement === inputRef.current}`);
+      // console.log(`[Input Debug useEffect props.value] Triggered. props.value: "${value}" (type: ${typeof value}), current displayValue state: "${displayValue}", focused: ${document.activeElement === inputRef.current}`);
+      const rawPropValue = String(value || "").replace(/,/g, '');
+      const newFormattedDisplay = formatForDisplayWhileTyping(value);
 
       if (document.activeElement === inputRef.current) {
-        if (currentSanitizedPropValue !== currentSanitizedDisplayValue) {
-          // console.log(`[Input Debug useEffect props.value FOCUS] Prop value differs. Updating displayValue from prop.`);
-          setDisplayValue(formatForDisplayWhileTyping(value));
-        } else {
-          // console.log(`[Input Debug useEffect props.value FOCUS] Prop value matches display. No change.`);
+        const currentRawDisplayValue = displayValue.replace(/,/g, '');
+        if (rawPropValue !== currentRawDisplayValue) {
+          // console.log(`[Input Debug useEffect props.value FOCUS] Raw prop value ("${rawPropValue}") differs from raw displayValue ("${currentRawDisplayValue}"). Setting displayValue to: "${newFormattedDisplay}" based on props.value: "${value}"`);
+          setDisplayValue(newFormattedDisplay);
         }
       } else {
-        // console.log(`[Input Debug useEffect props.value BLUR/INIT] Updating displayValue from prop.`);
-        setDisplayValue(formatForDisplayWhileTyping(value));
+        if (displayValue !== newFormattedDisplay) {
+          // console.log(`[Input Debug useEffect props.value BLUR/INIT] displayValue ("${displayValue}") differs from newFormattedDisplay ("${newFormattedDisplay}") from props.value. Setting displayValue.`);
+          setDisplayValue(newFormattedDisplay);
+        }
       }
     }
-  // }, [value, type]); // Original dependencies
-  }, [value, type, displayValue]); // Added displayValue to dependencies, comparison is crucial.
+  }, [value, type, displayValue]);
 
 
   useEffect(() => {
@@ -110,7 +105,6 @@ const Input = (props: PropsType) => {
 
   useEffect(() => {
     if (type === "currency" && inputRef.current && cursorPositionRef.current !== null) {
-      // console.log(`[Input Debug useEffect cursor] Setting cursor to: ${cursorPositionRef.current}`);
       inputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
       cursorPositionRef.current = null;
     }
@@ -121,17 +115,27 @@ const Input = (props: PropsType) => {
     const inputValue = e.target.value;
     const originalCursorPos = e.target.selectionStart || 0;
 
-    // console.log(`[Input Debug handleCurrencyChange] Start. inputValue: "${inputValue}", originalCursorPos: ${originalCursorPos}`);
-
     let sanitizedValue = "";
     let hasDecimalPoint = false;
-    let rawCursorPos = 0;
+    let rawCursorPos = 0; 
 
     for (let i = 0; i < inputValue.length; i++) {
       const char = inputValue[i];
       if (char >= '0' && char <= '9') {
-        sanitizedValue += char;
-        if (i < originalCursorPos) rawCursorPos++;
+        // Si ya hay un punto y estamos en la parte decimal, verificar longitud de decimales
+        if (hasDecimalPoint) {
+          const decimalPart = sanitizedValue.split('.')[1] || "";
+          if (decimalPart.length < 2) { // Solo añadir si tenemos menos de 2 decimales
+            sanitizedValue += char;
+            if (i < originalCursorPos) rawCursorPos++;
+          } else {
+            // Si ya hay 2 decimales y se intenta escribir otro dígito decimal,
+            // no añadirlo y ajustar rawCursorPos si es necesario (no debería cambiar si no se añade).
+          }
+        } else { // Parte entera o aún no hay punto
+          sanitizedValue += char;
+          if (i < originalCursorPos) rawCursorPos++;
+        }
       } else if (char === '.' && !hasDecimalPoint) {
         sanitizedValue += char;
         hasDecimalPoint = true;
@@ -141,30 +145,48 @@ const Input = (props: PropsType) => {
     
     if (sanitizedValue.length > 1 && sanitizedValue.startsWith('0') && !sanitizedValue.startsWith('0.')) {
         sanitizedValue = sanitizedValue.substring(1);
-        if (originalCursorPos > 0) rawCursorPos = Math.max(0, rawCursorPos -1);
+        if (originalCursorPos > 0 && rawCursorPos > 0) rawCursorPos = Math.max(0, rawCursorPos -1);
     }
-
-    // console.log(`[Input Debug handleCurrencyChange] Sanitized. sanitizedValue: "${sanitizedValue}", rawCursorPos (in sanitized): ${rawCursorPos}`);
+    
+    // La lógica de truncamiento explícito después del bucle ya no es necesaria si el bucle la maneja.
+    // Si se quiere mantener la lógica de truncamiento post-bucle (por si el bucle no es perfecto):
+    // if (hasDecimalPoint) {
+    //   const parts = sanitizedValue.split('.');
+    //   if (parts[1] && parts[1].length > 2) {
+    //     parts[1] = parts[1].substring(0, 2);
+    //     sanitizedValue = `${parts[0]}.${parts[1]}`;
+    //     // Aquí se necesitaría un ajuste más complejo para rawCursorPos si se trunca así.
+    //     // Es mejor prevenir la entrada de más de 2 decimales en el bucle de arriba.
+    //   }
+    // }
 
     const newDisplayValue = formatForDisplayWhileTyping(sanitizedValue);
-    // console.log(`[Input Debug handleCurrencyChange] Formatted for display. newDisplayValue: "${newDisplayValue}"`);
-    
     setDisplayValue(newDisplayValue);
 
+    // --- Lógica del Cursor (puede necesitar ajustes finos con la restricción de decimales) ---
     let currentRawChars = 0;
-    let newCursorActualPos = 0;
-    for (let i = 0; i < newDisplayValue.length && currentRawChars < rawCursorPos; i++) {
-        newCursorActualPos++;
-        if (newDisplayValue[i] !== ',') {
-            currentRawChars++;
+    let newCursorActualPos = 0; 
+    if (rawCursorPos === 0) {
+        newCursorActualPos = 0;
+    } else if (sanitizedValue.length > 0) { // Asegurarse que sanitizedValue no está vacío
+        for (let i = 0; i < newDisplayValue.length; i++) {
+            if (newDisplayValue[i] !== ',') {
+                currentRawChars++;
+            }
+            if (currentRawChars === rawCursorPos) {
+                newCursorActualPos = i + 1;
+                break;
+            }
+            // Si el bucle termina y no encontramos suficientes rawChars (rawCursorPos > currentRawChars)
+            // o si llegamos al final del newDisplayValue.
+            if (i === newDisplayValue.length - 1) {
+                newCursorActualPos = newDisplayValue.length;
+            }
         }
     }
-    if (currentRawChars < rawCursorPos || (sanitizedValue === "" && originalCursorPos > 0) ){
-         newCursorActualPos = newDisplayValue.length;
-    }
-    if (sanitizedValue === "." && originalCursorPos ===1) newCursorActualPos = 1;
-    
-    // console.log(`[Input Debug handleCurrencyChange] Cursor calculation. newCursorActualPos: ${newCursorActualPos}`);
+    if (sanitizedValue === "" ) newCursorActualPos = 0;
+
+
     cursorPositionRef.current = newCursorActualPos;
 
     const syntheticEvent = {
@@ -175,23 +197,24 @@ const Input = (props: PropsType) => {
         value: sanitizedValue,
       },
     };
-    // console.log(`[Input Debug handleCurrencyChange] Calling onChange with value: "${sanitizedValue}"`);
     onChange(syntheticEvent);
   };
 
   const handleCurrencyBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const currentValue = String(value || "").replace(/,/g, '');
-    // console.log(`[Input Debug handleCurrencyBlur] Start. props.value (raw): "${currentValue}"`);
+    let currentValue = String(value || "").replace(/,/g, '');
+    
+    if (currentValue === "." || (currentValue && isNaN(parseFloat(currentValue))) ) {
+        currentValue = ""; // Tratar un punto solo o no números como vacío para el valor lógico
+    }
 
     const finalDisplayValue = formatForDisplayOnBlur(currentValue);
-    // console.log(`[Input Debug handleCurrencyBlur] Formatted for blur display. finalDisplayValue: "${finalDisplayValue}"`);
     setDisplayValue(finalDisplayValue);
 
     let valueToPropagate = "";
-    if (currentValue && !isNaN(parseFloat(currentValue))) {
+    if (currentValue !== "" && !isNaN(parseFloat(currentValue))) {
         valueToPropagate = parseFloat(currentValue).toFixed(2);
     }
-
+    
     const syntheticEvent = {
       ...e,
       target: {
@@ -200,7 +223,6 @@ const Input = (props: PropsType) => {
         value: valueToPropagate,
       },
     };
-    // console.log(`[Input Debug handleCurrencyBlur] Calling onChange with value: "${valueToPropagate}" and calling onBlur.`);
     onChange(syntheticEvent);
     onBlur(syntheticEvent);
   };
