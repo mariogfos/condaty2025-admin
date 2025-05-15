@@ -1,3 +1,5 @@
+import { formatNumber } from "@/mk/utils/numbers";
+
 const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   const xLabels: any = [];
   let totalRadial = 0;
@@ -13,7 +15,11 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
           labels: {
             show: true,
             value:{
-            color:'var(--cWhite)'
+            color:'var(--cWhite)',
+            formatter: function (val:any) {
+              // return formatNumber(totalRadial) + " Bs";
+              return val!== 0 ? formatNumber(Number(val).toFixed(1)) + " Bs" : "";
+            }
             },
             total: {
               show: true,
@@ -21,7 +27,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
               fontSize: "16px",
               color: "#00E38C",
               formatter: function () {
-                return totalRadial + " Bs";
+                return formatNumber(totalRadial) + " Bs";
               }
             }
           }
