@@ -115,6 +115,22 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
         </div>
         <Br />
+        {item?.type == "F" && (
+          <>
+            <p>Configuración avanzada</p>
+            <div className={styles.containerDetail}>
+              <LabelValue
+                value={invitation?.time_start}
+                label="Hora de inicio"
+              />
+              <LabelValue
+                value={invitation?.time_end}
+                label="Hora de finalización"
+              />
+              <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
+            </div>
+          </>
+        )}
         <div
           style={{
             display: "grid",
