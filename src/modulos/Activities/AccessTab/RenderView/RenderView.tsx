@@ -45,12 +45,16 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   );
   const [openInvitation, setOpenInvitation] = React.useState(false);
   const [openOrders, setOpenOrders] = React.useState(false);
+  const [openQrKey, setOpenQrKey] = React.useState(false);
 
   const openDetailsModal = () => {
     if (item?.type === "P") {
       setOpenOrders(true);
     }
     if (item?.type === "I" || item?.type === "G" || item?.type === "C") {
+      setOpenInvitation(true);
+    }
+    if(item?.type === "O"){
       setOpenInvitation(true);
     }
   };
@@ -89,6 +93,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     status,
     owner,
     accesses,
+    plate,
   } = accessDetail;
   console.log(accessDetail, "accs");
 
@@ -153,20 +158,37 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       >
         <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
         <div className={styles.container}>
-          <section>
-            <Avatar
-              name={getFullName(visit)}
-              src={getUrlImages(
-                "/VISIT-" + visit?.id + ".webp?" + item?.visit?.updated_at
-              )}
-              style={{ marginBottom: "var(--spL)" }}
-            />
-            <div>{getFullName(visit)}</div>
-            <div>
-              C.I. : {item?.visit?.ci}{" "}
-              {item?.plate ? `- Placa: ${item?.plate}` : ""}{" "}
-            </div>
-          </section>
+
+              { item?.type === "O"?   <section>
+                <Avatar
+                  name={getFullName(owner)}
+                  src={getUrlImages(
+                    "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
+                  )}
+                  style={{ marginBottom: "var(--spL)" }}
+                />
+                <div>{getFullName(owner)}</div>
+                <div>
+                  C.I. : {owner?.ci}{" "}
+                  { plate ? `- Placa: ${plate}` : ""}{" "}
+                </div>
+              </section>:
+
+              <section>
+                <Avatar
+                  name={getFullName(visit)}
+                  src={getUrlImages(
+                    "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
+                  )}
+                  style={{ marginBottom: "var(--spL)" }}
+                />
+                <div>{getFullName(visit)}</div>
+                <div>
+                  C.I. : {visit?.ci}{" "}
+                  {plate ? `- Placa: ${plate}` : ""}{" "}
+                </div>
+              </section>
+              }
             
 
           <section >
@@ -189,10 +211,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   ))}
                 </div>
               )}
-              <div className={styles.textsDiv}>
-                <div>Visitó a</div>
-                <div>{getFullName(item?.owner) || "No especificado"}</div>
-              </div>
+           { item?.type !== 'O' &&  
+               <div className={styles.textsDiv}>
+                  <div>Visitó a</div>
+                  <div>{getFullName(item?.owner) || "No especificado"}</div>
+              </div> 
+              }
               <div className={styles.textsDiv}>
                 <div>Guardia de ingreso</div>
                 <div>{getFullName(guardia) || "No especificado"}</div>
@@ -213,10 +237,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <div>Fecha y hora de salida</div>
                 <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
               </div>
-              <div className={styles.textsDiv}>
+
+           {  item?.type !== 'O' &&  
+           <div className={styles.textsDiv}>
                 <div>Carnet de identidad</div>
                 <div>{visit?.ci || "No especificado"}</div>
-              </div>
+              </div> 
+              }
+
               <div className={styles.textsDiv}>
                 <div>Unidad</div>
                 <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
@@ -231,9 +259,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </div>
             </div>
           </section>
+       { item.type !== 'O' &&
           <div onClick={openDetailsModal} className="link" style={{marginTop:'var(--spS)'}}>
             Ver detalles de la invitación
-          </div>
+          </div>}
         </div>
         </LoadingScreen>
       </DataModal>
@@ -251,6 +280,31 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           item={accessDetail}
         />
       )}
+     {openQrKey && (
+      <DataModal
+        open={openQrKey}
+        onClose={() => setOpenQrKey(false)}
+        title="Detalle del acceso"
+        buttonText=""
+        buttonCancel=""
+      >
+        <div className={styles.container}>
+          <Avatar
+            name={getFullName(owner)}
+            src={getUrlImages(
+              "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
+            )}
+            style={{ marginBottom: "var(--spL)" }}
+          />
+          <div>{getFullName(owner)}</div>
+          <div>
+            C.I. : {owner?.ci}{" "}
+            </div>
+        </div>
+      </DataModal>
+      )}
+
+    
     </>
   );
 };

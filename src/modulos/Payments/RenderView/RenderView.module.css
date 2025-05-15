@@ -126,6 +126,10 @@
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
 }
+.statusCanceled {
+  color: var(--cError) !important;
+  font-weight: var(--bSemibold);
+}
 
 .voucherButtonContainer {
   display: flex;
