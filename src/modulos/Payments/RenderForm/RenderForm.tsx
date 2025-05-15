@@ -655,21 +655,11 @@ const RenderForm = ({
                 <div className={styles["input-row"]}>
                   <div className={styles["input-half"]}>
                     <Input
-                      type="text" // Cambiar a text para permitir nuestra validación personalizada
+                      type="currency"
                       name="amount"
                       label="Monto del ingreso"
-                      
                       onChange={(e) => {
-                        // Solo permitir números y limitar a 10 dígitos
-                        const value = e.target.value.replace(/[^0-9]/g, "");
-                        if (value.length <= 10) {
-                          // Solo actualizar si no excede 10 dígitos
-                          const newEvent = {
-                            ...e,
-                            target: { ...e.target, name: "amount", value },
-                          };
-                          handleChangeInput(newEvent);
-                        }
+                        handleChangeInput(e);
                       }}
                       value={
                         _formState.subcategory_id ===
@@ -685,7 +675,7 @@ const RenderForm = ({
                           extraData?.client_config?.cat_expensas &&
                         deudas?.length > 0
                       }
-                      maxLength={10} // Asegurar límite de 10 caracteres
+                      maxLength={20} // Asegurar límite de 10 caracteres
                     />
                   </div>
                   <div className={styles["input-half"]}>
