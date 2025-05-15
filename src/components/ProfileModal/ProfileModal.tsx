@@ -148,6 +148,8 @@ const ProfileModal = ({
         // getAreasM();
         showToast(profileRole+" desvinculado con éxito", "success");
         onClose();
+        reLoad();
+        reLoadDet();
         // setOpenConfirm({ open: false, id: null });
       }
     }
