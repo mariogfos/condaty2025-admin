@@ -6,6 +6,11 @@ import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStrMes } from "@/mk/utils/date";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { getDateTimeStrMes } from "../../../mk/utils/date";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+} from "@/components/layout/icons/IconsBiblioteca";
 
 interface Props {
   item?: any;
@@ -71,6 +76,12 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
     }
     return status;
   };
+  const getAccess = () => {
+    return invitation?.guests?.filter((a: any) => a.status != "A");
+  };
+  const getPending = () => {
+    return invitation?.guests?.filter((a: any) => a.status == "A");
+  };
   return (
     <DataModal
       open={open}
@@ -129,8 +140,15 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               />
               <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
             </div>
+            <Br />
           </>
         )}
+        <p style={{ marginBottom: 12 }}>
+          <span style={{ color: "var(--cWhite)" }}>
+            Asistieron {getAccess().length}
+          </span>
+          /{invitation?.guests?.length}
+        </p>
         <div
           style={{
             display: "grid",
@@ -138,17 +156,58 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             gap: 12,
           }}
         >
-          {invitation?.guests.map((acc: any) => {
+          {getAccess()?.map((acc: any) => {
             return (
               <ItemList
                 variant="V3"
                 key={acc.id}
                 title={getFullName(acc.visit)}
                 left={<Avatar name={getFullName(acc.visit)} />}
-              />
+              >
+                <div style={{ display: "flex", fontSize: 12, marginTop: 8 }}>
+                  <IconArrowRight color="var(--cSuccess)" size={12} />
+                  {getDateTimeStrMes(acc?.access?.in_at)}
+                </div>
+                {acc?.access?.out_at && (
+                  <div style={{ display: "flex", fontSize: 12 }}>
+                    <IconArrowLeft color="var(--cError)" size={12} />
+
+                    {getDateTimeStrMes(acc?.access?.out_at)}
+                  </div>
+                )}
+              </ItemList>
             );
           })}
         </div>
+        <Br />
+        {getPending().length > 0 && (
+          <>
+            <p style={{ marginBottom: 12 }}>
+              <span style={{ color: "var(--cWhite)" }}>
+                No asistieron {getPending().length}
+              </span>
+              /{invitation?.guests?.length}
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 12,
+              }}
+            >
+              {getPending()?.map((acc: any) => {
+                return (
+                  <ItemList
+                    variant="V3"
+                    key={acc.id}
+                    title={getFullName(acc.visit)}
+                    left={<Avatar name={getFullName(acc.visit)} />}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
       </Card>
     </DataModal>
   );
