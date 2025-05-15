@@ -211,13 +211,15 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
           onRender: (props: any) => {
             if (props.item.type === "O") {
               return (
-                <div className={styles.typeIconContainer}>
-                  <div className={styles.iconCircle}>
-                    <IconOwner className={styles.typeIcon} />
-                  </div>
+                <div style={{display:'flex',gap:8}}>
+                  {/* <div className={styles.iconCircle}> */}
+                    <IconOwner  size={48} circle style={{backgroundColor:'var(--cWhiteV1)'}}/>
+                  {/* </div> */}
+                  <div >
                   <span className={styles.typeName}>
                     Llave Virtual QR
                   </span>
+                  </div> 
                 </div>
               );
             }
