@@ -298,6 +298,7 @@ const ProfileModal = ({
       url={url}
       reLoad={reLoadDet}
       reLoadList={reLoad}
+      type={type}
     />
    }
    {openDel && <DataModal

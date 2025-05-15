@@ -21,7 +21,8 @@ const EditProfile = ({
   setErrors,
   url,
   reLoad,
-  reLoadList
+  reLoadList,
+  type
 }:any) => {
     const [preview, setPreview] = useState<string | null>(null);
     const {getUser,showToast} = useAuth();
@@ -111,21 +112,20 @@ const EditProfile = ({
           key: "phone",
           errors: errs,
         });
-        errs = checkRules({
-          value: formState.address,
-          rules: ["required", "min:5"],
-          key: "address",
-          errors: errs,
-        });
+        if (type !== 'homeOwner' && type !== 'owner') {
+          errs = checkRules({
+            value: formState.address,
+            rules: ["required", "min:5"],
+            key: "address",
+            errors: errs,
+          });
+        }
         setErrors(errs);
         return errs;
       }
 
       const onSave = async() => {
-        console.log(errors,'errrr')
          if(hasErrors(validate())) return;
-        // Aquí puedes enviar los datos al servidor
-        console.log('finish him');
         const newUser = {
           ci: formState.ci,
           name: formState.name,
@@ -134,7 +134,7 @@ const EditProfile = ({
           mother_last_name: formState.mother_last_name,
           phone: formState.phone,
           avatar: formState.avatar,
-          address: formState.address,
+          ...(type !== 'homeOwner' && type !== 'owner' ? { address: formState.address } : {})
         };
         const { data, error: err } = await execute(
           url+"/" + formState.id,
@@ -143,12 +143,10 @@ const EditProfile = ({
         );
     
         if (data?.success) {
-          // getUser();
           showToast("Perfil actualizado exitosamente", "success");
           reLoad();
           reLoadList();
           onClose();
-          // setOpenProfileModal(false);
         } else {
           console.error("error:", err);
           setErrors(err.data?.errors);
@@ -243,14 +241,16 @@ const EditProfile = ({
         error={errors}
         />
         </div>
-        <Input
+        {type !== 'homeOwner' && type !== 'owner' && (
+          <Input
             label="Dirección"
             name="address"
             type="text"
             value={formState.address}
             onChange={onChange}
             error={errors}
-            />
+          />
+        )}
        <div>
          <div>
           <Button onClick={onClose} style={{width:100}}variant='secondary'>Cancelar</Button>
