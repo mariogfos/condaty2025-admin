@@ -82,6 +82,29 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const getPending = () => {
     return invitation?.guests?.filter((a: any) => a.status == "A");
   };
+  function parseWeekDays(binaryNumber: number): string[] {
+    const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+    const result: string[] = [];
+
+    for (let i = 0; i < 7; i++) {
+      if (binaryNumber & (1 << i)) {
+        result.push(diasSemana[i]);
+      }
+    }
+    return result;
+  }
+
+  type AccessTextProps = {
+    text: string;
+    textV2: string;
+  };
+  const AccessText = ({ text, textV2 }: AccessTextProps) => {
+    return (
+      <p style={{ marginBottom: 12 }}>
+        <span style={{ color: "var(--cWhite)" }}>{text}</span>/{textV2}
+      </p>
+    );
+  };
   return (
     <DataModal
       open={open}
@@ -109,7 +132,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         <Br />
         <div className={styles.containerDetail}>
           <LabelValue
-            value={typeInvitation[item?.type]}
+            value={
+              typeInvitation[
+                item?.type == "I" && invitation?.is_frequent == "Y"
+                  ? "F"
+                  : item?.type
+              ]
+            }
             label="Tipo de invitación"
           />
           <LabelValue label="Estado" value={getStatus()} />
@@ -119,75 +148,143 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           <LabelValue label="Invitado" value={getFullName(visit)} />
           {item?.type != "C" && (
             <LabelValue
-              value={getDateStrMes(invitation?.date_event)}
-              label="Fecha de invitación"
+              value={
+                invitation?.is_frequent == "Y"
+                  ? getDateStrMes(invitation?.start_date) +
+                    "  " +
+                    getDateStrMes(invitation?.end_date)
+                  : getDateStrMes(invitation?.date_event)
+              }
+              label={
+                invitation?.is_frequent == "Y"
+                  ? "Periodo de validez"
+                  : "Fecha de invitación"
+              }
             />
           )}
           <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
         </div>
         <Br />
-        {item?.type == "F" && (
+        {invitation?.is_frequent == "Y" && invitation?.weekday && (
           <>
-            <p>Configuración avanzada</p>
+            <p
+              style={{
+                color: "var(--cWhite)",
+                marginBottom: 12,
+                fontWeight: "bold",
+              }}
+            >
+              Configuración avanzada
+            </p>
             <div className={styles.containerDetail}>
               <LabelValue
-                value={invitation?.time_start}
-                label="Hora de inicio"
+                value={parseWeekDays(invitation?.weekday).toString()}
+                label="Días de acceso"
               />
               <LabelValue
-                value={invitation?.time_end}
-                label="Hora de finalización"
+                value={
+                  invitation?.start_time.slice(0, 5) +
+                  " - " +
+                  invitation?.end_time.slice(0, 5)
+                }
+                label="Horario permitido"
               />
-              <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
+              <LabelValue
+                value={invitation?.max_entries || "-/-"}
+                label="Cantidad"
+              />
             </div>
             <Br />
           </>
         )}
-        <p style={{ marginBottom: 12 }}>
-          <span style={{ color: "var(--cWhite)" }}>
-            Asistieron {getAccess().length}
-          </span>
-          /{invitation?.guests?.length}
-        </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: 12,
-          }}
-        >
-          {getAccess()?.map((acc: any) => {
-            return (
-              <ItemList
-                variant="V3"
-                key={acc.id}
-                title={getFullName(acc.visit)}
-                left={<Avatar name={getFullName(acc.visit)} />}
-              >
-                <div style={{ display: "flex", fontSize: 12, marginTop: 8 }}>
-                  <IconArrowRight color="var(--cSuccess)" size={12} />
-                  {getDateTimeStrMes(acc?.access?.in_at)}
-                </div>
-                {acc?.access?.out_at && (
-                  <div style={{ display: "flex", fontSize: 12 }}>
-                    <IconArrowLeft color="var(--cError)" size={12} />
+        {invitation?.is_frequent == "Y" && (
+          <>
+            <AccessText
+              text={"Accessos " + invitation?.access.length}
+              textV2={invitation?.max_entries}
+            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 12,
+              }}
+            >
+              {invitation?.access?.map((acc: any) => {
+                return (
+                  <ItemList
+                    variant="V3"
+                    key={acc.id}
+                    title={getFullName(visit)}
+                    left={<Avatar name={getFullName(visit)} />}
+                  >
+                    <div
+                      style={{ display: "flex", fontSize: 12, marginTop: 8 }}
+                    >
+                      <IconArrowRight color="var(--cSuccess)" size={12} />
+                      {getDateTimeStrMes(acc?.in_at)}
+                    </div>
+                    {acc?.out_at && (
+                      <div style={{ display: "flex", fontSize: 12 }}>
+                        <IconArrowLeft color="var(--cError)" size={12} />
+                        {getDateTimeStrMes(acc?.out_at)}
+                      </div>
+                    )}
+                  </ItemList>
+                );
+              })}
+            </div>
+            <Br />
+          </>
+        )}
 
-                    {getDateTimeStrMes(acc?.access?.out_at)}
-                  </div>
-                )}
-              </ItemList>
-            );
-          })}
-        </div>
-        <Br />
+        {item?.type == "G" && (
+          <>
+            <AccessText
+              text={"Asistieron " + getAccess().length}
+              textV2={invitation?.guests?.length}
+            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 12,
+              }}
+            >
+              {getAccess()?.map((acc: any) => {
+                return (
+                  <ItemList
+                    variant="V3"
+                    key={acc.id}
+                    title={getFullName(acc.visit)}
+                    left={<Avatar name={getFullName(acc.visit)} />}
+                  >
+                    <div
+                      style={{ display: "flex", fontSize: 12, marginTop: 8 }}
+                    >
+                      <IconArrowRight color="var(--cSuccess)" size={12} />
+                      {getDateTimeStrMes(acc?.access?.in_at)}
+                    </div>
+                    {acc?.access?.out_at && (
+                      <div style={{ display: "flex", fontSize: 12 }}>
+                        <IconArrowLeft color="var(--cError)" size={12} />
+
+                        {getDateTimeStrMes(acc?.access?.out_at)}
+                      </div>
+                    )}
+                  </ItemList>
+                );
+              })}
+            </div>
+            <Br />
+          </>
+        )}
         {getPending().length > 0 && (
           <>
-            <p style={{ marginBottom: 12 }}>
-              <span style={{ color: "var(--cWhite)" }}>
-                No asistieron {getPending().length}
-              </span>
-              /{invitation?.guests?.length}
-            </p>
+            <AccessText
+              text={"No asistieron " + getPending().length}
+              textV2={invitation?.guests?.length}
+            />
             <div
               style={{
                 display: "grid",
@@ -206,6 +303,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 );
               })}
             </div>
+            <Br />
           </>
         )}
       </Card>
