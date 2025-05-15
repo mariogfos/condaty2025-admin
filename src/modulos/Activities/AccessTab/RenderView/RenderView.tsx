@@ -45,7 +45,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   );
   const [openInvitation, setOpenInvitation] = React.useState(false);
   const [openOrders, setOpenOrders] = React.useState(false);
-  const [openQrKey, setOpenQrKey] = React.useState(false);
+  // const [openQrKey, setOpenQrKey] = React.useState(false);
 
   const openDetailsModal = () => {
     if (item?.type === "P") {
@@ -134,9 +134,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
 
   //   return typeMap[item?.type] || "Acceso";
   // };
-  const getTypeAccess = (type: string, order: any) => {
+  const getTypeAccess = (type: string, param: any) => {
     if (type === "P") {
-      return "Pedido:" + order?.other?.other_type?.name;
+      return "Pedido:" + param?.other?.other_type?.name;
+    }
+    if(type === "I" &&  param?.invitation?.is_frequent === "Y"){
+      return "Qr Frecuente"
     }
     return typeMap[type];
   };
@@ -280,31 +283,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           item={accessDetail}
         />
       )}
-     {openQrKey && (
-      <DataModal
-        open={openQrKey}
-        onClose={() => setOpenQrKey(false)}
-        title="Detalle del acceso"
-        buttonText=""
-        buttonCancel=""
-      >
-        <div className={styles.container}>
-          <Avatar
-            name={getFullName(owner)}
-            src={getUrlImages(
-              "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
-            )}
-            style={{ marginBottom: "var(--spL)" }}
-          />
-          <div>{getFullName(owner)}</div>
-          <div>
-            C.I. : {owner?.ci}{" "}
-            </div>
-        </div>
-      </DataModal>
-      )}
-
-    
     </>
   );
 };

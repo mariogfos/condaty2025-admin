@@ -160,9 +160,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   // }
 
 
-  const getTypeAccess = (type: string,order:any) => {
+  const getTypeAccess = (type: string,param:any) => {
     if(type === "P"){
-      return "Pedido:" + order?.other?.other_type?.name
+      return "Pedido:" + param?.other?.other_type?.name
+    }
+    if(type === "I" &&  param?.invitation?.is_frequent === "Y"){
+      return "Qr Frecuente"
     }
     return typeMap[type];
   }
@@ -243,7 +246,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                               {getFullName(props.item.visit)}
                             </div>
                             <div>
-                              {getTypeAccess(props?.item?.type,props?.item)}
+                              { getTypeAccess(props?.item?.type,props?.item)}
                             </div>
                         </div>
                 </div>
