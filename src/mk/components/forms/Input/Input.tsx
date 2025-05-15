@@ -15,7 +15,7 @@ interface PropsType extends PropsTypeInputBase {
     | "file"
     | "search"
     | "checkbox"
-    | "currency"; // Tipo "currency" para formato con comas y puntos
+    | "currency";
   min?: number;
   max?: number;
 }
@@ -32,8 +32,8 @@ const Input = (props: PropsType) => {
     readOnly = false,
     className = "",
     style = {},
-    onBlur = (e: any) => {}, 
-    onFocus = (e: any) => {}, 
+    onBlur = (e: any) => {},
+    onFocus = (e: any) => {},
     onKeyDown = (e: any) => {},
     checked = false,
     maxLength,
@@ -41,194 +41,171 @@ const Input = (props: PropsType) => {
     max,
   } = props;
 
-  // Estado para manejar el valor formateado para el tipo "currency"
-  const [formattedValue, setFormattedValue] = useState("");
-  // Referencia para la posición del cursor
+  const [displayValue, setDisplayValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number | null>(null);
-  
-  // Función para formatear números mientras se escribe
-  // Esta función conserva los decimales solo si se ingresaron
-  // Usa COMA para miles y PUNTO para decimales
-  const formatCurrencyInput = (inputValue: string) => {
-    // Si está vacío, devolver vacío
-    if (!inputValue) return "";
-    
-    // Quitamos todas las comas y convertimos puntos en comas para poder procesar
-    let cleanValue = inputValue.replace(/,/g, '');
-    
-    // Si hay un punto, separamos en parte entera y decimal
-    let hasDecimal = cleanValue.includes('.');
-    let wholePart = hasDecimal ? cleanValue.split('.')[0] : cleanValue;
-    let decimalPart = hasDecimal ? cleanValue.split('.')[1] : '';
-    
-    // Si la parte entera está vacía, usamos 0
-    if (wholePart === '') wholePart = '0';
-    
-    // Formateamos la parte entera con comas para miles
-    let formattedWhole = '';
-    for (let i = wholePart.length - 1, count = 0; i >= 0; i--, count++) {
-      if (count > 0 && count % 3 === 0) {
-        formattedWhole = ',' + formattedWhole;
-      }
-      formattedWhole = wholePart[i] + formattedWhole;
+
+  const formatForDisplayWhileTyping = (val: string | number | undefined): string => {
+    // console.log(`[Input Debug formatWhileTyping] Input: "${val}"`);
+    if (val === undefined || val === null || String(val).trim() === "") {
+      // console.log(`[Input Debug formatWhileTyping] Output: "" (empty/null input)`);
+      return "";
     }
-    
-    // Reconstruimos el valor con decimal solo si se ingresó
-    return hasDecimal ? formattedWhole + '.' + decimalPart : formattedWhole;
-  };
-  
-  // Función para formatear al perder el foco (agrega 2 decimales)
-  // Usa COMA para miles y PUNTO para decimales
-  const formatCurrencyBlur = (value: any) => {
-    if (!value && value !== 0) return "";
-    
-    // Si es string, necesitamos convertirlo a número
-    let numValue: number;
-    if (typeof value === 'string') {
-      // Quitamos comas y usamos el punto para decimales para convertir
-      const cleanValue = value.replace(/,/g, '');
-      numValue = parseFloat(cleanValue);
+    let [integerPart, decimalPart] = String(val).split('.');
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    let result;
+    if (decimalPart !== undefined) {
+      result = `${integerPart}.${decimalPart}`;
     } else {
-      numValue = parseFloat(String(value));
+      result = integerPart;
     }
-    
-    if (isNaN(numValue)) return "";
-    
-    // Formateamos con 2 decimales fijos al perder el foco
-    // y usando coma para miles y punto para decimales
-    const parts = numValue.toFixed(2).split('.');
-    const wholePart = parts[0];
-    const decimalPart = parts[1] || '00';
-    
-    // Formato de miles con coma
-    let formattedWhole = '';
-    for (let i = wholePart.length - 1, count = 0; i >= 0; i--, count++) {
-      if (count > 0 && count % 3 === 0) {
-        formattedWhole = ',' + formattedWhole;
-      }
-      formattedWhole = wholePart[i] + formattedWhole;
-    }
-    
-    return formattedWhole + '.' + decimalPart;
+    // console.log(`[Input Debug formatWhileTyping] Output: "${result}"`);
+    return result;
   };
 
-  // Actualizar el valor formateado cuando cambia el prop value
+  const formatForDisplayOnBlur = (val: string | number | undefined): string => {
+    if (val === undefined || val === null) return "";
+    const num = parseFloat(String(val).replace(/,/g, ''));
+    if (isNaN(num)) return "";
+    const parts = num.toFixed(2).split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return `${integerPart}.${parts[1]}`;
+  };
+
   useEffect(() => {
-    if (type === "currency" && value !== undefined) {
-      // Si no tenemos un valor formateado manualmente, formateamos el valor del prop
-      if (!formattedValue || cursorPositionRef.current === null) {
-        // Cuando recibimos el valor inicial o cambia externamente, formateamos con decimales
-        setFormattedValue(formatCurrencyBlur(value));
+    if (type === "currency") {
+      const currentSanitizedPropValue = String(value || "").replace(/,/g, '');
+      const currentSanitizedDisplayValue = displayValue.replace(/,/g, '');
+
+      // console.log(`[Input Debug useEffect props.value] Trigger. value: "${value}", displayValue: "${displayValue}", rawProp: "${currentSanitizedPropValue}", rawDisplay: "${currentSanitizedDisplayValue}", focused: ${document.activeElement === inputRef.current}`);
+
+      if (document.activeElement === inputRef.current) {
+        if (currentSanitizedPropValue !== currentSanitizedDisplayValue) {
+          // console.log(`[Input Debug useEffect props.value FOCUS] Prop value differs. Updating displayValue from prop.`);
+          setDisplayValue(formatForDisplayWhileTyping(value));
+        } else {
+          // console.log(`[Input Debug useEffect props.value FOCUS] Prop value matches display. No change.`);
+        }
+      } else {
+        // console.log(`[Input Debug useEffect props.value BLUR/INIT] Updating displayValue from prop.`);
+        setDisplayValue(formatForDisplayWhileTyping(value));
       }
     }
-  }, [value, type, formattedValue]);
+  // }, [value, type]); // Original dependencies
+  }, [value, type, displayValue]); // Added displayValue to dependencies, comparison is crucial.
 
-  const inputRef: any = useRef(null);
 
-  // CONTROLAR EL SCROLL DEL INPUT NUMBER
   useEffect(() => {
-    const handleWheel = (e: any) => {
-      if (inputRef.current && inputRef.current.type === "number") {
+    const currentInput = inputRef.current;
+    const handleWheel = (e: WheelEvent) => {
+      if (currentInput && currentInput.type === "number" && document.activeElement === currentInput) {
         e.preventDefault();
       }
     };
-
-    inputRef.current?.addEventListener("wheel", handleWheel, {
-      passive: false,
-    });
-
+    currentInput?.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
-      inputRef.current?.removeEventListener("wheel", handleWheel);
+      currentInput?.removeEventListener("wheel", handleWheel);
     };
   }, []);
 
-  // Después de actualizar el valor formateado, restauramos la posición del cursor
   useEffect(() => {
     if (type === "currency" && inputRef.current && cursorPositionRef.current !== null) {
-      // Restaurar posición del cursor después de formatear
+      // console.log(`[Input Debug useEffect cursor] Setting cursor to: ${cursorPositionRef.current}`);
       inputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
-      // Restablecer la referencia
       cursorPositionRef.current = null;
     }
-  }, [formattedValue, type]);
+  }, [displayValue, type]);
 
-  // Manejador para input de tipo "currency"
-  const handleCurrencyChange = (e: any) => {
+
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    const input = e.target;
-    
-    // Permitir solo dígitos, comas (miles) y puntos (decimales)
-    if (!/^[0-9.,]*$/.test(inputValue)) {
-      return;
+    const originalCursorPos = e.target.selectionStart || 0;
+
+    // console.log(`[Input Debug handleCurrencyChange] Start. inputValue: "${inputValue}", originalCursorPos: ${originalCursorPos}`);
+
+    let sanitizedValue = "";
+    let hasDecimalPoint = false;
+    let rawCursorPos = 0;
+
+    for (let i = 0; i < inputValue.length; i++) {
+      const char = inputValue[i];
+      if (char >= '0' && char <= '9') {
+        sanitizedValue += char;
+        if (i < originalCursorPos) rawCursorPos++;
+      } else if (char === '.' && !hasDecimalPoint) {
+        sanitizedValue += char;
+        hasDecimalPoint = true;
+        if (i < originalCursorPos) rawCursorPos++;
+      }
     }
     
-    // Guardar la posición del cursor antes de formatear
-    const cursorPos = input.selectionStart;
+    if (sanitizedValue.length > 1 && sanitizedValue.startsWith('0') && !sanitizedValue.startsWith('0.')) {
+        sanitizedValue = sanitizedValue.substring(1);
+        if (originalCursorPos > 0) rawCursorPos = Math.max(0, rawCursorPos -1);
+    }
+
+    // console.log(`[Input Debug handleCurrencyChange] Sanitized. sanitizedValue: "${sanitizedValue}", rawCursorPos (in sanitized): ${rawCursorPos}`);
+
+    const newDisplayValue = formatForDisplayWhileTyping(sanitizedValue);
+    // console.log(`[Input Debug handleCurrencyChange] Formatted for display. newDisplayValue: "${newDisplayValue}"`);
     
-    // Contar cuántos caracteres hay antes del cursor
-    const valueBeforeCursor = inputValue.substring(0, cursorPos);
-    const commaCountBeforeCursor = (valueBeforeCursor.match(/,/g) || []).length;
+    setDisplayValue(newDisplayValue);
+
+    let currentRawChars = 0;
+    let newCursorActualPos = 0;
+    for (let i = 0; i < newDisplayValue.length && currentRawChars < rawCursorPos; i++) {
+        newCursorActualPos++;
+        if (newDisplayValue[i] !== ',') {
+            currentRawChars++;
+        }
+    }
+    if (currentRawChars < rawCursorPos || (sanitizedValue === "" && originalCursorPos > 0) ){
+         newCursorActualPos = newDisplayValue.length;
+    }
+    if (sanitizedValue === "." && originalCursorPos ===1) newCursorActualPos = 1;
     
-    // Formatear el valor mientras se escribe
-    const newFormattedValue = formatCurrencyInput(inputValue);
-    setFormattedValue(newFormattedValue);
-    
-    // Calcular la nueva posición del cursor después de formatear
-    // Esto evita que el cursor salte al final después de formatear
-    setTimeout(() => {
-      if (inputRef.current) {
-        const newValueBeforeCursor = newFormattedValue.substring(0, cursorPos + 1);
-        const newCommaCountBeforeCursor = (newValueBeforeCursor.match(/,/g) || []).length;
-        const commaDifference = newCommaCountBeforeCursor - commaCountBeforeCursor;
-        
-        const newCursorPos = cursorPos + commaDifference;
-        cursorPositionRef.current = newCursorPos;
-        inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
-      }
-    }, 0);
-    
-    // Eliminar comas y usar el punto para decimales para convertir a número
-    const numericString = inputValue.replace(/,/g, '');
-    const numericValue = parseFloat(numericString);
-    
-    // Crear un evento sintético para mantener la compatibilidad con el onChange original
+    // console.log(`[Input Debug handleCurrencyChange] Cursor calculation. newCursorActualPos: ${newCursorActualPos}`);
+    cursorPositionRef.current = newCursorActualPos;
+
     const syntheticEvent = {
       ...e,
       target: {
         ...e.target,
         name: name,
-        value: isNaN(numericValue) ? '' : numericValue
-      }
+        value: sanitizedValue,
+      },
     };
-    
-    // Llamar al onChange original con el valor numérico
+    // console.log(`[Input Debug handleCurrencyChange] Calling onChange with value: "${sanitizedValue}"`);
     onChange(syntheticEvent);
   };
 
-  // Manejador para cuando el input "currency" pierde el foco
-  const handleCurrencyBlur = (e: any) => {
-    if (type === "currency" && value !== undefined && value !== '') {
-      // Al perder el foco, formateamos con 2 decimales siempre
-      setFormattedValue(formatCurrencyBlur(value));
+  const handleCurrencyBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const currentValue = String(value || "").replace(/,/g, '');
+    // console.log(`[Input Debug handleCurrencyBlur] Start. props.value (raw): "${currentValue}"`);
+
+    const finalDisplayValue = formatForDisplayOnBlur(currentValue);
+    // console.log(`[Input Debug handleCurrencyBlur] Formatted for blur display. finalDisplayValue: "${finalDisplayValue}"`);
+    setDisplayValue(finalDisplayValue);
+
+    let valueToPropagate = "";
+    if (currentValue && !isNaN(parseFloat(currentValue))) {
+        valueToPropagate = parseFloat(currentValue).toFixed(2);
     }
-    onBlur(e);
-  };
-  
-  // Manejador para cuando el input "currency" obtiene el foco
-  const handleCurrencyFocus = (e: any) => {
-    // Podríamos implementar una lógica específica cuando obtiene el foco si es necesario
-    onFocus(e);
+
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        name: name,
+        value: valueToPropagate,
+      },
+    };
+    // console.log(`[Input Debug handleCurrencyBlur] Calling onChange with value: "${valueToPropagate}" and calling onBlur.`);
+    onChange(syntheticEvent);
+    onBlur(syntheticEvent);
   };
 
-  // Determinar qué manejadores usar según el tipo
-  const handleChange = type === "currency" ? handleCurrencyChange : onChange;
-  const handleFocusEvent = type === "currency" ? handleCurrencyFocus : onFocus;
-  const handleBlurEvent = type === "currency" ? handleCurrencyBlur : onBlur;
-  
-  // Determinar qué valor mostrar según el tipo
-  const displayValue = type === "currency" ? formattedValue : (value || "");
-  
-  // Para el tipo "currency", usamos "text" internamente
+  const currentDisplayValue = type === "currency" ? displayValue : (value || "");
   const inputType = type === "currency" ? "text" : type;
 
   return (
@@ -238,11 +215,11 @@ const Input = (props: PropsType) => {
         type={inputType}
         ref={inputRef}
         placeholder={placeholder}
-        onChange={handleChange}
-        onFocus={handleFocusEvent}
-        onBlur={handleBlurEvent}
+        onChange={type === "currency" ? handleCurrencyChange : onChange}
+        onFocus={onFocus}
+        onBlur={type === "currency" ? handleCurrencyBlur : onBlur}
         name={name}
-        value={displayValue}
+        value={currentDisplayValue}
         onKeyDown={onKeyDown}
         readOnly={readOnly}
         disabled={disabled}
@@ -251,7 +228,7 @@ const Input = (props: PropsType) => {
         aria-autocomplete="none"
         autoComplete="new-password"
         checked={checked}
-        maxLength={maxLength || 255}
+        maxLength={maxLength || (type === "currency" ? 50 : 255)}
         min={min}
         max={max}
       />

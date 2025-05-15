@@ -114,13 +114,6 @@ const RenderForm = ({
   const handleChangeInput = useCallback((e) => {
     const { name, value, type } = e.target;
 
-    if (name === "amount") {
-      const numericValue = value.replace(/[^0-9]/g, '');
-      if (numericValue.length > 10) return;
-      _setFormState(prev => ({ ...prev, [name]: numericValue }));
-      return;
-    }
-
     const newValue = type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
 
     if (name === "category_id") {
@@ -342,7 +335,7 @@ const RenderForm = ({
                 <div className={styles.section}>
                   <div className={styles["input-container"]}>
                     <Input
-                      type="text"
+                      type="currency"
                       name="amount"
                       label="Monto del pago"
                       
@@ -350,7 +343,7 @@ const RenderForm = ({
                       onChange={handleChangeInput}
                       error={_errors}
                       required
-                      maxLength={10}
+                      maxLength={20}
                       className={_errors.amount ? styles.error : ""}
                     />
                   </div>
