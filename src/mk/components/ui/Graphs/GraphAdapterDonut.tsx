@@ -12,6 +12,9 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
           size: "50%",
           labels: {
             show: true,
+            value:{
+            color:'var(--cWhite)'
+            },
             total: {
               show: true,
               label: options?.centerText || "Total",
