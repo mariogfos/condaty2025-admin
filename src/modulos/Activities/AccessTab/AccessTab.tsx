@@ -215,10 +215,10 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                   {/* <div className={styles.iconCircle}> */}
                     <IconOwner  size={48} circle style={{backgroundColor:'var(--cWhiteV1)'}}/>
                   {/* </div> */}
-                  <div >
-                  <span className={styles.typeName}>
-                    Llave Virtual QR
-                  </span>
+                  <div className={styles.avatarText}>
+                      <div className={styles.typeName}>
+                        Llave Virtual QR
+                      </div>
                   </div> 
                 </div>
               );
@@ -239,7 +239,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                       />
                       {/* </div> */}  
                         <div className={styles.avatarText}>
-                            <div className={styles.typeName}>
+                            <div style={{color:'var(--cWhite)'}}>
                               {getFullName(props.item.visit)}
                             </div>
                             <div>
