@@ -9,7 +9,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
-import { getDateDesdeHasta } from "@/mk/utils/date";
+import { getDateDesdeHasta, getDateStrMes } from "@/mk/utils/date";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
@@ -124,7 +124,7 @@ const Outlays = () => {
   ];
 
   const getCategoryOptions = () => [
-    { id: "", name: "Todos" },
+    { id: "ALL", name: "Todos" },
     // Aquí se podrían agregar dinámicamente las categorías desde extraData
   ];
 
@@ -142,7 +142,11 @@ const Outlays = () => {
         api: "ae",
         label: "Fecha",
         form: { type: "date" },
-        list: {},
+        list: {
+          onRender: (props: any) => {
+            return getDateStrMes(props.item.date_at);
+          },
+        },
         filter: {
           label: "Periodo",
           width: "150px",
