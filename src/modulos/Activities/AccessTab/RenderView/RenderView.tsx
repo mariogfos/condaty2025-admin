@@ -226,7 +226,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </div>
               <div className={styles.textsDiv}>
                 <div>Observación de entrada</div>
-                <div>{obs_in || "Sin observaciones"}</div>
+                <div>{obs_in || "-/-"}</div>
               </div>
             </div>
 
@@ -258,7 +258,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </div>
               <div className={styles.textsDiv}>
                 <div>Observación de salida</div>
-                <div>{obs_out || "Sin observaciones"}</div>
+                <div>{obs_out || "-/-"}</div>
               </div>
             </div>
           </section>

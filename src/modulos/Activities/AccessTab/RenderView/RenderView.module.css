@@ -24,7 +24,8 @@
       /* background-color: #48bb78; */
       border-bottom: 1px solid var(--cWhiteV1);
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
+      gap: 32px;
       flex-direction: row;
       align-items: flex-start;
       & > div > div{
