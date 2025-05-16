@@ -310,3 +310,52 @@
     width: 100%;
   }
 }
+
+.preRegistroListContainer {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.preRegistroItem {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--darkv1);
+  border-radius: 0.5rem;
+  border: 1px solid var(--cBorderTransparent);
+}
+
+.preRegistroItem:last-child {
+  margin-bottom: 0;
+}
+
+.preRegistroItem .itemRow {
+  margin: 0;
+  padding: 0;
+}
+
+.legendContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legendItem span {
+  color: var(--cWhite);
+  font-size: 14px;
+}

@@ -110,8 +110,8 @@ const WidgetGraphResume = ({
   }, [ingresos, egresos, saldoInicial]);
 
   // const formattedDate =`Al ${getFormattedDate(currentDate)}`
-  const today = getNow();
-  const formattedTodayDate = getDateStrMes(today);
+  const today = new Date();
+  const formattedTodayDate = today.getFullYear();
   return (
     <div className={styles.widgetGraphResume + " " + className}>
       <WidgetBase className={styles.widgetBase}>
@@ -121,7 +121,7 @@ const WidgetGraphResume = ({
           </p>
           <p className={styles.subtitle}>
             {subtitle ||
-              `Este es un resumen general de ${formattedTodayDate}`}
+              `Este es un resumen general del año ${formattedTodayDate}`}
           </p>
         </section>
         <GraphBase
@@ -140,6 +140,28 @@ const WidgetGraphResume = ({
             colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
           }}
         />
+        <div className={styles.legendContainer}>
+          <div className={styles.legendItem}>
+            <div className={styles.legendColor} style={{ backgroundColor: '#FFD700' }}></div>
+            <span className={styles.legendLabel}>Saldo Inicial</span>
+            <span className={styles.legendValue}>Bs {formatNumber(saldoInicial || 0)}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <div className={styles.legendColor} style={{ backgroundColor: '#00E38C' }}></div>
+            <span className={styles.legendLabel}>Ingresos</span>
+            <span className={styles.legendValue}>Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <div className={styles.legendColor} style={{ backgroundColor: '#FF5B4D' }}></div>
+            <span className={styles.legendLabel}>Egresos</span>
+            <span className={styles.legendValue}>Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}</span>
+          </div>
+          <div className={styles.legendItem}>
+            <div className={styles.legendColor} style={{ backgroundColor: '#4C98DF' }}></div>
+            <span className={styles.legendLabel}>Saldo Acumulado</span>
+            <span className={styles.legendValue}>Bs {formatNumber(balance.saldos.filter(val => val !== 0).pop() || 0)}</span>
+          </div>
+        </div>
       </WidgetBase>
     </div>
   );
