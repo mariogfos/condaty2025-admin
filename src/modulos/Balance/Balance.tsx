@@ -441,8 +441,8 @@ const getGestionAnio = (filterDateValue: string) => {
                     ingresos={finanzas?.data?.ingresosHist}
                     egresos={finanzas?.data?.egresosHist}
                     chartTypes={[charType.filter_charType as ChartType]}
-                    subtitle={`Total de saldo acumulado, ${getGestionAnio(formStateFilter.filter_date)}`} 
-                    title={`Bs ${formatNumber(finanzas?.data?.saldoInicial || 0)}`}
+                    subtitle={`Total de saldo inicial: ${formatNumber(finanzas?.data?.saldoInicial)}`}
+                    title={`Bs ${formatNumber(finanzas?.data?.saldoInicial)}`}
                     periodo={formStateFilter?.filter_date}
                   />
                 </div>
@@ -531,7 +531,11 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date === "ly" ||
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
-                  selectcategorias={formStateFilter.filter_categ}
+                  selectcategorias={
+                    typeof formStateFilter.filter_categ === 'string'
+                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                      : formStateFilter.filter_categ // Si ya es array, lo usa
+                  }
                 />
               </>
             )}
@@ -569,7 +573,11 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date === "ly" ||
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
-                  selectcategorias={formStateFilter.filter_categ}
+                  selectcategorias={
+                    typeof formStateFilter.filter_categ === 'string'
+                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                      : formStateFilter.filter_categ // Si ya es array, lo usa
+                  }
                 />
               </>
             )}
