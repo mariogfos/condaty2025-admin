@@ -71,6 +71,7 @@ const GraphsAdapter = ({
     },
 
     legend: {
+      show: false,
       fontFamily: "Inter",
       labels: {
         colors: colorWhite,

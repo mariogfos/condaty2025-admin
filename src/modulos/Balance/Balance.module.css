@@ -262,3 +262,30 @@
 .exportButtonAsIcon:hover svg {
   fill: var(--cWhite, #fafafa); /* Color del ícono en hover */
 }
+
+.legendContainer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legendItem span {
+  color: var(--cWhiteV1, #A7A7A7);
+  font-size: 14px;
+  font-family: Inter, Arial, sans-serif;
+}

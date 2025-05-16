@@ -152,6 +152,11 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         options={{
           height: h,
           colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
+          chart: {
+            legend: {
+              show: false
+            }
+          }
         }}
       />
     </div>

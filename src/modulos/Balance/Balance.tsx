@@ -445,6 +445,43 @@ const getGestionAnio = (filterDateValue: string) => {
                     title={`Bs ${formatNumber(finanzas?.data?.saldoInicial)}`}
                     periodo={formStateFilter?.filter_date}
                   />
+                  
+                  <div className={styles.legendContainer}>
+                    {(() => {
+                      let totalEgresos = 0;
+                      let totalIngresos = 0;
+
+                      finanzas?.data?.egresos?.forEach((subcategoria: any) => {
+                        totalEgresos += Number(subcategoria.amount);
+                      });
+                      finanzas?.data?.ingresos?.forEach((subcategoria: any) => {
+                        totalIngresos += Number(subcategoria.amount);
+                      });
+
+                      const saldoFinal = totalIngresos - totalEgresos + Number(finanzas?.data?.saldoInicial);
+
+                      return (
+                        <>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#FFD700" }}></div>
+                            <span>Saldo Inicial: Bs {formatNumber(finanzas?.data?.saldoInicial)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#00E38C" }}></div>
+                            <span>Ingresos: Bs {formatNumber(totalIngresos)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#FF5B4D" }}></div>
+                            <span>Egresos: Bs {formatNumber(totalEgresos)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#4C98DF" }}></div>
+                            <span>Saldo Final: Bs {formatNumber(saldoFinal)}</span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
 
                
