@@ -440,9 +440,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       message="No existe titular registrado en esta casa"
                       centered={false}
                     />
-                    <Button className={styles.addButton} onClick={onTitular}>
+                    {/* <Button className={styles.addButton} onClick={onTitular}>
                       Agregar Titular
-                    </Button>
+                    </Button> */}
                   </div>
                 ) : (
                   <div>
