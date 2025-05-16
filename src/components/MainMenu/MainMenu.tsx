@@ -123,18 +123,18 @@ const MainMenu = ({
             setSideBarOpen={setSideBarOpen}
           />
 
-          {/* <MainmenuItem
+          <MainmenuItem
             href="/areas"
             label="Areas sociales"
             icon={<IconBitacora />}
             collapsed={collapsed}
-          /> */}
-          {/* <MainmenuItem
+          />
+          <MainmenuItem
             href="/reservas"
             label="Reservas"
             icon={<IconCalendar />}
             collapsed={collapsed}
-          /> */}
+          />
           {user?.clients?.length > 1 && (
             <MainmenuItem
               href="#"
