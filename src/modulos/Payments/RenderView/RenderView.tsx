@@ -170,16 +170,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
-        <div className={styles.container}>
-          <div className={styles.notFoundContainer}>
-            <p className={styles.notFoundText}>
-              No se encontró información del pago.
-            </p>
-            <p className={styles.notFoundSuggestion}>
-              Por favor, verifica el ID del pago o intenta de nuevo más tarde.
-            </p>
-          </div>
-        </div>
+        
       </DataModal>
     );
   }
@@ -227,7 +218,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 <span className={styles.infoValue}>
                   {getFullName(item.propietario) ||
                     getFullName(item.owner) ||
-                    "Sin propietario"}
+                    "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
@@ -244,13 +235,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                     <div key={i}>-{c}</div>
                   )) ||
                     item.description ||
-                    "No especificado"}
+                    "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Observación</span>
                 <span className={styles.infoValue}>
-                  {item.obs || "Sin observación"}
+                  {item.obs || "-/-"}
                 </span>
               </div>
             </div>
@@ -289,7 +280,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
                 <span className={styles.infoValue}>
-                  {item.voucher || "Sin comprobante"}
+                  {item.voucher || "-/-"}
                 </span>
               </div>
             </div>

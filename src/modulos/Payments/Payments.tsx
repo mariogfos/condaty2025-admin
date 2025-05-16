@@ -84,12 +84,9 @@ const Payments = () => {
 
   const getStatusOptions = () => [
     { id: "ALL", name: "Todos" },
-    { id: "P", name: "Pagado" },
+    { id: "P", name: "Cobrado" },
     { id: "S", name: "Por confirmar" },
     { id: "R", name: "Rechazado" },
-    { id: "E", name: "Por subir comprobante" },
-    { id: "A", name: "Por pagar" },
-    { id: "M", name: "Moroso" },
     { id: "X", name: "Anulado" },
   ];
   const removeCommas = (text: string | number): string => {
@@ -204,7 +201,7 @@ const Payments = () => {
       type: {
         rules: ["required"],
         api: "ae",
-        label: "Tipo de pago",
+        label: "Forma de pago",
         form: {
           type: "select",
           options: [
