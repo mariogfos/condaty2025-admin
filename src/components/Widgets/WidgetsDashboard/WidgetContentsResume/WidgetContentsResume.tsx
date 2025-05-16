@@ -177,6 +177,7 @@ import { IconComment, IconLike } from '@/components/layout/icons/IconsBiblioteca
 
 
 const WidgetContentsResume = ({data}:any) => {
+  console.log(data,'data desde widget contents resume')
   return (
     <WidgetBase variant={'V1'} title={'Comunidad'} >
     <div style={{maxHeight: 800, overflowY: 'auto'}}>
@@ -215,6 +216,7 @@ const WidgetContentsResume = ({data}:any) => {
         
       </div>  
          <section className={styles.descriptionArea}>
+          <div>{item?.title}</div>
             <div className={styles.textSecond} style={{fontSize:14,textAlign:'left',justifyContent:'flex-start',alignItems:'flex-start'}}>{item?.description}</div>
            {item?.images && item?.images[0] && (
             <div>

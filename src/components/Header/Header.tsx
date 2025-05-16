@@ -90,8 +90,8 @@ const Header = ({
 
   const ProfileIcon = () => {
     return (
-      <div className={styles.iconOuterContainer}>
-        <div className={styles.profileContainer}>
+      <div>
+        <div style={{cursor:"pointer"}}>
           <Avatar
             name={getFullName(user)}
             src={getUrlImages(
@@ -101,7 +101,9 @@ const Header = ({
               console.log("click");
               setStore({ ...store, openProfileModal: true });
             }}
-            square={true}
+            
+
+            // square={true}
           />
         </div>
       </div>
