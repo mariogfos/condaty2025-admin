@@ -144,8 +144,8 @@ const EditProfile = ({
     
         if (data?.success) {
           showToast("Perfil actualizado exitosamente", "success");
-          reLoad();
-          reLoadList();
+          reLoad && reLoad();
+          reLoadList && reLoadList();
           onClose();
         } else {
           console.error("error:", err);
