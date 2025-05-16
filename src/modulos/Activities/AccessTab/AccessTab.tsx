@@ -8,7 +8,8 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { 
   IconVehicle, 
   IconFoot,
-  IconOwner, 
+  IconOwner,
+  IconKey, 
 } from "@/components/layout/icons/IconsBiblioteca";
 
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -216,7 +217,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               return (
                 <div style={{display:'flex',gap:8}}>
                   {/* <div className={styles.iconCircle}> */}
-                    <IconOwner  size={48} circle style={{backgroundColor:'var(--cWhiteV1)'}}/>
+                    <IconKey  size={46} circle style={{backgroundColor:'var(--cWhiteV1)'}} />
                   {/* </div> */}
                   <div className={styles.avatarText}>
                       <div className={styles.typeName}>
@@ -345,40 +346,28 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       //   },
       // },
 
-      // type: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Tipo",
-      //   list: {
-      //     width: "100px",
-      //     onRender: (props: any) => {
-      //       const typeMap: Record<string, string> = {
-      //         C: "Control",
-      //         G: "Grupo",
-      //         I: "Individual",
-      //         P: "Pedido",
-      //         O: "Llave QR"
-      //       };
-      //       return (
-      //         <div className={`${styles.typeTag} ${props.item.type === 'O' ? styles.typeTagQR : ''}`}>
-      //           {typeMap[props.item.type] || props.item.type || "Sin tipo"}
-      //         </div>
-      //       );
-      //     },
-      //   },
-      //   filter: {
-      //     label: "Tipo de Acceso",
-      //     width: "180px",
-      //     options: () => [
-      //       { id: "ALL", name: "Todos" },
-      //       { id: "C", name: "Control" },
-      //       { id: "G", name: "Grupo" },
-      //       { id: "I", name: "Individual" },
-      //       { id: "P", name: "Pedido" },
-      //       { id: "O", name: "Llave QR" }
-      //     ]
-      //   }
-      // },
+      type: {
+        rules: [],
+        api: '',
+        label: 'Tipo de Acceso',
+        list: {
+          onRender: (props: any) => {
+            return getTypeAccess(props.item.type, props.item);
+          },
+        },
+        filter: {
+          label: 'Tipo de Acceso',
+          width: '180px',
+          options: () => [
+            { id: 'ALL', name: 'Todos' },
+            { id: 'C', name: 'Sin Qr' },
+            { id: 'G', name: 'Qr Grupal' },
+            { id: 'I', name: 'Qr Individual' },
+            { id: 'P', name: 'Pedido' },
+            { id: 'O', name: 'Llave Qr' }
+          ]
+        }
+      },
     };
   }, []);
 

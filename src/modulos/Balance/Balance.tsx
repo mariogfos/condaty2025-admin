@@ -441,10 +441,47 @@ const getGestionAnio = (filterDateValue: string) => {
                     ingresos={finanzas?.data?.ingresosHist}
                     egresos={finanzas?.data?.egresosHist}
                     chartTypes={[charType.filter_charType as ChartType]}
-                    subtitle={`Total de saldo acumulado, ${getGestionAnio(formStateFilter.filter_date)}`} 
-                    title={`Bs ${formatNumber(finanzas?.data?.saldoInicial || 0)}`}
+                    subtitle={`Total de saldo inicial: ${formatNumber(finanzas?.data?.saldoInicial)}`}
+                    title={`Bs ${formatNumber(finanzas?.data?.saldoInicial)}`}
                     periodo={formStateFilter?.filter_date}
                   />
+                  
+                  <div className={styles.legendContainer}>
+                    {(() => {
+                      let totalEgresos = 0;
+                      let totalIngresos = 0;
+
+                      finanzas?.data?.egresos?.forEach((subcategoria: any) => {
+                        totalEgresos += Number(subcategoria.amount);
+                      });
+                      finanzas?.data?.ingresos?.forEach((subcategoria: any) => {
+                        totalIngresos += Number(subcategoria.amount);
+                      });
+
+                      const saldoFinal = totalIngresos - totalEgresos + Number(finanzas?.data?.saldoInicial);
+
+                      return (
+                        <>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#FFD700" }}></div>
+                            <span>Saldo Inicial: Bs {formatNumber(finanzas?.data?.saldoInicial)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#00E38C" }}></div>
+                            <span>Ingresos: Bs {formatNumber(totalIngresos)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#FF5B4D" }}></div>
+                            <span>Egresos: Bs {formatNumber(totalEgresos)}</span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div className={styles.legendColor} style={{ backgroundColor: "#4C98DF" }}></div>
+                            <span>Saldo Final: Bs {formatNumber(saldoFinal)}</span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
 
                
@@ -531,7 +568,11 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date === "ly" ||
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
-                  selectcategorias={formStateFilter.filter_categ}
+                  selectcategorias={
+                    typeof formStateFilter.filter_categ === 'string'
+                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                      : formStateFilter.filter_categ // Si ya es array, lo usa
+                  }
                 />
               </>
             )}
@@ -569,7 +610,11 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date === "ly" ||
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
-                  selectcategorias={formStateFilter.filter_categ}
+                  selectcategorias={
+                    typeof formStateFilter.filter_categ === 'string'
+                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                      : formStateFilter.filter_categ // Si ya es array, lo usa
+                  }
                 />
               </>
             )}

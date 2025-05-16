@@ -76,7 +76,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       y: {
         formatter: function (val: any) {
           // return val + " %";
-          return val.toFixed(1);
+          return formatNumber(val.toFixed(1));
 
         },
       },

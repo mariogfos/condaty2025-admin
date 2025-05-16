@@ -50,7 +50,7 @@ const Select = ({
   );
   const [openOptions, setOpenOptions] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
-  const [selectedNames, setSelectedNames]: any = useState([]);
+  const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
   const selectRef1 = useRef<HTMLDivElement>(null);
 
@@ -67,29 +67,48 @@ const Select = ({
   const [_options, setOptions]: any = useState([]);
 
   useEffect(() => {
-    if (options) setOptions(options || []);
     if (multiSelect) {
+      // Asegúrate de que selectValue es un array.
+      // selectValue debería contener los valores correspondientes a option[optionValue] de las opciones seleccionadas.
+      const currentSelectedValues = Array.isArray(selectValue) ? selectValue : [];
+  
       if (
         Array.isArray(options) &&
         options.length > 0 &&
-        Array.isArray(selectValue)
+        currentSelectedValues.length > 0
       ) {
-        const selectedValues = options.filter((option: any) =>
-          selectValue.includes(option.id)
+        // Filtra los objetos de opción completos que han sido seleccionados.
+        const selectedFullOptions = options.filter((option: any) =>
+          currentSelectedValues.includes(option[optionValue])
         );
-        let selectedDisplay = "";
-        if (selectedValues.length > 2) {
-          selectedDisplay = selectedValues.length + " elementos seleccionados";
+  
+        let displayString = "";
+        const count = selectedFullOptions.length;
+  
+        if (count > 5) {
+          displayString = `${count} elementos seleccionados`;
         } else {
-          const selectedNames = selectedValues.map(
-            (option: any) => option.name || option.label
+          // Obtiene los nombres (usando optionLabel) de las opciones seleccionadas.
+          // Provee un fallback si option[optionLabel] o option.label no existen.
+          const namesArray = selectedFullOptions.map(
+            (option: any) => option[optionLabel] || option.label || String(option[optionValue])
           );
-          selectedDisplay = selectedNames.join(", ");
+          displayString = namesArray.join(", ");
         }
-        setSelectedNames(selectedDisplay);
+        setSelectedNames(displayString);
+      } else {
+        // Si no hay opciones seleccionadas o las opciones base están vacías, muestra un string vacío.
+        setSelectedNames("");
       }
+    } else {
+      // Opcional: si no es multiSelect, puedes querer limpiar selectedNames
+      // o dejar que la lógica del input maneje el valor directamente.
+      // Si selectedNames solo se usa para multiSelect, esta parte podría no ser necesaria.
+      // Sin embargo, para asegurar que el input esté limpio si se cambia de multiSelect a single select:
+      // setSelectedNames(""); // Descomenta si es necesario.
     }
-  }, [selectValue, options]);
+    // Asegúrate de incluir todas las dependencias que usa el efecto.
+  }, [selectValue, options, multiSelect, optionLabel, optionValue]);
 
   useEffect(() => {
     const parentWithClass = findParentWithClass(

@@ -66,17 +66,21 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
         
         <Br />
         <div className={styles.containerDetail}>
+          <div>          
           <LabelValue value={item?.other?.other_type?.name} label="Tipo de pedido" />
           <LabelValue label="Estado" value={item?.other?.status==='I' ? 'Ingresado' :item?.other?.status=== 'O'? 'Completado':''} colorValue="var(--cAccent)"/>
-          <LabelValue
-            label="Fecha y hora de notificación"
-            value={getDateTimeStrMes(item?.updated_at)}
-          />
+          </div>
+          <div>   
+              <LabelValue
+                label="Fecha y hora de notificación"
+                value={getDateTimeStrMes(item?.updated_at)}
+              />
 
-          <LabelValue
-            value={item?.other?.descrip}
-            label="Observación"
-          />
+              <LabelValue
+                value={item?.other?.descrip}
+                label="Observación"
+              />
+          </div>
         </div>
         <Br />
       </Card>

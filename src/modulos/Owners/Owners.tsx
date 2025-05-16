@@ -364,7 +364,8 @@ const Owners = () => {
         api: "", // No se envía a la API
         label: "Tipo", // Etiqueta de la columna
         list: {
-          width: "110px", // Ajusta el ancho si es necesario
+          width: "140px",
+           // Ajusta el ancho si es necesario
           onRender: (props: any) => {
             const dptos = props?.item?.dpto; // Accede al array de departamentos/unidades
             let esTitular = false;

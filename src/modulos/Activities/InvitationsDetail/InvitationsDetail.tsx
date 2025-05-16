@@ -131,6 +131,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         </p>
         <Br />
         <div className={styles.containerDetail}>
+          <div>
           <LabelValue
             value={
               typeInvitation[
@@ -141,11 +142,15 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             }
             label="Tipo de invitación"
           />
-          <LabelValue label="Estado" value={getStatus()} />
           {item?.type == "G" && (
             <LabelValue value={invitation?.title || "-/-"} label="Evento" />
           )}
-          <LabelValue label="Invitado" value={getFullName(visit)} />
+          {item?.type == "I" && <LabelValue label="Invitado" value={getFullName(visit)} />}
+          <LabelValue value={invitation?.obs || "-/-"} label="Indicaciones" />
+          </div>
+
+          <div>
+          <LabelValue label="Estado" value={getStatus()} />
           {item?.type != "C" && (
             <LabelValue
               value={
@@ -162,7 +167,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               }
             />
           )}
-          <LabelValue value={invitation?.obs || "-/-"} label="Detalle" />
+          </div>
         </div>
         <Br />
         {invitation?.is_frequent == "Y" && invitation?.weekday && (

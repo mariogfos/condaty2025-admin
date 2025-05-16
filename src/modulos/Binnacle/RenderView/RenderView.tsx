@@ -22,7 +22,7 @@ const RenderView = memo((props: BinnacleDetailProps) => {
     <DataModal
       open={open}
       onClose={onClose}
-      title="Detalle de Bitácora"
+      title="Detalle de Reporte"
       buttonText=""
       buttonCancel=""
     >

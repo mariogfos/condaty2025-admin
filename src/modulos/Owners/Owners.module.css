@@ -85,6 +85,7 @@
 .residentTypeBadge span {
   /* El span hereda la mayoría de los estilos, solo definimos color específico abajo */
   line-height: 1; /* Ayuda a centrar verticalmente el texto simple */
+
 }
 
 /* Estilos específicos para "Titular" */
