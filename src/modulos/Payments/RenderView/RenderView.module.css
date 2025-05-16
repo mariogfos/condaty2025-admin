@@ -59,7 +59,7 @@
   width: 100%;
   border: none;
   height: 0;
-  border-top: 0.5px solid var(--cWhiteV2);
+  border-top: 0.5px solid var(--cWhiteV1);
   margin: var(--spS) 0;
 }
 

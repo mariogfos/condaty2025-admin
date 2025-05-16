@@ -681,7 +681,7 @@ const RenderForm = ({
                   <div className={styles["input-half"]}>
                     <Select
                       name="type"
-                      label="Tipo de pago"
+                      label="Forma de pago"
                       value={_formState.type}
                       
                       onChange={handleChangeInput}
