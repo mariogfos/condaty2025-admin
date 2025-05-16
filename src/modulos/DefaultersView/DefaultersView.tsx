@@ -380,7 +380,7 @@ const DefaultersView = () => {
                   title="Total de unidades morosas"
                   data={`${defaultersLength}`}
                   onClick={() =>  {}}
-                  icon={<IconHousing reverse size={26} color={'var(--cInfo)'} />}
+                  icon={<IconHousing reverse size={32} color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo'}} circle/>}
                   className={styles.widgetResumeCard}
                   style={{maxWidth:250}}
                 />
