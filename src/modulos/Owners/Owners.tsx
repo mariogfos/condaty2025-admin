@@ -359,37 +359,41 @@ const Owners = () => {
         },
       },
       type: {
-        // Cambiamos el propósito de este campo para mostrar Titular/Dependiente
         rules: [""],
-        api: "", // No se envía a la API
-        label: "Tipo", // Etiqueta de la columna
+        api: "", 
+        label: "Tipo", 
         list: {
           width: "140px",
-           // Ajusta el ancho si es necesario
           onRender: (props: any) => {
-            const dptos = props?.item?.dpto; // Accede al array de departamentos/unidades
-            let esTitular = false;
-
-            // Verifica si el array dpto existe y si en ALGUNA de las relaciones es titular
-            if (Array.isArray(dptos) && dptos.length > 0) {
-              esTitular = dptos.some((d) => d?.pivot?.is_titular === "Y");
+            const clientOwnerData = props?.item?.client_owner;
+            let esTitularPrincipal = true; // Asumir Titular por defecto
+      
+            // Verificar si client_owner existe y es un objeto
+            if (clientOwnerData && typeof clientOwnerData === 'object') {
+              // Si client_owner existe y tiene un titular_id (no es null ni undefined),
+              // entonces esta persona es un Dependiente.
+              if (clientOwnerData.titular_id !== null && clientOwnerData.titular_id !== undefined) {
+                esTitularPrincipal = false;
+              }
+              // Si client_owner.titular_id es null o undefined, se mantiene esTitularPrincipal = true,
+              // lo que significa que es un Titular.
             }
-
-            const texto = esTitular ? "Titular" : "Dependiente";
-            // Asigna clases CSS diferentes según el tipo
-            const badgeClass = esTitular
-              ? styles.isTitular
+            // Si clientOwnerData es null o undefined (no existe el objeto client_owner),
+            // se mantiene la presunción de que esTitularPrincipal = true (Titular).
+      
+            const texto = esTitularPrincipal ? "Titular" : "Dependiente";
+            const badgeClass = esTitularPrincipal
+              ? styles.isTitular 
               : styles.isDependiente;
-
+      
             return (
-              // Aplica la clase base y la clase específica (Titular/Dependiente)
               <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
                 <span>{texto}</span>
               </div>
             );
           },
         },
-        // form: false, // Si no quieres que aparezca en el formulario
+        // form: false, // Descomenta si no quieres que aparezca en el formulario
       },
       email: {
         rules: ["required"],

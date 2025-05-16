@@ -51,10 +51,9 @@
   
   .legendItem {
     display: flex;
-    align-items: center; /* Alinea verticalmente el color, nombre y total */
-    gap: 0.5rem; /* Espacio entre los elementos internos del item (color, nombre, total) */
-    font-size: 0.875rem; /* Tamaño de fuente para la leyenda (ej. 14px) */
-    min-width: 200px;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 180px;
   }
   
   .legendColorIndicator {
@@ -76,7 +75,8 @@
 .legendContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: center;
+  gap: 2rem;
   padding: 1rem;
   margin-top: 1rem;
   border-top: 1px solid var(--cBorder);
@@ -85,17 +85,28 @@
 .legendColor {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: 50%;
 }
 
 .legendLabel {
   font-size: 0.9rem;
-  color: var(--cTextV2);
-  min-width: 100px;
+  color: var(--cWhiteV1);
+  
 }
 
 .legendValue {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--cText);
+  color: var(--cWhite);
+  margin-left: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .legendContainer {
+    gap: 1rem;
   }
+  
+  .legendItem {
+    min-width: 140px;
+  }
+}

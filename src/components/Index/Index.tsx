@@ -23,6 +23,7 @@ import {
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
 const paramsInitial = {
   fullType: "L",
@@ -37,6 +38,7 @@ const HomePage = () => {
   const [dataPayment, setDataPayment]: any = useState({});
   const [openReservation, setOpenReservation] = useState(false);
   const [selectedReservationId, setSelectedReservationId]: any = useState(null);
+  const [openPreRegistroModal, setOpenPreRegistroModal] = useState(false);
 
   useEffect(() => {
     setStore({
@@ -52,8 +54,9 @@ const HomePage = () => {
     ...paramsInitial,
   });
 
-  const today = getNow();
-  const formattedDate = `Resumen ala fecha actual, ${getDateStrMes(today)}`;
+  const today = new Date();
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const formattedDate = `Resumen del mes de ${meses[today.getMonth()]}`;
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
@@ -314,6 +317,18 @@ const HomePage = () => {
     );
   };
 
+  const renderPreRegistroList = () => {
+    return (
+      <div className={styles.preRegistroListContainer}>
+        {dashboard?.data?.porActivar?.map((item: any, index: number) => (
+          <div key={index} className={styles.preRegistroItem}>
+            {registroList(item)}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (!userCan("home", "R")) return <NotAccess />;
 
   return (
@@ -400,12 +415,15 @@ const HomePage = () => {
               {" "}
               {/* Nuevo contenedor para mantenerlos juntos si es necesario */}
               <div className={styles.widgetGraphResumeContainer}>
-                <WidgetGraphResume
-                  saldoInicial={dashboard?.data?.saldoInicial}
-                  ingresos={dashboard?.data?.ingresosHist}
-                  egresos={dashboard?.data?.egresosHist}
-                  periodo="y"
-                />
+                <div className={styles.graphAndLegendWrapper}>
+                  <WidgetGraphResume
+                    saldoInicial={dashboard?.data?.saldoInicial}
+                    ingresos={dashboard?.data?.ingresosHist}
+                    egresos={dashboard?.data?.egresosHist}
+                    periodo="y"
+                  />
+                  
+                </div>
               </div>
               <section className={styles.fourWidgetSection}>
                 <div className={styles.widgetRow}>
@@ -442,7 +460,7 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Pre-registro"
                     viewAllText="Ver todos"
-                    onViewAllClick={() => (window.location.href = "/owners")}
+                    onViewAllClick={() => setOpenPreRegistroModal(true)}
                     emptyListMessage="No hay cuentas por activar"
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
@@ -489,12 +507,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      <OwnersRender
-        open={openActive}
-        onClose={() => setOpenActive(false)}
-        item={dataOwner}
-        reLoad={reLoad}
-      />
+      
       {openPayment && <PaymentRender {...paymentProps} />}
       <ReservationDetailModal
         open={openReservation}
@@ -505,6 +518,22 @@ const HomePage = () => {
         reservationId={selectedReservationId}
         reLoad={() => reLoad()}
       />
+      <DataModal
+        open={openPreRegistroModal}
+        title="Lista completa de pre-registros"
+        onClose={() => setOpenPreRegistroModal(false)}
+        buttonText=""
+        buttonCancel=""
+      >
+        {renderPreRegistroList()}
+      </DataModal>
+      <OwnersRender
+        open={openActive}
+        onClose={() => setOpenActive(false)}
+        item={dataOwner}
+        reLoad={reLoad}
+      />
+
     </>
   );
 };
