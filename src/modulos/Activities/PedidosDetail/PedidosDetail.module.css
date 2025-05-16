@@ -1,10 +1,17 @@
 .PedidosDetail {
   .containerDetail {
-    display: grid;
+    display: flex;
     width: 100%;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
     margin-bottom: var(--spL);
+    & > div {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spL);
+    }
   }
   .LabelValue {
     flex-grow: 1;
