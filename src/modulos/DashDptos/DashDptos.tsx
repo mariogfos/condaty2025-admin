@@ -67,6 +67,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
+  const [openDelTitular, setOpenDelTitular] = useState(false);
   const {
     data: dashData,
     reLoad,
@@ -317,6 +318,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     if (data?.success) {
       showToast("Titular eliminado", "success");
       reLoad();
+      setOpenDelTitular(false);
     } else {
       showToast(data?.message || "Error al eliminar titular", "error");
     }
@@ -506,7 +508,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         Cambiar titular
                       </Button> */}
                     <Button
-                      onClick={() => removeTitular()}
+                      onClick={() => setOpenDelTitular(true)}
                       variant="terciary"
                       style={{
                         padding: 0,
@@ -941,6 +943,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 no se puede deshacer.
               </p>
             </div>
+          </DataModal>
+        )}
+        {openDelTitular && (
+          <DataModal
+            title="Eliminar titular"
+            open={openDelTitular}
+            onSave={removeTitular}
+            onClose={() => setOpenDelTitular(false)}
+            buttonText="Eliminar"
+          >
+            <p>¿Estás seguro de que quieres eliminar este titular?</p>
           </DataModal>
         )}
       </section>
