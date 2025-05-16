@@ -486,7 +486,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         </div>
                       }
                     />
-                    <div
+                    {/* <div
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -504,20 +504,20 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         small
                       >
                         Cambiar titular
-                      </Button>
-                      <Button
-                        onClick={() => removeTitular()}
-                        variant="terciary"
-                        style={{
-                          padding: 0,
-                          color: "var(--cError)",
-                          width: "fit-content",
-                        }}
-                        small
-                      >
-                        Eliminar titular
-                      </Button>
-                    </div>
+                      </Button> */}
+                    <Button
+                      onClick={() => removeTitular()}
+                      variant="terciary"
+                      style={{
+                        padding: 0,
+                        color: "var(--cError)",
+                        width: "fit-content",
+                      }}
+                      small
+                    >
+                      Eliminar titular
+                    </Button>
+                    {/* </div> */}
 
                     {/* Dependientes */}
                     {datas?.titular?.dependientes && (
