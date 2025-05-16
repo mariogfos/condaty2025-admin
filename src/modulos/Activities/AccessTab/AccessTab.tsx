@@ -8,7 +8,8 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { 
   IconVehicle, 
   IconFoot,
-  IconOwner, 
+  IconOwner,
+  IconKey, 
 } from "@/components/layout/icons/IconsBiblioteca";
 
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -216,7 +217,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               return (
                 <div style={{display:'flex',gap:8}}>
                   {/* <div className={styles.iconCircle}> */}
-                    <IconOwner  size={48} circle style={{backgroundColor:'var(--cWhiteV1)'}}/>
+                    <IconKey  size={46} circle style={{backgroundColor:'var(--cWhiteV1)'}} />
                   {/* </div> */}
                   <div className={styles.avatarText}>
                       <div className={styles.typeName}>
