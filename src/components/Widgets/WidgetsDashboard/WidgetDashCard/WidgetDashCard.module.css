@@ -13,12 +13,15 @@
 
   & > div:nth-child(1) {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     & > p {
       color: var(--cWhiteV1);
       font-size: var(--sM);
       margin-bottom: var(--spS);
       align-items: center;
-      text-align: center;
+      text-align: left;
       display: flex;
     }
 
@@ -27,6 +30,7 @@
       font-size: var(--sXl) !important;
       font-weight: 600;
       color: var(--cWhite);
+
       /* margin-top: var(--spS); */
     }
 

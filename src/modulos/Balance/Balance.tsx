@@ -16,7 +16,12 @@ import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
 import TableResumenGeneral from "./TableResumenGeneral";
 // Icons
-import { IconArrowDown, IconExport, LineGraphic, PointGraphic } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowDown,
+  IconExport,
+  LineGraphic,
+  PointGraphic,
+} from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
@@ -200,8 +205,6 @@ const BalanceGeneral: React.FC = () => {
     { id: "sc", name: "Personalizado" },
   ];
 
-
-
   const exportar = () => {
     reLoadFinanzas({ ...formStateFilter, exportar: true });
   };
@@ -268,32 +271,31 @@ const BalanceGeneral: React.FC = () => {
     return data;
   };
 
+  const getGestionAnio = (filterDateValue: string) => {
+    const now = new Date();
+    let year = now.getFullYear();
 
-const getGestionAnio = (filterDateValue: string) => {
-  const now = new Date();
-  let year = now.getFullYear();
-
-  if (filterDateValue === "ly") {
-    year = now.getFullYear() - 1;
-  } else if (filterDateValue === "lm") {
-    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    year = prevMonthDate.getFullYear();
-  } else if (filterDateValue.startsWith("c:")) {
-    const dates = filterDateValue.substring(2).split(',');
-    if (dates[0]) {
-      const startDate = new Date(dates[0] + "T00:00:00");
-      year = startDate.getFullYear();
-      if (dates[1]) {
-        const endDate = new Date(dates[1] + "T00:00:00");
-        const endYear = endDate.getFullYear();
-        if (year !== endYear) {
-          return `gestión ${year} - ${endYear}`;
+    if (filterDateValue === "ly") {
+      year = now.getFullYear() - 1;
+    } else if (filterDateValue === "lm") {
+      const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      year = prevMonthDate.getFullYear();
+    } else if (filterDateValue.startsWith("c:")) {
+      const dates = filterDateValue.substring(2).split(",");
+      if (dates[0]) {
+        const startDate = new Date(dates[0] + "T00:00:00");
+        year = startDate.getFullYear();
+        if (dates[1]) {
+          const endDate = new Date(dates[1] + "T00:00:00");
+          const endYear = endDate.getFullYear();
+          if (year !== endYear) {
+            return `gestión ${year} - ${endYear}`;
+          }
         }
       }
     }
-  }
-  return `gestión ${year}`;
-};
+    return `gestión ${year}`;
+  };
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -370,49 +372,64 @@ const getGestionAnio = (filterDateValue: string) => {
             </div>
           </div>
 
-          <div className={`${styles.filterItem} ${styles.chartTypeSelectorContainer}`}> {/* Contenedor especial para los botones de tipo de gráfico */}
+          <div
+            className={`${styles.filterItem} ${styles.chartTypeSelectorContainer}`}
+          >
+            {" "}
+            {/* Contenedor especial para los botones de tipo de gráfico */}
             <div className={styles.chartTypeButtonWrapper}>
               <button
                 type="button"
                 title="Gráfico de Barras"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === 'bar' ? styles.chartTypeButtonActive : ''
+                  charType.filter_charType === "bar"
+                    ? styles.chartTypeButtonActive
+                    : ""
                 }`}
                 onClick={() => {
                   // Solo permitir 'bar' si está en las opciones disponibles en lchars
-                  if (lchars.some(c => c.id === 'bar')) {
-                    setCharType({ filter_charType: 'bar' });
+                  if (lchars.some((c) => c.id === "bar")) {
+                    setCharType({ filter_charType: "bar" });
                   }
                 }}
                 // Deshabilitar si 'bar' no es una opción en lchars
-                disabled={!lchars.some(c => c.id === 'bar')} 
+                disabled={!lchars.some((c) => c.id === "bar")}
               >
                 <LineGraphic // Este ícono parece más de barras
                   size={20} // Ajusta el tamaño según necesites
-                  color={charType.filter_charType === 'bar' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'} 
+                  color={
+                    charType.filter_charType === "bar"
+                      ? "var(--cAccent, #00E38C)"
+                      : "var(--cWhiteV1, #A7A7A7)"
+                  }
                 />
               </button>
               <button
                 type="button"
                 title="Gráfico de Línea"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === 'line' ? styles.chartTypeButtonActive : ''
+                  charType.filter_charType === "line"
+                    ? styles.chartTypeButtonActive
+                    : ""
                 }`}
                 onClick={() => {
                   // Solo permitir 'line' si está en las opciones disponibles en lchars
-                  if (lchars.some(c => c.id === 'line')) {
-                    setCharType({ filter_charType: 'line' });
+                  if (lchars.some((c) => c.id === "line")) {
+                    setCharType({ filter_charType: "line" });
                   }
                 }}
                 // Deshabilitar si 'line' no es una opción en lchars
-                disabled={!lchars.some(c => c.id === 'line')}
+                disabled={!lchars.some((c) => c.id === "line")}
               >
                 <PointGraphic // Este ícono parece más de líneas/puntos
                   size={20} // Ajusta el tamaño según necesites
-                  color={charType.filter_charType === 'line' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'}
+                  color={
+                    charType.filter_charType === "line"
+                      ? "var(--cAccent, #00E38C)"
+                      : "var(--cWhiteV1, #A7A7A7)"
+                  }
                 />
               </button>
-
             </div>
           </div>
         </div>
@@ -420,20 +437,21 @@ const getGestionAnio = (filterDateValue: string) => {
         <div className={styles.loadingContainer}>
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && finanzas?.data?.ingresos && (
-
               <>
-              <h2 className={styles.chartSectionTitle}>
-                {`Balance desde ${getDateDesdeHasta(formStateFilter.filter_date)}`}
-              </h2>
+                <h2 className={styles.chartSectionTitle}>
+                  {`Balance desde ${getDateDesdeHasta(
+                    formStateFilter.filter_date
+                  )}`}
+                </h2>
                 <div className={styles.chartContainer}>
-                <div className={styles.chartActionsHeader}>
+                  <div className={styles.chartActionsHeader}>
                     <Button
                       className={styles.exportButtonAsIcon} // Nueva clase para el botón de ícono
                       onClick={exportar}
                       variant="secondary"
-                      
                     >
-                      <IconExport size={22} /> {/* Ajusta el tamaño del ícono si es necesario */}
+                      <IconExport size={22} />{" "}
+                      {/* Ajusta el tamaño del ícono si es necesario */}
                     </Button>
                   </div>
                   <WidgetGrafBalance
@@ -441,11 +459,13 @@ const getGestionAnio = (filterDateValue: string) => {
                     ingresos={finanzas?.data?.ingresosHist}
                     egresos={finanzas?.data?.egresosHist}
                     chartTypes={[charType.filter_charType as ChartType]}
-                    subtitle={`Total de saldo inicial: ${formatNumber(finanzas?.data?.saldoInicial)}`}
+                    subtitle={`Total de saldo inicial: ${formatNumber(
+                      finanzas?.data?.saldoInicial
+                    )}`}
                     title={`Bs ${formatNumber(finanzas?.data?.saldoInicial)}`}
                     periodo={formStateFilter?.filter_date}
                   />
-                  
+
                   <div className={styles.legendContainer}>
                     {(() => {
                       let totalEgresos = 0;
@@ -458,25 +478,49 @@ const getGestionAnio = (filterDateValue: string) => {
                         totalIngresos += Number(subcategoria.amount);
                       });
 
-                      const saldoFinal = totalIngresos - totalEgresos + Number(finanzas?.data?.saldoInicial);
+                      const saldoFinal =
+                        totalIngresos -
+                        totalEgresos +
+                        Number(finanzas?.data?.saldoInicial);
 
                       return (
                         <>
                           <div className={styles.legendItem}>
-                            <div className={styles.legendColor} style={{ backgroundColor: "#FFD700" }}></div>
-                            <span>Saldo Inicial: Bs {formatNumber(finanzas?.data?.saldoInicial)}</span>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#FFD700" }}
+                            ></div>
+                            <span>
+                              Saldo Inicial: Bs{" "}
+                              {formatNumber(finanzas?.data?.saldoInicial)}
+                            </span>
                           </div>
                           <div className={styles.legendItem}>
-                            <div className={styles.legendColor} style={{ backgroundColor: "#00E38C" }}></div>
-                            <span>Ingresos: Bs {formatNumber(totalIngresos)}</span>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#00E38C" }}
+                            ></div>
+                            <span>
+                              Ingresos: Bs {formatNumber(totalIngresos)}
+                            </span>
                           </div>
                           <div className={styles.legendItem}>
-                            <div className={styles.legendColor} style={{ backgroundColor: "#FF5B4D" }}></div>
-                            <span>Egresos: Bs {formatNumber(totalEgresos)}</span>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#FF5B4D" }}
+                            ></div>
+                            <span>
+                              Egresos: Bs {formatNumber(totalEgresos)}
+                            </span>
                           </div>
                           <div className={styles.legendItem}>
-                            <div className={styles.legendColor} style={{ backgroundColor: "#4C98DF" }}></div>
-                            <span>Saldo Final: Bs {formatNumber(saldoFinal)}</span>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#4C98DF" }}
+                            ></div>
+                            <span>
+                              Saldo Final: Bs {formatNumber(saldoFinal)}
+                            </span>
                           </div>
                         </>
                       );
@@ -484,11 +528,11 @@ const getGestionAnio = (filterDateValue: string) => {
                   </div>
                 </div>
 
-               
-
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de todos los ingresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los ingresos de la ${getGestionAnio(
+                    formStateFilter.filter_date
+                  )}`}
                 </h2>
 
                 <TableIngresos
@@ -505,7 +549,9 @@ const getGestionAnio = (filterDateValue: string) => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de todos los egresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los egresos de la ${getGestionAnio(
+                    formStateFilter.filter_date
+                  )}`}
                 </h2>
 
                 <TableEgresos
@@ -522,7 +568,9 @@ const getGestionAnio = (filterDateValue: string) => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de todos los totalesde ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los totales de la ${getGestionAnio(
+                    formStateFilter.filter_date
+                  )}`}
                 </h2>
                 <TableResumenGeneral
                   subcategoriasE={finanzas?.data?.egresos}
@@ -569,8 +617,10 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                   selectcategorias={
-                    typeof formStateFilter.filter_categ === 'string'
-                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                    typeof formStateFilter.filter_categ === "string"
+                      ? formStateFilter.filter_categ
+                        ? [formStateFilter.filter_categ]
+                        : [] // Si es string, lo convierte a array o array vacío
                       : formStateFilter.filter_categ // Si ya es array, lo usa
                   }
                 />
@@ -611,8 +661,10 @@ const getGestionAnio = (filterDateValue: string) => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                   selectcategorias={
-                    typeof formStateFilter.filter_categ === 'string'
-                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : []) // Si es string, lo convierte a array o array vacío
+                    typeof formStateFilter.filter_categ === "string"
+                      ? formStateFilter.filter_categ
+                        ? [formStateFilter.filter_categ]
+                        : [] // Si es string, lo convierte a array o array vacío
                       : formStateFilter.filter_categ // Si ya es array, lo usa
                   }
                 />
