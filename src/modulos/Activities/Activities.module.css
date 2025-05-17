@@ -6,6 +6,11 @@
   gap: 1rem;
 }
 
+.accessList {
+  background-color: #10b981;
+  color: blue;
+}
+
 .contentContainer {
   display: flex;
   flex-direction: column;
@@ -141,10 +146,10 @@
   gap: 8px;
   flex-direction: column;
   flex:1;
-   font-size: var(--sM);
+   font-size: 12px;
   & > div:nth-child(1){
    color:var(--cWhite);
-   font-size: var(--sL);
+   font-size: var(--sM);
   }
 }
 .companionsText{

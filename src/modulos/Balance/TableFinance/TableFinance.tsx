@@ -50,9 +50,14 @@ const TableFinance = ({
 
   const handleItemClick = (index: number) => {
     setDropStates(
-      dropStates.map((state, i) => ({
-        drop: i === index ? !state.drop : false, // Colapsa otros al abrir uno
-      }))
+      dropStates.map((state, i) => {
+        if (i === index) {
+          // Si es el ítem clickeado, invierte su estado 'drop'
+          return { ...state, drop: !state.drop };
+        }
+        // Para todos los demás ítems, mantiene su estado actual
+        return state; // o return { ...state }; si state tiene más propiedades
+      })
     );
   };
 
