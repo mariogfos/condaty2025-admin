@@ -22,8 +22,6 @@ interface FormStateFilter {
   filter_mov?: string;
 }
 
-
-
 const Outlays = () => {
   const router = useRouter();
   const [openGraph, setOpenGraph] = useState(false);
@@ -31,13 +29,19 @@ const Outlays = () => {
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
-  const [customDateRange, setCustomDateRange] = useState<{ startDate?: string; endDate?: string }>({});
-  const [customDateErrors, setCustomDateErrors] = useState<{ startDate?: string; endDate?: string }>({});
+  const [customDateRange, setCustomDateRange] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'date_at' && value === 'custom') {
+    if (opt === "date_at" && value === "custom") {
       setCustomDateRange({});
       setCustomDateErrors({});
       setOpenCustomFilter(true);
@@ -67,12 +71,11 @@ const Outlays = () => {
         {...props}
         outlay_id={props?.item?.id} // Pasa el ID del egreso
         extraData={extraData} // Pasa extraData para las categorías
-        
       />
     ),
     hideActions: {
       edit: true,
-      del:true
+      del: true,
     },
     loadView: { fullType: "DET" },
     saveMsg: {
@@ -180,27 +183,15 @@ const Outlays = () => {
         filter: {
           label: "Categoría",
           width: "150px",
-          extraData: "categories",
-          options: (items: any) => {
-            let data: any = [
-              {
-                id: "",
-                name: "Todos"
-              }
-            ];
-            items?.extraData?.categories
-              ?.filter(
-                (c: { padre: any; category_id: any }) =>
-                  !c.padre && !c.category_id
-              )
-              ?.map((c: any) => {
-                data.push({
-                  id: c.id,
-                  name: c.name,
-                });
-              });
-            return data;
-          }
+          // extraData: "categories",
+          options: (extraData: any) => {
+            const categories = extraData?.categories || [];
+            const categoryOptions = categories.map((category: any) => ({
+              id: category.id,
+              name: category.name,
+            }));
+            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
+          },
         },
         list: {
           // <--- Lógica de renderizado para la columna "Categoría"
@@ -354,7 +345,7 @@ const Outlays = () => {
     params,
     setParams,
     onFilter,
-    extraData
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -363,10 +354,7 @@ const Outlays = () => {
     getFilter: handleGetFilter,
   });
 
-
-
   const [openImport, setOpenImport] = useState(false);
-
 
   // Función para cargar y mostrar el gráfico
   const onClickGraph = async () => {
@@ -411,8 +399,8 @@ const Outlays = () => {
     }
 
     const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('date_at', customDateFilterString);
-    
+    onFilter("date_at", customDateFilterString);
+
     setOpenCustomFilter(false);
     setCustomDateErrors({});
   };
@@ -487,13 +475,17 @@ const Outlays = () => {
           label="Fecha de inicio"
           name="startDate"
           error={customDateErrors.startDate}
-          value={customDateRange.startDate || ''}
+          value={customDateRange.startDate || ""}
           onChange={(e) => {
             setCustomDateRange({
               ...customDateRange,
               startDate: e.target.value,
             });
-            if (customDateErrors.startDate) setCustomDateErrors(prev => ({...prev, startDate: undefined}));
+            if (customDateErrors.startDate)
+              setCustomDateErrors((prev) => ({
+                ...prev,
+                startDate: undefined,
+              }));
           }}
           required
         />
@@ -502,13 +494,14 @@ const Outlays = () => {
           label="Fecha de fin"
           name="endDate"
           error={customDateErrors.endDate}
-          value={customDateRange.endDate || ''}
+          value={customDateRange.endDate || ""}
           onChange={(e) => {
             setCustomDateRange({
               ...customDateRange,
               endDate: e.target.value,
             });
-            if (customDateErrors.endDate) setCustomDateErrors(prev => ({...prev, endDate: undefined}));
+            if (customDateErrors.endDate)
+              setCustomDateErrors((prev) => ({ ...prev, endDate: undefined }));
           }}
           required
         />

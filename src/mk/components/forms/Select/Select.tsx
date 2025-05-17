@@ -70,8 +70,10 @@ const Select = ({
     if (multiSelect) {
       // Asegúrate de que selectValue es un array.
       // selectValue debería contener los valores correspondientes a option[optionValue] de las opciones seleccionadas.
-      const currentSelectedValues = Array.isArray(selectValue) ? selectValue : [];
-  
+      const currentSelectedValues = Array.isArray(selectValue)
+        ? selectValue
+        : [];
+
       if (
         Array.isArray(options) &&
         options.length > 0 &&
@@ -81,17 +83,18 @@ const Select = ({
         const selectedFullOptions = options.filter((option: any) =>
           currentSelectedValues.includes(option[optionValue])
         );
-  
+
         let displayString = "";
         const count = selectedFullOptions.length;
-  
+
         if (count > 5) {
           displayString = `${count} elementos seleccionados`;
         } else {
           // Obtiene los nombres (usando optionLabel) de las opciones seleccionadas.
           // Provee un fallback si option[optionLabel] o option.label no existen.
           const namesArray = selectedFullOptions.map(
-            (option: any) => option[optionLabel] || option.label || String(option[optionValue])
+            (option: any) =>
+              option[optionLabel] || option.label || String(option[optionValue])
           );
           displayString = namesArray.join(", ");
         }
@@ -297,7 +300,6 @@ const Select = ({
                         w={32}
                       />
                     )}
-                    {option[optionLabel] || option.label}
                     {multiSelect ? (
                       Array.isArray(selectValue) &&
                       selectValue.includes(option[optionValue]) ? (
@@ -306,6 +308,9 @@ const Select = ({
                         <IconCheckOff size={18} />
                       )
                     ) : null}
+                    <div style={{ flexGrow: 1, flexBasis: 0 }}>
+                      {option[optionLabel] || option.label}
+                    </div>
                   </div>
                 </li>
               ))
