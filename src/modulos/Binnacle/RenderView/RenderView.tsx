@@ -33,8 +33,8 @@ const RenderView = memo((props: BinnacleDetailProps) => {
               src={getUrlImages(
                 "/GNEW-" + item.id + ".webp?d=" + item.updated_at
               )}
-              h={170}
-              w={170}
+              h={298}
+              w={298}
               onError={() => {
                 setImageExist(false);
               }}
@@ -46,18 +46,26 @@ const RenderView = memo((props: BinnacleDetailProps) => {
 
         <div className={styles.detailsContainer}>
           <div className={styles.detailRow}>
+            <div className={styles.value} style={{ display:'flex', gap:8}}>
+            <Avatar
+              src={getUrlImages(
+                "/GUARD-" + item.id + ".webp?d=" + item.updated_at
+              )}
+              name={getFullName(item.guardia)}
+              />
+              <div >
+              {getFullName(item.guardia) || "Sin guardia asignado"}
+            <div className={styles.label}>Guardia</div>
+            </div>
+            </div>
+          </div>
+          <div className={styles.detailRow}>
             <div className={styles.label}>Fecha</div>
             <div className={styles.value}>
               {getDateTimeStrMesShort(item.created_at)}
             </div>
           </div>
 
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Guardia</div>
-            <div className={styles.value}>
-              {getFullName(item.guardia) || "Sin guardia asignado"}
-            </div>
-          </div>
 
           <div className={styles.detailRow}>
             <div className={styles.label}>Descripción</div>

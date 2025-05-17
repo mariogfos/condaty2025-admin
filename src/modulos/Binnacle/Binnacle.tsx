@@ -9,6 +9,7 @@ import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
 
 const mod = {
   modulo: "guardnews",
@@ -49,10 +50,11 @@ const Binnacle = () => {
                                 props?.item?.guardia.updated_at
                             )}
                             name={getFullName(props?.item.guardia)}
-                            square
+                            // square
                           />
                           <div>
-                            <p>{getFullName(props?.item.guardia)} </p>
+                            <p>{getFullName(props?.item?.guardia)} </p>
+                            <p>CI: {props?.item?.guardia?.ci }</p>
                           </div>
                         </div>
             );
@@ -65,7 +67,24 @@ const Binnacle = () => {
         label: "Descripción",
         form: { type: "text" },
         list: { },
-      },  
+      }, 
+     date: {
+        rules: ["required"],
+        api: "e",
+        label: "Fecha",
+        list: {
+          onRender: (props: any) => {
+            return (
+              <div>
+              {getDateTimeStrMesShort(props?.item?.created_at)}
+              </div>
+            );
+          }
+        },
+      },
+      image: {
+        
+      }  
     }),
     []
   );
