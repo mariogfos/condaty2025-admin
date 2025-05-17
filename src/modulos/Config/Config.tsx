@@ -205,7 +205,7 @@ const Config = () => {
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
-      setErrors(error?.data?.errors);
+      // setErrors(error?.data?.errors);
     }
   };
 
