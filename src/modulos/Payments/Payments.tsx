@@ -33,8 +33,14 @@ const Payments = () => {
   const [dataGraph, setDataGraph] = useState<any>({});
   const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
-  const [customDateRange, setCustomDateRange] = useState<{ startDate?: string; endDate?: string }>({});
-  const [customDateErrors, setCustomDateErrors] = useState<{ startDate?: string; endDate?: string }>({});
+  const [customDateRange, setCustomDateRange] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   const mod = {
     modulo: "payments",
@@ -107,7 +113,8 @@ const Payments = () => {
     if (formStateFilter.filter_date === "year") periodo = "y";
     if (formStateFilter.filter_date === "lyear") periodo = "ly";
     // Si es personalizado, ya tiene el formato 'c:...'
-    if (formStateFilter.paid_at?.startsWith("c:")) return formStateFilter.paid_at;
+    if (formStateFilter.paid_at?.startsWith("c:"))
+      return formStateFilter.paid_at;
     return periodo;
   };
 
@@ -138,13 +145,13 @@ const Payments = () => {
           },
         },
         filter: {
-          key: 'paid_at', // Asegura que la clave sea correcta
+          key: "paid_at", // Asegura que la clave sea correcta
           label: "Periodo",
-         
+
           options: getPeriodOptions,
         },
       },
-     
+
       category_id: {
         rules: ["required"],
         api: "ae",
@@ -165,8 +172,15 @@ const Payments = () => {
         },
         filter: {
           label: "Categoría",
-         
-          extraData: "categories",
+          options: (extraData: any) => {
+            const categories = extraData?.categories || [];
+            const categoryOptions = categories.map((category: any) => ({
+              id: category.id,
+              name: category.name,
+            }));
+            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
+          },
+          // extraData: "categories",
         },
       },
       subcategory_id: {
@@ -224,7 +238,7 @@ const Payments = () => {
         },
         filter: {
           label: "Tipo de pago",
-          
+
           options: getPaymentTypeOptions,
         },
       },
@@ -256,7 +270,7 @@ const Payments = () => {
         },
         filter: {
           label: "Estado del ingreso",
-        
+
           options: getStatusOptions,
         },
       },
@@ -315,7 +329,7 @@ const Payments = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'paid_at' && value === 'custom') {
+    if (opt === "paid_at" && value === "custom") {
       setCustomDateRange({});
       setCustomDateErrors({});
       setOpenCustomFilter(true);
@@ -324,44 +338,43 @@ const Payments = () => {
     }
 
     if (value === "" || value === null || value === undefined) {
-        delete currentFilters[opt];
+      delete currentFilters[opt];
     } else {
-        currentFilters[opt] = value;
+      currentFilters[opt] = value;
     }
     return { filterBy: currentFilters };
   };
 
-// En Payments.tsx
-// En Payments.tsx
-const onSaveCustomFilter = () => {
-  let err: { startDate?: string; endDate?: string } = {};
-  if (!customDateRange.startDate) {
-    err.startDate = "La fecha de inicio es obligatoria";
-  }
-  if (!customDateRange.endDate) {
-    err.endDate = "La fecha de fin es obligatoria";
-  }
-  if (
-    customDateRange.startDate &&
-    customDateRange.endDate &&
-    customDateRange.startDate > customDateRange.endDate
-  ) {
-    err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-  }
-  if (Object.keys(err).length > 0) {
-    setCustomDateErrors(err);
-    return;
-  }
+  // En Payments.tsx
+  // En Payments.tsx
+  const onSaveCustomFilter = () => {
+    let err: { startDate?: string; endDate?: string } = {};
+    if (!customDateRange.startDate) {
+      err.startDate = "La fecha de inicio es obligatoria";
+    }
+    if (!customDateRange.endDate) {
+      err.endDate = "La fecha de fin es obligatoria";
+    }
+    if (
+      customDateRange.startDate &&
+      customDateRange.endDate &&
+      customDateRange.startDate > customDateRange.endDate
+    ) {
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+    }
+    if (Object.keys(err).length > 0) {
+      setCustomDateErrors(err);
+      return;
+    }
 
+    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
 
-  const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
+    // Llama a la función onFilter del hook useCrud.
+    onFilter("paid_at", customDateFilterString);
 
-  // Llama a la función onFilter del hook useCrud.
-  onFilter('paid_at', customDateFilterString);
-  
-  setOpenCustomFilter(false);
-  setCustomDateErrors({});
-};
+    setOpenCustomFilter(false);
+    setCustomDateErrors({});
+  };
   const extraButtons = [
     <Button
       key="categories-button"
@@ -372,14 +385,26 @@ const onSaveCustomFilter = () => {
     </Button>,
   ];
 
-  const { userCan, List, onView, onEdit, onDel, reLoad, onAdd, execute, params, setParams, onFilter } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-      extraButtons,
-      getFilter: handleGetFilter, // Pasar la función aquí
-    });
+  const {
+    userCan,
+    List,
+    onView,
+    onEdit,
+    onDel,
+    reLoad,
+    onAdd,
+    execute,
+    params,
+    setParams,
+    extraData,
+    onFilter,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    extraButtons,
+    getFilter: handleGetFilter, // Pasar la función aquí
+  });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
@@ -434,13 +459,17 @@ const onSaveCustomFilter = () => {
           label="Fecha de inicio"
           name="startDate"
           error={customDateErrors.startDate}
-          value={customDateRange.startDate || ''}
+          value={customDateRange.startDate || ""}
           onChange={(e) => {
             setCustomDateRange({
               ...customDateRange,
               startDate: e.target.value,
             });
-            if (customDateErrors.startDate) setCustomDateErrors(prev => ({...prev, startDate: undefined}));
+            if (customDateErrors.startDate)
+              setCustomDateErrors((prev) => ({
+                ...prev,
+                startDate: undefined,
+              }));
           }}
           required
         />
@@ -449,18 +478,18 @@ const onSaveCustomFilter = () => {
           label="Fecha de fin"
           name="endDate"
           error={customDateErrors.endDate}
-          value={customDateRange.endDate || ''}
+          value={customDateRange.endDate || ""}
           onChange={(e) => {
             setCustomDateRange({
               ...customDateRange,
               endDate: e.target.value,
             });
-             if (customDateErrors.endDate) setCustomDateErrors(prev => ({...prev, endDate: undefined}));
+            if (customDateErrors.endDate)
+              setCustomDateErrors((prev) => ({ ...prev, endDate: undefined }));
           }}
           required
         />
       </DataModal>
-
     </div>
   );
 };

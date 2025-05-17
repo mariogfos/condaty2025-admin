@@ -16,7 +16,12 @@ import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
 import TableResumenGeneral from "./TableResumenGeneral";
 // Icons
-import { IconArrowDown, IconExport, LineGraphic, PointGraphic } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconArrowDown,
+  IconExport,
+  LineGraphic,
+  PointGraphic,
+} from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
@@ -332,7 +337,6 @@ const BalanceGeneral: React.FC = () => {
                 name="categ"
                 error={errors}
                 multiSelect={true}
-                filter={true}
                 onChange={(e) => {
                   setFormStateFilter({
                     ...formStateFilter,
