@@ -14,95 +14,87 @@ const PaymentsConfig = ({
   errors,
   onSave,
 }: any) => {
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  // const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Validar cambios en el formulario
-  useEffect(() => {
-    const newErrors: Record<string, string> = {};
+  // useEffect(() => {
+  //   const newErrors: Record<string, string> = {};
 
-    // Validación 1: Entidad bancaria - solo letras, máximo 50 caracteres
-    if (formState?.payment_transfer_bank) {
-      if (
-        !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formState.payment_transfer_bank)
-      ) {
-        newErrors.payment_transfer_bank = "Solo se permiten letras";
-      }
+  //   // Validación 1: Entidad bancaria - solo letras, máximo 50 caracteres
+  //   if (formState?.payment_transfer_bank) {
+  //     if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formState.payment_transfer_bank)) {
+  //       newErrors.payment_transfer_bank = 'Solo se permiten letras';
+  //     }
 
-      if (formState.payment_transfer_bank.length > 50) {
-        newErrors.payment_transfer_bank = "Máximo 50 caracteres";
-      }
-    }
+  //     if (formState.payment_transfer_bank.length > 50) {
+  //       newErrors.payment_transfer_bank = 'Máximo 50 caracteres';
+  //     }
+  //   }
 
-    // Validación 2: Número de cuenta - máximo 25 dígitos
-    if (formState?.payment_transfer_account) {
-      if (formState.payment_transfer_account.length > 25) {
-        newErrors.payment_transfer_account = "Máximo 25 caracteres";
-      }
-    }
+  //   // Validación 2: Número de cuenta - máximo 25 dígitos
+  //   if (formState?.payment_transfer_account) {
+  //     if (formState.payment_transfer_account.length > 25) {
+  //       newErrors.payment_transfer_account = 'Máximo 25 caracteres';
+  //     }
+  //   }
 
-    // Validación 3: Nombre de destinatario - solo letras, máximo 50 caracteres
-    if (formState?.payment_transfer_name) {
-      if (
-        !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formState.payment_transfer_name)
-      ) {
-        newErrors.payment_transfer_name = "Solo se permiten letras";
-      }
+  //   // Validación 3: Nombre de destinatario - solo letras, máximo 50 caracteres
+  //   if (formState?.payment_transfer_name) {
+  //     if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(formState.payment_transfer_name)) {
+  //       newErrors.payment_transfer_name = 'Solo se permiten letras';
+  //     }
 
-      if (formState.payment_transfer_name.length > 50) {
-        newErrors.payment_transfer_name = "Máximo 50 caracteres";
-      }
-    }
+  //     if (formState.payment_transfer_name.length > 50) {
+  //       newErrors.payment_transfer_name = 'Máximo 50 caracteres';
+  //     }
+  //   }
 
-    // Validación 4: CI/NIT - máximo 15 dígitos
-    if (formState?.payment_transfer_ci) {
-      if (formState.payment_transfer_ci.toString().length > 15) {
-        newErrors.payment_transfer_ci = "Máximo 15 dígitos";
-      }
-    }
+  //   // Validación 4: CI/NIT - máximo 15 dígitos
+  //   if (formState?.payment_transfer_ci) {
+  //     if (formState.payment_transfer_ci.toString().length > 15) {
+  //       newErrors.payment_transfer_ci = 'Máximo 15 dígitos';
+  //     }
+  //   }
 
-    // Validación 5: Descripción de pago en oficina - máximo 500 caracteres
-    if (formState?.payment_office_obs) {
-      if (formState.payment_office_obs.length > 500) {
-        newErrors.payment_office_obs = "Máximo 500 caracteres";
-      }
-    }
+  //   // Validación 5: Descripción de pago en oficina - máximo 500 caracteres
+  //   if (formState?.payment_office_obs) {
+  //     if (formState.payment_office_obs.length > 500) {
+  //       newErrors.payment_office_obs = 'Máximo 500 caracteres';
+  //     }
+  //   }
 
-    setValidationErrors(newErrors);
-  }, [formState]);
+  //   setValidationErrors(newErrors);
+  // }, [formState]);
 
   // Función para manejar cambios con validación
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  //   const { name, value } = e.target;
 
-    // Validaciones específicas por campo
-    if (name === "payment_transfer_bank" || name === "payment_transfer_name") {
-      // Solo permitir letras y espacios
-      if (value === "" || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{0,50}$/.test(value)) {
-        onChange(e);
-      }
-    } else if (name === "payment_transfer_account") {
-      // Limitar a 25 caracteres
-      if (value === "" || value.length <= 25) {
-        onChange(e);
-      }
-    } else if (name === "payment_transfer_ci") {
-      // Limitar a 15 dígitos y solo números
-      if (value === "" || /^\d{0,15}$/.test(value)) {
-        onChange(e);
-      }
-    } else if (name === "payment_office_obs") {
-      // Limitar a 500 caracteres
-      if (value === "" || value.length <= 500) {
-        onChange(e);
-      }
-    } else {
-      onChange(e);
-    }
-  };
+  //   // Validaciones específicas por campo
+  //   if (name === 'payment_transfer_bank' || name === 'payment_transfer_name') {
+  //     // Solo permitir letras y espacios
+  //     if (value === '' || /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{0,50}$/.test(value)) {
+  //       onChange(e);
+  //     }
+  //   } else if (name === 'payment_transfer_account') {
+  //     // Limitar a 25 caracteres
+  //     if (value === '' || value.length <= 25) {
+  //       onChange(e);
+  //     }
+  //   } else if (name === 'payment_transfer_ci') {
+  //     // Limitar a 15 dígitos y solo números
+  //     if (value === '' || (/^\d{0,15}$/).test(value)) {
+  //       onChange(e);
+  //     }
+  //   } else if (name === 'payment_office_obs') {
+  //     // Limitar a 500 caracteres
+  //     if (value === '' || value.length <= 500) {
+  //       onChange(e);
+  //     }
+  //   } else {
+  //     onChange(e);
+  //   }
+  // };
 
   return (
     <div className={styles.paymentsContainer}>
@@ -168,13 +160,10 @@ const PaymentsConfig = ({
                 type="text"
                 label="Entidad bancaria"
                 name="payment_transfer_bank"
-                error={
-                  validationErrors.payment_transfer_bank ||
-                  errors?.payment_transfer_bank
-                }
+                error={errors}
                 required
                 value={formState?.payment_transfer_bank}
-                onChange={handleChange}
+                onChange={onChange}
                 maxLength={50}
               />
             </div>
@@ -183,13 +172,10 @@ const PaymentsConfig = ({
                 type="text"
                 label="Número de cuenta"
                 name="payment_transfer_account"
-                error={
-                  validationErrors.payment_transfer_account ||
-                  errors?.payment_transfer_account
-                }
+                error={errors}
                 required
                 value={formState?.payment_transfer_account}
-                onChange={handleChange}
+                onChange={onChange}
                 maxLength={25}
               />
             </div>
@@ -201,12 +187,9 @@ const PaymentsConfig = ({
                 type="text"
                 label="Nombre de destinatario"
                 name="payment_transfer_name"
-                error={
-                  validationErrors.payment_transfer_name ||
-                  errors?.payment_transfer_name
-                }
+                error={errors}
                 value={formState?.payment_transfer_name}
-                onChange={handleChange}
+                onChange={onChange}
                 required
                 maxLength={50}
               />
@@ -216,13 +199,10 @@ const PaymentsConfig = ({
                 type="text"
                 label="Carnet de identidad/NIT"
                 name="payment_transfer_ci"
-                error={
-                  validationErrors.payment_transfer_ci ||
-                  errors?.payment_transfer_ci
-                }
+                error={errors}
                 required={true}
                 value={formState?.payment_transfer_ci}
-                onChange={handleChange}
+                onChange={onChange}
                 maxLength={15}
               />
             </div>
@@ -239,12 +219,9 @@ const PaymentsConfig = ({
               label="Detalles o requisitos"
               required
               name="payment_office_obs"
-              onChange={handleChange}
+              onChange={onChange}
               value={formState?.payment_office_obs}
-              error={
-                validationErrors.payment_office_obs ||
-                errors?.payment_office_obs
-              }
+              error={errors}
               maxLength={500}
             />
           </div>
@@ -252,13 +229,9 @@ const PaymentsConfig = ({
 
         <div className={styles.saveButtonContainer}>
           <Button
-            className={`${styles.saveButton} ${
-              Object.keys(validationErrors).length > 0
-                ? styles.disabledButton
-                : ""
-            }`}
+            className={`${styles.saveButton} `}
             onClick={onSave}
-            disabled={Object.keys(validationErrors).length > 0}
+            // disabled={Object.keys(validationErrors).length > 0}
           >
             Guardar datos
           </Button>

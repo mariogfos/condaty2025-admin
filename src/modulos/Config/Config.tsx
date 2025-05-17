@@ -143,7 +143,6 @@ const Config = () => {
     }
 
     if (typeSearch === "P") {
-      // Si hay error con la imagen, se valida que el avatarQr sea obligatorio
       if (errorImage) {
         errors = checkRules({
           value: formState.avatarQr,
