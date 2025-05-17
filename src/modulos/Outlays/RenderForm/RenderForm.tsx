@@ -209,11 +209,14 @@ const RenderForm = ({
         onCloseModal();
       } else if (error) {
         console.error("Error al guardar el egreso:", error);
+        showToast(error?.data?.message || "Error al guardar el egreso", "error");
         const errorMsg = error?.data?.message || "Error al guardar el egreso";
         showToast(errorMsg, "error");
         if (error.data && error.data.errors) {
+          showToast(error.data.errors, "error");
           set_Errors(error.data.errors);
         } else {
+          showToast(errorMsg, "error");
           set_Errors(prev => ({...prev, general: errorMsg}));
         }
       }
@@ -284,6 +287,7 @@ const RenderForm = ({
                   onChange={handleChangeInput}
                   error={_errors}
                   className={_errors.date_at ? styles.error : ""}
+                  max={new Date().toISOString().split('T')[0]}
                 />
               </div>
             </div>
@@ -355,7 +359,7 @@ const RenderForm = ({
                     <Select
                       name="type"
                       value={_formState.type || ""}
-                      label="Método de pago"
+                      label="Forma de pago"
                       onChange={handleChangeInput}
                       options={paymentMethods}
                       error={_errors}

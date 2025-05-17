@@ -62,6 +62,8 @@ const Users = () => {
         type={"admin"}
         title="Perfil de Administrador"
         reLoad={reLoad}
+        del={ user.id === props?.item?.id ? false : true}
+        edit={ user.id === props?.item?.id? false : true}
       />
     ),
     renderDel: (props: {

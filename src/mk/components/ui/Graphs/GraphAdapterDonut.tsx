@@ -18,7 +18,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
             color:'var(--cWhite)',
             formatter: function (val:any) {
               // return formatNumber(totalRadial) + " Bs";
-              return val!== 0 ? formatNumber(Number(val).toFixed(1)) + " Bs" : "";
+              return val!== 0 ? formatNumber(Number(val)) + " Bs" : "";
             }
             },
             total: {
@@ -38,7 +38,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       ...oDef.dataLabels,
       formatter: function (val: any, opts: any) {
         
-        if (val !== 0) return Number(val).toFixed(1) + "%";
+        if (val !== 0) return Number(val).toFixed(2) + "%";
         
       },
       style: {
@@ -76,7 +76,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       y: {
         formatter: function (val: any) {
           // return val + " %";
-          return formatNumber(val.toFixed(1));
+          return formatNumber(val.toFixed(2));
 
         },
       },

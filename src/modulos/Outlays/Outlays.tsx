@@ -177,6 +177,31 @@ const Outlays = () => {
             return data;
           },
         },
+        filter: {
+          label: "Categoría",
+          width: "150px",
+          extraData: "categories",
+          options: (items: any) => {
+            let data: any = [
+              {
+                id: "",
+                name: "Todos"
+              }
+            ];
+            items?.extraData?.categories
+              ?.filter(
+                (c: { padre: any; category_id: any }) =>
+                  !c.padre && !c.category_id
+              )
+              ?.map((c: any) => {
+                data.push({
+                  id: c.id,
+                  name: c.name,
+                });
+              });
+            return data;
+          }
+        },
         list: {
           // <--- Lógica de renderizado para la columna "Categoría"
           onRender: (props: any) => {
@@ -194,11 +219,6 @@ const Outlays = () => {
               return category.name || `(Sin nombre)`;
             }
           },
-        },
-        filter: {
-          label: "Categoría",
-          width: "150px",
-          extraData: "categories",
         },
       },
 

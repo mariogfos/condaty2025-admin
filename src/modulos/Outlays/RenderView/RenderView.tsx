@@ -149,6 +149,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
               <span className={styles.infoLabel}>Subcategoría</span>
               <span className={styles.infoValue}>{subCategoryName}</span>
             </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Descripción</span>
+              <span className={styles.infoValue}>{item.description || "-/-"}</span>
+            </div>
           </div>
 
           <div className={styles.infoColumn}>
@@ -160,14 +164,11 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
             </div>
             {item.type && ( // Solo mostrar si item.type tiene un valor
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Método de Pago</span>
+                <span className={styles.infoLabel}>Forma de Pago</span>
                 <span className={styles.infoValue}>{getPaymentMethodText(item.type)}</span>
               </div>
                 )}
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Descripción</span>
-              <span className={styles.infoValue}>{item.description || "Sin descripción"}</span>
-            </div>
+            
           </div>
         </div>
 

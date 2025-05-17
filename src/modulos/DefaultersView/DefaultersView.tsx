@@ -19,6 +19,7 @@ import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import WidgetDefaulterResume from "@/components/Widgets/WidgetDefaulterResume/WidgetDefaulterResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
 const DefaultersView = () => {
   const { setStore } = useAuth();
@@ -364,7 +365,7 @@ const DefaultersView = () => {
           condominio
         </p> */}
 
-         <WidgetDefaulterResume
+         {/* <WidgetDefaulterResume
             title={"Total de unidades morosas"}
             amount={`${defaultersLength}`}
             pointColor={"var(--cSuccess)"}
@@ -374,7 +375,16 @@ const DefaultersView = () => {
             // backgroundColor={`red`}
             style={{maxWidth:250}}
             textColor="white"
-          /> 
+          />  */}
+         <WidgetDashCard
+                  title="Total de unidades morosas"
+                  data={`${defaultersLength}`}
+                  onClick={() =>  {}}
+                  icon={<IconHousing reverse size={32} color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo'}} circle/>}
+                  className={styles.widgetResumeCard}
+                  style={{maxWidth:250}}
+                />
+              
 
         <div className={styles.listContainer}>
           <List renderRight={renderRightPanel} />
