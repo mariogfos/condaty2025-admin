@@ -423,11 +423,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   value={datas?.data?.dimension + " m²"}
                   label="Dimensiones"
                 />
-
-                <LabelValue
-                  value={datas?.data?.dimension}
-                  label="Dimensiones"
-                />
               </div>
 
               <Br />
