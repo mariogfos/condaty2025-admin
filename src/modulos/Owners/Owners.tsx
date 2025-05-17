@@ -34,6 +34,11 @@ const Owners = () => {
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [selectedHomeowner, setSelectedHomeowner] = useState(null);
 
+  const getTypefilter = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "D", name: "Dependientes" },
+    { id: "T", name: "Titulares" },
+  ];
   const openUnitsModal = (homeowner: any) => {
     setSelectedHomeowner(homeowner);
     setUnitsModalOpen(true);
@@ -392,6 +397,12 @@ const Owners = () => {
               </div>
             );
           },
+        },
+        filter: {
+          label: "Tipo de residente",
+          width: "180px",
+          // Usa la función actualizada para las opciones del filtro
+          options: getTypefilter,
         },
         // form: false, // Descomenta si no quieres que aparezca en el formulario
       },
