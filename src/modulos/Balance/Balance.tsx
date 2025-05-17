@@ -174,7 +174,7 @@ const BalanceGeneral: React.FC = () => {
   }, [formStateFilter]);
 
   const ldate = [
-    { id: "ALL", name: "Todos" },
+    { id: "T", name: "Todos" },
     { id: "ld", name: "Ayer" },
     { id: "w", name: "Esta semana" },
     { id: "lw", name: "Semana pasada" },
@@ -422,7 +422,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los ingresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los ingresos en la ${getGestionAnio(formStateFilter.filter_date)}`}
                 </h2>
                 <TableIngresos
                   title="Ingresos"
@@ -438,7 +438,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los egresos de ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los egresos en la ${getGestionAnio(formStateFilter.filter_date)}`}
                 </h2>
                 <TableEgresos
                   title="Egresos"
@@ -454,7 +454,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los totales de ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los totales en la ${getGestionAnio(formStateFilter.filter_date)}`}
                 </h2>
                 <TableResumenGeneral
                   subcategoriasE={finanzas?.data?.egresos}
