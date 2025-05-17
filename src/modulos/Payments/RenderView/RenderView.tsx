@@ -318,7 +318,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 <div className={styles.periodsTable}>
                   <div className={styles.periodsTableHeader}>
                     <div className={styles.periodsTableCell}>Periodo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
+                    <div className={styles.periodsTableCell}>Categoría</div>
                     <div className={styles.periodsTableCell}>Monto</div>
                     <div className={styles.periodsTableCell}>Multa</div>
                     <div className={styles.periodsTableCell}>Subtotal</div>

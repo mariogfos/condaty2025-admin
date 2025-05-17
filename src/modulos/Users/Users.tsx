@@ -62,8 +62,8 @@ const Users = () => {
         type={"admin"}
         title="Perfil de Administrador"
         reLoad={reLoad}
-        del={ user.id === props?.item?.id ? false : true}
-        edit={ user.id === props?.item?.id? false : true}
+        del={user.id === props?.item?.id ? false : true}
+        edit={user.id === props?.item?.id ? false : true}
       />
     ),
     renderDel: (props: {
@@ -216,7 +216,6 @@ const Users = () => {
         list: false,
       },
 
-      
       name: {
         rules: ["required"],
         api: "ae",
@@ -302,7 +301,7 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: {},
+        list: false,
       },
 
       phone: {
@@ -328,11 +327,10 @@ const Users = () => {
       email: {
         rules: ["required"],
         api: "a",
-        label: "Cédula de identidad",
+        label: "Correo electrónico",
         // form: { type: "text", disabled: true, label: "2222" },
         form: {
           type: "number",
-          label: "Cédula de identidad",
           onRender: (props: any) => {
             // console.log(props,'propsval')
             return (
@@ -358,6 +356,7 @@ const Users = () => {
             );
           },
         },
+        list: true,
       },
     };
   }, []);
