@@ -37,9 +37,9 @@ const TableResumenGeneral = ({
 
     setFormatedData([
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
-      { name: "Ingresos", amount: totalIngresos, sub: [] },
-      { name: "Egresos", amount: totalEgresos, sub: [] },
-      { name: "Saldo", amount: totalIngresos - totalEgresos, sub: [] },
+      { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
+      { name: "Total de Egresos", amount: totalEgresos, sub: [] },
+      { name: "Total de Saldo Acumulado", amount: totalIngresos - totalEgresos, sub: [] },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
   }, [subcategoriasE, subcategoriasI]);
