@@ -358,7 +358,6 @@ const BalanceGeneral: React.FC = () => {
                 name="categ"
                 error={errors}
                 multiSelect={true}
-                filter={true}
                 onChange={(e) => {
                   setFormStateFilter({
                     ...formStateFilter,
