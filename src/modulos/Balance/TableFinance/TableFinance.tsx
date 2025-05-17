@@ -42,6 +42,7 @@ const TableFinance = ({
   variant = 'income',
 }: PropsType) => {
   const [dropStates, setDropStates] = useState<Array<{ drop: boolean }>>([]);
+  const isTwoColumnLayout = meses.length === 0;
 
   useEffect(() => {
     setDropStates(data.map(() => ({ drop: false })));
@@ -124,71 +125,76 @@ const TableFinance = ({
   };
 
   return (
-    <div className={getContainerClass()}>
-      {/* Encabezado de la Tabla */}
-      <div className={styles.tableHeaderRow}>
-        <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
-          <span>{title}</span>
-        </div>
-        {meses.map((mes, index) => (
-          <div key={index} className={`${styles.headerCell} ${styles.monthHeaderCell}`}>
-            <span>{mes.toUpperCase()}</span>
+    <>
+      <div className={getContainerClass()}>
+        {/* Encabezado de la Tabla */}
+        <div className={styles.tableHeaderRow}>
+          <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
+            <span>{title}</span>
           </div>
-        ))}
-        <div className={`${styles.headerCell} ${styles.totalHeaderCell}`}>
-          <span>{title2}</span>
-        </div>
-      </div>
-
-      {/* Filas de Datos (Categorías Principales) */}
-      {data.map((item, index) => (
-        <React.Fragment key={`item-${index}`}>
-          <div className={`${styles.dataRow} ${dropStates[index]?.drop ? styles.dataRowActive : ''}`}>
-            <div 
-              className={`${styles.dataCell} ${styles.categoryNameCell}`}
-              onClick={() => item.sub && item.sub.length > 0 && handleItemClick(index)}
-            >
-              {item.sub && item.sub.length > 0 && (
-                <span className={styles.expandIcon}>
-                  {dropStates[index]?.drop ? <IconArrowUp size={24} /> : <IconArrowDown size={24} />}
-                </span>
-              )}
-              <span>{item.name}</span>
-            </div>
-            {/* Celdas de meses para el item principal */}
-            {Array.from({ length: meses.length }).map((_, mesIdx) => (
-              <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
-              </div>
-            ))}
-            <div className={`${styles.dataCell} ${styles.totalDataCell}`}>
-              <span>Bs {formatNumber(item.amount)}</span>
-            </div>
-          </div>
-
-          {/* Filas de Sub-Items (si están expandidas) */}
-          {dropStates[index]?.drop && item.sub && item.sub.map((subItem, subIndex) => (
-            <div className={`${styles.dataRow} ${styles.subItemRow}`} key={`subitem-${index}-${subIndex}`}>
-              <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
-                <span>{subItem.name}</span>
-              </div>
-              {/* Celdas de meses para el sub-item */}
-              {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                  <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
-                </div>
-              ))}
-              <div className={`${styles.dataCell} ${styles.totalDataCell}`}>
-                <span>Bs {formatNumber(subItem.amount)}</span>
-              </div>
+          {meses.map((mes, index) => (
+            <div key={index} className={`${styles.headerCell} ${styles.monthHeaderCell}`}>
+              <span>{mes.toUpperCase()}</span>
             </div>
           ))}
-        </React.Fragment>
-      ))}
+          {/* --- INICIO DE LA MODIFICACIÓN --- */}
+          <div className={`${styles.headerCell} ${styles.totalHeaderCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+          {/* --- FIN DE LA MODIFICACIÓN --- */}
+            <span>{title2}</span>
+          </div>
+        </div>
+
+        {/* Filas de Datos (Categorías Principales) */}
+        {data.map((item, index) => (
+          <React.Fragment key={`item-${index}`}>
+            <div className={`${styles.dataRow} ${dropStates[index]?.drop ? styles.dataRowActive : ''}`}>
+              <div 
+                className={`${styles.dataCell} ${styles.categoryNameCell}`}
+                onClick={() => item.sub && item.sub.length > 0 && handleItemClick(index)}
+              >
+                {item.sub && item.sub.length > 0 && (
+                  <span className={styles.expandIcon}>
+                    {dropStates[index]?.drop ? <IconArrowUp size={24} /> : <IconArrowDown size={24} />}
+                  </span>
+                )}
+                <span>{item.name}</span>
+              </div>
+              {Array.from({ length: meses.length }).map((_, mesIdx) => (
+                <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
+                  <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
+                </div>
+              ))}
+              {/* --- INICIO DE LA MODIFICACIÓN --- */}
+              <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+              {/* --- FIN DE LA MODIFICACIÓN --- */}
+                <span>Bs {formatNumber(item.amount)}</span>
+              </div>
+            </div>
+
+            {dropStates[index]?.drop && item.sub && item.sub.map((subItem, subIndex) => (
+              <div className={`${styles.dataRow} ${styles.subItemRow}`} key={`subitem-${index}-${subIndex}`}>
+                <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
+                  <span>{subItem.name}</span>
+                </div>
+                {Array.from({ length: meses.length }).map((_, mesIdx) => (
+                  <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
+                    <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
+                  </div>
+                ))}
+                {/* --- INICIO DE LA MODIFICACIÓN --- */}
+                <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+                {/* --- FIN DE LA MODIFICACIÓN --- */}
+                  <span>Bs {formatNumber(subItem.amount)}</span>
+                </div>
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
 
       {/* Fila de Total General */}
       {typeof total !== 'undefined' && (
-        <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()}`}>
+        <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
           <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
             <span>{titleTotal || "Total de " + title}</span>
             {tooltip && (
@@ -200,15 +206,16 @@ const TableFinance = ({
               </div>
             )}
           </div>
-          {/* Celdas vacías para alinear con meses si es necesario, o una celda que ocupe ese espacio */}
+          {/* Si no hay meses, totalEmptyMonthCells tendrá flexGrow: 0, lo que es correcto */}
           <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
-          
-          <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()}`}>
+          {/* --- INICIO DE LA MODIFICACIÓN --- */}
+          <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+          {/* --- FIN DE LA MODIFICACIÓN --- */}
             <span>Bs {formatNumber(total)}</span>
           </div>
         </div>
       )}
-    </div>
+    </> 
   );
 };
 
