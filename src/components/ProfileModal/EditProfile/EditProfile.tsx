@@ -243,7 +243,7 @@ const EditProfile = ({
         </div>
         {type !== 'homeOwner' && type !== 'owner' && (
           <Input
-            label="Dirección"
+            label="Domicilio"
             name="address"
             type="text"
             value={formState.address}
