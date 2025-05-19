@@ -108,7 +108,7 @@ const EditProfile = ({
         });
         errs = checkRules({
           value: formState.phone,
-          rules: ["required", "numeric", "min:8"],
+          rules: ["required", "number", "min:8"],
           key: "phone",
           errors: errs,
         });
