@@ -61,9 +61,11 @@ export const UploadFile = ({
 
   const isImageFile = (fileName: string) => {
     if (!fileName) return false;
-    const ext = fileName
-      .toLowerCase()
-      .slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2);
+    const ext: any = (fileName + "?")
+      .split("?")[0]
+      .split(".")
+      .pop()
+      ?.toLowerCase();
     return ["jpg", "png", "webp", "jpeg", "gif"].includes(ext);
   };
 
@@ -89,9 +91,9 @@ export const UploadFile = ({
         showToast("Solo se permiten archivos " + props.ext.join(", "), "error");
         return;
       }
-      
+
       const isAnImage = ["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt); // Renombrada para evitar conflicto con la prop 'img'
-      
+
       if (isAnImage) {
         try {
           const image: any = await resizeImage(file, 720, 1024, 0.7);
@@ -99,7 +101,7 @@ export const UploadFile = ({
           base64String = encodeURIComponent(base64String);
 
           if (editor) setLoadedImage(image);
-          
+
           const outputExt = fileExt === "webp" ? "webp" : "webp";
 
           onChange({
@@ -168,7 +170,8 @@ export const UploadFile = ({
     props.setError({ ...props.error, [props.name]: "" });
     setIsFileError(false);
 
-    if (value && (value as any).file != "") { // Asegurar que value se trate como objeto con 'file'
+    if (value && (value as any).file != "") {
+      // Asegurar que value se trate como objeto con 'file'
       onChange({
         target: {
           name: props.name,
@@ -186,9 +189,10 @@ export const UploadFile = ({
     setSelectedFiles({});
   };
 
-  const getSizeWithUnit = (sizeValue:any) => { // Renombrado parámetro para claridad
+  const getSizeWithUnit = (sizeValue: any) => {
+    // Renombrado parámetro para claridad
     if (sizeValue === undefined || sizeValue === null) return "100px";
-    if (typeof sizeValue === 'number') return `${sizeValue}px`;
+    if (typeof sizeValue === "number") return `${sizeValue}px`;
     return sizeValue;
   };
 
@@ -197,12 +201,17 @@ export const UploadFile = ({
     if (editedImage) {
       return editedImage;
     }
-    
+
     if (selectedFiles?.name) {
       return URL.createObjectURL(selectedFiles);
     }
-    
-    if (typeof value === 'object' && value && (value as any).file && (value as any).ext) {
+
+    if (
+      typeof value === "object" &&
+      value &&
+      (value as any).file &&
+      (value as any).ext
+    ) {
       try {
         const decoded = decodeURIComponent((value as any).file);
         return `data:image/${(value as any).ext};base64,${decoded}`;
@@ -211,11 +220,12 @@ export const UploadFile = ({
         return "";
       }
     }
-    
-    if (typeof value === 'string' && value) { // Asegurar que no sea un string vacío
+
+    if (typeof value === "string" && value) {
+      // Asegurar que no sea un string vacío
       return value;
     }
-    
+
     return "";
   };
 
@@ -229,17 +239,22 @@ export const UploadFile = ({
       );
     }
 
-    const shouldShowImage = (editedImage || 
-      selectedFiles?.type?.startsWith("image/") || 
-      (selectedFiles?.name && isImageFile(selectedFiles.name)) ||
-      (typeof value === 'object' && value && (value as any).ext && isImageFile(`.${(value as any).ext}`)) ||
-      (typeof value === 'string' && value && isImageFile(value))) && 
+    const shouldShowImage =
+      (editedImage ||
+        selectedFiles?.type?.startsWith("image/") ||
+        (selectedFiles?.name && isImageFile(selectedFiles.name)) ||
+        (typeof value === "object" &&
+          value &&
+          (value as any).ext &&
+          isImageFile(`.${(value as any).ext}`)) ||
+        (typeof value === "string" && value && isImageFile(value))) &&
       img; // Aquí 'img' es la prop desestructurada
-
+    console.log("renderVisualElement2", isImageFile(value));
     if (shouldShowImage) {
       const imageUrl = getImageUrl();
+      console.log("imageUrl", imageUrl);
       if (!imageUrl) {
-           return <IconImage className={styles.visualElementIcon} />;
+        return <IconImage className={styles.visualElementIcon} />;
       }
       return (
         <img
@@ -253,23 +268,21 @@ export const UploadFile = ({
         />
       );
     }
-    
+
     if (selectedFiles.type === "application/pdf") {
       return <IconPDF className={styles.visualElementIcon} />;
     }
-    
+
     if (selectedFiles.name) {
       return <IconDocs className={styles.visualElementIcon} />;
     }
-    
+
     return img ? ( // Aquí 'img' es la prop desestructurada
       <IconImage className={styles.visualElementIcon} />
     ) : (
       <IconDocs className={styles.visualElementIcon} />
     );
   };
-
-
   return (
     <ControlLabel
       {...props}
@@ -301,96 +314,97 @@ export const UploadFile = ({
           accept={accept()}
           className={styles.fileInput} // Añadida clase
         />
-        {
-          (!selectedFiles?.name && !(value && (value as any).file)) ? ( // Modificada la condición para chequear 'value.file'
+        {!selectedFiles?.name && !(value && (value != "" || value.file)) ? ( // Modificada la condición para chequear 'value.file'
+          <div
+            className={styles.uploadPlaceholder} // Añadida clase
+            onClick={() => {
+              const fileUpload = document.getElementById(props.name);
+              if (fileUpload) {
+                fileUpload.click();
+              }
+            }}
+          >
+            {img ? ( // Aquí 'img' es la prop desestructurada
+              <IconImage size={40} color={"var(--cWhite)"} />
+            ) : (
+              <IconDocs size={40} color={"var(--cWhite)"} />
+            )}
+            <span>
+              {props.placeholder || "Cargar un archivo o arrastrar y soltar "}
+            </span>
+            <span>{props.ext.join(", ")}</span>
+          </div>
+        ) : (
+          // ----- NUEVA ESTRUCTURA PARA LA PREVISUALIZACIÓN -----
+          <div className={styles.filePreviewRow}>
             <div
-              className={styles.uploadPlaceholder} // Añadida clase
-              onClick={() => {
-                const fileUpload = document.getElementById(props.name);
-                if (fileUpload) {
-                  fileUpload.click();
-                }
+              className={styles.imageActionColumn}
+              style={{
+                width: getSizeWithUnit(sizePreview?.width),
+                height: getSizeWithUnit(sizePreview?.height),
               }}
             >
-              {img ? ( // Aquí 'img' es la prop desestructurada
-                <IconImage size={40} color={"var(--cWhite)"} />
-              ) : (
-                <IconDocs size={40} color={"var(--cWhite)"} />
-              )}
-              <span>
-                {props.placeholder || "Cargar un archivo o arrastrar y soltar "}
-              </span>
-              <span>{props.ext.join(", ")}</span>
-            </div>
-          ) : (
-            // ----- NUEVA ESTRUCTURA PARA LA PREVISUALIZACIÓN -----
-            <div className={styles.filePreviewRow}>
-              
-              <div 
-                className={styles.imageActionColumn} 
-                style={{
-                  width: getSizeWithUnit(sizePreview?.width),
-                  height: getSizeWithUnit(sizePreview?.height)
+              {renderVisualElement()}
+              <IconEdit
+                size={20}
+                className={styles.editButton}
+                color={"var(--cWhiteV1)"}
+                circle
+                onClick={() => {
+                  const fileUpload = document.getElementById(props.name);
+                  if (fileUpload) {
+                    fileUpload.click();
+                  }
                 }}
-              >
-                {renderVisualElement()}
-                
-                <IconEdit
+                style={{ backgroundColor: "black" }}
+              />
+              {item[props.name]?.file == "delete" ? (
+                <>
+                  <IconTrash
+                    size={30}
+                    className={styles.mainDeleteIconWhenMarked}
+                    style={{ backgroundColor: "black" }}
+                  />
+                  <IconArrowLeft
+                    size={20}
+                    circle={true}
+                    color="var(--cWhiteV1)"
+                    className={styles.undoDeleteButton}
+                    onClick={() => {
+                      deleteImg(false);
+                    }}
+                  />
+                </>
+              ) : (
+                <IconTrash
                   size={20}
-                  className={styles.editButton}
+                  className={styles.deleteButton}
                   color={"var(--cWhiteV1)"}
                   circle
                   onClick={() => {
-                    const fileUpload = document.getElementById(props.name);
-                    if (fileUpload) {
-                      fileUpload.click();
-                    }
+                    deleteImg();
                   }}
-                  style={{ backgroundColor: 'black' }}
+                  style={{ backgroundColor: "black" }}
                 />
-                
-                {item[props.name]?.file == "delete" ? (
-                  <>
-                    <IconTrash 
-                       size={30} 
-                       className={styles.mainDeleteIconWhenMarked} 
-                       style={{ backgroundColor: 'black' }}
-                    />
-                    <IconArrowLeft
-                      size={20}
-                      circle={true}
-                      color="var(--cWhiteV1)"
-                      
-                      className={styles.undoDeleteButton}
-                      onClick={() => {
-                        deleteImg(false);
-                      }}
-                    />
-                  </>
-                ) : (
-                  <IconTrash
-                    size={20}
-                    className={styles.deleteButton}
-                    color={"var(--cWhiteV1)"}
-                    circle
-                    onClick={() => {
-                      deleteImg();
-                    }}
-                    style={{ backgroundColor: 'black' }}
-                  />
-                )}
-              </div>
-
-              <div className={styles.fileNameColumn}>
-                <p>
-                  <span>{selectedFiles?.name || (typeof value === 'object' && value && (value as any).name) || (img ? "Imagen" : "Archivo")}</span>
-                </p>
-              </div>
-
+              )}
             </div>
-            // ----- FIN DE LA NUEVA ESTRUCTURA -----
-          )
-        }
+
+            <div className={styles.fileNameColumn}>
+              <p>
+                <span>
+                  {selectedFiles?.name ||
+                    (typeof value === "object" &&
+                      value &&
+                      (value as any).name &&
+                      typeof value === "string" &&
+                      value != "" &&
+                      (img ? "Imagen" : "Archivo"))}
+                </span>
+              </p>
+            </div>
+          </div>
+          // ----- FIN DE LA NUEVA ESTRUCTURA -----
+        )}
       </section>
       {loadedImage && (
         <ImageEditor

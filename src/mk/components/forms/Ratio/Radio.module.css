@@ -1,5 +1,6 @@
 .radio {
   flex-grow: 1;
+  margin-right: 1rem;
   & > div {
     display: flex;
     gap: 8px;
