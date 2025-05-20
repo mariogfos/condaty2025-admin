@@ -37,7 +37,7 @@ const RenderForm = ({
   onSave,
   extraData,
   execute,
-
+  showToast,
   reLoad,
   user,
 }) => {
@@ -118,11 +118,7 @@ const RenderForm = ({
     _L: "Calle/Mz",
     _O: "Piso",
   };
-  const showToast = (message: string, type: ToastType) => {
-    setToast({ msg: message, type });
 
-    setTimeout(() => setToast({ msg: "", type: "info" }), 5000);
-  };
 
   const getDeudas = useCallback(
     async (nroDpto) => {
@@ -459,8 +455,9 @@ const RenderForm = ({
 
   // Función para guardar el pago (usa set_Errors interno)
   const _onSavePago = useCallback(async () => {
-    // 1. Validar usando la función actualizada
+
     if (!validar()) {
+
       // Los mensajes específicos de error ya se muestran en la validación
       // showToast(...) ya no es necesario aquí para esos casos específicos.
       // Solo nos aseguramos de no continuar si la validación falla.
@@ -470,6 +467,7 @@ const RenderForm = ({
          showToast("Por favor revise los campos marcados", "warning");
       }
       return;
+    
     }
 
     // 2. Obtener owner_id (sin cambios)
@@ -513,10 +511,12 @@ const RenderForm = ({
       console.log("Enviando datos:", params);
       // Asume que 'execute' viene de las props y es para guardar/crear
       const { data, error } = await execute("/payments", "POST", params);
-
+      console.log("data", JSON.stringify(data))
+      console.log("aqui arriba esta lo que devuelve la api")
       // 5. Manejar la respuesta
       if (data?.success) {
         showToast("Pago agregado con éxito", "success");
+        console.log("si entra")
         reLoad(); // Recarga la lista en el componente padre (Payments)
         onClose(); // Cierra el modal
       } else {
@@ -532,7 +532,7 @@ const RenderForm = ({
       }
     } catch (err) {
       // Captura errores de red u otros errores inesperados
-      console.error("Error en _onSavePago (catch):", err);
+   
       showToast("Error inesperado al guardar el pago", "error");
     }
   }, [

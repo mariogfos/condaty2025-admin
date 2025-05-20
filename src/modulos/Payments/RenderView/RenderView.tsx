@@ -311,7 +311,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           {item?.details?.length > 0 && (
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
+                <h3 className={styles.periodsDetailsTitle}>Periodos Cobrados</h3>
               </div>
 
               <div className={styles.periodsTableWrapper}>
@@ -373,7 +373,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               </div>
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
-                  Total pagado:{" "}
+                  Total cobrado:{" "}
                   <span className={styles.totalAmountValue}>
                     Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}
                   </span>

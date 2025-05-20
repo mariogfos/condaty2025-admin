@@ -572,7 +572,7 @@ const prevStep = (): void => {
         }
     } catch (error) {
         console.error("Error en handleSubmit:", error);
-        showToast("Ocurrió un error inesperado.", "error");
+        showToast("Ocurrió un error inesperado al crear la reserva.", "error");
     } finally {
         setIsSubmitting(false);
     }
@@ -926,9 +926,7 @@ return (
                             name="cantidad_personas_input"
                             value={formState.cantidad_personas}
                             onChange={(e) => {
-                                console.log('[CreateReserva Input onChange] Event target value:', e.target.value, 'Typeof:', typeof e.target.value);
-                                console.log('[CreateReserva Input onChange] Current formState.cantidad_personas BEFORE calling HQC:', formState.cantidad_personas);
-                                console.log('[CreateReserva Input onChange] selectedAreaDetails.max_capacity:', selectedAreaDetails?.max_capacity);
+                               
                                 handleQuantityChange(e.target.value);
                             }}
                             onBlur={(e) => {
@@ -942,7 +940,7 @@ return (
                           min={1} // Atributo HTML5 para mínimo
                           max={selectedAreaDetails?.max_capacity || undefined} // Atributo HTML5 para máximo
                           aria-label="Cantidad de personas"
-                          style={{ textAlign: 'center', width: '60px' }} // Estilo básico, ajusta en tu CSS
+                          style={{ textAlign: 'center' }} // Estilo básico, ajusta en tu CSS
                       />
                       <button
                           type="button"
