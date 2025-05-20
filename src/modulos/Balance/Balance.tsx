@@ -422,7 +422,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los ingresos en la ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los ingresos`}
                 </h2>
                 <TableIngresos
                   title="Ingresos"
@@ -438,7 +438,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los egresos en la ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de los egresos`}
                 </h2>
                 <TableEgresos
                   title="Egresos"
@@ -454,7 +454,7 @@ const BalanceGeneral: React.FC = () => {
 
                 <div className={styles.divider} />
                 <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los totales en la ${getGestionAnio(formStateFilter.filter_date)}`}
+                  {`Resumen detallado de totales`}
                 </h2>
                 <TableResumenGeneral
                   subcategoriasE={finanzas?.data?.egresos}

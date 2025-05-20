@@ -182,13 +182,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === "P" && (
+        {item && onDel && item.status === "P" && !item.owner && (
           <div className={styles.headerActionContainer}>
-            {/* REEMPLAZO DEL BOTÓN */}
             <button
-              type="button" // Es buena práctica especificar el type para botones fuera de forms
+              type="button"
               onClick={handleAnularClick}
-              className={styles.textButtonDanger} // Nueva clase para el text button rojo
+              className={styles.textButtonDanger}
             >
               Anular ingreso
             </button>
