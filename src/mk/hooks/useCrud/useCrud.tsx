@@ -1255,6 +1255,7 @@ const useCrud = ({
                   action,
                   openList,
                   setOpenList,
+                  showToast: showToast,
                 })
               ) : (
                 <Form

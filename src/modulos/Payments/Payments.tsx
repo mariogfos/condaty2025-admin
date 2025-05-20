@@ -60,11 +60,7 @@ const Payments = () => {
       del: true,
     },
     filter: true,
-    saveMsg: {
-      add: "Ingreso creado con éxito",
-      edit: "Ingreso actualizado con éxito",
-      del: "Ingreso eliminado con éxito",
-    },
+
   };
 
   const getPeriodOptions = () => [
@@ -249,7 +245,7 @@ const Payments = () => {
         list: {
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
-              P: "Pagado",
+              P: "Cobrado",
               S: "Por confirmar",
               R: "Rechazado",
               E: "Por subir comprobante",
@@ -398,6 +394,7 @@ const Payments = () => {
     setParams,
     extraData,
     onFilter,
+    showToast,
   } = useCrud({
     paramsInitial,
     mod,
