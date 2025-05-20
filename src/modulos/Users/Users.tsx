@@ -317,7 +317,7 @@ const Users = () => {
       address: {
         rules: [""],
         api: "ae",
-        label: "Dirección de Domicilio",
+        label: "Dirección",
         form: {
           type: "text",
           disabled: onDisbled,

@@ -15,6 +15,7 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import PerformBudget from "./PerformBudget/PerformBudget";
 import Input from "@/mk/components/forms/Input/Input";
+import { RenderAnularModal } from "./RenderDel/RenderDel";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -73,6 +74,7 @@ const Outlays = () => {
         extraData={extraData} // Pasa extraData para las categorías
       />
     ),
+    renderDel: RenderAnularModal,
     hideActions: {
       edit: true,
       del: true,
@@ -81,7 +83,7 @@ const Outlays = () => {
     saveMsg: {
       add: "Egreso creado con éxito",
       edit: "Egreso actualizado con éxito",
-      del: "Egreso eliminado con éxito",
+      del: "Egreso anulado con éxito",
     },
   };
   const paramsInitial = {
