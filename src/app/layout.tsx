@@ -20,8 +20,8 @@ import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 // });
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Default App Name",
-  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Default Description",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "Condaty",
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Cantady",
   other: {
     google: "notranslate",
   },
