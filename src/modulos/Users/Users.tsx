@@ -293,7 +293,7 @@ const Users = () => {
       },
 
       ci: {
-        rules: ["required"],
+        rules: ["required","ci"],
         api: "ae",
         label: "Carnet de Identidad",
         form: {

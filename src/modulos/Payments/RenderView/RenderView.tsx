@@ -129,7 +129,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Busca la unidad en extraData
   const getDptoName = () => {
     if (!extraData || !extraData.dptos)
-      return (item?.dptos || "No especificada").replace(/,/g, "");
+      return (item?.dptos || "-/-").replace(/,/g, "");
 
     const dpto = extraData.dptos.find(
       (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
@@ -142,7 +142,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
-      return (item?.dptos || "No especificada").replace(/,/g, "");
+      return (item?.dptos || "-/-").replace(/,/g, "");
     }
   };
 
@@ -270,7 +270,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
                 <span className={styles.infoValue}>
-                  {getFullName(item.owner) || "Sin titular"}
+                  {getFullName(item.owner) || "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
