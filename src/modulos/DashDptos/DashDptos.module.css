@@ -17,9 +17,9 @@
   }
 }
 .iconActions {
-  padding: 8;
+  padding: 8px;
   background-color: var(--cWhiteV2);
-  border-radius: 8;
+  border-radius: 8px;
   cursor: pointer;
 }
 
