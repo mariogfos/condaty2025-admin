@@ -53,7 +53,7 @@ const typeAlerts: any = {
 };
 
 const Layout = ({ children }: any) => {
-  const { user, logout, store,setStore, showToast } = useAuth();
+  const { user, logout, store, setStore, showToast } = useAuth();
   const { isTablet, isDesktop } = useScreenSize();
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -67,8 +67,6 @@ const Layout = ({ children }: any) => {
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
   const [openClient, setOpenClient] = useState(false);
- 
-  
 
   useEffect(() => {
     // if (user) {
@@ -112,6 +110,10 @@ const Layout = ({ children }: any) => {
       if (e.event == "newPreregister" || e.payload == "newVoucher") {
         showToast(e.payload.title, "info");
       }
+      if (e.event == "budget-approval" || e.event == "change-budget") {
+        showToast(e.payload.title, "info");
+      }
+
       if (e.event == "alerts" && e.payload?.level == 4) {
         setOpenAlert({ open: true, item: e.payload });
         if (audioEnabled) {
@@ -186,7 +188,7 @@ const Layout = ({ children }: any) => {
       <ProfileModal
         open={store?.openProfileModal}
         onClose={() => {
-          setStore({openProfileModal:false})
+          setStore({ openProfileModal: false });
         }}
         dataID={user?.id}
         titleBack="Volver atras"
