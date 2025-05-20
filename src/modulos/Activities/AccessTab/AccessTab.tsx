@@ -268,13 +268,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                     <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
                   </div>
                 </div>
-                <div className={styles.companionsText}>
+                {/* <div className={styles.companionsText}>
                   {props?.item?.accesses.length > 0 &&
                     `+${props?.item?.accesses?.length} acompañante${
                       props?.item?.accesses?.length > 1 ? "s" : ""
                     }`}
-                </div>
-                <div></div>
+                </div> */}
               </div>
             );
           },
@@ -373,7 +372,17 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Tipo de Acceso",
         list: {
           onRender: (props: any) => {
-            return getTypeAccess(props.item.type, props.item);
+            return (
+              <div>
+                <p> {getTypeAccess(props.item.type, props.item)}</p>
+                <div className={styles.companionsText}>
+                  {props?.item?.accesses.length > 0 &&
+                    `+${props?.item?.accesses?.length} acompañante${
+                      props?.item?.accesses?.length > 1 ? "s" : ""
+                    }`}
+                </div>
+              </div>
+            );
           },
         },
         filter: {
