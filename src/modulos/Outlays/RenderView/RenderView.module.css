@@ -1,39 +1,68 @@
-/* RenderView.module.css (para Egresos) */
+/* RenderView.module.css (PARA EGRESOS) */
 
 .container {
-  background-color: var(--cBlackV2); /* Usando variables del CSS de Ingresos */
+  background-color: var(--cBlackV2);
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--spXl);
-  gap: var(--spL);
+  padding: var(--spL); /* Padding general del modal. Puede ser var(--spXl) si quieres más aire en los bordes. */
+  gap: var(--spM);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
-  min-width: 550px; /* Ajusta según sea necesario */
+  /* border: 1px solid var(--cWhiteV1); Quitado si DataModal ya lo tiene */
 }
 
-.headerSection {
+.headerActionContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: var(--spM);
+  box-sizing: border-box;
+}
+
+.textButtonDanger {
+  background-color: transparent;
+  border: none;
+  color: var(--cError);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--fPrimary);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  text-align: center;
+  border-radius: var(--bRadiusXs, 4px);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.textButtonDanger:hover,
+.textButtonDanger:focus {
+  text-decoration: underline;
+  background-color: rgba(255, 0, 0, 0.05);
+  outline: none;
+}
+
+.headerSection { /* Para Monto y Fecha */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spXs);
-  padding-bottom: var(--spL);
+  padding-top: var(--spS);
+  padding-bottom: var(--spM);
   text-align: center;
 }
 
 .amountDisplay {
   color: var(--cWhite);
-  font-size: 36px; /* Coincide con el de Ingresos */
+  font-size: 36px;
   font-weight: var(--bBold);
   line-height: 1.1;
 }
 
 .dateDisplay {
   color: var(--cWhiteV1);
-  font-size: var(--sM); /* Coincide con el de Ingresos */
+  font-size: var(--sM);
   line-height: 1.5;
 }
 
@@ -42,33 +71,39 @@
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spS) 0;
+  margin: var(--spM) 0;
 }
 
-.mainInfoGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
-  gap: var(--spXl); /* Un poco más de espacio que spL para separar mejor */
-  width: 100%;
-  padding: var(--spL) 0;
+/* NUEVA LÓGICA DE CENTRADO (inspirada en Accesos) */
+.detailsSection { /* Reemplaza a .mainInfoGridContainer y .mainInfoGrid */
+  display: flex;            /* Usa Flexbox para los hijos (las columnas) */
+  flex-direction: row;      /* Columnas una al lado de la otra */
+  justify-content: center;  /* CENTRA el conjunto de columnas si no ocupan todo el ancho */
+  align-items: flex-start;  /* Alinea las columnas en la parte superior si tienen alturas diferentes */
+  gap: var(--spXl, 48px);   /* Espacio ENTRE las columnas. AJUSTA ESTE VALOR. (Accesos usa 32px) */
+  width: 100%;              /* La sección ocupa el ancho disponible */
+  padding: var(--spL) 0;    /* Padding vertical para esta sección */
   box-sizing: border-box;
 }
-.mainInfoGrid > .infoColumn:first-child {
-  margin-left: 50%;
-  
-}
 
-.infoColumn {
+.detailsColumn { /* Cada una de las dos columnas (los divs hijos de .detailsSection) */
   display: flex;
   flex-direction: column;
-  gap: var(--spL);
-  min-width: 0;
+  gap: var(--spL); /* Espacio entre los infoBlock dentro de una columna */
+  /* El ancho de la columna será determinado por el max-width de sus .infoBlock hijos.
+     Opcionalmente, puedes dar un flex-basis o width aquí a .detailsColumn si lo prefieres.
+     Ej: flex-basis: 280px; o max-width: 280px; */
 }
 
-.infoBlock {
+.infoBlock { /* Cada par label/value */
   display: flex;
   flex-direction: column;
   gap: var(--spXs);
+  text-align: left;
+  max-width: 280px; /* IMPORTANTE: Esto limita el ancho de cada bloque de información.
+                       AJUSTA ESTE VALOR. (Accesos usa 250px para textsDiv)
+                       Si los .infoBlock son angostos, y el .detailsSection los centra,
+                       se crearán los márgenes laterales que buscas. */
 }
 
 .infoLabel {
@@ -85,26 +120,24 @@
   line-height: 1.5;
   word-break: break-word;
   overflow-wrap: break-word;
-  min-width: 0;
 }
 
-/* Estatus específico para egresos si se necesita colorear */
-.statusPaid { /* Ejemplo, si 'Pagado' es un estado */
-  color: var(--cSuccess) !important; /* Asumiendo que tienes esta variable */
-  font-weight: var(--bSemibold);
-}
-.statusCancelled { /* Ejemplo, si 'Anulado' es un estado */
-  color: var(--cError) !important; /* Asumiendo que tienes esta variable */
+.statusPaid {
+  color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
 }
 
+.statusCancelled {
+  color: var(--cError) !important;
+  font-weight: var(--bSemibold);
+}
 
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: var(--spL) 0;
-  position: relative; /* Si necesitas posicionar elementos dentro absolutamente */
+  padding-top: var(--spM);
+  padding-bottom: var(--spS);
 }
 
 .voucherButton {
@@ -119,42 +152,50 @@
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
-  max-width: 35%;
+  max-width: 100%;
 }
 
 .voucherButton:hover {
-  background-color: var(--cWhiteV3); /* Asumiendo que tienes esta variable */
+  background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
 
-/* Estilos para el mensaje de 'cargando' o 'no encontrado' */
+.messageContainer, .messageText, .messageSuggestion { /* Estilos de mensaje que ya tenías */
+  /* ... (mantenlos como estaban) ... */
+}
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
   color: var(--cWhiteV1);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-
 .messageText {
   font-size: var(--sL);
   color: var(--cWhite);
   font-weight: var(--bMedium);
   margin-bottom: var(--spS);
 }
-
 .messageSuggestion {
   font-size: var(--sM);
   color: var(--cWhiteV1);
 }
 
-/* Media Query para responsividad (tomado del CSS de Ingresos) */
-@media (max-width: 768px) { /* Usar var(--responsive-tablet) si está definido globalmente */
+
+/* Media Query para responsividad */
+@media (max-width: 768px) { /* O 600px como en Accesos */
   .container {
-    padding: var(--spL);
-    gap: var(--spM);
-    min-width: auto;
+    padding: var(--spM);
+    gap: var(--spS);
+  }
+  .headerActionContainer {
+    padding-bottom: var(--spXs);
   }
   .headerSection {
-    padding-bottom: var(--spM);
+    padding-bottom: var(--spS);
   }
   .amountDisplay {
     font-size: 30px;
@@ -163,73 +204,36 @@
     font-size: var(--sS);
   }
   .sectionDivider {
-    margin: var(--spXs) 0;
+    margin: var(--spM) 0;
   }
-  .mainInfoGrid {
-    grid-template-columns: 1fr; /* Cambia a una columna en móviles */
-    gap: var(--spM);
+
+  .detailsSection {
+    flex-direction: column; /* Apila las columnas */
+    align-items: center;   /* Centra las columnas (ahora filas) */
+    gap: var(--spL);       /* Espacio entre las columnas apiladas */
     padding: var(--spM) 0;
   }
-  .infoColumn {
+
+  .detailsColumn {
+    width: 100%; /* Cada columna (ahora una fila) ocupa el ancho */
+    align-items: center; /* Centra los infoBlock dentro de la columna/fila */
     gap: var(--spM);
   }
+
+  .infoBlock {
+    max-width: 90%; /* Permite que el infoBlock ocupe más ancho en móviles */
+                     /* O podrías usar width: 100%; y controlar el padding del padre */
+    align-items: center; /* Centra el label y el value si quieres que estén centrados en móvil */
+    text-align: center; /* Opcional: centrar el texto de label/value en móviles */
+  }
+
   .voucherButtonContainer {
-    padding: var(--spM) 0;
+    padding-top: var(--spM);
   }
   .voucherButton {
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
-    min-width: auto;
     width: 100%;
+    max-width: 100%;
   }
-}
-.statusPaid {
-  color: var(--cSuccess) !important; /* Asumiendo que var(--cSuccess) es verde */
-  font-weight: var(--bSemibold);
-}
-.statusCancelled {
-  color: var(--cError) !important; /* Asumiendo que var(--cError) es rojo */
-  font-weight: var(--bSemibold);
-}
-/* RenderView.module.css */
-
-/* ... (tus estilos existentes) ... */
-
-.headerActionContainer {
-  /* Puedes añadir estilos aquí si necesitas posicionar el botón de anular,
-     por ejemplo, alinearlo a la derecha. */
-  width: 100%;
-  display: flex;
-  justify-content: flex-end; /* Alinea el botón a la derecha */
-  padding-bottom: var(--spM); /* Espacio antes del contenido principal del modal */
-}
-
-.textButtonDanger {
-  background-color: transparent;
-  border: none;
-  color: var(--cError);           /* Asumiendo que --cError es tu variable para el color rojo */
-  padding: 8px 12px;              /* Padding para hacerlo clickeable */
-  cursor: pointer;
-  font-family: var(--fPrimary);   /* Consistencia con tu fuente primaria */
-  font-size: var(--sM);           /* Consistencia con otros tamaños de texto (ej. .infoValue) */
-  font-weight: var(--bMedium);    /* Consistencia con otros pesos de fuente */
-  text-align: center;
-  border-radius: var(--bRadiusXs, 4px); /* Un radio de borde sutil, opcional */
-  transition: color 0.2s ease, background-color 0.2s ease; /* Transiciones suaves */
-}
-
-.textButtonDanger:hover,
-.textButtonDanger:focus { /* :focus para accesibilidad con teclado */
-  /* color: #cc0000;  Puedes oscurecer el rojo si lo deseas, o usar otra variable */
-  text-decoration: underline; /* Un subrayado es común para text buttons al hacer hover/focus */
-  background-color: rgba(255, 0, 0, 0.05); /* Un sutil color de fondo al interactuar, opcional */
-  outline: none; /* Quita el outline por defecto en focus si añades otros indicadores */
-}
-
-/* Estilos para cuando el botón pudiera estar deshabilitado (aunque tu lógica actual lo oculta) */
-.textButtonDanger:disabled {
-  color: var(--cWhiteV3, #999999); /* Color de texto apagado */
-  cursor: not-allowed;
-  text-decoration: none;
-  background-color: transparent;
 }

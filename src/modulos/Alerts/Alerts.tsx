@@ -29,14 +29,14 @@ const paramsInitial = {
 
 const lLevels = [
   { id: "T", name: "Todos" },
-  { id: 4, name: "Categoria de panico" },
+  { id: 4, name: "Categoria de pánico" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
     case 4:
-      return "Categoria de panico";
+      return "Categoria de pánico";
     case 3:
       return "Nivel alto";
     case 2:
@@ -248,7 +248,7 @@ const Alerts = () => {
       level: {
         rules: ["required"],
         api: "ae",
-        label: "Nivel de alerta",
+        label: "Categoría de alerta",
         list: {
           onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
@@ -263,7 +263,7 @@ const Alerts = () => {
         },
         form: { type: "select", options: lLevels },
         filter: {
-          label: "Nivel",
+          label: "Categoría",
           width: "200px",
           options: () => [...lLevels],
           optionLabel: "name",

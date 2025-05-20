@@ -182,12 +182,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === "P" && !item.owner && (
+        {item && onDel && item.status === "P" && (
           <div className={styles.headerActionContainer}>
+            {/* REEMPLAZO DEL BOTÓN */}
             <button
-              type="button"
+              type="button" // Es buena práctica especificar el type para botones fuera de forms
               onClick={handleAnularClick}
-              className={styles.textButtonDanger}
+              className={styles.textButtonDanger} // Nueva clase para el text button rojo
             >
               Anular ingreso
             </button>
@@ -204,82 +205,83 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           {/* Divisor antes de la sección de info y botón */}
           <hr className={styles.sectionDivider} />
 
-          <div className={styles.mainInfoGrid}>
-            <div className={styles.infoColumn}>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Unidad</span>
-                <span className={styles.infoValue}>{getDptoName()}</span>
+          <section className={styles.detailsSection}>
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Unidad</span>
+                  <span className={styles.infoValue}>{getDptoName()}</span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Propietario</span>
+                  <span className={styles.infoValue}>
+                    {getFullName(item.propietario) ||
+                      getFullName(item.owner) ||
+                      "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Categoría</span>
+                  <span className={styles.infoValue}>
+                    {/* Asumiendo que item.concept es un array o string formateado.
+                        La imagen muestra "-Expensas", "-Multas", "-Reservas".
+                        Si es un array, podrías hacer item.concept.map(c => <div>-{c}</div>)
+                        o si es un string formateado, usarlo directamente.
+                        Asegúrate que tus datos 'item.concept' o 'item.description'
+                        reflejen el formato de la imagen.
+                    */}
+                    {item.concept?.map((c: string, i: number) => (
+                      <div key={i}>-{c}</div>
+                    )) ||
+                      item?.category?.padre?.name ||
+                      "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Observación</span>
+                  <span className={styles.infoValue}>{item.obs || "-/-"}</span>
+                </div>
               </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Propietario</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.propietario) ||
-                    getFullName(item.owner) ||
-                    "-/-"}
-                </span>
+              {/* Columna Derecha */}
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Estado</span>
+                  <span
+                    className={`${styles.infoValue} ${
+                      item.status === "P"
+                        ? styles.statusPaid
+                        : item.status === "S"
+                        ? styles.statusPending
+                        : item.status === "R"
+                        ? styles.statusRejected
+                        : item.status === "X"
+                        ? styles.statusCanceled
+                        : ""
+                    }`}
+                  >
+                    {getStatus(item.status)}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Forma de pago</span>
+                  <span className={styles.infoValue}>
+                    {getPaymentType(item.type)}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Titular</span>
+                  <span className={styles.infoValue}>
+                    {getFullName(item.owner) || "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Número de comprobante</span>
+                  <span className={styles.infoValue}>
+                    {item.voucher || "-/-"}
+                  </span>
+                </div>
               </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Categoría</span>
-                <span className={styles.infoValue}>
-                  {/* Asumiendo que item.concept es un array o string formateado.
-                      La imagen muestra "-Expensas", "-Multas", "-Reservas".
-                      Si es un array, podrías hacer item.concept.map(c => <div>-{c}</div>)
-                      o si es un string formateado, usarlo directamente.
-                      Asegúrate que tus datos 'item.concept' o 'item.description'
-                      reflejen el formato de la imagen.
-                  */}
-                  {item.concept?.map((c: string, i: number) => (
-                    <div key={i}>-{c}</div>
-                  )) ||
-                    item?.category?.padre?.name ||
-                    "-/-"}
-                </span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Observación</span>
-                <span className={styles.infoValue}>{item.obs || "-/-"}</span>
-              </div>
-            </div>
-
-            <div className={styles.infoColumn}>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Estado</span>
-                <span
-                  className={`${styles.infoValue} ${
-                    item.status === "P"
-                      ? styles.statusPaid
-                      : item.status === "S"
-                      ? styles.statusPending
-                      : item.status === "R"
-                      ? styles.statusRejected
-                      : item.status === "X"
-                      ? styles.statusCanceled
-                      : ""
-                  }`}
-                >
-                  {getStatus(item.status)}
-                </span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentType(item.type)}
-                </span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Titular</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.owner) || "-/-"}
-                </span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Número de comprobante</span>
-                <span className={styles.infoValue}>
-                  {item.voucher || "-/-"}
-                </span>
-              </div>
-            </div>
-          </div>
+            
+        </section>
           {/* Divisor después de la sección de info y botón */}
           <hr className={styles.sectionDivider} />
 

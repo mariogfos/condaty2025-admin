@@ -141,7 +141,7 @@ const RenderView = (props: {
               </div>
               <div className={styles.hlInfoBlockFixed}>
                 <div className={styles.hlInfoBlockContent}>
-                  <span className={styles.hlInfoLabel}>Nivel de alerta</span>
+                  <span className={styles.hlInfoLabel}>Categoría de alerta</span>
                   <span className={styles.hlAlertLevelValue} style={{ color: alertLevelColor }}>
                     {getAlertLevelText(props.item.level) || "N/A"}
                   </span>
