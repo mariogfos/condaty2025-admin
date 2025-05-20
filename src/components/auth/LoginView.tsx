@@ -42,10 +42,10 @@ const LoginView = ({
       {/* Logo en la esquina superior izquierda */}
       <div className={styles.topLeftLogoContainer}>
         <Image
-          src="/assets/images/Condaty-completo-1.svg" // Logo que estaba en el form
+          src="/assets/images/Logo-nuevo.png" // Logo que estaba en el form
           alt="Logo Condaty"
-          width={164} // O el tamaño que prefieras para la esquina
-          height={49}
+          width={303} // O el tamaño que prefieras para la esquina
+          height={68}
           priority
         />
       </div>
