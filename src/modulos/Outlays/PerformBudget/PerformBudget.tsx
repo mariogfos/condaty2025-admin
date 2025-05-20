@@ -133,17 +133,25 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
             }}
           >
             <p>{"Bs " + formatNumber(item?.amount, 0)}</p>
-            <Check
-              // label=""
-              name={"selected" + item?.id || ""}
-              value={item?.id}
-              onChange={() => handleToggle(item)}
-              checked={!!formState?.find((f: any) => f?.budget_id === item?.id)}
-            />
             {formState?.find((f: any) => f?.budget_id === item?.id) && (
               <IconEdit onClick={() => onEdit(item)} />
             )}
           </div>
+        );
+      },
+    },
+    {
+      key: "selected",
+      label: "Seleccionar",
+      width: "100px",
+      onRender: ({ item }: any) => {
+        return (
+          <Check
+            name={"selected" + item?.id || ""}
+            value={item?.id}
+            onChange={() => handleToggle(item)}
+            checked={!!formState?.find((f: any) => f?.budget_id === item?.id)}
+          />
         );
       },
     },
@@ -230,10 +238,10 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
           }}
         >
           <p style={{}}>
-            Subtotal: Bs{" "}
-            {formatNumber(calculateTotal() - calculateTotalPagado(), 0)}
+           {/*  Subtotal: Bs{" "}
+            {formatNumber(calculateTotal() - calculateTotalPagado(), 0)} */}
           </p>
-          <p>Subtotal pagado: {formatNumber(calculateTotalPagado(), 0)}</p>
+          <p>Por pagar: {formatNumber(calculateTotalPagado(), 0)}</p>
         </div>
       </DataModal>
       {openModal && (
