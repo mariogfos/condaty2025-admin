@@ -1,4 +1,3 @@
-
 .pageWrapper {
   width: 100%; /* Ocupa todo el ancho de la ventana */
   min-height: 100vh; /* Opcional: asegura altura mínima */
@@ -461,7 +460,7 @@
     gap: var(--spL); /* 1rem -> 16px */
 }
 .peopleInput input { /* Estilo específico para el input de número */
-    max-width: 80px;
+    max-width: 100px;
     text-align: center;
 }
 
@@ -944,8 +943,11 @@
   font-size: var(--sXl); /* Tamaño del símbolo +/- (ajusta 20px) */
   line-height: 1; /* Ajusta línea para centrar verticalmente */
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: all 0.2s ease;
   padding: 0; /* Quitar padding extra */
+  min-width: 32px; /* Asegura ancho mínimo */
+  min-height: 32px; /* Asegura alto mínimo */
+  box-sizing: border-box; /* Incluye padding y border en el tamaño total */
 }
 
 .quantityButton:hover:not(:disabled) {
@@ -960,15 +962,29 @@
   color: var(--terciary);
 }
 
-/* Estilo para el número mostrado */
-.quantityValue {
-  font-size: var(--sXl); /* Tamaño del número (ajusta 20px) */
-  font-weight: var(--bMedium); /* Peso de fuente */
+/* Estilo para el input numérico */
+.quantityInput {
+  width: 60px;
+  text-align: center;
+
+  background-color: transparent;
   color: var(--cWhite);
-  min-width: 30px; /* Ancho mínimo para que no salte mucho el layout */
-  text-align: center; /* Centrar el número */
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+  font-size: var(--sM);
+  margin: 0 var(--spS);
 }
 
+/* Contenedor del selector de cantidad */
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  background-color: var(--cBlackV2);
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+
+}
 
 /* En CreateReserva.module.css */
 

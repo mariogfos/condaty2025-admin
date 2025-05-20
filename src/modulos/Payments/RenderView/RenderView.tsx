@@ -129,7 +129,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Busca la unidad en extraData
   const getDptoName = () => {
     if (!extraData || !extraData.dptos)
-      return (item?.dptos || "No especificada").replace(/,/g, "");
+      return (item?.dptos || "-/-").replace(/,/g, "");
 
     const dpto = extraData.dptos.find(
       (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
@@ -142,7 +142,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
-      return (item?.dptos || "No especificada").replace(/,/g, "");
+      return (item?.dptos || "-/-").replace(/,/g, "");
     }
   };
 
@@ -182,13 +182,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === "P" && (
+        {item && onDel && item.status === "P" && !item.owner && (
           <div className={styles.headerActionContainer}>
-            {/* REEMPLAZO DEL BOTÓN */}
             <button
-              type="button" // Es buena práctica especificar el type para botones fuera de forms
+              type="button"
               onClick={handleAnularClick}
-              className={styles.textButtonDanger} // Nueva clase para el text button rojo
+              className={styles.textButtonDanger}
             >
               Anular ingreso
             </button>
@@ -270,7 +269,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
                 <span className={styles.infoValue}>
-                  {getFullName(item.owner) || "Sin titular"}
+                  {getFullName(item.owner) || "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
@@ -311,7 +310,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           {item?.details?.length > 0 && (
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
+                <h3 className={styles.periodsDetailsTitle}>Periodos Cobrados</h3>
               </div>
 
               <div className={styles.periodsTableWrapper}>
@@ -373,7 +372,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               </div>
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
-                  Total pagado:{" "}
+                  Total cobrado:{" "}
                   <span className={styles.totalAmountValue}>
                     Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}
                   </span>

@@ -29,13 +29,14 @@ const paramsInitial = {
 
 const lLevels = [
   { id: "T", name: "Todos" },
+  { id: 4, name: "Categoria de panico" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
     case 4:
-      return "Nivel panico";
+      return "Categoria de panico";
     case 3:
       return "Nivel alto";
     case 2:
@@ -165,7 +166,7 @@ const Alerts = () => {
                   <Avatar
                     src={avatarSrc}
                     name={fullName}
-                    square={isGuardBeingDisplayed}
+                    
                   />
                 ) : (
                   // Avatar de fallback con la inicial del nombre o un "?"
@@ -175,7 +176,7 @@ const Alerts = () => {
                         ? fullName.substring(0, 1)
                         : "?"
                     }
-                    square={isGuardBeingDisplayed}
+                    
                   />
                 )}
 
@@ -354,7 +355,7 @@ const Alerts = () => {
           // className={styles.widgetResumeCard}
         />
         <WidgetDashCard
-          title="Botones de Emergencia"
+          title="Categoria de panico"
           data={String(data?.extraData?.emergency_buttons || 0)}
           icon={
             <IconAlert2

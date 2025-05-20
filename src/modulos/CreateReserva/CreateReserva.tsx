@@ -31,7 +31,7 @@ const initialState: FormState = {
   unidad: "",
   area_social: "",
   fecha: "",
-  cantidad_personas: "1",
+  cantidad_personas: "",
   motivo: "",
   nombre_responsable: "",
   telefono_responsable: "",
@@ -572,7 +572,7 @@ const prevStep = (): void => {
         }
     } catch (error) {
         console.error("Error en handleSubmit:", error);
-        showToast("Ocurrió un error inesperado.", "error");
+        showToast("Ocurrió un error inesperado al crear la reserva.", "error");
     } finally {
         setIsSubmitting(false);
     }
@@ -580,33 +580,57 @@ const prevStep = (): void => {
 // Dentro del componente CreateReserva, antes del return
 
 const handleQuantityChange = (newValue: number | string) => {
-  // Asegurarse de que siempre guardamos un string o un número válido
+  console.log(`[HQC Start] newValue: "${newValue}", typeof: ${typeof newValue}, max_capacity: ${selectedAreaDetails?.max_capacity}`); // DEBUG
   let finalValue: string;
-  const numValue = Number(newValue); // Convertir a número
 
-  // Obtener límites
-  const min = 1;
-  const max = selectedAreaDetails?.max_capacity;
-
-  if (isNaN(numValue)) {
-      finalValue = ''; // Si no es número, guardar vacío
-  } else if (max !== undefined && max !== null && numValue > max) {
-      finalValue = String(max); // Si excede el máximo, fijar al máximo
-  } else if (numValue < min) {
-      finalValue = String(min); // Si es menor al mínimo, fijar al mínimo (o vacío si prefieres)
+  // CASO 1: El usuario borró el contenido o es un string vacío.
+  if (String(newValue).trim() === '') {
+    finalValue = ''; // Permitir que el campo se quede vacío
+    console.log('[HQC Logic] Path: empty string input by user'); // DEBUG
   } else {
-      finalValue = String(numValue); // Si es válido, guardar como string
+    // CASO 2: El input no está vacío, procesar como número.
+    const numValue = Number(newValue);
+    const min = 1; // El mínimo lógico para la cantidad sigue siendo 1
+    const max = selectedAreaDetails?.max_capacity;
+    console.log(`[HQC Logic] numValue: ${numValue}, min: ${min}, max: ${max}`); // DEBUG
+
+    if (isNaN(numValue)) {
+      // Si se tecleó algo no numérico (ej. "abc")
+      finalValue = ''; // Dejar vacío para que el usuario corrija, o podrías usar el valor anterior: formState.cantidad_personas
+      console.log('[HQC Logic] Path: isNaN after attempting to parse non-empty string'); // DEBUG
+    } else if (max !== undefined && max !== null && numValue > max) {
+      finalValue = String(max);
+      console.log(`[HQC Logic] Path: numValue > max. Corrected to max: ${finalValue}`); // DEBUG
+    } else if (numValue < min) {
+      // Si el número es explícitamente < 1 (ej. el usuario tipeó "0" o "-5")
+      finalValue = String(min);
+      console.log(`[HQC Logic] Path: numValue < min (but not an initially empty input). Corrected to min: ${finalValue}`); // DEBUG
+    } else {
+      // Es un número válido dentro de los rangos
+      finalValue = String(newValue); // Usar newValue directamente si ya es un string numérico válido
+      console.log('[HQC Logic] Path: else (valid number). Set to input newValue:', finalValue); // DEBUG
+    }
   }
 
-  // Actualizar el estado principal del formulario
+  console.log(`[HQC END] Determined finalValue: "${finalValue}"`); // DEBUG
+
   setFormState(prev => ({
-      ...prev,
-      cantidad_personas: finalValue
+    ...prev,
+    cantidad_personas: finalValue
   }));
 
-  // Limpiar error si existía
+  // Limpiar error si el campo ahora es válido o si se está manejando de otra forma
   if (errors.cantidad_personas) {
-      setErrors(prev => ({ ...prev, cantidad_personas: undefined }));
+    if (finalValue.trim() === '') {
+      // Si el campo está vacío, la validación del paso (validateStep2) lo marcará como error al intentar continuar.
+      // No necesariamente limpiamos el error aquí si "vacío" es un estado inválido para la sumisión.
+    } else {
+      const numValCheck = Number(finalValue);
+      const maxCap = selectedAreaDetails?.max_capacity;
+      if (!isNaN(numValCheck) && numValCheck >= 1 && (maxCap === undefined || maxCap === null || numValCheck <= maxCap)) {
+        setErrors(prev => ({ ...prev, cantidad_personas: undefined }));
+      }
+    }
   }
 };
 
@@ -886,49 +910,54 @@ return (
                     </span>
                 </div>
 
-                {/* --- REEMPLAZO DEL INPUT --- */}
-                {/* Este es el contenedor donde estaba tu Input de MK */}
-                {/* Ahora contendrá tu nuevo componente de botones +/- */}
                 <div className={styles.peopleInputContainer}>
-
-                    {/* --- Estructura del Nuevo Componente (Ejemplo) --- */}
-                    {/* Necesitarás crear un componente reutilizable para esto, ej: <QuantityInput /> */}
-                    {/* Aquí simulamos su estructura básica */}
-                    <div className={styles.quantitySelector}> {/* Nuevo contenedor */}
-                        <button
-                            type="button"
-                            onClick={decrementPeople}
-                            className={styles.quantityButton}
-                            // Deshabilita si el valor actual es 1 o menos, o si no es un número válido
-                            disabled={Number(formState.cantidad_personas || 0) <= 1 || isSubmitting}
-                            aria-label="Disminuir cantidad"
-                        >
-                            - {/* O un icono */}
-                        </button>
-                        <span className={styles.quantityValue}>
-                            {/* Muestra 0 o 1 si está vacío/inválido, o el valor numérico */}
-                            {Number(formState.cantidad_personas) >= 1 ? formState.cantidad_personas : '1'}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={incrementPeople}
-                            className={styles.quantityButton}
-                            // Deshabilita si se alcanza la capacidad máxima
-                            disabled={
-                                (selectedAreaDetails?.max_capacity !== undefined &&
-                                selectedAreaDetails?.max_capacity !== null &&
-                                Number(formState.cantidad_personas || 0) >= selectedAreaDetails.max_capacity) || isSubmitting
-                            }
-                            aria-label="Aumentar cantidad"
-                        >
-                            + {/* O un icono */}
-                        </button>
-                    </div>
-                    {/* --- Fin Estructura Nuevo Componente --- */}
-
-                </div>
-                {/* El mensaje de error sigue igual aquí debajo */}
-                {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
+                  <div className={styles.quantitySelector}>
+                      <button
+                          type="button"
+                          onClick={decrementPeople}
+                          className={styles.quantityButton}
+                          disabled={Number(formState.cantidad_personas || "1") <= 1 || isSubmitting} // Asegura que no baje de 1
+                          aria-label="Disminuir cantidad"
+                      >
+                          -
+                      </button>
+                      <Input
+                            type="number"
+                            name="cantidad_personas_input"
+                            value={formState.cantidad_personas}
+                            onChange={(e) => {
+                               
+                                handleQuantityChange(e.target.value);
+                            }}
+                            onBlur={(e) => {
+                              const currentValue = e.target.value;
+                              console.log(`[CreateReserva Input onBlur] Value: "${currentValue}", Max capacity: ${selectedAreaDetails?.max_capacity}`);
+                              // Simplemente llama a handleQuantityChange.
+                              // Si el campo está vacío, HQC lo dejará vacío.
+                              // Si tiene un valor, HQC lo validará (min, max, NaN).
+                              handleQuantityChange(currentValue);
+                          }}
+                          min={1} // Atributo HTML5 para mínimo
+                          max={selectedAreaDetails?.max_capacity || undefined} // Atributo HTML5 para máximo
+                          aria-label="Cantidad de personas"
+                          style={{ textAlign: 'center' }} // Estilo básico, ajusta en tu CSS
+                      />
+                      <button
+                          type="button"
+                          onClick={incrementPeople}
+                          className={styles.quantityButton}
+                          disabled={
+                              (selectedAreaDetails?.max_capacity !== undefined &&
+                              selectedAreaDetails?.max_capacity !== null &&
+                              Number(formState.cantidad_personas || "0") >= selectedAreaDetails.max_capacity) || isSubmitting
+                          }
+                          aria-label="Aumentar cantidad"
+                      >
+                          +
+                      </button>
+                  </div>
+              </div>
+              {errors.cantidad_personas && <span className={styles.errorText}>{errors.cantidad_personas}</span>}
             </div>
             {/* --- FIN REEMPLAZO --- */ }
 

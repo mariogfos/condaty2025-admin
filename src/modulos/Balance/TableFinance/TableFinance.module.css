@@ -55,7 +55,7 @@
   flex: 1;
   min-width: 100px;
   flex-shrink: 0;
-  justify-content: flex-end !important
+  justify-content: center !important
   
 }
 
@@ -152,12 +152,20 @@
   color: var(--cWhiteV2, #8e8e93);
 }
 
+.tableTotalRowContainer {
+  display: flex;
+  justify-content: flex-end;
+  height: 56px;
+  width: 100%;
+}
+
 .tableTotalRow {
   display: flex;
+  justify-content: flex-end;
   height: 56px;
   font-size: 14px;
   font-weight: 500;
-  width: 100%;
+  max-width: 300px;
   /* Ya no está dentro de .tableContainer, por lo que su fondo y bordes son independientes */
 }
 
@@ -211,12 +219,12 @@
 .totalAmountCell {
   background-color: #2c2f33; /* Mantén el fondo si es parte del diseño del total */
   flex: 1;
-  min-width: 100px;
+  min-width: 110px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
   order: 2;
   border-bottom-right-radius: 1rem;
 

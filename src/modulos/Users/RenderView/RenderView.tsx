@@ -78,7 +78,7 @@ const RenderView = (props: {
             </p>
           </div>
           <div>
-            <p>Domicilio</p>
+            <p>Dirección</p>
             <p>
               {props.item.address}
             </p>

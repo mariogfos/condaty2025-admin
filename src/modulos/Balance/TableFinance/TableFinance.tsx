@@ -199,26 +199,29 @@ const TableFinance = ({
 
       {/* Fila de Total General */}
       {typeof total !== 'undefined' && (
-        <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
-          <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
-            <span>{titleTotal || "Total de " + title}</span>
-            {tooltip && (
-              <div className={styles.tooltipContainer}>
-                <IconTableHelp className={styles.tooltipIcon} />
-                <span className={styles.tooltip}>
-                  {tooltip}
-                </span>
-              </div>
-            )}
-          </div>
-          {/* Si no hay meses, totalEmptyMonthCells tendrá flexGrow: 0, lo que es correcto */}
-          <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
-          {/* --- INICIO DE LA MODIFICACIÓN --- */}
-          <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-          {/* --- FIN DE LA MODIFICACIÓN --- */}
-            <span>Bs {formatNumber(total)}</span>
+        <div className={styles.tableTotalRowContainer}>
+          <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
+            <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
+              <span>{titleTotal || "Total de " + title}</span>
+              {tooltip && (
+                <div className={styles.tooltipContainer}>
+                  <IconTableHelp className={styles.tooltipIcon} />
+                  <span className={styles.tooltip}>
+                    {tooltip}
+                  </span>
+                </div>
+              )}
+            </div>
+            {/* Si no hay meses, totalEmptyMonthCells tendrá flexGrow: 0, lo que es correcto */}
+            <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
+            {/* --- INICIO DE LA MODIFICACIÓN --- */}
+            <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+            {/* --- FIN DE LA MODIFICACIÓN --- */}
+              <span>Bs {formatNumber(total)}</span>
+            </div>
           </div>
         </div>
+        
       )}
     </> 
   );

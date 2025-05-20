@@ -293,7 +293,7 @@ const Users = () => {
       },
 
       ci: {
-        rules: ["required"],
+        rules: ["required","ci"],
         api: "ae",
         label: "Carnet de Identidad",
         form: {
@@ -317,7 +317,7 @@ const Users = () => {
       address: {
         rules: [""],
         api: "ae",
-        label: "Dirección de Domicilio",
+        label: "Dirección",
         form: {
           type: "text",
           disabled: onDisbled,

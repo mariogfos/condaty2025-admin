@@ -34,17 +34,17 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   };
 
   const getCategoryNames = () => {
-    let categoryName = "Desconocida";
+    let categoryName = "-/-";
     let subCategoryName = "-/-";
 
     if (item?.category) {
         const subCategoryData = item.category;
-        subCategoryName = subCategoryData.name || "Subcategoría sin nombre";
+        subCategoryName = subCategoryData.name || "-/-";
         if (subCategoryData.padre && typeof subCategoryData.padre === 'object') {
-            categoryName = subCategoryData.padre.name || "Categoría sin nombre";
+            categoryName = subCategoryData.padre.name || "-/-";
         } else if (subCategoryData.category_id && extraData?.categories) {
             const parentCategory = extraData.categories.find((c: any) => c.id === subCategoryData.category_id);
-            categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+            categoryName = parentCategory ? parentCategory.name : "-/-";
         } else {
             categoryName = subCategoryData.name;
             subCategoryName = "-/-";
@@ -54,7 +54,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         if (foundCategory) {
              if (foundCategory.category_id) {
                 const parentCategory = extraData.categories.find((c: any) => c.id === foundCategory.category_id);
-                categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+                categoryName = parentCategory ? parentCategory.name : "-/-";
                 subCategoryName = foundCategory.name;
             } else {
                 categoryName = foundCategory.name;

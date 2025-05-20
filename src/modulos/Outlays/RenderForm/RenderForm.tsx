@@ -41,7 +41,7 @@ const RenderForm = ({
   onSave,
   extraData,
   execute,
-
+  showToast,
   reLoad,
   user,
 }) => {
@@ -70,10 +70,7 @@ const RenderForm = ({
 
   const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
 
-  const showToast = (message, type) => {
-    setToast({ msg: message, type });
-    setTimeout(() => setToast({ msg: "", type: "info" }), 5000);
-  };
+
 
   useEffect(() => {
     if (!open) {

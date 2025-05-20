@@ -298,7 +298,7 @@ const Guards = () => {
         api: "ae",
         label: "Celular",
         form: { type: "text", disabled: onDisbled },
-        list: false,
+        list: {},
       },
       email: {
         rules: ["required", "email"],
@@ -308,13 +308,13 @@ const Guards = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: {},
+        list: false,
       },
 
       address: {
         rules: [""],
         api: "ae",
-        label: "Domicilio",
+        label: "Dirección",
         form: {
           type: "text",
           disabled: onDisbled,

@@ -18,7 +18,7 @@ import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import dptos from "@/app/dptos/page";
 import Input from "@/mk/components/forms/Input/Input"; // Importación añadida
-
+import { RenderAnularModal } from "./RenderDel/RenderDel";
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
@@ -52,6 +52,7 @@ const Payments = () => {
     renderView: (props: any) => (
       <RenderView {...props} payment_id={props?.item?.id} />
     ),
+    renderDel: RenderAnularModal, 
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,
@@ -60,11 +61,7 @@ const Payments = () => {
       del: true,
     },
     filter: true,
-    saveMsg: {
-      add: "Ingreso creado con éxito",
-      edit: "Ingreso actualizado con éxito",
-      del: "Ingreso eliminado con éxito",
-    },
+
   };
 
   const getPeriodOptions = () => [
@@ -249,7 +246,7 @@ const Payments = () => {
         list: {
           onRender: (props: any) => {
             const statusMap: Record<string, string> = {
-              P: "Pagado",
+              P: "Cobrado",
               S: "Por confirmar",
               R: "Rechazado",
               E: "Por subir comprobante",
@@ -398,6 +395,7 @@ const Payments = () => {
     setParams,
     extraData,
     onFilter,
+    showToast,
   } = useCrud({
     paramsInitial,
     mod,
