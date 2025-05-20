@@ -124,7 +124,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       onConfirm?: Function;
     }) => <RenderView {...props} />,
     permiso: "",
-    extraData: true,
+    // extraData: true,
   };
 
   const paramsInitial = {
