@@ -214,7 +214,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <h3 className={styles.accountTitle}>{title}</h3>
         {onClick && (
           <span className={styles.viewMore} onClick={onClick}>
-            Ver más
+            Ver historial completo
           </span>
         )}
       </div>
