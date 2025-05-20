@@ -132,45 +132,41 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         <Br />
         <div className={styles.containerDetail}>
           <div>
-          <LabelValue
-            value={
-              typeInvitation[
-                item?.type == "I" && invitation?.is_frequent == "Y"
-                  ? "F"
-                  : item?.type
-              ]
-            }
-            label="Tipo de invitación"
-          />
-          {item?.type == "G" && (
-            <LabelValue value={invitation?.title || "-/-"} label="Evento" />
-          )}
-          {item?.type == "I" && <LabelValue label="Invitado" value={getFullName(visit)} />}
-          <LabelValue value={invitation?.obs || "-/-"} label="Indicaciones" />
+            <LabelValue
+              value={typeInvitation[item?.type]}
+              label="Tipo de invitación"
+            />
+            {item?.type == "G" && (
+              <LabelValue value={invitation?.title || "-/-"} label="Evento" />
+            )}
+            {item?.type == "I" && (
+              <LabelValue label="Invitado" value={getFullName(visit)} />
+            )}
+            <LabelValue value={invitation?.obs || "-/-"} label="Indicaciones" />
           </div>
 
           <div>
-          <LabelValue label="Estado" value={getStatus()} />
-          {item?.type != "C" && (
-            <LabelValue
-              value={
-                invitation?.is_frequent == "Y"
-                  ? getDateStrMes(invitation?.start_date) +
-                    "  " +
-                    getDateStrMes(invitation?.end_date)
-                  : getDateStrMes(invitation?.date_event)
-              }
-              label={
-                invitation?.is_frequent == "Y"
-                  ? "Periodo de validez"
-                  : "Fecha de invitación"
-              }
-            />
-          )}
+            <LabelValue label="Estado" value={getStatus()} />
+            {item?.type != "C" && (
+              <LabelValue
+                value={
+                  item?.type == "F"
+                    ? getDateStrMes(invitation?.start_date) +
+                      "  " +
+                      getDateStrMes(invitation?.end_date)
+                    : getDateStrMes(invitation?.date_event)
+                }
+                label={
+                  item?.type == "F"
+                    ? "Periodo de validez"
+                    : "Fecha de invitación"
+                }
+              />
+            )}
           </div>
         </div>
         <Br />
-        {invitation?.is_frequent == "Y" && invitation?.weekday && (
+        {item?.type == "F" && invitation?.weekday && (
           <>
             <p
               style={{
@@ -202,7 +198,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             <Br />
           </>
         )}
-        {invitation?.is_frequent == "Y" && (
+        {item?.type == "F" && (
           <>
             <AccessText
               text={"Accessos " + invitation?.access.length}
