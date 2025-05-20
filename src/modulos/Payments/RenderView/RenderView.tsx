@@ -340,7 +340,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                           className={styles.periodsTableCell}
                           data-label="Concepto"
                         >
-                          {item?.category?.name || "Gasto Común"}
+                          {item?.category?.padre?.name || "-/-"}
                         </div>
                         <div
                           className={styles.periodsTableCell}
