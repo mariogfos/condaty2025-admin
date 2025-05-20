@@ -51,10 +51,15 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     if (item?.type === "P") {
       setOpenOrders(true);
     }
-    if (item?.type === "I" || item?.type === "G" || item?.type === "C") {
+    if (
+      item?.type === "I" ||
+      item?.type === "G" ||
+      item?.type === "C" ||
+      item?.type === "F"
+    ) {
       setOpenInvitation(true);
     }
-    if(item?.type === "O"){
+    if (item?.type === "O") {
       setOpenInvitation(true);
     }
   };
@@ -138,9 +143,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     if (type === "P") {
       return "Pedido:" + param?.other?.other_type?.name;
     }
-    if(type === "I" &&  param?.invitation?.is_frequent === "Y"){
-      return "Qr Frecuente"
-    }
+
     return typeMap[type];
   };
   const typeMap: Record<string, string> = {
@@ -149,6 +152,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     I: "Qr Individual",
     P: "Pedido",
     O: "Llave QR",
+    F: "Qr Frecuente",
   };
   return (
     <>
@@ -159,10 +163,13 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         buttonText=""
         buttonCancel=""
       >
-        <LoadingScreen onlyLoading={Object.keys(accessDetail).length === 0} type="CardSkeleton">
-        <div className={styles.container}>
-
-              { item?.type === "O"?   <section>
+        <LoadingScreen
+          onlyLoading={Object.keys(accessDetail).length === 0}
+          type="CardSkeleton"
+        >
+          <div className={styles.container}>
+            {item?.type === "O" ? (
+              <section>
                 <Avatar
                   name={getFullName(owner)}
                   src={getUrlImages(
@@ -172,11 +179,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
                 <div>{getFullName(owner)}</div>
                 <div>
-                  C.I. : {owner?.ci}{" "}
-                  { plate ? `- Placa: ${plate}` : ""}{" "}
+                  C.I. : {owner?.ci} {plate ? `- Placa: ${plate}` : ""}{" "}
                 </div>
-              </section>:
-
+              </section>
+            ) : (
               <section>
                 <Avatar
                   name={getFullName(visit)}
@@ -187,86 +193,91 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
                 <div>{getFullName(visit)}</div>
                 <div>
-                  C.I. : {visit?.ci}{" "}
-                  {plate ? `- Placa: ${plate}` : ""}{" "}
+                  C.I. : {visit?.ci} {plate ? `- Placa: ${plate}` : ""}{" "}
                 </div>
               </section>
-              }
-            
+            )}
 
-          <section >
-            <div>
-              <div className={styles.textsDiv}>
-                <div>Tipo de acceso</div>
-                <div>{getTypeAccess(item?.type, item)} </div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Fecha y hora de ingreso</div>
-                <div>{getDateTimeStrMes(in_at)} </div>
-              </div>
-              {accesses?.length > 0 && (
+            <section>
+              <div>
                 <div className={styles.textsDiv}>
-                  <div>Acompañante</div>
-                  {accesses.map((access: any, i: number) => (
-                    <div key={i} style={{ color: "var(--cWhite" }}>
-                      {getFullName(access?.visit)}
-                    </div>
-                  ))}
+                  <div>Tipo de acceso</div>
+                  <div>{getTypeAccess(item?.type, item)} </div>
                 </div>
-              )}
-           { item?.type !== 'O' &&  
-               <div className={styles.textsDiv}>
-                  <div>Visitó a</div>
-                  <div>{getFullName(item?.owner) || "No especificado"}</div>
-              </div> 
-              }
-              <div className={styles.textsDiv}>
-                <div>Guardia de ingreso</div>
-                <div>{getFullName(guardia) || "No especificado"}</div>
+                <div className={styles.textsDiv}>
+                  <div>Fecha y hora de ingreso</div>
+                  <div>{getDateTimeStrMes(in_at)} </div>
+                </div>
+                {accesses?.length > 0 && (
+                  <div className={styles.textsDiv}>
+                    <div>Acompañante</div>
+                    {accesses.map((access: any, i: number) => (
+                      <div key={i} style={{ color: "var(--cWhite" }}>
+                        {getFullName(access?.visit)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {item?.type !== "O" && (
+                  <div className={styles.textsDiv}>
+                    <div>Visitó a</div>
+                    <div>{getFullName(item?.owner) || "No especificado"}</div>
+                  </div>
+                )}
+                <div className={styles.textsDiv}>
+                  <div>Guardia de ingreso</div>
+                  <div>{getFullName(guardia) || "No especificado"}</div>
+                </div>
+                <div className={styles.textsDiv}>
+                  <div>Observación de entrada</div>
+                  <div>{obs_in || "-/-"}</div>
+                </div>
               </div>
-              <div className={styles.textsDiv}>
-                <div>Observación de entrada</div>
-                <div>{obs_in || "-/-"}</div>
-              </div>
-            </div>
 
-            <div>
-              <div className={styles.textsDiv}>
-                <div>Estado</div>
-                {/* <div>{statusAccess[status] || "No especificado"}</div> */}
-                <div style={{color:item?.out_at ? 'var(--cAccent)':''}}>{getStatus()}</div>
-              </div>
-              <div className={styles.textsDiv}>
-                <div>Fecha y hora de salida</div>
-                <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
-              </div>
+              <div>
+                <div className={styles.textsDiv}>
+                  <div>Estado</div>
+                  {/* <div>{statusAccess[status] || "No especificado"}</div> */}
+                  <div style={{ color: item?.out_at ? "var(--cAccent)" : "" }}>
+                    {getStatus()}
+                  </div>
+                </div>
+                <div className={styles.textsDiv}>
+                  <div>Fecha y hora de salida</div>
+                  <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
+                </div>
 
-           {  item?.type !== 'O' &&  
-           <div className={styles.textsDiv}>
-                <div>Carnet de identidad</div>
-                <div>{visit?.ci || "No especificado"}</div>
-              </div> 
-              }
+                {item?.type !== "O" && (
+                  <div className={styles.textsDiv}>
+                    <div>Carnet de identidad</div>
+                    <div>{visit?.ci || "No especificado"}</div>
+                  </div>
+                )}
 
-              <div className={styles.textsDiv}>
-                <div>Unidad</div>
-                <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
+                <div className={styles.textsDiv}>
+                  <div>Unidad</div>
+                  <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
+                </div>
+                <div className={styles.textsDiv}>
+                  <div>Guardia de salida</div>
+                  <div>{getFullName(out_guard) || "No especificado"}</div>
+                </div>
+                <div className={styles.textsDiv}>
+                  <div>Observación de salida</div>
+                  <div>{obs_out || "-/-"}</div>
+                </div>
               </div>
-              <div className={styles.textsDiv}>
-                <div>Guardia de salida</div>
-                <div>{getFullName(out_guard) || "No especificado"}</div>
+            </section>
+            {item.type !== "O" && (
+              <div
+                onClick={openDetailsModal}
+                className="link"
+                style={{ marginTop: "var(--spS)" }}
+              >
+                Ver detalles de la invitación
               </div>
-              <div className={styles.textsDiv}>
-                <div>Observación de salida</div>
-                <div>{obs_out || "-/-"}</div>
-              </div>
-            </div>
-          </section>
-       { item.type !== 'O' &&
-          <div onClick={openDetailsModal} className="link" style={{marginTop:'var(--spS)'}}>
-            Ver detalles de la invitación
-          </div>}
-        </div>
+            )}
+          </div>
         </LoadingScreen>
       </DataModal>
       {openInvitation && (

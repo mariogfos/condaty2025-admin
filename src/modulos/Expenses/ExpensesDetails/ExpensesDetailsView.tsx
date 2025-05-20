@@ -212,7 +212,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           },
         },
       },
-      statusDetail: {
+      status: {
         rules: [""],
         api: "",
         label: "Estado",
@@ -227,6 +227,22 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               </div>
             );
           },
+        },
+        filter: {
+          label: "Estado",
+          width: "200px",
+          options: () => {
+            return [
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "E", name: "En espera" },
+              { id: "P", name: "Cobrado" },
+              { id: "S", name: "Revisar pago" },
+              { id: "M", name: "En mora" },
+              { id: "R", name: "Rechazado" },
+            ];
+          },
+          optionLabel: "name",
         },
       },
     };
