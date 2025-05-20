@@ -209,53 +209,55 @@ const Layout = ({ children }: any) => {
           ¿Estás seguro de que deseas cerrar sesión?
         </p>
       </DataModal>
-      <DataModal
-        style={{ border: "1px solid var(--cError)" }}
-        title="Nueva emergencia"
-        iconClose={false}
-        open={openAlert.open}
-        buttonCancel=""
-        buttonText="Atender"
-        onClose={onCloseAlert}
-        onSave={onCloseAlert}
-      >
-        <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>Residente</p>
-        {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
-        <ItemList
-          variant="V1"
-          title={openAlert?.item?.owner_name}
-          subtitle={"Unidad: " + openAlert?.item?.unit}
-          right={getDateTimeStrMesShort(openAlert?.item?.created_at)}
-          left={
-            <Avatar
-              src={getUrlImages(
-                "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
-              )}
-              name={openAlert?.item?.owner_name}
-            />
-          }
-        />
-        <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
-          Tipo de emergencia
-        </p>
-        <div
-          style={{
-            backgroundColor:
-              typeAlerts[openAlert?.item?.type]?.color?.background,
-            borderRadius: 8,
-            border: `1px solid ${
-              typeAlerts[openAlert?.item?.type]?.color?.border
-            }`,
-            width: "184px",
-            padding: 8,
-            margin: "0 auto",
-            color: "var(--cWhite)",
-          }}
+      {openAlert?.open && (
+        <DataModal
+          style={{ border: "1px solid var(--cError)" }}
+          title="Nueva emergencia"
+          iconClose={false}
+          open={openAlert?.open}
+          buttonCancel=""
+          buttonText="Cerrar alerta"
+          onClose={onCloseAlert}
+          onSave={onCloseAlert}
         >
-          {typeAlerts[openAlert?.item?.type]?.icon}
-          <p>{openAlert?.item?.name}</p>
-        </div>
-      </DataModal>
+          <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>Residente</p>
+          {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
+          <ItemList
+            variant="V1"
+            title={openAlert?.item?.owner_name}
+            subtitle={"Unidad: " + openAlert?.item?.unit}
+            right={getDateTimeStrMesShort(openAlert?.item?.created_at)}
+            left={
+              <Avatar
+                src={getUrlImages(
+                  "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
+                )}
+                name={openAlert?.item?.owner_name}
+              />
+            }
+          />
+          <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>
+            Tipo de emergencia
+          </p>
+          <div
+            style={{
+              backgroundColor:
+                typeAlerts[openAlert?.item?.type]?.color?.background,
+              borderRadius: 8,
+              border: `1px solid ${
+                typeAlerts[openAlert?.item?.type]?.color?.border
+              }`,
+              width: "184px",
+              padding: 8,
+              margin: "0 auto",
+              color: "var(--cWhite)",
+            }}
+          >
+            {typeAlerts[openAlert?.item?.type]?.icon}
+            <p>{openAlert?.item?.name}</p>
+          </div>
+        </DataModal>
+      )}
       {openClient && (
         <ChooseClient
           open={openClient}
