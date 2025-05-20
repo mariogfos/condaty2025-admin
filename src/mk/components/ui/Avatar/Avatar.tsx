@@ -56,7 +56,9 @@ export const Avatar = ({
             }}
           />
         ) : (
-          <div style={{ ...styleText }}>{initialsName(name)}</div>
+          <div style={{ ...styleText, fontSize: w / 3 }}>
+            {initialsName(name)}
+          </div>
           // <IconUser size={w - 8} color={"var(--cBlackV2)"} reverse={false} />
         )}
       </div>
