@@ -22,9 +22,10 @@ const RenderView = memo((props: BinnacleDetailProps) => {
     <DataModal
       open={open}
       onClose={onClose}
-      title="Detalle de Reporte"
+      title="Detalle del Reporte"
       buttonText=""
       buttonCancel=""
+      style={{ maxWidth: 670}}
     >
       <div className={styles.container}>
         {imageExist && (
