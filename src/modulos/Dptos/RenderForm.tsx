@@ -151,7 +151,8 @@ const RenderForm = ({
         type_id: parseInt(formState.type_id),
         expense_amount: formState.expense_amount,
         dimension: formState.dimension,
-        homeowner_id: formState.homeowner_id,
+        homeowner_id:
+          formState.homeowner_id == "X" ? null : formState.homeowner_id,
         fields: fields,
       },
       false
@@ -231,7 +232,7 @@ const RenderForm = ({
         name="homeowner_id"
         value={formState.homeowner_id}
         onChange={handleChange}
-        options={homeownerOptions}
+        options={[{ id: "X", name: "Sin titular" }, ...homeownerOptions]}
         error={errors}
         required={true}
       />
