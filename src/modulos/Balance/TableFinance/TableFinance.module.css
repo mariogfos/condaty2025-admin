@@ -157,6 +157,7 @@
   justify-content: flex-end;
   height: 56px;
   width: 100%;
+  color: transparent;
 }
 
 .tableTotalRow {
@@ -165,7 +166,7 @@
   height: 56px;
   font-size: 14px;
   font-weight: 500;
-  max-width: 300px;
+  min-width: 300px;
   /* Ya no está dentro de .tableContainer, por lo que su fondo y bordes son independientes */
 }
 
@@ -300,8 +301,9 @@
   /* Fondos y bordes se manejan en celdas individuales si es necesario,
      o si toda la fila necesita un borde, se puede añadir aquí.
      Por ejemplo: border-top: 1px solid rgba(0, 227, 140, 0.5); */
-  border-color: #00e38c;
-  border-width: 0.5px;
+  border-left: 0.3px solid var(--cPrimary);
+  border-right: 0.3px solid var(--cPrimary);
+  border-bottom: 0.3px solid var(--cPrimary);
   border-style: solid; 
 }
 
@@ -320,14 +322,15 @@
 
 .totalRow-expense {
   background-color: rgba(245, 101, 101, 0.05); /* Fondo rojo/rosa neón muy transparente */
-  border-color: #F56565;
-  border-width: 0.5px;
+  border-left: 0.3px solid var(--cError);
+  border-right: 0.3px solid var(--cError);
+  border-bottom: 0.3px solid var(--cError);
   border-style: solid; 
   /* Por ejemplo: border-top: 1px solid rgba(245, 101, 101, 0.5); */
 }
 
 .text-expense {
-  color: #F56565; /* Texto con el color rojo/rosa sólido principal */
+  color: var(--cWhite) /* Texto con el color rojo/rosa sólido principal */
 }
 
 .totalLabelCell-expense {
@@ -340,14 +343,15 @@
 
 .totalRow-summary {
   background-color: rgba(66, 153, 225, 0.05); /* Fondo azul neón muy transparente */
-  border-color: #4299E1;
-  border-width: 0.5px;
+  border-left: 0.3px solid #4299E1;
+  border-right: 0.3px solid #4299E1;
+  border-bottom: 0.3px solid #4299E1;
   border-style: solid; 
   /* Por ejemplo: border-top: 1px solid rgba(66, 153, 225, 0.5); */
 }
 
 .text-summary {
-  color: #4299E1; /* Texto con el color azul sólido principal */
+  color: var(--cWhite) /* Texto con el color azul sólido principal */
 }
 
 .totalLabelCell-summary {
