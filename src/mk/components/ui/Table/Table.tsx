@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import styles from "./styles.module.css";
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
 
@@ -92,7 +92,8 @@ const Table = ({
   sortCol,
   onSort,
 }: PropsType) => {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState();
   return (
     <div
@@ -325,7 +326,8 @@ const Body = memo(function Body({
   extraData?: any;
   onRenderCard?: any;
 }) {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const divRef = useRef(null);
   const scrollWidth = useScrollbarWidth(divRef);
   useEffect(() => {

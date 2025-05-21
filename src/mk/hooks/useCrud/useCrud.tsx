@@ -16,7 +16,7 @@ import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
-import useScreenSize from "../useScreenSize";
+// import useScreenSize from "../useScreenSize";
 import styles from "./useCrudStyle.module.css";
 import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -183,7 +183,8 @@ const useCrud = ({
     mod?.noWaiting
   );
   // setParams({ ...paramsInitial });
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
