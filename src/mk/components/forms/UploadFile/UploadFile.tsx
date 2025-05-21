@@ -314,7 +314,7 @@ export const UploadFile = ({
           accept={accept()}
           className={styles.fileInput} // Añadida clase
         />
-        {!selectedFiles?.name && !(value && (value != "" || value.file)) ? ( // Modificada la condición para chequear 'value.file'
+        {!selectedFiles?.name && !item?.ext ? ( // Modificada la condición para chequear 'value.file'
           <div
             className={styles.uploadPlaceholder} // Añadida clase
             onClick={() => {
