@@ -224,7 +224,7 @@ const RenderView = (props: {
               </div>
               <div className={styles.gInfoBlockFixed}>
                 <div className={styles.gInfoBlockContent}>
-                  <span className={styles.gInfoLabel}>Nivel de alerta</span>
+                  <span className={styles.gInfoLabel}>Categoría de alerta</span>
                   <span className={styles.gAlertLevelValue} style={{ color: alertLevelColor }}>
                     {getAlertLevelText(props.item.level) || "N/A"}
                   </span>
