@@ -39,7 +39,7 @@ const TableResumenGeneral = ({
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
       { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
       { name: "Total de Egresos", amount: totalEgresos, sub: [] },
-      { name: "Total de Saldo Acumulado", amount: totalIngresos - totalEgresos, sub: [] },
+      { name: "Total de diferencia entre ingresos y egresos", amount: totalIngresos - totalEgresos, sub: [] },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
   }, [subcategoriasE, subcategoriasI]);
