@@ -29,14 +29,14 @@ const paramsInitial = {
 
 const lLevels = [
   { id: "T", name: "Todos" },
-  { id: 4, name: "Categoria de pánico" },
+  { id: 4, name: "Nivel pánico" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
     case 4:
-      return "Categoria de pánico";
+      return "Nivel pánico";
     case 3:
       return "Nivel alto";
     case 2:

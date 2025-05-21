@@ -212,8 +212,7 @@ const TableFinance = ({
                 </div>
               )}
             </div>
-            {/* Si no hay meses, totalEmptyMonthCells tendrá flexGrow: 0, lo que es correcto */}
-            <div className={styles.totalEmptyMonthCells} style={{ flexGrow: meses.length }}></div>
+            
             {/* --- INICIO DE LA MODIFICACIÓN --- */}
             <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
             {/* --- FIN DE LA MODIFICACIÓN --- */}
