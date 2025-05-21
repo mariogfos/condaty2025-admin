@@ -34,11 +34,11 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 const getStatus = (status: string) => {
   let _status;
   if (status == "A") _status = "Por cobrar";
-  if (status == "E") _status = "En espera";
+  //if (status == "E") _status = "En espera";
   if (status == "P") _status = "Cobrado";
   if (status == "S") _status = "Revisar pago";
   if (status == "M") _status = "En mora";
-  if (status == "R") _status = "Rechazado";
+  //if (status == "R") _status = "Rechazado";
   return _status;
 };
 
@@ -53,6 +53,36 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     penaltyAmount: 0,
     pendingAmount: 0,
   });
+  // Helper function to determine the display status of an item
+const getDisplayStatus = (item: any) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy a medianoche para una comparación precisa de solo fecha
+
+  // Si el estado es 'A' (Por cobrar) y tiene una fecha de vencimiento en 'debt'
+  if (item.status === "A" && item.debt?.due_at) {
+    const dueDate = new Date(item.debt.due_at); // Parsea 'YYYY-MM-DD' como fecha local a medianoche
+    // No es necesario normalizar dueDate con setHours si ya es YYYY-MM-DD,
+    // ya que new Date('YYYY-MM-DD') lo interpreta como medianoche.
+    
+    if (today > dueDate) {
+      return { text: "En mora", code: "M" }; // Efectivamente está en mora por fecha
+    }
+  }
+
+  // Lógica original para otros estados o si no está en mora por fecha
+  switch (item.status) {
+    case "A":
+      return { text: "Por cobrar", code: "A" };
+    case "P":
+      return { text: "Cobrado", code: "P" };
+    case "S":
+      return { text: "Revisar pago", code: "S" };
+    case "M":
+      return { text: "En mora", code: "M" }; // explícitamente en mora
+    default:
+      return { text: item.status || "Desconocido", code: item.status || "" };
+  }
+};
 
   // Obtener datos de detalles de expensas directamente con useAxios
   const { data: expenseDetails } = useAxios("/debt-dptos", "GET", {
@@ -66,15 +96,32 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   useEffect(() => {
     if (expenseDetails?.data && expenseDetails.data.length > 0) {
       const expensesData = expenseDetails.data;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy para la comparación
+
+      let calculatedOverdueUnits = 0;
+      expensesData.forEach((item: any) => {
+        let isOverdue = false;
+        if (item.status === "M") { // Ya está marcado como 'M'
+          isOverdue = true;
+        } else if (item.status === "A" && item.debt?.due_at) {
+          const dueDate = new Date(item.debt.due_at);
+          // dueDate se parsea como YYYY-MM-DD 00:00:00 en la zona horaria local
+          if (today > dueDate) {
+            isOverdue = true;
+          }
+        }
+        if (isOverdue) {
+          calculatedOverdueUnits++;
+        }
+      });
 
       // Calcular estadísticas
       const totalUnits = expensesData.length;
       const paidUnits = expensesData.filter(
         (item: any) => item.status === "P"
       ).length;
-      const overdueUnits = expensesData.filter(
-        (item: any) => item.status === "M"
-      ).length;
+     
 
       const totalAmount = expensesData.reduce(
         (sum: number, item: any) => sum + parseFloat(item.amount || 0),
@@ -95,7 +142,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       setStatsData({
         totalUnits,
         paidUnits,
-        overdueUnits,
+        overdueUnits: calculatedOverdueUnits,
         totalAmount,
         paidAmount,
         penaltyAmount,
@@ -218,12 +265,15 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         label: "Estado",
         list: {
           onRender: (props: any) => {
+            // Utiliza la función getDisplayStatus que definimos antes
+            const displayStatus = getDisplayStatus(props?.item); 
+            
             const statusClass = `${styles.statusBadge} ${
-              styles[`status${props?.item?.status}`]
+              styles[`status${displayStatus.code}`] // Usa el código de estado efectivo para el estilo
             }`;
             return (
               <div className={statusClass}>
-                {getStatus(props?.item?.status)}
+                {displayStatus.text} {/* Muestra el texto del estado efectivo */}
               </div>
             );
           },
@@ -235,11 +285,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: "ALL", name: "Todos" },
               { id: "A", name: "Por cobrar" },
-              { id: "E", name: "En espera" },
+              //{ id: "E", name: "En espera" },
               { id: "P", name: "Cobrado" },
               { id: "S", name: "Revisar pago" },
               { id: "M", name: "En mora" },
-              { id: "R", name: "Rechazado" },
+              //{ id: "R", name: "Rechazado" },
             ];
           },
           optionLabel: "name",

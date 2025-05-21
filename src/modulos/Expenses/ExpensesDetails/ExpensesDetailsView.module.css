@@ -217,7 +217,7 @@
   color: var(--cInfo);
 }
 .statusM {
-  background-color: var(--cMediumAlertHover);
-  color: var(--cMediumAlert);
+  background-color: var(--cHoverError);
+  color: var(--cError);
 }
 /* --- Fin Badges --- */

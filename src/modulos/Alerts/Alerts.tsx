@@ -195,10 +195,10 @@ const Alerts = () => {
                       gap: "4px",
                     }}
                   >
-                    {/* Mostrar icono específico de alerta (IconAmbulance, IconFlame, etc.) si es pánico y tiene tipo */}
+                   {/*  
                     {isPanic && item.type && (
                       <span>{getAlertLevelIcon(item.type)}</span>
-                    )}
+                    )} */}
                     <p
                       style={{
                         margin: 0,
@@ -238,7 +238,7 @@ const Alerts = () => {
       created_at: {
         rules: [""],
         api: "",
-        label: "Fecha Y Hora de Creacion",
+        label: "Fecha y hora de creación",
         list: {},
         onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
