@@ -202,8 +202,7 @@ const TableFinance = ({
         <div className={styles.tableTotalRowContainer}>
           <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
             <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
-              <span>{titleTotal || "Total de " + title}</span>
-              {tooltip && (
+            {tooltip && (
                 <div className={styles.tooltipContainer}>
                   <IconTableHelp className={styles.tooltipIcon} />
                   <span className={styles.tooltip}>
@@ -211,6 +210,8 @@ const TableFinance = ({
                   </span>
                 </div>
               )}
+              <span>{titleTotal || "Total de " + title}</span>
+              
             </div>
             
             {/* --- INICIO DE LA MODIFICACIÓN --- */}

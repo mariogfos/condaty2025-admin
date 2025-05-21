@@ -53,6 +53,7 @@ const TableResumenGeneral = ({
       color={`${total < 0 ? "text-error " : "text-accent"}`}
       titleTotal={titleTotal}
       variant="summary"
+      tooltip="Monto total de ingresos y egresos detallado por categorias y subcategorias."
     />
   );
 };
