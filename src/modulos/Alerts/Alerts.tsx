@@ -293,15 +293,9 @@ const Alerts = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.alerts}>
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-        }}
-      >
+    <div>
+     <div className={styles.dashboardContainer}>
+     <div className={styles.allStatsRow}>
         <WidgetDashCard
           title="Alertas Registradas"
           data={String(data?.extraData?.total_alerts || 0)}
@@ -313,7 +307,7 @@ const Alerts = () => {
               size={38}
             />
           }
-          // className={styles.widgetResumeCard}
+          className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Alertas Nivel Bajo"
@@ -326,7 +320,8 @@ const Alerts = () => {
               size={38}
             />
           }
-          // className={styles.widgetResumeCard}
+          className={styles.widgetResumeCard}
+          style={{ maxWidth: '300px', width: '100%' }}
         />
         <WidgetDashCard
           title="Alertas Nivel Medio"
@@ -339,7 +334,7 @@ const Alerts = () => {
               size={38}
             />
           }
-          // className={styles.widgetResumeCard}
+          className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Alertas Nivel Alto"
@@ -352,7 +347,7 @@ const Alerts = () => {
               size={38}
             />
           }
-          // className={styles.widgetResumeCard}
+          className={styles.widgetResumeCard}
         />
         <WidgetDashCard
           title="Categoria de panico"
@@ -365,11 +360,18 @@ const Alerts = () => {
               size={38}
             />
           }
-          // className={styles.widgetResumeCard}
+          className={styles.widgetResumeCard}
         />
+        </div>
       </div>
+ 
+   
+      
       <List />
     </div>
+    
+ 
+  
   );
 };
 
