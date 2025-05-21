@@ -180,7 +180,7 @@ const HomeOwners = () => {
         list: false,
       },
       name: {
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Nombre Completo",
         form: {
@@ -235,36 +235,36 @@ const HomeOwners = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre*",
+        label: "Segundo nombre (opcional)",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       last_name: {
-        rules: [""],
+        rules: ["required", "alpha"],
         api: "ae",
-        label: "Apellido paterno*",
+        label: "Apellido paterno",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno*",
+        label: "Apellido materno (opcional)",
         form: { type: "text", style: { width: "49%" } },
         list: false,
       },
       ci: {
-        rules: ["required"],
+        rules: ["required", "ci"],
         api: "ae",
         label: "Cédula de identidad",
         form: { type: "number" },
       },
       email: {
-        rules: ["required"],
+        rules: ["required", "email"],
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "number",
+          type: "email",
           label: "Correo electrónico",
           onRender: (props: any) => {
             return (

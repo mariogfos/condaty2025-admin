@@ -215,7 +215,7 @@ const Guards = () => {
         list: false,
       },
       ci: {
-        rules: ["required*add"],
+        rules: ["required", "ci"],
         api: "a",
         label: "Cédula de identidad",
         // form: { type: "text", disabled: true, label: "2222" },
@@ -262,7 +262,7 @@ const Guards = () => {
         list: false,
       },
       name: {
-        rules: ["required"],
+        rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Primer nombre",
         form: {
@@ -276,12 +276,12 @@ const Guards = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre",
+        label: "Segundo nombre (opcional)",
         form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
         list: false,
       },
       last_name: {
-        rules: ["required"],
+        rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
@@ -290,11 +290,12 @@ const Guards = () => {
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno",
+        label: "Apellido materno (opcional)",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       phone: {
+        rules: ["number", "max:10"],
         api: "ae",
         label: "Celular",
         form: { type: "text", disabled: onDisbled },
@@ -305,7 +306,7 @@ const Guards = () => {
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "text",
+          type: "email",
           disabled: onDisbled,
         },
         list: false,

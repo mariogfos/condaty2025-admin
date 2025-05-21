@@ -277,7 +277,7 @@ const Owners = () => {
       
       name: {
         openTag: { style: { display: "flex" } },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Primer nombre",
         form: {
@@ -291,7 +291,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Segundo nombre",
+        label: "Segundo nombre (opcional)",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -304,7 +304,7 @@ const Owners = () => {
             display: "flex",
           },
         },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: {
@@ -317,7 +317,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Apellido materno",
+        label: "Apellido materno (opcional)",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -336,7 +336,7 @@ const Owners = () => {
         },
       },
       ci: {
-        rules: ["required*add"],
+        rules: ["required", "ci"],
         api: "ae",
         label: "Carnet de identidad",
         form: {
@@ -355,7 +355,7 @@ const Owners = () => {
       //   style: { width: "500px" },
       // },
       phone: {
-        rules: ["number"],
+        rules: ["number", "max:10"],
         api: "ae",
         label: "Celular (Opcional)",
         form: {
@@ -407,12 +407,12 @@ const Owners = () => {
         // form: false, // Descomenta si no quieres que aparezca en el formulario
       },
       email: {
-        rules: ["required"],
+        rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
         // form: { type: "text", disabled: true, label: "2222" },
         form: {
-          type: "number",
+          type: "email",
           label: "Cédula de identidad",
           onRender: (props: any) => {
             return (
