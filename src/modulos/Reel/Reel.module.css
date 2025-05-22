@@ -1,0 +1,267 @@
+.reelContainer {
+    max-width: 700px;
+    margin: var(--spXl) auto;
+    padding: 0 var(--spM);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spXxl);
+  }
+  
+  .contentCard {
+    background: var(--cDarkV2);
+    border-radius: var(--bRadiusL);
+    padding: var(--spL);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--cBlackV3);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  
+  .contentCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 35px -12px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .contentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spM);
+    margin-bottom: var(--spL);
+    border-bottom: 1px solid var(--cBlackV3);
+  }
+  
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--spM); 
+  }
+  
+  .userDetails {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.4;
+  }
+  
+  .userName {
+    font-weight: var(--bSemibold);
+    color: var(--cWhite);
+    font-size: var(--sM); 
+    cursor: pointer;
+  }
+  .userName:hover {
+    color: var(--cAccent);
+  }
+  
+  .userRole {
+    font-size: var(--sS);
+    color: var(--cWhiteV1);
+  }
+  
+  .postDate {
+    font-size: var(--sS);
+    color: var(--cWhiteV1);
+    white-space: nowrap;
+    margin-left: var(--spM);
+  }
+  
+  .contentBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spS); 
+    flex-grow: 1;
+  }
+  
+  .contentTitle {
+    font-size: var(--sL);
+    font-weight: var(--bBold);
+    color: var(--cWhite);
+    margin: 0 0 var(--spS) 0;
+    line-height: 1.3;
+  }
+  
+  .contentDescription {
+    font-size: var(--sM);
+    color: var(--cWhite); 
+    line-height: 1.65;
+    margin: 0;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  
+  .contentImageContainer {
+    width: 100%;
+    border-radius: var(--bRadiusM); 
+    overflow: hidden;
+    margin-top: var(--spM);
+    background-color: var(--cBlackV1);
+    position: relative;
+  }
+  
+  .image {
+    width: 100%;
+    height: auto;
+    max-height: 65vh;
+    object-fit: cover;
+    display: block;
+    border-radius: var(--bRadiusM);
+    transition: transform 0.3s ease;
+  }
+  .contentImageContainer:hover .image {
+    transform: scale(1.03);
+  }
+  
+  .contentFooter {
+    margin-top: var(--spL);
+    padding-top: var(--spM);
+    border-top: 1px solid var(--cBlackV3);
+  }
+  
+  .contentStats {
+    display: flex;
+    gap: var(--spM); 
+  }
+  
+  .statItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spS);
+    color: var(--cWhiteV1);
+    background: transparent;
+    border: none;
+    padding: var(--spS) var(--spM);
+    border-radius: var(--bRadiusS);
+    cursor: pointer;
+    font-size: var(--sM); 
+    font-family: var(--fPrimary);
+    font-weight: var(--bMedium);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    outline: none;
+  }
+  
+  .statItem svg {
+    width: 20px; 
+    height: 20px;
+    transition: fill 0.2s ease, transform 0.2s ease;
+    fill: var(--cWhiteV1);
+  }
+  
+  .statItem:hover {
+    background-color: var(--cHover);
+    color: var(--cWhite); 
+  }
+  .statItem:hover svg {
+    fill: var(--cWhite);
+  }
+  
+  .statItem.liked {
+    color: var(--cInfo);
+  }
+  .statItem.liked svg {
+    fill: var(--cInfo);
+    transform: scale(1.1);
+  }
+  
+  .statItem:active {
+    transform: scale(0.92);
+  }
+  
+  .loadingState,
+  .noContentState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    color: var(--cWhiteV1);
+    font-size: var(--sL);
+    text-align: center;
+    padding: var(--spXl);
+  }
+  
+  @media screen and (max-width: 768px) {
+    .reelContainer {
+      margin: var(--spL) auto;
+      padding: 0 var(--spS);
+      gap: var(--spL);
+    }
+  
+    .contentCard {
+      padding: var(--spM);
+      border-radius: var(--bRadiusM); 
+    }
+    
+    .contentHeader {
+      padding-bottom: var(--spS);
+      margin-bottom: var(--spM);
+    }
+    
+    .userInfo {
+      gap: var(--spS);
+    }
+    .avatar {
+       width: 36px;
+       height: 36px;
+    }
+  
+    .contentTitle {
+      font-size: calc(var(--sL) * 0.9);
+    }
+  
+    .contentDescription {
+      font-size: var(--sS);
+    }
+  
+    .contentImageContainer {
+      margin-top: var(--spS);
+      border-radius: var(--bRadiusS);
+    }
+    .image {
+      border-radius: var(--bRadiusS);
+    }
+  
+    .contentFooter {
+      margin-top: var(--spM);
+      padding-top: var(--spS);
+    }
+  
+    .contentStats {
+      gap: var(--spM);
+    }
+    .statItem {
+      font-size: var(--sS);
+      padding: var(--spS);
+    }
+    .statItem svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  /* Estilos para los estados de carga y final de contenido */
+.loadingState,
+.noContentState,
+.loadingMoreState,
+.noMoreContentState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spXxl);
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  text-align: center;
+}
+
+.loadingState,
+.noContentState {
+  min-height: 300px; /* Para el estado inicial */
+  font-size: var(--sL);
+}
+
+.loadingMoreState {
+  min-height: 100px; /* Más pequeño para la carga de "más items" */
+}
+
+.noMoreContentState {
+  min-height: 80px;
+  color: var(--cWhiteV2); /* Un poco más sutil */
+}
