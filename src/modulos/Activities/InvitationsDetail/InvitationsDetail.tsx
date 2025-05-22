@@ -11,6 +11,8 @@ import {
   IconArrowLeft,
   IconArrowRight,
 } from "@/components/layout/icons/IconsBiblioteca";
+import LabelValueDetail from "@/components/Detail/LabelValueDetail";
+import ContainerDetail from "@/components/Detail/ContainerDetail";
 
 interface Props {
   item?: any;
@@ -41,26 +43,6 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       />
     );
   };
-  type LabelValueProps = {
-    value: string;
-    label: string;
-    colorValue?: string;
-  };
-  const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
-    return (
-      <div className={styles.LabelValue}>
-        <p>{label}</p>
-        <p
-          style={{
-            color: colorValue ? colorValue : "var(--cWhite)",
-          }}
-        >
-          {value}
-        </p>
-      </div>
-    );
-  };
-
   const getStatus = () => {
     let status = "";
     if (item?.out_at) {
@@ -130,41 +112,41 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           C.I. {owner?.ci} - Unidad: {owner?.dpto?.[0]?.nro}
         </p>
         <Br />
-        <div className={styles.containerDetail}>
-          <div>
-            <LabelValue
-              value={typeInvitation[item?.type]}
-              label="Tipo de invitación"
+        <ContainerDetail>
+          <LabelValueDetail
+            value={typeInvitation[item?.type]}
+            label="Tipo de invitación"
+          />
+          {item?.type == "G" && (
+            <LabelValueDetail
+              value={invitation?.title || "-/-"}
+              label="Evento"
             />
-            {item?.type == "G" && (
-              <LabelValue value={invitation?.title || "-/-"} label="Evento" />
-            )}
-            {item?.type == "I" && (
-              <LabelValue label="Invitado" value={getFullName(visit)} />
-            )}
-            <LabelValue value={invitation?.obs || "-/-"} label="Indicaciones" />
-          </div>
+          )}
+          {item?.type == "I" && (
+            <LabelValueDetail label="Invitado" value={getFullName(visit)} />
+          )}
+          <LabelValueDetail label="Estado" value={getStatus()} />
+          <LabelValueDetail
+            value={invitation?.obs || "-/-"}
+            label="Indicaciones"
+          />
 
-          <div>
-            <LabelValue label="Estado" value={getStatus()} />
-            {item?.type != "C" && (
-              <LabelValue
-                value={
-                  item?.type == "F"
-                    ? getDateStrMes(invitation?.start_date) +
-                      "  " +
-                      getDateStrMes(invitation?.end_date)
-                    : getDateStrMes(invitation?.date_event)
-                }
-                label={
-                  item?.type == "F"
-                    ? "Periodo de validez"
-                    : "Fecha de invitación"
-                }
-              />
-            )}
-          </div>
-        </div>
+          {item?.type != "C" && (
+            <LabelValueDetail
+              value={
+                item?.type == "F"
+                  ? getDateStrMes(invitation?.start_date) +
+                    "  " +
+                    getDateStrMes(invitation?.end_date)
+                  : getDateStrMes(invitation?.date_event)
+              }
+              label={
+                item?.type == "F" ? "Periodo de validez" : "Fecha de invitación"
+              }
+            />
+          )}
+        </ContainerDetail>
         <Br />
         {item?.type == "F" && invitation?.weekday && (
           <>
@@ -177,12 +159,12 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             >
               Configuración avanzada
             </p>
-            <div className={styles.containerDetail}>
-              <LabelValue
+            <ContainerDetail>
+              <LabelValueDetail
                 value={parseWeekDays(invitation?.weekday).toString()}
                 label="Días de acceso"
               />
-              <LabelValue
+              <LabelValueDetail
                 value={
                   invitation?.start_time.slice(0, 5) +
                   " - " +
@@ -190,11 +172,11 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 }
                 label="Horario permitido"
               />
-              <LabelValue
+              <LabelValueDetail
                 value={invitation?.max_entries || "-/-"}
                 label="Cantidad"
               />
-            </div>
+            </ContainerDetail>
             <Br />
           </>
         )}
