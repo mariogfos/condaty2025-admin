@@ -175,6 +175,7 @@ const BalanceGeneral: React.FC = () => {
 
   const ldate = [
     { id: "T", name: "Todos" },
+    { id: "d", name: "Hoy" },
     { id: "ld", name: "Ayer" },
     { id: "w", name: "Esta semana" },
     { id: "lw", name: "Semana pasada" },
@@ -192,7 +193,11 @@ const BalanceGeneral: React.FC = () => {
   useEffect(() => {
     if (finanzas?.success === true && finanzas?.data?.export) {
       window.open(getUrlImages("/" + finanzas.data.export.path), "_blank");
-    } else if (finanzas?.success === false && finanzas?.message && finanzas?.data?.export !== undefined ) {
+    } else if (
+      finanzas?.success === false &&
+      finanzas?.message &&
+      finanzas?.data?.export !== undefined
+    ) {
       console.log(finanzas?.message, "error al exportar");
     }
   }, [finanzas]);
@@ -210,7 +215,10 @@ const BalanceGeneral: React.FC = () => {
       formState.date_fin &&
       formState.date_inicio > formState.date_fin
     ) {
-      err = { ...err, date_inicio: "La fecha de inicio no puede ser mayor a la de fin" };
+      err = {
+        ...err,
+        date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
+      };
     }
     if (Object.keys(err).length > 0) {
       setErrors(err);
@@ -245,7 +253,7 @@ const BalanceGeneral: React.FC = () => {
       const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       year = prevMonthDate.getFullYear();
     } else if (filterDateValue.startsWith("c:")) {
-      const dates = filterDateValue.substring(2).split(',');
+      const dates = filterDateValue.substring(2).split(",");
       if (dates[0]) {
         const startDate = new Date(dates[0] + "T00:00:00"); // Asegurar que se interprete como local
         year = startDate.getFullYear();
@@ -275,8 +283,11 @@ const BalanceGeneral: React.FC = () => {
 
     const saldoFinal = totalIngresos - totalEgresos + saldoInicial;
     return { totalIngresos, totalEgresos, saldoInicial, saldoFinal };
-  }, [finanzas?.data?.ingresos, finanzas?.data?.egresos, finanzas?.data?.saldoInicial]);
-
+  }, [
+    finanzas?.data?.ingresos,
+    finanzas?.data?.egresos,
+    finanzas?.data?.saldoInicial,
+  ]);
 
   return (
     <div className={styles.container}>
@@ -349,25 +360,57 @@ const BalanceGeneral: React.FC = () => {
               />
             </div>
           </div>
-          <div className={`${styles.filterItem} ${styles.chartTypeSelectorContainer}`}>
+          <div
+            className={`${styles.filterItem} ${styles.chartTypeSelectorContainer}`}
+          >
             <div className={styles.chartTypeButtonWrapper}>
               <button
                 type="button"
                 title="Gráfico de Barras"
-                className={`${styles.chartTypeButton} ${charType.filter_charType === 'bar' ? styles.chartTypeButtonActive : ''}`}
-                onClick={() => { if (lchars.some(c => c.id === 'bar')) { setCharType({ filter_charType: 'bar' }); } }}
-                disabled={!lchars.some(c => c.id === 'bar')}
+                className={`${styles.chartTypeButton} ${
+                  charType.filter_charType === "bar"
+                    ? styles.chartTypeButtonActive
+                    : ""
+                }`}
+                onClick={() => {
+                  if (lchars.some((c) => c.id === "bar")) {
+                    setCharType({ filter_charType: "bar" });
+                  }
+                }}
+                disabled={!lchars.some((c) => c.id === "bar")}
               >
-                <LineGraphic size={20} color={charType.filter_charType === 'bar' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'} />
+                <LineGraphic
+                  size={20}
+                  color={
+                    charType.filter_charType === "bar"
+                      ? "var(--cAccent, #00E38C)"
+                      : "var(--cWhiteV1, #A7A7A7)"
+                  }
+                />
               </button>
               <button
                 type="button"
                 title="Gráfico de Línea"
-                className={`${styles.chartTypeButton} ${charType.filter_charType === 'line' ? styles.chartTypeButtonActive : ''}`}
-                onClick={() => { if (lchars.some(c => c.id === 'line')) { setCharType({ filter_charType: 'line' }); } }}
-                disabled={!lchars.some(c => c.id === 'line')}
+                className={`${styles.chartTypeButton} ${
+                  charType.filter_charType === "line"
+                    ? styles.chartTypeButtonActive
+                    : ""
+                }`}
+                onClick={() => {
+                  if (lchars.some((c) => c.id === "line")) {
+                    setCharType({ filter_charType: "line" });
+                  }
+                }}
+                disabled={!lchars.some((c) => c.id === "line")}
               >
-                <PointGraphic size={20} color={charType.filter_charType === 'line' ? 'var(--cAccent, #00E38C)' : 'var(--cWhiteV1, #A7A7A7)'} />
+                <PointGraphic
+                  size={20}
+                  color={
+                    charType.filter_charType === "line"
+                      ? "var(--cAccent, #00E38C)"
+                      : "var(--cWhiteV1, #A7A7A7)"
+                  }
+                />
               </button>
             </div>
           </div>
@@ -375,97 +418,128 @@ const BalanceGeneral: React.FC = () => {
 
         <div className={styles.loadingContainer}>
           <LoadingScreen>
-            {formStateFilter.filter_mov === "T" && finanzas?.data && ( // Verificamos finanzas.data en lugar de solo ingresos
-              <>
-                <h2 className={styles.chartSectionTitle}>
-                  {`Balance desde ${getDateDesdeHasta(formStateFilter.filter_date)}`}
-                </h2>
-                <div className={styles.chartContainer}>
-                  {/* El botón de exportar se mueve debajo, cerca de la leyenda */}
-                  <WidgetGrafBalance
-                    saldoInicial={finanzas?.data?.saldoInicial} // Se mantiene para el cálculo interno del gráfico si es necesario
-                    ingresos={finanzas?.data?.ingresosHist}
-                    egresos={finanzas?.data?.egresosHist}
-                    chartTypes={[charType.filter_charType as ChartType]}
-                    subtitle={`Saldo Final del Periodo`}
-                    title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
-                    periodo={formStateFilter?.filter_date}
-                  />
-                  <div className={styles.legendAndExportWrapper}>
-                    <div className={styles.legendContainer}>
-                      <div className={styles.legendItem}>
-                        <div className={styles.legendColor} style={{ backgroundColor: "#FFD700" }}></div>
-                        <span>Saldo Inicial: Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
+            {formStateFilter.filter_mov === "T" &&
+              finanzas?.data && ( // Verificamos finanzas.data en lugar de solo ingresos
+                <>
+                  <h2 className={styles.chartSectionTitle}>
+                    {formStateFilter.filter_date == "d" ||
+                    formStateFilter.filter_date == "ld"
+                      ? "Balance de " +
+                        (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
+                      : `Balance desde ${getDateDesdeHasta(
+                          formStateFilter.filter_date
+                        )}`}
+                  </h2>
+                  <div className={styles.chartContainer}>
+                    {/* El botón de exportar se mueve debajo, cerca de la leyenda */}
+                    <WidgetGrafBalance
+                      saldoInicial={finanzas?.data?.saldoInicial} // Se mantiene para el cálculo interno del gráfico si es necesario
+                      ingresos={finanzas?.data?.ingresosHist}
+                      egresos={finanzas?.data?.egresosHist}
+                      chartTypes={[charType.filter_charType as ChartType]}
+                      subtitle={`Saldo Final del Periodo`}
+                      title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
+                      periodo={formStateFilter?.filter_date}
+                    />
+                    <div className={styles.legendAndExportWrapper}>
+                      <div className={styles.legendContainer}>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#FFD700" }}
+                          ></div>
+                          <span>
+                            Saldo Inicial: Bs{" "}
+                            {formatNumber(calculatedTotals.saldoInicial)}
+                          </span>
+                        </div>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#00E38C" }}
+                          ></div>
+                          <span>
+                            Ingresos: Bs{" "}
+                            {formatNumber(calculatedTotals.totalIngresos)}
+                          </span>
+                        </div>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#FF5B4D" }}
+                          ></div>
+                          <span>
+                            Egresos: Bs{" "}
+                            {formatNumber(calculatedTotals.totalEgresos)}
+                          </span>
+                        </div>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#4C98DF" }}
+                          ></div>
+                          <span>
+                            Saldo Final: Bs{" "}
+                            {formatNumber(calculatedTotals.saldoFinal)}
+                          </span>
+                        </div>
                       </div>
-                      <div className={styles.legendItem}>
-                        <div className={styles.legendColor} style={{ backgroundColor: "#00E38C" }}></div>
-                        <span>Ingresos: Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
-                      </div>
-                      <div className={styles.legendItem}>
-                        <div className={styles.legendColor} style={{ backgroundColor: "#FF5B4D" }}></div>
-                        <span>Egresos: Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
-                      </div>
-                      <div className={styles.legendItem}>
-                        <div className={styles.legendColor} style={{ backgroundColor: "#4C98DF" }}></div>
-                        <span>Saldo Final: Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
-                      </div>
+                      <Button
+                        className={styles.exportButton}
+                        onClick={exportar}
+                        variant="secondary"
+                      >
+                        <IconExport size={22} />
+                      </Button>
                     </div>
-                    <Button
-                      className={styles.exportButton}
-                      onClick={exportar}
-                      variant="secondary"
-                    >
-                      <IconExport size={22} />
-                    </Button>
                   </div>
-                </div>
 
-                <div className={styles.divider} />
-                <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los ingresos`}
-                </h2>
-                <TableIngresos
-                  title="Ingresos"
-                  title2="Total"
-                  categorias={finanzas?.data?.categI}
-                  subcategorias={finanzas?.data?.ingresos}
-                  anual={
-                    formStateFilter?.filter_date === "y" ||
-                    formStateFilter?.filter_date === "ly" ||
-                    formStateFilter?.filter_date.indexOf("c:") > -1
-                  }
-                />
+                  <div className={styles.divider} />
+                  <h2 className={styles.chartSectionTitle}>
+                    {`Resumen detallado de los ingresos`}
+                  </h2>
+                  <TableIngresos
+                    title="Ingresos"
+                    title2="Total"
+                    categorias={finanzas?.data?.categI}
+                    subcategorias={finanzas?.data?.ingresos}
+                    anual={
+                      formStateFilter?.filter_date === "y" ||
+                      formStateFilter?.filter_date === "ly" ||
+                      formStateFilter?.filter_date.indexOf("c:") > -1
+                    }
+                  />
 
-                <div className={styles.divider} />
-                <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de los egresos`}
-                </h2>
-                <TableEgresos
-                  title="Egresos"
-                  title2="Total"
-                  categorias={finanzas?.data?.categE}
-                  subcategorias={finanzas?.data?.egresos}
-                  anual={
-                    formStateFilter?.filter_date === "y" ||
-                    formStateFilter?.filter_date === "ly" ||
-                    formStateFilter?.filter_date.indexOf("c:") > -1
-                  }
-                />
+                  <div className={styles.divider} />
+                  <h2 className={styles.chartSectionTitle}>
+                    {`Resumen detallado de los egresos`}
+                  </h2>
+                  <TableEgresos
+                    title="Egresos"
+                    title2="Total"
+                    categorias={finanzas?.data?.categE}
+                    subcategorias={finanzas?.data?.egresos}
+                    anual={
+                      formStateFilter?.filter_date === "y" ||
+                      formStateFilter?.filter_date === "ly" ||
+                      formStateFilter?.filter_date.indexOf("c:") > -1
+                    }
+                  />
 
-                <div className={styles.divider} />
-                <h2 className={styles.chartSectionTitle}>
-                  {`Resumen detallado de totales`}
-                </h2>
-                <TableResumenGeneral
-                  subcategoriasE={finanzas?.data?.egresos}
-                  subcategoriasI={finanzas?.data?.ingresos}
-                  title={"Resumen general"}
-                  title2={"Total"}
-                  titleTotal={"Total acumulado"}
-                  saldoInicial={finanzas?.data?.saldoInicial}
-                />
-              </>
-            )}
+                  <div className={styles.divider} />
+                  <h2 className={styles.chartSectionTitle}>
+                    {`Resumen detallado de totales`}
+                  </h2>
+                  <TableResumenGeneral
+                    subcategoriasE={finanzas?.data?.egresos}
+                    subcategoriasI={finanzas?.data?.ingresos}
+                    title={"Resumen general"}
+                    title2={"Total"}
+                    titleTotal={"Total acumulado"}
+                    saldoInicial={finanzas?.data?.saldoInicial}
+                  />
+                </>
+              )}
 
             {formStateFilter.filter_mov === "I" && finanzas?.data?.ingresos && (
               <>
@@ -475,7 +549,10 @@ const BalanceGeneral: React.FC = () => {
                     chartTypes={[charType.filter_charType as ChartType]}
                     h={360}
                     title={" "}
-                    subtitle={"Resumen de la gestión " + getDateDesdeHasta(formStateFilter.filter_date)}
+                    subtitle={
+                      "Resumen de la gestión " +
+                      getDateDesdeHasta(formStateFilter.filter_date)
+                    }
                   />
                 </div>
                 <div className={styles.exportButtonContainer}>
@@ -495,8 +572,10 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                   selectcategorias={
-                    typeof formStateFilter.filter_categ === 'string'
-                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : [])
+                    typeof formStateFilter.filter_categ === "string"
+                      ? formStateFilter.filter_categ
+                        ? [formStateFilter.filter_categ]
+                        : []
                       : formStateFilter.filter_categ
                   }
                 />
@@ -511,7 +590,10 @@ const BalanceGeneral: React.FC = () => {
                     chartTypes={[charType.filter_charType as ChartType]}
                     h={360}
                     title={" "}
-                    subtitle={"Resumen de la gestión " + getDateDesdeHasta(formStateFilter.filter_date)}
+                    subtitle={
+                      "Resumen de la gestión " +
+                      getDateDesdeHasta(formStateFilter.filter_date)
+                    }
                   />
                 </div>
                 <div className={styles.exportButtonContainer}>
@@ -531,8 +613,10 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter?.filter_date.indexOf("c:") > -1
                   }
                   selectcategorias={
-                    typeof formStateFilter.filter_categ === 'string'
-                      ? (formStateFilter.filter_categ ? [formStateFilter.filter_categ] : [])
+                    typeof formStateFilter.filter_categ === "string"
+                      ? formStateFilter.filter_categ
+                        ? [formStateFilter.filter_categ]
+                        : []
                       : formStateFilter.filter_categ
                   }
                 />
@@ -558,7 +642,9 @@ const BalanceGeneral: React.FC = () => {
           name="date_inicio"
           error={errors}
           value={formState["date_inicio"]}
-          onChange={(e) => { setFormState({ ...formState, date_inicio: e.target.value }); }}
+          onChange={(e) => {
+            setFormState({ ...formState, date_inicio: e.target.value });
+          }}
           required
         />
         <Input
@@ -567,7 +653,9 @@ const BalanceGeneral: React.FC = () => {
           name="date_fin"
           error={errors}
           value={formState["date_fin"]}
-          onChange={(e) => { setFormState({ ...formState, date_fin: e.target.value }); }}
+          onChange={(e) => {
+            setFormState({ ...formState, date_fin: e.target.value });
+          }}
           required
         />
       </DataModal>

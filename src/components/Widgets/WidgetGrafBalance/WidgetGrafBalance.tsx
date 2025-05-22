@@ -83,6 +83,10 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
 
     if (egresos && egresos.length > 0) {
       egresos.forEach((item) => {
+        if (ingresos && ingresos.length === 0) {
+          if (item.mes > mesI) mesI = item.mes;
+          if (item.mes < mesF) mesF = item.mes;
+        }
         lista.egresos[item.mes - 1] =
           lista.egresos[item.mes - 1] + Number(item.egresos);
 
@@ -121,7 +125,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         lmeses.splice(0, mesI - 1);
       }
     }
-
+    console.log("lista", lista);
     setMeses(lmeses);
     setBalance(lista);
   }, [ingresos, egresos, saldoInicial, periodo]);
@@ -136,7 +140,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
       </p>
       <p className={styles.title}>{title || "Resumen general"}</p>
-      
+
       <GraphBase
         data={{
           labels: meses,
@@ -154,9 +158,9 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
           chart: {
             legend: {
-              show: false
-            }
-          }
+              show: false,
+            },
+          },
         }}
       />
     </div>
