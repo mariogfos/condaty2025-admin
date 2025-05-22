@@ -395,6 +395,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             { id: "I", name: "Qr Individual" },
             { id: "P", name: "Pedido" },
             { id: "O", name: "Llave Qr" },
+            { id: "F", name: "Qr frecuente" },
           ],
         },
       },
