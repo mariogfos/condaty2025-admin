@@ -265,3 +265,184 @@
   min-height: 80px;
   color: var(--cWhiteV2); /* Un poco más sutil */
 }
+.commentModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Asegura que esté por encima de otros contenidos */
+    padding: var(--spM);
+  }
+  
+  .commentModalContent {
+    background-color: var(--cBlack); /* Un poco más claro que el card para distinguirlo */
+    padding: var(--spL);
+    border-radius: var(--bRadiusM);
+    width: 100%;
+    max-width: 600px; /* Ancho máximo del modal */
+    max-height: 80vh; /* Altura máxima, permite scroll interno */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    border: 1px solid var(--cBlackV3);
+  }
+  
+  .commentModalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spM);
+    margin-bottom: var(--spM);
+    border-bottom: 1px solid var(--cBlackV3);
+  }
+  
+  .commentModalTitle {
+    font-size: var(--sL);
+    font-weight: var(--bSemibold);
+    color: var(--cWhite);
+    margin: 0;
+  }
+  
+  .commentModalCloseButton {
+    background: none;
+    border: none;
+    color: var(--cWhiteV1);
+    font-size: var(--sXxl); /* Tamaño grande para '×' */
+    cursor: pointer;
+    padding: 0 var(--spS);
+    line-height: 1;
+  }
+  .commentModalCloseButton:hover {
+    color: var(--cWhite);
+  }
+  
+  .commentModalBody {
+    flex-grow: 1;
+    overflow-y: auto; /* Permite scroll si los comentarios son muchos */
+    padding-right: var(--spS); /* Espacio para la barra de scroll */
+  }
+  
+  .commentList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spL);
+  }
+  
+  .commentItem {
+    display: flex;
+    gap: var(--spM);
+    align-items: flex-start;
+  }
+  
+  .commentAvatar {
+    margin-top: var(--spXs); /* Pequeño ajuste para alinear con texto */
+  }
+  
+  .commentContent {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spXs);
+  }
+  
+  .commentUserInfo {
+    display: flex;
+    align-items: baseline; /* Alinea nombre y fecha */
+    gap: var(--spS);
+    flex-wrap: wrap;
+  }
+  
+  .commentUserName {
+    font-weight: var(--bMedium);
+    color: var(--cWhite);
+    font-size: var(--sM);
+  }
+  
+  .commentDate {
+    font-size: var(--sS);
+    color: var(--cWhiteV1);
+  }
+  
+  .commentText {
+    font-size: var(--sM);
+    color: var(--cWhite);
+    line-height: 1.5;
+    margin: 0;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  
+  .loadingComments,
+  .noCommentsYet,
+  .commentsError {
+    padding: var(--spXl);
+    text-align: center;
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .commentsError {
+    color: var(--cError);
+  }
+  .commentModalFooter {
+    padding-top: var(--spM);
+    margin-top: var(--spM);
+    border-top: 1px solid var(--cBlackV3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spM); /* Espacio entre textarea y botón */
+  }
+  
+  .commentInput {
+    width: 100%;
+    padding: var(--spM);
+    border-radius: var(--bRadiusS);
+    background-color: var(--cBlackV2); /* Fondo oscuro para el input */
+    border: 1px solid var(--cBlackV3); /* Borde sutil */
+    color: var(--cWhite);
+    font-family: var(--fPrimary);
+    font-size: var(--sM);
+    resize: vertical; /* Permite al usuario redimensionar verticalmente si es un textarea real */
+    min-height: 70px; /* Altura mínima */
+    line-height: 1.5;
+  }
+  .commentInput:focus {
+    outline: none;
+    border-color: var(--cAccent);
+    box-shadow: 0 0 0 2px var(--accentBg); /* Un sutil glow al enfocar */
+  }
+  .commentInput::placeholder {
+    color: var(--cWhiteV1);
+  }
+  
+  .commentPostButton {
+    align-self: flex-end; /* Botón a la derecha */
+    padding: var(--spS) var(--spL);
+    background-color: var(--cAccent);
+    color: var(--cBlack); /* Texto oscuro para contraste con fondo accent */
+    border: none;
+    border-radius: var(--bRadiusS);
+    font-weight: var(--bMedium);
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  .commentPostButton:hover:not(:disabled) {
+    background-color: var(--accentv1); /* Un tono más claro de accent al hacer hover */
+  }
+  .commentPostButton:disabled {
+    background-color: var(--cBlackV3);
+    color: var(--cWhiteV2);
+    cursor: not-allowed;
+  }
+  

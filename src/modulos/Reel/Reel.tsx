@@ -26,6 +26,84 @@ const Reel = () => {
   });
 
   const { execute: executeLike } = useAxios();
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
+const [comments, setComments] = useState<any[]>([]);
+const [loadingComments, setLoadingComments] = useState(false);
+const { execute: executeFetchComments, error: commentsError } = useAxios();
+const [newCommentText, setNewCommentText] = useState('');
+const [postingComment, setPostingComment] = useState(false);
+const { execute: executePostComment, error: postCommentError } = useAxios();
+
+const fetchComments = async (contentId: number) => {
+    if (!contentId) return;
+    setLoadingComments(true);
+    setComments([]); // Limpiar comentarios anteriores
+  
+    try {
+      const response = await executeFetchComments(
+        `/comments?fullType=L&id=${contentId}&type=C&perPage=-1&page=1`, 
+        'GET'
+      );
+      if (response?.data?.data && Array.isArray(response.data.data)) {
+        setComments(response.data.data);
+      } else {
+        setComments([]);
+      }
+    } catch (err) {
+      console.error('Error al cargar comentarios:', err);
+      setComments([]); // Asegurarse de limpiar en caso de error
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+  const handlePostComment = async () => {
+    if (!newCommentText.trim() || !selectedContentIdForComments || postingComment) {
+      return;
+    }
+    setPostingComment(true);
+    try {
+      const response = await executePostComment('/comments', 'POST', {
+        id: selectedContentIdForComments,
+        comment: newCommentText,
+        type: 'C',
+      });
+  
+      if (response?.data) { // Asume que una respuesta con 'data' es éxito
+        setNewCommentText(''); 
+        setContents(prevContents =>
+          prevContents.map(content =>
+            content.id === selectedContentIdForComments
+              ? { ...content, comments_count: (content.comments_count || 0) + 1 }
+              : content
+          )
+        );
+        fetchComments(selectedContentIdForComments); // Recarga los comentarios para ver el nuevo
+      } else {
+        console.error('Error al publicar comentario:', response?.data?.message || 'Respuesta no exitosa.');
+        // Aquí podrías mostrar un toast al usuario con el error
+      }
+    } catch (err) {
+      console.error('Error al publicar comentario (catch):', err);
+       // Aquí podrías mostrar un toast al usuario, usando postCommentError si está disponible
+    } finally {
+      setPostingComment(false);
+    }
+  };
+  
+  const handleOpenComments = (contentId: number) => {
+    setSelectedContentIdForComments(contentId);
+    setIsCommentModalOpen(true);
+    fetchComments(contentId);
+  };
+  
+  const handleCloseComments = () => {
+    setIsCommentModalOpen(false);
+    setSelectedContentIdForComments(null);
+    setComments([]);
+    setNewCommentText(''); // Añade esto
+    setPostingComment(false); // Y esto por si se estaba posteando y se cierra
+  };
 
   const handleLike = async (contentId: number) => {
     try {
@@ -144,11 +222,12 @@ const Reel = () => {
                   <span>{item.likes}</span>
                 </button>
                 <button 
-                  className={styles.statItem}
-                  aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
+                className={styles.statItem} 
+                onClick={() => handleOpenComments(item.id)} // <--- MODIFICACIÓN AQUÍ
+                aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
                 >
-                  <IconComment color={'var(--cWhiteV1)'} />
-                  <span>{item.comments_count}</span>
+                <IconComment color={'var(--cWhiteV1)'} /> {/* Añadido color por consistencia */}
+                <span>{item.comments_count}</span>
                 </button>
               </div>
             </footer>
@@ -160,6 +239,75 @@ const Reel = () => {
           Aún no hay publicaciones para mostrar.
         </div>
       )}
+
+{isCommentModalOpen && selectedContentIdForComments && (
+    <div className={styles.commentModalOverlay} onClick={handleCloseComments}>
+      <div className={styles.commentModalContent} onClick={(e) => e.stopPropagation()}>
+        <header className={styles.commentModalHeader}>
+          <h3 className={styles.commentModalTitle}>Comentarios</h3>
+          <button onClick={handleCloseComments} className={styles.commentModalCloseButton} aria-label="Cerrar modal de comentarios">
+            &times;
+          </button>
+        </header>
+        <section className={styles.commentModalBody}>
+          {loadingComments ? (
+            <div className={styles.loadingComments}>Cargando comentarios...</div>
+          ) : commentsError ? (
+            <div className={styles.commentsError}>Error al cargar comentarios. Intenta de nuevo.</div>
+          ) : comments.length > 0 ? (
+            <ul className={styles.commentList}>
+              {comments.map((comment: any) => (
+                <li key={comment.id} className={styles.commentItem}>
+                  <Avatar
+                    name={getFullName(comment.user)}
+                    src={getUrlImages(
+                      "/ADM-" + // Asumiendo que los usuarios de comentarios también son ADM o tienes una forma de determinar el prefijo
+                      comment.user?.id +
+                      ".webp?d=" +
+                      comment.user?.updated_at
+                    )}
+                    w={32}
+                    h={32}
+                    className={styles.commentAvatar}
+                  />
+                  <div className={styles.commentContent}>
+                    <div className={styles.commentUserInfo}>
+                      <span className={styles.commentUserName}>
+                        {getFullName(comment.user) || 'Usuario'}
+                      </span>
+                      <time dateTime={comment.created_at} className={styles.commentDate}>
+                        {getDateTimeAgo(comment.created_at)}
+                      </time>
+                    </div>
+                    <p className={styles.commentText}>{comment.comment}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={styles.noCommentsYet}>Aún no hay comentarios. ¡Sé el primero!</div>
+          )}
+        </section>
+        <footer className={styles.commentModalFooter}>
+        <textarea
+            placeholder="Escribe tu comentario..."
+            className={styles.commentInput}
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value)}
+            disabled={postingComment}
+            rows={3}
+        />
+        <button
+            className={styles.commentPostButton}
+            onClick={handlePostComment}
+            disabled={postingComment || !newCommentText.trim()}
+        >
+            {postingComment ? 'Publicando...' : 'Publicar'}
+        </button>
+        </footer>
+      </div>
+    </div>
+  )}
     </div>
   );
 };
