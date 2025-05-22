@@ -217,7 +217,7 @@ const Users = () => {
       },
 
       name: {
-        rules: ["required","max:50","alpha"],
+        rules: ["required", "max:50", "alpha", "noSpaces"],
         api: "ae",
         label: "Primer nombre",
         form: {
@@ -236,7 +236,7 @@ const Users = () => {
         list: false,
       },
       last_name: {
-        rules: ["required","max:50","alpha"],
+        rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
@@ -293,7 +293,7 @@ const Users = () => {
       },
 
       ci: {
-        rules: ["required","ci"],
+        rules: ["required", "ci"],
         api: "ae",
         label: "Carnet de Identidad",
         form: {
@@ -305,7 +305,7 @@ const Users = () => {
       },
 
       phone: {
-        rules: ["number","phone","max:16"],
+        rules: ["number", "phone", "max:16"],
         api: "ae",
         label: "Celular (Opcional)",
         form: {
@@ -325,7 +325,7 @@ const Users = () => {
       },
 
       email: {
-        rules: ["required","email"],
+        rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
         // form: { type: "text", disabled: true, label: "2222" },

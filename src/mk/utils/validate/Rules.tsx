@@ -45,7 +45,7 @@ export const validRule = (
         : !value
         ? "Este campo es requerido"
         : "",
-    
+
     required: () => {
       // Si el valor es 0 o "0", se considera válido (mantiene tu lógica actual para estos casos)
       if (value === 0 || value === "0") {

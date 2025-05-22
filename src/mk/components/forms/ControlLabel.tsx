@@ -13,6 +13,7 @@ export interface PropsTypeInputBase {
   readOnly?: boolean;
   className?: string;
   style?: CSSProperties;
+  styleInput?: CSSProperties;
   onChange?: (e: any) => void;
   onBlur?: (() => void) | ((e: any) => void);
   onFocus?: () => void;

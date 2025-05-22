@@ -33,8 +33,8 @@ const Documents = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       noWaiting?: boolean;
-      reLoad?:any;
-    }) => <RenderView {...props}/>,
+      reLoad?: any;
+    }) => <RenderView {...props} />,
   };
 
   const paramsInitial = {
@@ -85,7 +85,7 @@ const Documents = () => {
       //   list:false
       // },
       doc: {
-        rules: ["required"],
+        rules: ["required*a"],
         api: "ae*",
         label: "Archivo",
         form: {
