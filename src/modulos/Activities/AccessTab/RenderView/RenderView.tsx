@@ -213,12 +213,31 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 label="Tipo de acceso"
               />
               {/* <div className={styles.textsDiv}>
+                  <div>Estado</div>
+                  <div style={{ color: item?.out_at ? "var(--cAccent)" : "" }}>
+                    {getStatus()}
+                  </div>
+                </div> */}
+              <LabelValueDetail
+                value={getStatus()}
+                label="Estado"
+                colorValue={item?.out_at ? "var(--cAccent)" : ""}
+              />
+              {/* <div className={styles.textsDiv}>
                   <div>Fecha y hora de ingreso</div>
                   <div>{getDateTimeStrMes(in_at)} </div>
                 </div> */}
               <LabelValueDetail
                 value={getDateTimeStrMes(in_at)}
                 label="Fecha y hora de ingreso"
+              />
+              {/* <div className={styles.textsDiv}>
+                  <div>Fecha y hora de salida</div>
+                  <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
+                </div> */}
+              <LabelValueDetail
+                value={getDateTimeStrMes(out_at) || "No registrada"}
+                label="Fecha y hora de salida"
               />
               {accesses?.length > 0 && (
                 // <div className={styles.textsDiv}>
@@ -265,26 +284,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               <LabelValueDetail
                 value={obs_in || "-/-"}
                 label="Observación de entrada"
-              />
-
-              {/* <div className={styles.textsDiv}>
-                  <div>Estado</div>
-                  <div style={{ color: item?.out_at ? "var(--cAccent)" : "" }}>
-                    {getStatus()}
-                  </div>
-                </div> */}
-              <LabelValueDetail
-                value={getStatus()}
-                label="Estado"
-                colorValue={item?.out_at ? "var(--cAccent)" : ""}
-              />
-              {/* <div className={styles.textsDiv}>
-                  <div>Fecha y hora de salida</div>
-                  <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
-                </div> */}
-              <LabelValueDetail
-                value={getDateTimeStrMes(out_at) || "No registrada"}
-                label="Fecha y hora de salida"
               />
 
               {item?.type !== "O" && (
