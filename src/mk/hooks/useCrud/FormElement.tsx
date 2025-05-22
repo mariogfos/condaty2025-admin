@@ -312,7 +312,7 @@ const FormElement = memo(
       case "fileUpload":
         return (
           <LeftRigthElement {...props}>
-            {JSON.stringify(error)}
+           
             <UploadFile
               name={_field.key}
               value={item[_field.key]}
