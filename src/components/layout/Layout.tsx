@@ -107,6 +107,7 @@ const Layout = ({ children }: any) => {
   const onNotif = useCallback(
     (e: any) => {
       // console.log("*******11111*****", e);
+      console.log(user, "user");
       if (e.event == "ping") {
         showToast("Llegó un PING", "info");
       }
@@ -117,7 +118,11 @@ const Layout = ({ children }: any) => {
         showToast(e.payload.title, "info");
       }
 
-      if (e.event == "alerts" && e.payload?.level == 4) {
+      if (
+        e.event == "alerts" &&
+        e.payload?.level == 4 &&
+        user?.rol?.code !== "dir"
+      ) {
         setOpenAlert({ open: true, item: e.payload });
         if (audioEnabled) {
           soundBell
@@ -128,7 +133,7 @@ const Layout = ({ children }: any) => {
         }
       }
     },
-    [soundBell, showToast, audioEnabled]
+    [soundBell, showToast, audioEnabled, user]
   );
 
   useEvent("onNotif", onNotif);
