@@ -236,7 +236,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
                 </div> */}
               <LabelValueDetail
-                value={getDateTimeStrMes(out_at) || "No registrada"}
+                value={getDateTimeStrMes(out_at) || "-/-"}
                 label="Fecha y hora de salida"
               />
               {accesses?.length > 0 && (
@@ -249,13 +249,18 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 //   ))}
                 // </div>
                 <LabelValueDetail
-                  value={accesses
-                    .map((access: any, i: number) => (
-                      <div key={i} style={{ color: "var(--cWhite" }}>
-                        {getFullName(access?.visit)}
-                      </div>
-                    ))
-                    .join(", ")}
+                  // value={accesses
+                  //   .map((access: any, i: number) => (
+                  //     <div key={i} style={{ color: "var(--cWhite" }}>
+                  //       {getFullName(access?.visit)}
+                  //     </div>
+                  //   ))
+                  //   .join(", ")}
+                  value={accesses.map((access: any, i: number) => (
+                    <div key={i} style={{ color: "var(--cWhite" }}>
+                      {getFullName(access?.visit)}
+                    </div>
+                  ))}
                   label="Acompañantes"
                 />
               )}
