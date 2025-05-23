@@ -270,7 +270,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 //   <div>{getFullName(item?.owner) || "No especificado"}</div>
                 // </div>
                 <LabelValueDetail
-                  value={getFullName(item?.owner) || "No especificado"}
+                  value={getFullName(item?.owner) || "-/-"}
                   label="Visitó a"
                 />
               )}
@@ -279,7 +279,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{getFullName(guardia) || "No especificado"}</div>
                 </div> */}
               <LabelValueDetail
-                value={getFullName(guardia) || "No especificado"}
+                value={getFullName(guardia) || "-/-"}
                 label="Guardia de ingreso"
               />
               {/* <div className={styles.textsDiv}>
@@ -297,7 +297,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 //   <div>{visit?.ci || "No especificado"}</div>
                 // </div>
                 <LabelValueDetail
-                  value={visit?.ci || "No especificado"}
+                  value={visit?.ci || "-/-"}
                   label="Carnet de identidad"
                 />
               )}
@@ -307,7 +307,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
                 </div> */}
               <LabelValueDetail
-                value={owner?.dpto[0]?.nro || "No especificada"}
+                value={owner?.dpto[0]?.nro || "-/-"}
                 label="Unidad"
               />
               {/* <div className={styles.textsDiv}>
@@ -315,7 +315,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{getFullName(out_guard) || "No especificado"}</div>
                 </div> */}
               <LabelValueDetail
-                value={getFullName(out_guard) || "No especificado"}
+                value={getFullName(out_guard) || "-/-"}
                 label="Guardia de salida"
               />
               {/* <div className={styles.textsDiv}>
