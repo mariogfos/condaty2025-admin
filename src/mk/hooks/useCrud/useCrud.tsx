@@ -1170,6 +1170,7 @@ const useCrud = ({
                         ? undefined
                         : onButtonActions
                     }
+                    height={props?.height || undefined}
                     className="striped"
                     actionsWidth={"170px"}
                     sumarize={props.sumarize}

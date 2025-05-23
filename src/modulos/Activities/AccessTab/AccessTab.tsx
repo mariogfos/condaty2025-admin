@@ -454,7 +454,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     <>
       {" "}
       {/* O un div principal */}
-      <List />
+      <List height={"calc(100vh - 280px)"} />
       <DataModal
         open={openCustomFilterModal}
         title="Seleccionar Rango de Fechas Personalizado"

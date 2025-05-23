@@ -53,7 +53,7 @@ const typeAlerts: any = {
 };
 
 const Layout = ({ children }: any) => {
-  const { user, logout, store, setStore, showToast } = useAuth();
+  const { user, logout, store, setStore, showToast, userCan } = useAuth();
   // const { isTablet, isDesktop } = useScreenSize();
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
@@ -121,7 +121,7 @@ const Layout = ({ children }: any) => {
       if (
         e.event == "alerts" &&
         e.payload?.level == 4 &&
-        user?.rol?.code !== "dir"
+        !userCan("aprovebudgets", "U")
       ) {
         setOpenAlert({ open: true, item: e.payload });
         if (audioEnabled) {

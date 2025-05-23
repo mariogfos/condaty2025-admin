@@ -129,20 +129,18 @@ const Activities = () => {
   }, [typeSearch]);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container1}>
       {/* Tabs de navegación */}
       {/* <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} /> */}
 
       {/* Contenedor principal */}
-      <div className={styles.contentContainer}>
+      <div className={styles.contentContainer2}>
         {/* Contenido según pestaña activa */}
         <div className={styles.listWrapper}>
-         
-            <AccessesTab
-              paramsInitial={paramsInitialAccess}
-              onRowClick={handleItemClick}
-            />
-          
+          <AccessesTab
+            paramsInitial={paramsInitialAccess}
+            onRowClick={handleItemClick}
+          />
 
           {/* {typeSearch === "Q" && (
             <QRTab
