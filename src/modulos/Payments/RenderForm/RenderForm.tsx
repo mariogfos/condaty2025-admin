@@ -642,11 +642,7 @@ const RenderForm = ({
                 />
               </div>
             </div>
-            {_formState.isSubcategoryLocked && (
-              <p className={styles["locked-message"]}>
-                Esta subcategoría se ha seleccionado automáticamente
-              </p>
-            )}
+           
 
             {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
 
