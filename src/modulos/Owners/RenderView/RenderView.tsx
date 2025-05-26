@@ -100,11 +100,11 @@ const RenderView = (props: any) => {
               </div>
             )}
             <div>
-              <p>Número de casa</p>
+              <p>Número de Unidad</p>
               <p>
                 {item?.dpto?.length > 0
                   ? item?.dpto[0]?.nro
-                  : item?.client_owner?.preunidad || "Sin número de casa"}
+                  : item?.client_owner?.preunidad || "Sin número de unidad"}
               </p>
             </div>
           </section>
