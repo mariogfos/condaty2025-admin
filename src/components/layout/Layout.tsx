@@ -235,11 +235,18 @@ const Layout = ({ children }: any) => {
             variant="V1"
             title={openAlert?.item?.owner_name}
             subtitle={"Unidad: " + openAlert?.item?.unit}
-            right={getDateTimeStrMesShort(openAlert?.item?.created_at)}
+            right={
+              <p style={{ width: 160, textAlign: "right" }}>
+                {getDateTimeStrMesShort(openAlert?.item?.created_at)}
+              </p>
+            }
             left={
               <Avatar
                 src={getUrlImages(
-                  "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
+                  "/OWNER-" +
+                    openAlert?.item?.owner_id +
+                    ".webp?d=" +
+                    openAlert?.item?.owner_updated_at
                 )}
                 name={openAlert?.item?.owner_name}
               />

@@ -99,12 +99,13 @@ const _getDateTimeStrMes = (
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
 
-  // Convertir el tiempo a un objeto Date para restar 3 horas
   const [hours, minutes] = (datetime[1] + "").substr(0, 5).split(":");
   const timeDate = new Date();
-  console.log(hours);
-  timeDate.setHours(parseInt(hours) + GMT);
-  timeDate.setMinutes(parseInt(minutes));
+  console.log(timeDate);
+  if (esFormatoISO8601(dateStr)) {
+    timeDate.setHours(parseInt(hours) + GMT);
+    timeDate.setMinutes(parseInt(minutes));
+  }
 
   // Formatear el nuevo tiempo
   const adjustedTime = `${String(timeDate.getHours()).padStart(
