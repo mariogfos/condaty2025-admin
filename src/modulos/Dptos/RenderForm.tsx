@@ -232,7 +232,7 @@ const RenderForm = ({
         name="homeowner_id"
         value={formState.homeowner_id}
         onChange={handleChange}
-        options={[{ id: "X", name: "Sin titular" }, ...homeownerOptions]}
+        options={[{ id: "X", name: "Sin propietario" }, ...homeownerOptions]}
         error={errors}
         required={true}
       />
