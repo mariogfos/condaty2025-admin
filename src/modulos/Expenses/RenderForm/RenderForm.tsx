@@ -259,7 +259,7 @@ const RenderForm = ({
         />
         {formState.asignar === "S" && (
           <Select
-            label={"Número de " + UnitsType[client.type_dpto]}
+            label={"Número de Unidad"}
             name="dpto_id"
             value={formState?.dpto_id}
             options={ldpto}

@@ -95,11 +95,11 @@
   word-wrap: break-word;
   white-space: pre-wrap;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
+  
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.65em * 5);
+ 
 }
 
 .contentMediaContainer {
