@@ -75,6 +75,7 @@ const useAxios = (
         setData(response.data);
       }
 
+     // setData(response.data); 
       data = response.data;
     } catch (err) {
       logError("error useAxios", err);

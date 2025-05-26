@@ -94,14 +94,14 @@ const _getDateTimeStrMes = (
       .replace(/-/g, "-")
       .replace("T", " ");
   }
-  console.log(dateStr);
+ 
 
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
 
   const [hours, minutes] = (datetime[1] + "").substr(0, 5).split(":");
   const timeDate = new Date();
-  console.log(timeDate);
+
   if (esFormatoISO8601(dateStr)) {
     timeDate.setHours(parseInt(hours) + GMT);
     timeDate.setMinutes(parseInt(minutes));
@@ -223,7 +223,7 @@ export const getDateDesdeHasta = (date: any) => {
   fechaActual.setHours(
     fechaActual.getHours() + fechaActual.getTimezoneOffset() / 60
   );
-  console.log(date, "dadada");
+
   // obtener fecha de inicio del mes actual y fecha de fin del mes actual
   let primerDia = new Date(
     fechaActual.getFullYear(),
@@ -347,7 +347,7 @@ export const differenceInDays = (begin_at: string, end_at: string): number => {
 
   if (!localBeginDate || !localEndDate) {
     // throw new Error("Formato de fecha inválido");
-    console.log("Formato de fecha inválido");
+
     return -1;
   }
 
@@ -413,7 +413,7 @@ export const compareDate = (
   // d1.setHours(d1.getHours() - GMT);
   // d2.setHours(d2.getHours() - GMT);
   // console.log("date1:", date1);
-  console.log("compare", d1, d2, oper, typeof date1, typeof date2);
+
 
   d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   d2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
@@ -499,7 +499,7 @@ export const getDateTimeAgo = (
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
-  console.log(dateStr, "gdta", diffMinutes, diffHours, diffDays);
+
 
   if (diffMinutes < 1) {
     return "Hace un momento";
@@ -508,10 +508,10 @@ export const getDateTimeAgo = (
   } else if (diffMinutes < 5) {
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-    console.log(true, diffHours < 24);
+   
     return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
   } else if (diffDays > 0) {
-    console.log(true, diffHours < 48);
+
     return `Hace ${diffDays} ${diffDays === 1 ? "día" : "días"}`;
   } else {
     return getDateTimeStrMes(dateStr);

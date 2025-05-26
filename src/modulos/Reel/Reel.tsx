@@ -4,7 +4,7 @@ import styles from './Reel.module.css';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { getDateTimeAgo } from '@/mk/utils/date';
-import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs } from '@/components/layout/icons/IconsBiblioteca'; // Added IconX for modal close
+import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs } from '@/components/layout/icons/IconsBiblioteca';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 
@@ -51,49 +51,37 @@ type ContentItem = {
   images: Image[];
   user: User;
   currentImageIndex?: number;
+  isDescriptionExpanded?: boolean;
 };
 
 const Reel = () => {
   const { user } = useAuth();
   const [contents, setContents] = useState<ContentItem[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [initialLoadingState, setInitialLoadingState] = useState(true);
+  const [loadingMoreState, setLoadingMoreState] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [selectedImageForModal, setSelectedImageForModal] = useState<string | null>(null);
-
+  const [totalDBItems, setTotalDBItems] = useState(0);
+  const itemsPerPage = 20;
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useCallback((node: HTMLDivElement | null) => {
-    if (initialLoading || loadingMore) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [initialLoading, loadingMore, hasMore]);
 
   const {
     data: initialData,
-    loaded: initialLoaded,
+    loaded: initialHookLoaded,
     error: initialError,
     reLoad: reLoadInitial,
   } = useAxios("/contents", "GET", {
-    perPage: 20,
+    perPage: itemsPerPage,
     page: 1,
     fullType: "L",
     searchBy: ""
   }, false);
 
   const {
-    data: moreData,
-    loaded: moreLoading,
-    error: moreError,
     execute: fetchMoreContents,
   } = useAxios();
-
 
   const { execute: executeLike } = useAxios();
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
@@ -109,70 +97,104 @@ const Reel = () => {
     reLoadInitial();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  useEffect(() => {
-    if (initialLoaded) {
-      setInitialLoading(false);
-      if (initialError) {
-        console.error("Error al cargar publicaciones iniciales:", initialError);
-        setContents([]);
-        setHasMore(false);
-      } else if (initialData?.data) {
-        const initialItems = initialData.data.map((item: any) => ({
-          ...item,
-          likes: item.likes || 0,
-          comments_count: item.comments_count || 0,
-          currentImageIndex: 0,
-        }));
-        setContents(initialItems);
-        setHasMore(initialData.meta?.last_page ? initialData.meta.last_page > 1 : initialItems.length === 20);
-        if (initialItems.length === 0 && page === 1) { 
-          setHasMore(false);
-        }
-      } else {
-        setContents([]);
-        setHasMore(false);
-      }
-    }
-  }, [initialData, initialLoaded, initialError, page]); // page dependency is for the initial `setHasMore` when initialItems.length === 0
 
   useEffect(() => {
-    if (page > 1 && hasMore && !initialLoading) {
-      setLoadingMore(true);
-      fetchMoreContents("/contents", "GET", {
-        perPage: 20,
-        page: page,
-        fullType: "L",
-        searchBy: ""
-      });
+    if (!initialHookLoaded && initialLoadingState) return;
+    
+    if (initialLoadingState) {
+        setInitialLoadingState(false);
+    }
+
+    if (initialError) {
+      setContents([]);
+      setHasMore(false);
+    } else if (initialData?.data && initialData?.message?.total !== undefined) {
+      const initialItems = initialData.data.map((item: any) => ({
+        ...item,
+        likes: item.likes || 0,
+        comments_count: item.comments_count || 0,
+        currentImageIndex: 0,
+        isDescriptionExpanded: false,
+      }));
+      setContents(initialItems);
+
+      const totalFromAPI = initialData.message.total;
+      setTotalDBItems(totalFromAPI);
+      
+      const calculatedLastPage = Math.ceil(totalFromAPI / itemsPerPage);
+      const currentPage = 1;
+      setHasMore(calculatedLastPage > currentPage);
+
+      if (totalFromAPI === 0 || initialItems.length === 0) {
+        setHasMore(false);
+      }
+    } else {
+      setContents([]);
+      setHasMore(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, hasMore, initialLoading]);
+  }, [initialData, initialHookLoaded, initialError]);
 
   useEffect(() => {
-    if (moreLoading) {
-        return;
-    }
-    setLoadingMore(false); 
-    if (moreError) {
-      console.error("Error al cargar más publicaciones:", moreError);
-      setHasMore(false);
-    } else if (moreData?.data) {
-      if (moreData.data.length > 0) {
-        const newItems = moreData.data.map((item: any)=> ({
-          ...item,
-          likes: item.likes || 0,
-          comments_count: item.comments_count || 0,
-          currentImageIndex: 0,
-        }));
-        setContents(prevContents => [...prevContents, ...newItems]);
-        setHasMore(moreData.meta?.last_page ? moreData.meta.last_page > page : newItems.length === 20);
-      } else {
-        setHasMore(false);
-      }
-    }
-  }, [moreData, moreLoading, moreError, page]);
+    const loadMoreItems = async () => {
+      if (page > 1 && hasMore && !initialLoadingState && !loadingMoreState) {
+        setLoadingMoreState(true);
+        
+        const result = await fetchMoreContents("/contents", "GET", {
+          perPage: itemsPerPage,
+          page: page,
+          fullType: "L",
+          searchBy: ""
+        });
 
+        setLoadingMoreState(false);
+
+        if (result.error) {
+          setHasMore(false);
+        } else if (result.data?.data) {
+          if (result.data.data.length > 0) {
+            const incomingItems = result.data.data.map((item: any) => ({
+              ...item,
+              likes: item.likes || 0,
+              comments_count: item.comments_count || 0,
+              currentImageIndex: 0,
+              isDescriptionExpanded: false,
+            }));
+            
+            setContents(prevContents => {
+              const existingIds = new Set(prevContents.map(content => content.id));
+              const uniqueNewItems = incomingItems.filter((item: any) => !existingIds.has(item.id));
+              return [...prevContents, ...uniqueNewItems];
+            });
+            
+            const calculatedLastPage = Math.ceil(totalDBItems / itemsPerPage);
+            setHasMore(calculatedLastPage > page);
+          } else {
+            setHasMore(false);
+          }
+        } else {
+          setHasMore(false);
+        }
+      }
+    };
+
+    loadMoreItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, hasMore, initialLoadingState, loadingMoreState, fetchMoreContents, totalDBItems]);
+
+
+  const loadMoreRef = useCallback((node: HTMLDivElement | null) => {
+    if (initialLoadingState || loadingMoreState) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore && !loadingMoreState) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [initialLoadingState, loadingMoreState, hasMore]);
 
   const handleLike = async (contentId: number) => {
     try {
@@ -191,9 +213,17 @@ const Reel = () => {
           })
         );
       }
-    } catch (err) {
-      console.error('Error al dar like:', err);
-    }
+    } catch (err) {}
+  };
+
+  const handleToggleDescription = (contentId: number) => {
+    setContents(prevContents =>
+      prevContents.map(content =>
+        content.id === contentId
+          ? { ...content, isDescriptionExpanded: !content.isDescriptionExpanded }
+          : content
+      )
+    );
   };
 
   const fetchComments = async (contentId: number) => {
@@ -215,7 +245,6 @@ const Reel = () => {
         }
       }
     } catch (err) {
-      console.error('Error al cargar comentarios:', err);
       setComments([]);
     } finally {
       setLoadingComments(false);
@@ -243,12 +272,9 @@ const Reel = () => {
           )
         );
         fetchComments(selectedContentIdForComments);
-      } else {
-        console.error('Error al publicar comentario:', response?.data?.message || 'Respuesta no exitosa.');
       }
-    } catch (err) {
-      console.error('Error al publicar comentario (catch):', err);
-    } finally {
+    } catch (err) {} 
+    finally {
       setPostingComment(false);
     }
   };
@@ -334,9 +360,9 @@ const Reel = () => {
       let embedUrl = '';
       let isInstagram = false;
 
-      if (item.url.includes('youtube.com/watch') || item.url.includes('youtu.be/')) {
+      if (item.url.includes('youtube.com/watch?v=') || item.url.includes('youtu.be/')) {
         let videoId = '';
-        if (item.url.includes('youtube.com/watch')) {
+        if (item.url.includes('watch?v=')) {
             const urlParams = typeof URL !== 'undefined' ? new URLSearchParams(new URL(item.url).search) : null;
             videoId = urlParams?.get('v') || '';
         } else if (item.url.includes('youtu.be/')) {
@@ -346,22 +372,20 @@ const Reel = () => {
       } else if (item.url.includes('youtube.com/shorts/')) {
         const videoId = item.url.split('shorts/')[1]?.split('?')[0];
         if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (item.url.includes('youtube.com/embed/')) {
-        embedUrl = item.url;
+      } else if (item.url.includes('vimeo.com/')) {
+        const videoId = item.url.split('/').pop()?.split('?')[0];
+        if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
       } else if (item.url.includes('instagram.com/reel/')) {
         const reelId = item.url.split('reel/')[1]?.split('/')[0];
         if (reelId) {
-            embedUrl = `https://www.instagram.com/reel/${reelId}/embed/captioned/`; // Appending /captioned for better default display
-            isInstagram = true;
+            isInstagram = true; 
         }
       } else if (item.url.includes('instagram.com/p/')) {
          const postId = item.url.split('p/')[1]?.split('/')[0];
          if (postId) {
-            embedUrl = `https://www.instagram.com/p/${postId}/embed/captioned/`;
             isInstagram = true;
          }
       }
-
 
       if (embedUrl) {
         return (
@@ -371,14 +395,14 @@ const Reel = () => {
               title={item.title || 'Video content'}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen={!isInstagram} // Instagram embeds don't play well with allowFullScreen typically
+              allowFullScreen={!isInstagram}
               className={`${styles.videoFrame} ${isInstagram ? styles.instagramFrame : ''}`}
               loading="lazy"
               scrolling={isInstagram ? "no" : "auto"}
             ></iframe>
           </div>
         );
-      } else if (item.url) {
+      } else if (item.url) { 
         return (
             <div className={`${styles.contentMediaContainer} ${styles.externalMediaLink}`}>
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
@@ -418,7 +442,7 @@ const Reel = () => {
     return null;
   };
 
-  if (initialLoading && page === 1 && contents.length === 0) {
+  if (initialLoadingState && page === 1 && contents.length === 0) {
     return <div className={styles.loadingState}>Cargando publicaciones...</div>;
   }
 
@@ -426,7 +450,7 @@ const Reel = () => {
     <div className={styles.reelContainer}>
       {contents.length > 0 ? (
         contents.map((item: ContentItem) => (
-          <article key={item.id} className={styles.contentCard}>
+          <article key={`content-${item.id}`} className={styles.contentCard}>
             <header className={styles.contentHeader}>
               <div className={styles.userInfo}>
                 <Avatar
@@ -447,7 +471,24 @@ const Reel = () => {
 
             <section className={styles.contentBody}>
               {item.title && <h2 className={styles.contentTitle}>{item.title}</h2>}
-              {item.description && <p className={styles.contentDescription}>{item.description}</p>}
+              {item.description && (
+                <div>
+                  <p className={styles.contentDescription}>
+                    {item.isDescriptionExpanded || item.description.length <= 150
+                      ? item.description
+                      : `${item.description.substring(0, 150)}...`}
+                  </p>
+                  {item.description.length > 150 && (
+                    <button
+                      onClick={() => handleToggleDescription(item.id)}
+                      className={styles.seeMoreButton}
+                      style={{ background: 'none', border: 'none', color: 'var(--cInfo)', cursor: 'pointer', padding: '5px 0px', display: 'block' }}
+                    >
+                      {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                    </button>
+                  )}
+                </div>
+              )}
               {renderMedia(item)}
             </section>
 
@@ -475,16 +516,20 @@ const Reel = () => {
           </article>
         ))
       ) : (
-        !initialLoading && <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
+        !initialLoadingState && <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
       )}
 
-      {loadingMore && <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>}
-      {!loadingMore && !initialLoading && hasMore && contents.length > 0 && (
+      {loadingMoreState && <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>}
+      {!loadingMoreState && !initialLoadingState && hasMore && contents.length > 0 && contents.length < totalDBItems && (
         <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }} />
       )}
-      {!initialLoading && !hasMore && contents.length > 0 && page > 1 && (
+      {!initialLoadingState && !hasMore && contents.length > 0 && (
          <div className={styles.noMoreContentState}>Has llegado al final.</div>
       )}
+       {!initialLoadingState && contents.length === 0 && totalDBItems === 0 && (
+         <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
+      )}
+
 
       {isCommentModalOpen && selectedContentIdForComments && (
         <div className={styles.commentModalOverlay} onClick={handleCloseComments}>
@@ -503,7 +548,7 @@ const Reel = () => {
               ) : comments.length > 0 ? (
                 <ul className={styles.commentList}>
                   {comments.map((comment: Comment) => (
-                    <li key={comment.id} className={styles.commentItem}>
+                    <li key={`comment-${comment.id}`} className={styles.commentItem}>
                       <Avatar
                         name={getFullName(comment.user)}
                         src={getUrlImages(`/ADM-${comment.user?.id}.webp?d=${comment.user?.updated_at}`)}
