@@ -157,7 +157,7 @@ const Users = () => {
         // filter: { ... } // Tu configuración de filtro (comentada en tu código)
       },
       fullName: {
-        rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Nombre del administrador",
         form: false,

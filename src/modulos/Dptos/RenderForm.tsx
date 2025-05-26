@@ -219,7 +219,7 @@ const RenderForm = ({
         />
       </div>
       <TextArea
-        label="Dirrección"
+        label="Dirección"
         name="description"
         value={formState.description}
         onChange={handleChange}
