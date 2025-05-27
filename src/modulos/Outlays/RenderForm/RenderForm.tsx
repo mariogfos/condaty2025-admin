@@ -25,14 +25,17 @@ import {
 import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
 
-import {UploadFile} from "@/mk/components/forms/UploadFile/UploadFile";
+import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 // --- COMPONENTES DE ICONOS (Placeholder si no los tienes) ---
 // Si no tienes los componentes IconEdit/IconDelete, puedes usar esto temporalmente:
-const IconEdit = ({ size = 20 }) => <span style={{ fontSize: `${size}px`, cursor: 'pointer' }}>✏️</span>; // O usa '📝' o texto '[Editar]'
-const IconDelete = ({ size = 20 }) => <span style={{ fontSize: `${size}px`, cursor: 'pointer' }}>🗑️</span>; // O usa '❌' o texto '[Eliminar]'
+const IconEdit = ({ size = 20 }) => (
+  <span style={{ fontSize: `${size}px`, cursor: "pointer" }}>✏️</span>
+); // O usa '📝' o texto '[Editar]'
+const IconDelete = ({ size = 20 }) => (
+  <span style={{ fontSize: `${size}px`, cursor: "pointer" }}>🗑️</span>
+); // O usa '❌' o texto '[Eliminar]'
 // ¡Recuerda reemplazar esto con tus iconos reales!
 // --- FIN Placeholder ---
-
 
 const RenderForm = ({
   open,
@@ -41,15 +44,15 @@ const RenderForm = ({
   onSave,
   extraData,
   execute,
-
+  showToast,
   reLoad,
   user,
 }) => {
   const [_formState, _setFormState] = useState(() => {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = today.toISOString().split("T")[0];
     return {
-      ...item || {},
+      ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || "",
       // Inicializa los campos de archivo como nulos o vacíos
@@ -70,20 +73,15 @@ const RenderForm = ({
 
   const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
 
-  const showToast = (message, type) => {
-    setToast({ msg: message, type });
-    setTimeout(() => setToast({ msg: "", type: "info" }), 5000);
-  };
-
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
       // Limpia el estado al cerrar si no está inicializado
-      _setFormState(prev => ({
-           ...prev, // Conserva otros campos si es necesario reabrir con datos previos
-           file: null,
-           filename: null,
-           ext: null
+      _setFormState((prev) => ({
+        ...prev, // Conserva otros campos si es necesario reabrir con datos previos
+        file: null,
+        filename: null,
+        ext: null,
       }));
       setSelectedFiles({});
       if (fileInputRef.current) {
@@ -93,53 +91,49 @@ const RenderForm = ({
     }
 
     if (!isInitialized && open) {
-       // Al abrir, configura el estado inicial (incluyendo el archivo si 'item' lo tiene)
-       const today = new Date();
-       const formattedDate = today.toISOString().split('T')[0];
-       _setFormState({
-         ...item || {},
-         date_at: (item && item.date_at) || formattedDate,
-         type: (item && item.type) || "",
-         file: (item && item.file) || null, // Asegúrate de manejar la estructura de 'item.file' si viene del backend
-         filename: (item && item.filename) || null,
-         ext: (item && item.ext) || null,
-       });
+      // Al abrir, configura el estado inicial (incluyendo el archivo si 'item' lo tiene)
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0];
+      _setFormState({
+        ...(item || {}),
+        date_at: (item && item.date_at) || formattedDate,
+        type: (item && item.type) || "",
+        file: (item && item.file) || null, // Asegúrate de manejar la estructura de 'item.file' si viene del backend
+        filename: (item && item.filename) || null,
+        ext: (item && item.ext) || null,
+      });
 
-       setIsInitialized(true);
+      setIsInitialized(true);
     }
-
-
   }, [open, item, isInitialized]); // Depende de item también por si cambia
 
-  const handleChangeInput = useCallback((e) => {
-    const { name, value, type } = e.target;
+  const handleChangeInput = useCallback(
+    (e) => {
+      const { name, value, type } = e.target;
 
-    if (name === "amount") {
-      const numericValue = value.replace(/[^0-9]/g, '');
-      if (numericValue.length > 10) return;
-      _setFormState(prev => ({ ...prev, [name]: numericValue }));
-      return;
-    }
+      const newValue =
+        type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
 
-    const newValue = type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
-
-    if (name === "category_id") {
-      _setFormState(prev => ({ ...prev, [name]: newValue, subcategory_id: "" }));
-      if (newValue && extraData?.subcategories) {
-        const filtered = extraData.subcategories.filter(
-          subcat => subcat.category_id === parseInt(newValue)
-        );
-        setFilteredSubcategories(filtered || []);
+      if (name === "category_id") {
+        _setFormState((prev) => ({
+          ...prev,
+          [name]: newValue,
+          subcategory_id: "",
+        }));
+        if (newValue && extraData?.subcategories) {
+          const filtered = extraData.subcategories.filter(
+            (subcat) => subcat.category_id === parseInt(newValue)
+          );
+          setFilteredSubcategories(filtered || []);
+        } else {
+          setFilteredSubcategories([]);
+        }
       } else {
-        setFilteredSubcategories([]);
+        _setFormState((prev) => ({ ...prev, [name]: newValue }));
       }
-    } else {
-      _setFormState(prev => ({ ...prev, [name]: newValue }));
-    }
-  }, [extraData?.subcategories]);
-
-
-
+    },
+    [extraData?.subcategories]
+  );
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -147,41 +141,48 @@ const RenderForm = ({
     setIsDraggingFile(true);
   }, []);
 
-
-
   const handleDragLeave = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingFile(false);
   }, []);
 
-
   const validar = useCallback(() => {
     let err = {};
     if (!_formState.date_at) err.date_at = "Este campo es requerido";
     if (!_formState.category_id) err.category_id = "Este campo es requerido";
-    if (_formState.category_id && filteredSubcategories.length > 0 && !_formState.subcategory_id) {
-        err.subcategory_id = "Este campo es requerido";
+    if (
+      _formState.category_id &&
+      filteredSubcategories.length > 0 &&
+      !_formState.subcategory_id
+    ) {
+      err.subcategory_id = "Este campo es requerido";
     }
     if (!_formState.description) err.description = "Este campo es requerido";
-    else if (_formState.description.length > 500) err.description = "El concepto no puede exceder los 500 caracteres";
+    else if (_formState.description.length > 500)
+      err.description = "El concepto no puede exceder los 500 caracteres";
     if (!_formState.amount) err.amount = "Este campo es requerido";
     if (!_formState.type) err.type = "Este campo es requerido";
     // Valida que _formState.file (el base64) no esté vacío
     if (!_formState.file) {
-        err.file = "El comprobante es requerido";
+      err.file = "El comprobante es requerido";
     }
 
-    set_Errors({...err});
+    set_Errors({ ...err });
 
     if (Object.keys(err).length > 0) {
       setTimeout(() => {
-        const firstErrorElement = document.querySelector(`.${styles.error}`) || document.querySelector('.error');
+        const firstErrorElement =
+          document.querySelector(`.${styles.error}`) ||
+          document.querySelector(".error");
         if (firstErrorElement) {
-          firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
         } else {
-            const modalBody = document.querySelector('.data-modal-body');
-            if(modalBody) modalBody.scrollTop = 0;
+          const modalBody = document.querySelector(".data-modal-body");
+          if (modalBody) modalBody.scrollTop = 0;
         }
       }, 100);
     }
@@ -203,7 +204,6 @@ const RenderForm = ({
       amount: parseFloat(_formState.amount || "0"),
       type: _formState.type,
       file: _formState.file,
-        
     };
 
     try {
@@ -216,49 +216,58 @@ const RenderForm = ({
         onCloseModal();
       } else if (error) {
         console.error("Error al guardar el egreso:", error);
+        showToast(
+          error?.data?.message || "Error al guardar el egreso",
+          "error"
+        );
         const errorMsg = error?.data?.message || "Error al guardar el egreso";
         showToast(errorMsg, "error");
         if (error.data && error.data.errors) {
+          showToast(error.data.errors, "error");
           set_Errors(error.data.errors);
         } else {
-          set_Errors(prev => ({...prev, general: errorMsg}));
+          showToast(errorMsg, "error");
+          set_Errors((prev) => ({ ...prev, general: errorMsg }));
         }
       }
     } catch (err) {
       console.error("Error en _onSaveEgreso:", err);
       showToast("Error inesperado al guardar el egreso", "error");
-      set_Errors(prev => ({...prev, general: "Error inesperado al guardar el egreso"}));
+      set_Errors((prev) => ({
+        ...prev,
+        general: "Error inesperado al guardar el egreso",
+      }));
     }
   }, [_formState, validar, execute, reLoad, onClose, set_Errors]);
 
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
-    _setFormState(prev => ({
-         date_at: new Date().toISOString().split('T')[0],
-         type: "",
-         category_id: "",
-         subcategory_id: "",
-         description: "",
-         amount: "",
-         file: null,
-         filename: null,
-         ext: null,
+    _setFormState((prev) => ({
+      date_at: new Date().toISOString().split("T")[0],
+      type: "",
+      category_id: "",
+      subcategory_id: "",
+      description: "",
+      amount: "",
+      file: null,
+      filename: null,
+      ext: null,
     }));
     setFilteredSubcategories([]);
     setSelectedFiles({});
     if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      fileInputRef.current.value = "";
     }
     set_Errors({});
     onClose();
   }, [onClose, set_Errors]);
 
   const paymentMethods = [
-    { id: 'T', name: 'Transferencia' },
-    { id: 'O', name: 'Pago en oficina' },
-    { id: 'Q', name: 'Qr' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' }
+    { id: "T", name: "Transferencia" },
+    { id: "O", name: "Pago en oficina" },
+    { id: "Q", name: "Qr" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
   ];
 
   const hasSubcategories = filteredSubcategories.length > 0;
@@ -273,76 +282,87 @@ const RenderForm = ({
         buttonCancel="Cancelar"
         buttonText={"Registrar egreso"}
         title={"Nuevo egreso"}
-
       >
-       
-          <div className={styles["outlays-form-container"]}>
-       
-
-             {/* Fecha de pago */}
-            <div className={styles.section}>
-              <div className={styles["input-container"]}>
-                <Input
-                  type="date"
-                  name="date_at"
-                  label="Fecha de pago"
-                  required={true}
-                  value={_formState.date_at || ""}
-                  onChange={handleChangeInput}
-                  error={_errors}
-                  className={_errors.date_at ? styles.error : ""}
-                />
-              </div>
+        <div className={styles["outlays-form-container"]}>
+          {/* Fecha de pago */}
+          <div className={styles.section}>
+            <div className={styles["input-container"]}>
+              <Input
+                type="date"
+                name="date_at"
+                label="Fecha de pago"
+                required={true}
+                value={_formState.date_at || ""}
+                onChange={handleChangeInput}
+                error={_errors}
+                className={_errors.date_at ? styles.error : ""}
+                max={new Date().toISOString().split("T")[0]}
+              />
             </div>
+          </div>
 
-            {/* Categoría y Subcategoría (en dos columnas) */}
-            <div className={styles.section}>
-              <div className={styles["two-column-container"]}>
-                <div className={styles.column}>
-                  <div className={styles["input-container"]}>
-                    <Select
-                      name="category_id"
-                      value={_formState.category_id || ""}
-                      
-                      label="Categoría"
-                      onChange={handleChangeInput}
-                      options={extraData?.categories || []}
-                      error={_errors}
-                      required
-                      optionLabel="name"
-                      optionValue="id"
-                      className={_errors.category_id ? styles.error : ""}
-                    />
-                  </div>
-                </div>
-                <div className={styles.column}>
-                  <div className={styles["input-container"]}>
-                    <Select
-                      name="subcategory_id"
-                      value={_formState.subcategory_id || ""}
-                      placeholder={hasSubcategories ? "Seleccionar subcategoría" : "No hay subcategorías"}
-                      label="Subcategoría"
-                      onChange={handleChangeInput}
-                      options={filteredSubcategories}
-                      error={_errors}
-                      required={hasSubcategories}
-                      optionLabel="name"
-                      optionValue="id"
-                      disabled={!_formState.category_id || !hasSubcategories}
-                      className={_errors.subcategory_id ? styles.error : ""}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Monto y Método de pago (en dos columnas) */}
+          {/* Categoría y Subcategoría (en dos columnas) */}
+          <div className={styles.section}>
             <div className={styles["two-column-container"]}>
               <div className={styles.column}>
-                <div className={styles.section}>
-                  <div className={styles["input-container"]}>
-                    <Input
-                      type="text"
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="category_id"
+                    value={_formState.category_id || ""}
+                    label="Categoría"
+                    onChange={handleChangeInput}
+                    options={extraData?.categories || []}
+                    error={_errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    className={_errors.category_id ? styles.error : ""}
+                  />
+                </div>
+              </div>
+              <div className={styles.column}>
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="subcategory_id"
+                    value={_formState.subcategory_id || ""}
+                    placeholder={
+                      hasSubcategories
+                        ? "Seleccionar subcategoría"
+                        : "No hay subcategorías"
+                    }
+                    label="Subcategoría"
+                    onChange={handleChangeInput}
+                    options={filteredSubcategories}
+                    error={_errors}
+                    required={hasSubcategories}
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={!_formState.category_id || !hasSubcategories}
+                    className={_errors.subcategory_id ? styles.error : ""}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monto y Método de pago (en dos columnas) */}
+          <div className={styles["two-column-container"]}>
+            <div className={styles.column}>
+              <div className={styles.section}>
+                <div className={styles["input-container"]}>
+                  <Input
+                    type="currency"
+                    name="amount"
+                    label="Monto del pago"
+                    value={_formState.amount || ""}
+                    onChange={handleChangeInput}
+                    error={_errors}
+                    required
+                    maxLength={20}
+                    className={_errors.amount ? styles.error : ""}
+                  />
+                  {/* <Input
+                      type="currency"
                       name="amount"
                       label="Monto del pago"
                       
@@ -350,81 +370,77 @@ const RenderForm = ({
                       onChange={handleChangeInput}
                       error={_errors}
                       required
-                      maxLength={10}
+                      maxLength={20}
                       className={_errors.amount ? styles.error : ""}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className={styles.column}>
-                <div className={styles.section}>
-                  <div className={styles["input-container"]}>
-                    <Select
-                      name="type"
-                      value={_formState.type || ""}
-                      label="Método de pago"
-                      onChange={handleChangeInput}
-                      options={paymentMethods}
-                      error={_errors}
-                      required
-                      optionLabel="name"
-                      optionValue="id"
-                      className={_errors.type ? styles.error : ""}
-                    />
-                  </div>
+                    /> */}
                 </div>
               </div>
             </div>
-
-
-            {/* --- SECCIÓN COMPROBANTE MODIFICADA --- */}
-            <div className={styles.section}>
-                <p className={styles["section-title"]}>Subir comprobante</p>
-                <UploadFile
-                  name="file"
-                  ext={exten}
-                  value={
-                    _formState.file
-                      ? { file: _formState.file }
-                      : ""
-                  }
-                  onChange={handleChangeInput}
-                  img={true}
-                  sizePreview={{ width: "40%", height: "auto" }}
-                  error={_errors}
-                  setError={set_Errors}
-                  required={true}
-                  placeholder="Cargar un archivo o arrastrar y soltar"
-                />
+            <div className={styles.column}>
+              <div className={styles.section}>
+                <div className={styles["input-container"]}>
+                  <Select
+                    name="type"
+                    value={_formState.type || ""}
+                    label="Forma de pago"
+                    onChange={handleChangeInput}
+                    options={paymentMethods}
+                    error={_errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    className={_errors.type ? styles.error : ""}
+                  />
+                </div>
               </div>
-            {/* Concepto del pago */}
-            <div className={styles.section}>
-              <div className={styles["input-container"]}>
-                <TextArea
-                  name="description"
-                  label="Concepto del pago"
-                  placeholder="Describa el concepto del pago"
-                  value={_formState.description || ""}
-                  onChange={handleChangeInput}
-                  error={_errors}
-                  required
-                  maxLength={500}
-                  className={_errors.description ? styles.error : ""}
-                />
-                {_formState.description && _formState.description.length > 0 && ( // Solo mostrar si hay descripción
+            </div>
+          </div>
+
+          {/* --- SECCIÓN COMPROBANTE MODIFICADA --- */}
+          <div className={styles.section}>
+            <p className={styles["section-title"]}>Subir comprobante</p>
+            <UploadFile
+              name="file"
+              ext={exten}
+              value={_formState.file ? { file: _formState.file } : ""}
+              onChange={handleChangeInput}
+              img={true}
+              sizePreview={{ width: "40%", height: "auto" }}
+              error={_errors}
+              setError={set_Errors}
+              required={true}
+              placeholder="Cargar un archivo o arrastrar y soltar"
+            />
+          </div>
+          {/* Concepto del pago */}
+          <div className={styles.section}>
+            <div className={styles["input-container"]}>
+              <TextArea
+                name="description"
+                label="Concepto del pago"
+                placeholder="Describa el concepto del pago"
+                value={_formState.description || ""}
+                onChange={handleChangeInput}
+                error={_errors}
+                required
+                maxLength={500}
+                className={_errors.description ? styles.error : ""}
+              />
+              {_formState.description &&
+                _formState.description.length > 0 && ( // Solo mostrar si hay descripción
                   <p className={styles["char-count"]}>
                     {_formState.description.length}/500 caracteres
                   </p>
                 )}
-              </div>
             </div>
-            {/* Mostrar errores generales si existen */}
-             {_errors.general && (
-                 <div className={`${styles.section} ${styles['error-general']}`}>
-                     <p className={styles["error-message"]}>{_errors.general}</p>
-                 </div>
-             )}
           </div>
+          {/* Mostrar errores generales si existen */}
+          {_errors.general && (
+            <div className={`${styles.section} ${styles["error-general"]}`}>
+              <p className={styles["error-message"]}>{_errors.general}</p>
+            </div>
+          )}
+        </div>
       </DataModal>
     </>
   );
