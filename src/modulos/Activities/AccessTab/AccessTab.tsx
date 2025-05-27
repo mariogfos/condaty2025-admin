@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState, useEffect } from "react";
 import styles from "../Activities.module.css";
-import { getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -315,7 +315,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props.item.in_at || "")}</div>;
+            return <div>{getDateTimeStrMesShort(props.item.in_at || "")}</div>;
           },
         },
         filter: {
@@ -334,7 +334,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             return (
               <div>
                 {props.item.out_at
-                  ? getDateStrMes(props.item.out_at)
+                  ? getDateTimeStrMesShort(props.item.out_at)
                   : "No registrada"}
               </div>
             );
