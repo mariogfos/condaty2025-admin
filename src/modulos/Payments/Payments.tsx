@@ -61,6 +61,7 @@ const Payments = () => {
       del: true,
     },
     filter: true,
+    export: true,
   };
 
   const getPeriodOptions = () => [
