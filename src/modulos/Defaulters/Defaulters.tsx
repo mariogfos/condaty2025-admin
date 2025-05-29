@@ -25,6 +25,7 @@ const Defaulters = () => {
     singular: "Moroso",
     plural: "Morosos",
     filter: true,
+    export: true,
     permiso: "",
     extraData: true,
   };
