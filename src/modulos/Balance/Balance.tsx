@@ -289,6 +289,46 @@ const BalanceGeneral: React.FC = () => {
     finanzas?.data?.saldoInicial,
   ]);
 
+  const getPeriodoText = (filterDateValue: string) => {
+    const now = new Date();
+    const meses = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    switch (filterDateValue) {
+      case "d":
+        return `Resumen del ${now.getDate()} de ${meses[now.getMonth()]}`;
+      case "ld":
+        const ayer = new Date(now);
+        ayer.setDate(now.getDate() - 1);
+        return `Resumen del ${ayer.getDate()} de ${meses[ayer.getMonth()]}`;
+      case "w":
+        return `Resumen de la semana actual`;
+      case "lw":
+        return `Resumen de la semana anterior`;
+      case "m":
+        return `Resumen de ${meses[now.getMonth()]}`;
+      case "lm":
+        const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
+        return `Resumen de ${meses[mesAnterior.getMonth()]}`;
+      case "y":
+        return `Resumen del ${now.getFullYear()}`;
+      case "ly":
+        return `Resumen del ${now.getFullYear() - 1}`;
+      default:
+        if (filterDateValue.startsWith("c:")) {
+          const dates = filterDateValue.substring(2).split(",");
+          if (dates[0] && dates[1]) {
+            const fechaInicio = new Date(dates[0]);
+            const fechaFin = new Date(dates[1]);
+            return `Resumen desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]}`;
+          }
+        }
+        return "Resumen general";
+    }
+  };
+
   return (
     <div className={styles.container}>
       <p className={styles.description}>
@@ -544,21 +584,36 @@ const BalanceGeneral: React.FC = () => {
             {formStateFilter.filter_mov === "I" && finanzas?.data?.ingresos && (
               <>
                 <div className={styles.chartContainer}>
-                  <WidgetGrafIngresos
-                    ingresos={finanzas?.data.ingresosHist}
-                    chartTypes={[charType.filter_charType as ChartType]}
-                    h={360}
-                    title={" "}
-                    subtitle={
-                      "Resumen de la gestión " +
-                      getDateDesdeHasta(formStateFilter.filter_date)
-                    }
-                  />
-                </div>
-                <div className={styles.exportButtonContainer}>
-                  <Button className={styles.exportButton} onClick={exportar}>
-                    Exportar tabla
-                  </Button>
+                  <div className={styles.chartAndLegendContainer}>
+                    <WidgetGrafIngresos
+                      ingresos={finanzas?.data.ingresosHist}
+                      chartTypes={[charType.filter_charType as ChartType]}
+                      h={360}
+                      title={" "}
+                      subtitle={getPeriodoText(formStateFilter.filter_date)}
+                    />
+                    <div className={styles.legendAndExportWrapper}>
+                      <div className={styles.legendContainer}>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#00E38C" }}
+                          ></div>
+                          <span>
+                            Ingresos: Bs{" "}
+                            {formatNumber(calculatedTotals.totalIngresos)}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        className={styles.exportButton}
+                        onClick={exportar}
+                        variant="secondary"
+                      >
+                        <IconExport size={22} />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
                 <div className={styles.divider} />
                 <TableIngresos
@@ -585,21 +640,36 @@ const BalanceGeneral: React.FC = () => {
             {formStateFilter.filter_mov === "E" && finanzas?.data?.egresos && (
               <>
                 <div className={styles.chartContainer}>
-                  <WidgetGrafEgresos
-                    egresos={finanzas?.data.egresosHist}
-                    chartTypes={[charType.filter_charType as ChartType]}
-                    h={360}
-                    title={" "}
-                    subtitle={
-                      "Resumen de la gestión " +
-                      getDateDesdeHasta(formStateFilter.filter_date)
-                    }
-                  />
-                </div>
-                <div className={styles.exportButtonContainer}>
-                  <Button className={styles.exportButton} onClick={exportar}>
-                    Exportar tabla
-                  </Button>
+                  <div className={styles.chartAndLegendContainer}>
+                    <WidgetGrafEgresos
+                      egresos={finanzas?.data.egresosHist}
+                      chartTypes={[charType.filter_charType as ChartType]}
+                      h={360}
+                      title={" "}
+                      subtitle={getPeriodoText(formStateFilter.filter_date)}
+                    />
+                    <div className={styles.legendAndExportWrapper}>
+                      <div className={styles.legendContainer}>
+                        <div className={styles.legendItem}>
+                          <div
+                            className={styles.legendColor}
+                            style={{ backgroundColor: "#FF5B4D" }}
+                          ></div>
+                          <span>
+                            Egresos: Bs{" "}
+                            {formatNumber(calculatedTotals.totalEgresos)}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        className={styles.exportButton}
+                        onClick={exportar}
+                        variant="secondary"
+                      >
+                        <IconExport size={22} />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
                 <div className={styles.divider} />
                 <TableEgresos
