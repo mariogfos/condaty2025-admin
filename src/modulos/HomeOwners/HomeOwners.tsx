@@ -2,7 +2,7 @@
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./HomeOwners.module.css";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -128,6 +128,48 @@ const HomeOwners = () => {
     },
   };
 
+  const onBlurCi = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "") return;
+    const { data, error } = await execute(
+      "/homeowners",
+      "GET",
+      {
+        _exist: 1,
+        ci: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data?.data?.length > 0) {
+      const filteredData = data.data;
+      props.setItem({
+        ...props.item,
+        ci: filteredData[0].ci,
+        name: filteredData[0].name,
+        middle_name: filteredData[0].middle_name,
+        last_name: filteredData[0].last_name,
+        mother_last_name: filteredData[0].mother_last_name,
+        email: filteredData[0].email,
+        phone: filteredData[0].phone,
+        _disabled: true,
+      });
+      showToast(
+        "El propietario ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
+    } else {
+      props.setItem({
+        ...props.item,
+        _disabled: false,
+      });
+    }
+  }, []);
+
+  const onDisbled = ({ item }: any) => {
+    return item._disabled;
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -136,31 +178,23 @@ const HomeOwners = () => {
         api: "ae",
         label: "Unidades",
         form: {
-          type: "number", // Considera si esto debería ser "select" conceptualmente.
-                        // La funcionalidad la da onRender, pero type puede ser informativo.
+          type: "number",
           style: { width: "100%" },
-          // Modifica onRender para usar las props que recibe:
-          onRender: (renderProps: { // Puedes ser más específico con el tipado si quieres
+          onRender: (renderProps: {
             item: any;
             onChange: (e: any) => void;
             error?: any;
-            extraData?: { dptos?: any[] }; // Asumiendo que extraData tiene una propiedad dptos
-            // field?: any; // y otras props que useCrud pasa
+            extraData?: { dptos?: any[] };
           }) => {
-            // ¡Utiliza renderProps.extraData en lugar del extraData del scope de HomeOwners!
             const dptosOptions = renderProps.extraData?.dptos || [];
             const isLoadingOptions = dptosOptions.length === 0;
-  
-            // Para depuración, puedes añadir logs aquí:
-            // console.log("onRender dptos - renderProps.extraData:", renderProps.extraData);
-            // console.log("onRender dptos - dptosOptions:", dptosOptions);
-  
+
             return (
               <div style={{ width: "100%" }}>
                 <Select
                   name="dptos"
-                  options={dptosOptions} // <--- USA LAS OPCIONES DE renderProps.extraData
-                  value={renderProps?.item?.dptos} // Asumo que el valor seleccionado está en item.dptos
+                  options={dptosOptions}
+                  value={renderProps?.item?.dptos}
                   onChange={renderProps.onChange}
                   filter={true}
                   optionLabel="nro"
@@ -169,8 +203,6 @@ const HomeOwners = () => {
                   error={renderProps.error}
                   required={true}
                   placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona las unidades"}
-                  // Ajusta la lógica de 'disabled' según necesites.
-                  // Quizás quieras deshabilitarlo si no hay opciones, incluso si no está "cargando".
                   disabled={(isLoadingOptions && !renderProps?.item?.dptos) || dptosOptions.length === 0}
                 />
               </div>
@@ -187,6 +219,7 @@ const HomeOwners = () => {
           type: "text",
           style: { width: "49%" },
           label: "Primer nombre",
+          disabled: onDisbled,
         },
         onRender: (item: any) => {
           const propietario = item?.item;
@@ -236,28 +269,32 @@ const HomeOwners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre (opcional)",
-        form: { type: "text", style: { width: "49%" } },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       last_name: {
         rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" } },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno (opcional)",
-        form: { type: "text", style: { width: "49%" } },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
       ci: {
         rules: ["required", "ci"],
         api: "ae",
         label: "Cédula de identidad",
-        form: { type: "number" },
+        form: { 
+          type: "number",
+          onBlur: onBlurCi,
+          disabled: onDisbled,
+        },
       },
       email: {
         rules: ["required", "email"],
@@ -266,6 +303,7 @@ const HomeOwners = () => {
         form: {
           type: "email",
           label: "Correo electrónico",
+          disabled: onDisbled,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
@@ -283,7 +321,7 @@ const HomeOwners = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
-                    disabled={props?.field?.action === "edit"}
+                    disabled={props?.field?.action === "edit" || onDisbled(props)}
                   />
                 </div>
               </div>
@@ -329,7 +367,7 @@ const HomeOwners = () => {
         },
       },
     };
-  }, []);
+  }, [onBlurCi]);
 
   const {
     userCan,
@@ -366,7 +404,6 @@ const HomeOwners = () => {
           />
         }
         style={{ width: "280px" }}
-        // className={styles.widgetResumeCard}
       />
 
       <List />
