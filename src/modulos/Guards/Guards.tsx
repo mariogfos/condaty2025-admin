@@ -208,7 +208,7 @@ const Guards = () => {
         },
       },
       password: {
-        rules: ["_disabled_", "required*add"],
+        rules: ["required*add"],
         api: "a",
         label: "Contraseña",
         form: false,
@@ -223,7 +223,7 @@ const Guards = () => {
           type: "number",
           label: "Cédula de identidad",
           onRender: (props: any) => {
-            // console.log(props, "propsval");
+            console.log(props, "propsval");
             return (
               <fieldset className={styles.fieldSet}>
                 <div>
@@ -306,7 +306,7 @@ const Guards = () => {
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "email",
+          type: "text",
           disabled: onDisbled,
         },
         list: false,
