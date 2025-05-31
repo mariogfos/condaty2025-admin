@@ -178,7 +178,6 @@ const Owners = () => {
         ...props.item,
         _disabled: false,
       });
-      //no existe
     }
   }, []);
 
@@ -282,7 +281,6 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-
         list: false,
       },
       middle_name: {
@@ -344,6 +342,7 @@ const Owners = () => {
         label: "Carnet de identidad",
         form: {
           type: "text",
+          onBlur: onBlurCi,
           disabled: onDisbled,
         },
         list: {},
@@ -421,10 +420,10 @@ const Owners = () => {
         rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        // form: { type: "text", disabled: true, label: "2222" },
         form: {
           type: "email",
           label: "Cédula de identidad",
+          disabled: onDisbled,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
@@ -442,13 +441,13 @@ const Owners = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
+                    disabled={props?.field?.action === "edit" || onDisbled(props)}
                   />
                 </div>
               </div>
             );
           },
         },
-
         list: false,
       },
     };

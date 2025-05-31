@@ -24,9 +24,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 const DefaultersView = () => {
   const { setStore } = useAuth();
 
-  useEffect(() => {
-    
-  })
+  useEffect(() => {});
 
   // Definir opciones para los filtros
   const getUnidadOptions = () => [
@@ -50,6 +48,7 @@ const DefaultersView = () => {
     plural: "Morosos",
     permiso: "",
     extraData: true,
+    export: true,
     hideActions: {
       view: true,
       add: true,
@@ -68,7 +67,7 @@ const DefaultersView = () => {
   const paramsInitial = {
     fullType: "L",
     page: 1,
-    perPage:-1
+    perPage: -1,
   };
 
   // Definición de campos para el CRUD con filtros
@@ -98,28 +97,38 @@ const DefaultersView = () => {
             const titularId = titular?.id;
 
             return (
-              <div >
-               {titular? <div  style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <Avatar
-                  src={
-                    titularId
-                      ? getUrlImages(
-                          "/OWNER" +
-                            "-" +
-                            titularId +
-                            ".webp" +
-                            (titular?.updated_at
-                              ? "?d=" + titular?.updated_at
-                              : "")
-                        )
-                      : ""
-                  }
-                  name={getFullName(titular)}
-                  w={32}
-                  h={32}
-                />
-                {getFullName(titular)}
-                </div>: ' Sin titular'}
+              <div>
+                {titular ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <Avatar
+                      src={
+                        titularId
+                          ? getUrlImages(
+                              "/OWNER" +
+                                "-" +
+                                titularId +
+                                ".webp" +
+                                (titular?.updated_at
+                                  ? "?d=" + titular?.updated_at
+                                  : "")
+                            )
+                          : ""
+                      }
+                      name={getFullName(titular)}
+                      w={32}
+                      h={32}
+                    />
+                    {getFullName(titular)}
+                  </div>
+                ) : (
+                  " Sin titular"
+                )}
               </div>
             );
           },
@@ -179,16 +188,16 @@ const DefaultersView = () => {
   );
 
   // Exportar función para el botón de exportar
-  const exportar = () => {
-    execute("/defaulters", "GET", { exportar: 1 }, false);
-  };
+  // const exportar = () => {
+  //   execute("/defaulters", "GET", { exportar: 1 }, false);
+  // };
 
   // Botones adicionales para la tabla
-  const extraButtons = [
-    <div key="export-button" onClick={exportar} className={styles.exportButton}>
-      <IconExport size={32} />
-    </div>,
-  ];
+  // const extraButtons = [
+  //   <div key="export-button" onClick={exportar} className={styles.exportButton}>
+  //     <IconExport size={32} />
+  //   </div>,
+  // ];
 
   // Uso del hook useCrud con la configuración definida
   const {
@@ -207,13 +216,13 @@ const DefaultersView = () => {
     paramsInitial,
     mod,
     fields,
-    extraButtons,
+    // extraButtons,
   });
 
   // Estado para controlar el número total de defaulters
   const [defaultersLength, setDefaultersLength] = useState(0);
   const [extraData, setExtraData] = useState<any>({});
-  const { data:extraDat } = useAxios(
+  const { data: extraDat } = useAxios(
     "/defaulters",
     "GET",
     {
@@ -230,16 +239,12 @@ const DefaultersView = () => {
     }
   }, [data]);
 
-
   const chargeExtraData = async () => {
-   
     if (extraDat) {
       setExtraData(extraDat?.data);
     }
   };
   // console.log(extraData,'extraDat')
-
-
 
   // Calcular el total de morosidad
   const totalMorosidad =
@@ -265,38 +270,42 @@ const DefaultersView = () => {
 
     return (
       <div className={styles.rightPanel}>
-         <div className={styles.subtitle}>Representación gráfica del estado
-         general de morosos </div>
-         <div className={styles.widgetsPanel}>
-         <section>          
-              <WidgetDefaulterResume
-                title={"Total de expensas"}
-                amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
-                pointColor={"var(--cInfo)"}
-                icon={<IconHandcoin size={26} color={'var(--cWarning)'} style={{borderColor:'var(--cWarning)',borderWidth:1}}/>}
-                iconBorderColor="var(--cWarning)"
-                backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
-                textColor="white"
-                style={{width:'100%', borderColor:'var(--cWarning)'}}
-              />
+        <div className={styles.subtitle}>
+          Representación gráfica del estado general de morosos{" "}
+        </div>
+        <div className={styles.widgetsPanel}>
+          <section>
+            <WidgetDefaulterResume
+              title={"Total de expensas"}
+              amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
+              pointColor={"var(--cInfo)"}
+              icon={
+                <IconHandcoin
+                  size={26}
+                  color={"var(--cWarning)"}
+                  style={{ borderColor: "var(--cWarning)", borderWidth: 1 }}
+                />
+              }
+              iconBorderColor="var(--cWarning)"
+              backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
+              textColor="white"
+              style={{ width: "100%", borderColor: "var(--cWarning)" }}
+            />
 
-              <WidgetDefaulterResume
-                title={"Total de multas"}
-                amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
-                pointColor={"var(--cError)"}
-                icon={<IconMultas size={26} color={'#B382D9'} />}
-                iconBorderColor="#B382D9"
-                backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
-                textColor="white"
-                style={{width:'100%', borderColor:'#B382D9'}}
-
-              />
+            <WidgetDefaulterResume
+              title={"Total de multas"}
+              amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
+              pointColor={"var(--cError)"}
+              icon={<IconMultas size={26} color={"#B382D9"} />}
+              iconBorderColor="#B382D9"
+              backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
+              textColor="white"
+              style={{ width: "100%", borderColor: "#B382D9" }}
+            />
           </section>
-
-
         </div>
         <div className={styles.graphPanel}>
-       {/* {   !extraData?.porCobrarMulta && !extraData?.porCobrarExpensa && (
+          {/* {   !extraData?.porCobrarMulta && !extraData?.porCobrarExpensa && (
             <div>ASAS</div>
           )} */}
           <GraphBase
@@ -324,17 +333,24 @@ const DefaultersView = () => {
               colors: [expensaColor, multaColor],
               height: 400,
               width: 400,
-              centerText:'Total',
+              centerText: "Total",
             }}
           />
         </div>
-        <div  style={{fontWeight:'Bold',display:'flex',justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
-        <div>Total de morosidad general
-        entre expensas y multas:  </div>
-        <div style={{fontSize:'var(--spL)'}}>Bs {formatNumber(totalMorosidad)} </div>
+        <div
+          style={{
+            fontWeight: "Bold",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <div>Total de morosidad general entre expensas y multas: </div>
+          <div style={{ fontSize: "var(--spL)" }}>
+            Bs {formatNumber(totalMorosidad)}{" "}
+          </div>
         </div>
-
-       
       </div>
     );
   };
@@ -365,7 +381,7 @@ const DefaultersView = () => {
           condominio
         </p> */}
 
-         {/* <WidgetDefaulterResume
+        {/* <WidgetDefaulterResume
             title={"Total de unidades morosas"}
             amount={`${defaultersLength}`}
             pointColor={"var(--cSuccess)"}
@@ -376,15 +392,22 @@ const DefaultersView = () => {
             style={{maxWidth:250}}
             textColor="white"
           />  */}
-         <WidgetDashCard
-                  title="Total de unidades morosas"
-                  data={`${defaultersLength}`}
-                  onClick={() =>  {}}
-                  icon={<IconHousing reverse size={32} color={'var(--cInfo)'}  style={{backgroundColor:'var(--cHoverInfo'}} circle/>}
-                  className={styles.widgetResumeCard}
-                  style={{maxWidth:250}}
-                />
-              
+        <WidgetDashCard
+          title="Total de unidades morosas"
+          data={`${defaultersLength}`}
+          onClick={() => {}}
+          icon={
+            <IconHousing
+              reverse
+              size={32}
+              color={"var(--cInfo)"}
+              style={{ backgroundColor: "var(--cHoverInfo" }}
+              circle
+            />
+          }
+          className={styles.widgetResumeCard}
+          style={{ maxWidth: 250 }}
+        />
 
         <div className={styles.listContainer}>
           <List renderRight={renderRightPanel} />
