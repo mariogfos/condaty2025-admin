@@ -178,7 +178,6 @@ const Owners = () => {
         ...props.item,
         _disabled: false,
       });
-      //no existe
     }
   }, []);
 
@@ -188,7 +187,8 @@ const Owners = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-      dpto: { // Campo para seleccionar una única unidad (singular)
+      dpto: {
+        // Campo para seleccionar una única unidad (singular)
         rules: ["required"],
         api: "ae",
         label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
@@ -197,7 +197,6 @@ const Owners = () => {
           optionsExtra: "dptos",
           optionLabel: "nro",
           optionValue: "dpto_id",
-          
         },
         list: false, // No se muestra en la lista principal
       },
@@ -273,25 +272,22 @@ const Owners = () => {
         list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
 
-
-      
       name: {
         openTag: { style: { display: "flex" } },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
           disabled: onDisbled,
         },
-
         list: false,
       },
       middle_name: {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Segundo nombre",
+        label: "Segundo nombre (opcional)",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -304,7 +300,7 @@ const Owners = () => {
             display: "flex",
           },
         },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: {
@@ -317,7 +313,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Apellido materno",
+        label: "Apellido materno (opcional)",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -331,18 +327,23 @@ const Owners = () => {
         form: false,
         list: {
           onRender: (props: any) => {
-            return "Unidad: " +( props?.item?.dpto[0]?.nro ? props?.item?.dpto[0]?.nro  : "Sin datos");
+            return (
+              "Unidad: " +
+              (props?.item?.dpto[0]?.nro
+                ? props?.item?.dpto[0]?.nro
+                : "Sin datos")
+            );
           },
         },
       },
       ci: {
-        rules: ["required*add"],
+        rules: ["required", "ci"],
         api: "ae",
         label: "Carnet de identidad",
         form: {
           type: "text",
+          onBlur: onBlurCi,
           disabled: onDisbled,
-          
         },
         list: {},
       },
@@ -355,7 +356,7 @@ const Owners = () => {
       //   style: { width: "500px" },
       // },
       phone: {
-        rules: ["number"],
+        rules: ["number", "max:10"],
         api: "ae",
         label: "Celular (Opcional)",
         form: {
@@ -365,32 +366,41 @@ const Owners = () => {
       },
       type: {
         rules: [""],
-        api: "", 
-        label: "Tipo", 
+        api: "",
+        label: "Tipo",
         list: {
           width: "140px",
           onRender: (props: any) => {
-            const clientOwnerData = props?.item?.client_owner;
-            let esTitularPrincipal = true; // Asumir Titular por defecto
-      
-            // Verificar si client_owner existe y es un objeto
-            if (clientOwnerData && typeof clientOwnerData === 'object') {
-              // Si client_owner existe y tiene un titular_id (no es null ni undefined),
-              // entonces esta persona es un Dependiente.
-              if (clientOwnerData.titular_id !== null && clientOwnerData.titular_id !== undefined) {
-                esTitularPrincipal = false;
-              }
-              // Si client_owner.titular_id es null o undefined, se mantiene esTitularPrincipal = true,
-              // lo que significa que es un Titular.
-            }
+            // const clientOwnerData = props?.item?.client_owner;
+            // let esTitularPrincipal = true; // Asumir Titular por defecto
+
+            // // Verificar si client_owner existe y es un objeto
+            // if (clientOwnerData && typeof clientOwnerData === "object") {
+            //   // Si client_owner existe y tiene un titular_id (no es null ni undefined),
+            //   // entonces esta persona es un Dependiente.
+            //   if (
+            //     clientOwnerData.titular_id !== null &&
+            //     clientOwnerData.titular_id !== undefined
+            //   ) {
+            //     esTitularPrincipal = false;
+            //   }
+            //   // Si client_owner.titular_id es null o undefined, se mantiene esTitularPrincipal = true,
+            //   // lo que significa que es un Titular.
+            // }
             // Si clientOwnerData es null o undefined (no existe el objeto client_owner),
             // se mantiene la presunción de que esTitularPrincipal = true (Titular).
-      
-            const texto = esTitularPrincipal ? "Titular" : "Dependiente";
-            const badgeClass = esTitularPrincipal
-              ? styles.isTitular 
-              : styles.isDependiente;
-      
+
+            // const texto = esTitularPrincipal ? "Titular" : "Dependiente";
+            const texto =
+              props?.item?.dpto[0]?.pivot.is_titular === "Y"
+                ? "Titular"
+                : "Dependiente";
+
+            const badgeClass =
+              props?.item?.dpto[0]?.pivot.is_titular === "Y"
+                ? styles.isTitular
+                : styles.isDependiente;
+
             return (
               <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
                 <span>{texto}</span>
@@ -407,20 +417,21 @@ const Owners = () => {
         // form: false, // Descomenta si no quieres que aparezca en el formulario
       },
       email: {
-        rules: ["required"],
+        rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        // form: { type: "text", disabled: true, label: "2222" },
         form: {
-          type: "number",
+          type: "email",
           label: "Cédula de identidad",
+          disabled: onDisbled,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
                 <div>
                   <div>Información de acceso</div>
                   <div>
-                    La contraseña sera enviada al correo que indiques en este campo
+                    La contraseña sera enviada al correo que indiques en este
+                    campo
                   </div>
                 </div>
                 <div>
@@ -430,13 +441,13 @@ const Owners = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
+                    disabled={props?.field?.action === "edit" || onDisbled(props)}
                   />
                 </div>
               </div>
             );
           },
         },
-
         list: false,
       },
     };

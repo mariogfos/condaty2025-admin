@@ -80,14 +80,12 @@ export const convertirFechaUTCaLocal = (fechaUTCString: string | null) => {
   return fechaLocal;
 };
 
-export const getDateTimeStrMes = (
+const _getDateTimeStrMes = (
   dateStr: string | null = "",
   dateStrBase: string | null = "",
   utc: boolean = false,
   utcBase: boolean = false
 ): string => {
-  if (!dateStr || dateStr == "") return "";
-  console.log(esFormatoISO8601(dateStr));
   if (esFormatoISO8601(dateStr) || utc) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
@@ -96,17 +94,18 @@ export const getDateTimeStrMes = (
       .replace(/-/g, "-")
       .replace("T", " ");
   }
-  console.log(dateStr);
+ 
 
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
 
-  // Convertir el tiempo a un objeto Date para restar 3 horas
   const [hours, minutes] = (datetime[1] + "").substr(0, 5).split(":");
   const timeDate = new Date();
-  console.log(hours);
-  timeDate.setHours(parseInt(hours) + GMT);
-  timeDate.setMinutes(parseInt(minutes));
+
+  if (esFormatoISO8601(dateStr)) {
+    timeDate.setHours(parseInt(hours) + GMT);
+    timeDate.setMinutes(parseInt(minutes));
+  }
 
   // Formatear el nuevo tiempo
   const adjustedTime = `${String(timeDate.getHours()).padStart(
@@ -114,16 +113,38 @@ export const getDateTimeStrMes = (
     "0"
   )}:${String(timeDate.getMinutes()).padStart(2, "0")}`;
 
-  return `${date[2]} de ${MONTHS[parseInt(date[1])]} del ${
-    date[0]
-  }, ${adjustedTime}`;
+  date.push(adjustedTime);
+  return date;
 };
 
-export const getDateStrMes = (
+export const getDateTimeStrMes = (
   dateStr: string | null = "",
-  utc: boolean = false
+  dateStrBase: string | null = "",
+  utc: boolean = false,
+  utcBase: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
+  const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
+  return `${date[2]} de ${MONTHS[parseInt(date[1])]} del ${date[0]}, ${
+    date[3]
+  }`;
+};
+
+export const getDateTimeStrMesShort = (
+  dateStr: string | null = "",
+  dateStrBase: string | null = "",
+  utc: boolean = false,
+  utcBase: boolean = false
+): string => {
+  if (!dateStr || dateStr == "") return "";
+  const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
+  return `${date[0]}/${date[1]}/${date[2]} ${date[3]}`;
+};
+
+const _getDateStrMes = (
+  dateStr: string | null = "",
+  utc: boolean = false
+): Array<string> => {
   if (esFormatoISO8601(dateStr) || utc) {
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
@@ -147,33 +168,48 @@ export const getDateStrMes = (
   dateStr = dateStr.replace("/", "-");
   const datetime = dateStr.split(" ");
   const date = datetime[0].split("-");
-  let year = ` del ${date[0]}`;
-  // let year = "";
-  // if (date[0] != getUTCNow().substring(0, 4)) {
-  //   year = ` del ${date[0]}`;
-  // }
-  return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
+  return date;
 };
-export const getDateTimeStrMesShort = (
+
+export const getDateStrMes = (
   dateStr: string | null = "",
   utc: boolean = false
 ): string => {
   if (!dateStr || dateStr == "") return "";
-  if (esFormatoISO8601(dateStr) || utc) {
-    const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
-    dateStr = fechaLocal
-      .toISOString()
-      .slice(0, 19)
-      .replace(/-/g, "-")
-      .replace("T", " ");
-  }
-
-  const datetime: any = dateStr?.split(" ");
-  const date = datetime[0].split("-");
-  const time = (datetime[1] + "").substr(0, 5);
-
-  return `${date[2]} ${MONTHS_S[parseInt(date[1])]} ${date[0]}, ${time}`;
+  const date = _getDateStrMes(dateStr, utc);
+  let year = ` del ${date[0]}`;
+  return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
 };
+
+export const getDateStrMesShort = (
+  dateStr: string | null = "",
+  utc: boolean = false
+): string => {
+  if (!dateStr || dateStr == "") return "";
+  const date = _getDateStrMes(dateStr, utc);
+  return `${date[0]}/${date[1]}/${date[2]}`;
+};
+
+// export const getDateTimeStrMesShort = (
+//   dateStr: string | null = "",
+//   utc: boolean = false
+// ): string => {
+//   if (!dateStr || dateStr == "") return "";
+//   if (esFormatoISO8601(dateStr) || utc) {
+//     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
+//     dateStr = fechaLocal
+//       .toISOString()
+//       .slice(0, 19)
+//       .replace(/-/g, "-")
+//       .replace("T", " ");
+//   }
+
+//   const datetime: any = dateStr?.split(" ");
+//   const date = datetime[0].split("-");
+//   const time = (datetime[1] + "").substr(0, 5);
+
+//   return `${date[2]} ${MONTHS_S[parseInt(date[1])]} ${date[0]}, ${time}`;
+// };
 
 export const getNow = (): string => {
   const fec: any = convertirFechaUTCaLocal(new Date().toISOString());
@@ -187,7 +223,7 @@ export const getDateDesdeHasta = (date: any) => {
   fechaActual.setHours(
     fechaActual.getHours() + fechaActual.getTimezoneOffset() / 60
   );
-  console.log(date, "dadada");
+
   // obtener fecha de inicio del mes actual y fecha de fin del mes actual
   let primerDia = new Date(
     fechaActual.getFullYear(),
@@ -311,7 +347,7 @@ export const differenceInDays = (begin_at: string, end_at: string): number => {
 
   if (!localBeginDate || !localEndDate) {
     // throw new Error("Formato de fecha inválido");
-    console.log("Formato de fecha inválido");
+
     return -1;
   }
 
@@ -377,7 +413,7 @@ export const compareDate = (
   // d1.setHours(d1.getHours() - GMT);
   // d2.setHours(d2.getHours() - GMT);
   // console.log("date1:", date1);
-  console.log("compare", d1, d2, oper, typeof date1, typeof date2);
+
 
   d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   d2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
@@ -463,7 +499,7 @@ export const getDateTimeAgo = (
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
-  console.log(dateStr, "gdta", diffMinutes, diffHours, diffDays);
+
 
   if (diffMinutes < 1) {
     return "Hace un momento";
@@ -472,10 +508,10 @@ export const getDateTimeAgo = (
   } else if (diffMinutes < 5) {
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-    console.log(true, diffHours < 24);
+   
     return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
   } else if (diffDays > 0) {
-    console.log(true, diffHours < 48);
+
     return `Hace ${diffDays} ${diffDays === 1 ? "día" : "días"}`;
   } else {
     return getDateTimeStrMes(dateStr);

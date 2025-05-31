@@ -13,6 +13,7 @@ export interface PropsTypeInputBase {
   readOnly?: boolean;
   className?: string;
   style?: CSSProperties;
+  styleInput?: CSSProperties;
   onChange?: (e: any) => void;
   onBlur?: (() => void) | ((e: any) => void);
   onFocus?: () => void;
@@ -30,7 +31,7 @@ interface PropsType extends PropsTypeInputBase {
 
 const ControlLabel = (props: PropsType) => {
   const label: any = useMemo(() => {
-    if (props.required && props.label) return props.label + " *";
+    if (!props.required && props.label) return props.label + " (opcional)";
     return props.label;
   }, [props.label, props.required]);
 

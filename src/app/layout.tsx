@@ -8,6 +8,7 @@ import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
+// import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* <ReactScan /> */}
       <body cz-shortcut-listen="false">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>

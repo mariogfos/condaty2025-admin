@@ -29,14 +29,14 @@ const paramsInitial = {
 
 const lLevels = [
   { id: "T", name: "Todos" },
-  { id: 4, name: "Categoria de panico" },
+  { id: 4, name: "Nivel pánico" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
     case 4:
-      return "Categoria de panico";
+      return "Nivel pánico";
     case 3:
       return "Nivel alto";
     case 2:
@@ -163,11 +163,7 @@ const Alerts = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {/* Sección del Avatar */}
                 {avatarSrc ? (
-                  <Avatar
-                    src={avatarSrc}
-                    name={fullName}
-                    
-                  />
+                  <Avatar src={avatarSrc} name={fullName} />
                 ) : (
                   // Avatar de fallback con la inicial del nombre o un "?"
                   <Avatar
@@ -176,7 +172,6 @@ const Alerts = () => {
                         ? fullName.substring(0, 1)
                         : "?"
                     }
-                    
                   />
                 )}
 
@@ -195,10 +190,10 @@ const Alerts = () => {
                       gap: "4px",
                     }}
                   >
-                    {/* Mostrar icono específico de alerta (IconAmbulance, IconFlame, etc.) si es pánico y tiene tipo */}
+                    {/*  
                     {isPanic && item.type && (
                       <span>{getAlertLevelIcon(item.type)}</span>
-                    )}
+                    )} */}
                     <p
                       style={{
                         margin: 0,
@@ -238,7 +233,7 @@ const Alerts = () => {
       created_at: {
         rules: [""],
         api: "",
-        label: "Fecha Y Hora de Creacion",
+        label: "Fecha y hora de creación",
         list: {},
         onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
@@ -248,7 +243,7 @@ const Alerts = () => {
       level: {
         rules: ["required"],
         api: "ae",
-        label: "Nivel de alerta",
+        label: "Categoría de alerta",
         list: {
           onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
@@ -263,7 +258,7 @@ const Alerts = () => {
         },
         form: { type: "select", options: lLevels },
         filter: {
-          label: "Nivel",
+          label: "Categoría",
           width: "200px",
           options: () => [...lLevels],
           optionLabel: "name",
@@ -293,81 +288,78 @@ const Alerts = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.alerts}>
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-        }}
-      >
-        <WidgetDashCard
-          title="Alertas Registradas"
-          data={String(data?.extraData?.total_alerts || 0)}
-          icon={
-            <IconAlert2
-              color={"var(--cWhite)"}
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-              circle
-              size={38}
-            />
-          }
-          // className={styles.widgetResumeCard}
-        />
-        <WidgetDashCard
-          title="Alertas Nivel Bajo"
-          data={String(data?.extraData?.low_level || 0)}
-          icon={
-            <IconAlert2
-              color={"var(--cSuccess)"}
-              style={{ backgroundColor: "var(--cHoverSuccess)" }}
-              circle
-              size={38}
-            />
-          }
-          // className={styles.widgetResumeCard}
-        />
-        <WidgetDashCard
-          title="Alertas Nivel Medio"
-          data={String(data?.extraData?.medium_level || 0)}
-          icon={
-            <IconAlert2
-              color={"var(--cWarning)"}
-              style={{ backgroundColor: "var(--cHoverWarning)" }}
-              circle
-              size={38}
-            />
-          }
-          // className={styles.widgetResumeCard}
-        />
-        <WidgetDashCard
-          title="Alertas Nivel Alto"
-          data={String(data?.extraData?.high_level || 0)}
-          icon={
-            <IconAlert2
-              color={"#da5d5d"}
-              style={{ backgroundColor: "var(--errorBg)" }}
-              circle
-              size={38}
-            />
-          }
-          // className={styles.widgetResumeCard}
-        />
-        <WidgetDashCard
-          title="Categoria de panico"
-          data={String(data?.extraData?.emergency_buttons || 0)}
-          icon={
-            <IconAlert2
-              color={"#da5d5d"}
-              style={{ backgroundColor: "var(--errorBg)" }}
-              circle
-              size={38}
-            />
-          }
-          // className={styles.widgetResumeCard}
-        />
+    <div>
+      <div className={styles.dashboardContainer}>
+        <div className={styles.allStatsRow}>
+          <WidgetDashCard
+            title="Alertas Registradas"
+            data={String(data?.extraData?.total_alerts || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cWhite)"}
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Bajo"
+            data={String(data?.extraData?.low_level || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cSuccess)"}
+                style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+            style={{ maxWidth: "300px", width: "100%" }}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Medio"
+            data={String(data?.extraData?.medium_level || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cWarning)"}
+                style={{ backgroundColor: "var(--cHoverWarning)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Alto"
+            data={String(data?.extraData?.high_level || 0)}
+            icon={
+              <IconAlert2
+                color={"#da5d5d"}
+                style={{ backgroundColor: "var(--errorBg)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Categoria de panico"
+            data={String(data?.extraData?.emergency_buttons || 0)}
+            icon={
+              <IconAlert2
+                color={"#da5d5d"}
+                style={{ backgroundColor: "var(--errorBg)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+        </div>
       </div>
+
       <List />
     </div>
   );

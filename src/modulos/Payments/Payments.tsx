@@ -52,7 +52,7 @@ const Payments = () => {
     renderView: (props: any) => (
       <RenderView {...props} payment_id={props?.item?.id} />
     ),
-    renderDel: RenderAnularModal, 
+    renderDel: RenderAnularModal,
     loadView: { fullType: "DET" },
     hideActions: {
       view: false,
@@ -61,7 +61,7 @@ const Payments = () => {
       del: true,
     },
     filter: true,
-
+    export: true,
   };
 
   const getPeriodOptions = () => [

@@ -1,7 +1,7 @@
 .useCrud {
   gap: 1px;
   & > div > section {
-    height: calc(100vh - 280px);
+    /* height: calc(100vh - 280px); */
     overflow-y: auto;
     & > section {
       display: flex;
@@ -16,7 +16,7 @@
     }
   }
   & > section {
-    height: calc(100vh - 280px);
+    /* height: calc(100vh - 280px); */
     overflow-y: auto;
     & > section {
       display: flex;

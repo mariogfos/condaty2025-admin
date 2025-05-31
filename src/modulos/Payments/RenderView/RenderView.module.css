@@ -63,30 +63,37 @@
   margin: var(--spS) 0;
 }
 
-.mainInfoGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Siempre dos columnas de igual tamaño */
-  gap: var(--spL);
-  width: 100%;
-  padding: var(--spL) 0;
+
+/* NUEVA LÓGICA DE CENTRADO (inspirada en Accesos) */
+.detailsSection { /* Reemplaza a .mainInfoGridContainer y .mainInfoGrid */
+  display: flex;            /* Usa Flexbox para los hijos (las columnas) */
+  flex-direction: row;      /* Columnas una al lado de la otra */
+  justify-content: center;  /* CENTRA el conjunto de columnas si no ocupan todo el ancho */
+  align-items: flex-start;  /* Alinea las columnas en la parte superior si tienen alturas diferentes */
+  gap: var(--spXl, 48px);   /* Espacio ENTRE las columnas. AJUSTA ESTE VALOR. (Accesos usa 32px) */
+  width: 100%;              /* La sección ocupa el ancho disponible */
+  padding: var(--spL) 0;    /* Padding vertical para esta sección */
   box-sizing: border-box;
 }
-.mainInfoGrid > .infoColumn:first-child {
-  margin-left: 50%;
-  
-}
 
-.infoColumn {
+.detailsColumn { /* Cada una de las dos columnas (los divs hijos de .detailsSection) */
   display: flex;
   flex-direction: column;
-  gap: var(--spL);
-  min-width: 0; /* Esencial para permitir que la columna se encoja */
+  gap: var(--spL); /* Espacio entre los infoBlock dentro de una columna */
+  /* El ancho de la columna será determinado por el max-width de sus .infoBlock hijos.
+     Opcionalmente, puedes dar un flex-basis o width aquí a .detailsColumn si lo prefieres.
+     Ej: flex-basis: 280px; o max-width: 280px; */
 }
 
-.infoBlock {
+.infoBlock { /* Cada par label/value */
   display: flex;
   flex-direction: column;
   gap: var(--spXs);
+  text-align: left;
+  max-width: 280px; /* IMPORTANTE: Esto limita el ancho de cada bloque de información.
+                       AJUSTA ESTE VALOR. (Accesos usa 250px para textsDiv)
+                       Si los .infoBlock son angostos, y el .detailsSection los centra,
+                       se crearán los márgenes laterales que buscas. */
 }
 
 .infoLabel {
@@ -326,34 +333,24 @@
   .sectionDivider {
     margin: var(--spXs) 0;
   }
-  .mainInfoGrid {
-    grid-template-columns: 1fr 1fr; /* Mantiene dos columnas incluso en móvil */
-    gap: var(--spM);
+  .detailsSection {
+    flex-direction: column; /* Apila las columnas */
+    align-items: center;   /* Centra las columnas (ahora filas) */
+    gap: var(--spL);       /* Espacio entre las columnas apiladas */
     padding: var(--spM) 0;
   }
-  .mainInfoGrid > .infoColumn:first-child {
-    /* Si tenías "margin-left: 50%;" aquí, cámbialo por un valor más pequeño.
-       Si no tenías esta regla, añádela con el valor deseado. */
-    margin-left: var(--spL); /* Ejemplo: usa una de tus variables de espaciado existentes */
-    /* Alternativas:
-       margin-left: 20px;  // Un valor fijo en píxeles
-       margin-left: 1.5rem; // Un valor fijo en rems
-    */
-  }
-  .mainInfoGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
-  gap: var(--spXl); /* Un poco más de espacio que spL para separar mejor */
-  width: 100%;
-  padding: var(--spL) 0;
-  box-sizing: border-box;
-}
-.mainInfoGrid > .infoColumn:first-child {
-  margin-left: 50%;
-  
-}
-  .infoColumn {
+
+  .detailsColumn {
+    width: 100%; /* Cada columna (ahora una fila) ocupa el ancho */
+    align-items: center; /* Centra los infoBlock dentro de la columna/fila */
     gap: var(--spM);
+  }
+
+  .infoBlock {
+    max-width: 90%; /* Permite que el infoBlock ocupe más ancho en móviles */
+                     /* O podrías usar width: 100%; y controlar el padding del padre */
+    align-items: center; /* Centra el label y el value si quieres que estén centrados en móvil */
+    text-align: center; /* Opcional: centrar el texto de label/value en móviles */
   }
   .voucherButtonContainer {
     padding: var(--spM) 0;
@@ -429,25 +426,7 @@
   }
 }
 
-/* Media query para pantallas muy pequeñas */
-@media (max-width: 640px) {
-  .mainInfoGrid {
-    grid-template-columns: 1fr 1fr; /* Mantiene dos columnas incluso en móvil */
-    gap: 0.5rem; /* Reduce el espacio entre columnas en móvil */
-  }
 
-  .infoBlock {
-    padding: 0.25rem; /* Reduce el padding en móvil */
-  }
-
-  .infoLabel {
-    font-size: 0.75rem;
-  }
-
-  .infoValue {
-    font-size: 0.875rem;
-  }
-}
 
 .headerActionContainer {
   /* Puedes añadir estilos aquí si necesitas posicionar el botón de anular,

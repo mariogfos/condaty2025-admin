@@ -1,4 +1,4 @@
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import {
   IconComunication,
   IconRedffiliates,
@@ -41,7 +41,8 @@ const MainMenu = ({
   setSideBarOpen,
   setOpenClient,
 }: PropsType) => {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const { setStore } = useAuth();
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
@@ -116,6 +117,7 @@ const MainMenu = ({
             icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
+              { href: "/reels", label: "Muro publicaciones" },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
             ]}

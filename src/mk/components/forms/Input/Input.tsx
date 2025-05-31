@@ -31,7 +31,7 @@ const Input = (props: PropsType) => {
     required = false,
     readOnly = false,
     className = "",
-    style = {},
+    styleInput = {},
     onBlur = (e: any) => {},
     onFocus = (e: any) => {},
     onKeyDown = (e: any) => {},
@@ -45,9 +45,12 @@ const Input = (props: PropsType) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number | null>(null);
 
-  const formatForDisplayWhileTyping = (val: string | number | undefined): string => {
-    if (val === undefined || val === null || String(val).trim() === "") return "";
-    let [integerPart, decimalPart] = String(val).split('.');
+  const formatForDisplayWhileTyping = (
+    val: string | number | undefined
+  ): string => {
+    if (val === undefined || val === null || String(val).trim() === "")
+      return "";
+    let [integerPart, decimalPart] = String(val).split(".");
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     if (decimalPart !== undefined) {
       return `${integerPart}.${decimalPart}`;
@@ -57,13 +60,13 @@ const Input = (props: PropsType) => {
 
   const formatForDisplayOnBlur = (val: string | number | undefined): string => {
     if (val === undefined || val === null) return "";
-    const num = parseFloat(String(val).replace(/,/g, ''));
+    const num = parseFloat(String(val).replace(/,/g, ""));
     if (isNaN(num)) {
       // Si es solo un punto o inválido, no mostrar nada o "0.00"
       if (String(val).trim() === ".") return formatForDisplayOnBlur("0"); // Formatea "0" como "0.00"
       return ""; // Para otros inválidos, no mostrar nada en el display
     }
-    const parts = num.toFixed(2).split('.');
+    const parts = num.toFixed(2).split(".");
     const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return `${integerPart}.${parts[1]}`;
   };
@@ -71,11 +74,11 @@ const Input = (props: PropsType) => {
   useEffect(() => {
     if (type === "currency") {
       // console.log(`[Input Debug useEffect props.value] Triggered. props.value: "${value}" (type: ${typeof value}), current displayValue state: "${displayValue}", focused: ${document.activeElement === inputRef.current}`);
-      const rawPropValue = String(value || "").replace(/,/g, '');
+      const rawPropValue = String(value || "").replace(/,/g, "");
       const newFormattedDisplay = formatForDisplayWhileTyping(value);
 
       if (document.activeElement === inputRef.current) {
-        const currentRawDisplayValue = displayValue.replace(/,/g, '');
+        const currentRawDisplayValue = displayValue.replace(/,/g, "");
         if (rawPropValue !== currentRawDisplayValue) {
           // console.log(`[Input Debug useEffect props.value FOCUS] Raw prop value ("${rawPropValue}") differs from raw displayValue ("${currentRawDisplayValue}"). Setting displayValue to: "${newFormattedDisplay}" based on props.value: "${value}"`);
           setDisplayValue(newFormattedDisplay);
@@ -89,11 +92,14 @@ const Input = (props: PropsType) => {
     }
   }, [value, type, displayValue]);
 
-
   useEffect(() => {
     const currentInput = inputRef.current;
     const handleWheel = (e: WheelEvent) => {
-      if (currentInput && currentInput.type === "number" && document.activeElement === currentInput) {
+      if (
+        currentInput &&
+        currentInput.type === "number" &&
+        document.activeElement === currentInput
+      ) {
         e.preventDefault();
       }
     };
@@ -104,12 +110,18 @@ const Input = (props: PropsType) => {
   }, []);
 
   useEffect(() => {
-    if (type === "currency" && inputRef.current && cursorPositionRef.current !== null) {
-      inputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
+    if (
+      type === "currency" &&
+      inputRef.current &&
+      cursorPositionRef.current !== null
+    ) {
+      inputRef.current.setSelectionRange(
+        cursorPositionRef.current,
+        cursorPositionRef.current
+      );
       cursorPositionRef.current = null;
     }
   }, [displayValue, type]);
-
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -117,37 +129,44 @@ const Input = (props: PropsType) => {
 
     let sanitizedValue = "";
     let hasDecimalPoint = false;
-    let rawCursorPos = 0; 
+    let rawCursorPos = 0;
 
     for (let i = 0; i < inputValue.length; i++) {
       const char = inputValue[i];
-      if (char >= '0' && char <= '9') {
+      if (char >= "0" && char <= "9") {
         // Si ya hay un punto y estamos en la parte decimal, verificar longitud de decimales
         if (hasDecimalPoint) {
-          const decimalPart = sanitizedValue.split('.')[1] || "";
-          if (decimalPart.length < 2) { // Solo añadir si tenemos menos de 2 decimales
+          const decimalPart = sanitizedValue.split(".")[1] || "";
+          if (decimalPart.length < 2) {
+            // Solo añadir si tenemos menos de 2 decimales
             sanitizedValue += char;
             if (i < originalCursorPos) rawCursorPos++;
           } else {
             // Si ya hay 2 decimales y se intenta escribir otro dígito decimal,
             // no añadirlo y ajustar rawCursorPos si es necesario (no debería cambiar si no se añade).
           }
-        } else { // Parte entera o aún no hay punto
+        } else {
+          // Parte entera o aún no hay punto
           sanitizedValue += char;
           if (i < originalCursorPos) rawCursorPos++;
         }
-      } else if (char === '.' && !hasDecimalPoint) {
+      } else if (char === "." && !hasDecimalPoint) {
         sanitizedValue += char;
         hasDecimalPoint = true;
         if (i < originalCursorPos) rawCursorPos++;
       }
     }
-    
-    if (sanitizedValue.length > 1 && sanitizedValue.startsWith('0') && !sanitizedValue.startsWith('0.')) {
-        sanitizedValue = sanitizedValue.substring(1);
-        if (originalCursorPos > 0 && rawCursorPos > 0) rawCursorPos = Math.max(0, rawCursorPos -1);
+
+    if (
+      sanitizedValue.length > 1 &&
+      sanitizedValue.startsWith("0") &&
+      !sanitizedValue.startsWith("0.")
+    ) {
+      sanitizedValue = sanitizedValue.substring(1);
+      if (originalCursorPos > 0 && rawCursorPos > 0)
+        rawCursorPos = Math.max(0, rawCursorPos - 1);
     }
-    
+
     // La lógica de truncamiento explícito después del bucle ya no es necesaria si el bucle la maneja.
     // Si se quiere mantener la lógica de truncamiento post-bucle (por si el bucle no es perfecto):
     // if (hasDecimalPoint) {
@@ -165,27 +184,27 @@ const Input = (props: PropsType) => {
 
     // --- Lógica del Cursor (puede necesitar ajustes finos con la restricción de decimales) ---
     let currentRawChars = 0;
-    let newCursorActualPos = 0; 
+    let newCursorActualPos = 0;
     if (rawCursorPos === 0) {
-        newCursorActualPos = 0;
-    } else if (sanitizedValue.length > 0) { // Asegurarse que sanitizedValue no está vacío
-        for (let i = 0; i < newDisplayValue.length; i++) {
-            if (newDisplayValue[i] !== ',') {
-                currentRawChars++;
-            }
-            if (currentRawChars === rawCursorPos) {
-                newCursorActualPos = i + 1;
-                break;
-            }
-            // Si el bucle termina y no encontramos suficientes rawChars (rawCursorPos > currentRawChars)
-            // o si llegamos al final del newDisplayValue.
-            if (i === newDisplayValue.length - 1) {
-                newCursorActualPos = newDisplayValue.length;
-            }
+      newCursorActualPos = 0;
+    } else if (sanitizedValue.length > 0) {
+      // Asegurarse que sanitizedValue no está vacío
+      for (let i = 0; i < newDisplayValue.length; i++) {
+        if (newDisplayValue[i] !== ",") {
+          currentRawChars++;
         }
+        if (currentRawChars === rawCursorPos) {
+          newCursorActualPos = i + 1;
+          break;
+        }
+        // Si el bucle termina y no encontramos suficientes rawChars (rawCursorPos > currentRawChars)
+        // o si llegamos al final del newDisplayValue.
+        if (i === newDisplayValue.length - 1) {
+          newCursorActualPos = newDisplayValue.length;
+        }
+      }
     }
-    if (sanitizedValue === "" ) newCursorActualPos = 0;
-
+    if (sanitizedValue === "") newCursorActualPos = 0;
 
     cursorPositionRef.current = newCursorActualPos;
 
@@ -201,10 +220,13 @@ const Input = (props: PropsType) => {
   };
 
   const handleCurrencyBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    let currentValue = String(value || "").replace(/,/g, '');
-    
-    if (currentValue === "." || (currentValue && isNaN(parseFloat(currentValue))) ) {
-        currentValue = ""; // Tratar un punto solo o no números como vacío para el valor lógico
+    let currentValue = String(value || "").replace(/,/g, "");
+
+    if (
+      currentValue === "." ||
+      (currentValue && isNaN(parseFloat(currentValue)))
+    ) {
+      currentValue = ""; // Tratar un punto solo o no números como vacío para el valor lógico
     }
 
     const finalDisplayValue = formatForDisplayOnBlur(currentValue);
@@ -212,9 +234,9 @@ const Input = (props: PropsType) => {
 
     let valueToPropagate = "";
     if (currentValue !== "" && !isNaN(parseFloat(currentValue))) {
-        valueToPropagate = parseFloat(currentValue).toFixed(2);
+      valueToPropagate = parseFloat(currentValue).toFixed(2);
     }
-    
+
     const syntheticEvent = {
       ...e,
       target: {
@@ -227,11 +249,16 @@ const Input = (props: PropsType) => {
     onBlur(syntheticEvent);
   };
 
-  const currentDisplayValue = type === "currency" ? displayValue : (value || "");
+  const currentDisplayValue = type === "currency" ? displayValue : value || "";
   const inputType = type === "currency" ? "text" : type;
 
   return (
-    <ControlLabel {...props} className={`${styles.input} ${className} ${disabled ? styles.disabled : '' }`}>
+    <ControlLabel
+      {...props}
+      className={`${styles.input} ${className} ${
+        disabled ? styles.disabled : ""
+      }`}
+    >
       <input
         id={name}
         type={inputType}
@@ -246,7 +273,7 @@ const Input = (props: PropsType) => {
         readOnly={readOnly}
         disabled={disabled}
         required={required}
-        style={style}
+        style={styleInput}
         aria-autocomplete="none"
         autoComplete="new-password"
         checked={checked}

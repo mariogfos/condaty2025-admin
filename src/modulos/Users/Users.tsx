@@ -157,7 +157,7 @@ const Users = () => {
         // filter: { ... } // Tu configuración de filtro (comentada en tu código)
       },
       fullName: {
-        // rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Nombre del administrador",
         form: false,
@@ -217,7 +217,7 @@ const Users = () => {
       },
 
       name: {
-        rules: ["required"],
+        rules: ["required", "max:50", "alpha", "noSpaces"],
         api: "ae",
         label: "Primer nombre",
         form: {
@@ -231,12 +231,12 @@ const Users = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre",
+        label: "Segundo nombre (Opcional)",
         form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
         list: false,
       },
       last_name: {
-        rules: ["required"],
+        rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
@@ -245,7 +245,7 @@ const Users = () => {
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno",
+        label: "Apellido materno (Opcional)",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -293,7 +293,7 @@ const Users = () => {
       },
 
       ci: {
-        rules: ["required"],
+        rules: ["required", "ci"],
         api: "ae",
         label: "Carnet de Identidad",
         form: {
@@ -305,7 +305,7 @@ const Users = () => {
       },
 
       phone: {
-        rules: ["number"],
+        rules: ["number", "phone", "max:16"],
         api: "ae",
         label: "Celular (Opcional)",
         form: {
@@ -315,9 +315,9 @@ const Users = () => {
         },
       },
       address: {
-        rules: [""],
+        rules: ["max:100"],
         api: "ae",
-        label: "Dirección",
+        label: "Dirección (Opcional)",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -325,7 +325,7 @@ const Users = () => {
       },
 
       email: {
-        rules: ["required"],
+        rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
         // form: { type: "text", disabled: true, label: "2222" },

@@ -64,6 +64,12 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
       key: "file",
       errors,
     });
+    errors = checkRules({
+      value: formState?.type,
+      rules: ["required"],
+      key: "type",
+      errors,
+    });
 
     setErrors(errors);
     return errors;
@@ -97,6 +103,14 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
     data?.action === "edit" ? handleEditItem() : handleAddItem();
     onClose();
   };
+
+  const paymentMethods = [
+    { id: 'T', name: 'Transferencia' },
+    { id: 'O', name: 'Pago en oficina' },
+    { id: 'Q', name: 'Qr' },
+    { id: 'E', name: 'Efectivo' },
+    { id: 'C', name: 'Cheque' }
+  ];
 
   return (
     <DataModal
@@ -132,6 +146,13 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         optionLabel="name"
         optionValue="id"
         error={errors}
+      />
+      <Select
+        name="type"
+        label="Forma de pago"
+        value={formState?.type}
+        onChange={handleChange}
+        options={paymentMethods}
       />
       {/* <Select
         name="subcategory_id"

@@ -312,6 +312,7 @@ const FormElement = memo(
       case "fileUpload":
         return (
           <LeftRigthElement {...props}>
+           
             <UploadFile
               name={_field.key}
               value={item[_field.key]}
@@ -333,6 +334,7 @@ const FormElement = memo(
               readOnly={_field.readOnly}
               required={_field.required}
               ext={_field.ext || ["pdf", "doc", "docx", "xls", "xlsx"]}
+              item={item}
               setError={setError}
             />
           </LeftRigthElement>

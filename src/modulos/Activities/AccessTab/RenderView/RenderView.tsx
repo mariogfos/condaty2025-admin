@@ -16,6 +16,9 @@ import useAxios from "@/mk/hooks/useAxios";
 import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
 import PedidosDetail from "../../PedidosDetail/PedidosDetail";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import LabelValueDetail from "@/components/Detail/LabelValueDetail";
+import ContainerDetail from "@/components/Detail/ContainerDetail";
+import Br from "@/components/Detail/Br";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -154,6 +157,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     O: "Llave QR",
     F: "Qr Frecuente",
   };
+
   return (
     <>
       <DataModal
@@ -197,77 +201,134 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 </div>
               </section>
             )}
+            <Br />
 
-            <section>
-              <div>
-                <div className={styles.textsDiv}>
+            <ContainerDetail>
+              {/* <div className={styles.textsDiv}>
                   <div>Tipo de acceso</div>
                   <div>{getTypeAccess(item?.type, item)} </div>
-                </div>
-                <div className={styles.textsDiv}>
-                  <div>Fecha y hora de ingreso</div>
-                  <div>{getDateTimeStrMes(in_at)} </div>
-                </div>
-                {accesses?.length > 0 && (
-                  <div className={styles.textsDiv}>
-                    <div>Acompañante</div>
-                    {accesses.map((access: any, i: number) => (
-                      <div key={i} style={{ color: "var(--cWhite" }}>
-                        {getFullName(access?.visit)}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {item?.type !== "O" && (
-                  <div className={styles.textsDiv}>
-                    <div>Visitó a</div>
-                    <div>{getFullName(item?.owner) || "No especificado"}</div>
-                  </div>
-                )}
-                <div className={styles.textsDiv}>
-                  <div>Guardia de ingreso</div>
-                  <div>{getFullName(guardia) || "No especificado"}</div>
-                </div>
-                <div className={styles.textsDiv}>
-                  <div>Observación de entrada</div>
-                  <div>{obs_in || "-/-"}</div>
-                </div>
-              </div>
-
-              <div>
-                <div className={styles.textsDiv}>
+                </div> */}
+              <LabelValueDetail
+                value={getTypeAccess(item?.type, item)}
+                label="Tipo de acceso"
+              />
+              {/* <div className={styles.textsDiv}>
                   <div>Estado</div>
-                  {/* <div>{statusAccess[status] || "No especificado"}</div> */}
                   <div style={{ color: item?.out_at ? "var(--cAccent)" : "" }}>
                     {getStatus()}
                   </div>
-                </div>
-                <div className={styles.textsDiv}>
+                </div> */}
+              <LabelValueDetail
+                value={getStatus()}
+                label="Estado"
+                colorValue={item?.out_at ? "var(--cAccent)" : ""}
+              />
+              {/* <div className={styles.textsDiv}>
+                  <div>Fecha y hora de ingreso</div>
+                  <div>{getDateTimeStrMes(in_at)} </div>
+                </div> */}
+              <LabelValueDetail
+                value={getDateTimeStrMes(in_at)}
+                label="Fecha y hora de ingreso"
+              />
+              {/* <div className={styles.textsDiv}>
                   <div>Fecha y hora de salida</div>
                   <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
-                </div>
+                </div> */}
+              <LabelValueDetail
+                value={getDateTimeStrMes(out_at) || "-/-"}
+                label="Fecha y hora de salida"
+              />
+              {accesses?.length > 0 && (
+                // <div className={styles.textsDiv}>
+                //   <div>Acompañante</div>
+                //   {accesses.map((access: any, i: number) => (
+                //     <div key={i} style={{ color: "var(--cWhite" }}>
+                //       {getFullName(access?.visit)}
+                //     </div>
+                //   ))}
+                // </div>
+                <LabelValueDetail
+                  // value={accesses
+                  //   .map((access: any, i: number) => (
+                  //     <div key={i} style={{ color: "var(--cWhite" }}>
+                  //       {getFullName(access?.visit)}
+                  //     </div>
+                  //   ))
+                  //   .join(", ")}
+                  value={accesses.map((access: any, i: number) => (
+                    <div key={i} style={{ color: "var(--cWhite" }}>
+                      {getFullName(access?.visit)}
+                    </div>
+                  ))}
+                  label="Acompañantes"
+                />
+              )}
+              {item?.type !== "O" && (
+                // <div className={styles.textsDiv}>
+                //   <div>Visitó a</div>
+                //   <div>{getFullName(item?.owner) || "No especificado"}</div>
+                // </div>
+                <LabelValueDetail
+                  value={getFullName(item?.owner) || "-/-"}
+                  label="Visitó a"
+                />
+              )}
+              {/* <div className={styles.textsDiv}>
+                  <div>Guardia de ingreso</div>
+                  <div>{getFullName(guardia) || "No especificado"}</div>
+                </div> */}
+              <LabelValueDetail
+                value={getFullName(guardia) || "-/-"}
+                label="Guardia de ingreso"
+              />
+              {/* <div className={styles.textsDiv}>
+                  <div>Observación de entrada</div>
+                  <div>{obs_in || "-/-"}</div>
+                </div> */}
+              <LabelValueDetail
+                value={obs_in || "-/-"}
+                label="Observación de entrada"
+              />
 
-                {item?.type !== "O" && (
-                  <div className={styles.textsDiv}>
-                    <div>Carnet de identidad</div>
-                    <div>{visit?.ci || "No especificado"}</div>
-                  </div>
-                )}
+              {item?.type !== "O" && (
+                // <div className={styles.textsDiv}>
+                //   <div>Carnet de identidad</div>
+                //   <div>{visit?.ci || "No especificado"}</div>
+                // </div>
+                <LabelValueDetail
+                  value={visit?.ci || "-/-"}
+                  label="Carnet de identidad"
+                />
+              )}
 
-                <div className={styles.textsDiv}>
+              {/* <div className={styles.textsDiv}>
                   <div>Unidad</div>
                   <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
-                </div>
-                <div className={styles.textsDiv}>
+                </div> */}
+              <LabelValueDetail
+                value={owner?.dpto[0]?.nro || "-/-"}
+                label="Unidad"
+              />
+              {/* <div className={styles.textsDiv}>
                   <div>Guardia de salida</div>
                   <div>{getFullName(out_guard) || "No especificado"}</div>
-                </div>
-                <div className={styles.textsDiv}>
+                </div> */}
+              <LabelValueDetail
+                value={getFullName(out_guard) || "-/-"}
+                label="Guardia de salida"
+              />
+              {/* <div className={styles.textsDiv}>
                   <div>Observación de salida</div>
                   <div>{obs_out || "-/-"}</div>
-                </div>
-              </div>
-            </section>
+                </div> */}
+              <LabelValueDetail
+                value={obs_out || "-/-"}
+                label="Observación de salida"
+              />
+            </ContainerDetail>
+            <Br />
+
             {item.type !== "O" && (
               <div
                 onClick={openDetailsModal}
@@ -299,142 +360,3 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
 };
 
 export default RenderView;
-
-{
-  /* <div className={styles.container}>
-        <div className={styles.iconHeader}>
-          <div className={styles.iconCircle}>
-            {getAccessIcon()}
-          </div>
-        </div>
-
-        <div className={styles.accessTitle}>
-          {getAccessType()}
-        </div>
-
-        <div className={styles.divider}></div>
-
-        <div className={styles.detailsContainer}>
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Visitante:</div>
-            <div className={styles.value}>
-              {item?.type === "O"
-                ? "Uso Llave Virtual QR"
-                : getFullName(item?.visit) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Documento:</div>
-            <div className={styles.value}>
-              {item?.type === "O"
-                ? item?.owner?.ci
-                : item?.visit?.ci || "No especificado"}
-            </div>
-          </div>
-
-          {item?.plate && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Placa:</div>
-              <div className={styles.value}>{item.plate}</div>
-            </div>
-          )}
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Residente:</div>
-            <div className={styles.value}>
-              {getFullName(item?.owner) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Guardia:</div>
-            <div className={styles.value}>
-              {getFullName(item?.guardia) || "No especificado"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Fecha:</div>
-            <div className={styles.value}>
-              {getDateStrMes(item?.begin_at) || "No especificada"}
-            </div>
-          </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Entrada:</div>
-            {item?.in_at ? (
-              <div className={styles.valueAccent}>
-                <IconArrowRight size={16} className={styles.ingressIcon} />
-                {getDateTimeStrMes(item.in_at, item.begin_at)}
-              </div>
-            ) : item?.confirm_at ? (
-              <div className={styles.value}>
-                {item.confirm === "Y" ? (
-                  <span className={styles.statusWaiting}>
-                    Esperando entrada
-                  </span>
-                ) : (
-                  <span className={styles.statusRejected}>No autorizado</span>
-                )}
-              </div>
-            ) : (
-              <div className={styles.statusWaiting}>Esperando confirmación</div>
-            )}
-          </div>
-
-          {item?.type !== "O" && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Salida:</div>
-              {item?.out_at ? (
-                <div className={styles.valueError}>
-                  <IconArrowLeft size={16} className={styles.egressIcon} />
-                  {getDateTimeStrMes(item.out_at, item.begin_at)}
-                </div>
-              ) : (
-                <div className={styles.value}>
-                  {item?.in_at ? "No registrada" : "Pendiente"}
-                </div>
-              )}
-            </div>
-          )}
-
-          {item?.obs_in && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación de entrada:</div>
-              <div className={styles.value}>{item.obs_in}</div>
-            </div>
-          )}
-
-          {item?.obs_out && (
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación de salida:</div>
-              <div className={styles.value}>{item.obs_out}</div>
-            </div>
-          )}
-        </div>
-
-        {/*         Botones de acción según el estado del acceso 
-        {item?.type !== "O" && (
-          <div className={styles.actionContainer}>
-            {!item?.in_at && item?.confirm === "Y" && (
-              <Button 
-                className={styles.entryButton} 
-                onClick={handleEntrada}
-              >
-                Dejar Entrar
-              </Button>
-            )}
-
-            {item?.in_at && !item?.out_at && (
-              <Button 
-                className={styles.exitButton} 
-                onClick={handleSalida}
-              >
-                Dejar Salir
-              </Button>
-            )}
-          </div>
-        )}
-        </div> */
-}

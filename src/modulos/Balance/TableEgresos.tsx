@@ -164,6 +164,7 @@ const TableEgresos = ({
       color="text-red-500"
       meses={anual ? meses : []}
       variant="expense"
+      tooltip="Monto total de egresos detallado por categorias y subcategorias."
     />
   );
 };

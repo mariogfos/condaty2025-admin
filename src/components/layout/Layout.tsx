@@ -6,7 +6,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Sidebar from "@/mk/components/ui/Sidebar/Sidebar";
 import MainMenu from "../MainMenu/MainMenu";
 import Header from "../Header/Header";
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
@@ -53,8 +53,9 @@ const typeAlerts: any = {
 };
 
 const Layout = ({ children }: any) => {
-  const { user, logout, store, setStore, showToast } = useAuth();
-  const { isTablet, isDesktop } = useScreenSize();
+  const { user, logout, store, setStore, showToast, userCan } = useAuth();
+  // const { isTablet, isDesktop } = useScreenSize();
+
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [client, setClient]: any = useState(null);
@@ -67,6 +68,8 @@ const Layout = ({ children }: any) => {
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
   const [openClient, setOpenClient] = useState(false);
+  const isTablet = false;
+  const isDesktop = true;
 
   useEffect(() => {
     // if (user) {
@@ -104,6 +107,7 @@ const Layout = ({ children }: any) => {
   const onNotif = useCallback(
     (e: any) => {
       // console.log("*******11111*****", e);
+      console.log(user, "user");
       if (e.event == "ping") {
         showToast("Llegó un PING", "info");
       }
@@ -114,7 +118,11 @@ const Layout = ({ children }: any) => {
         showToast(e.payload.title, "info");
       }
 
-      if (e.event == "alerts" && e.payload?.level == 4) {
+      if (
+        e.event == "alerts" &&
+        e.payload?.level == 4 &&
+        !userCan("aprovebudgets", "U")
+      ) {
         setOpenAlert({ open: true, item: e.payload });
         if (audioEnabled) {
           soundBell
@@ -125,7 +133,7 @@ const Layout = ({ children }: any) => {
         }
       }
     },
-    [soundBell, showToast, audioEnabled]
+    [soundBell, showToast, audioEnabled, user]
   );
 
   useEvent("onNotif", onNotif);
@@ -142,7 +150,8 @@ const Layout = ({ children }: any) => {
     <main className={layoutClassName}>
       <section>
         <Header
-          isTablet={isTablet}
+          // isTablet={isTablet}
+          isTablet={false}
           user={user}
           path={path}
           router={router}
@@ -226,11 +235,18 @@ const Layout = ({ children }: any) => {
             variant="V1"
             title={openAlert?.item?.owner_name}
             subtitle={"Unidad: " + openAlert?.item?.unit}
-            right={getDateTimeStrMesShort(openAlert?.item?.created_at)}
+            right={
+              <p style={{ width: 160, textAlign: "right" }}>
+                {getDateTimeStrMesShort(openAlert?.item?.created_at)}
+              </p>
+            }
             left={
               <Avatar
                 src={getUrlImages(
-                  "/OWNER-" + openAlert?.item?.owner_id + ".webp?d="
+                  "/OWNER-" +
+                    openAlert?.item?.owner_id +
+                    ".webp?d=" +
+                    openAlert?.item?.owner_updated_at
                 )}
                 name={openAlert?.item?.owner_name}
               />

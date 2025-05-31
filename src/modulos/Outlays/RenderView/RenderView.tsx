@@ -34,17 +34,17 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
   };
 
   const getCategoryNames = () => {
-    let categoryName = "Desconocida";
+    let categoryName = "-/-";
     let subCategoryName = "-/-";
 
     if (item?.category) {
         const subCategoryData = item.category;
-        subCategoryName = subCategoryData.name || "Subcategoría sin nombre";
+        subCategoryName = subCategoryData.name || "-/-";
         if (subCategoryData.padre && typeof subCategoryData.padre === 'object') {
-            categoryName = subCategoryData.padre.name || "Categoría sin nombre";
+            categoryName = subCategoryData.padre.name || "-/-";
         } else if (subCategoryData.category_id && extraData?.categories) {
             const parentCategory = extraData.categories.find((c: any) => c.id === subCategoryData.category_id);
-            categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+            categoryName = parentCategory ? parentCategory.name : "-/-";
         } else {
             categoryName = subCategoryData.name;
             subCategoryName = "-/-";
@@ -54,7 +54,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
         if (foundCategory) {
              if (foundCategory.category_id) {
                 const parentCategory = extraData.categories.find((c: any) => c.id === foundCategory.category_id);
-                categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
+                categoryName = parentCategory ? parentCategory.name : "-/-";
                 subCategoryName = foundCategory.name;
             } else {
                 categoryName = foundCategory.name;
@@ -111,69 +111,63 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
 
   return (
     <DataModal
-      open={open}
-      onClose={onClose}
-      title="Detalle del Egreso" // Título similar al de Ingresos
-      buttonText=""
-      buttonCancel=""
-    >
-      {item && onDel && item.status !== 'X' && (
-        <div className={styles.headerActionContainer}>
-          {/* REEMPLAZO DEL BOTÓN */}
-          <button
-            type="button" // Es buena práctica especificar el type para botones fuera de forms
-            onClick={handleAnularClick}
-            className={styles.textButtonDanger} // Nueva clase para el text button rojo
-          >
-            Anular egreso
-          </button>
-        </div>
-      )}
-      <div className={styles.container}>
-        <div className={styles.headerSection}>
-          <div className={styles.amountDisplay}>Bs {formatNumber(item.amount)}</div>
-          <div className={styles.dateDisplay}>
-            {getDateTimeStrMesShort(item.date_at)} {/* Usar formato consistente */}
+    open={open}
+    onClose={onClose}
+    title="Detalle del Egreso"
+    buttonText=""
+    buttonCancel=""
+  >
+    {item && onDel && item.status !== 'X' && (
+      <div className={styles.headerActionContainer}>
+        <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
+          Anular egreso
+        </button>
+      </div>
+    )}
+    <div className={styles.container}> {/* Contenedor principal del modal */}
+      <div className={styles.headerSection}>
+        <div className={styles.amountDisplay}>Bs {formatNumber(item.amount)}</div>
+        <div className={styles.dateDisplay}>{getDateTimeStrMesShort(item.date_at)}</div>
+      </div>
+
+      <hr className={styles.sectionDivider} />
+
+      {/* Contenedor de la sección de detalles, usará flex para centrar las columnas */}
+      <section className={styles.detailsSection}> {/* Antes: mainInfoGridContainer */}
+        {/* Columna Izquierda */}
+        <div className={styles.detailsColumn}> {/* Antes: mainInfoGrid > infoColumn */}
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Categoría</span>
+            <span className={styles.infoValue}>{categoryName}</span>
+          </div>
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Subcategoría</span>
+            <span className={styles.infoValue}>{subCategoryName}</span>
+          </div>
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Descripción</span>
+            <span className={styles.infoValue}>{item.description || "-/-"}</span>
           </div>
         </div>
 
-        <hr className={styles.sectionDivider} />
-
-        <div className={styles.mainInfoGrid}>
-          <div className={styles.infoColumn}>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Categoría</span>
-              <span className={styles.infoValue}>{categoryName}</span>
-            </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Subcategoría</span>
-              <span className={styles.infoValue}>{subCategoryName}</span>
-            </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Descripción</span>
-              <span className={styles.infoValue}>{item.description || "-/-"}</span>
-            </div>
+        {/* Columna Derecha */}
+        <div className={styles.detailsColumn}> {/* Antes: mainInfoGrid > infoColumn */}
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Estado</span>
+            <span className={`${styles.infoValue} ${getStatusStyle(item.status)}`}>
+              {getStatusText(item.status)}
+            </span>
           </div>
-
-          <div className={styles.infoColumn}>
+          {item.type && (
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Estado</span>
-              <span className={`${styles.infoValue} ${getStatusStyle(item.status)}`}>
-                {getStatusText(item.status)}
-              </span>
+              <span className={styles.infoLabel}>Forma de Pago</span>
+              <span className={styles.infoValue}>{getPaymentMethodText(item.type)}</span>
             </div>
-            {item.type && ( // Solo mostrar si item.type tiene un valor
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Forma de Pago</span>
-                <span className={styles.infoValue}>{getPaymentMethodText(item.type)}</span>
-              </div>
-                )}
-            
-          </div>
+          )}
         </div>
+      </section>
 
-        {/* No es necesario otro divisor aquí a menos que haya más secciones */}
-        <hr className={styles.sectionDivider} /> 
+      <hr className={styles.sectionDivider} />
 
         {item.ext && (
           <div className={styles.voucherButtonContainer}>

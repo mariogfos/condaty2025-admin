@@ -163,6 +163,7 @@ const TableIngresos = ({
       color="text-accent" // Color específico para ingresos
       meses={anual ? meses : []}
       variant="income"
+      tooltip="Monto total de ingresos detallado por categorias y subcategorias."
     />
   );
 };

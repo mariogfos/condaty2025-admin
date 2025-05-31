@@ -29,6 +29,7 @@ import { UnitsType } from "@/mk/utils/utils";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+import { formatNumber } from "@/mk/utils/numbers";
 
 const RenderForm = ({
   open,
@@ -641,11 +642,7 @@ const RenderForm = ({
                 />
               </div>
             </div>
-            {_formState.isSubcategoryLocked && (
-              <p className={styles["locked-message"]}>
-                Esta subcategoría se ha seleccionado automáticamente
-              </p>
-            )}
+           
 
             {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
 
@@ -906,7 +903,7 @@ const RenderForm = ({
                       <div className={styles["total-container"]}>
                      
 
-                        <p>Total a pagar: {selecPeriodoTotal} Bs.</p>
+                        <p>Total a pagar: {formatNumber(selecPeriodoTotal, 2)} Bs.</p>
                         
                       </div>
                     </div>

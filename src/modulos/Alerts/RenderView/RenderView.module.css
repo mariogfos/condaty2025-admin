@@ -205,7 +205,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end; /* justify-end */
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spM, 12px); /* gap-3 */
   align-self: stretch;
 }
@@ -214,7 +214,7 @@
   font-weight: var(--bNormal, 400);
   font-size: var(--sM, 14px);
   color: var(--figma-text-gray, #a7a7a7);
-  text-align: center; /* Para que coincida con el diseño implícito */
+  text-align: left; /* Para que coincida con el diseño implícito */
   padding: 0 var(--spS); /* Un poco de padding lateral si el texto es largo */
 }
 

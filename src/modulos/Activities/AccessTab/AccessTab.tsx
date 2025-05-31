@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState, useEffect } from "react";
 import styles from "../Activities.module.css";
-import { getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
@@ -268,13 +268,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                     <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
                   </div>
                 </div>
-                <div className={styles.companionsText}>
+                {/* <div className={styles.companionsText}>
                   {props?.item?.accesses.length > 0 &&
                     `+${props?.item?.accesses?.length} acompañante${
                       props?.item?.accesses?.length > 1 ? "s" : ""
                     }`}
-                </div>
-                <div></div>
+                </div> */}
               </div>
             );
           },
@@ -316,7 +315,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props.item.in_at || "")}</div>;
+            return <div>{getDateTimeStrMesShort(props.item.in_at || "")}</div>;
           },
         },
         filter: {
@@ -335,7 +334,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             return (
               <div>
                 {props.item.out_at
-                  ? getDateStrMes(props.item.out_at)
+                  ? getDateTimeStrMesShort(props.item.out_at)
                   : "No registrada"}
               </div>
             );
@@ -373,7 +372,17 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Tipo de Acceso",
         list: {
           onRender: (props: any) => {
-            return getTypeAccess(props.item.type, props.item);
+            return (
+              <div>
+                <p> {getTypeAccess(props.item.type, props.item)}</p>
+                <div className={styles.companionsText}>
+                  {props?.item?.accesses.length > 0 &&
+                    `+${props?.item?.accesses?.length} acompañante${
+                      props?.item?.accesses?.length > 1 ? "s" : ""
+                    }`}
+                </div>
+              </div>
+            );
           },
         },
         filter: {
@@ -386,6 +395,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
             { id: "I", name: "Qr Individual" },
             { id: "P", name: "Pedido" },
             { id: "O", name: "Llave Qr" },
+            { id: "F", name: "Qr frecuente" },
           ],
         },
       },
@@ -444,7 +454,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     <>
       {" "}
       {/* O un div principal */}
-      <List />
+      <List height={"calc(100vh - 280px)"} />
       <DataModal
         open={openCustomFilterModal}
         title="Seleccionar Rango de Fechas Personalizado"
