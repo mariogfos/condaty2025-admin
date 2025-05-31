@@ -36,13 +36,13 @@ const getAlertTypeBoxDetails = (item: any) => {
     details.icon = <IconAmbulance size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("emergencia medica") || item.descrip?.toLowerCase().includes("emergencia médica") ? item.descrip : "Emergencia Médica";
   } else if (item.type === 'F') {
-    details.boxBgColor = 'rgb(218, 93, 85)';
+    details.boxBgColor = 'rgba(218, 93, 93, 0.2)';
     details.borderColor = 'rgb(228, 96, 85)';
     details.icon = <IconFlame size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("incendio") ? item.descrip : "Incendio";
   } else if (item.type === 'T') {
-    details.boxBgColor = 'rgb(112, 66, 112)';
-    details.borderColor = 'rgb(80, 34, 80)';
+    details.boxBgColor = 'rgba(112, 66, 112, 0.2)';
+    details.borderColor = 'rgb(167, 22, 167)';
     details.icon = <IconTheft size={36} color={details.textColor} />;
     details.title = item.descrip?.toLowerCase().includes("robo") || item.descrip?.toLowerCase().includes("intrusi") ? item.descrip : "Robo o Intrusión";
   } else if (item.level >= 3 && item.descrip) {
@@ -85,8 +85,8 @@ const RenderView = (props: {
   const informerPrefix = props.item.level === 4 && props.item.owner 
                         ? "/OWNER-" 
                         : (props.item.guardia ? "/GUARD-" : "/OWNER-");
-  const informerDetailText = informer?.unit 
-                            ? `Unidad: ${informer.unit}` 
+  const informerDetailText = informer?.dpto 
+                            ? `Unidad: ${informer.dpto[0]?.nro}` 
                             : (informer?.ci ? `C.I: ${informer.ci}` : "");
 
   const attendant = props.item.gua_attend || props.item.adm_attend;
