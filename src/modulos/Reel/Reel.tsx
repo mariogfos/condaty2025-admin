@@ -23,11 +23,26 @@ type Image = {
   ext: string;
 };
 
+type CommentUser = {
+  id: string;
+  name: string;
+  middle_name?: string;
+  last_name: string;
+  mother_last_name?: string;
+  updated_at?: string;
+};
+
 type Comment = {
   id: number;
-  user: User;
   comment: string;
+  user_id: string | null;
+  person_id: string | null;
+  type: string;
+  event_id: number | null;
+  content_id: number;
   created_at: string;
+  user: CommentUser | null;
+  person: CommentUser | null;
 };
 
 type ContentItem = {
@@ -550,8 +565,13 @@ const Reel = () => {
                   {comments.map((comment: Comment) => (
                     <li key={`comment-${comment.id}`} className={styles.commentItem}>
                       <Avatar
-                        name={getFullName(comment.user)}
-                        src={getUrlImages(`/ADM-${comment.user?.id}.webp?d=${comment.user?.updated_at}`)}
+                        name={comment.user?.name || comment.person?.name || 'Usuario'}
+                        src={comment.user 
+                          ? getUrlImages(`/ADM-${comment.user.id}.webp?d=${comment.user.updated_at || ''}`)
+                          : comment.person?.id 
+                            ? getUrlImages(`/OWNER-${comment.person.id}.webp?d=${comment.person.updated_at || ''}`)
+                            : undefined
+                        }
                         w={32}
                         h={32}
                         className={styles.commentAvatar}
@@ -559,7 +579,11 @@ const Reel = () => {
                       <div className={styles.commentContent}>
                         <div className={styles.commentUserInfo}>
                           <span className={styles.commentUserName}>
-                            {getFullName(comment.user) || 'Usuario'}
+                            {comment.user?.name 
+                              ? getFullName(comment.user) 
+                              : comment.person?.name 
+                                ? getFullName(comment.person) 
+                                : 'Usuario'}
                           </span>
                           <time dateTime={comment.created_at} className={styles.commentDate}>
                             {getDateTimeAgo(comment.created_at)}
@@ -588,7 +612,7 @@ const Reel = () => {
                 onClick={handlePostComment}
                 disabled={postingComment || !newCommentText.trim()}
               >
-                {postingComment ? 'Publicando...' : 'Publicar'}
+                {postingComment ? 'Publicando...' : 'Comentar'}
               </button>
                {postCommentError && <p className={styles.commentPostError}>Error al publicar. Intenta de nuevo.</p>}
             </footer>
