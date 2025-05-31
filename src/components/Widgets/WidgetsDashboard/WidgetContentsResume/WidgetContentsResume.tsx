@@ -14,7 +14,7 @@ const WidgetContentsResume = ({ data }: any) => {
   console.log(data, "data desde widget contents resume");
   return (
     <WidgetBase variant={"V1"} title={"Comunidad"}>
-      <div style={{ height: "calc(100vh - 400px)", overflowY: "auto" }}>
+      <div style={{ height: "calc(100vh - 70px)", overflowY: "auto" }}>
         {data?.length > 0 ? (
           data.map((item: any, index: number) => (
             <div key={item.id}>
