@@ -125,7 +125,7 @@ const Users = () => {
         _disabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "El administrador ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
@@ -300,6 +300,7 @@ const Users = () => {
           style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
+          onBlur: onBlurCi,
         },
         list: false,
       },
