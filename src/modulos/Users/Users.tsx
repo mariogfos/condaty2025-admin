@@ -97,6 +97,51 @@ const Users = () => {
     extraData: true,
     // hideActions: { add: true },
   };
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    // No hace la llamada si el campo está vacío o no es un email válido
+    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
+    
+    const { data, error } = await execute(
+      "/users",
+      "GET",
+      {
+        _exist: 1,
+        email: e.target.value, // <- Cambio clave: busca por 'email' en lugar de 'ci'
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data?.data?.length > 0) {
+      const filteredData = data.data[0];
+      props.setItem({
+        ...props.item,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email,
+        phone: filteredData.phone,
+        _disabled: true,
+        _emailDisabled: true
+      });
+      showToast(
+        "El administrador ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
+    } else {
+      // Si no existe, asegúrate de que los campos no estén bloqueados
+      // por una comprobación anterior (como la del CI).
+      if (!props.item._disabled) {
+           props.setItem({
+             ...props.item,
+             _disabled: false,
+             _emailDisabled: false
+           });
+      }
+    }
+  }, []); // Agrega las dependencias del hook
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
@@ -120,9 +165,10 @@ const Users = () => {
         middle_name: filteredData[0].middle_name,
         last_name: filteredData[0].last_name,
         mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
+        email: filteredData[0].email || "",
         phone: filteredData[0].phone,
         _disabled: true,
+        _emailDisabled: true
       });
       showToast(
         "El administrador ya existe en Condaty, se va a vincular al Condominio",
@@ -132,13 +178,18 @@ const Users = () => {
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false
       });
-      //no existe
     }
   }, []);
-  const onDisbled = ({ item }: any) => {
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === 'email') {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -231,7 +282,7 @@ const Users = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre (Opcional)",
+        label: "Segundo nombre",
         form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -245,7 +296,7 @@ const Users = () => {
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno (Opcional)",
+        label: "Apellido materno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -308,7 +359,7 @@ const Users = () => {
       phone: {
         rules: ["number", "phone", "max:16"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           style: { maxWidth: "49%" },
           type: "text",
@@ -318,7 +369,7 @@ const Users = () => {
       address: {
         rules: ["max:100"],
         api: "ae",
-        label: "Dirección (Opcional)",
+        label: "Dirección",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -329,11 +380,9 @@ const Users = () => {
         rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        // form: { type: "text", disabled: true, label: "2222" },
         form: {
-          type: "number",
+          type: "text", // Se recomienda 'text' en lugar de 'number' para emails
           onRender: (props: any) => {
-            // console.log(props,'propsval')
             return (
               <div className={styles.fieldSet}>
                 <div>
@@ -346,11 +395,13 @@ const Users = () => {
                 <div>
                   <Input
                     name="email"
-                    value={props?.item?.email}
+                    value={props?.item?.email || ""}
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
-                    disabled={props?.field?.action === "edit"}
+                    disabled={onDisbled({ item: props?.item, field: { name: 'email' } })}
+                    // Línea que debes agregar/modificar
+                    onBlur={(e) => onBlurEmail(e, props)} 
                   />
                 </div>
               </div>

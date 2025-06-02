@@ -268,7 +268,7 @@ const HomeOwners = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre (opcional)",
+        label: "Segundo nombre",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -282,7 +282,7 @@ const HomeOwners = () => {
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno (opcional)",
+        label: "Apellido materno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
