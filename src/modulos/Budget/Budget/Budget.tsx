@@ -21,7 +21,7 @@ const paramsInitial = {
 
 // --- Funciones de formato y opciones (sin cambios) ---
 const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { M: "Mensual", Q: "Trimestral", B: "Bimestral", Y: "Anual" }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
+    const map: Record<string, string> = { M: "Mensual", Q: "Trimestral", B: "Semestral", Y: "Anual" }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
     return map[periodCode] || periodCode;
 };
 const formatType = (typeCode: string): string => {
@@ -35,7 +35,7 @@ const formatStatus = (statusCode: string): string => {
 };
 const getPeriodOptions = (addDefault = false) => [
     ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
-    { id: "M", name: "Mensual" }, { id: "B", name: "Bimestral" }, { id: "Q", name: "Trimestral" }, { id: "Y", name: "Anual" }
+    { id: "M", name: "Mensual" }, { id: "B", name: "Semestral" }, { id: "Q", name: "Trimestral" }, { id: "Y", name: "Anual" }
 ];
 const getTypeOptions = (addDefault = false) => [
     ...(addDefault ? [{ id: "T", name: "Todos" }] : []),

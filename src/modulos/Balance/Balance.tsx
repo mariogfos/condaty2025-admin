@@ -471,9 +471,8 @@ const BalanceGeneral: React.FC = () => {
                         )}`}
                   </h2>
                   <div className={styles.chartContainer}>
-                    {/* El botón de exportar se mueve debajo, cerca de la leyenda */}
                     <WidgetGrafBalance
-                      saldoInicial={finanzas?.data?.saldoInicial} // Se mantiene para el cálculo interno del gráfico si es necesario
+                      saldoInicial={finanzas?.data?.saldoInicial}
                       ingresos={finanzas?.data?.ingresosHist}
                       egresos={finanzas?.data?.egresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
@@ -524,17 +523,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
 
                   <div className={styles.divider} />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <Button
+                      onClick={exportar}
+                      variant="secondary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                    >
+                      <IconExport size={22} />
+                      Descargar tablas
+                    </Button>
+                  </div>
                   <h2 className={styles.chartSectionTitle}>
                     {`Resumen detallado de los ingresos`}
                   </h2>
@@ -605,17 +607,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
                 </div>
                 <div className={styles.divider} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                  <Button
+                    onClick={exportar}
+                    variant="secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                  >
+                    <IconExport size={22} />
+                    Descargar tablas
+                  </Button>
+                </div>
                 <TableIngresos
                   title="Ingresos"
                   title2="Total"
@@ -661,17 +666,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
                 </div>
                 <div className={styles.divider} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                  <Button
+                    onClick={exportar}
+                    variant="secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                  >
+                    <IconExport size={22} />
+                    Descargar tablas
+                  </Button>
+                </div>
                 <TableEgresos
                   title="Egresos"
                   title2="Total"
