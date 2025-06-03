@@ -174,11 +174,6 @@ const BalanceGeneral: React.FC = () => {
   }, [formStateFilter]);
 
   const ldate = [
-    { id: "T", name: "Todos" },
-    { id: "d", name: "Hoy" },
-    { id: "ld", name: "Ayer" },
-    { id: "w", name: "Esta semana" },
-    { id: "lw", name: "Semana pasada" },
     { id: "m", name: "Este mes" },
     { id: "lm", name: "Mes anterior" },
     { id: "y", name: "Este año" },
@@ -331,11 +326,7 @@ const BalanceGeneral: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <p className={styles.description}>
-        Este es un resumen general de los ingresos, egresos y el saldo a favor,
-        en esta sesión puedes generar reportes financieros de manera mensual o
-        anual filtrado por los datos que selecciones.
-      </p>
+      <h1 className={styles.title}>Flujo de efectivo</h1>
       <div>
         <div className={styles.filterContainer}>
           <div className={styles.filterItem}>
