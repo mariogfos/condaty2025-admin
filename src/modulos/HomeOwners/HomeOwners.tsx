@@ -135,7 +135,8 @@ const HomeOwners = () => {
       "GET",
       {
         _exist: 1,
-        ci: e.target.value,
+        type: "ci",
+        value: e.target.value,
       },
       false,
       true
@@ -165,8 +166,55 @@ const HomeOwners = () => {
       });
     }
   }, []);
+  
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
+    
+    const { data, error } = await execute(
+      "/homeowners",
+      "GET",
+      {
+        _exist: 1,
+        type: "email",
+        value: e.target.value,
+      },
+      false,
+      true
+    );
 
-  const onDisbled = ({ item }: any) => {
+    if (data?.success && data?.data?.length > 0) {
+      const filteredData = data.data[0];
+      props.setItem({
+        ...props.item,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email,
+        phone: filteredData.phone,
+        _disabled: true,
+        _emailDisabled: true
+      });
+      showToast(
+        "El propietario ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
+    } else {
+      if (!props.item._disabled) {
+        props.setItem({
+          ...props.item,
+          _disabled: false,
+          _emailDisabled: false
+        });
+      }
+    }
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === 'email') {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
 
@@ -351,6 +399,7 @@ const HomeOwners = () => {
                     error={props.error}
                     disabled={props?.field?.action === "edit" || onDisbled(props)}
                     required={true}
+                    onBlur={(e) => onBlurEmail(e, props)} 
                   />
                 </div>
               </div>

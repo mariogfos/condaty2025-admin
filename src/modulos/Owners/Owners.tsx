@@ -150,7 +150,8 @@ const Owners = () => {
       "GET",
       {
         _exist: 1,
-        ci: e.target.value,
+        type: "ci",
+        value: e.target.value,
       },
       false,
       true
@@ -181,7 +182,54 @@ const Owners = () => {
     }
   }, []);
 
-  const onDisbled = ({ item }: any) => {
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
+    
+    const { data, error } = await execute(
+      "/owners",
+      "GET",
+      {
+        _exist: 1,
+        type: "email",
+        value: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data?.data?.length > 0) {
+      const filteredData = data.data[0];
+      props.setItem({
+        ...props.item,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email,
+        phone: filteredData.phone,
+        _disabled: true,
+        _emailDisabled: true
+      });
+      showToast(
+        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "warning"
+      );
+    } else {
+      if (!props.item._disabled) {
+        props.setItem({
+          ...props.item,
+          _disabled: false,
+          _emailDisabled: false
+        });
+      }
+    }
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === 'email') {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
   const fields = useMemo(() => {
@@ -197,6 +245,7 @@ const Owners = () => {
           optionsExtra: "dptos",
           optionLabel: "nro",
           optionValue: "dpto_id",
+          required: true,
         },
         list: false, // No se muestra en la lista principal
       },
@@ -280,6 +329,7 @@ const Owners = () => {
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
         list: false,
       },
@@ -287,7 +337,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Segundo nombre (opcional)",
+        label: "Segundo nombre",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -306,6 +356,7 @@ const Owners = () => {
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
         list: false,
       },
@@ -313,7 +364,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Apellido materno (opcional)",
+        label: "Apellido materno",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -344,6 +395,7 @@ const Owners = () => {
           type: "text",
           onBlur: onBlurCi,
           disabled: onDisbled,
+          required: true,
         },
         list: {},
       },
@@ -358,7 +410,7 @@ const Owners = () => {
       phone: {
         rules: ["number", "max:10"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -422,8 +474,9 @@ const Owners = () => {
         label: "Correo electrónico",
         form: {
           type: "email",
-          label: "Cédula de identidad",
+          label: "Correo electrónico",
           disabled: onDisbled,
+          required: true,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
@@ -442,6 +495,8 @@ const Owners = () => {
                     label="Correo electrónico"
                     error={props.error}
                     disabled={props?.field?.action === "edit" || onDisbled(props)}
+                    required={true}
+                    onBlur={(e) => onBlurEmail(e, props)}
                   />
                 </div>
               </div>

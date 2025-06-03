@@ -98,7 +98,7 @@ const Users = () => {
     // hideActions: { add: true },
   };
   const onBlurEmail = useCallback(async (e: any, props: any) => {
-    // No hace la llamada si el campo está vacío o no es un email válido
+   
     if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
     
     const { data, error } = await execute(
@@ -106,7 +106,8 @@ const Users = () => {
       "GET",
       {
         _exist: 1,
-        email: e.target.value, // <- Cambio clave: busca por 'email' en lugar de 'ci'
+        type: "email",
+        value: e.target.value, 
       },
       false,
       true
@@ -150,7 +151,8 @@ const Users = () => {
       "GET",
       {
         _exist: 1,
-        ci: e.target.value,
+        type: "ci",
+        value: e.target.value,
       },
       false,
       true
@@ -203,6 +205,7 @@ const Users = () => {
           optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
           optionLabel: "name", // Muestra el campo 'name' del rol
           optionValue: "id", // Usa el campo 'id' del rol como valor
+          required: true,
         },
 
         // filter: { ... } // Tu configuración de filtro (comentada en tu código)
@@ -275,6 +278,7 @@ const Users = () => {
           type: "text",
           style: { width: "49%" },
           disabled: onDisbled,
+          required: true,
         },
 
         list: false,
@@ -290,7 +294,7 @@ const Users = () => {
         rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: { type: "text", style: { width: "49%" }, disabled: onDisbled ,required: true},
         list: false,
       },
       mother_last_name: {
@@ -352,6 +356,7 @@ const Users = () => {
           type: "text",
           disabled: onDisbled,
           onBlur: onBlurCi,
+          required: true,
         },
         list: false,
       },
@@ -402,6 +407,7 @@ const Users = () => {
                     disabled={onDisbled({ item: props?.item, field: { name: 'email' } })}
                     // Línea que debes agregar/modificar
                     onBlur={(e) => onBlurEmail(e, props)} 
+                    required={true}
                   />
                 </div>
               </div>
