@@ -220,6 +220,7 @@ const HomeOwners = () => {
           style: { width: "49%" },
           label: "Primer nombre",
           disabled: onDisbled,
+          required: true
         },
         onRender: (item: any) => {
           const propietario = item?.item;
@@ -269,21 +270,36 @@ const HomeOwners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: { 
+          type: "text", 
+          style: { width: "49%" }, 
+          disabled: onDisbled,
+          required: false 
+        },
         list: false,
       },
       last_name: {
         rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: { 
+          type: "text", 
+          style: { width: "49%" }, 
+          disabled: onDisbled,
+          required: true 
+        },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: { 
+          type: "text", 
+          style: { width: "49%" }, 
+          disabled: onDisbled,
+          required: false 
+        },
         list: false,
       },
       ci: {
@@ -294,6 +310,7 @@ const HomeOwners = () => {
           type: "number",
           onBlur: onBlurCi,
           disabled: onDisbled,
+          required: true
         },
       },
       email: {
@@ -304,6 +321,7 @@ const HomeOwners = () => {
           type: "email",
           label: "Correo electrónico",
           disabled: onDisbled,
+          required: true,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
@@ -322,6 +340,7 @@ const HomeOwners = () => {
                     label="Correo electrónico"
                     error={props.error}
                     disabled={props?.field?.action === "edit" || onDisbled(props)}
+                    required={true}
                   />
                 </div>
               </div>
