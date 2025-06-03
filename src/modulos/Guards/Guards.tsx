@@ -124,7 +124,7 @@ const Guards = () => {
         _disabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "El guardia ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
