@@ -578,12 +578,14 @@ const BalanceGeneral: React.FC = () => {
               <>
                 <div className={styles.chartContainer}>
                   <div className={styles.chartAndLegendContainer}>
+                 
                     <WidgetGrafIngresos
                       ingresos={finanzas?.data.ingresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
                       h={360}
                       title={" "}
                       subtitle={getPeriodoText(formStateFilter.filter_date)}
+                      periodo={formStateFilter?.filter_date}
                     />
                     <div className={styles.legendAndExportWrapper}>
                       <div className={styles.legendContainer}>
@@ -637,12 +639,14 @@ const BalanceGeneral: React.FC = () => {
               <>
                 <div className={styles.chartContainer}>
                   <div className={styles.chartAndLegendContainer}>
+                 
                     <WidgetGrafEgresos
                       egresos={finanzas?.data.egresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
                       h={360}
                       title={" "}
                       subtitle={getPeriodoText(formStateFilter.filter_date)}
+                      periodo={formStateFilter?.filter_date} 
                     />
                     <div className={styles.legendAndExportWrapper}>
                       <div className={styles.legendContainer}>
