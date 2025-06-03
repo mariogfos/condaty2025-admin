@@ -326,22 +326,37 @@ const handleLike = async (contentId: number) => {
   };
 
   const handleImageNavigation = (contentId: number, direction: 'prev' | 'next') => {
-    setContents(prevContents =>
-      prevContents.map((content: ContentItem) => {
-        if (content.id === contentId && content.images && content.images.length > 1) {
-          let newIndex = content.currentImageIndex || 0;
-          if (direction === 'next') {
-            newIndex = (newIndex + 1) % content.images.length;
-          } else {
-            newIndex = (newIndex - 1 + content.images.length) % content.images.length;
-          }
-          return { ...content, currentImageIndex: newIndex };
-        }
-        return content;
-      })
-    );
+    let updatedItemForModal: any | null = null;
+  
+    // Primero, preparamos la nueva lista de contenidos
+    const newContents = contents.map((content) => {
+      // Buscamos el item que queremos modificar
+      if (content.id === contentId && content.images && content.images.length > 1) {
+        // Calculamos el nuevo índice de la imagen
+        const newIndex = direction === 'next'
+          ? ((content.currentImageIndex || 0) + 1) % content.images.length
+          : ((content.currentImageIndex || 0) - 1 + content.images.length) % content.images.length;
+        
+        // Creamos el item actualizado
+        const updatedContent = { ...content, currentImageIndex: newIndex };
+        
+        // Guardamos este item actualizado para usarlo en el modal después
+        updatedItemForModal = updatedContent;
+        
+        return updatedContent;
+      }
+      return content;
+    });
+  
+    // Actualizamos el estado de la lista principal
+    setContents(newContents);
+  
+    // Si el item que se actualizó es el que está visible en el modal,
+    // actualizamos también el estado del modal.
+    if (selectedContentForModal && updatedItemForModal && selectedContentForModal.id === updatedItemForModal.id) {
+      setSelectedContentForModal(updatedItemForModal);
+    }
   };
-
   const handleOpenContentModal = (contentItem: ContentItem) => {
     setSelectedContentForModal(contentItem);
   };
