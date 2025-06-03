@@ -313,6 +313,16 @@ const HomeOwners = () => {
           required: true
         },
       },
+      phone: {
+        rules: ["phone","max:10"],
+        api: "ae",
+        label: "Teléfono",
+        form: {
+          type: "number",
+          disabled: onDisbled,
+        
+        },
+      },
       email: {
         rules: ["required", "email"],
         api: "ae",
