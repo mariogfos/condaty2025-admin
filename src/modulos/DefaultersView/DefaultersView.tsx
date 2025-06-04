@@ -32,7 +32,9 @@ const DefaultersView = () => {
     { id: "A", name: "Bloque A" },
     { id: "B", name: "Bloque B" },
     { id: "C", name: "Bloque C" },
-  ];
+  ];   
+
+  
 
   const getExpensaOptions = () => [
     { id: "", name: "Todas" },
