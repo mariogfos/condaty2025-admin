@@ -118,6 +118,7 @@ const Users = () => {
 
     if (data?.success && data.data?.data?.id) {
       showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
     }
   }, []); // Agrega las dependencias del hook
@@ -145,6 +146,7 @@ const Users = () => {
         props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
         return;
       }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         ci: filteredData.ci,
@@ -162,6 +164,7 @@ const Users = () => {
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
@@ -189,6 +192,14 @@ const Users = () => {
           disabled: onDisbled,
           onBlur: onBlurCi,
           required: true,
+          onTop: () => (
+            <div style={{ display: "flex" }}>
+              <div style={{ flexGrow: 1 }}>Información de acceso</div>
+              <div>
+                La contraseña sera enviada al correo que indiques en este campo
+              </div>
+            </div>
+          ),
         },
         list: false,
       },
@@ -373,35 +384,39 @@ const Users = () => {
         label: "Correo electrónico",
         form: {
           type: "text", // Se recomienda 'text' en lugar de 'number' para emails
-          onRender: (props: any) => {
-            return (
-              <div className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    La contraseña sera enviada al correo que indiques en este
-                    campo
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="email"
-                    value={props?.item?.email || ""}
-                    onChange={props.onChange}
-                    label="Correo electrónico"
-                    error={props.error}
-                    disabled={onDisbled({
-                      item: props?.item,
-                      field: { name: "email" },
-                    })}
-                    // Línea que debes agregar/modificar
-                    onBlur={(e) => onBlurEmail(e, props)}
-                    required={true}
-                  />
-                </div>
-              </div>
-            );
-          },
+          disabled: onDisbled,
+          onBlur: onBlurEmail,
+
+          // required: true,
+          // onRender: (props: any) => {
+          //   return (
+          //     <div className={styles.fieldSet}>
+          //       <div>
+          //         <div>Información de acceso</div>
+          //         <div>
+          //           La contraseña sera enviada al correo que indiques en este
+          //           campo
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <Input
+          //           name="email"
+          //           value={props?.item?.email || ""}
+          //           onChange={props.onChange}
+          //           label="Correo electrónico"
+          //           error={props.error}
+          //           disabled={onDisbled({
+          //             item: props?.item,
+          //             field: { name: "email" },
+          //           })}
+          //           // Línea que debes agregar/modificar
+          //           onBlur={(e) => onBlurEmail(e, props)}
+          //           required={true}
+          //         />
+          //       </div>
+          //     </div>
+          //   );
+          // },
         },
         list: true,
       },
