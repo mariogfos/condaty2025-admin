@@ -34,6 +34,7 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import EmptyData from "@/components/NoData/EmptyData";
 
 export type ModCrudType = {
   modulo: string;
@@ -1180,8 +1181,13 @@ const useCrud = ({
                   />
                 ) : (
                   <section>
-                    <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                    <p>No existen datos en este momento.</p>
+                    {/* <IconTableEmpty size={180} color="var(--cBlackV2)" />
+                    <p>No existen datos en este momento.</p> */}
+                    {props.onRenderEmpty ? (
+                      props.onRenderEmpty()
+                    ) : (
+                      <EmptyData h={props?.height ?? undefined} />
+                    )}
                   </section>
                 )}
                 <div>

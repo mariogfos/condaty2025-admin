@@ -1,14 +1,27 @@
 .container {
-    color: var(--text-white, #ffffff);
-  }
-  
-  .centered {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .message {
-    margin: 0;
-    padding: 0;
-  }
+  color: var(--cWhite, #ffffff);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.centered {
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+  font-size: var(--sXxl);
+}
+
+.message {
+  margin: 0;
+  padding: 0;
+  margin-top: 12px;
+  font-size: var(--sXl);
+  color: var(--cWhite);
+}
+.line2 {
+  size: var(--sM);
+  color: var(--cWhiteV1);
+}
