@@ -1186,7 +1186,13 @@ const useCrud = ({
                     {props.onRenderEmpty ? (
                       props.onRenderEmpty()
                     ) : (
-                      <EmptyData h={props?.height ?? undefined} />
+                      <EmptyData
+                        h={props?.height ?? undefined}
+                        message={props.emptyMsg ?? undefined}
+                        line2={props.emptyLine2 ?? undefined}
+                        icon={props.emptyIcon ?? undefined}
+                        size={props.emptyIconSize ?? undefined}
+                      />
                     )}
                   </section>
                 )}
