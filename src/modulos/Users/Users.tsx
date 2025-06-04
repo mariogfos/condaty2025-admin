@@ -98,49 +98,27 @@ const Users = () => {
     // hideActions: { add: true },
   };
   const onBlurEmail = useCallback(async (e: any, props: any) => {
-   
-    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
-    
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
     const { data, error } = await execute(
       "/users",
       "GET",
       {
-        _exist: 1,
+        fullType: "EXIST",
         type: "email",
-        value: e.target.value, 
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data[0];
-      props.setItem({
-        ...props.item,
-        ci: filteredData.ci,
-        name: filteredData.name,
-        middle_name: filteredData.middle_name,
-        last_name: filteredData.last_name,
-        mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email,
-        phone: filteredData.phone,
-        _disabled: true,
-        _emailDisabled: true
-      });
-      showToast(
-        "El administrador ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
-      );
-    } else {
-      // Si no existe, asegúrate de que los campos no estén bloqueados
-      // por una comprobación anterior (como la del CI).
-      if (!props.item._disabled) {
-           props.setItem({
-             ...props.item,
-             _disabled: false,
-             _emailDisabled: false
-           });
-      }
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setItem({ ...props.item, email: "" });
     }
   }, []); // Agrega las dependencias del hook
 
@@ -150,27 +128,34 @@ const Users = () => {
       "/users",
       "GET",
       {
-        _exist: 1,
+        fullType: "EXIST",
         type: "ci",
-        value: e.target.value,
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      console.log("exist CI", filteredData);
+      if (filteredData.existCondo) {
+        showToast("El administrador ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email || "",
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
-        _emailDisabled: true
+        _emailDisabled: true,
       });
       showToast(
         "El administrador ya existe en Condaty, se va a vincular al Condominio",
@@ -180,13 +165,13 @@ const Users = () => {
       props.setItem({
         ...props.item,
         _disabled: false,
-        _emailDisabled: false
+        _emailDisabled: false,
       });
     }
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
-    if (field?.name === 'email') {
+    if (field?.name === "email") {
       return item._emailDisabled;
     }
     return item._disabled;
@@ -195,6 +180,18 @@ const Users = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de Identidad",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+          onBlur: onBlurCi,
+          required: true,
+        },
+        list: false,
+      },
       role_id: {
         rules: ["required"], // Reglas para el formulario
         api: "ae", // Se envía a la API al agregar/editar
@@ -294,7 +291,12 @@ const Users = () => {
         rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled ,required: true},
+        form: {
+          type: "text",
+          style: { width: "49%" },
+          disabled: onDisbled,
+          required: true,
+        },
         list: false,
       },
       mother_last_name: {
@@ -346,27 +348,11 @@ const Users = () => {
           },
         },
       },
-
-      ci: {
-        rules: ["required", "ci"],
-        api: "ae",
-        label: "Carnet de Identidad",
-        form: {
-          style: { maxWidth: "49%" },
-          type: "text",
-          disabled: onDisbled,
-          onBlur: onBlurCi,
-          required: true,
-        },
-        list: false,
-      },
-
       phone: {
         rules: ["number", "phone", "max:16"],
         api: "ae",
         label: "Celular",
         form: {
-          style: { maxWidth: "49%" },
           type: "text",
           disabled: onDisbled,
         },
@@ -404,9 +390,12 @@ const Users = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
-                    disabled={onDisbled({ item: props?.item, field: { name: 'email' } })}
+                    disabled={onDisbled({
+                      item: props?.item,
+                      field: { name: "email" },
+                    })}
                     // Línea que debes agregar/modificar
-                    onBlur={(e) => onBlurEmail(e, props)} 
+                    onBlur={(e) => onBlurEmail(e, props)}
                     required={true}
                   />
                 </div>
