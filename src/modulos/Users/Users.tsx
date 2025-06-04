@@ -139,7 +139,6 @@ const Users = () => {
 
     if (data?.success && data.data?.data?.id) {
       const filteredData = data.data.data;
-      console.log("exist CI", filteredData);
       if (filteredData.existCondo) {
         showToast("El administrador ya existe en este Condominio", "warning");
         props.setItem({});

@@ -102,57 +102,23 @@ const Guards = () => {
       "/guards",
       "GET",
       {
-        _exist: 1,
+        fullType: "EXIST",
         type: "ci",
-        value: e.target.value,
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
-      props.setItem({
-        ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
-        _disabled: true,
-      });
-      showToast(
-        "El guardia ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
-      );
-    } else {
-      props.setItem({
-        ...props.item,
-        _disabled: false,
-      });
-      //no existe
-    }
-  }, []);
-
-  const onBlurEmail = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
-    
-    const { data, error } = await execute(
-      "/guards",
-      "GET",
-      {
-        _exist: 1,
-        type: "email",
-        value: e.target.value,
-      },
-      false,
-      true
-    );
-
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data[0];
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El guardia ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         ci: filteredData.ci,
@@ -160,29 +126,53 @@ const Guards = () => {
         middle_name: filteredData.middle_name,
         last_name: filteredData.last_name,
         mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email,
+        email: filteredData.email ?? "",
         phone: filteredData.phone,
         _disabled: true,
         _emailDisabled: true,
-        _ciDisabled: true
       });
       showToast(
         "El guardia ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
-      if (!props.item._disabled) {
-        props.setItem({
-          ...props.item,
-          _disabled: false,
-          _emailDisabled: false
-        });
-      }
+      props.setError({ ci: "" });
+      props.setItem({
+        ...props.item,
+        _disabled: false,
+        _emailDisabled: false,
+      });
+    }
+  }, []);
+
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/guards",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
     }
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
-    if (field?.name === 'email') {
+    if (field?.name === "email") {
       return item._emailDisabled;
     }
     return item._disabled;
@@ -338,7 +328,12 @@ const Guards = () => {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled, required: true },
+        form: {
+          type: "text",
+          style: { width: "49%" },
+          disabled: onDisbled,
+          required: true,
+        },
         list: false,
       },
       mother_last_name: {

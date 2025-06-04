@@ -134,56 +134,23 @@ const HomeOwners = () => {
       "/homeowners",
       "GET",
       {
-        _exist: 1,
+        fullType: "EXIST",
         type: "ci",
-        value: e.target.value,
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
-      props.setItem({
-        ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
-        _disabled: true,
-      });
-      showToast(
-        "El propietario ya existe en Condaty, se va a vincular al Condominio",
-        "warning"
-      );
-    } else {
-      props.setItem({
-        ...props.item,
-        _disabled: false,
-      });
-    }
-  }, []);
-  
-  const onBlurEmail = useCallback(async (e: any, props: any) => {
-    if (e.target.value.trim() == "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) return;
-    
-    const { data, error } = await execute(
-      "/homeowners",
-      "GET",
-      {
-        _exist: 1,
-        type: "email",
-        value: e.target.value,
-      },
-      false,
-      true
-    );
-
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data[0];
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El propietario ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         ci: filteredData.ci,
@@ -191,28 +158,53 @@ const HomeOwners = () => {
         middle_name: filteredData.middle_name,
         last_name: filteredData.last_name,
         mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email,
+        email: filteredData.email ?? "",
         phone: filteredData.phone,
         _disabled: true,
-        _emailDisabled: true
+        _emailDisabled: true,
       });
       showToast(
         "El propietario ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
-      if (!props.item._disabled) {
-        props.setItem({
-          ...props.item,
-          _disabled: false,
-          _emailDisabled: false
-        });
-      }
+      props.setError({ ci: "" });
+      props.setItem({
+        ...props.item,
+        _disabled: false,
+        _emailDisabled: false,
+      });
+    }
+  }, []);
+
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/homeowners",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
     }
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
-    if (field?.name === 'email') {
+    if (field?.name === "email") {
       return item._emailDisabled;
     }
     return item._disabled;
@@ -250,8 +242,15 @@ const HomeOwners = () => {
                   multiSelect={true}
                   error={renderProps.error}
                   required={true}
-                  placeholder={isLoadingOptions ? "Cargando unidades..." : "Selecciona las unidades"}
-                  disabled={(isLoadingOptions && !renderProps?.item?.dptos) || dptosOptions.length === 0}
+                  placeholder={
+                    isLoadingOptions
+                      ? "Cargando unidades..."
+                      : "Selecciona las unidades"
+                  }
+                  disabled={
+                    (isLoadingOptions && !renderProps?.item?.dptos) ||
+                    dptosOptions.length === 0
+                  }
                 />
               </div>
             );
@@ -268,7 +267,7 @@ const HomeOwners = () => {
           style: { width: "49%" },
           label: "Primer nombre",
           disabled: onDisbled,
-          required: true
+          required: true,
         },
         onRender: (item: any) => {
           const propietario = item?.item;
@@ -318,11 +317,11 @@ const HomeOwners = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { 
-          type: "text", 
-          style: { width: "49%" }, 
+        form: {
+          type: "text",
+          style: { width: "49%" },
           disabled: onDisbled,
-          required: false 
+          required: false,
         },
         list: false,
       },
@@ -330,11 +329,11 @@ const HomeOwners = () => {
         rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { 
-          type: "text", 
-          style: { width: "49%" }, 
+        form: {
+          type: "text",
+          style: { width: "49%" },
           disabled: onDisbled,
-          required: true 
+          required: true,
         },
         list: false,
       },
@@ -342,11 +341,11 @@ const HomeOwners = () => {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { 
-          type: "text", 
-          style: { width: "49%" }, 
+        form: {
+          type: "text",
+          style: { width: "49%" },
           disabled: onDisbled,
-          required: false 
+          required: false,
         },
         list: false,
       },
@@ -354,21 +353,20 @@ const HomeOwners = () => {
         rules: ["required", "ci"],
         api: "ae",
         label: "Cédula de identidad",
-        form: { 
+        form: {
           type: "number",
           onBlur: onBlurCi,
           disabled: onDisbled,
-          required: true
+          required: true,
         },
       },
       phone: {
-        rules: ["phone","max:10"],
+        rules: ["phone", "max:10"],
         api: "ae",
         label: "Teléfono",
         form: {
           type: "number",
           disabled: onDisbled,
-        
         },
       },
       email: {
@@ -397,9 +395,11 @@ const HomeOwners = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
-                    disabled={props?.field?.action === "edit" || onDisbled(props)}
+                    disabled={
+                      props?.field?.action === "edit" || onDisbled(props)
+                    }
                     required={true}
-                    onBlur={(e) => onBlurEmail(e, props)} 
+                    onBlur={(e) => onBlurEmail(e, props)}
                   />
                 </div>
               </div>

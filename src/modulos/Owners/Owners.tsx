@@ -154,13 +154,15 @@ const Owners = () => {
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
       if (filteredData.existCondo) {
         showToast("El residente ya existe en este Condominio", "warning");
         props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
         return;
       }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         ci: filteredData.ci,
@@ -168,18 +170,21 @@ const Owners = () => {
         middle_name: filteredData.middle_name,
         last_name: filteredData.last_name,
         mother_last_name: filteredData.mother_last_name,
-        email: filteredData.email,
+        email: filteredData.email ?? "",
         phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
     }
   }, []);
@@ -203,8 +208,9 @@ const Owners = () => {
       true
     );
 
-    if (data?.success) {
+    if (data?.success && data.data?.data?.id) {
       showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
     }
   }, []);
