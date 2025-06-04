@@ -192,14 +192,14 @@ const Users = () => {
           disabled: onDisbled,
           onBlur: onBlurCi,
           required: true,
-          onTop: () => (
-            <div style={{ display: "flex" }}>
-              <div style={{ flexGrow: 1 }}>Información de acceso</div>
-              <div>
-                La contraseña sera enviada al correo que indiques en este campo
-              </div>
-            </div>
-          ),
+          // onTop: () => (
+          //   <div style={{ display: "flex" }}>
+          //     <div style={{ flexGrow: 1 }}>Información de acceso</div>
+          //     <div>
+          //       La contraseña sera enviada al correo que indiques en este campo
+          //     </div>
+          //   </div>
+          // ),
         },
         list: false,
       },
