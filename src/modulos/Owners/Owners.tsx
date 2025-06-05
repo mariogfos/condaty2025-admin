@@ -126,10 +126,7 @@ const Owners = () => {
     renderDel: (props: {
       open: boolean;
       onClose: any;
-      mod: ModCrudType;
       item: Record<string, any>;
-      onConfirm?: Function;
-      extraData?: Record<string, any>;
     }) => {
       return (
         <UnlinkModal
@@ -149,45 +146,96 @@ const Owners = () => {
       "/owners",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El residente ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
   }, []);
 
-  const onDisbled = ({ item }: any) => {
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/owners",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
+    }
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de identidad",
+        form: {
+          type: "text",
+          onBlur: onBlurCi,
+          disabled: onDisbled,
+          required: true,
+        },
+        list: {},
+      },
       dpto: {
         // Campo para seleccionar una única unidad (singular)
         rules: ["required"],
@@ -198,6 +246,7 @@ const Owners = () => {
           optionsExtra: "dptos",
           optionLabel: "nro",
           optionValue: "dpto_id",
+          required: true,
         },
         list: false, // No se muestra en la lista principal
       },
@@ -281,15 +330,15 @@ const Owners = () => {
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
-
         list: false,
       },
       middle_name: {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Segundo nombre (opcional)",
+        label: "Segundo nombre",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -308,6 +357,7 @@ const Owners = () => {
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
         list: false,
       },
@@ -315,7 +365,7 @@ const Owners = () => {
         closeTag: true,
         rules: [""],
         api: "ae",
-        label: "Apellido materno (opcional)",
+        label: "Apellido materno",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -338,16 +388,7 @@ const Owners = () => {
           },
         },
       },
-      ci: {
-        rules: ["required", "ci"],
-        api: "ae",
-        label: "Carnet de identidad",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        list: {},
-      },
+
       // rep_email: {
 
       //   api: "",
@@ -359,7 +400,7 @@ const Owners = () => {
       phone: {
         rules: ["number", "max:10"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           type: "text",
           disabled: onDisbled,
@@ -421,10 +462,11 @@ const Owners = () => {
         rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        // form: { type: "text", disabled: true, label: "2222" },
         form: {
           type: "email",
-          label: "Cédula de identidad",
+          label: "Correo electrónico",
+          disabled: onDisbled,
+          required: true,
           onRender: (props: any) => {
             return (
               <div className={styles.fieldSet}>
@@ -442,13 +484,17 @@ const Owners = () => {
                     onChange={props.onChange}
                     label="Correo electrónico"
                     error={props.error}
+                    disabled={
+                      props?.field?.action === "edit" || onDisbled(props)
+                    }
+                    required={true}
+                    onBlur={(e) => onBlurEmail(e, props)}
                   />
                 </div>
               </div>
             );
           },
         },
-
         list: false,
       },
     };

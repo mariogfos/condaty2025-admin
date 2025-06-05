@@ -1,5 +1,4 @@
 export const MONTHS = [
-  "",
   "Enero",
   "Febrero",
   "Marzo",
@@ -14,7 +13,6 @@ export const MONTHS = [
   "Diciembre",
 ];
 export const MONTHS_S = [
-  "",
   "Ene",
   "Feb",
   "Mar",

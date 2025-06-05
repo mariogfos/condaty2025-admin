@@ -102,41 +102,82 @@ const Guards = () => {
       "/guards",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El guardia ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "El guardia ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
   }, []);
-  const onDisbled = ({ item }: any) => {
+
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/guards",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
+    }
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -243,6 +284,7 @@ const Guards = () => {
                     error={props.error}
                     disabled={props?.field?.action === "edit"}
                     onBlur={(e: any) => onBlurCi(e, props)}
+                    required={true}
                   />
                   {props?.field?.action === "add" && !props.item._disabled && (
                     <InputPassword
@@ -251,6 +293,7 @@ const Guards = () => {
                       onChange={props.onChange}
                       label="Contraseña"
                       error={props.error}
+                      required={true}
                     />
                   )}
                 </div>
@@ -269,6 +312,7 @@ const Guards = () => {
           type: "text",
           style: { width: "49%" },
           disabled: onDisbled,
+          required: true,
         },
 
         list: false,
@@ -276,7 +320,7 @@ const Guards = () => {
       middle_name: {
         rules: [""],
         api: "ae",
-        label: "Segundo nombre (opcional)",
+        label: "Segundo nombre",
         form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -284,13 +328,18 @@ const Guards = () => {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: {
+          type: "text",
+          style: { width: "49%" },
+          disabled: onDisbled,
+          required: true,
+        },
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
-        label: "Apellido materno (opcional)",
+        label: "Apellido materno",
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
@@ -306,8 +355,23 @@ const Guards = () => {
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "text",
+          type: "email",
           disabled: onDisbled,
+          required: true,
+          onRender: (props: any) => {
+            return (
+              <Input
+                name="email"
+                value={props?.item?.email}
+                onChange={props.onChange}
+                label="Correo electrónico"
+                error={props.error}
+                disabled={props?.field?.action === "edit" || onDisbled(props)}
+                required={true}
+                onBlur={(e) => onBlurEmail(e, props)}
+              />
+            );
+          },
         },
         list: false,
       },

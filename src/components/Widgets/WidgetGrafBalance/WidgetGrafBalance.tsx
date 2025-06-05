@@ -48,86 +48,122 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   periodo = "",
 }: PropsType) => {
   const [balance, setBalance] = useState<BalanceData>({
-    inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    inicial: [],
+    ingresos: [],
+    egresos: [],
+    saldos: [],
   });
 
   const [meses, setMeses] = useState<string[]>([]);
 
   useEffect(() => {
-    const lista: BalanceData = {
-      inicial: [saldoInicial || 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // CORRECCIÓN: Si no hay ingresos ni egresos, el gráfico se muestra vacío.
+    if (!ingresos?.length && !egresos?.length) {
+      setMeses([]);
+      setBalance({
+        inicial: [],
+        ingresos: [],
+        egresos: [],
+        saldos: [],
+      });
+      return; // Salir de la función para no hacer más cálculos.
+    }
+
+    const currentSaldoInicial = Number(saldoInicial) || 0;
+
+    const fullYearData = {
+      inicial: Array(12).fill(0),
+      ingresos: Array(12).fill(0),
+      egresos: Array(12).fill(0),
+      saldos: Array(12).fill(0),
     };
 
-    let mesI = -1;
-    let mesF = 13;
-    let lmeses = MONTHS_S.slice(1, 13);
-
-    if (ingresos && ingresos.length > 0) {
-      ingresos.forEach((item) => {
-        if (item.mes > mesI) mesI = item.mes;
-        if (item.mes < mesF) mesF = item.mes;
-
-        lista.ingresos[item.mes - 1] =
-          lista.ingresos[item.mes - 1] + Number(item.ingresos);
-
-        lista.saldos[item.mes - 1] =
-          lista.saldos[item.mes - 1] + Number(item.ingresos);
-      });
-    }
-
-    if (egresos && egresos.length > 0) {
-      egresos.forEach((item) => {
-        if (ingresos && ingresos.length === 0) {
-          if (item.mes > mesI) mesI = item.mes;
-          if (item.mes < mesF) mesF = item.mes;
+    if (ingresos) {
+      ingresos.forEach(item => {
+        if (item.mes >= 1 && item.mes <= 12) {
+          fullYearData.ingresos[item.mes - 1] += Number(item.ingresos);
         }
-        lista.egresos[item.mes - 1] =
-          lista.egresos[item.mes - 1] + Number(item.egresos);
-
-        lista.saldos[item.mes - 1] =
-          lista.saldos[item.mes - 1] - Number(item.egresos);
       });
     }
 
-    let inicial = saldoInicial || 0;
-    lista.saldos.forEach((item, index) => {
-      if (index > 0) inicial = lista.saldos[index - 1];
-      lista.saldos[index] = lista.saldos[index] + inicial;
-      if (index > 0) lista.inicial[index] = lista.saldos[index - 1];
-    });
-
-    lista.saldos.forEach((item, index) => {
-      if (lista.ingresos[index] === 0 && lista.egresos[index] === 0) {
-        lista.saldos[index] = 0;
-        lista.inicial[index] = 0;
-      }
-    });
-
-    if (periodo !== "y" && periodo !== "ly") {
-      if (mesF < 12) {
-        lista.saldos.splice(mesF);
-        lista.inicial.splice(mesF);
-        lista.ingresos.splice(mesF);
-        lista.egresos.splice(mesF);
-        lmeses.splice(mesF);
-      }
-      if (mesI > 0) {
-        lista.saldos.splice(0, mesI - 1);
-        lista.inicial.splice(0, mesI - 1);
-        lista.ingresos.splice(0, mesI - 1);
-        lista.egresos.splice(0, mesI - 1);
-        lmeses.splice(0, mesI - 1);
-      }
+    if (egresos) {
+      egresos.forEach(item => {
+        if (item.mes >= 1 && item.mes <= 12) {
+          fullYearData.egresos[item.mes - 1] += Number(item.egresos);
+        }
+      });
     }
-    console.log("lista", lista);
-    setMeses(lmeses);
-    setBalance(lista);
+
+    let acumulado = currentSaldoInicial;
+    for (let i = 0; i < 12; i++) {
+      fullYearData.inicial[i] = acumulado;
+      fullYearData.saldos[i] = fullYearData.inicial[i] + fullYearData.ingresos[i] - fullYearData.egresos[i];
+      acumulado = fullYearData.saldos[i];
+    }
+    
+    let displayMeses = MONTHS_S.slice(); 
+    let displayBalanceData: BalanceData = { 
+        inicial: [...fullYearData.inicial],
+        ingresos: [...fullYearData.ingresos],
+        egresos: [...fullYearData.egresos],
+        saldos: [...fullYearData.saldos],
+    };
+
+    if (periodo.startsWith("c:")) {
+      const [startDateStr, endDateStr] = periodo.substring(2).split(',');
+      const startDate = new Date(startDateStr + "T00:00:00");
+      const endDate = new Date(endDateStr + "T00:00:00");
+      
+      const startMonthIndex = startDate.getMonth();
+      const endMonthIndex = endDate.getMonth();
+
+      if (startDate.getFullYear() === endDate.getFullYear()) {
+        displayMeses = MONTHS_S.slice(startMonthIndex, endMonthIndex + 1);
+        displayBalanceData = {
+          inicial: fullYearData.inicial.slice(startMonthIndex, endMonthIndex + 1),
+          ingresos: fullYearData.ingresos.slice(startMonthIndex, endMonthIndex + 1),
+          egresos: fullYearData.egresos.slice(startMonthIndex, endMonthIndex + 1),
+          saldos: fullYearData.saldos.slice(startMonthIndex, endMonthIndex + 1),
+        };
+      }
+    } else if (periodo === "m" || periodo === "lm") {
+      const targetDate = new Date();
+      if (periodo === "lm") {
+        targetDate.setMonth(targetDate.getMonth() - 1);
+      }
+      const targetMonthIndex = targetDate.getMonth(); 
+
+      displayMeses = [MONTHS_S[targetMonthIndex]];
+      displayBalanceData = {
+        inicial: [fullYearData.inicial[targetMonthIndex]],
+        ingresos: [fullYearData.ingresos[targetMonthIndex]],
+        egresos: [fullYearData.egresos[targetMonthIndex]],
+        saldos: [fullYearData.saldos[targetMonthIndex]],
+      };
+    } else { // Lógica para 'y', 'ly', o vacío
+        const firstMonthIndex = fullYearData.ingresos.findIndex((val, i) => val > 0 || fullYearData.egresos[i] > 0);
+        const lastMonthIndex = fullYearData.ingresos.findLastIndex((val, i) => val > 0 || fullYearData.egresos[i] > 0);
+
+        if (firstMonthIndex !== -1) {
+            const startIndex = firstMonthIndex;
+            const endIndex = lastMonthIndex !== -1 ? lastMonthIndex : startIndex;
+            displayMeses = MONTHS_S.slice(startIndex, endIndex + 1);
+            displayBalanceData = {
+                inicial: fullYearData.inicial.slice(startIndex, endIndex + 1),
+                ingresos: fullYearData.ingresos.slice(startIndex, endIndex + 1),
+                egresos: fullYearData.egresos.slice(startIndex, endIndex + 1),
+                saldos: fullYearData.saldos.slice(startIndex, endIndex + 1),
+            };
+        } else {
+            // Este caso ahora es manejado por la condición al principio del useEffect
+            displayMeses = [];
+            displayBalanceData = { inicial: [], ingresos: [], egresos: [], saldos: [] };
+        }
+    }
+    
+    setMeses(displayMeses);
+    setBalance(displayBalanceData);
+
   }, [ingresos, egresos, saldoInicial, periodo]);
 
   const today = getNow();
@@ -145,10 +181,10 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         data={{
           labels: meses,
           values: [
-            { name: "Saldo inicial", values: balance?.inicial },
-            { name: "Ingresos", values: balance?.ingresos },
-            { name: "Egresos", values: balance?.egresos },
-            { name: "Saldo Acumulado", values: balance?.saldos },
+            { name: "Saldo inicial", values: balance.inicial },
+            { name: "Ingresos", values: balance.ingresos },
+            { name: "Egresos", values: balance.egresos },
+            { name: "Saldo Acumulado", values: balance.saldos },
           ],
         }}
         chartTypes={chartTypes}

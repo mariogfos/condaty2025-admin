@@ -91,14 +91,13 @@ const LoginView = ({
               />
             </div>
             <div
-            className={styles.forgotPassword}
-            onClick={() => setOpenModal(true)}
-          >
-            Olvidé mi contraseña
-          </div>
+              className={styles.forgotPassword}
+              onClick={() => setOpenModal(true)}
+            >
+              Olvidé mi contraseña
+            </div>
             <Button
               className={styles.button}
-  
             >
               Iniciar sesión
             </Button>
