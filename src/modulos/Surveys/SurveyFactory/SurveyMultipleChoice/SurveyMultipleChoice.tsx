@@ -155,11 +155,12 @@ const SurveyMultipleChoice = ({
               />
             </div>
             <div>
-              <p>Descripción (Opcional)</p>
+              <p>Descripción</p>
               <TextArea
                 value={formStateMultipleChoice.description}
                 onChange={handleChange}
                 name="description"
+                required={false}
                 label="Escribe una descripción"
                 error={errors}
                 isLimit={true}

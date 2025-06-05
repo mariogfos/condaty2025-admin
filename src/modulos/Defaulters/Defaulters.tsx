@@ -45,7 +45,7 @@ const Defaulters = () => {
       phone: {
         rules: ["number"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           type: "text",
         },

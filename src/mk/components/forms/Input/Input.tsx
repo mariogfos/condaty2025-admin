@@ -28,7 +28,7 @@ const Input = (props: PropsType) => {
     onChange = (e) => {},
     value,
     disabled = false,
-    required = false,
+    required = true,
     readOnly = false,
     className = "",
     styleInput = {},
@@ -40,7 +40,7 @@ const Input = (props: PropsType) => {
     min,
     max,
   } = props;
-
+  console.log("propinput", props);
   const [displayValue, setDisplayValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number | null>(null);
@@ -254,7 +254,15 @@ const Input = (props: PropsType) => {
 
   return (
     <ControlLabel
-      {...props}
+      value={value}
+      label={props.label}
+      required={required}
+      name={name}
+      error={props.error}
+      iconLeft={props.iconLeft}
+      iconRight={props.iconRight}
+      style={props.style}
+      styleInput={styleInput}
       className={`${styles.input} ${className} ${
         disabled ? styles.disabled : ""
       }`}

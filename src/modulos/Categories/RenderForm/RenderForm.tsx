@@ -161,9 +161,10 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ""}
             onChange={handleChange}
+            required={true}
             label="Nombre de la categoría"
-            error={errors?.name}
-            required
+            error={errors}
+
             // className={styles.customInput}
           />
           {/* </div> */}
@@ -173,10 +174,12 @@ const CategoryForm = memo(
           {/* <div className={styles.fieldContent}> */}
           <TextArea
             name="description"
-            value={_Item.description || ""}
+            value={_Item.description ?? ""}
             onChange={handleChange}
+            required={false}
             label="Descripción de la nueva categoría"
             error={errors?.description}
+            maxLength={255}
             // className={styles.customTextarea}
           />
           {/* </div>
@@ -220,10 +223,10 @@ const CategoryForm = memo(
               name="category_id"
               label="Categoría Padre"
               options={formattedCategories}
-              value={_Item.category_id || ""}
+              value={_Item.category_id ?? ""}
               onChange={handleChange}
-              error={errors?.category_id}
-              required
+              error={errors}
+              required={true}
               className={styles.customSelect}
             />
             //   </div>

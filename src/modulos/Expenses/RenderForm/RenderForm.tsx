@@ -197,7 +197,7 @@ const RenderForm = ({
       />
 
       <TextArea
-        label="Descripción (Opcional)"
+        label="Descripción"
         name="description"
         value={formState.description}
         onChange={handleChange}

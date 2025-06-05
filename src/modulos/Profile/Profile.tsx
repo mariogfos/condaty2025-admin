@@ -45,12 +45,11 @@ const Profile = () => {
   const [onLogout, setOnLogout] = useState(false);
   const [type, setType] = useState("");
 
-  
   const { setStore } = useAuth();
   useEffect(() => {
     setStore({ title: "PERFIL" });
   }, []);
-  
+
   // Obtenemos la URL del avatar
   const getAvatarUrl = () => {
     // Si hay una vista previa (al subir nueva imagen), usamos esa
@@ -141,8 +140,12 @@ const Profile = () => {
     try {
       const file = e.target.files?.[0];
       if (!file) return;
-      
-      if (!["png", "jpg", "jpeg"].includes(file.name.split('.').pop()?.toLowerCase() || '')) {
+
+      if (
+        !["png", "jpg", "jpeg"].includes(
+          file.name.split(".").pop()?.toLowerCase() || ""
+        )
+      ) {
         showToast("Solo se permiten imágenes png, jpg, jpeg", "error");
         return;
       }
@@ -228,7 +231,6 @@ const Profile = () => {
               <div className={styles.editButton}>
                 <Button
                   className={styles.editProfileButton}
-                  
                   onClick={onEditProfile}
                 >
                   Editar Perfil
@@ -248,9 +250,7 @@ const Profile = () => {
           <div className={styles.formSection}>
             {!editProfile ? (
               <>
-                <div className={styles.sectionTitle}>
-                  Datos Personales
-                </div>
+                <div className={styles.sectionTitle}>Datos Personales</div>
 
                 <div className={styles.infoCard}>
                   <div className={styles.infoLabel}>Nombre completo</div>
@@ -279,21 +279,16 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <div className={styles.sectionTitle}>
-                  Editar Perfil
-                </div>
-                <InputFullName
+                <div className={styles.sectionTitle}>Editar Perfil</div>
+                {/* <InputFullName
                   value={formState}
                   errors={errors}
                   onChange={handleChange}
                   disabled={false}
                   onBlur={validate}
                   name={""}
-                />
-                <Button 
-                  onClick={onSave}
-                  className={styles.saveButton}
-                >
+                /> */}
+                <Button onClick={onSave} className={styles.saveButton}>
                   Guardar Cambios
                 </Button>
               </>
@@ -302,14 +297,15 @@ const Profile = () => {
         </div>
 
         <div className={styles.accessSection}>
-          <div className={styles.sectionTitle}>
-            Datos de Acceso
-          </div>
-          
+          <div className={styles.sectionTitle}>Datos de Acceso</div>
+
           <div className={styles.buttonsContainer}>
             <Button
               onClick={onChangeEmail}
-              style={{ backgroundColor: "var(--cWhiteV2)", color: "var(--cWhiteV1)" }}
+              style={{
+                backgroundColor: "var(--cWhiteV2)",
+                color: "var(--cWhiteV1)",
+              }}
               className={styles.accessButton}
             >
               <IconEmail className={styles.buttonIcon} />
@@ -318,7 +314,10 @@ const Profile = () => {
 
             <Button
               onClick={onChangePassword}
-              style={{ backgroundColor: "var(--cWhiteV2)", color: "var(--cWhiteV1)" }}
+              style={{
+                backgroundColor: "var(--cWhiteV2)",
+                color: "var(--cWhiteV1)",
+              }}
               className={styles.accessButton}
             >
               <IconLook className={styles.buttonIcon} />
@@ -347,10 +346,7 @@ const Profile = () => {
             h={100}
             className={styles.modalAvatar}
           >
-            <label
-              htmlFor="imagePerfil"
-              className={styles.cameraButton}
-            >
+            <label htmlFor="imagePerfil" className={styles.cameraButton}>
               <IconCamera className={styles.cameraIcon} size={16} />
             </label>
           </Avatar>
@@ -364,14 +360,14 @@ const Profile = () => {
           />
 
           <div className={styles.formInput}>
-            <InputFullName
+            {/* <InputFullName
               value={formState}
               name={"full_name"}
               errors={errors}
               onChange={handleChange}
               disabled={false}
               onBlur={validate}
-            />
+            /> */}
           </div>
         </div>
       </DataModal>
