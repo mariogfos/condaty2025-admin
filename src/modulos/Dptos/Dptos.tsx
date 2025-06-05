@@ -35,11 +35,10 @@ const lTitulars = [
 
 const Dptos = () => {
   const router = useRouter();
-  const { user, store } = useAuth();
-  const [typeUnits, setTypeUnits] = useState([]);
+  const { user } = useAuth();
 
-  const client = user.clients.filter(
-    (item: any) => item.id === user.client_id
+  const client = user?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
   )[0];
   useEffect(() => {
     setStore({ UnitsType: UnitsType[client?.type_dpto] });
