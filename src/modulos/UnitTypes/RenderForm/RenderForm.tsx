@@ -178,12 +178,7 @@ const RenderForm = ({
               handleExtraFieldChange(index, "name", e.target.value)
             }
             style={{ flex: 1 }}
-            iconRight={
-              <IconTrash
-                onClick={() => handleRemoveField(index)}
-                style={{ cursor: "pointer" }}
-              />
-            }
+            iconRight={<IconTrash onClick={() => handleRemoveField(index)} />}
           />
 
           {/* <Button
