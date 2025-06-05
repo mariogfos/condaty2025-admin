@@ -24,119 +24,118 @@ interface PropsType extends PropsTypeInputBase {
 }
 
 const Section = ({
+  selectRef1,
+  position,
+  selectOptionsClassName,
+  filter,
+  name,
+  _options,
+  search,
+  onChangeSearch,
+  multiSelect,
+  selectValue,
+  optionValue,
+  optionLabel,
+  handleSelectClickElement,
+  handleSelectMultiClickElement,
+  setOpenOptions,
+  selectRef,
+}: any) => {
+  useOnClickOutside(
     selectRef1,
-    position,
-    selectOptionsClassName,
-    filter,
-    name,
-    _options,
-    search,
-    onChangeSearch,
-    multiSelect,
-    selectValue,
-    optionValue,
-    optionLabel,
-    handleSelectClickElement,
-    handleSelectMultiClickElement,
-    setOpenOptions,
-    selectRef,
-  }: any) => {
-    
-    useOnClickOutside(
-      selectRef1,
-      () => {
-        onChangeSearch({ target: { value: "" } });
-        setOpenOptions(false);
-      },
-      selectRef
-    );
-  
-    return (
-      <section
-        ref={selectRef1}
-        className={`${styles.selectOptions} ${selectOptionsClassName}`}
-        style={{
-          top: `${position?.top || 0}px`,
-          left: `${position?.left || 0}px`,
-          width: `${position?.width || 0}px`,
-        }}
-      >
-        <div className={filter ? "" : "hidden"}>
-          <Input
-            type="text"
-            value={search}
-            onChange={onChangeSearch}
-            name={`search${name}`}
-            placeholder={"Buscar..."}
-          />
-        </div>
-        <ul>
-          {_options.map
-            ? _options.map((option: any, key: any) => (
-                <li
-                  className={
-                    Array.isArray(selectValue)
-                      ? selectValue.includes(option[optionValue])
-                        ? styles["selected"]
-                        : ""
-                      : selectValue === option[optionValue]
+    () => {
+      onChangeSearch({ target: { value: "" } });
+      setOpenOptions(false);
+    },
+    selectRef
+  );
+
+  return (
+    <section
+      ref={selectRef1}
+      className={`${styles.selectOptions} ${selectOptionsClassName}`}
+      style={{
+        top: `${position?.top || 0}px`,
+        left: `${position?.left || 0}px`,
+        width: `${position?.width || 0}px`,
+      }}
+    >
+      <div className={filter ? "" : "hidden"}>
+        <Input
+          type="text"
+          value={search}
+          onChange={onChangeSearch}
+          name={`search${name}`}
+          placeholder={"Buscar..."}
+        />
+      </div>
+      <ul>
+        {_options.map
+          ? _options.map((option: any, key: any) => (
+              <li
+                className={
+                  Array.isArray(selectValue)
+                    ? selectValue.includes(option[optionValue])
                       ? styles["selected"]
                       : ""
-                  }
-                  key={`li${name}${option[optionValue] || key}`}
-                  onClick={
-                    !multiSelect
-                      ? (e) => {
-                          handleSelectClickElement(option[optionValue] || key);
-                          e.stopPropagation();
-                        }
-                      : (e) => {
-                          handleSelectMultiClickElement(
-                            option[optionValue] || key
-                          );
-                          e.stopPropagation();
-                        }
-                  }
-                >
-                  <div style={{ alignItems: "center", gap: "8px" }}>
-                    {option["img"] && (
-                      <Avatar
-                        className={styles.avatar}
-                        name={option[optionLabel] || option.label}
-                        src={option["img"]}
-                        h={32}
-                        w={32}
-                      />
-                    )}
-                    {multiSelect ? (
-                      Array.isArray(selectValue) &&
-                      selectValue.includes(option[optionValue]) ? (
-                        <IconCheckSquare size={18} />
-                      ) : (
-                        <IconCheckOff size={18} />
-                      )
-                    ) : null}
-                    <div style={{ flexGrow: 1, flexBasis: 0 }}>
-                      {option[optionLabel] || option.label}
-                    </div>
-                  </div>
-                </li>
-              ))
-            : Object.keys(_options).map((key) => (
-                <li
-                  key={`li${name}${key}`}
-                  onClick={() =>
-                    handleSelectClickElement(
-                      _options[key][optionValue] || _options[key].label
+                    : selectValue === option[optionValue]
+                    ? styles["selected"]
+                    : ""
+                }
+                key={`li${name}${option[optionValue] || key}`}
+                onClick={
+                  !multiSelect
+                    ? (e) => {
+                        handleSelectClickElement(option[optionValue] || key);
+                        e.stopPropagation();
+                      }
+                    : (e) => {
+                        handleSelectMultiClickElement(
+                          option[optionValue] || key
+                        );
+                        e.stopPropagation();
+                      }
+                }
+              >
+                <div style={{ alignItems: "center", gap: "8px" }}>
+                  {option["img"] && (
+                    <Avatar
+                      className={styles.avatar}
+                      name={option[optionLabel] || option.label}
+                      src={option["img"]}
+                      h={32}
+                      w={32}
+                    />
+                  )}
+                  {multiSelect ? (
+                    Array.isArray(selectValue) &&
+                    selectValue.includes(option[optionValue]) ? (
+                      <IconCheckSquare size={18} />
+                    ) : (
+                      <IconCheckOff size={18} />
                     )
-                  }
-                >
-                  {_options[key][optionValue] || _options[key].label}
-                </li>
-              ))}
-        </ul>
-      </section>
-    );
+                  ) : null}
+                  <div style={{ flexGrow: 1, flexBasis: 0 }}>
+                    {option[optionLabel] || option.label}
+                  </div>
+                </div>
+              </li>
+            ))
+          : Object.keys(_options).map((key) => (
+              <li
+                key={`li${name}${key}`}
+                onClick={() =>
+                  handleSelectClickElement(
+                    _options[key][optionValue] || _options[key].label
+                  )
+                }
+              >
+                {_options[key][optionValue] || _options[key].label}
+              </li>
+            ))}
+      </ul>
+    </section>
+  );
 };
 
 const Select = ({
@@ -152,7 +151,7 @@ const Select = ({
   optionValue = "id",
   readOnly = false,
   disabled = false,
-  required = false,
+  required = true,
   placeholder = "",
   label = "",
   inputStyle = {},
@@ -272,7 +271,7 @@ const Select = ({
   }, [value, selectValue, multiSelect, options, optionLabel, optionValue]);
 
   if (!options) return null;
-  
+
   let valueText: any = "";
   if (readOnly) {
     if (options.filter) {
@@ -308,11 +307,15 @@ const Select = ({
     e.stopPropagation();
     setOpenOptions((old: boolean) => !old);
   };
-  
-  const normalizeText = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+
+  const normalizeText = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
 
   const filteredOptions = options.filter((option: any) => {
-    const label = option[optionLabel] || option.label || '';
+    const label = option[optionLabel] || option.label || "";
     return normalizeText(String(label)).includes(normalizeText(search));
   });
 
@@ -349,25 +352,25 @@ const Select = ({
       </div>
       {openOptions &&
         createPortal(
-            <Section
-                selectRef1={selectRef1}
-                position={position}
-                selectOptionsClassName={selectOptionsClassName}
-                filter={filter}
-                name={name}
-                _options={filteredOptions}
-                search={search}
-                onChangeSearch={(e: any) => setSearch(e.target.value)}
-                multiSelect={multiSelect}
-                selectValue={selectValue}
-                optionValue={optionValue}
-                optionLabel={optionLabel}
-                handleSelectClickElement={handleSelectClickElement}
-                handleSelectMultiClickElement={handleSelectMultiClickElement}
-                setOpenOptions={setOpenOptions}
-                selectRef={selectRef}
-            />,
-            document.getElementById("portal-root") as any
+          <Section
+            selectRef1={selectRef1}
+            position={position}
+            selectOptionsClassName={selectOptionsClassName}
+            filter={filter}
+            name={name}
+            _options={filteredOptions}
+            search={search}
+            onChangeSearch={(e: any) => setSearch(e.target.value)}
+            multiSelect={multiSelect}
+            selectValue={selectValue}
+            optionValue={optionValue}
+            optionLabel={optionLabel}
+            handleSelectClickElement={handleSelectClickElement}
+            handleSelectMultiClickElement={handleSelectMultiClickElement}
+            setOpenOptions={setOpenOptions}
+            selectRef={selectRef}
+          />,
+          document.getElementById("portal-root") as any
         )}
     </div>
   );
