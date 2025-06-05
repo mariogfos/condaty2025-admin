@@ -211,7 +211,11 @@ const Notifications = () => {
   return (
     <div className={styles.notificationsContainer}>
       <h1 className={styles.title}>Notificaciones</h1>
-      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      <List
+        height={"calc(100vh - 300px)"}
+        onTabletRow={renderItem}
+        onRowClick={handleRowClick}
+      />
     </div>
   );
 };
