@@ -53,9 +53,9 @@ const WidgetGraphResume = ({
     //   lista.saldos[item.mes - 1] =
     //     lista.saldos[item.mes - 1] + Number(item.expensa) + Number(item.multa);
     // });
-    let mesI = -1;
-    let mesF = 13;
-    let lmeses = MONTHS_S.slice(1, 13);
+    let mesI = 0;
+    let mesF = 12;
+    let lmeses = MONTHS_S.slice(0, 12);
     ingresos?.map((item) => {
       if (item.mes > mesI) mesI = item.mes;
       if (item.mes < mesF) mesF = item.mes;
