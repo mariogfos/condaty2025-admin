@@ -33,9 +33,7 @@ const IconEdit = ({ size = 20 }) => (
 ); // O usa '📝' o texto '[Editar]'
 const IconDelete = ({ size = 20 }) => (
   <span style={{ fontSize: `${size}px`, cursor: "pointer" }}>🗑️</span>
-); // O usa '❌' o texto '[Eliminar]'
-// ¡Recuerda reemplazar esto con tus iconos reales!
-// --- FIN Placeholder ---
+);
 
 const RenderForm = ({
   open,
@@ -151,11 +149,7 @@ const RenderForm = ({
     let err = {};
     if (!_formState.date_at) err.date_at = "Este campo es requerido";
     if (!_formState.category_id) err.category_id = "Este campo es requerido";
-    if (
-      _formState.category_id &&
-      filteredSubcategories.length > 0 &&
-      !_formState.subcategory_id
-    ) {
+    if (_formState.category_id && !_formState.subcategory_id) {
       err.subcategory_id = "Este campo es requerido";
     }
     if (!_formState.description) err.description = "Este campo es requerido";
@@ -207,7 +201,6 @@ const RenderForm = ({
     };
 
     try {
-      console.log("Enviando datos:", params);
       const { data, error } = await execute("/expenses", "POST", params);
 
       if (data?.success) {
@@ -231,7 +224,6 @@ const RenderForm = ({
         }
       }
     } catch (err) {
-      console.error("Error en _onSaveEgreso:", err);
       showToast("Error inesperado al guardar el egreso", "error");
       set_Errors((prev) => ({
         ...prev,
@@ -269,8 +261,6 @@ const RenderForm = ({
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
   ];
-
-  const hasSubcategories = filteredSubcategories.length > 0;
 
   return (
     <>
@@ -325,19 +315,15 @@ const RenderForm = ({
                   <Select
                     name="subcategory_id"
                     value={_formState.subcategory_id || ""}
-                    placeholder={
-                      hasSubcategories
-                        ? "Seleccionar subcategoría"
-                        : "No hay subcategorías"
-                    }
+                    // placeholder={"Seleccionar subcategoría"}
                     label="Subcategoría"
                     onChange={handleChangeInput}
                     options={filteredSubcategories}
                     error={_errors}
-                    required={hasSubcategories}
+                    required={true}
                     optionLabel="name"
                     optionValue="id"
-                    disabled={!_formState.category_id || !hasSubcategories}
+                    disabled={!_formState.category_id}
                     className={_errors.subcategory_id ? styles.error : ""}
                   />
                 </div>
