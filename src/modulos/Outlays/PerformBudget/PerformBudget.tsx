@@ -17,14 +17,9 @@ interface Props {
   open: boolean;
   onClose: () => void;
   reLoad: any;
-  //   onSave: () => void;
 }
 const PerformBudget = ({ open, onClose, reLoad }: Props) => {
-  // const [formState, setFormState]: any = useState({
-  //   selected: [],
-  // });
   const [formState, setFormState]: any = useState([]);
-  // const [errors, setErrors] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const { showToast } = useAuth();
   const [item, setItem]: any = useState(null);
@@ -94,15 +89,6 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
       return;
     }
     setOpenModal(true);
-    // setFormState((prevState: any) => {
-    //   const isSelected = prevState.selected.includes(id);
-    //   return {
-    //     ...prevState,
-    //     selected: isSelected
-    //       ? prevState.selected.filter((itemId: any) => itemId !== id)
-    //       : [...prevState.selected, id],
-    //   };
-    // });
   };
   const onEdit = (item: any) => {
     setItem({ ...item, action: "edit" });
@@ -194,40 +180,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
         onSave={onSave}
       >
         <Table data={approvedBudgets} header={header} />
-        {/* {formState.length > 0 && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 8,
-              gap: 8,
-              display: "flex",
-            }}
-          >
-            {formState?.map((f: any, i: number) => {
-              return (
-                <div
-                  key={i}
-                  style={{
-                    marginBottom: 8,
-                    padding: 8,
-                    border: "1px solid #ccc",
-                    borderRadius: 4,
 
-                    // flexDirection: "column",
-                  }}
-                >
-                  <p>
-                    {
-                      approvedBudgets?.find((d: any) => d?.id === f?.budget_id)
-                        .name
-                    }{" "}
-                    - Bs {formatNumber(f?.amount, 0)}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        )} */}
         <div
           style={{
             padding: 8,
@@ -237,10 +190,6 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
             justifyContent: "space-between",
           }}
         >
-          <p style={{}}>
-            {/*  Subtotal: Bs{" "}
-            {formatNumber(calculateTotal() - calculateTotalPagado(), 0)} */}
-          </p>
           <p>Por pagar: {formatNumber(calculateTotalPagado(), 0)}</p>
         </div>
       </DataModal>
