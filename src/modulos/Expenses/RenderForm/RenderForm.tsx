@@ -201,6 +201,7 @@ const RenderForm = ({
         name="description"
         value={formState.description}
         onChange={handleChange}
+        maxLength={255}
         // type="textarea"
         error={errors.description}
       />

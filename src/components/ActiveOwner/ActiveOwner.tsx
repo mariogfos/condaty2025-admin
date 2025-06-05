@@ -33,7 +33,7 @@ const ActiveOwner = ({
     "/dptos",
     "GET",
     {
-      fullType: "L",
+      fullType: "PR",
     },
     true
   );
