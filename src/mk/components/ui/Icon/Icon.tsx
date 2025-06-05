@@ -41,10 +41,10 @@ export const IconWrap = ({
         " " +
         className +
         (circle ? " " + styles["circle"] : "") +
-        (responsive ? " " + styles["responsive"] : "")+
-        (square? " " + styles["square"] : "") 
+        (responsive ? " " + styles["responsive"] : "") +
+        (square ? " " + styles["square"] : "")
       }
-      style={style}
+      style={{ ...style, ...(onClick ? { cursor: "pointer" } : {}) }}
       fill={reverse ? fillStroke : color}
       stroke={reverse ? color : fillStroke}
       onClick={onClick}
