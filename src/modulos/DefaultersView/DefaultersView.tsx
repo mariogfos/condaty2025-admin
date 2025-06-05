@@ -305,9 +305,6 @@ const DefaultersView = () => {
           </section>
         </div>
         <div className={styles.graphPanel}>
-          {/* {   !extraData?.porCobrarMulta && !extraData?.porCobrarExpensa && (
-            <div>ASAS</div>
-          )} */}
           <GraphBase
             data={{
               labels: ["Expensas", "Multas"],
