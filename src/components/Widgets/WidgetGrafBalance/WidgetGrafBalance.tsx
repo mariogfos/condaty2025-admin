@@ -48,15 +48,27 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   periodo = "",
 }: PropsType) => {
   const [balance, setBalance] = useState<BalanceData>({
-    inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ingresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    egresos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    saldos: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    inicial: [],
+    ingresos: [],
+    egresos: [],
+    saldos: [],
   });
 
   const [meses, setMeses] = useState<string[]>([]);
 
   useEffect(() => {
+    // CORRECCIÓN: Si no hay ingresos ni egresos, el gráfico se muestra vacío.
+    if (!ingresos?.length && !egresos?.length) {
+      setMeses([]);
+      setBalance({
+        inicial: [],
+        ingresos: [],
+        egresos: [],
+        saldos: [],
+      });
+      return; // Salir de la función para no hacer más cálculos.
+    }
+
     const currentSaldoInicial = Number(saldoInicial) || 0;
 
     const fullYearData = {
@@ -90,7 +102,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
     }
     
     let displayMeses = MONTHS_S.slice(); 
-    let displayBalanceData = { 
+    let displayBalanceData: BalanceData = { 
         inicial: [...fullYearData.inicial],
         ingresos: [...fullYearData.ingresos],
         egresos: [...fullYearData.egresos],
@@ -99,16 +111,13 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
 
     if (periodo.startsWith("c:")) {
       const [startDateStr, endDateStr] = periodo.substring(2).split(',');
-      const startDate = new Date(startDateStr + "T00:00:00"); // Asegurar zona horaria local
-      const endDate = new Date(endDateStr + "T00:00:00");   // Asegurar zona horaria local
+      const startDate = new Date(startDateStr + "T00:00:00");
+      const endDate = new Date(endDateStr + "T00:00:00");
       
-      const startMonthIndex = startDate.getMonth(); // 0-11
-      const endMonthIndex = endDate.getMonth();   // 0-11
+      const startMonthIndex = startDate.getMonth();
+      const endMonthIndex = endDate.getMonth();
 
-      // Asumiendo que el rango personalizado es dentro del mismo año o los datos de backend ya están filtrados por año.
-      // MONTHS_S es para un solo año.
-      // La lógica aquí es para mostrar todos los meses desde el mes de inicio hasta el mes de fin del rango.
-      if (startDate.getFullYear() === endDate.getFullYear()) { // Rango dentro del mismo año
+      if (startDate.getFullYear() === endDate.getFullYear()) {
         displayMeses = MONTHS_S.slice(startMonthIndex, endMonthIndex + 1);
         displayBalanceData = {
           inicial: fullYearData.inicial.slice(startMonthIndex, endMonthIndex + 1),
@@ -116,43 +125,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           egresos: fullYearData.egresos.slice(startMonthIndex, endMonthIndex + 1),
           saldos: fullYearData.saldos.slice(startMonthIndex, endMonthIndex + 1),
         };
-      } else {
-        // Para rangos que cruzan años, esta lógica necesitaría ser más compleja o 
-        // depender de que el backend devuelva datos con año y mes.
-        // Por ahora, si cruza años, se mostrarán todos los meses como fallback,
-        // lo cual es el comportamiento de 'y' o 'ly' si no se aplica otro filtro.
-        // Si tu backend ya filtra los `ingresos` y `egresos` para el rango exacto (incluyendo año),
-        // entonces los datos en `fullYearData` ya serían correctos para el primer año del rango.
-        // Esta parte es compleja sin saber cómo el backend maneja rangos multianuales y si `ingresos`/`egresos` props
-        // contienen datos para esos múltiples años.
-        // Por simplicidad y basado en el JSON de ejemplo (que solo tiene 'mes'), se asume que el rango es manejado
-        // principalmente para un solo año o el backend ya da los datos agregados correctamente por 'mes' del periodo.
-        // Si el rango personalizado SIEMPRE es dentro de un solo año o el backend ya lo maneja,
-        // la lógica de arriba para el mismo año es la que aplica.
-        // Si el backend devuelve datos para Mayo y Junio (mes: 5, mes: 6) para un filtro personalizado,
-        // entonces los datos deben ser para esos meses.
-        // La clave es que `displayMeses` y los datos en `displayBalanceData` tengan la misma longitud y correspondan.
-
-        // Si los datos del backend ya vienen filtrados solo con los meses del rango personalizado:
-        const dataMonths = new Set<number>();
-        if(ingresos) ingresos.forEach(i => dataMonths.add(i.mes -1));
-        if(egresos) egresos.forEach(e => dataMonths.add(e.mes -1));
-        const sortedDataMonths = Array.from(dataMonths).sort((a,b)=> a-b);
-
-        if(sortedDataMonths.length > 0) {
-            displayMeses = sortedDataMonths.map(mIdx => MONTHS_S[mIdx]);
-            displayBalanceData = {
-                inicial: sortedDataMonths.map(mIdx => fullYearData.inicial[mIdx]),
-                ingresos: sortedDataMonths.map(mIdx => fullYearData.ingresos[mIdx]),
-                egresos: sortedDataMonths.map(mIdx => fullYearData.egresos[mIdx]),
-                saldos: sortedDataMonths.map(mIdx => fullYearData.saldos[mIdx]),
-            };
-        } else {
-             displayMeses = [];
-             displayBalanceData = { inicial:[], ingresos:[], egresos:[], saldos:[]};
-        }
       }
-
     } else if (periodo === "m" || periodo === "lm") {
       const targetDate = new Date();
       if (periodo === "lm") {
@@ -167,8 +140,26 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         egresos: [fullYearData.egresos[targetMonthIndex]],
         saldos: [fullYearData.saldos[targetMonthIndex]],
       };
+    } else { // Lógica para 'y', 'ly', o vacío
+        const firstMonthIndex = fullYearData.ingresos.findIndex((val, i) => val > 0 || fullYearData.egresos[i] > 0);
+        const lastMonthIndex = fullYearData.ingresos.findLastIndex((val, i) => val > 0 || fullYearData.egresos[i] > 0);
+
+        if (firstMonthIndex !== -1) {
+            const startIndex = firstMonthIndex;
+            const endIndex = lastMonthIndex !== -1 ? lastMonthIndex : startIndex;
+            displayMeses = MONTHS_S.slice(startIndex, endIndex + 1);
+            displayBalanceData = {
+                inicial: fullYearData.inicial.slice(startIndex, endIndex + 1),
+                ingresos: fullYearData.ingresos.slice(startIndex, endIndex + 1),
+                egresos: fullYearData.egresos.slice(startIndex, endIndex + 1),
+                saldos: fullYearData.saldos.slice(startIndex, endIndex + 1),
+            };
+        } else {
+            // Este caso ahora es manejado por la condición al principio del useEffect
+            displayMeses = [];
+            displayBalanceData = { inicial: [], ingresos: [], egresos: [], saldos: [] };
+        }
     }
-    // Para 'y' y 'ly', displayMeses y displayBalanceData ya tienen por defecto los datos del año completo.
     
     setMeses(displayMeses);
     setBalance(displayBalanceData);
@@ -190,10 +181,10 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         data={{
           labels: meses,
           values: [
-            { name: "Saldo inicial", values: balance?.inicial },
-            { name: "Ingresos", values: balance?.ingresos },
-            { name: "Egresos", values: balance?.egresos },
-            { name: "Saldo Acumulado", values: balance?.saldos },
+            { name: "Saldo inicial", values: balance.inicial },
+            { name: "Ingresos", values: balance.ingresos },
+            { name: "Egresos", values: balance.egresos },
+            { name: "Saldo Acumulado", values: balance.saldos },
           ],
         }}
         chartTypes={chartTypes}

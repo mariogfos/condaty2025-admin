@@ -32,7 +32,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
 
   const { execute } = useAxios();
   const getApprovedBudgets = async () => {
-    const { data } = await execute("/budgets", "GET", {
+    const { data } = await execute("/approved-budgets", "GET", {
       fullType: "A",
       page: 1,
       perPage: -1,
@@ -238,7 +238,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
           }}
         >
           <p style={{}}>
-           {/*  Subtotal: Bs{" "}
+            {/*  Subtotal: Bs{" "}
             {formatNumber(calculateTotal() - calculateTotalPagado(), 0)} */}
           </p>
           <p>Por pagar: {formatNumber(calculateTotalPagado(), 0)}</p>

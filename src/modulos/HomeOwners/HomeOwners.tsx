@@ -484,7 +484,7 @@ const HomeOwners = () => {
         style={{ width: "280px" }}
       />
 
-      <List />
+      <List height={"calc(100vh - 390px)"} />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}

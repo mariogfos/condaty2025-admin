@@ -360,7 +360,7 @@ const Alerts = () => {
         </div>
       </div>
 
-      <List />
+      <List height={"calc(100vh - 440px)"} />
     </div>
   );
 };

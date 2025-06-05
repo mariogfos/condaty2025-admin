@@ -590,7 +590,7 @@ const Owners = () => {
           }
         />
       </div>
-      <List />
+      <List height={"calc(100vh - 390px)"} />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}

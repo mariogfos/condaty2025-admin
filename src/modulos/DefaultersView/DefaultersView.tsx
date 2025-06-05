@@ -32,9 +32,7 @@ const DefaultersView = () => {
     { id: "A", name: "Bloque A" },
     { id: "B", name: "Bloque B" },
     { id: "C", name: "Bloque C" },
-  ];   
-
-  
+  ];
 
   const getExpensaOptions = () => [
     { id: "", name: "Todas" },
@@ -412,7 +410,7 @@ const DefaultersView = () => {
         />
 
         <div className={styles.listContainer}>
-          <List renderRight={renderRightPanel} />
+          <List height={"calc(100vh - 420px)"} renderRight={renderRightPanel} />
         </div>
       </div>
     </LoadingScreen>

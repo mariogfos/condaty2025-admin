@@ -462,7 +462,7 @@ const Guards = () => {
           // className={styles.widgetResumeCard}
         />
       </div>
-      <List onTabletRow={renderItem} />
+      <List onTabletRow={renderItem} height={"calc(100vh - 390px)"} />
     </div>
   );
 };
