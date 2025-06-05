@@ -110,7 +110,7 @@ const Defaulters = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
-      <List onTabletRow={renderItem} />
+      <List height={"calc(100vh - 460px)"} onTabletRow={renderItem} />
     </div>
   );
 };

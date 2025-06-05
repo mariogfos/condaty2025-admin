@@ -452,7 +452,11 @@ const Dptos = () => {
         })}
       </div>
 
-      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      <List
+        onTabletRow={renderItem}
+        height={"calc(100vh - 390px)"}
+        onRowClick={handleRowClick}
+      />
       {openImport && (
         <ImportDataModal
           open={openImport}

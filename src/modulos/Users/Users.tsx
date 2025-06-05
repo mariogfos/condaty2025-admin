@@ -494,7 +494,7 @@ const Users = () => {
         // className={styles.widgetResumeCard}
       />
 
-      <List onTabletRow={renderItem} />
+      <List height={"calc(100vh - 390px)"} onTabletRow={renderItem} />
     </div>
   );
 };
