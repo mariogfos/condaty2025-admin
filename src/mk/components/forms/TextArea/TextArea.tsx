@@ -21,7 +21,7 @@ const TextArea = ({
     onChange = (e) => {},
     value = "",
     disabled = false,
-    required = false,
+    required = true,
     className = "",
     style = {},
     onBlur = () => {},
