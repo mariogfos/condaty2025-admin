@@ -355,23 +355,24 @@ const Guards = () => {
         api: "ae",
         label: "Correo electrónico",
         form: {
-          type: "email",
+          type: "text",
           disabled: onDisbled,
           required: true,
-          onRender: (props: any) => {
-            return (
-              <Input
-                name="email"
-                value={props?.item?.email}
-                onChange={props.onChange}
-                label="Correo electrónico"
-                error={props.error}
-                disabled={props?.field?.action === "edit" || onDisbled(props)}
-                required={true}
-                onBlur={(e) => onBlurEmail(e, props)}
-              />
-            );
-          },
+          onBlur: onBlurEmail,
+          // onRender: (props: any) => {
+          //   return (
+          //     <Input
+          //       name="email"
+          //       value={props?.item?.email}
+          //       onChange={props.onChange}
+          //       label="Correo electrónico"
+          //       error={props.error}
+          //       disabled={props?.field?.action === "edit" || onDisbled(props)}
+          //       required={true}
+          //       onBlur={(e) => onBlurEmail(e, props)}
+          //     />
+          //   );
+          // },
         },
         list: false,
       },

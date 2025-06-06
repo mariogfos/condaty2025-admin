@@ -606,6 +606,7 @@ const useCrud = ({
         onChange: onChangeForm,
         onBlur: onBlurForm,
         error: errorForm,
+        setError: setErrorForm,
         setItem: setFormStateForm,
         extraData: extraData,
       });

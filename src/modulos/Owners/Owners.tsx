@@ -209,6 +209,7 @@ const Owners = () => {
     );
 
     if (data?.success && data.data?.data?.id) {
+      console.log("email", props);
       showToast("El email ya esta en uso", "warning");
       props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
@@ -463,37 +464,38 @@ const Owners = () => {
         api: "a",
         label: "Correo electrónico",
         form: {
-          type: "email",
+          type: "text",
           label: "Correo electrónico",
           disabled: onDisbled,
           required: true,
-          onRender: (props: any) => {
-            return (
-              <div className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    La contraseña sera enviada al correo que indiques en este
-                    campo
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="email"
-                    value={props?.item?.email}
-                    onChange={props.onChange}
-                    label="Correo electrónico"
-                    error={props.error}
-                    disabled={
-                      props?.field?.action === "edit" || onDisbled(props)
-                    }
-                    required={true}
-                    onBlur={(e) => onBlurEmail(e, props)}
-                  />
-                </div>
-              </div>
-            );
-          },
+          onBlur: onBlurEmail,
+          // onRender: (props: any) => {
+          //   return (
+          //     <div className={styles.fieldSet}>
+          //       <div>
+          //         <div>Información de acceso</div>
+          //         <div>
+          //           La contraseña sera enviada al correo que indiques en este
+          //           campo
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <Input
+          //           name="email"
+          //           value={props?.item?.email}
+          //           onChange={props.onChange}
+          //           label="Correo electrónico"
+          //           error={props.error}
+          //           disabled={
+          //             props?.field?.action === "edit" || onDisbled(props)
+          //           }
+          //           required={true}
+          //           onBlur={(e) => onBlurEmail(e, props)}
+          //         />
+          //       </div>
+          //     </div>
+          //   );
+          // },
         },
         list: false,
       },

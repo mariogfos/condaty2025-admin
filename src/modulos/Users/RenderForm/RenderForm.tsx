@@ -90,11 +90,12 @@ const RenderForm = ({
       return;
     }
     const { data: response } = await execute(
-      "/adm-exist",
+      "/users",
       "GET",
       {
         searchBy: formState.email,
         type: "email",
+        fullType: "EXIST",
         cols: "id",
       },
       false,
