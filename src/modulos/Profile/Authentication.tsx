@@ -188,7 +188,7 @@ const Authentication = ({
     });
     setIsDisabled(false);
     setOldEmail(formState.newEmail);
-    if (response?.data != null && response?.data.email !== user.email) {
+    if (response?.data?.data?.id) {
       setIsDisabled(true);
       setErrors({ newEmail: "El email ya existe" });
       return;
