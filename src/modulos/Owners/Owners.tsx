@@ -234,7 +234,7 @@ const Owners = () => {
           disabled: onDisbled,
           required: true,
         },
-        list: {},
+        list: false,
       },
       dpto: {
         // Campo para seleccionar una única unidad (singular)
