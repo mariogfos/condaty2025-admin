@@ -28,7 +28,6 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   const { execute } = useAxios();
   const getApprovedBudgets = async () => {
     const { data } = await execute("/approved-budgets", "GET", {
-      fullType: "A",
       page: 1,
       perPage: -1,
     });
