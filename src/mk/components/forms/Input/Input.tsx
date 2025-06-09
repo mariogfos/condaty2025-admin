@@ -40,7 +40,6 @@ const Input = (props: PropsType) => {
     min,
     max,
   } = props;
-  console.log("propinput", props);
   const [displayValue, setDisplayValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number | null>(null);

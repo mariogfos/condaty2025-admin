@@ -1204,11 +1204,11 @@ const useCrud = ({
                     setParams={setParams}
                     params={params}
                     totalPages={Math.ceil(
-                      (data?.message?.total || 1) / (params.perPage || 1)
+                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
                     )}
                     previousLabel=""
                     nextLabel=""
-                    total={data?.message?.total || 0}
+                    total={data?.message?.total ?? 0}
                   />
                 </div>
               </section>

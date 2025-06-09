@@ -33,6 +33,7 @@ const Pagination = ({
 
   // Asegurar que totalPages sea siempre al menos 1
   const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
+  console.log("total", totalPages, safeTotal);
 
   // Actualizar el input cuando cambia la página actual
   useEffect(() => {
@@ -105,38 +106,50 @@ const Pagination = ({
     }
   };
 
-  if (safeTotal === 1) {
+  // if (safeTotal === 1) {
+  //   return null;
+  // }
+  if (total == 0) {
     return null;
   }
   return (
     <div className={`${styles.pagination} ${className}`}>
-      {/* Texto informativo a la izquierda */}
-      <div className={styles.paginationInfo}>
-        <span className={styles.currentPageInfo}>
-          <button className={styles.goToPageButton} onClick={() => goToPage(1)}>
-            ir a la página 1
-          </button>
-        </span>
-      </div>
+      {totalPages > 1 ? (
+        <>
+          {/* Texto informativo a la izquierda */}
+          <div className={styles.paginationInfo}>
+            <span className={styles.currentPageInfo}>
+              <button
+                className={styles.goToPageButton}
+                onClick={() => goToPage(1)}
+              >
+                ir a la página 1
+              </button>
+            </span>
+          </div>
 
-      {/* Botones de navegación en el centro */}
-      <div className={styles.navigationButtons}>
-        <button
-          className={styles.navButton}
-          onClick={goToPreviousPage}
-          disabled={currentPage <= 1}
-        >
-          <IconArrowBack size={16} color="var(--cWhite)" />
-        </button>
-        <button
-          className={styles.nextButton}
-          onClick={goToNextPage}
-          disabled={currentPage >= safeTotal}
-        >
-          Pagina Siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
-        </button>
-      </div>
-
+          {/* Botones de navegación en el centro */}
+          <div className={styles.navigationButtons}>
+            <button
+              className={styles.navButton}
+              onClick={goToPreviousPage}
+              disabled={currentPage <= 1}
+            >
+              <IconArrowBack size={16} color="var(--cWhite)" />
+            </button>
+            <button
+              className={styles.nextButton}
+              onClick={goToNextPage}
+              disabled={currentPage >= safeTotal}
+            >
+              Pagina Siguiente{" "}
+              <IconArrowNext size={18} color="var(--cWhiteV1)" />
+            </button>
+          </div>
+        </>
+      ) : (
+        <div style={{ flexGrow: 1 }}></div>
+      )}
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
@@ -146,22 +159,27 @@ const Pagination = ({
               {currentPage}/{safeTotal}
             </span>
           </span>
-          <input
-            type="text"
-            value={pageInput}
-            onChange={handlePageInputChange}
-            onKeyDown={handleKeyDown}
-            className={styles.pageInput}
-            aria-label="Ir a página"
-          />
-          <button type="submit" className={styles.goButton}>
-            Ir <IconArrowNext size={16} color="var(--accent)" />
-          </button>
+          {totalPages > 1 && (
+            <>
+              <input
+                type="text"
+                value={pageInput}
+                onChange={handlePageInputChange}
+                onKeyDown={handleKeyDown}
+                className={styles.pageInput}
+                aria-label="Ir a página"
+              />
+
+              <button type="submit" className={styles.goButton}>
+                Ir <IconArrowNext size={16} color="var(--accent)" />
+              </button>
+            </>
+          )}
         </form>
       </div>
 
       {/* Select para elementos por página - oculto pero funcional */}
-      <div className={styles.hiddenPerPage}>
+      {/* <div className={styles.hiddenPerPage}>
         <Select
           inputStyle={{ display: "none" }}
           name="perPage"
@@ -177,7 +195,7 @@ const Pagination = ({
             setParams({ ...params, perPage: e.target.value, page: 1 });
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
