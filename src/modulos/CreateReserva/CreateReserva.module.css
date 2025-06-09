@@ -1029,6 +1029,20 @@
     display: block; /* O inline-block si prefieres */
     text-align: center; /* Opcional */
 }
+.unavailablePeriod {
+  background-color: var(--cWhiteV2); /* Un fondo gris claro */
+  color: var(--cWhiteV1); /* Un texto más tenue */
+  border-color: var(--cWhiteV2); /* Borde del mismo color */
+  text-decoration: line-through; /* Tachar el texto */
+  cursor: not-allowed !important; /* Forzar el cursor de 'no permitido' */
+}
+
+/* Opcional: Para que al hacer hover no cambie de color */
+.unavailablePeriod:hover {
+  background-color: var(--cWhiteV3);
+  border-color: var(--cWhiteV3);
+}
+
 
 /* ... otros estilos ... */
 

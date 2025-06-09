@@ -281,7 +281,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
                         // Añade un aria-label más descriptivo
                         aria-label={`Seleccionar ${format(day.date, 'PPPP', { locale: es })}${day.isPartiallyBusy && !isTrulyDisabled ? ' (con reservas)' : ''}${isTrulyDisabled ? ' (no disponible)' : ''}`}
                     >
-                        {day.dayOfMonth}
+                       <span>{day.dayOfMonth}</span>
                         {/* El punto rojo se añade vía CSS con ::after en la clase .partiallyBusyDay */}
                     </button>
                     </div>
