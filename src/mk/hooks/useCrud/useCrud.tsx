@@ -653,6 +653,7 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
           //   ...(field.openTag ? { flex: "1" } : {}),
@@ -1204,11 +1205,11 @@ const useCrud = ({
                     setParams={setParams}
                     params={params}
                     totalPages={Math.ceil(
-                      (data?.message?.total || 1) / (params.perPage || 1)
+                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
                     )}
                     previousLabel=""
                     nextLabel=""
-                    total={data?.message?.total || 0}
+                    total={data?.message?.total ?? 0}
                   />
                 </div>
               </section>

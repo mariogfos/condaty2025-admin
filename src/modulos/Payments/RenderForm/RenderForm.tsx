@@ -120,7 +120,6 @@ const RenderForm = ({
     _O: "Piso",
   };
 
-
   const getDeudas = useCallback(
     async (nroDpto) => {
       if (!nroDpto) return;
@@ -288,7 +287,6 @@ const RenderForm = ({
   const handleChangeInput = useCallback((e) => {
     const { name, value, type } = e.target;
 
-
     const newValue =
       type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
 
@@ -325,8 +323,6 @@ const RenderForm = ({
       return newSelectedPeriodos;
     });
   }, []);
-
-
 
   // Manejadores de eventos para arrastrar y soltar
   const handleDragOver = useCallback((e) => {
@@ -367,7 +363,6 @@ const RenderForm = ({
     e.preventDefault();
     e.stopPropagation();
   }, []);
-
 
   // Validación del formulario (usa set_Errors interno)
   const validar = useCallback(() => {
@@ -433,7 +428,7 @@ const RenderForm = ({
       err.paid_at = "Este campo es requerido";
     } else {
       // Validar que la fecha no sea futura
-      const selectedDate = new Date(_formState.paid_at + 'T00:00:00'); // Asegura comparar solo fecha
+      const selectedDate = new Date(_formState.paid_at + "T00:00:00"); // Asegura comparar solo fecha
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Resetear la hora para comparar solo fechas
 
@@ -453,22 +448,23 @@ const RenderForm = ({
     set_Errors, // Depende del setter de errores INTERNO
   ]);
 
-
   // Función para guardar el pago (usa set_Errors interno)
   const _onSavePago = useCallback(async () => {
-
     if (!validar()) {
-
       // Los mensajes específicos de error ya se muestran en la validación
       // showToast(...) ya no es necesario aquí para esos casos específicos.
       // Solo nos aseguramos de no continuar si la validación falla.
-      if (isExpensasWithoutDebt || (_formState.subcategory_id === extraData?.client_config?.cat_expensas && deudas?.length > 0 && selectedPeriodo.length === 0) ){
-        showToast( _errors.general || "Por favor revise los errores", "error"); // Muestra el error general si existe
-      }else{
-         showToast("Por favor revise los campos marcados", "warning");
+      if (
+        isExpensasWithoutDebt ||
+        (_formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+          deudas?.length > 0 &&
+          selectedPeriodo.length === 0)
+      ) {
+        showToast(_errors.general || "Por favor revise los errores", "error"); // Muestra el error general si existe
+      } else {
+        showToast("Por favor revise los campos marcados", "warning");
       }
       return;
-    
     }
 
     // 2. Obtener owner_id (sin cambios)
@@ -478,7 +474,8 @@ const RenderForm = ({
     const owner_id = selectedDpto?.titular?.owner?.id;
 
     // 3. Construir payload (sin cambios, pero verifica la lógica)
-    let params: any = { // Usa 'any' o una interfaz más específica
+    let params: any = {
+      // Usa 'any' o una interfaz más específica
       paid_at: _formState.paid_at,
       type: _formState.type,
       file: _formState.file,
@@ -512,28 +509,31 @@ const RenderForm = ({
       console.log("Enviando datos:", params);
       // Asume que 'execute' viene de las props y es para guardar/crear
       const { data, error } = await execute("/payments", "POST", params);
-      console.log("data", JSON.stringify(data))
-      console.log("aqui arriba esta lo que devuelve la api")
+      console.log("data", JSON.stringify(data));
+      console.log("aqui arriba esta lo que devuelve la api");
       // 5. Manejar la respuesta
       if (data?.success) {
         showToast("Pago agregado con éxito", "success");
-        console.log("si entra")
+        console.log("si entra");
         reLoad(); // Recarga la lista en el componente padre (Payments)
         onClose(); // Cierra el modal
       } else {
         // Si la API devuelve success:false o hay un error estructurado
         console.error("Error al guardar el pago:", error || data?.message);
-        showToast(error?.message || data?.message || "Error al guardar el pago", "error");
+        showToast(
+          error?.message || data?.message || "Error al guardar el pago",
+          "error"
+        );
         // Intenta establecer los errores de validación del backend si existen
         if (error?.data?.errors) {
           set_Errors(error.data.errors); // Actualiza el estado INTERNO de errores
-        } else if (data?.errors){
-           set_Errors(data.errors); // Si vienen en data.errors
+        } else if (data?.errors) {
+          set_Errors(data.errors); // Si vienen en data.errors
         }
       }
     } catch (err) {
       // Captura errores de red u otros errores inesperados
-   
+
       showToast("Error inesperado al guardar el pago", "error");
     }
   }, [
@@ -601,7 +601,6 @@ const RenderForm = ({
                 required={true}
                 value={_formState.dpto_id}
                 onChange={handleChangeInput}
-                
                 options={lDptos}
                 error={_errors}
                 filter={true}
@@ -617,7 +616,6 @@ const RenderForm = ({
                   name="category_id"
                   label="Categoría"
                   value={_formState.category_id}
-                 
                   onChange={handleChangeInput}
                   options={extraData?.categories || []}
                   error={_errors}
@@ -631,7 +629,6 @@ const RenderForm = ({
                   name="subcategory_id"
                   label="Subcategoría"
                   value={_formState.subcategory_id}
-                  
                   onChange={handleChangeInput}
                   options={_formState.subcategories || []}
                   error={_errors}
@@ -642,7 +639,6 @@ const RenderForm = ({
                 />
               </div>
             </div>
-           
 
             {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
 
@@ -680,7 +676,6 @@ const RenderForm = ({
                       name="type"
                       label="Forma de pago"
                       value={_formState.type}
-                      
                       onChange={handleChangeInput}
                       options={[
                         { id: "Q", name: "Pago QR" },
@@ -704,11 +699,7 @@ const RenderForm = ({
                 <UploadFile
                   name="file"
                   ext={exten}
-                  value={
-                    _formState.file
-                      ? { file: _formState.file }
-                      : ""
-                  }
+                  value={_formState.file ? { file: _formState.file } : ""}
                   onChange={handleChangeInput}
                   img={true}
                   sizePreview={{ width: "40%", height: "auto" }}
@@ -901,10 +892,10 @@ const RenderForm = ({
                         ))}
                       </div>
                       <div className={styles["total-container"]}>
-                     
-
-                        <p>Total a pagar: {formatNumber(selecPeriodoTotal, 2)} Bs.</p>
-                        
+                        <p>
+                          Total a pagar: {formatNumber(selecPeriodoTotal, 2)}{" "}
+                          Bs.
+                        </p>
                       </div>
                     </div>
                   )}
@@ -919,7 +910,6 @@ const RenderForm = ({
                 <div className={styles["obs-input"]}>
                   <TextArea
                     label="Descripción"
-                    
                     name="obs"
                     onChange={(e) => {
                       // Limitar a 500 caracteres
@@ -931,6 +921,7 @@ const RenderForm = ({
                       handleChangeInput(newEvent);
                     }}
                     value={_formState.obs}
+                    required={false}
                     maxLength={500}
                   />
                 </div>

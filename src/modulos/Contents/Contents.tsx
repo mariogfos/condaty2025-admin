@@ -587,7 +587,7 @@ const Contents = () => {
       <List
         onTabletRow={renderItem}
         actionsWidth="140px"
-        height={"calc(100vh - 280px)"}
+        height={"calc(100vh - 285px)"}
         onRenderCard={openCard ? renderCard : null}
       />
       {/* {openImport && (

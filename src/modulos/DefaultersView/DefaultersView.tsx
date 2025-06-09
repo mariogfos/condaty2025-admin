@@ -407,7 +407,7 @@ const DefaultersView = () => {
         />
 
         <div className={styles.listContainer}>
-          <List height={"calc(100vh - 420px)"} renderRight={renderRightPanel} />
+          <List height={"calc(100vh - 380px)"} renderRight={renderRightPanel} />
         </div>
       </div>
     </LoadingScreen>

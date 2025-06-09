@@ -1244,7 +1244,6 @@ const CreateReserva = () => {
                       label="Describe brevemente el motivo de tu reserva"
                       name="motivo"
                       value={formState.motivo}
-                      required={false}
                       onChange={handleChange}
                       error={errors.motivo}
                       placeholder="Ej: Cumpleaños, reunión familiar..."

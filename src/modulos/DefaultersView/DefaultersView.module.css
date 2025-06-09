@@ -37,7 +37,7 @@
 .rightPanel {
   width: 40%;
   display: flex;
-  height: calc(100vh - 364px);
+  height: calc(100vh - 323px);
 
   overflow-y: scroll;
   flex-direction: column;

@@ -44,7 +44,7 @@ const TextArea = ({
         <textarea
           id={name}
           name={name}
-          value={value || ""}
+          value={value ?? ""}
           placeholder={placeholder}
           style={{ width: "100%", ...style }}
           disabled={disabled}

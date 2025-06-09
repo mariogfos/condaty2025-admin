@@ -35,7 +35,7 @@ const EmptyData: FC<EmptyDataProps> = ({
         {icon ?? <IconTableEmpty className={styles.icon} size={size} />}
       </div>
       <div className={styles.message}>{message ?? "No Hay elementos"}</div>
-      <div className={styles.line2}>{line2 ?? "Vuelve pronto..."}</div>
+      <div className={styles.line2}>{line2 ?? null}</div>
     </div>
   );
 };

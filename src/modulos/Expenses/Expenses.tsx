@@ -348,7 +348,7 @@ const Expenses = () => {
     return (
       <div>
         <List
-          height={"calc(100vh - 280px)"}
+          height={"calc(100vh - 230px)"}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
         />

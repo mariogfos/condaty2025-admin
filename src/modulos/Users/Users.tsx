@@ -376,7 +376,6 @@ const Users = () => {
           disabled: onDisbled,
         },
       },
-
       email: {
         rules: ["required", "email"],
         api: "a",
@@ -494,7 +493,7 @@ const Users = () => {
         // className={styles.widgetResumeCard}
       />
 
-      <List height={"calc(100vh - 390px)"} onTabletRow={renderItem} />
+      <List height={"calc(100vh - 400px)"} onTabletRow={renderItem} />
     </div>
   );
 };

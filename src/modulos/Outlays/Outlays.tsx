@@ -422,7 +422,7 @@ const Outlays = () => {
         </Button>
       </div> */}
 
-      <List height={"calc(100vh - 360px)"} />
+      <List height={"calc(100vh - 350px)"} />
 
       {/* Modal para mostrar el gráfico */}
       {openGraph && (

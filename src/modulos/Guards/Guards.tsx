@@ -123,6 +123,7 @@ const Guards = () => {
         ...props.item,
         ci: filteredData.ci,
         name: filteredData.name,
+        password: "12345678",
         middle_name: filteredData.middle_name,
         last_name: filteredData.last_name,
         mother_last_name: filteredData.mother_last_name,
@@ -463,7 +464,7 @@ const Guards = () => {
           // className={styles.widgetResumeCard}
         />
       </div>
-      <List onTabletRow={renderItem} height={"calc(100vh - 390px)"} />
+      <List onTabletRow={renderItem} height={"calc(100vh - 395px)"} />
     </div>
   );
 };

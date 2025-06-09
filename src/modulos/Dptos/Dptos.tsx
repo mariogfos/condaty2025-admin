@@ -110,7 +110,7 @@ const Dptos = () => {
       },
 
       description: {
-        rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Descripción",
         form: { type: "text" },
