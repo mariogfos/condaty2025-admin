@@ -378,7 +378,9 @@ const Owners = () => {
         api: "",
         label: "Unidad",
         form: false,
+
         list: {
+          width: "200px",
           onRender: (props: any) => {
             return (
               "Unidad: " +
@@ -398,6 +400,46 @@ const Owners = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+        form: {
+          type: "text",
+          label: "Correo electrónico",
+          disabled: onDisbled,
+          required: true,
+          onBlur: onBlurEmail,
+          // onRender: (props: any) => {
+          //   return (
+          //     <div className={styles.fieldSet}>
+          //       <div>
+          //         <div>Información de acceso</div>
+          //         <div>
+          //           La contraseña sera enviada al correo que indiques en este
+          //           campo
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <Input
+          //           name="email"
+          //           value={props?.item?.email}
+          //           onChange={props.onChange}
+          //           label="Correo electrónico"
+          //           error={props.error}
+          //           disabled={
+          //             props?.field?.action === "edit" || onDisbled(props)
+          //           }
+          //           required={true}
+          //           onBlur={(e) => onBlurEmail(e, props)}
+          //         />
+          //       </div>
+          //     </div>
+          //   );
+          // },
+        },
+        list: { width: "350px" },
+      },
       phone: {
         rules: ["number", "max:10"],
         api: "ae",
@@ -406,6 +448,7 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
+        list: { width: "200px" },
       },
       type: {
         rules: [""],
@@ -458,46 +501,6 @@ const Owners = () => {
           options: getTypefilter,
         },
         // form: false, // Descomenta si no quieres que aparezca en el formulario
-      },
-      email: {
-        rules: ["required", "email"],
-        api: "a",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          label: "Correo electrónico",
-          disabled: onDisbled,
-          required: true,
-          onBlur: onBlurEmail,
-          // onRender: (props: any) => {
-          //   return (
-          //     <div className={styles.fieldSet}>
-          //       <div>
-          //         <div>Información de acceso</div>
-          //         <div>
-          //           La contraseña sera enviada al correo que indiques en este
-          //           campo
-          //         </div>
-          //       </div>
-          //       <div>
-          //         <Input
-          //           name="email"
-          //           value={props?.item?.email}
-          //           onChange={props.onChange}
-          //           label="Correo electrónico"
-          //           error={props.error}
-          //           disabled={
-          //             props?.field?.action === "edit" || onDisbled(props)
-          //           }
-          //           required={true}
-          //           onBlur={(e) => onBlurEmail(e, props)}
-          //         />
-          //       </div>
-          //     </div>
-          //   );
-          // },
-        },
-        list: false,
       },
     };
   }, []);

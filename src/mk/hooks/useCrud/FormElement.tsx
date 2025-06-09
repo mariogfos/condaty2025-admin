@@ -245,11 +245,14 @@ const FormElement = memo(
       case "imageUpload":
         return (
           <LeftRigthElement {...props}>
+            {/* {JSON.stringify(data)} */}
             <UploadFile
               name={_field.key}
               // value={item[_field.key]}
               value={
-                item[_field.id || "id"]
+                data?.action == "add"
+                  ? undefined
+                  : item[_field.id ?? "id"]
                   ? getUrlImages(
                       "/" +
                         _field.prefix +

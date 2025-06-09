@@ -809,7 +809,7 @@ const CreateReserva = () => {
                       value={formState.unidad}
                       options={unidadesOptions}
                       onChange={handleChange}
-                      error={errors.unidad}
+                      error={errors}
                       disabled={!unidadesLoaded}
                       placeholder={
                         !unidadesLoaded
@@ -830,7 +830,7 @@ const CreateReserva = () => {
                       value={formState.area_social}
                       options={areasSocialesOptions}
                       onChange={handleChange}
-                      error={errors.area_social}
+                      error={errors}
                       disabled={!areasLoaded}
                       placeholder={
                         !areasLoaded
