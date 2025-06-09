@@ -653,6 +653,7 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
           //   ...(field.openTag ? { flex: "1" } : {}),

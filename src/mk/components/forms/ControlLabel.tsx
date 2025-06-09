@@ -31,7 +31,7 @@ interface PropsType extends PropsTypeInputBase {
 
 const ControlLabel = (props: PropsType) => {
   const label: any = useMemo(() => {
-    if (props.required === false && props.label) return props.label + " (opc)";
+    if (!props.required && props.label) return props.label + " (opc)";
     return props.label;
   }, [props.label, props.required]);
 

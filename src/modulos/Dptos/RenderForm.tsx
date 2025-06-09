@@ -224,7 +224,7 @@ const RenderForm = ({
         value={formState.description}
         onChange={handleChange}
         error={errors}
-        required={true}
+        required={false}
       />
 
       <Select

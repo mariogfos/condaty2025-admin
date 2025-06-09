@@ -376,7 +376,6 @@ const Users = () => {
           disabled: onDisbled,
         },
       },
-
       email: {
         rules: ["required", "email"],
         api: "a",

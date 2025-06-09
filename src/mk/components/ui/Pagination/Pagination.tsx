@@ -33,7 +33,6 @@ const Pagination = ({
 
   // Asegurar que totalPages sea siempre al menos 1
   const safeTotal = useMemo(() => Math.max(1, totalPages || 1), [totalPages]);
-  console.log("total", totalPages, safeTotal);
 
   // Actualizar el input cuando cambia la página actual
   useEffect(() => {

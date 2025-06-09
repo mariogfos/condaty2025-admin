@@ -337,7 +337,7 @@ const Owners = () => {
       },
       middle_name: {
         closeTag: true,
-        rules: [""],
+        rules: [],
         api: "ae",
         label: "Segundo nombre",
         form: {
