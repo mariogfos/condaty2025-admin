@@ -178,24 +178,25 @@ const UploadFileMultiple = ({
     }
   };
   return (
-    <div
-      className={styles.uploadFileMultiple + " " + styles[className]}
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignContent: "space-around",
-        gap: "var(--sM)",
-        width: "100%",
-        flexWrap: "wrap",
-        border: "1px solid var(--cWhiteV2)",
-        padding: "var(--sM)",
-        borderRadius: "var(--bRadius)",
-        position: "relative",
-      }}
-    >
-      <label>
-        {props.label || "Puede subir hasta " + maxFiles + " imágenes"}
-        {/* {imgs.length > 1 ||
+    <>
+      <div
+        className={styles.uploadFileMultiple + " " + styles[className]}
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignContent: "space-around",
+          gap: "var(--sM)",
+          width: "100%",
+          flexWrap: "wrap",
+          border: "1px solid var(--cWhiteV2)",
+          padding: "var(--sM)",
+          borderRadius: "var(--bRadius)",
+          position: "relative",
+        }}
+      >
+        <label>
+          {props.label || "Puede subir hasta " + maxFiles + " imágenes"}
+          {/* {imgs.length > 1 ||
             (value[name + "0"]?.file != "" && (
               <IconAdd
                 style={{
@@ -215,52 +216,52 @@ const UploadFileMultiple = ({
                 }}
               />
             ))} */}
-      </label>
-      {/* {JSON.stringify(imgs)}----
+        </label>
+        {/* {JSON.stringify(imgs)}----
       {JSON.stringify(Object.keys(value).length)}----
       {images.length} */}
-      {imgs.map((it: any, i: number) => (
-        <div
-          key={"img-" + i}
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "12px",
-            alignItems: "center",
-            position: "relative",
-          }}
-        >
-          {/* {value[name + i]?.file.substr(0, 5)} */}
-          <UploadFileM
-            {...props}
-            className="v2"
-            // autoOpen={imgs.length > 1 && !it.id}
-            editor={editor}
-            sizePreview={sizePreview}
-            value={value[name + i]?.file || false}
-            name={name + i + "-" + it.id}
-            onChange={_onChange}
-            label=""
-            placeholder="Subir imagen"
-            fileName={
-              it.id
-                ? getUrlImages(
-                    "/" +
-                      prefix +
-                      "-" +
-                      item.id +
-                      "-" +
-                      it.id +
-                      "." +
-                      (it.ext || "webp") +
-                      "?" +
-                      item.updated_at
-                  )
-                : null
-            }
-          />
+        {imgs.map((it: any, i: number) => (
+          <div
+            key={"img-" + i}
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "12px",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            {/* {value[name + i]?.file.substr(0, 5)} */}
+            <UploadFileM
+              {...props}
+              className="v2"
+              // autoOpen={imgs.length > 1 && !it.id}
+              editor={editor}
+              sizePreview={sizePreview}
+              value={value[name + i]?.file || false}
+              name={name + i + "-" + it.id}
+              onChange={_onChange}
+              label=""
+              placeholder="Subir imagen"
+              fileName={
+                it.id
+                  ? getUrlImages(
+                      "/" +
+                        prefix +
+                        "-" +
+                        item.id +
+                        "-" +
+                        it.id +
+                        "." +
+                        (it.ext || "webp") +
+                        "?" +
+                        item.updated_at
+                    )
+                  : null
+              }
+            />
 
-          {/* {i > 0 && !it.id && (
+            {/* {i > 0 && !it.id && (
               // (it.value?.file == "" || it.value?.file == "DELETE") &&
               <IconX
                 size={16}
@@ -279,9 +280,9 @@ const UploadFileMultiple = ({
                 }}
               />
             )} */}
-        </div>
-      ))}
-      {/* {imgs.length <= maxFiles && (
+          </div>
+        ))}
+        {/* {imgs.length <= maxFiles && (
           <div
             style={{
               display: "flex",
@@ -301,7 +302,11 @@ const UploadFileMultiple = ({
             <span>{props.ext.join(", ") || "jpg,png,jpeg"}</span>
           </div>
         )} */}
-    </div>
+      </div>
+      {!props.error ? null : (
+        <p className={styles.error}>{props.error[name] || null}</p>
+      )}
+    </>
   );
 };
 

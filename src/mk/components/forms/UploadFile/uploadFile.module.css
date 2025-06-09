@@ -48,8 +48,8 @@
   margin-top: var(--spXs);
 }
 .uploadPlaceholder > span:last-of-type {
-    font-size: 10px;
-    color: var(--cPrimary);
+  font-size: 10px;
+  color: var(--cPrimary);
 }
 
 .filePreviewRow {
@@ -86,11 +86,11 @@
   align-items: center;
   justify-content: center;
 }
-.visualElementIcon svg { /* Si los componentes icono no se escalan bien con 'size' */
-    /* width: 100%; */ /* Esto podría anular la prop 'size' si el SVG no está bien hecho */
-    /* height: 100%; */
+.visualElementIcon svg {
+  /* Si los componentes icono no se escalan bien con 'size' */
+  /* width: 100%; */ /* Esto podría anular la prop 'size' si el SVG no está bien hecho */
+  /* height: 100%; */
 }
-
 
 .fileNameColumn {
   display: flex;
@@ -128,18 +128,18 @@
 }
 
 .editButton {
-  top: 2px;    /* Ajusta según necesites para que quede pegado al borde */
-  right: 2px;  /* Ajusta según necesites */
+  top: 2px; /* Ajusta según necesites para que quede pegado al borde */
+  right: 2px; /* Ajusta según necesites */
 }
 
 .deleteButton {
-  top: 2px;    /* Ajusta según necesites */
-  left: 2px;   /* Ajusta según necesites */
+  top: 2px; /* Ajusta según necesites */
+  left: 2px; /* Ajusta según necesites */
 }
 
 .undoDeleteButton {
-  top: 2px;    /* Ajusta según necesites */
-  left: 2px;   /* Ajusta según necesites */
+  top: 2px; /* Ajusta según necesites */
+  left: 2px; /* Ajusta según necesites */
 }
 
 .mainDeleteIconWhenMarked {
@@ -149,7 +149,6 @@
   /* El color rojo del SVG se debe aplicar via style={{color: 'red'}} en el TSX */
   /* o pasando la prop 'color' si el componente IconTrash lo soporta para el SVG */
 }
-
 
 .uploadFileV2 > div > section {
   display: inline;
@@ -176,4 +175,12 @@
   background-color: var(--cBlack);
   padding-left: var(--spXs);
   padding-right: var(--spXs);
+}
+
+.error {
+  /* position: absolute; */
+  bottom: calc(var(--spL) * -1);
+  font-size: var(--sXs);
+  color: var(--cError);
+  padding-left: var(--spM);
 }

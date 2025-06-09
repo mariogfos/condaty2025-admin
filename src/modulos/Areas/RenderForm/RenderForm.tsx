@@ -43,7 +43,9 @@ const RenderForm = ({
 
   const validateLevel1 = () => {
     let errors: any = {};
-
+    if (!formState?.avatar && !formState.id) {
+      errors["avatar"] = "Debe seleccionar una imagen";
+    }
     errors = checkRules({
       value: formState?.title,
       rules: ["required", "textDash"],
