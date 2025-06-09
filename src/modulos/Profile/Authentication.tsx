@@ -137,7 +137,7 @@ const Authentication = ({
     const { data, error } = await execute(url, "POST", param);
 
     if (data?.success == true) {
-      showToast(data.message, "success");
+      showToast(data.message + " - Operación exitosa", "success");
       setFormState({ pinned: 0, code: "", newEmail: "", password: "" });
       setErrors({});
       getUser();

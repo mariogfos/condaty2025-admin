@@ -93,7 +93,7 @@ const MainMenu = ({
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/units", label: "Unidades" },
-              { href: "/activities", label: "Historial" },
+              { href: "/activities", label: "Accesos" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
             ]}

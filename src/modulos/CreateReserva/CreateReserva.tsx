@@ -66,6 +66,7 @@ interface ApiAvailabilityResponse {
   data?: {
     reserved?: string[];
     available?: string[]; // ["HH:mm-HH:mm", ...]
+    unavailable?: string[]; // ["HH:mm-HH:mm", ...]
   };
   success?: boolean;
   message?: string;
@@ -88,6 +89,7 @@ const CreateReserva = () => {
   const [busyDays, setBusyDays] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>([]); 
   const [loadingTimes, setLoadingTimes] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
@@ -237,6 +239,7 @@ const CreateReserva = () => {
     // Estado inicial de la carga y reseteo de datos previos
     setLoadingTimes(true);
     setAvailableTimeSlots([]); // Limpia siempre al iniciar
+    setUnavailableTimeSlots([]); // Limpia también los no disponibles
     setSelectedPeriods([]); // Limpia selección previa de periodos
     setCanMakeReservationForDate(null); // Resetea permiso
     setReservationBlockMessage(""); // Resetea mensaje
@@ -262,8 +265,6 @@ const CreateReserva = () => {
       let message: string = "";
       let availableSlots: string[] | undefined = undefined;
       let processed = false; // Flag para saber si encontramos un objeto de datos válido
-
-      // INICIO: Lógica para encontrar los datos dentro de la respuesta
 
       // CASO 1: La respuesta directa de la API es un array vacío []
       if (Array.isArray(response) && response.length === 0) {
@@ -309,6 +310,13 @@ const CreateReserva = () => {
         canReserve = apiData.reservations; // Accede a las propiedades (TS usará el tipo ApiCalendarAvailabilityData)
         message = apiData.message ?? "";
         availableSlots = apiData.available;
+        const unavailableSlots = apiData.unavailable; 
+        if (Array.isArray(unavailableSlots)) {
+          setUnavailableTimeSlots(unavailableSlots);
+          console.log(">>> Setting unavailableTimeSlots:", unavailableSlots);
+        } else {
+          setUnavailableTimeSlots([]);
+        }
       }
       // Si apiData es null (porque la respuesta fue [] o inválida),
       // las variables canReserve, message, availableSlots mantendrán sus valores (null, '', undefined)
@@ -334,6 +342,7 @@ const CreateReserva = () => {
       // Captura errores de red o fallos inesperados durante el proceso
       console.error("Error en fetchAvailableTimes:", error);
       setAvailableTimeSlots([]);
+      setUnavailableTimeSlots([]); 
       setCanMakeReservationForDate(false); // Asume no disponible si hay error
       setReservationBlockMessage("Error al cargar horarios. Intenta de nuevo.");
     } finally {
@@ -768,6 +777,15 @@ const CreateReserva = () => {
     // Aplicar la nueva lógica de manejo de cambio que respeta límites
     handleQuantityChange(newValue);
   };
+  const allTimeSlots = useMemo(() => {
+    const available = availableTimeSlots.map(period => ({ period, isAvailable: true }));
+    const unavailable = unavailableTimeSlots.map(period => ({ period, isAvailable: false }));
+
+    // Combina y ordena los periodos cronológicamente
+    return [...available, ...unavailable].sort((a, b) => 
+      a.period.localeCompare(b.period)
+    );
+  }, [availableTimeSlots, unavailableTimeSlots]);
 
   return (
     <div className={styles.pageWrapper}>
@@ -1084,49 +1102,51 @@ const CreateReserva = () => {
                           // Si NO está cargando:
                           <>
                             {/* 3. Muestra los slots SI existen en el estado */}
-                            {availableTimeSlots.length > 0 ? (
-                              <div className={styles.periodSelectionContainer}>
-                                {availableTimeSlots
-                                  .sort((a, b) => a.localeCompare(b)) // Ordena los periodos
-                                  .map((period) => {
-                                    const isSelected =
-                                      selectedPeriods.includes(period);
-                                    // isDisabled es true si canMakeReservationForDate es false
-                                    const isDisabled =
-                                      canMakeReservationForDate === false;
+                            
+                              {allTimeSlots.length > 0 ? (
+                                <div className={styles.periodSelectionContainer}>
+                                  {allTimeSlots.map((slot) => {
+                                    // `slot` ahora es un objeto: { period: string, isAvailable: boolean }
+                                    
+                                    const isSelected = selectedPeriods.includes(slot.period);
+                                    
+                                    // El botón está deshabilitado si el slot NO está disponible O si hay un bloqueo general.
+                                    const isDisabled = !slot.isAvailable || canMakeReservationForDate === false;
 
                                     return (
                                       <button
-                                        type="button" // Importante para formularios
-                                        key={period}
-                                        // Aplica clases condicionales: base, seleccionado (si no está deshabilitado), deshabilitado
+                                        type="button"
+                                        key={slot.period}
                                         className={`${styles.periodButton} ${
-                                          isSelected && !isDisabled
-                                            ? styles.selectedPeriod
-                                            : ""
+                                          isSelected && slot.isAvailable ? styles.selectedPeriod : ""
                                         } ${
-                                          isDisabled
-                                            ? styles.disabledPeriod
-                                            : ""
+                                          // Usa una clase específica para los no disponibles para darles un estilo diferente
+                                          !slot.isAvailable ? styles.unavailablePeriod : "" 
                                         }`}
-                                        onClick={() =>
-                                          handlePeriodToggle(period)
-                                        } // Llama al handler
-                                        disabled={isDisabled} // Deshabilita el botón si es necesario
+                                        onClick={() => {
+                                          // Solo permite seleccionar si está disponible
+                                          if (slot.isAvailable) {
+                                            handlePeriodToggle(slot.period);
+                                          }
+                                        }}
+                                        // Deshabilita el botón si no está disponible o por bloqueo general
+                                        disabled={isDisabled}
+                                        // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
+                                        title={!slot.isAvailable ? "Este período ya fue reservado" : ""}
                                       >
-                                        {/* Muestra el periodo formateado */}
-                                        {period.replace("-", " a ")}
+                                        {slot.period.replace("-", " a ")}
                                       </button>
                                     );
                                   })}
-                              </div>
-                            ) : (
-                              canMakeReservationForDate === true && (
-                                <span className={styles.warningText}>
-                                  No hay periodos disponibles para esta fecha.
-                                </span>
-                              )
-                            )}
+                                </div>
+                              ) : (
+                                // La lógica para cuando no hay NINGÚN periodo (ni disponible ni ocupado)
+                                canMakeReservationForDate === true && (
+                                  <span className={styles.warningText}>
+                                    No hay periodos definidos para esta área en esta fecha.
+                                  </span>
+                                )
+                              )}
 
                             {/* 5. Muestra error de validación si el usuario intentó continuar sin seleccionar */}
                             {errors.selectedPeriods && (

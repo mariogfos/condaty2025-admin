@@ -2,7 +2,7 @@ import React from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStr, getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
+import { formatToDayDDMMYYYYHHMM, getDateStr, getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import {
   IconArrowRight,
@@ -228,7 +228,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{getDateTimeStrMes(in_at)} </div>
                 </div> */}
               <LabelValueDetail
-                value={getDateTimeStrMes(in_at)}
+                value={formatToDayDDMMYYYYHHMM(in_at)}
                 label="Fecha y hora de ingreso"
               />
               {/* <div className={styles.textsDiv}>
@@ -236,33 +236,30 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <div>{getDateTimeStrMes(out_at) || "No registrada"}</div>
                 </div> */}
               <LabelValueDetail
-                value={getDateTimeStrMes(out_at) || "-/-"}
+                value={formatToDayDDMMYYYYHHMM(out_at) || "-/-"}
                 label="Fecha y hora de salida"
               />
               {accesses?.length > 0 && (
-                // <div className={styles.textsDiv}>
-                //   <div>Acompañante</div>
-                //   {accesses.map((access: any, i: number) => (
-                //     <div key={i} style={{ color: "var(--cWhite" }}>
-                //       {getFullName(access?.visit)}
-                //     </div>
-                //   ))}
-                // </div>
-                <LabelValueDetail
-                  // value={accesses
-                  //   .map((access: any, i: number) => (
-                  //     <div key={i} style={{ color: "var(--cWhite" }}>
-                  //       {getFullName(access?.visit)}
-                  //     </div>
-                  //   ))
-                  //   .join(", ")}
-                  value={accesses.map((access: any, i: number) => (
-                    <div key={i} style={{ color: "var(--cWhite" }}>
-                      {getFullName(access?.visit)}
-                    </div>
-                  ))}
-                  label="Acompañantes"
-                />
+                <>
+                 <LabelValueDetail
+                    value={accesses.map((access: any, i: number) => (
+                      // Cambia <div> por <span> y añade display: 'block'
+                      <span key={i} style={{ display: 'block', color: "var(--cWhite)" }}>
+                        {getFullName(access?.visit)}
+                      </span>
+                    ))}
+                    label="Acompañantes"
+                  />
+                  <LabelValueDetail
+                    value={accesses.map((access: any, i: number) => (
+                      // Haz lo mismo aquí
+                      <span key={i} style={{ display: 'block', color: "var(--cWhite)" }}>
+                        {access?.visit?.ci || "-/-"}
+                      </span>
+                    ))}
+                    label="Carnet de identidad"
+                  />
+                </>
               )}
               {item?.type !== "O" && (
                 // <div className={styles.textsDiv}>
@@ -275,34 +272,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
               )}
               {/* <div className={styles.textsDiv}>
-                  <div>Guardia de ingreso</div>
-                  <div>{getFullName(guardia) || "No especificado"}</div>
-                </div> */}
-              <LabelValueDetail
-                value={getFullName(guardia) || "-/-"}
-                label="Guardia de ingreso"
-              />
-              {/* <div className={styles.textsDiv}>
-                  <div>Observación de entrada</div>
-                  <div>{obs_in || "-/-"}</div>
-                </div> */}
-              <LabelValueDetail
-                value={obs_in || "-/-"}
-                label="Observación de entrada"
-              />
-
-              {item?.type !== "O" && (
-                // <div className={styles.textsDiv}>
-                //   <div>Carnet de identidad</div>
-                //   <div>{visit?.ci || "No especificado"}</div>
-                // </div>
-                <LabelValueDetail
-                  value={visit?.ci || "-/-"}
-                  label="Carnet de identidad"
-                />
-              )}
-
-              {/* <div className={styles.textsDiv}>
                   <div>Unidad</div>
                   <div>{owner?.dpto[0]?.nro || "No especificada"}</div>
                 </div> */}
@@ -311,12 +280,29 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 label="Unidad"
               />
               {/* <div className={styles.textsDiv}>
+                  <div>Guardia de ingreso</div>
+                  <div>{getFullName(guardia) || "No especificado"}</div>
+                </div> */}
+              <LabelValueDetail
+                value={getFullName(guardia) || "-/-"}
+                label="Guardia de ingreso"
+              />
+               {/* <div className={styles.textsDiv}>
                   <div>Guardia de salida</div>
                   <div>{getFullName(out_guard) || "No especificado"}</div>
                 </div> */}
               <LabelValueDetail
                 value={getFullName(out_guard) || "-/-"}
                 label="Guardia de salida"
+              />
+              {/* <div className={styles.textsDiv}>
+                  <div>Observación de entrada</div>
+                  <div>{obs_in || "-/-"}</div>
+                </div> */}
+
+              <LabelValueDetail
+                value={obs_in || "-/-"}
+                label="Observación de entrada"
               />
               {/* <div className={styles.textsDiv}>
                   <div>Observación de salida</div>
@@ -326,6 +312,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 value={obs_out || "-/-"}
                 label="Observación de salida"
               />
+
+            {/*   {item?.type !== "O" && (
+                // <div className={styles.textsDiv}>
+                //   <div>Carnet de identidad</div>
+                //   <div>{visit?.ci || "No especificado"}</div>
+                // </div>
+                <LabelValueDetail
+                  value={visit?.ci || "-/-"}
+                  label="Carnet de identidad"
+                />
+              )} */}
+
+              
+             
+              
             </ContainerDetail>
             <Br />
 
