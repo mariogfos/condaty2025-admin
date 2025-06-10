@@ -323,8 +323,14 @@ const BalanceGeneral: React.FC = () => {
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
           if (dates[0] && dates[1]) {
-            const fechaInicio = new Date(dates[0]);
-            const fechaFin = new Date(dates[1]);
+            // Crear las fechas y ajustarlas a UTC-4
+            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
+            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
+            
+            // Asegurarse de que las fechas se muestren correctamente
+            fechaInicio.setHours(fechaInicio.getHours() + 4); // Ajustar a UTC-4
+            fechaFin.setHours(fechaFin.getHours() + 4); // Ajustar a UTC-4
+            
             return `Balance desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]} de ${fechaFin.getFullYear()}`;
           }
         }
