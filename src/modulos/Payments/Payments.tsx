@@ -413,7 +413,7 @@ const Payments = () => {
         Administre, agregue y elimine todos los ingresos
       </p>
 
-      <List />
+      <List height={"calc(100vh - 360px)"} />
 
       {openGraph && (
         <DataModal

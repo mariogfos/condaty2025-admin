@@ -11,7 +11,7 @@ import styles from "./RenderForm.module.css"; // O los estilos apropiados
 
 // Funciones de formato
 const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
+    const map: Record<string, string> = { M: "Mensual", Q: "Trimestral", B: "Bimestral", Y: "Anual" }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
     return map[periodCode] || periodCode;
 };
 const formatStatus = (statusCode: string): string => {

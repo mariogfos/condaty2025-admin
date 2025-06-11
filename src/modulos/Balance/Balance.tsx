@@ -174,11 +174,6 @@ const BalanceGeneral: React.FC = () => {
   }, [formStateFilter]);
 
   const ldate = [
-    { id: "T", name: "Todos" },
-    { id: "d", name: "Hoy" },
-    { id: "ld", name: "Ayer" },
-    { id: "w", name: "Esta semana" },
-    { id: "lw", name: "Semana pasada" },
     { id: "m", name: "Este mes" },
     { id: "lm", name: "Mes anterior" },
     { id: "y", name: "Este año" },
@@ -298,44 +293,54 @@ const BalanceGeneral: React.FC = () => {
 
     switch (filterDateValue) {
       case "d":
-        return `Resumen del ${now.getDate()} de ${meses[now.getMonth()]}`;
+        return `Balance del ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "ld":
         const ayer = new Date(now);
         ayer.setDate(now.getDate() - 1);
-        return `Resumen del ${ayer.getDate()} de ${meses[ayer.getMonth()]}`;
+        return `Balance del ${ayer.getDate()} de ${meses[ayer.getMonth()]} de ${ayer.getFullYear()}`;
       case "w":
-        return `Resumen de la semana actual`;
+        const inicioSemana = new Date(now);
+        inicioSemana.setDate(now.getDate() - now.getDay() + 1);
+        const finSemana = new Date(inicioSemana);
+        finSemana.setDate(inicioSemana.getDate() + 6);
+        return `Balance desde ${inicioSemana.getDate()} de ${meses[inicioSemana.getMonth()]} hasta ${finSemana.getDate()} de ${meses[finSemana.getMonth()]} de ${finSemana.getFullYear()}`;
       case "lw":
-        return `Resumen de la semana anterior`;
+        const inicioSemanaAnterior = new Date(now);
+        inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
+        const finSemanaAnterior = new Date(inicioSemanaAnterior);
+        finSemanaAnterior.setDate(inicioSemanaAnterior.getDate() + 6);
+        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${meses[inicioSemanaAnterior.getMonth()]} hasta ${finSemanaAnterior.getDate()} de ${meses[finSemanaAnterior.getMonth()]} de ${finSemanaAnterior.getFullYear()}`;
       case "m":
-        return `Resumen de ${meses[now.getMonth()]}`;
+        return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "lm":
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
-        return `Resumen de ${meses[mesAnterior.getMonth()]}`;
+        return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Resumen del ${now.getFullYear()}`;
+        return `Balance del año ${now.getFullYear()}`;
       case "ly":
-        return `Resumen del ${now.getFullYear() - 1}`;
+        return `Balance del año ${now.getFullYear() - 1}`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
           if (dates[0] && dates[1]) {
-            const fechaInicio = new Date(dates[0]);
-            const fechaFin = new Date(dates[1]);
-            return `Resumen desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]}`;
+            // Crear las fechas y ajustarlas a UTC-4
+            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
+            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
+            
+            // Asegurarse de que las fechas se muestren correctamente
+            fechaInicio.setHours(fechaInicio.getHours() + 4); // Ajustar a UTC-4
+            fechaFin.setHours(fechaFin.getHours() + 4); // Ajustar a UTC-4
+            
+            return `Balance desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]} de ${fechaFin.getFullYear()}`;
           }
         }
-        return "Resumen general";
+        return "Balance general";
     }
   };
 
   return (
     <div className={styles.container}>
-      <p className={styles.description}>
-        Este es un resumen general de los ingresos, egresos y el saldo a favor,
-        en esta sesión puedes generar reportes financieros de manera mensual o
-        anual filtrado por los datos que selecciones.
-      </p>
+      <h1 className={styles.title}>Flujo de efectivo</h1>
       <div>
         <div className={styles.filterContainer}>
           <div className={styles.filterItem}>
@@ -466,14 +471,11 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter.filter_date == "ld"
                       ? "Balance de " +
                         (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                      : `Balance desde ${getDateDesdeHasta(
-                          formStateFilter.filter_date
-                        )}`}
+                      : getPeriodoText(formStateFilter.filter_date)}
                   </h2>
                   <div className={styles.chartContainer}>
-                    {/* El botón de exportar se mueve debajo, cerca de la leyenda */}
                     <WidgetGrafBalance
-                      saldoInicial={finanzas?.data?.saldoInicial} // Se mantiene para el cálculo interno del gráfico si es necesario
+                      saldoInicial={finanzas?.data?.saldoInicial}
                       ingresos={finanzas?.data?.ingresosHist}
                       egresos={finanzas?.data?.egresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
@@ -524,17 +526,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
 
                   <div className={styles.divider} />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <Button
+                      onClick={exportar}
+                      variant="secondary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                    >
+                      <IconExport size={22} />
+                      Descargar tablas
+                    </Button>
+                  </div>
                   <h2 className={styles.chartSectionTitle}>
                     {`Resumen detallado de los ingresos`}
                   </h2>
@@ -585,12 +590,14 @@ const BalanceGeneral: React.FC = () => {
               <>
                 <div className={styles.chartContainer}>
                   <div className={styles.chartAndLegendContainer}>
+                 
                     <WidgetGrafIngresos
                       ingresos={finanzas?.data.ingresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
                       h={360}
                       title={" "}
                       subtitle={getPeriodoText(formStateFilter.filter_date)}
+                      periodo={formStateFilter?.filter_date}
                     />
                     <div className={styles.legendAndExportWrapper}>
                       <div className={styles.legendContainer}>
@@ -605,17 +612,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
                 </div>
                 <div className={styles.divider} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                  <Button
+                    onClick={exportar}
+                    variant="secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                  >
+                    <IconExport size={22} />
+                    Descargar tablas
+                  </Button>
+                </div>
                 <TableIngresos
                   title="Ingresos"
                   title2="Total"
@@ -641,12 +651,14 @@ const BalanceGeneral: React.FC = () => {
               <>
                 <div className={styles.chartContainer}>
                   <div className={styles.chartAndLegendContainer}>
+                 
                     <WidgetGrafEgresos
                       egresos={finanzas?.data.egresosHist}
                       chartTypes={[charType.filter_charType as ChartType]}
                       h={360}
                       title={" "}
                       subtitle={getPeriodoText(formStateFilter.filter_date)}
+                      periodo={formStateFilter?.filter_date} 
                     />
                     <div className={styles.legendAndExportWrapper}>
                       <div className={styles.legendContainer}>
@@ -661,17 +673,20 @@ const BalanceGeneral: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        className={styles.exportButton}
-                        onClick={exportar}
-                        variant="secondary"
-                      >
-                        <IconExport size={22} />
-                      </Button>
                     </div>
                   </div>
                 </div>
                 <div className={styles.divider} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                  <Button
+                    onClick={exportar}
+                    variant="secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                  >
+                    <IconExport size={22} />
+                    Descargar tablas
+                  </Button>
+                </div>
                 <TableEgresos
                   title="Egresos"
                   title2="Total"

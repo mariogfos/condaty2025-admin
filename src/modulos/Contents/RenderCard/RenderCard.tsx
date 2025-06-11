@@ -10,7 +10,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./RenderCard.module.css";
 
 type PropsType = {
@@ -22,36 +22,43 @@ type PropsType = {
 };
 
 const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
-  const [openDrop, setOpenDrop]: any = useState({ open: false, item: null });
-  console.log(item,'item')
-  // const candidate = extraData?.candidates.find(
-  //   (c: any) => c.id == item?.candidate_id
-  // );
-  // const typeCand = extraData?.typeCands.find(
-  //   (t: any) => t.id == candidate?.typecand_id
-  // );
+  const [openDrop, setOpenDrop] = useState<{ open: boolean; item: any | null }>({ open: false, item: null });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-// Función modificada para obtener destinos en formato de texto descriptivo
-const getDestinys = () => {
-  const names: any = [];
-  
-  // Analizar el valor de destiny para mostrar texto descriptivo
-  if (item?.destiny === "T" || item?.destiny === 0) {
-    names.push("Todos");
-  }
-  if (item?.destiny === "D" || item?.destiny === 2) {
-    names.push("Dptos");
-  }
-  if (item?.destiny === "G" || item?.destiny === 5) {
-    names.push("Guardia");
-  }
-  if (item?.destiny === "R" || item?.destiny === 3) {
-    names.push("Residente");
-  }
-  
-  // Si no hay ningún destino reconocido, mostrar "Desconocido"
-  return names.length > 0 ? names : ["Desconocido"];
-};
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [item.id]);
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? item.images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === item.images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const getDestinys = () => {
+    const names: string[] = [];
+    if (item?.destiny === "T" || item?.destiny === 0) {
+      names.push("Todos");
+    }
+    if (item?.destiny === "D" || item?.destiny === 2) {
+      names.push("Dptos");
+    }
+    if (item?.destiny === "G" || item?.destiny === 5) {
+      names.push("Guardia");
+    }
+    if (item?.destiny === "R" || item?.destiny === 3) {
+      names.push("Residente");
+    }
+    return names.length > 0 ? names : ["Desconocido"];
+  };
 
   return (
     <div onClick={() => onClick(item)} className={styles.renderCard}>
@@ -74,8 +81,7 @@ const getDestinys = () => {
               >
                 {getFullName(item.user)}
               </p>
-              
-            </div> 
+            </div>
             <div
               style={{ position: "relative" }}
               onClick={(e) => {
@@ -84,7 +90,7 @@ const getDestinys = () => {
               }}
             >
               <IconOptions />
-              {openDrop.open && item.id == openDrop?.item.id && (
+              {openDrop.open && item.id === openDrop?.item?.id && (
                 <div
                   style={{
                     position: "absolute",
@@ -105,6 +111,7 @@ const getDestinys = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
+                      cursor: "pointer",
                     }}
                   >
                     <IconEdit />
@@ -116,8 +123,8 @@ const getDestinys = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
-
                       color: "var(--cError)",
+                      cursor: "pointer",
                     }}
                   >
                     <IconTrash />
@@ -127,9 +134,8 @@ const getDestinys = () => {
               )}
             </div>
           </div>
-          {((item.type == "I" && item.images.length > 0) ||
-            item.type == "D" ||
-            item.type == "V") && (
+
+          {item.type === "I" && item.images && item.images.length > 0 && (
             <div
               style={{
                 overflow: "hidden",
@@ -138,56 +144,139 @@ const getDestinys = () => {
                 borderRadius: 8,
                 backgroundColor: "var(--cBlackV3)",
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
               }}
             >
-              {item.type == "I" && (
+              <img
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+                src={getUrlImages(
+                  "/CONT-" +
+                    item.id +
+                    "-" +
+                    item.images[currentImageIndex]?.id +
+                    ".webp" +
+                    "?" +
+                    item?.updated_at
+                )}
+                alt={`Imagen ${currentImageIndex + 1}`}
+              />
+              {item.images.length > 1 && (
                 <>
-                  {item.images.length > 1 && (
-                    <p
-                      style={{
-                        position: "absolute",
-                        backgroundColor: "var(--cWhite)",
-                        padding: "2px 6px",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        color: "var(--cBlack)",
-                        top: 8,
-                        right: 8,
-                      }}
-                    >
-                      +{item.images.length - 1}
-                    </p>
-                  )}
-                  <img
-                    style={{ width: "100%", height: "auto" }}
-                    src={getUrlImages(
-                      "/CONT-" +
-                        item.id +
-                        "-" +
-                        item.images[0]?.id +
-                        ".webp" +
-                        "?" +
-                        item?.updated_at
-                    )}
-                  />
+                  <button
+                    onClick={handlePrevImage}
+                    style={{
+                      position: "absolute",
+                      left: "8px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      background: "rgba(0,0,0,0.4)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "28px",
+                      height: "28px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      lineHeight: "1",
+                    }}
+                    aria-label="Anterior"
+                  >
+                    {"<"}
+                  </button>
+                  <button
+                    onClick={handleNextImage}
+                    style={{
+                      position: "absolute",
+                      right: "8px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      background: "rgba(0,0,0,0.4)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "28px",
+                      height: "28px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      lineHeight: "1",
+                    }}
+                    aria-label="Siguiente"
+                  >
+                    {">"}
+                  </button>
+                  <p
+                    style={{
+                      position: "absolute",
+                      backgroundColor: "rgba(0,0,0,0.6)",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      fontSize: 10,
+                      color: "var(--cWhite)",
+                      bottom: 8,
+                      right: 8,
+                      zIndex: 1,
+                    }}
+                  >
+                    {currentImageIndex + 1} / {item.images.length}
+                  </p>
                 </>
-              )}
-              {item.type == "D" && <IconPDF size={48} color="var(--cError)" />}
-              {item.type == "V" && (
-                <IconVideo size={48} color="var(--cError)" />
               )}
             </div>
           )}
+
+          {item.type === "D" && (
+            <div
+              style={{
+                width: "100%",
+                height: "144px",
+                borderRadius: 8,
+                backgroundColor: "var(--cBlackV3)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconPDF size={48} color="var(--cError)" />
+            </div>
+          )}
+
+          {item.type === "V" && (
+            <div
+              style={{
+                width: "100%",
+                height: "144px",
+                borderRadius: 8,
+                backgroundColor: "var(--cBlackV3)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconVideo size={48} color="var(--cError)" />
+            </div>
+          )}
+
           <div
             style={{
               display: "flex",
               alignItems: "center",
               color: "var(--cSuccess)",
               gap: 4,
+              marginTop: "8px",
             }}
           >
             <IconWorld size={20} />
@@ -198,36 +287,46 @@ const getDestinys = () => {
                 display: "-webkit-box",
                 WebkitLineClamp: 1,
                 WebkitBoxOrient: "vertical",
+                textOverflow: "ellipsis",
+                fontSize: "12px"
               }}
             >
               {getDestinys()?.join(", ")}
             </p>
           </div>
+
           {item?.title && (
             <p
               style={{
                 color: "var(--cWhite)",
                 fontWeight: 600,
                 fontSize: 16,
+                marginTop: "8px",
+                 overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                textOverflow: "ellipsis",
               }}
             >
               {item?.title}
             </p>
           )}
-          {item?.description && !item?.title && (
+
+          {item?.description && (
             <p
               style={{
                 color: "var(--cWhiteV1)",
                 fontWeight: 400,
                 fontSize: 14,
-                wordBreak: "break-all",
+                wordBreak: "break-word",
                 overflowWrap: "break-word",
                 display: "-webkit-box",
-                WebkitLineClamp: item.images.length > 0 ? 2 : 8,
+                WebkitLineClamp: item.images && item.images.length > 0 ? 2 : (item?.title ? 2 : 8),
                 WebkitBoxOrient: "vertical",
-                width: "90%",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                marginTop: item?.title ? "4px" : "8px",
               }}
             >
               {item?.description}
@@ -238,27 +337,31 @@ const getDestinys = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            marginTop: 8,
+            marginTop: "auto",
+            paddingTop: "8px",
             gap: 16,
+            borderTop: "1px solid var(--cBlackV3)",
           }}
         >
           <div
             style={{
               display: "flex",
               alignItems: "center",
+              gap: "4px",
             }}
           >
             <IconLike />
-            <p style={{ fontSize: 12 }}>{item.likes}</p>
+            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>{item.likes}</p>
           </div>
           <div
             style={{
               display: "flex",
               alignItems: "center",
+              gap: "4px",
             }}
           >
             <IconComment />
-            <p style={{ fontSize: 12 }}>{item?.comments_count}</p>
+            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>{item?.comments_count}</p>
           </div>
         </div>
       </div>

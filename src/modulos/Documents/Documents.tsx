@@ -130,7 +130,7 @@ const Documents = () => {
 
   return (
     <div className={styles.style}>
-      <List />
+      <List height={"calc(100vh - 280px)"} />
     </div>
   );
 };

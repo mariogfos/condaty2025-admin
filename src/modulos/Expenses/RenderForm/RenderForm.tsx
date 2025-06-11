@@ -128,7 +128,7 @@ const RenderForm = ({
 
   // Opciones para el campo Mes basadas en el array MONTHS
   const monthOptions = MONTHS.map((month, index) => ({
-    id: index,
+    id: index ,
     name: month,
   }));
 
@@ -197,10 +197,12 @@ const RenderForm = ({
       />
 
       <TextArea
-        label="Descripción (Opcional)"
+        label="Descripción"
         name="description"
         value={formState.description}
         onChange={handleChange}
+        maxLength={255}
+        required={false}
         // type="textarea"
         error={errors.description}
       />

@@ -34,6 +34,7 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import EmptyData from "@/components/NoData/EmptyData";
 
 export type ModCrudType = {
   modulo: string;
@@ -605,6 +606,7 @@ const useCrud = ({
         onChange: onChangeForm,
         onBlur: onBlurForm,
         error: errorForm,
+        setError: setErrorForm,
         setItem: setFormStateForm,
         extraData: extraData,
       });
@@ -651,6 +653,7 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
           //   ...(field.openTag ? { flex: "1" } : {}),
@@ -1180,8 +1183,19 @@ const useCrud = ({
                   />
                 ) : (
                   <section>
-                    <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                    <p>No existen datos en este momento.</p>
+                    {/* <IconTableEmpty size={180} color="var(--cBlackV2)" />
+                    <p>No existen datos en este momento.</p> */}
+                    {props.onRenderEmpty ? (
+                      props.onRenderEmpty()
+                    ) : (
+                      <EmptyData
+                        h={props?.height ?? undefined}
+                        message={props.emptyMsg ?? undefined}
+                        line2={props.emptyLine2 ?? undefined}
+                        icon={props.emptyIcon ?? undefined}
+                        size={props.emptyIconSize ?? undefined}
+                      />
+                    )}
                   </section>
                 )}
                 <div>
@@ -1191,11 +1205,11 @@ const useCrud = ({
                     setParams={setParams}
                     params={params}
                     totalPages={Math.ceil(
-                      (data?.message?.total || 1) / (params.perPage || 1)
+                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
                     )}
                     previousLabel=""
                     nextLabel=""
-                    total={data?.message?.total || 0}
+                    total={data?.message?.total ?? 0}
                   />
                 </div>
               </section>

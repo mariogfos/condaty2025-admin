@@ -15,6 +15,7 @@ export const initSocket = () => {
   if (!db) {
     db = init({
       appId: process.env.NEXT_PUBLIC_INSTANTDB_APP_ID as string,
+      devtool: false,
     });
     console.log("iniciando conexion a InstantDB");
   } else {

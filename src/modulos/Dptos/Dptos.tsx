@@ -35,11 +35,10 @@ const lTitulars = [
 
 const Dptos = () => {
   const router = useRouter();
-  const { user, store } = useAuth();
-  const [typeUnits, setTypeUnits] = useState([]);
+  const { user } = useAuth();
 
-  const client = user.clients.filter(
-    (item: any) => item.id === user.client_id
+  const client = user?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
   )[0];
   useEffect(() => {
     setStore({ UnitsType: UnitsType[client?.type_dpto] });
@@ -111,7 +110,7 @@ const Dptos = () => {
       },
 
       description: {
-        rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Descripción",
         form: { type: "text" },
@@ -452,7 +451,11 @@ const Dptos = () => {
         })}
       </div>
 
-      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      <List
+        onTabletRow={renderItem}
+        height={"calc(100vh - 390px)"}
+        onRowClick={handleRowClick}
+      />
       {openImport && (
         <ImportDataModal
           open={openImport}

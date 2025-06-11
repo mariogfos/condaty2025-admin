@@ -305,9 +305,6 @@ const DefaultersView = () => {
           </section>
         </div>
         <div className={styles.graphPanel}>
-          {/* {   !extraData?.porCobrarMulta && !extraData?.porCobrarExpensa && (
-            <div>ASAS</div>
-          )} */}
           <GraphBase
             data={{
               labels: ["Expensas", "Multas"],
@@ -410,7 +407,7 @@ const DefaultersView = () => {
         />
 
         <div className={styles.listContainer}>
-          <List renderRight={renderRightPanel} />
+          <List height={"calc(100vh - 380px)"} renderRight={renderRightPanel} />
         </div>
       </div>
     </LoadingScreen>

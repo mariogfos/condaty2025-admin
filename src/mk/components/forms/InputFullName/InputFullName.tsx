@@ -40,11 +40,11 @@ const InputFullName = ({
         onBlur={() => onBlur("name" + prefijo)}
       />
       <Input
-        label="Segundo nombre (opcional)"
+        label="Segundo nombre"
         type="text"
         name={"middle_name" + prefijo}
-        required={false}
         disabled={disabled}
+        required={false}
         readOnly={readOnly}
         value={value["middle_name" + prefijo]}
         onChange={_onChange}
@@ -66,11 +66,11 @@ const InputFullName = ({
         onBlur={() => onBlur("last_name" + prefijo)}
       />
       <Input
-        label="Apellido materno (opcional)"
+        label="Apellido materno"
         type="text"
         name={"mother_last_name" + prefijo}
-        required={false}
         disabled={disabled}
+        required={false}
         readOnly={readOnly}
         value={value["mother_last_name" + prefijo]}
         onChange={_onChange}

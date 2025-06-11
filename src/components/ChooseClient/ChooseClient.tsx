@@ -105,6 +105,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
       onSave={onSave}
       buttonText="Continuar"
       buttonCancel=""
+      iconClose={user?.client_id ? undefined : false}
       // iconClose={user?.client_id ? true : false}
       fullScreen={user?.client_id ? false : true}
     >

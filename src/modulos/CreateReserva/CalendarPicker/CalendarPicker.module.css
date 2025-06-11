@@ -159,7 +159,7 @@
   background-color: transparent !important;
   color: var(--cAccent, #00e38c) !important; /* Texto accent */
   font-weight: var(--bBold, 700);
-  border-color: var(--cAccent, #00e38c); /* Borde accent */
+  border-color: var(--cWhiteV1); /* Borde accent */
   /* box-shadow: 0 0 6px var(--cAccent, #00e38c); */ /* Sombra opcional */
 }
 .calendarDayButton.selectedDay:hover:not(:disabled) {
@@ -167,23 +167,36 @@
    border-color: var(--cAccent, #00e38c);
 }
 
-/* *** CORREGIDO: Día parcialmente ocupado (punto rojo) *** */
-.calendarDayButton.partiallyBusyDay::after { /* <- Cambiado de .busyDay */
-  content: '';
-  position: absolute;
-  bottom: 5px; /* Ajusta posición vertical del punto */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px; /* Tamaño punto */
-  height: 6px; /* Tamaño punto */
+.calendarDayButton.partiallyBusyDay span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background-color: var(--cError, #e46055); /* Rojo error */
-  z-index: 2;
-  pointer-events: none; /* Evita que interfiera con el click */
+  background-color: rgba(255, 0, 0, 0.4); /* Cambiado de amarillo a rojo semi-transparente */
+  color: var(--cWhite);
+  font-weight: var(--bMedium);
+  transition: background-color 0.2s, color 0.2s;
 }
-/* *** CORREGIDO: Ocultar punto si está seleccionado *** */
-.calendarDayButton.selectedDay.partiallyBusyDay::after { /* <- Cambiado de .busyDay */
-   display: none; /* Oculta el punto rojo cuando el día está seleccionado */
+
+/* --- MANEJO DE ESTADOS COMBINADOS --- */
+
+/* Cuando el día ocupado TAMBIÉN está seleccionado */
+.calendarDayButton.selectedDay.partiallyBusyDay span {
+  background-color: rgba(255, 0, 0, 0.6); /* Cambiado a rojo más opaco cuando está seleccionado */
+}
+
+/* Cuando es HOY y está ocupado (pero no seleccionado) */
+.calendarDayButton.today.partiallyBusyDay span {
+  /* Mantenemos el círculo amarillo, el borde de 'today' ya lo destaca */
+}
+
+/* MUY IMPORTANTE: Cuando el día está deshabilitado, no queremos el círculo */
+.calendarDayButton.disabledDay.partiallyBusyDay span,
+.calendarDayButton:disabled.partiallyBusyDay span {
+  background-color: transparent !important; /* Quita el fondo amarillo */
+  color: inherit; /* Hereda el color del padre deshabilitado */
 }
 /* Opcional: Si quieres que el día ocupado no seleccionado tenga otro color de texto */
 .calendarDayButton.partiallyBusyDay:not(.selectedDay):not(.disabledDay) { /* <- Cambiado de .busyDay */
@@ -204,7 +217,7 @@
 
 /* Días fuera del mes (solo aplica en vista 'month') */
 .calendarDayButton.outsideDay {
-  color: var(--terciary, #595959) !important; /* Color muy apagado */
+  color: var(--cWhiteV2) !important; /* Color muy apagado */
   cursor: default;
   pointer-events: none; /* No interactivo */
 }
@@ -216,7 +229,7 @@
 /* Días deshabilitados (pasados, no de la vista) */
 .calendarDayButton:disabled,
 .calendarDayButton.disabledDay {
-  color: var(--cBlackV3, #393c3f) !important; /* Color muy muy apagado */
+  color: var(--cWhiteV2) !important; /* Color muy muy apagado */
   cursor: not-allowed;
   pointer-events: none;
   /* text-decoration: line-through; */ /* Tachado opcional */

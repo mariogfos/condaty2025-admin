@@ -249,10 +249,10 @@ export const UploadFile = ({
           isImageFile(`.${(value as any).ext}`)) ||
         (typeof value === "string" && value && isImageFile(value))) &&
       img; // Aquí 'img' es la prop desestructurada
-    console.log("renderVisualElement2", isImageFile(value));
+    // console.log("renderVisualElement2", isImageFile(value));
     if (shouldShowImage) {
       const imageUrl = getImageUrl();
-      console.log("imageUrl", imageUrl);
+      // console.log("imageUrl", imageUrl);
       if (!imageUrl) {
         return <IconImage className={styles.visualElementIcon} />;
       }
@@ -314,7 +314,9 @@ export const UploadFile = ({
           accept={accept()}
           className={styles.fileInput} // Añadida clase
         />
-        {!selectedFiles?.name && !item?.ext ? ( // Modificada la condición para chequear 'value.file'
+        {/* ({JSON.stringify(isFileError)}) */}
+        {isFileError ||
+        (!!selectedFiles?.name && !item?.ext && typeof value != "string") ? ( // Modificada la condición para chequear 'value.file'
           <div
             className={styles.uploadPlaceholder} // Añadida clase
             onClick={() => {
