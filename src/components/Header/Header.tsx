@@ -6,6 +6,7 @@ import {
   IconMenu,
   IconSetting,
   IconNotification,
+  IconMessage,
 } from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
@@ -13,6 +14,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 type PropsType = {
   isTablet: boolean;
@@ -109,6 +111,8 @@ const Header = ({
     );
   };
 
+  const { dispatch: openChat } = useEvent("onOpenChat");
+
   if (isTablet)
     return (
       <>
@@ -153,6 +157,15 @@ const Header = ({
 
       <div className={styles["header-controls"]}>
         <NotificationIcon />
+        <div
+          style={{
+            border: "1px solid var(--cWhiteV1)",
+            padding: "4px",
+            borderRadius: "50%",
+          }}
+        >
+          <IconMessage color="var(--cSuccess)" onClick={openChat} />
+        </div>
         {/* <Dropdown
           trigger={
             <div className={styles.iconOuterContainer}>
