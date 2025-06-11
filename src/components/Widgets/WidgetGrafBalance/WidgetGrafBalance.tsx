@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { MONTHS_S, getDateStrMes, getNow } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH, getDateStrMes, getNow } from "@/mk/utils/date";
 
 import styles from "./WidgetGrafBalance.module.css";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
@@ -101,7 +101,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       acumulado = fullYearData.saldos[i];
     }
     
-    let displayMeses = MONTHS_S.slice(); 
+    let displayMeses = MONTHS_S_GRAPH.slice(); 
     let displayBalanceData: BalanceData = { 
         inicial: [...fullYearData.inicial],
         ingresos: [...fullYearData.ingresos],
@@ -118,7 +118,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       const endMonthIndex = endDate.getMonth();
 
       if (startDate.getFullYear() === endDate.getFullYear()) {
-        displayMeses = MONTHS_S.slice(startMonthIndex, endMonthIndex + 1);
+        displayMeses = MONTHS_S_GRAPH.slice(startMonthIndex, endMonthIndex + 1);
         displayBalanceData = {
           inicial: fullYearData.inicial.slice(startMonthIndex, endMonthIndex + 1),
           ingresos: fullYearData.ingresos.slice(startMonthIndex, endMonthIndex + 1),
@@ -133,7 +133,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       }
       const targetMonthIndex = targetDate.getMonth(); 
 
-      displayMeses = [MONTHS_S[targetMonthIndex]];
+      displayMeses = [MONTHS_S_GRAPH[targetMonthIndex]];
       displayBalanceData = {
         inicial: [fullYearData.inicial[targetMonthIndex]],
         ingresos: [fullYearData.ingresos[targetMonthIndex]],
@@ -147,7 +147,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         if (firstMonthIndex !== -1) {
             const startIndex = firstMonthIndex;
             const endIndex = lastMonthIndex !== -1 ? lastMonthIndex : startIndex;
-            displayMeses = MONTHS_S.slice(startIndex, endIndex + 1);
+            displayMeses = MONTHS_S_GRAPH.slice(startIndex, endIndex + 1);
             displayBalanceData = {
                 inicial: fullYearData.inicial.slice(startIndex, endIndex + 1),
                 ingresos: fullYearData.ingresos.slice(startIndex, endIndex + 1),

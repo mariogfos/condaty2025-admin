@@ -128,7 +128,7 @@ const RenderForm = ({
 
   // Opciones para el campo Mes basadas en el array MONTHS
   const monthOptions = MONTHS.map((month, index) => ({
-    id: index + 1,
+    id: index ,
     name: month,
   }));
 

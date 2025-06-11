@@ -1,4 +1,5 @@
 export const MONTHS = [
+  "",
   "Enero",
   "Febrero",
   "Marzo",
@@ -13,6 +14,35 @@ export const MONTHS = [
   "Diciembre",
 ];
 export const MONTHS_S = [
+  "",
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic",
+];
+export const MONTHS_GRAPH = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+export const MONTHS_S_GRAPH = [
   "Ene",
   "Feb",
   "Mar",

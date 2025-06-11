@@ -293,34 +293,48 @@ const BalanceGeneral: React.FC = () => {
 
     switch (filterDateValue) {
       case "d":
-        return `Resumen del ${now.getDate()} de ${meses[now.getMonth()]}`;
+        return `Balance del ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "ld":
         const ayer = new Date(now);
         ayer.setDate(now.getDate() - 1);
-        return `Resumen del ${ayer.getDate()} de ${meses[ayer.getMonth()]}`;
+        return `Balance del ${ayer.getDate()} de ${meses[ayer.getMonth()]} de ${ayer.getFullYear()}`;
       case "w":
-        return `Resumen de la semana actual`;
+        const inicioSemana = new Date(now);
+        inicioSemana.setDate(now.getDate() - now.getDay() + 1);
+        const finSemana = new Date(inicioSemana);
+        finSemana.setDate(inicioSemana.getDate() + 6);
+        return `Balance desde ${inicioSemana.getDate()} de ${meses[inicioSemana.getMonth()]} hasta ${finSemana.getDate()} de ${meses[finSemana.getMonth()]} de ${finSemana.getFullYear()}`;
       case "lw":
-        return `Resumen de la semana anterior`;
+        const inicioSemanaAnterior = new Date(now);
+        inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
+        const finSemanaAnterior = new Date(inicioSemanaAnterior);
+        finSemanaAnterior.setDate(inicioSemanaAnterior.getDate() + 6);
+        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${meses[inicioSemanaAnterior.getMonth()]} hasta ${finSemanaAnterior.getDate()} de ${meses[finSemanaAnterior.getMonth()]} de ${finSemanaAnterior.getFullYear()}`;
       case "m":
-        return `Resumen de ${meses[now.getMonth()]}`;
+        return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "lm":
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
-        return `Resumen de ${meses[mesAnterior.getMonth()]}`;
+        return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Resumen del ${now.getFullYear()}`;
+        return `Balance del año ${now.getFullYear()}`;
       case "ly":
-        return `Resumen del ${now.getFullYear() - 1}`;
+        return `Balance del año ${now.getFullYear() - 1}`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
           if (dates[0] && dates[1]) {
-            const fechaInicio = new Date(dates[0]);
-            const fechaFin = new Date(dates[1]);
-            return `Resumen desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]}`;
+            // Crear las fechas y ajustarlas a UTC-4
+            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
+            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
+            
+            // Asegurarse de que las fechas se muestren correctamente
+            fechaInicio.setHours(fechaInicio.getHours() + 4); // Ajustar a UTC-4
+            fechaFin.setHours(fechaFin.getHours() + 4); // Ajustar a UTC-4
+            
+            return `Balance desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]} de ${fechaFin.getFullYear()}`;
           }
         }
-        return "Resumen general";
+        return "Balance general";
     }
   };
 
@@ -457,9 +471,7 @@ const BalanceGeneral: React.FC = () => {
                     formStateFilter.filter_date == "ld"
                       ? "Balance de " +
                         (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                      : `Balance desde ${getDateDesdeHasta(
-                          formStateFilter.filter_date
-                        )}`}
+                      : getPeriodoText(formStateFilter.filter_date)}
                   </h2>
                   <div className={styles.chartContainer}>
                     <WidgetGrafBalance

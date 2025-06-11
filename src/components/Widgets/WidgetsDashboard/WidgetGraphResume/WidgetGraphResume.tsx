@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { MONTHS_S, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
@@ -55,7 +55,7 @@ const WidgetGraphResume = ({
     // });
     let mesI = 0;
     let mesF = 12;
-    let lmeses = MONTHS_S.slice(0, 12);
+    let lmeses = MONTHS_S_GRAPH.slice(0, 12);
     ingresos?.map((item) => {
       if (item.mes > mesI) mesI = item.mes;
       if (item.mes < mesF) mesF = item.mes;

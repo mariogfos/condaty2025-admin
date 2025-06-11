@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { MONTHS_S } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH } from "@/mk/utils/date";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import styles from "./WidgetGrafEgresos.module.css";
@@ -45,7 +45,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     currentPeriodo?: string
   ) => {
     if (currentPeriodo === "y" || currentPeriodo === "ly") {
-      return MONTHS_S;
+      return MONTHS_S_GRAPH;
     }
 
     if (!data || data.length === 0) return [];
@@ -53,7 +53,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
       (a, b) => a - b
     );
-    return monthIndexes.map((index) => MONTHS_S[index]);
+    return monthIndexes.map((index) => MONTHS_S_GRAPH[index]);
   };
 
   const getValuesEgresos = (
@@ -101,7 +101,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
       const formattedValues: number[] = [];
 
       months.forEach((monthName) => {
-        const monthNumber = MONTHS_S.indexOf(monthName) + 1;
+        const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
           (transaction) => transaction.mes === monthNumber
         );

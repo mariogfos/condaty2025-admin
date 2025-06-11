@@ -1,7 +1,7 @@
 "use client";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
-import { MONTHS_S } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH } from "@/mk/utils/date";
 import styles from "./WidgetGrafIngresos.module.css";
 
 interface Transaction {
@@ -47,7 +47,7 @@ const WidgetGrafIngresos = ({
   ) => {
     // Si el filtro es anual, siempre devuelve los 12 meses
     if (currentPeriodo === "y" || currentPeriodo === "ly") {
-      return MONTHS_S;
+      return MONTHS_S_GRAPH;
     }
 
     // Para otros filtros, deduce los meses a partir de los datos
@@ -56,7 +56,7 @@ const WidgetGrafIngresos = ({
     const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
       (a, b) => a - b
     );
-    return monthIndexes.map((index) => MONTHS_S[index]);
+    return monthIndexes.map((index) => MONTHS_S_GRAPH[index]);
   };
 
   // 3. La función ahora recibe los meses como parámetro para alinear los datos
@@ -106,7 +106,7 @@ const WidgetGrafIngresos = ({
 
       // Itera sobre la lista de meses definitiva para asegurar que cada mes tenga un valor
       months.forEach((monthName) => {
-        const monthNumber = MONTHS_S.indexOf(monthName) + 1;
+        const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
           (transaction) => transaction.mes === monthNumber
         );
