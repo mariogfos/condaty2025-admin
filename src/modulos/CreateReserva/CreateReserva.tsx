@@ -33,6 +33,7 @@ import {
 } from "./Type"; // Asegúrate que la ruta sea correcta
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import Button from "@/mk/components/forms/Button/Button";
 
 // --- Interfaces del Formulario (Definidas localmente) ---
 
@@ -89,7 +90,9 @@ const CreateReserva = () => {
   const [busyDays, setBusyDays] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
-  const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>([]); 
+  const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>(
+    []
+  );
   const [loadingTimes, setLoadingTimes] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
@@ -310,7 +313,7 @@ const CreateReserva = () => {
         canReserve = apiData.reservations; // Accede a las propiedades (TS usará el tipo ApiCalendarAvailabilityData)
         message = apiData.message ?? "";
         availableSlots = apiData.available;
-        const unavailableSlots = apiData.unavailable; 
+        const unavailableSlots = apiData.unavailable;
         if (Array.isArray(unavailableSlots)) {
           setUnavailableTimeSlots(unavailableSlots);
           console.log(">>> Setting unavailableTimeSlots:", unavailableSlots);
@@ -342,7 +345,7 @@ const CreateReserva = () => {
       // Captura errores de red o fallos inesperados durante el proceso
       console.error("Error en fetchAvailableTimes:", error);
       setAvailableTimeSlots([]);
-      setUnavailableTimeSlots([]); 
+      setUnavailableTimeSlots([]);
       setCanMakeReservationForDate(false); // Asume no disponible si hay error
       setReservationBlockMessage("Error al cargar horarios. Intenta de nuevo.");
     } finally {
@@ -778,11 +781,17 @@ const CreateReserva = () => {
     handleQuantityChange(newValue);
   };
   const allTimeSlots = useMemo(() => {
-    const available = availableTimeSlots.map(period => ({ period, isAvailable: true }));
-    const unavailable = unavailableTimeSlots.map(period => ({ period, isAvailable: false }));
+    const available = availableTimeSlots.map((period) => ({
+      period,
+      isAvailable: true,
+    }));
+    const unavailable = unavailableTimeSlots.map((period) => ({
+      period,
+      isAvailable: false,
+    }));
 
     // Combina y ordena los periodos cronológicamente
-    return [...available, ...unavailable].sort((a, b) => 
+    return [...available, ...unavailable].sort((a, b) =>
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
@@ -1102,51 +1111,64 @@ const CreateReserva = () => {
                           // Si NO está cargando:
                           <>
                             {/* 3. Muestra los slots SI existen en el estado */}
-                            
-                              {allTimeSlots.length > 0 ? (
-                                <div className={styles.periodSelectionContainer}>
-                                  {allTimeSlots.map((slot) => {
-                                    // `slot` ahora es un objeto: { period: string, isAvailable: boolean }
-                                    
-                                    const isSelected = selectedPeriods.includes(slot.period);
-                                    
-                                    // El botón está deshabilitado si el slot NO está disponible O si hay un bloqueo general.
-                                    const isDisabled = !slot.isAvailable || canMakeReservationForDate === false;
 
-                                    return (
-                                      <button
-                                        type="button"
-                                        key={slot.period}
-                                        className={`${styles.periodButton} ${
-                                          isSelected && slot.isAvailable ? styles.selectedPeriod : ""
-                                        } ${
-                                          // Usa una clase específica para los no disponibles para darles un estilo diferente
-                                          !slot.isAvailable ? styles.unavailablePeriod : "" 
-                                        }`}
-                                        onClick={() => {
-                                          // Solo permite seleccionar si está disponible
-                                          if (slot.isAvailable) {
-                                            handlePeriodToggle(slot.period);
-                                          }
-                                        }}
-                                        // Deshabilita el botón si no está disponible o por bloqueo general
-                                        disabled={isDisabled}
-                                        // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
-                                        title={!slot.isAvailable ? "Este período ya fue reservado" : ""}
-                                      >
-                                        {slot.period.replace("-", " a ")}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                // La lógica para cuando no hay NINGÚN periodo (ni disponible ni ocupado)
-                                canMakeReservationForDate === true && (
-                                  <span className={styles.warningText}>
-                                    No hay periodos definidos para esta área en esta fecha.
-                                  </span>
-                                )
-                              )}
+                            {allTimeSlots.length > 0 ? (
+                              <div className={styles.periodSelectionContainer}>
+                                {allTimeSlots.map((slot) => {
+                                  // `slot` ahora es un objeto: { period: string, isAvailable: boolean }
+
+                                  const isSelected = selectedPeriods.includes(
+                                    slot.period
+                                  );
+
+                                  // El botón está deshabilitado si el slot NO está disponible O si hay un bloqueo general.
+                                  const isDisabled =
+                                    !slot.isAvailable ||
+                                    canMakeReservationForDate === false;
+
+                                  return (
+                                    <button
+                                      type="button"
+                                      key={slot.period}
+                                      className={`${styles.periodButton} ${
+                                        isSelected && slot.isAvailable
+                                          ? styles.selectedPeriod
+                                          : ""
+                                      } ${
+                                        // Usa una clase específica para los no disponibles para darles un estilo diferente
+                                        !slot.isAvailable
+                                          ? styles.unavailablePeriod
+                                          : ""
+                                      }`}
+                                      onClick={() => {
+                                        // Solo permite seleccionar si está disponible
+                                        if (slot.isAvailable) {
+                                          handlePeriodToggle(slot.period);
+                                        }
+                                      }}
+                                      // Deshabilita el botón si no está disponible o por bloqueo general
+                                      disabled={isDisabled}
+                                      // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
+                                      title={
+                                        !slot.isAvailable
+                                          ? "Este período ya fue reservado"
+                                          : ""
+                                      }
+                                    >
+                                      {slot.period.replace("-", " a ")}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              // La lógica para cuando no hay NINGÚN periodo (ni disponible ni ocupado)
+                              canMakeReservationForDate === true && (
+                                <span className={styles.warningText}>
+                                  No hay periodos definidos para esta área en
+                                  esta fecha.
+                                </span>
+                              )
+                            )}
 
                             {/* 5. Muestra error de validación si el usuario intentó continuar sin seleccionar */}
                             {errors.selectedPeriods && (
@@ -1226,9 +1248,12 @@ const CreateReserva = () => {
                     </div>
                   </div>
                   {errors.cantidad_personas && (
-                    <span className={styles.errorText}>
+                    <div
+                      className={styles.errorText}
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
                       {errors.cantidad_personas}
-                    </span>
+                    </div>
                   )}
                 </div>
                 {/* --- FIN REEMPLAZO --- */}
@@ -1503,14 +1528,13 @@ const CreateReserva = () => {
                 )}
                 {/* Botón Siguiente (visible solo en Paso 1) */}
                 {currentStep === 1 && (
-                  <button
-                    type="button"
+                  <Button
                     className={`${styles.button} ${styles.nextBtn}`}
                     onClick={nextStep}
                     disabled={isSubmitting || !selectedAreaDetails}
                   >
                     Reservar
-                  </button>
+                  </Button>
                 )}
                 {/* Botón Continuar (visible solo en Paso 2) */}
                 {currentStep === 2 && (
