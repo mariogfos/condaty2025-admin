@@ -73,7 +73,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
               Sesión activa
             </p>
           ) : sel == c.id ? (
-            <IconCheckSquare color="var(--cSuccess)" />
+            <IconCheckSquare color="var(--cAccent)" />
           ) : (
             <IconCheckOff color="var(--cWhiteV1)" />
           )
