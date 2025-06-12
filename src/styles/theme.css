@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap");
 
 :root {
   --accent: #00e38c;
@@ -137,7 +137,7 @@
   --spXl: 24px;
   --spXxl: 32px;
   /* Fuentes */
-  --fPrimary: "Inter", sans-serif;
+  --fPrimary: "Roboto", sans-serif;
   --fSecondary: "Roboto", sans-serif;
   /* Border */
   --bRadiusS: 8px;
@@ -406,5 +406,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .bottomLine {
   border-bottom: 1px solid var(--cWhiteV1);
-  
 }
