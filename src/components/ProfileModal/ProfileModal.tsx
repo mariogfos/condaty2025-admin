@@ -255,9 +255,11 @@ const ProfileModal = ({
               <div>
                 <div>
                   {IconType}
-                  {data?.data[0]?.dpto[0]?.nro
-                    ? `${data?.data[0]?.dpto[0]?.type.name} ${data?.data[0]?.dpto[0]?.nro}`
-                    : "-/-"}
+                  {data?.data[0]?.dpto?.[0]?.nro && type === "owner"
+                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
+                        data?.data[0]?.dpto?.[0]?.nro || "-/-"
+                      }`
+                    : profileRole}
                 </div>
                 <div>
                   <IconPhone size={16} color={"var(--cWhiteV1)"} />
