@@ -14,6 +14,7 @@ import { SendEmoticonType, SendMessageType } from "../chat-types";
 import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { useChatProvider } from "../chatBot/useChatProvider";
+import { relative } from "path";
 
 interface SelectedFile {
   file: File;
@@ -182,7 +183,16 @@ const ChatRoom = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        // height: "100%",
+        flexGrow: 1,
+        width: "100%",
+      }}
+    >
       {previewURL && (
         <div
           style={{

@@ -247,6 +247,7 @@ export default function ChatInstantDb() {
               overflow: "scroll",
               overflowX: "hidden",
               backgroundColor: "blue",
+              height: "100%",
             }}
           >
             {/* <div style={{ height: "100%" }}> */}
@@ -269,7 +270,7 @@ export default function ChatInstantDb() {
           </div>
           <div style={{ flexShrink: 1 }}>Canales de contactos</div>
         </div>
-        <div style={{ backgroundColor: "red", width: "100%" }}>
+        <div style={{ width: "100%" }}>
           <ChatRoom
             user={user}
             roomId={typeSearch}

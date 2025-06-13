@@ -1,11 +1,7 @@
 .chatContainer {
-  width: 100%;
   max-width: 75%;
   width: 1085px;
   height: 100vh;
-  /* border: 1px solid var(--cBlack); */
-  /* border-radius: 8px; */
-  /* padding: 16px; */
   background-color: var(--cBlackV2);
   position: absolute;
   top: 0;
@@ -13,9 +9,7 @@
   transition: right 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  /* padding: 10px; */
   box-sizing: border-box;
-  /* border: 2px solid red; */
   overflow: hidden;
   &.close {
     right: 0px;

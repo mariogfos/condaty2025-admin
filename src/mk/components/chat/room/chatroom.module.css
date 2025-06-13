@@ -13,13 +13,16 @@
 }
 
 .chatContainer {
-  height: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   overflow-y: auto;
   padding: 12px;
   padding-top: 0;
   position: relative;
   color: black;
+  background-color: red;
 }
 
 .messageContainer {
