@@ -221,9 +221,10 @@ export default function ChatInstantDb() {
       </div>
       <div
         style={{
-          flexGrow: 1,
+          // flexGrow: 1,
           display: "flex",
           padding: "24px 0",
+          // backgroundColor: "blue",
         }}
       >
         <div
@@ -236,7 +237,9 @@ export default function ChatInstantDb() {
             justifyContent: "space-between",
             gap: "8px",
             position: "relative",
-
+            backgroundColor: "blue",
+            overflowY: "scroll",
+            backgroundColor: "green",
             // flex: 1,
           }}
         >
