@@ -169,218 +169,228 @@ const ProfileModal = ({
       // setOpenConfirm({ open: false, id: null });
     }
   };
-
+  console.log(data?.data);
   return (
-    <DataModal
-      title={titleBack}
-      open={open}
-      onClose={onClose}
-      fullScreen
-      variant="V2"
-      buttonText=""
-      buttonCancel=""
-      // onSave={() => logout()}
-    >
-      <div className={styles.ProfileModal}>
-        <section>
-          <h1>{title}</h1>
-          <div>
-            {edit && (
-              <IconEdit
-                className=""
-                square
-                size={32}
-                color={"var(--cWhite)"}
-                style={{
-                  backgroundColor: "var(--cWhiteV2)",
-                  cursor: "pointer",
-                }}
-                onClick={() => setOpenEdit(true)}
-              />
-            )}
-            {del && (
-              <IconTrash
-                className=""
-                square
-                size={32}
-                color={"var(--cWhite)"}
-                style={{
-                  backgroundColor: "var(--cWhiteV2)",
-                  cursor: "pointer",
-                }}
-                onClick={() => setOpenDel(true)}
-              />
-            )}
-          </div>
-        </section>
-
-        <section>
-          <Avatar
-            src={getUrlImages(
-              "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
-            )}
-            //   name={getFullName(user)}
-            style={{
-              width: "100%",
-              height: 300,
-              borderTopLeftRadius: "var(--bRadiusS)",
-              borderTopRightRadius: "var(--bRadiusS)",
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              borderBottom: "1px solid var(--cWhiteV2)",
-            }}
-          />
-          <div>
+    open && (
+      <DataModal
+        title={titleBack}
+        open={open}
+        onClose={onClose}
+        fullScreen
+        variant="V2"
+        buttonText=""
+        buttonCancel=""
+        // onSave={() => logout()}
+      >
+        <div className={styles.ProfileModal}>
+          <section>
+            <h1>{title}</h1>
             <div>
-              <div>
-                <Avatar
-                  src={getUrlImages(urlImages)}
-                  name={getFullName(data?.data[0])}
-                  w={191}
-                  h={191}
+              {edit && (
+                <IconEdit
+                  className=""
+                  square
+                  size={32}
+                  color={"var(--cWhite)"}
+                  style={{
+                    backgroundColor: "var(--cWhiteV2)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setOpenEdit(true)}
                 />
+              )}
+              {del && (
+                <IconTrash
+                  className=""
+                  square
+                  size={32}
+                  color={"var(--cWhite)"}
+                  style={{
+                    backgroundColor: "var(--cWhiteV2)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setOpenDel(true)}
+                />
+              )}
+            </div>
+          </section>
+
+          <section>
+            <Avatar
+              src={getUrlImages(
+                "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
+              )}
+              //   name={getFullName(user)}
+              style={{
+                width: "100%",
+                height: 300,
+                borderTopLeftRadius: "var(--bRadiusS)",
+                borderTopRightRadius: "var(--bRadiusS)",
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                borderBottom: "1px solid var(--cWhiteV2)",
+              }}
+            />
+            <div>
+              <div>
                 <div>
-                  <span> {getFullName(data?.data[0])}</span>
-                  <span>{profileRole}</span>
+                  <Avatar
+                    src={getUrlImages(urlImages)}
+                    name={getFullName(data?.data[0])}
+                    w={191}
+                    h={191}
+                  />
+                  <div>
+                    <span> {getFullName(data?.data[0])}</span>
+                    <span>{profileRole}</span>
+                    {/* <span>
+                      {data?.data[0]?.dpto[0]?.nro
+                        ? data?.data[0]?.dpto[0]?.nro
+                        : "-/-"}
+                    </span> */}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div>
+                  {IconType}
+                  {data?.data[0]?.dpto[0]?.nro
+                    ? `${data?.data[0]?.dpto[0]?.type.name} ${data?.data[0]?.dpto[0]?.nro}`
+                    : "-/-"}
+                </div>
+                <div>
+                  <IconPhone size={16} color={"var(--cWhiteV1)"} />
+                  {data?.data[0]?.phone || "-/-"}
+                </div>
+                <div>
+                  <IconEmail size={16} color={"var(--cWhiteV1)"} />
+                  {data?.data[0]?.email || "-/-"}
                 </div>
               </div>
             </div>
-
-            <div>
-              <div>
-                {IconType} {profileRole}
-              </div>
-              <div>
-                <IconPhone size={16} color={"var(--cWhiteV1)"} />
-                {data?.data[0]?.phone || "-/-"}
-              </div>
-              <div>
-                <IconEmail size={16} color={"var(--cWhiteV1)"} />
-                {data?.data[0]?.email || "-/-"}
-              </div>
-            </div>
-          </div>
-        </section>
-        <section>
-          <WidgetBase
-            title={"Datos Personales"}
-            variant={"V1"}
-            titleStyle={{ fontSize: 16 }}
-          >
-            <div className="bottomLine" />
-            <div>
-              <div>Carnet de identidad</div>
-              <div>{data?.data[0]?.ci}</div>
-            </div>
-            {type !== "homeOwner" && (
-              <>
-                <div className="bottomLine" />
-                <div>
-                  <div>Condominio</div>
-                  {data?.data[0]?.clients.map((item: any) => (
-                    <div key={item.id}>- {item.name}</div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            <div className="bottomLine" />
-
-            <div>
-              <div>Dirección</div>
-              <div>
-                {type === "owner"
-                  ? !data?.data[0]?.dpto[0]?.description ||
-                    !data?.data[0]?.dpto[0]?.nro
-                    ? "Sin registrar"
-                    : `${data?.data[0]?.dpto[0]?.description} ${data?.data[0]?.dpto[0]?.nro}`
-                  : data?.data[0]?.address || "-/-"}
-              </div>
-            </div>
-
-            <div className="bottomLine" />
-          </WidgetBase>
-          <WidgetBase
-            title={"Documentos Personales"}
-            variant={"V1"}
-            titleStyle={{ fontSize: 16 }}
-          >
-            <div className="bottomLine"></div>
-            <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
-          </WidgetBase>
-
-          {user.id === data?.data[0]?.id && (
+          </section>
+          <section>
             <WidgetBase
-              title={"Datos de acceso"}
+              title={"Datos Personales"}
               variant={"V1"}
               titleStyle={{ fontSize: 16 }}
             >
               <div className="bottomLine" />
+              <div>
+                <div>Carnet de identidad</div>
+                <div>{data?.data[0]?.ci}</div>
+              </div>
+              {type !== "homeOwner" && (
+                <>
+                  <div className="bottomLine" />
+                  <div>
+                    <div>Condominio</div>
+                    {data?.data[0]?.clients.map((item: any) => (
+                      <div key={item.id}>- {item.name}</div>
+                    ))}
+                  </div>
+                </>
+              )}
 
-              <div className={styles.buttonChange} onClick={onChangeEmail}>
-                <IconLockEmail reverse /> <div>Cambiar correo electrónico</div>{" "}
-                <IconArrowRight />
-              </div>
               <div className="bottomLine" />
-              <div className={styles.buttonChange} onClick={onChangePassword}>
-                <IconLook reverse /> <div>Cambiar contraseña</div>{" "}
-                <IconArrowRight />
+
+              <div>
+                <div>Dirección</div>
+                <div>
+                  {type === "owner"
+                    ? !data?.data[0]?.dpto[0]?.description ||
+                      !data?.data[0]?.dpto[0]?.nro
+                      ? "-/-"
+                      : `${data?.data[0]?.dpto[0]?.description}`
+                    : data?.data[0]?.address || "-/-"}
+                </div>
               </div>
+
               <div className="bottomLine" />
             </WidgetBase>
-          )}
-        </section>
-      </div>
-      {openAuthModal && (
-        <Authentication
-          open={openAuthModal}
-          onClose={() => setOpenAuthModal(false)}
-          type={authType}
-          formState={formState}
-          setFormState={setFormState}
-          errors={errors}
-          setErrors={setErrors}
-          execute={execute}
-          getUser={getUser}
-          user={user}
-          showToast={showToast}
-        />
-      )}
+            <WidgetBase
+              title={"Documentos Personales"}
+              variant={"V1"}
+              titleStyle={{ fontSize: 16 }}
+            >
+              <div className="bottomLine"></div>
+              <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
+            </WidgetBase>
 
-      {openEdit && (
-        <EditProfile
-          open={openEdit}
-          onClose={() => setOpenEdit(false)}
-          formState={formState}
-          onChange={onChange}
-          errors={errors}
-          urlImages={urlImages}
-          setErrors={setErrors}
-          setFormState={setFormState}
-          url={url}
-          reLoad={reLoadDet}
-          reLoadList={reLoad}
-          type={type}
-        />
-      )}
-      {openDel && (
-        <DataModal
-          title={`Desvincular ${profileRole}`}
-          open={openDel}
-          onClose={() => setOpenDel(false)}
-          buttonText="Desvincular"
-          buttonCancel="Cancelar"
-          onSave={onDel}
-        >
-          <div>
-            <p style={{ fontSize: "var(--sL)" }}>
-              ¿Estás seguro de que quieres eliminar este registro?
-            </p>
-            <p>Esta acción no se puede deshacer.</p>
-          </div>
-        </DataModal>
-      )}
-    </DataModal>
+            {user.id === data?.data[0]?.id && (
+              <WidgetBase
+                title={"Datos de acceso"}
+                variant={"V1"}
+                titleStyle={{ fontSize: 16 }}
+              >
+                <div className="bottomLine" />
+
+                <div className={styles.buttonChange} onClick={onChangeEmail}>
+                  <IconLockEmail reverse />{" "}
+                  <div>Cambiar correo electrónico</div> <IconArrowRight />
+                </div>
+                <div className="bottomLine" />
+                <div className={styles.buttonChange} onClick={onChangePassword}>
+                  <IconLook reverse /> <div>Cambiar contraseña</div>{" "}
+                  <IconArrowRight />
+                </div>
+                <div className="bottomLine" />
+              </WidgetBase>
+            )}
+          </section>
+        </div>
+        {openAuthModal && (
+          <Authentication
+            open={openAuthModal}
+            onClose={() => setOpenAuthModal(false)}
+            type={authType}
+            formState={formState}
+            setFormState={setFormState}
+            errors={errors}
+            setErrors={setErrors}
+            execute={execute}
+            getUser={getUser}
+            user={user}
+            showToast={showToast}
+          />
+        )}
+
+        {openEdit && (
+          <EditProfile
+            open={openEdit}
+            onClose={() => setOpenEdit(false)}
+            formState={formState}
+            onChange={onChange}
+            errors={errors}
+            urlImages={urlImages}
+            setErrors={setErrors}
+            setFormState={setFormState}
+            url={url}
+            reLoad={reLoadDet}
+            reLoadList={reLoad}
+            type={type}
+          />
+        )}
+        {openDel && (
+          <DataModal
+            title={`Desvincular ${profileRole}`}
+            open={openDel}
+            onClose={() => setOpenDel(false)}
+            buttonText="Desvincular"
+            buttonCancel="Cancelar"
+            onSave={onDel}
+          >
+            <div>
+              <p style={{ fontSize: "var(--sL)" }}>
+                ¿Estás seguro de que quieres eliminar este registro?
+              </p>
+              <p>Esta acción no se puede deshacer.</p>
+            </div>
+          </DataModal>
+        )}
+      </DataModal>
+    )
   );
 };
 
