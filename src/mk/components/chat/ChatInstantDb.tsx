@@ -233,21 +233,20 @@ export default function ChatInstantDb() {
             width: "380px",
             display: "flex",
             flexDirection: "column",
+            justifyContent: "space-between",
+            gap: "8px",
+            position: "relative",
+
+            // flex: 1,
           }}
         >
-          {/* <TabsButtons
-            tabs={_rooms}
-            sel={typeSearch}
-            setSel={setTypeSearch}
-            text="closeRoom"
-          /> */}
           <div
             style={{
               flexGrow: 1,
-              overflow: "scroll",
-              overflowX: "hidden",
-              backgroundColor: "blue",
-              height: "100%",
+              flex: 1,
+              height: "200px",
+              // overflowY: "auto",
+              // overflowX: "hidden",
             }}
           >
             {/* <div style={{ height: "100%" }}> */}
