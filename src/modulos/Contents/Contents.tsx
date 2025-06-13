@@ -109,7 +109,7 @@ const Contents = () => {
       extraData: any;
     }) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
-    listAndCard: true,
+    // listAndCard: true,
     // hideActions: { add: true },
     renderForm: (props: {
       item: any;
@@ -585,10 +585,10 @@ const Contents = () => {
     <div className={styles.roles}>
       {/* <IconLike onClick={() => onResponse()} /> */}
       <List
-        onTabletRow={renderItem}
+        // onTabletRow={renderItem}
         actionsWidth="140px"
         height={"calc(100vh - 285px)"}
-        onRenderCard={openCard ? renderCard : null}
+        // onRenderCard={openCard ? renderCard : null}
       />
       {/* {openImport && (
         <ImportDataModal
