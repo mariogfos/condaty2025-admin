@@ -167,10 +167,13 @@ export default function ChatInstantDb() {
 
   useEvent("onNotif", onNotif);
 
-  const onOpenChat = useCallback((e: any) => {
-    setOpen(!open);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onOpenChat = useCallback(
+    (e: any) => {
+      console.log(e);
+      setOpen(!open);
+    },
+    [open]
+  );
 
   useEvent("onOpenChat", onOpenChat);
 
