@@ -1,6 +1,7 @@
 .chatContainer {
   width: 100%;
-  max-width: 1085px;
+  max-width: 75%;
+  width: 1085px;
   height: 100vh;
   /* border: 1px solid var(--cBlack); */
   /* border-radius: 8px; */
@@ -14,7 +15,7 @@
   flex-direction: column;
   /* padding: 10px; */
   box-sizing: border-box;
-  border: 2px solid red;
+  /* border: 2px solid red; */
   overflow: hidden;
   &.close {
     right: 0px;
@@ -38,7 +39,7 @@
   position: relative;
 }
 
-.onlineUsersTitle {
+/* .onlineUsersTitle {
   margin-top: 12px;
   font-size: 16px;
   font-weight: bold;
@@ -49,14 +50,40 @@
   list-style: none;
   padding: 0;
   color: black;
+} */
+
+.presence {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--cBlackV3);
+  &.online {
+    background-color: var(--cPrimary);
+  }
 }
 
-.onlineUser {
-  padding: 4px;
-  color: green;
-}
+.itemList {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: hidden;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
 
-.offlineUser {
-  padding: 4px;
-  color: grey;
+  &.active {
+    border: 1px solid var(--cPrimary);
+    background-color: var(--cWhiteV2);
+  }
+
+  &:hover {
+    background-color: var(--cBlack);
+  }
 }

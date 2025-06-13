@@ -219,7 +219,6 @@ const ChatRoom = ({
           )}
         </div>
       )}
-
       {showEmojiPicker !== null && (
         <div className={styles.emojiPicker}>
           <EmojiPicker
