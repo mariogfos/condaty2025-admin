@@ -156,21 +156,24 @@
   justify-content: space-between; */
   border-radius: 8px;
   margin: 16px;
-  padding: 16px;
+  /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
 }
 
 .chatInput {
+  border: 1px solid transparent;
   width: 100%;
-  padding: 8px;
-  border: 1px solid white;
+  height: calc(100% - 36px);
+  padding: 16px;
   border-radius: 8px;
   line-height: 1;
   white-space: pre-line;
   resize: none;
   outline: none;
   background-color: transparent;
+  /* background-color: red; */
+  /* margin: 16px; */
   color: var(--cWhiteV1);
 }
 
@@ -179,10 +182,17 @@
 }
 
 .chatButton {
+  position: absolute;
   color: var(--cPrimary);
   opacity: 0.8;
   cursor: pointer;
-  align-self: center;
+  bottom: 4px;
+  right: 16px;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .chatButton:hover {

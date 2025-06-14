@@ -380,11 +380,7 @@ const ChatRoom = ({
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />
-        <IconImage
-          color="var(--cWhite)"
-          onClick={() => fileInputRef.current?.click()}
-          style={{ cursor: "pointer" }}
-        />
+
         <textarea
           // type="text"
           value={newMessage}
@@ -402,7 +398,14 @@ const ChatRoom = ({
             if (!sending) handleSendMessage();
           }}
         >
-          <IconSend size={32} />
+          <IconImage
+            color="var(--cBlack)"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ cursor: "pointer", padding: "4px" }}
+            circle
+          />
+
+          <IconSend />
         </div>
         {/* <button onClick={handleSendMessage} className={styles.chatButton}>
           Enviar
