@@ -448,10 +448,10 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Solicitudes de pago"
+                    title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay solicitudes de pago por revisar"
+                    emptyListMessage="No hay pagos por revisar"
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
                   />
