@@ -219,37 +219,30 @@ export default function ChatInstantDb() {
         </div>
         <IconX onClick={() => setOpen(false)} />
       </div>
-      <div
-        style={{
-          // flexGrow: 1,
-          display: "flex",
-          padding: "24px 0",
-          // backgroundColor: "blue",
-        }}
-      >
+      <div className={styles.chatBodyContainer}>
         <div
           style={{
             borderRight: "1px solid var(--cWhiteV1)",
             padding: "0 16px",
-            width: "380px",
+            width: "300px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             gap: "8px",
             position: "relative",
-            backgroundColor: "blue",
-            overflowY: "scroll",
-            backgroundColor: "green",
+            overflow: "hidden",
+            // backgroundColor: "green",
             // flex: 1,
           }}
         >
           <div
             style={{
               flexGrow: 1,
-              flex: 1,
+              // flex: 1,
               height: "200px",
-              // overflowY: "auto",
-              // overflowX: "hidden",
+              overflowY: "auto",
+              overflowX: "hidden",
+              // backgroundColor: "blue",
             }}
           >
             {/* <div style={{ height: "100%" }}> */}
@@ -270,9 +263,24 @@ export default function ChatInstantDb() {
             })}
             {/* </div> */}
           </div>
-          <div style={{ flexShrink: 1 }}>Canales de contactos</div>
+          <div style={{ flexShrink: 1 }}>
+            Canales de contactos <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <hr />
+          </div>
         </div>
-        <div style={{ width: "100%" }}>
+        <div
+          style={{
+            flexGrow: 1,
+            // backgroundColor: "blue",
+            width: "300px",
+            display: "flex",
+          }}
+        >
           <ChatRoom
             user={user}
             roomId={typeSearch}
@@ -288,32 +296,13 @@ export default function ChatInstantDb() {
           />
         </div>
       </div>
-      {/* <div
-        style={{
-          position: "absolute",
-          left: "-40px",
-          backgroundColor: "var(--cBlack",
-          top: "10px",
-          width: "40px",
-          height: "40px",
-          padding: "10px",
-          borderRadius: "10px 0  0 10px",
-        }}
-        onClick={() => setOpen(!open)}
-      >
-        <IconMessage color="var(--cSuccess)" />
-      </div> */}
-
-      {/* <div style={{ color: "white" }}>
-        {botActive && <ChatBotLLm />}
-      </div> */}
     </div>
   );
 }
 
 const RenderText = ({ msg, userId, rol }: any) => {
   return (
-    <>
+    <div className="truncate" style={{ display: "flex", gap: "4px" }}>
       {msg?.sender === userId && !msg?.received_at && <IconCheck size={12} />}
       {msg?.sender === userId && msg?.received_at && !msg?.read_at && (
         <IconReadMessage size={12} />
@@ -321,9 +310,9 @@ const RenderText = ({ msg, userId, rol }: any) => {
       {msg?.sender === userId && msg?.received_at && msg?.read_at && (
         <IconReadMessage size={12} color="var(--cPrimary)" />
       )}
-      {msg?.$files && <IconImage size={12} />}
+      {msg?.$files?.length > 0 && <IconImage size={12} />}
       {msg?.text ?? rol}
-    </>
+    </div>
   );
 };
 
@@ -379,12 +368,12 @@ const ChatContactItem = ({
         {getFullName(u, "NmLo")}
         <br />
         <div
+          className="truncate"
           style={{
             color: "var(--cWhiteV1",
             display: "flex",
             gap: "4px",
           }}
-          // className="truncate"
         >
           {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name ? (
             "Escribiendo..."

@@ -14,6 +14,7 @@
   &.close {
     right: 0px;
   }
+  border: 5px solid yellow;
 }
 
 /* .chatTitle {
@@ -59,6 +60,12 @@
   }
 }
 
+.chatBodyContainer {
+  flex-grow: 1;
+  display: flex;
+  padding: 12px 0;
+}
+
 .itemList {
   display: flex;
   align-items: center;
@@ -71,7 +78,6 @@
   margin-bottom: 8px;
   transition: all 0.2s ease-in-out;
   border: 1px solid transparent;
-
   &.active {
     border: 1px solid var(--cPrimary);
     background-color: var(--cWhiteV2);
