@@ -272,3 +272,11 @@ h2 {
 .rotate {
   transform: rotate(180deg);
 }
+
+.truncate {
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden; /* Oculta el texto que desborda el contenedor */
+  text-overflow: ellipsis; /* Añade "..." al final del texto truncado */
+  width: 100%; /* Asegura que el ancho sea el del contenedor padre */
+  color: "red";
+}

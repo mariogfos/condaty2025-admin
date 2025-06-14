@@ -14,6 +14,7 @@ import { SendEmoticonType, SendMessageType } from "../chat-types";
 import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { useChatProvider } from "../chatBot/useChatProvider";
+import { relative } from "path";
 
 interface SelectedFile {
   file: File;
@@ -182,44 +183,7 @@ const ChatRoom = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      {previewURL && (
-        <div
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "400px",
-            zIndex: 5000,
-            backgroundColor: "var(--cBlack)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <IconX
-            style={{
-              position: "absolute",
-              right: "32px",
-              top: "0",
-              zIndex: 10,
-            }}
-            color="red"
-            onClick={() => cancelUpload()}
-          />
-          {previewURL && (
-            <img
-              src={previewURL}
-              alt="Preview"
-              style={{
-                objectFit: "contain",
-                maxHeight: "100%",
-                maxWidth: "100%",
-              }}
-            />
-          )}
-        </div>
-      )}
-
+    <div className={styles.chatRoomContainer}>
       {showEmojiPicker !== null && (
         <div className={styles.emojiPicker}>
           <EmojiPicker
@@ -234,7 +198,45 @@ const ChatRoom = ({
           />
         </div>
       )}
-      <div className={styles.chatContainer} ref={chatRef}>
+      <div className={styles.chatMsgContainer} ref={chatRef}>
+        {previewURL && (
+          <div
+            style={{
+              position: "absolute",
+              // width: "100%",
+              height: "100%",
+              zIndex: 5000,
+              backgroundColor: "var(--cBlack)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              right: 0,
+              left: 0,
+            }}
+          >
+            <IconX
+              style={{
+                position: "absolute",
+                right: "6px",
+                top: "0",
+                zIndex: 10,
+              }}
+              color="red"
+              onClick={() => cancelUpload()}
+            />
+            {previewURL && (
+              <img
+                src={previewURL}
+                alt="Preview"
+                style={{
+                  objectFit: "contain",
+                  maxHeight: "100%",
+                  maxWidth: "100%",
+                }}
+              />
+            )}
+          </div>
+        )}
         {messages?.map((msg: any, i: number) => {
           const userMsg = users?.find((e: any) => e.id === msg.sender);
           const date = getDateStr(new Date(msg.created_at).toISOString());
@@ -258,6 +260,7 @@ const ChatRoom = ({
                     ? styles.otherMessage
                     : styles.otherSameMessage
                 }`}
+                style={{ position: "relative" }}
               >
                 <div
                   className={msg.sender !== user.id ? styles.avatar : undefined}
@@ -300,7 +303,7 @@ const ChatRoom = ({
                       </a>
                     )}
                     {msg.text}
-                    <div className={styles.messageHour}>
+                    {/* <div className={styles.messageHour}>
                       {getTimePMAM(msg.created_at)}{" "}
                       {msg.sender === user.id && !msg.received_at && (
                         <IconCheck size={12} />
@@ -329,7 +332,39 @@ const ChatRoom = ({
                         )}
                       {((msg.emoticon && JSON.parse(msg.emoticon)) || [])
                         .length || ""}
-                    </div>
+                    </div> */}
+                  </div>
+                </div>
+                <div className={styles.bubbleHour}>
+                  <div className={styles.messageHour}>
+                    {getTimePMAM(msg.created_at)}{" "}
+                    {msg.sender === user.id && !msg.received_at && (
+                      <IconCheck size={12} />
+                    )}
+                    {msg.sender === user.id &&
+                      msg.received_at &&
+                      !msg.read_at && <IconReadMessage size={12} />}
+                    {msg.sender === user.id &&
+                      msg.received_at &&
+                      msg.read_at && (
+                        <IconReadMessage size={12} color="var(--cPrimary)" />
+                      )}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "4px",
+                      alignItems: "center",
+                    }}
+                  >
+                    {msg.emoticon &&
+                      (JSON.parse(msg.emoticon) || []).map(
+                        (e: any, i: number) => (
+                          <span key={i + "em"}>{e.emoji}</span>
+                        )
+                      )}
+                    {((msg.emoticon && JSON.parse(msg.emoticon)) || [])
+                      .length || ""}
                   </div>
                 </div>
               </div>
@@ -337,9 +372,7 @@ const ChatRoom = ({
           );
         })}
       </div>
-      <div
-        style={{ display: "flex", gap: "8px", justifyContent: "space-between" }}
-      >
+      <div className={styles.chatInputContainer}>
         <input
           ref={fileInputRef}
           type="file"
@@ -347,11 +380,7 @@ const ChatRoom = ({
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />
-        <IconImage
-          color="var(--cWhite)"
-          onClick={() => fileInputRef.current?.click()}
-          style={{ cursor: "pointer" }}
-        />
+
         <textarea
           // type="text"
           value={newMessage}
@@ -369,7 +398,14 @@ const ChatRoom = ({
             if (!sending) handleSendMessage();
           }}
         >
-          <IconSend size={32} />
+          <IconImage
+            color="var(--cBlack)"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ cursor: "pointer", padding: "4px" }}
+            circle
+          />
+
+          <IconSend />
         </div>
         {/* <button onClick={handleSendMessage} className={styles.chatButton}>
           Enviar

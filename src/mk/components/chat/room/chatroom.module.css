@@ -12,22 +12,35 @@
   margin-bottom: 10px;
 }
 
-.chatContainer {
-  height: 400px;
+.chatRoomContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+  /* border: 5px solid blue; */
+}
+.chatMsgContainer {
+  flex-grow: 1;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   overflow-y: auto;
   padding: 12px;
   padding-top: 0;
   position: relative;
   color: black;
+  /* background-color: red; */
+  /* width: 50%; */
 }
 
 .messageContainer {
   display: flex;
   /* align-items: flex-end; */
-  margin-bottom: 10px;
+  margin-bottom: 34px;
   align-items: flex-start;
-  background-color: "red";
+  /* background-color: blue; */
 }
 
 .avatar {
@@ -47,16 +60,17 @@
 .messageBubble {
   max-width: 70%;
   padding: 10px;
-  padding-bottom: 0;
+  /* padding-bottom: 0; */
   border-radius: 10px;
   position: relative;
-  background-color: #dcf8c6; /* Color de fondo de la burbuja de chat */
+  color: var(--cWhite);
+  background-color: var(--cBlackV1); /* Color de fondo de la burbuja de chat */
   transition: background-color 0.2s ease;
   line-height: 1.2;
   white-space: pre-line;
 }
 .messageBubble:hover {
-  background-color: #c8e8b4; /* Cambia el color al pasar el mouse */
+  background-color: var(--cBlackV3); /* Cambia el color al pasar el mouse */
 }
 
 .messageBubble::after {
@@ -67,7 +81,7 @@
   width: 0;
   height: 0;
   border: 10px solid transparent;
-  border-right-color: #dcf8c6; /* Color de la punta de la burbuja */
+  border-right-color: var(--cBlackV1); /* Color de la punta de la burbuja */
   border-left: 0;
   margin-top: 10px;
   transition: border-color 0.2s ease;
@@ -76,13 +90,7 @@
   left: auto;
   right: -10px;
   border-right-color: transparent;
-  border-left-color: #ece5dd; /* Color de la punta para los mensajes propios */
-}
-
-.messageHour {
-  color: var(--cWhiteV1);
-  font-size: 9px;
-  text-align: right;
+  border-left-color: #35463e; /* Color de la punta para los mensajes propios */
 }
 
 .myMessage {
@@ -90,18 +98,18 @@
 }
 
 .myMessage .messageBubble {
-  background-color: #ece5dd; /* Color de fondo para los mensajes propios */
+  background-color: #35463e; /* Color de fondo para los mensajes propios */
 }
 
 .myMessage .messageBubble:hover {
-  background-color: #d8d1c9; /* Cambia el color al pasar el mouse */
+  background-color: rgb(2, 57, 25); /* Cambia el color al pasar el mouse */
 }
 
 .myMessage .messageBubble::after {
   left: auto;
   right: -10px;
   border-right-color: transparent;
-  border-left-color: #ece5dd; /* Color de la punta para los mensajes propios */
+  border-left-color: #35463e; /* Color de la punta para los mensajes propios */
 }
 
 .myMessage .avatar {
@@ -141,15 +149,32 @@
   z-index: 20;
 }
 
+.chatInputContainer {
+  position: relative;
+  /* display: flex;
+  gap: 8px;
+  justify-content: space-between; */
+  border-radius: 8px;
+  margin: 16px;
+  /* padding: 16px; */
+  height: 96px;
+  background-color: var(--cWhiteV2);
+}
+
 .chatInput {
+  border: 1px solid transparent;
   width: 100%;
-  padding: 8px;
-  border: 2px solid #ccc;
+  height: calc(100% - 36px);
+  padding: 16px;
   border-radius: 8px;
   line-height: 1;
   white-space: pre-line;
   resize: none;
   outline: none;
+  background-color: transparent;
+  /* background-color: red; */
+  /* margin: 16px; */
+  color: var(--cWhiteV1);
 }
 
 .chatInput:focus {
@@ -157,14 +182,48 @@
 }
 
 .chatButton {
+  position: absolute;
   color: var(--cPrimary);
   opacity: 0.8;
   cursor: pointer;
-  align-self: center;
+  bottom: 4px;
+  right: 16px;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .chatButton:hover {
   opacity: 1;
+}
+
+.bubbleHour {
+  position: absolute;
+  bottom: -24px;
+  padding: 0 4px;
+  left: 0;
+  gap: 14px;
+  color: white;
+  display: flex;
+  height: 21px;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-left: 60px;
+}
+
+.myMessage .bubbleHour {
+  left: auto;
+  right: 0;
+  padding-left: 0;
+  flex-direction: row-reverse;
+}
+
+.messageHour {
+  color: var(--cWhiteV1);
+  font-size: 9px;
+  text-align: right;
 }
 
 @keyframes fadeIn {
