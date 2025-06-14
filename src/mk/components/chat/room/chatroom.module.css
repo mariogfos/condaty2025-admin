@@ -18,7 +18,7 @@
   flex-direction: column;
   flex-grow: 1;
   width: 100%;
-  border: 5px solid blue;
+  /* border: 5px solid blue; */
 }
 .chatMsgContainer {
   flex-grow: 1;

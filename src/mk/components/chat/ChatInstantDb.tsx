@@ -38,7 +38,7 @@ export default function ChatInstantDb() {
     sending,
     db,
   } = useInstandDB();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [typeSearch, setTypeSearch]: any = useState(roomGral);
   const [_rooms, set_rooms] = useState([]);
   const { dispatch: newMsg } = useEvent("onChatNewMsg");

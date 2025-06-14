@@ -14,7 +14,7 @@
   &.close {
     right: 0px;
   }
-  border: 5px solid yellow;
+  /* border: 5px solid yellow; */
 }
 
 /* .chatTitle {
