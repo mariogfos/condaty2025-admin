@@ -15,6 +15,7 @@ import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { relative } from "path";
+import { getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
 
 interface SelectedFile {
   file: File;
@@ -249,7 +250,7 @@ const ChatRoom = ({
             <Fragment key={i + msg.sender}>
               {renderDate && (
                 <div className={styles.dateMarker}>
-                  {getDateStr(new Date(msg.created_at).toISOString())}
+                  {getDateStrMes(new Date(msg.created_at).toISOString())}
                 </div>
               )}
               <div
@@ -263,16 +264,22 @@ const ChatRoom = ({
                 style={{ position: "relative" }}
               >
                 <div
-                  className={msg.sender !== user.id ? styles.avatar : undefined}
+                  className={
+                    isGroup && msg.sender !== user.id
+                      ? styles.avatar
+                      : styles.noAvatar
+                  }
                 >
-                  {msg.sender !== user.id && lastSender !== msg.sender ? (
+                  {isGroup &&
+                  msg.sender !== user.id &&
+                  lastSender !== msg.sender ? (
                     <Avatar
                       src={getUrlImages(
                         "/ADM-" + userMsg?.id + ".webp?d=" + userMsg?.updated_at
                       )}
                       w={32}
                       h={32}
-                      name={userMsg?.name || getFullName(user)}
+                      name={userMsg?.name ?? getFullName(user)}
                     />
                   ) : null}
                 </div>
@@ -285,11 +292,13 @@ const ChatRoom = ({
                       😊
                     </div>
                   )}
-                  {msg.sender !== user.id && lastSender !== msg.sender && (
-                    <div className={styles.messageUser}>
-                      {userMsg?.name || getFullName(user)}
-                    </div>
-                  )}
+                  {isGroup &&
+                    msg.sender !== user.id &&
+                    lastSender !== msg.sender && (
+                      <div className={styles.messageUser}>
+                        {userMsg?.name ?? getFullName(user)}
+                      </div>
+                    )}
                   {(lastSender = msg.sender) && null}
                   <div
                     style={{
@@ -335,7 +344,13 @@ const ChatRoom = ({
                     </div> */}
                   </div>
                 </div>
-                <div className={styles.bubbleHour}>
+                <div
+                  className={
+                    styles.bubbleHour +
+                    " " +
+                    (msg.sender !== user.id && isGroup && styles.isGroup)
+                  }
+                >
                   <div className={styles.messageHour}>
                     {getTimePMAM(msg.created_at)}{" "}
                     {msg.sender === user.id && !msg.received_at && (

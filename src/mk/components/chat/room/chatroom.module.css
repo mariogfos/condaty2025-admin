@@ -50,6 +50,9 @@
   /* background-color: #ccc; Color de placeholder para el avatar */
   margin-right: 10px;
 }
+.noAvatar {
+  width: 10px;
+}
 
 .messageUser {
   color: var(--cAccent);
@@ -201,7 +204,7 @@
 
 .bubbleHour {
   position: absolute;
-  bottom: -24px;
+  bottom: -28px;
   padding: 0 4px;
   left: 0;
   gap: 14px;
@@ -210,7 +213,10 @@
   height: 21px;
   justify-content: space-between;
   align-items: flex-start;
-  padding-left: 60px;
+  padding-left: 20px;
+  &.isGroup {
+    padding-left: 60;
+  }
 }
 
 .myMessage .bubbleHour {

@@ -184,122 +184,128 @@ export default function ChatInstantDb() {
   useEvent("onOpenChat", onOpenChat);
 
   return (
-    <div
-      className={
-        open
-          ? styles.chatContainer + " close " + styles.close
-          : styles.chatContainer
-      }
-    >
-      {/* encabezado */}
+    <>
       <div
-        style={{
-          height: "54px",
-          borderBottom: "1px solid var(--cWhiteV1)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px",
-          flexShrink: 1,
-        }}
+        className={styles.chatdrop + " " + (open && styles.open)}
+        onClick={() => setOpen(false)}
+      ></div>
+      <div
+        className={
+          open
+            ? styles.chatContainer + " close " + styles.close
+            : styles.chatContainer
+        }
       >
+        {/* encabezado */}
         <div
           style={{
-            color: "var(--cWhiteV1)",
-            fontSize: "14px",
+            height: "54px",
+            borderBottom: "1px solid var(--cWhiteV1)",
             display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          Activar notificaciones{" "}
-          <Switch
-            value={notifAudio ? "Y" : "N"}
-            name="notifAudio"
-            onChange={() => setNotifAudio(!notifAudio)}
-            checked={notifAudio}
-          />
-        </div>
-        <IconX onClick={() => setOpen(false)} />
-      </div>
-      <div className={styles.chatBodyContainer}>
-        <div
-          style={{
-            borderRight: "1px solid var(--cWhiteV1)",
-            padding: "0 16px",
-            width: "300px",
-            display: "flex",
-            flexDirection: "column",
             justifyContent: "space-between",
-            gap: "8px",
-            position: "relative",
-            overflow: "hidden",
-            // backgroundColor: "green",
-            // flex: 1,
+            alignItems: "center",
+            padding: "10px",
+            flexShrink: 1,
           }}
         >
           <div
             style={{
-              flexGrow: 1,
-              // flex: 1,
-              height: "200px",
-              overflowY: "auto",
-              overflowX: "hidden",
-              // backgroundColor: "blue",
+              color: "var(--cWhiteV1)",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
-            {/* <div style={{ height: "100%" }}> */}
-            {usersChat?.map((u: any, i: number) => {
-              if (u.id == user.id) return null;
-              return (
-                <ChatContactItem
-                  key={"_" + i + "_" + u.id}
-                  u={u}
-                  user={user}
-                  uniquePresence={uniquePresence}
-                  openChat={_openNewChat}
-                  countMsg={countMsg}
-                  typing={typing}
-                  typeSearch={typeSearch}
-                />
-              );
-            })}
-            {/* </div> */}
+            Activar notificaciones{" "}
+            <Switch
+              value={notifAudio ? "Y" : "N"}
+              name="notifAudio"
+              onChange={() => setNotifAudio(!notifAudio)}
+              checked={notifAudio}
+            />
           </div>
-          <div style={{ flexShrink: 1 }}>
-            Canales de contactos <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <hr />
-          </div>
+          <IconX onClick={() => setOpen(false)} />
         </div>
-        <div
-          style={{
-            flexGrow: 1,
-            // backgroundColor: "blue",
-            width: "300px",
-            display: "flex",
-          }}
-        >
-          <ChatRoom
-            user={user}
-            roomId={typeSearch}
-            chats={chats}
-            sendMessage={_sendMsg}
-            sendEmoticon={sendEmoticon}
-            readMessage={readMessage}
-            users={usersChat}
-            typing={typing}
-            sending={sending}
-            isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
-            db={db}
-          />
+        <div className={styles.chatBodyContainer}>
+          <div
+            style={{
+              borderRight: "1px solid var(--cWhiteV1)",
+              padding: "0 16px",
+              width: "300px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: "8px",
+              position: "relative",
+              overflow: "hidden",
+              // backgroundColor: "green",
+              // flex: 1,
+            }}
+          >
+            <div
+              style={{
+                flexGrow: 1,
+                // flex: 1,
+                height: "200px",
+                overflowY: "auto",
+                overflowX: "hidden",
+                // backgroundColor: "blue",
+              }}
+            >
+              {/* <div style={{ height: "100%" }}> */}
+              {usersChat?.map((u: any, i: number) => {
+                if (u.id == user.id) return null;
+                return (
+                  <ChatContactItem
+                    key={"_" + i + "_" + u.id}
+                    u={u}
+                    user={user}
+                    uniquePresence={uniquePresence}
+                    openChat={_openNewChat}
+                    countMsg={countMsg}
+                    typing={typing}
+                    typeSearch={typeSearch}
+                  />
+                );
+              })}
+              {/* </div> */}
+            </div>
+            <div style={{ flexShrink: 1 }}>
+              Canales de contactos <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <hr />
+            </div>
+          </div>
+          <div
+            style={{
+              flexGrow: 1,
+              // backgroundColor: "blue",
+              width: "300px",
+              display: "flex",
+            }}
+          >
+            <ChatRoom
+              user={user}
+              roomId={typeSearch}
+              chats={chats}
+              sendMessage={_sendMsg}
+              sendEmoticon={sendEmoticon}
+              readMessage={readMessage}
+              users={usersChat}
+              typing={typing}
+              sending={sending}
+              isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
+              db={db}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -1,3 +1,21 @@
+.chatdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(80, 80, 80, 0.8);
+  z-index: 1000;
+
+  justify-content: flex-end;
+  align-items: flex-end;
+  display: none;
+  transition: all 0.3s ease-in-out;
+  &.open {
+    display: flex;
+  }
+  /* border: 5px solid red; */
+}
 .chatContainer {
   max-width: 75%;
   width: 1085px;
@@ -11,6 +29,7 @@
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 10000;
   &.close {
     right: 0px;
   }
@@ -64,6 +83,8 @@
   flex-grow: 1;
   display: flex;
   padding: 12px 0;
+  /* border: 5px dashed orange; */
+  height: 300px;
 }
 
 .itemList {
