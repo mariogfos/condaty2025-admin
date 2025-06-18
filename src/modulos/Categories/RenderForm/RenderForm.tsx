@@ -203,7 +203,7 @@ const CategoryForm = memo(
             required={false}
             label="Descripción de la nueva categoría"
             error={combinedErrors}
-            maxLength={255}
+            maxLength={50}
             // className={styles.customTextarea}
           />
           {/* </div>
