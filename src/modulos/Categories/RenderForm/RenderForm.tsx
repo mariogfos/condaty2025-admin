@@ -114,7 +114,7 @@ const CategoryForm = memo(
       const cleanItem: Partial<CategoryItem> & { type?: string } = { ..._Item };
 
       if (cleanItem.hijos) delete cleanItem.hijos;
-      if (!wantSubcategories) cleanItem.category_id = null;
+      if (isCateg === "C" && !wantSubcategories) cleanItem.category_id = null;
       if ("_initItem" in cleanItem) delete cleanItem._initItem;
       if ("category" in cleanItem) delete cleanItem.category;
       if (action === "edit" && "fixed" in cleanItem) delete cleanItem.fixed;
