@@ -14,8 +14,7 @@ import { SendEmoticonType, SendMessageType } from "../chat-types";
 import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { useChatProvider } from "../chatBot/useChatProvider";
-import { relative } from "path";
-import { getDateStrMes, getDateStrMesShort } from "@/mk/utils/date";
+import { getDateStrMes } from "@/mk/utils/date";
 
 interface SelectedFile {
   file: File;

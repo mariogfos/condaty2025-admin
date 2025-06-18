@@ -361,7 +361,7 @@ const useInstandDB = (): useInstantDbType => {
       user,
       usersChat: [
         { id: roomGral, name: "Grupo General", isGroup: true },
-        { id: "chatBot", name: "Soporte" },
+        { id: "chatBot", name: "Soporte", isBot: true },
         ...(usersChat?.data ?? []),
       ],
       uniquePresence: [

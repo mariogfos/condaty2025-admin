@@ -9,7 +9,7 @@ import {
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
-import TabsButtons from "../ui/TabsButton/TabsButtons";
+// import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
@@ -147,19 +147,19 @@ export default function ChatInstantDb() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countMsg, rooms]);
 
-  const [botActive, setBotActive] = useState(false);
-  const [botActiveController, setBotActiveController] = useState(false);
+  // const [botActive, setBotActive] = useState(false);
+  // const [botActiveController, setBotActiveController] = useState(false);
   const _sendMsg: SendMessageType = async (text, roomId, userId, file) => {
-    if (roomId.indexOf("chatBot") > -1) {
-      if (text == "_activate_") {
-        setBotActive(true);
-        return;
-      }
-      if (text == "_controller_") {
-        setBotActiveController(true);
-        return;
-      }
-    }
+    // if (roomId.indexOf("chatBot") > -1) {
+    //   if (text == "_activate_") {
+    //     setBotActive(true);
+    //     return;
+    //   }
+    //   if (text == "_controller_") {
+    //     setBotActiveController(true);
+    //     return;
+    //   }
+    // }
     return await sendMessage(text, roomId, userId, file);
   };
 
@@ -175,13 +175,19 @@ export default function ChatInstantDb() {
 
   const onOpenChat = useCallback(
     (e: any) => {
-      console.log(e);
+      // console.log(e);
       setOpen(!open);
     },
     [open]
   );
 
   useEvent("onOpenChat", onOpenChat);
+
+  const [currentRoom, setCurrentRoom]: any = useState(null);
+
+  useEffect(() => {
+    setCurrentRoom(rooms?.find((e: any) => e.id == typeSearch) ?? null);
+  }, [typeSearch]);
 
   return (
     <>
@@ -199,7 +205,7 @@ export default function ChatInstantDb() {
         {/* encabezado */}
         <div
           style={{
-            height: "54px",
+            // height: "54px",
             borderBottom: "1px solid var(--cWhiteV1)",
             display: "flex",
             justifyContent: "space-between",
@@ -215,6 +221,8 @@ export default function ChatInstantDb() {
               display: "flex",
               alignItems: "center",
               gap: "8px",
+              width: "300px",
+              border: "1px solid red",
             }}
           >
             Activar notificaciones{" "}
@@ -224,6 +232,41 @@ export default function ChatInstantDb() {
               onChange={() => setNotifAudio(!notifAudio)}
               checked={notifAudio}
             />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              justifyContent: "flex-start",
+              alignContent: "center",
+            }}
+          >
+            <div>
+              {/* {JSON.stringify(rooms)}--
+              <br></br>
+              {JSON.stringify(_rooms)}---
+              <br></br>
+              {JSON.stringify(typeSearch)}
+              <br></br> */}
+              {currentRoom?.id == roomGral ? (
+                <IconGroup size={40} />
+              ) : currentRoom?.text == "Soporte" ? (
+                <Logo width={40} />
+              ) : (
+                <Avatar
+                  src={getUrlImages(
+                    "/ADM-" +
+                      currentRoom?.id +
+                      ".webp?d=" +
+                      currentRoom?.updated_at
+                  )}
+                  w={40}
+                  h={40}
+                  name={currentRoom?.text ?? ""}
+                />
+              )}
+            </div>
+            <div>{currentRoom && getFullName(currentRoom)}</div>
           </div>
           <IconX onClick={() => setOpen(false)} />
         </div>
@@ -341,7 +384,7 @@ const ChatContactItem = ({
         " " +
         (typeSearch.indexOf(u.id) != -1 && styles.active)
       }
-      onClick={() => openChat(u.id, u.name)}
+      onClick={() => openChat(u.id, getFullName(u, "NmLo"))}
     >
       <div style={{ position: "relative" }}>
         {u.id == "chatBot" ? (
