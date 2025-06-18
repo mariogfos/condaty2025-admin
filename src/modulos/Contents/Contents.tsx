@@ -16,6 +16,7 @@ import {
   IconLike,
   IconOptions,
   IconPDF,
+  IconPublicacion,
   IconTrash,
   IconVideo,
   IconWorld,
@@ -588,6 +589,9 @@ const Contents = () => {
         // onTabletRow={renderItem}
         actionsWidth="140px"
         height={"calc(100vh - 285px)"}
+        emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
+        emptyLine2="noticias las verás aquí."
+        emptyIcon={<IconPublicacion size={80}/>}
         // onRenderCard={openCard ? renderCard : null}
       />
       {/* {openImport && (

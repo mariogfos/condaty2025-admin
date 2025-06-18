@@ -10,6 +10,7 @@ import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
+import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 
 
 const paramsInitial = {
@@ -222,7 +223,12 @@ const fields = useMemo(
   return (
     <div className={styles.container}>
       {/* Renderiza la lista que ahora usará onHideActions para los botones */}
-      <List />
+      <List 
+        height={"calc(100vh - 360px)"} 
+        emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
+        emptyLine2="para tu presupuesto, los verás aquí."
+        emptyIcon={<IconCategories size={80} />}
+      />
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

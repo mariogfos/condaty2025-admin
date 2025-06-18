@@ -4,7 +4,7 @@ import { useMemo, useCallback, useState } from "react"; // *** Añadido useState
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Categories.module.css";
-import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
+import { IconArrowLeft, IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import Link from "next/link";
 import { CategoryItem } from "./Type/CategoryType";
 import Button from "@/mk/components/forms/Button/Button";
@@ -235,6 +235,9 @@ const Categories = ({ type = "" }) => {
         onRowClick={(itemClicked: CategoryItem) => {
           /* Mantenido como lo tenías */
         }}
+        emptyMsg="Sin categorías registradas. Necesitas crear categorías"
+        emptyLine2="para organizar tus ingresos."
+        emptyIcon={<IconCategories size={80} />}
         // cardGap="0px" // Mantenido comentado como lo tenías
       />
     </div>

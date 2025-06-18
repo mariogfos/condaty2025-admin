@@ -17,13 +17,19 @@ import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import {
   IconBriefCaseMoney,
   IconEgresos,
+  IconGraphics,
   IconIngresos,
   IconWallet,
+  IconAlerts,
+  IconReservedAreas,
+  IconPagos,
+  IconGroup2,
 } from "../layout/icons/IconsBiblioteca";
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import EmptyData from "@/components/NoData/EmptyData";
 
 const paramsInitial = {
   fullType: "L",
@@ -371,8 +377,8 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/payments")}
                   icon={
                     <IconIngresos
-                      color={"var(--cAccent)"}
-                      style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                      color={!dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cBlackV2)" : "var(--cAccent)"}
+                      style={{ backgroundColor: !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverSuccess)" }}
                       circle
                       size={38}
                     />
@@ -385,8 +391,8 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
                     <IconEgresos
-                      color={"var(--cError)"}
-                      style={{ backgroundColor: "var(--cHoverError)" }}
+                      color={!dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cBlackV2)" : "var(--cError)"}
+                      style={{ backgroundColor: !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverError)" }}
                       circle
                       size={38}
                     />
@@ -405,8 +411,8 @@ const HomePage = () => {
                   }
                   icon={
                     <IconBriefCaseMoney
-                      color={"var(--cInfo)"}
-                      style={{ backgroundColor: "var(--cHoverInfo)" }}
+                      color={!balance || balance === 0 ? "var(--cBlackV2)" : "var(--cInfo)"}
+                      style={{ backgroundColor: !balance || balance === 0 ? "var(--cWhiteV2)" : "var(--cHoverInfo)" }}
                       circle
                       size={38}
                     />
@@ -419,8 +425,8 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/defaultersview")}
                   icon={
                     <IconWallet
-                      color={"var(--cAlert)"}
-                      style={{ backgroundColor: "var(--cHoverAlert)" }}
+                      color={!dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cBlackV2)" : "var(--cAlert)"}
+                      style={{ backgroundColor: !dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cWhiteV2)" : "var(--cHoverAlert)" }}
                       circle
                       size={38}
                     />
@@ -441,6 +447,14 @@ const HomePage = () => {
                     ingresos={dashboard?.data?.ingresosHist}
                     egresos={dashboard?.data?.egresosHist}
                     periodo="y"
+                    showEmptyData={(!dashboard?.data?.ingresosHist || !dashboard?.data?.egresosHist || 
+                      (dashboard?.data?.ingresosHist?.length === 0 && dashboard?.data?.egresosHist?.length === 0))}
+                    emptyDataProps={{
+                      message: "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
+                      line2: "que tengas movimiento financiero.",
+                      h: 300,
+                      icon: <IconGraphics size={80} />
+                    }}
                   />
                 </div>
               </div>
@@ -451,7 +465,9 @@ const HomePage = () => {
                     title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay pagos por revisar"
+                    emptyListMessage="No hay solicitudes de pago. Una vez los residentes"
+                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí"
+                    emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
                   />
@@ -460,7 +476,9 @@ const HomePage = () => {
                     title="Alertas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage="No hay alertas"
+                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
+                    emptyListLine2="residente registre una se mostrará aquí"
+                    emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
                   />
@@ -471,7 +489,9 @@ const HomePage = () => {
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage="No hay solicitudes de reserva pendientes"
+                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
+                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí"
+                    emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
                   />
@@ -480,7 +500,9 @@ const HomePage = () => {
                     title="Pre-registro"
                     viewAllText="Ver todos"
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
-                    emptyListMessage="No hay cuentas por activar"
+                    emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
+                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí"
+                    emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
                   />

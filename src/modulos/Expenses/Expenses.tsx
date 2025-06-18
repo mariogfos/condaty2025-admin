@@ -20,6 +20,7 @@ import {
 } from "@/mk/utils/utils";
 import styles from "./Expenses.module.css";
 import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
+import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 
 const mod: ModCrudType = {
   modulo: "debts",
@@ -351,6 +352,9 @@ const Expenses = () => {
           height={"calc(100vh - 230px)"}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
+          emptyMsg="Lista de expensa vacía. Una vez generes las cuotas"
+          emptyLine2="de los residentes las verás aquí."
+          emptyIcon={<IconCategories size={80} />}
         />
       </div>
     );

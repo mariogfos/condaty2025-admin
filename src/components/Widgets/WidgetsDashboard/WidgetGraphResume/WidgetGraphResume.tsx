@@ -6,6 +6,7 @@ import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css"
 import { formatNumber } from "@/mk/utils/numbers";
+import EmptyData from "@/components/NoData/EmptyData";
 
 
 type PropsType = {
@@ -18,6 +19,13 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string;
+  showEmptyData?: boolean;
+  emptyDataProps?: {
+    message?: string;
+    line2?: string;
+    h?: number;
+    icon?: React.ReactNode;
+  };
 };
 const WidgetGraphResume = ({
   saldoInicial = 0,
@@ -29,6 +37,8 @@ const WidgetGraphResume = ({
   subtitle,
   className,
   periodo = "",
+  showEmptyData = false,
+  emptyDataProps,
 }: PropsType) => {
   const [balance, setBalance] = useState({
     inicial: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -124,44 +134,55 @@ const WidgetGraphResume = ({
               `Este es un resumen general del año ${formattedTodayDate}`}
           </p>
         </section>
-        <GraphBase
-          data={{
-            labels: meses,
-            values: [
-              { name: "Saldo inicial", values: balance?.inicial },
-              { name: "Ingresos", values: balance?.ingresos },
-              { name: "Egresos", values: balance?.egresos },
-              { name: "Saldo Acumulado", values: balance?.saldos },
-            ],
-          }}
-          chartTypes={chartTypes}
-          options={{
-            height: h,
-            colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
-          }}
-        />
-        <div className={styles.legendContainer}>
-          <div className={styles.legendItem}>
-            <div className={styles.legendColor} style={{ backgroundColor: '#FFD700' }}></div>
-            <span className={styles.legendLabel}>Saldo Inicial</span>
-            <span className={styles.legendValue}>Bs {formatNumber(saldoInicial || 0)}</span>
-          </div>
-          <div className={styles.legendItem}>
-            <div className={styles.legendColor} style={{ backgroundColor: '#00E38C' }}></div>
-            <span className={styles.legendLabel}>Ingresos</span>
-            <span className={styles.legendValue}>Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}</span>
-          </div>
-          <div className={styles.legendItem}>
-            <div className={styles.legendColor} style={{ backgroundColor: '#FF5B4D' }}></div>
-            <span className={styles.legendLabel}>Egresos</span>
-            <span className={styles.legendValue}>Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}</span>
-          </div>
-          <div className={styles.legendItem}>
-            <div className={styles.legendColor} style={{ backgroundColor: '#4C98DF' }}></div>
-            <span className={styles.legendLabel}>Saldo Acumulado</span>
-            <span className={styles.legendValue}>Bs {formatNumber(balance.saldos.filter(val => val !== 0).pop() || 0)}</span>
-          </div>
-        </div>
+        {showEmptyData ? (
+          <EmptyData
+            message={emptyDataProps?.message || "No hay datos disponibles"}
+            line2={emptyDataProps?.line2}
+            h={emptyDataProps?.h || 300}
+            icon={emptyDataProps?.icon}
+          />
+        ) : (
+          <>
+            <GraphBase
+              data={{
+                labels: meses,
+                values: [
+                  { name: "Saldo inicial", values: balance?.inicial },
+                  { name: "Ingresos", values: balance?.ingresos },
+                  { name: "Egresos", values: balance?.egresos },
+                  { name: "Saldo Acumulado", values: balance?.saldos },
+                ],
+              }}
+              chartTypes={chartTypes}
+              options={{
+                height: h,
+                colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
+              }}
+            />
+            <div className={styles.legendContainer}>
+              <div className={styles.legendItem}>
+                <div className={styles.legendColor} style={{ backgroundColor: '#FFD700' }}></div>
+                <span className={styles.legendLabel}>Saldo Inicial</span>
+                <span className={styles.legendValue}>Bs {formatNumber(saldoInicial || 0)}</span>
+              </div>
+              <div className={styles.legendItem}>
+                <div className={styles.legendColor} style={{ backgroundColor: '#00E38C' }}></div>
+                <span className={styles.legendLabel}>Ingresos</span>
+                <span className={styles.legendValue}>Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}</span>
+              </div>
+              <div className={styles.legendItem}>
+                <div className={styles.legendColor} style={{ backgroundColor: '#FF5B4D' }}></div>
+                <span className={styles.legendLabel}>Egresos</span>
+                <span className={styles.legendValue}>Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}</span>
+              </div>
+              <div className={styles.legendItem}>
+                <div className={styles.legendColor} style={{ backgroundColor: '#4C98DF' }}></div>
+                <span className={styles.legendLabel}>Saldo Acumulado</span>
+                <span className={styles.legendValue}>Bs {formatNumber(balance.saldos.filter(val => val !== 0).pop() || 0)}</span>
+              </div>
+            </div>
+          </>
+        )}
       </WidgetBase>
     </div>
   );

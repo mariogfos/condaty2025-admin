@@ -7,6 +7,7 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
+import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   perPage: 20,
@@ -294,7 +295,11 @@ const Areas = () => {
     <div
     //  className={styles.style}
     >
-      <List height={"calc(100vh - 280px)"} />
+      <List height={"calc(100vh - 280px)"} 
+       emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
+       emptyLine2="del condominio las verás aquí."
+       emptyIcon={<IconDepartment2 size={80}/>}/>
+       
       {openMaintenance && (
         <MaintenanceModal
           open={openMaintenance}

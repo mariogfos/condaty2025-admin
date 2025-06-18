@@ -21,6 +21,7 @@ import {
   IconExport,
   LineGraphic,
   PointGraphic,
+  IconGraphics,
 } from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
@@ -30,6 +31,7 @@ import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGraf
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
+import EmptyData from "@/components/NoData/EmptyData";
 // Interfaces
 interface CategoryOption {
   id: string | number;
@@ -463,248 +465,281 @@ const BalanceGeneral: React.FC = () => {
 
         <div className={styles.loadingContainer}>
           <LoadingScreen>
-            {formStateFilter.filter_mov === "T" &&
-              finanzas?.data && ( // Verificamos finanzas.data en lugar de solo ingresos
-                <>
-                  <h2 className={styles.chartSectionTitle}>
-                    {formStateFilter.filter_date == "d" ||
-                    formStateFilter.filter_date == "ld"
-                      ? "Balance de " +
-                        (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                      : getPeriodoText(formStateFilter.filter_date)}
-                  </h2>
-                  <div className={styles.chartContainer}>
-                    <WidgetGrafBalance
-                      saldoInicial={finanzas?.data?.saldoInicial}
-                      ingresos={finanzas?.data?.ingresosHist}
-                      egresos={finanzas?.data?.egresosHist}
-                      chartTypes={[charType.filter_charType as ChartType]}
-                      subtitle={`Saldo Final del Periodo`}
-                      title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
-                      periodo={formStateFilter?.filter_date}
-                    />
-                    <div className={styles.legendAndExportWrapper}>
-                      <div className={styles.legendContainer}>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#FFD700" }}
-                          ></div>
-                          <span>
-                            Saldo Inicial: Bs{" "}
-                            {formatNumber(calculatedTotals.saldoInicial)}
-                          </span>
-                        </div>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#00E38C" }}
-                          ></div>
-                          <span>
-                            Ingresos: Bs{" "}
-                            {formatNumber(calculatedTotals.totalIngresos)}
-                          </span>
-                        </div>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#FF5B4D" }}
-                          ></div>
-                          <span>
-                            Egresos: Bs{" "}
-                            {formatNumber(calculatedTotals.totalEgresos)}
-                          </span>
-                        </div>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#4C98DF" }}
-                          ></div>
-                          <span>
-                            Saldo Final: Bs{" "}
-                            {formatNumber(calculatedTotals.saldoFinal)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.divider} />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                    <Button
-                      onClick={exportar}
-                      variant="secondary"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
-                    >
-                      <IconExport size={22} />
-                      Descargar tablas
-                    </Button>
-                  </div>
-                  <h2 className={styles.chartSectionTitle}>
-                    {`Resumen detallado de los ingresos`}
-                  </h2>
-                  <TableIngresos
-                    title="Ingresos"
-                    title2="Total"
-                    categorias={finanzas?.data?.categI}
-                    subcategorias={finanzas?.data?.ingresos}
-                    anual={
-                      formStateFilter?.filter_date === "y" ||
-                      formStateFilter?.filter_date === "ly" ||
-                      formStateFilter?.filter_date.indexOf("c:") > -1
-                    }
-                  />
-
-                  <div className={styles.divider} />
-                  <h2 className={styles.chartSectionTitle}>
-                    {`Resumen detallado de los egresos`}
-                  </h2>
-                  <TableEgresos
-                    title="Egresos"
-                    title2="Total"
-                    categorias={finanzas?.data?.categE}
-                    subcategorias={finanzas?.data?.egresos}
-                    anual={
-                      formStateFilter?.filter_date === "y" ||
-                      formStateFilter?.filter_date === "ly" ||
-                      formStateFilter?.filter_date.indexOf("c:") > -1
-                    }
-                  />
-
-                  <div className={styles.divider} />
-                  <h2 className={styles.chartSectionTitle}>
-                    {`Resumen detallado de totales`}
-                  </h2>
-                  <TableResumenGeneral
-                    subcategoriasE={finanzas?.data?.egresos}
-                    subcategoriasI={finanzas?.data?.ingresos}
-                    title={"Resumen general"}
-                    title2={"Total"}
-                    titleTotal={"Total acumulado"}
-                    saldoInicial={finanzas?.data?.saldoInicial}
-                  />
-                </>
-              )}
-
-            {formStateFilter.filter_mov === "I" && finanzas?.data?.ingresos && (
+            {formStateFilter.filter_mov === "T" && (
               <>
-                <div className={styles.chartContainer}>
-                  <div className={styles.chartAndLegendContainer}>
-                 
-                    <WidgetGrafIngresos
-                      ingresos={finanzas?.data.ingresosHist}
-                      chartTypes={[charType.filter_charType as ChartType]}
-                      h={360}
-                      title={" "}
-                      subtitle={getPeriodoText(formStateFilter.filter_date)}
-                      periodo={formStateFilter?.filter_date}
-                    />
-                    <div className={styles.legendAndExportWrapper}>
-                      <div className={styles.legendContainer}>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#00E38C" }}
-                          ></div>
-                          <span>
-                            Ingresos: Bs{" "}
-                            {formatNumber(calculatedTotals.totalIngresos)}
-                          </span>
+                {(!finanzas?.data?.ingresos || finanzas?.data?.ingresos?.length === 0) && 
+                 (!finanzas?.data?.egresos || finanzas?.data?.egresos?.length === 0) ? (
+                  <EmptyData
+                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                    line2="a medida que tengas ingresos y egresos."
+                    h={400}
+                    icon={<IconGraphics size={80} />}
+                  />
+                ) : (
+                  <>
+                    <h2 className={styles.chartSectionTitle}>
+                      {formStateFilter.filter_date == "d" ||
+                      formStateFilter.filter_date == "ld"
+                        ? "Balance de " +
+                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
+                        : getPeriodoText(formStateFilter.filter_date)}
+                    </h2>
+                    <div className={styles.chartContainer}>
+                      <WidgetGrafBalance
+                        saldoInicial={finanzas?.data?.saldoInicial}
+                        ingresos={finanzas?.data?.ingresosHist}
+                        egresos={finanzas?.data?.egresosHist}
+                        chartTypes={[charType.filter_charType as ChartType]}
+                        subtitle={`Saldo Final del Periodo`}
+                        title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
+                        periodo={formStateFilter?.filter_date}
+                      />
+                      <div className={styles.legendAndExportWrapper}>
+                        <div className={styles.legendContainer}>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#FFD700" }}
+                            ></div>
+                            <span>
+                              Saldo Inicial: Bs{" "}
+                              {formatNumber(calculatedTotals.saldoInicial)}
+                            </span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#00E38C" }}
+                            ></div>
+                            <span>
+                              Ingresos: Bs{" "}
+                              {formatNumber(calculatedTotals.totalIngresos)}
+                            </span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#FF5B4D" }}
+                            ></div>
+                            <span>
+                              Egresos: Bs{" "}
+                              {formatNumber(calculatedTotals.totalEgresos)}
+                            </span>
+                          </div>
+                          <div className={styles.legendItem}>
+                            <div
+                              className={styles.legendColor}
+                              style={{ backgroundColor: "#4C98DF" }}
+                            ></div>
+                            <span>
+                              Saldo Final: Bs{" "}
+                              {formatNumber(calculatedTotals.saldoFinal)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className={styles.divider} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                  <Button
-                    onClick={exportar}
-                    variant="secondary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
-                  >
-                    <IconExport size={22} />
-                    Descargar tablas
-                  </Button>
-                </div>
-                <TableIngresos
-                  title="Ingresos"
-                  title2="Total"
-                  categorias={finanzas?.data?.categI}
-                  subcategorias={finanzas?.data?.ingresos}
-                  anual={
-                    formStateFilter?.filter_date === "y" ||
-                    formStateFilter?.filter_date === "ly" ||
-                    formStateFilter?.filter_date.indexOf("c:") > -1
-                  }
-                  selectcategorias={
-                    typeof formStateFilter.filter_categ === "string"
-                      ? formStateFilter.filter_categ
-                        ? [formStateFilter.filter_categ]
-                        : []
-                      : formStateFilter.filter_categ
-                  }
-                />
+
+                    <div className={styles.divider} />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                      <Button
+                        onClick={exportar}
+                        variant="secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                      >
+                        <IconExport size={22} />
+                        Descargar tablas
+                      </Button>
+                    </div>
+                    <h2 className={styles.chartSectionTitle}>
+                      {`Resumen detallado de los ingresos`}
+                    </h2>
+                    <TableIngresos
+                      title="Ingresos"
+                      title2="Total"
+                      categorias={finanzas?.data?.categI}
+                      subcategorias={finanzas?.data?.ingresos}
+                      anual={
+                        formStateFilter?.filter_date === "y" ||
+                        formStateFilter?.filter_date === "ly" ||
+                        formStateFilter?.filter_date.indexOf("c:") > -1
+                      }
+                    />
+
+                    <div className={styles.divider} />
+                    <h2 className={styles.chartSectionTitle}>
+                      {`Resumen detallado de los egresos`}
+                    </h2>
+                    <TableEgresos
+                      title="Egresos"
+                      title2="Total"
+                      categorias={finanzas?.data?.categE}
+                      subcategorias={finanzas?.data?.egresos}
+                      anual={
+                        formStateFilter?.filter_date === "y" ||
+                        formStateFilter?.filter_date === "ly" ||
+                        formStateFilter?.filter_date.indexOf("c:") > -1
+                      }
+                    />
+
+                    <div className={styles.divider} />
+                    <h2 className={styles.chartSectionTitle}>
+                      {`Resumen detallado de totales`}
+                    </h2>
+                    <TableResumenGeneral
+                      subcategoriasE={finanzas?.data?.egresos}
+                      subcategoriasI={finanzas?.data?.ingresos}
+                      title={"Resumen general"}
+                      title2={"Total"}
+                      titleTotal={"Total acumulado"}
+                      saldoInicial={finanzas?.data?.saldoInicial}
+                    />
+                  </>
+                )}
               </>
             )}
 
-            {formStateFilter.filter_mov === "E" && finanzas?.data?.egresos && (
+            {formStateFilter.filter_mov === "I" && (
               <>
-                <div className={styles.chartContainer}>
-                  <div className={styles.chartAndLegendContainer}>
-                 
-                    <WidgetGrafEgresos
-                      egresos={finanzas?.data.egresosHist}
-                      chartTypes={[charType.filter_charType as ChartType]}
-                      h={360}
-                      title={" "}
-                      subtitle={getPeriodoText(formStateFilter.filter_date)}
-                      periodo={formStateFilter?.filter_date} 
-                    />
-                    <div className={styles.legendAndExportWrapper}>
-                      <div className={styles.legendContainer}>
-                        <div className={styles.legendItem}>
-                          <div
-                            className={styles.legendColor}
-                            style={{ backgroundColor: "#FF5B4D" }}
-                          ></div>
-                          <span>
-                            Egresos: Bs{" "}
-                            {formatNumber(calculatedTotals.totalEgresos)}
-                          </span>
+                {(!finanzas?.data?.ingresos || finanzas?.data?.ingresos?.length === 0) ? (
+                  <EmptyData
+                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                    line2="a medida que tengas ingresos y egresos."
+                    h={400}
+                    icon={<IconGraphics size={80} />}
+                  />
+                ) : (
+                  <>
+                    <div className={styles.chartContainer}>
+                      <div className={styles.chartAndLegendContainer}>
+                     
+                        <WidgetGrafIngresos
+                          ingresos={finanzas?.data.ingresosHist}
+                          chartTypes={[charType.filter_charType as ChartType]}
+                          h={360}
+                          title={" "}
+                          subtitle={getPeriodoText(formStateFilter.filter_date)}
+                          periodo={formStateFilter?.filter_date}
+                        />
+                        <div className={styles.legendAndExportWrapper}>
+                          <div className={styles.legendContainer}>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "#00E38C" }}
+                              ></div>
+                              <span>
+                                Ingresos: Bs{" "}
+                                {formatNumber(calculatedTotals.totalIngresos)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className={styles.divider} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                  <Button
-                    onClick={exportar}
-                    variant="secondary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
-                  >
-                    <IconExport size={22} />
-                    Descargar tablas
-                  </Button>
-                </div>
-                <TableEgresos
-                  title="Egresos"
-                  title2="Total"
-                  categorias={finanzas?.data?.categE}
-                  subcategorias={finanzas?.data?.egresos}
-                  anual={
-                    formStateFilter?.filter_date === "y" ||
-                    formStateFilter?.filter_date === "ly" ||
-                    formStateFilter?.filter_date.indexOf("c:") > -1
-                  }
-                  selectcategorias={
-                    typeof formStateFilter.filter_categ === "string"
-                      ? formStateFilter.filter_categ
-                        ? [formStateFilter.filter_categ]
-                        : []
-                      : formStateFilter.filter_categ
-                  }
-                />
+                    <div className={styles.divider} />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                      <Button
+                        onClick={exportar}
+                        variant="secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                      >
+                        <IconExport size={22} />
+                        Descargar tablas
+                      </Button>
+                    </div>
+                    <TableIngresos
+                      title="Ingresos"
+                      title2="Total"
+                      categorias={finanzas?.data?.categI}
+                      subcategorias={finanzas?.data?.ingresos}
+                      anual={
+                        formStateFilter?.filter_date === "y" ||
+                        formStateFilter?.filter_date === "ly" ||
+                        formStateFilter?.filter_date.indexOf("c:") > -1
+                      }
+                      selectcategorias={
+                        typeof formStateFilter.filter_categ === "string"
+                          ? formStateFilter.filter_categ
+                            ? [formStateFilter.filter_categ]
+                            : []
+                          : formStateFilter.filter_categ
+                      }
+                    />
+                  </>
+                )}
+              </>
+            )}
+
+            {formStateFilter.filter_mov === "E" && (
+              <>
+                {(!finanzas?.data?.egresos || finanzas?.data?.egresos?.length === 0) ? (
+                  <EmptyData
+                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                    line2="a medida que tengas ingresos y egresos."
+                    h={400}
+                    icon={<IconGraphics size={60} />}
+                  />
+                ) : (
+                  <>
+                    <div className={styles.chartContainer}>
+                      <div className={styles.chartAndLegendContainer}>
+                     
+                        <WidgetGrafEgresos
+                          egresos={finanzas?.data.egresosHist}
+                          chartTypes={[charType.filter_charType as ChartType]}
+                          h={360}
+                          title={" "}
+                          subtitle={getPeriodoText(formStateFilter.filter_date)}
+                          periodo={formStateFilter?.filter_date} 
+                        />
+                        <div className={styles.legendAndExportWrapper}>
+                          <div className={styles.legendContainer}>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "#FF5B4D" }}
+                              ></div>
+                              <span>
+                                Egresos: Bs{" "}
+                                {formatNumber(calculatedTotals.totalEgresos)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.divider} />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                      <Button
+                        onClick={exportar}
+                        variant="secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                      >
+                        <IconExport size={22} />
+                        Descargar tablas
+                      </Button>
+                    </div>
+                    <TableEgresos
+                      title="Egresos"
+                      title2="Total"
+                      categorias={finanzas?.data?.categE}
+                      subcategorias={finanzas?.data?.egresos}
+                      anual={
+                        formStateFilter?.filter_date === "y" ||
+                        formStateFilter?.filter_date === "ly" ||
+                        formStateFilter?.filter_date.indexOf("c:") > -1
+                      }
+                      selectcategorias={
+                        typeof formStateFilter.filter_categ === "string"
+                          ? formStateFilter.filter_categ
+                            ? [formStateFilter.filter_categ]
+                            : []
+                          : formStateFilter.filter_categ
+                      }
+                    />
+                  </>
+                )}
               </>
             )}
           </LoadingScreen>

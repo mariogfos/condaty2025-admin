@@ -9,7 +9,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import { IconHomeOwner } from "@/components/layout/icons/IconsBiblioteca";
+import { IconHomeOwner, IconHomePerson3 } from "@/components/layout/icons/IconsBiblioteca";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
@@ -484,7 +484,10 @@ const HomeOwners = () => {
         style={{ width: "280px" }}
       />
 
-      <List height={"calc(100vh - 400px)"} />
+      <List height={"calc(100vh - 400px)"}
+        emptyMsg="Lista de propietarios vacía. Aquí verás a todos los propietarios"
+        emptyLine2="de cada unidad una vez los registres"
+        emptyIcon={<IconHomePerson3 size={80}/>} />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}
