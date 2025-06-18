@@ -19,8 +19,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import dptos from "@/app/dptos/page";
 import Input from "@/mk/components/forms/Input/Input"; // Importación añadida
 import { RenderAnularModal } from "./RenderDel/RenderDel";
-import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
-
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;

@@ -170,6 +170,18 @@ const ProfileModal = ({
     }
   };
   console.log(data?.data);
+
+  // Función para obtener la portada del cliente o la imagen vacía
+  const getPortadaCliente = () => {
+    if (client?.id && client?.updated_at) {
+      return getUrlImages(
+        "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
+      );
+    }
+    // fallback a la imagen vacía
+    return "/assets/images/PortadaEmpty.png";
+  };
+
   return (
     open && (
       <DataModal
@@ -217,9 +229,7 @@ const ProfileModal = ({
 
           <section>
             <Avatar
-              src={getUrlImages(
-                "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
-              )}
+              src={getPortadaCliente()}
               //   name={getFullName(user)}
               style={{
                 width: "100%",
