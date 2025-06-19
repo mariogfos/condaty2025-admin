@@ -232,6 +232,30 @@
   text-align: right;
 }
 
+.previewContainer {
+  position: absolute;
+  height: 100%;
+  z-index: 5000;
+  background-color: var(--cBlack);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 0;
+  left: 0;
+  & > svg {
+    position: absolute;
+    right: 6px;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+  }
+  & > img {
+    object-fit: contain;
+    max-height: 100%;
+    max-width: 100%;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

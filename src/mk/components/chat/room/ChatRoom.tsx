@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./chatroom.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -59,17 +60,6 @@ const ChatRoom = ({
       setIsUploading(false);
     }
   };
-  // const handleSendMessage = async () => {
-  //   if (selectedFile) {
-  //     setIsUploading(true);
-  //     await sendMessage(newMessage, roomId, selectedFile.file);
-  //     cancelUpload();
-  //   } else {
-  //     sendMessage(newMessage, roomId);
-  //   }
-  //   setNewMessage("");
-  //   typing.inputProps.onBlur();
-  // };
 
   const handleSendMessage = async () => {
     let msgId = 0;
@@ -94,7 +84,6 @@ const ChatRoom = ({
         })
       );
       const reply = await sendMessageBot(newMessage);
-      // const reply = "";
       if (reply != "") {
         await sendMessage(reply, roomId, "chatBot");
         db.transact(
@@ -153,13 +142,11 @@ const ChatRoom = ({
   const [showEmojiPicker, setShowEmojiPicker]: any = useState(null);
 
   const handleEmojiClick = (msg: any) => {
-    // setShowEmojiPicker(!showEmojiPicker);
     setShowEmojiPicker(msg?.id === showEmojiPicker?.id ? null : msg);
   };
 
   const handleEmojiSelect = (emojiObject: any) => {
-    // console.log("Emoji seleccionado:", emojiObject);
-    const emojis = JSON.parse(showEmojiPicker.emoticon || "[]");
+    const emojis = JSON.parse(showEmojiPicker.emoticon ?? "[]");
     emojis.push({
       emoji: emojiObject.emoji,
       sender: user.id,
@@ -173,10 +160,8 @@ const ChatRoom = ({
   const onKeyUp = (e: any) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
-        // Si se presiona Shift + Enter, agrega un salto de línea
         setNewMessage(newMessage + "\n");
       } else {
-        // Si no se presiona Shift + Enter, envía el mensaje
         handleSendMessage();
       }
     }
@@ -200,41 +185,9 @@ const ChatRoom = ({
       )}
       <div className={styles.chatMsgContainer} ref={chatRef}>
         {previewURL && (
-          <div
-            style={{
-              position: "absolute",
-              // width: "100%",
-              height: "100%",
-              zIndex: 5000,
-              backgroundColor: "var(--cBlack)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              right: 0,
-              left: 0,
-            }}
-          >
-            <IconX
-              style={{
-                position: "absolute",
-                right: "6px",
-                top: "0",
-                zIndex: 10,
-              }}
-              color="red"
-              onClick={() => cancelUpload()}
-            />
-            {previewURL && (
-              <img
-                src={previewURL}
-                alt="Preview"
-                style={{
-                  objectFit: "contain",
-                  maxHeight: "100%",
-                  maxWidth: "100%",
-                }}
-              />
-            )}
+          <div className={styles.previewContainer}>
+            <IconX color="red" onClick={() => cancelUpload()} />
+            <img src={previewURL} alt="Preview" />
           </div>
         )}
         {messages?.map((msg: any, i: number) => {
@@ -311,36 +264,6 @@ const ChatRoom = ({
                       </a>
                     )}
                     {msg.text}
-                    {/* <div className={styles.messageHour}>
-                      {getTimePMAM(msg.created_at)}{" "}
-                      {msg.sender === user.id && !msg.received_at && (
-                        <IconCheck size={12} />
-                      )}
-                      {msg.sender === user.id &&
-                        msg.received_at &&
-                        !msg.read_at && <IconReadMessage size={12} />}
-                      {msg.sender === user.id &&
-                        msg.received_at &&
-                        msg.read_at && (
-                          <IconReadMessage size={12} color="var(--cPrimary)" />
-                        )}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "4px",
-                        alignItems: "center",
-                      }}
-                    >
-                      {msg.emoticon &&
-                        (JSON.parse(msg.emoticon) || []).map(
-                          (e: any, i: number) => (
-                            <span key={i + "em"}>{e.emoji}</span>
-                          )
-                        )}
-                      {((msg.emoticon && JSON.parse(msg.emoticon)) || [])
-                        .length || ""}
-                    </div> */}
                   </div>
                 </div>
                 <div
@@ -372,13 +295,13 @@ const ChatRoom = ({
                     }}
                   >
                     {msg.emoticon &&
-                      (JSON.parse(msg.emoticon) || []).map(
+                      (JSON.parse(msg.emoticon) ?? []).map(
                         (e: any, i: number) => (
                           <span key={i + "em"}>{e.emoji}</span>
                         )
                       )}
-                    {((msg.emoticon && JSON.parse(msg.emoticon)) || [])
-                      .length || ""}
+                    {((msg.emoticon && JSON.parse(msg.emoticon)) ?? [])
+                      .length ?? ""}
                   </div>
                 </div>
               </div>
@@ -404,7 +327,6 @@ const ChatRoom = ({
           onBlur={typing.inputProps.onBlur}
           onKeyDown={typing.inputProps.onKeyDown}
           onKeyUp={onKeyUp}
-          // style={{ width: "100%", lineHeight: "0.5", padding: "8px" }}
         />
         <div
           className={styles.chatButton}

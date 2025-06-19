@@ -9,7 +9,6 @@ import {
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
-// import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
@@ -53,6 +52,7 @@ export default function ChatInstantDb() {
     } else {
       setTypeSearch(rooms[rooms.length - 1].value);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rooms, roomGral]);
 
   const _openNewChat = (userAppId: string, name: string) => {
@@ -135,6 +135,7 @@ export default function ChatInstantDb() {
 
     setCountMsg(cM);
     setLastMsg(chats?.messages?.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats?.messages]);
 
   useEffect(() => {
@@ -147,19 +148,7 @@ export default function ChatInstantDb() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countMsg, rooms]);
 
-  // const [botActive, setBotActive] = useState(false);
-  // const [botActiveController, setBotActiveController] = useState(false);
   const _sendMsg: SendMessageType = async (text, roomId, userId, file) => {
-    // if (roomId.indexOf("chatBot") > -1) {
-    //   if (text == "_activate_") {
-    //     setBotActive(true);
-    //     return;
-    //   }
-    //   if (text == "_controller_") {
-    //     setBotActiveController(true);
-    //     return;
-    //   }
-    // }
     return await sendMessage(text, roomId, userId, file);
   };
 
@@ -186,8 +175,8 @@ export default function ChatInstantDb() {
   const [currentRoom, setCurrentRoom]: any = useState(null);
 
   useEffect(() => {
-    setCurrentRoom(rooms?.find((e: any) => e.id == typeSearch) ?? null);
-  }, [typeSearch]);
+    setCurrentRoom(rooms?.find((e: any) => e.value == typeSearch));
+  }, [rooms, typeSearch]);
 
   return (
     <>
@@ -203,28 +192,8 @@ export default function ChatInstantDb() {
         }
       >
         {/* encabezado */}
-        <div
-          style={{
-            // height: "54px",
-            borderBottom: "1px solid var(--cWhiteV1)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "10px",
-            flexShrink: 1,
-          }}
-        >
-          <div
-            style={{
-              color: "var(--cWhiteV1)",
-              fontSize: "14px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              width: "300px",
-              border: "1px solid red",
-            }}
-          >
+        <div className={styles.chatHeader}>
+          <div>
             Activar notificaciones{" "}
             <Switch
               value={notifAudio ? "Y" : "N"}
@@ -233,30 +202,17 @@ export default function ChatInstantDb() {
               checked={notifAudio}
             />
           </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              justifyContent: "flex-start",
-              alignContent: "center",
-            }}
-          >
+          <div>
             <div>
-              {/* {JSON.stringify(rooms)}--
-              <br></br>
-              {JSON.stringify(_rooms)}---
-              <br></br>
-              {JSON.stringify(typeSearch)}
-              <br></br> */}
-              {currentRoom?.id == roomGral ? (
+              {typeSearch == roomGral ? (
                 <IconGroup size={40} />
-              ) : currentRoom?.text == "Soporte" ? (
+              ) : typeSearch.indexOf("chatBot") != -1 ? (
                 <Logo width={40} />
               ) : (
                 <Avatar
                   src={getUrlImages(
                     "/ADM-" +
-                      currentRoom?.id +
+                      currentRoom?.value +
                       ".webp?d=" +
                       currentRoom?.updated_at
                   )}
@@ -266,37 +222,15 @@ export default function ChatInstantDb() {
                 />
               )}
             </div>
-            <div>{currentRoom && getFullName(currentRoom)}</div>
+            <div>{currentRoom && currentRoom.text}</div>
           </div>
-          <IconX onClick={() => setOpen(false)} />
+          <div>
+            <IconX onClick={() => setOpen(false)} />
+          </div>
         </div>
         <div className={styles.chatBodyContainer}>
-          <div
-            style={{
-              borderRight: "1px solid var(--cWhiteV1)",
-              padding: "0 16px",
-              width: "300px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              gap: "8px",
-              position: "relative",
-              overflow: "hidden",
-              // backgroundColor: "green",
-              // flex: 1,
-            }}
-          >
-            <div
-              style={{
-                flexGrow: 1,
-                // flex: 1,
-                height: "200px",
-                overflowY: "auto",
-                overflowX: "hidden",
-                // backgroundColor: "blue",
-              }}
-            >
-              {/* <div style={{ height: "100%" }}> */}
+          <div>
+            <div>
               {usersChat?.map((u: any, i: number) => {
                 if (u.id == user.id) return null;
                 return (
@@ -312,9 +246,8 @@ export default function ChatInstantDb() {
                   />
                 );
               })}
-              {/* </div> */}
             </div>
-            <div style={{ flexShrink: 1 }}>
+            <div>
               Canales de contactos <br />
               <br />
               <br />
@@ -324,14 +257,7 @@ export default function ChatInstantDb() {
               <hr />
             </div>
           </div>
-          <div
-            style={{
-              flexGrow: 1,
-              // backgroundColor: "blue",
-              width: "300px",
-              display: "flex",
-            }}
-          >
+          <div>
             <ChatRoom
               user={user}
               roomId={typeSearch}
@@ -436,7 +362,6 @@ const ChatContactItem = ({
               rol={u.role_name}
             />
           )}
-          {/* {JSON.stringify(countMsg[u.id]?.msg)} */}
         </div>
       </div>
       {countMsg[u.id]?.count > 0 && (
@@ -461,15 +386,6 @@ const ChatContactItem = ({
           </div>
         </span>
       )}
-      {/* {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name &&
-        (typeSearch == roomGral || typeSearch.indexOf(user.id) !== false) && (
-          <span style={{ color: "white" }}>...esta escribiendo...</span>
-        )}
-      {u.id == "chatBot" &&
-        countMsg[u.id]?.msg?.received_at &&
-        !countMsg[u.id]?.msg?.read_at && (
-          <span style={{ color: "white" }}>...esta escribiendo...</span>
-        )} */}
       <div
         style={{
           fontSize: "12px",

@@ -14,11 +14,10 @@
   &.open {
     display: flex;
   }
-  /* border: 5px solid red; */
 }
 .chatContainer {
-  max-width: 75%;
-  width: 1085px;
+  max-width: 810px;
+  width: 75%;
   height: 100vh;
   background-color: var(--cBlackV2);
   position: absolute;
@@ -33,39 +32,32 @@
   &.close {
     right: 0px;
   }
-  /* border: 5px solid yellow; */
 }
-
-/* .chatTitle {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: var(--cWhite);
-}
-
-.chatMessages {
-  flex: 1;
-  background-color: var(--cBlackV2);
-  overflow-y: auto;
+.chatHeader {
+  border-bottom: 1px solid var(--cWhiteV1);
+  height: 65px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
-  max-height: 400px;
-  border-radius: 8px;
-  position: relative;
-} */
-
-/* .onlineUsersTitle {
-  margin-top: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--cWhiteV1);
+  flex-shrink: 1;
+  gap: 10px;
+  & > div {
+    color: var(--cWhiteV1);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+    flex-shrink: 1;
+  }
+  & > :nth-child(1) {
+    width: 300px;
+  }
+  & > :nth-child(2) {
+    flex-grow: 1;
+  }
 }
-
-.onlineUsersList {
-  list-style: none;
-  padding: 0;
-  color: black;
-} */
-
 .presence {
   position: absolute;
   bottom: 4px;
@@ -83,8 +75,29 @@
   flex-grow: 1;
   display: flex;
   padding: 12px 0;
-  /* border: 5px dashed orange; */
   height: 300px;
+  & > :nth-child(1) {
+    border-right: 1px solid var(--cWhiteV1);
+    padding: 0 16px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    & > :nth-child(1) {
+      flex-grow: 1;
+      height: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  }
+  & > :nth-child(2) {
+    flex-grow: 1;
+    width: 300px;
+    display: flex;
+  }
 }
 
 .itemList {
@@ -103,7 +116,6 @@
     border: 1px solid var(--cPrimary);
     background-color: var(--cWhiteV2);
   }
-
   &:hover {
     background-color: var(--cBlack);
   }
