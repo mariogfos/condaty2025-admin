@@ -3,9 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import styles from "./chat.module.css";
 import {
   IconCheck,
+  IconEmail,
   IconGroup,
   IconImage,
   IconReadMessage,
+  IconWhatsapp,
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
@@ -17,6 +19,7 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import { SendMessageType } from "./chat-types";
 import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
+import Button from "../forms/Button/Button";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -248,13 +251,15 @@ export default function ChatInstantDb() {
               })}
             </div>
             <div>
-              Canales de contactos <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <hr />
+              <div>Canales de contactos</div>
+              <Button variant="secondary" small>
+                <IconWhatsapp style={{ marginTop: "4px" }} /> Contactarme por
+                WhatsApp
+              </Button>
+              <Button variant="secondary" small>
+                <IconEmail /> Contactarme por E-mail
+              </Button>
+              <div>Este chat solo almacena los últimos 100 mensajes</div>
             </div>
           </div>
           <div>
@@ -310,7 +315,7 @@ const ChatContactItem = ({
         " " +
         (typeSearch.indexOf(u.id) != -1 && styles.active)
       }
-      onClick={() => openChat(u.id, getFullName(u, "NmLo"))}
+      onClick={() => openChat(u.id, getFullName(u, "NsLm"))}
     >
       <div style={{ position: "relative" }}>
         {u.id == "chatBot" ? (
@@ -343,7 +348,7 @@ const ChatContactItem = ({
           width: "100%",
         }}
       >
-        {getFullName(u, "NmLo")}
+        {getFullName(u, "NsLm")}
         <br />
         <div
           className="truncate"
