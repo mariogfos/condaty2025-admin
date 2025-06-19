@@ -305,6 +305,7 @@ const Select = ({
 
   const handleSelectClickIcon = (e: any) => {
     e.stopPropagation();
+    e.preventDefault();
     setOpenOptions((old: boolean) => !old);
   };
 
