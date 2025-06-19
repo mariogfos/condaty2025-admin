@@ -297,7 +297,7 @@ const ChatRoom = ({
                     {msg.emoticon &&
                       (JSON.parse(msg.emoticon) ?? []).map(
                         (e: any, i: number) => (
-                          <span key={i + "em"}>{e.emoji}aaa</span>
+                          <span key={i + "em"}>{e.emoji}</span>
                         )
                       )}
                     {((msg.emoticon && JSON.parse(msg.emoticon)) ?? [])
