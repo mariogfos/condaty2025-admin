@@ -10,6 +10,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconAlert,
   IconAlert2,
+  IconAlert3,
   IconAmbulance,
   IconFlame,
   IconGuardShield,
@@ -360,7 +361,10 @@ const Alerts = () => {
         </div>
       </div>
 
-      <List height={"calc(100vh - 460px)"} />
+      <List height={"calc(100vh - 460px)"} 
+      emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
+      emptyLine2="registre una se mostrará aquí."
+      emptyIcon={<IconAlert3 size={80}/>} />
     </div>
   );
 };

@@ -455,6 +455,9 @@ const Dptos = () => {
         onTabletRow={renderItem}
         height={"calc(100vh - 390px)"}
         onRowClick={handleRowClick}
+        emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
+        emptyLine2="del condominio as verás aquí."
+        emptyIcon={<IconDepartments size={80}/>} 
       />
       {openImport && (
         <ImportDataModal

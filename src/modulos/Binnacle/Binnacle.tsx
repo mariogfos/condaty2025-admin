@@ -10,6 +10,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { IconPencilPaper } from "@/components/layout/icons/IconsBiblioteca";
 
 const mod = {
   modulo: "guardnews",
@@ -109,7 +110,11 @@ const Binnacle = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 280px)"} />
+      <List height={"calc(100vh - 280px)"} 
+      emptyMsg="Lista de bitácora vacía. Cuando los guardias registren"
+      emptyLine2="sus reportes lo verás aquí."
+      emptyIcon={<IconPencilPaper size={80}/>} 
+      />
     </div>
   );
 };

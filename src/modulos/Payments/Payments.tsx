@@ -19,6 +19,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import dptos from "@/app/dptos/page";
 import Input from "@/mk/components/forms/Input/Input"; // Importación añadida
 import { RenderAnularModal } from "./RenderDel/RenderDel";
+import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
@@ -413,7 +414,12 @@ const Payments = () => {
         Administre, agregue y elimine todos los ingresos
       </p>
 
-      <List height={"calc(100vh - 360px)"} />
+      <List
+        height={"calc(100vh - 360px)"}
+        emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
+        emptyLine2="de expensas y otros ingresos, los verás aquí."
+        emptyIcon={<IconIngresos size={80} />}
+      />
 
       {openGraph && (
         <DataModal

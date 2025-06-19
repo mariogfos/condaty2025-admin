@@ -17,6 +17,7 @@ import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import {
   IconHome,
   IconHomePerson,
+  IconHomePerson2,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -595,7 +596,10 @@ const Owners = () => {
           }
         />
       </div>
-      <List height={"calc(100vh - 400px)"} />
+      <List height={"calc(100vh - 400px)"} 
+       emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
+       emptyLine2="del condominio una vez los registres"
+       emptyIcon={<IconHomePerson2 size={80}/>} />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}

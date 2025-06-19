@@ -18,10 +18,14 @@
   margin: 0;
   padding: 0;
   margin-top: 12px;
-  font-size: var(--sXl);
-  color: var(--cWhite);
+  font-size: var(--sL);
+  color: var(--cWhiteV1);
+
 }
 .line2 {
-  size: var(--sM);
+  margin: 0;
+  padding: 0;
+  margin-top: 12px;
+  font-size: var(--sL);
   color: var(--cWhiteV1);
 }

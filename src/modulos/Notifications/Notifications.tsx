@@ -13,6 +13,7 @@ import {
   IconPaymentCommitment,
   IconNewReserve,
   IconUser,
+  IconNotification,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -252,6 +253,9 @@ const Notifications = () => {
         height={"calc(100vh - 300px)"}
         onTabletRow={renderItem}
         onRowClick={handleRowClick}
+        emptyMsg="Lista vacía. Una vez comiencen las interacciones"
+        emptyLine2="con el sistema, verás las notificaciones aquí"
+        emptyIcon={<IconNotification size={80}/>} 
       />
       {openPayment.open && (
         <PaymentRender
