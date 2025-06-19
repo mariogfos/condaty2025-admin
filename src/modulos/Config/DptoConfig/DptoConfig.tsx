@@ -164,7 +164,7 @@ const DptoConfig = ({
               placeholder="Cargar una imagen"
               ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
-              onError={() => setExistLogo(true)}
+              // onError={() => setExistLogo(true)}
             />
           </div>
         </div>
@@ -196,7 +196,7 @@ const DptoConfig = ({
               placeholder="Cargar una imagen"
               ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
-              onError={() => setExistAvatar(true)}
+              // onError={() => setExistAvatar(true)}
             />
           </div>
         </div>
