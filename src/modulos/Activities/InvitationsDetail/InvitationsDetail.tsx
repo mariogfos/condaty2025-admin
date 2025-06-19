@@ -3,7 +3,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes, formatDateRange } from "@/mk/utils/date";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import {
   IconArrowLeft,
@@ -135,7 +135,9 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 </span>
                 <span className={styles.infoValue}>
                   {item?.type === "F"
-                    ? (invitation?.start_date ? `${getDateStrMes(invitation?.start_date)} a ${getDateStrMes(invitation?.end_date)}` : 'Indefinido')
+                    ? (invitation?.start_date && invitation?.end_date
+                        ? formatDateRange(invitation?.start_date, invitation?.end_date)
+                        : "Indefinido")
                     : (getDateStrMes(invitation?.date_event) || "Indefinido")}
                 </span>
               </div>

@@ -617,4 +617,35 @@ export const formatToDayDDMMYYYYHHMM = (
 
   return `${diaSemana}, ${dia}/${mesNum}/${año} - ${horaStr}:${minutosStr}`;
 };
+export const formatDateRange = (
+  startDateStr: string | null,
+  endDateStr: string | null
+): string => {
+  // Función auxiliar interna para no repetir código.
+  // Formatea una sola fecha en el formato "Día, dd/MM/yyyy".
+  const formatSingleDate = (dateStr: string | null): string => {
+    if (!dateStr) return '';
 
+    // Reutilizamos tu función para manejar fechas UTC y locales de forma consistente.
+    const date = convertirFechaUTCaLocal(dateStr);
+    
+    if (!date) return ''; // Si la fecha no es válida, retorna vacío.
+
+    const diaSemana = DAYS_SHORT[date.getDay()]; // Ej: 'Lun'
+    const dia = String(date.getDate()).padStart(2, '0'); // Ej: '12'
+    const mes = String(date.getMonth() + 1).padStart(2, '0'); // Ej: '04'
+    const anio = date.getFullYear(); // Ej: '2025'
+
+    return `${diaSemana}, ${dia}/${mes}/${anio}`;
+  };
+
+  const formattedStart = formatSingleDate(startDateStr);
+  const formattedEnd = formatSingleDate(endDateStr);
+
+  // Si alguna de las fechas es inválida, mejor no mostrar nada o un error.
+  if (!formattedStart || !formattedEnd) {
+    return 'Rango de fechas inválido';
+  }
+
+  return `${formattedStart} a ${formattedEnd}`;
+};
