@@ -384,6 +384,9 @@ const HomePage = () => {
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Total de ingresos registrados en el sistema durante el mes actual."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Egresos"
@@ -398,6 +401,9 @@ const HomePage = () => {
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Total de egresos registrados en el sistema durante el mes actual."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title={balanceMessage}
@@ -418,6 +424,9 @@ const HomePage = () => {
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Diferencia entre ingresos y egresos del mes. Si es positivo, hay saldo a favor; si es negativo, saldo en contra."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Cartera vencida"
@@ -432,6 +441,9 @@ const HomePage = () => {
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Monto total de la cartera vencida, es decir, pagos pendientes de los residentes."
+                 tooltipColor="var(--cWhiteV1)"
                 />
               </div>
             </WidgetBase>
@@ -526,16 +538,25 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
+                  tooltipColor="var(--cWhiteV1)"
                   // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
+                  tooltipColor="var(--cWhiteV1)"
                   // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
+                  tooltipColor="var(--cWhiteV1)"
                   // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
               </div>

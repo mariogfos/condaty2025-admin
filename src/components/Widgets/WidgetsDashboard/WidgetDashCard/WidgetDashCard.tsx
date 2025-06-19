@@ -16,6 +16,7 @@ interface ItemProps {
   icon?: any;
   tooltip?: boolean;
   tooltipTitle?: string;
+  tooltipColor?: string;
   style?: React.CSSProperties;
 }
 
@@ -28,6 +29,7 @@ export const WidgetDashCard = ({
   icon,
   tooltip,
   tooltipTitle = "",
+  tooltipColor,
   onClick,
   style,
 }: ItemProps) => {
@@ -44,7 +46,9 @@ export const WidgetDashCard = ({
           {title}{" "}
           {tooltip && (
             <Tooltip title={tooltipTitle} position="right">
-              <IconInterrogation />{" "}
+              <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', marginLeft:5 }}>
+                <IconInterrogation color={tooltipColor || 'var(--cWhiteV2)'} size={18} />
+              </span>
             </Tooltip>
           )}
         </p>
