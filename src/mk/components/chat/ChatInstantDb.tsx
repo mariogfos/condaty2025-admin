@@ -215,9 +215,11 @@ export default function ChatInstantDb() {
                 <Avatar
                   src={getUrlImages(
                     "/ADM-" +
-                      currentRoom?.value +
+                      currentRoom?.value
+                        .replace("--", "")
+                        .replace(user.id, "") +
                       ".webp?d=" +
-                      currentRoom?.updated_at
+                      new Date().getTime()
                   )}
                   w={40}
                   h={40}
