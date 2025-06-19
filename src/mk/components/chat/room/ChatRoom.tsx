@@ -146,7 +146,7 @@ const ChatRoom = ({
   };
 
   const handleEmojiSelect = (emojiObject: any) => {
-    const emojis = JSON.parse(showEmojiPicker.emoticon ?? "[]");
+    const emojis = JSON.parse(showEmojiPicker?.emoticon || "[]");
     emojis.push({
       emoji: emojiObject.emoji,
       sender: user.id,
@@ -297,11 +297,11 @@ const ChatRoom = ({
                     {msg.emoticon &&
                       (JSON.parse(msg.emoticon) ?? []).map(
                         (e: any, i: number) => (
-                          <span key={i + "em"}>{e.emoji}</span>
+                          <span key={i + "em"}>{e.emoji}aaa</span>
                         )
                       )}
                     {((msg.emoticon && JSON.parse(msg.emoticon)) ?? [])
-                      .length ?? ""}
+                      .length || ""}
                   </div>
                 </div>
               </div>
