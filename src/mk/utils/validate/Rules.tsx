@@ -1,4 +1,5 @@
 import { validators as loadedValidators } from "@/components/validators";
+import { formatNumber } from "../numbers";
 
 export type ActionType = "add" | "edit" | "del" | "view" | "export";
 export type ValidFunctionType = (
@@ -34,7 +35,7 @@ export const validRule = (
 
   const [rule, params] = (_rule + ":").split(":");
   const param = params ? params.split(",") : [];
-
+  // console.log(Number(value), Number(formState[param[0]]));
   const validations: Record<string, Function> = {
     validateIf: () =>
       param[1] !== formState[param[0]] ? "validar hasta aqui" : "",
@@ -44,12 +45,23 @@ export const validRule = (
         : !value
         ? "Este campo es requerido"
         : "",
-    required: () =>
-      value === 0 || value === "0"
-        ? ""
-        : !value
-        ? "Este campo es requerido"
-        : "",
+
+    required: () => {
+      // Si el valor es 0 o "0", se considera válido (mantiene tu lógica actual para estos casos)
+      if (value === 0 || value === "0") {
+        return ""; // Sin error
+      }
+      // NUEVA VERIFICACIÓN: Si es un array y está vacío, es requerido
+      if (Array.isArray(value) && value.length === 0) {
+        return "Este campo es requerido"; // Error, campo vacío
+      }
+      // Verificación original para otros valores "falsy" (null, undefined, "")
+      if (!value) {
+        return "Este campo es requerido"; // Error, campo vacío
+      }
+      // Si ninguna de las condiciones anteriores se cumple, el campo es válido
+      return ""; // Sin error
+    },
     requiredFile: () => (!value?.file ? "Este campo es requerido" : ""),
     onExist: async () => {
       if (!execute) return "no existe execute";
@@ -101,7 +113,10 @@ export const validRule = (
       !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
-    less: () => (value >= param[0] ? `Debe ser menor que ${param[0]}` : ""),
+    less: () =>
+      Number(value) > Number(formState[param[0]])
+        ? `Debe ser menor o igual a ${formatNumber(formState[param[0]], 0)}`
+        : "",
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(
         value
@@ -169,7 +184,7 @@ export const checkRulesFields = (
       if (!ruleName || (ruleActions && !ruleActions.includes(action[0])))
         continue;
       const rName = (ruleName + ":").split(":")[0];
-      console.log(rName, "rName", data);
+      //console.log(rName, "rName", data);
       if (rName == "_disabled_" && data["_disabled"] === true) {
         detener = true;
         // errors[key] = "";

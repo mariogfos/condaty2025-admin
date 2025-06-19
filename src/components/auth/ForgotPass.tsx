@@ -105,19 +105,33 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     setformState({ ...formState, code });
   };
 
- const inputCodeValidation = () => {  
+ const inputCodeValidation = async () => {  
   let err = {};
   if(formState.pinned === 2){
     if (!formState.code)
      { err = { ...err, code: "Ingresa el código de verificación enviado a tu correo electrónico" }};
     if (formState.code?.length != 4)
       {err = { ...err, code: "El código de verificación debe tener 4 dígitos" }}
-    else { setformState({ ...formState, pinned: 3 }) }; 
+    
     if (Object.keys(err).length > 0) {
       seterrors(err);
       return;
     }
+
+    // Validar el pin con la API
+    const { data, error } = await execute("/adm-validatepin", "POST", {
+      ci: formState.ci,
+      pin: formState.code,
+      type: "ADM"
+    });
+
+    if (data?.success === true) {
+      setformState({ ...formState, pinned: 3 });
+    } else {
+      showToast(error?.message || "El código de verificación no es válido", "error");
+      seterrors({ code: "El código de verificación no es válido" });
     }
+  }
  }
 
   const onChangePass = async () => {

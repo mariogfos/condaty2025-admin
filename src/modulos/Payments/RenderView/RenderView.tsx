@@ -1,5 +1,4 @@
 // @ts-nocheck
- 
 
 import React, { memo, useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -19,36 +18,45 @@ interface DetailPaymentProps {
   extraData?: any;
   reLoad?: () => void;
   payment_id: string | number;
-
+  onDel?: () => void;
 }
 
 // eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
-  const { open, onClose, extraData, reLoad, payment_id } = props;
-  const [formState, setFormState] = useState<{confirm_obs?: string}>({});
+  const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
+  const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
-  const [errors, setErrors] = useState<{confirm_obs?: string}>({});
+  const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const [item, setItem] = useState(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
-
+  console.log(payment_id);
   const fetchPaymentData = async () => {
     if (payment_id && open) {
-      const { data } = await execute("/payments", "GET", {
-        fullType: "DET",
-        searchBy: payment_id,
-      },false,true);
+      const { data } = await execute(
+        "/payments",
+        "GET",
+        {
+          fullType: "DET",
+          searchBy: payment_id,
+          page: 1,
+          perPage: 1,
+        },
+        false,
+        true
+      );
       setItem(data?.data);
     }
   };
+  console.log(item);
   useEffect(() => {
-
     fetchPaymentData();
   }, [payment_id]);
   // console.log(item,)
 
-
-  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeInput = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === "checkbox") {
       value = (e.target as HTMLInputElement).checked ? "P" : "N";
@@ -84,11 +92,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Función para mapear el tipo de pago
   const getPaymentType = (type: string) => {
     const typeMap: Record<string, string> = {
-      "T": "Transferencia bancaria",
-      "E": "Efectivo",
-      "C": "Cheque",
-      "Q": "QR",
-      "O": "Pago en oficina"
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "QR",
+      O: "Pago en oficina",
     };
     return typeMap[type] || type;
   };
@@ -96,12 +104,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      "P": "Cobrado",
-      "S": "Por confirmar",
-      "R": "Rechazado",
-      "E": "Por subir comprobante",
-      "A": "Por pagar",
-      "M": "Moroso"
+      P: "Cobrado",
+      S: "Por confirmar",
+      R: "Rechazado",
+      E: "Por subir comprobante",
+      A: "Por pagar",
+      M: "Moroso",
+      X: "Anulado",
     };
     return statusMap[status] || status;
   };
@@ -109,30 +118,47 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Busca la categoría en extraData
   const getCategoryName = () => {
     if (item?.category) return item.category.name;
-    if (!extraData || !extraData.categories) return `Categoría ID: ${item?.category_id}`;
-    const category = extraData.categories.find((c: any) => c.id === item?.category_id);
+    if (!extraData || !extraData.categories)
+      return `Categoría ID: ${item?.category_id}`;
+    const category = extraData.categories.find(
+      (c: any) => c.id === item?.category_id
+    );
     return category ? category.name : `Categoría ID: ${item?.category_id}`;
   };
 
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData || !extraData.dptos) return (item?.dptos || "No especificada").replace(/,/g, "");
-    
-    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
-    
+    if (!extraData || !extraData.dptos)
+      return (item?.dptos || "-/-").replace(/,/g, "");
+
+    const dpto = extraData.dptos.find(
+      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
+    );
+
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
-      const descSinComa = dpto.description ? dpto.description.replace(/,/g, "") : "";
+      const descSinComa = dpto.description
+        ? dpto.description.replace(/,/g, "")
+        : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
-      return (item?.dptos || "No especificada").replace(/,/g, "");
+      return (item?.dptos || "-/-").replace(/,/g, "");
     }
   };
 
   // Calcular monto total de los detalles
   const getTotalAmount = () => {
     if (!item?.details || !item.details.length) return item?.amount || 0;
-    return item.details.reduce((sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0), 0);
+    return item.details.reduce(
+      (sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0),
+      0
+    );
+  };
+  const handleAnularClick = () => {
+    if (item && onDel) {
+      // Verifica que item y onDel existan
+      onDel(item);
+    }
   };
 
   if (!item) {
@@ -143,11 +169,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         title="Detalle de Ingreso"
         buttonText=""
         buttonCancel=""
-      >
-        <div className={styles.container}>
-          <p>No se encontró información del pago</p>
-        </div>
-      </DataModal>
+      ></DataModal>
     );
   }
 
@@ -156,87 +178,118 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       <DataModal
         open={open}
         onClose={onClose}
-        title="Detalle del ingreso"
+        title="Detalle del ingreso" // Mantén o quita el título del DataModal según tu preferencia global
         buttonText=""
         buttonCancel=""
       >
+        {item && onDel && item.status === "P" && (
+          <div className={styles.headerActionContainer}>
+            {/* REEMPLAZO DEL BOTÓN */}
+            <button
+              type="button" // Es buena práctica especificar el type para botones fuera de forms
+              onClick={handleAnularClick}
+              className={styles.textButtonDanger} // Nueva clase para el text button rojo
+            >
+              Anular ingreso
+            </button>
+          </div>
+        )}
         <div className={styles.container}>
-          {/* Sección para mostrar el monto total y la fecha */}
-          <div className={styles.totalAmountSection}>
-            <div className={styles.totalAmount}>
-              Bs {item.amount}
-            </div>
-            <div className={styles.paymentDate}>
+          <div className={styles.headerSection}>
+            <div className={styles.amountDisplay}>Bs {item.amount}</div>
+            <div className={styles.dateDisplay}>
               {getDateTimeStrMesShort(item.paid_at)}
             </div>
           </div>
 
-          {/* Separador horizontal */}
-          <div className={styles.divider}></div>
+          {/* Divisor antes de la sección de info y botón */}
+          <hr className={styles.sectionDivider} />
 
-          {/* Contenedor para la información detallada */}
-          <div className={styles.detailsContainer}>
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Estado del ingreso</div>
-              <div className={styles.successValue}>
-                {getStatus(item.status)}
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Unidad</div>
-              <div className={styles.value}>
-                {getDptoName()}
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Titular</div>
-              <div className={styles.value}>
-                {getFullName(item.owner) || "Sin titular"}
-              </div>
-            </div>
-
-            {/* Propietario - si existe la propiedad */}
-            {item.propietario && (
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Propietario</div>
-                <div className={styles.value}>
-                  {getFullName(item.propietario) || "Sin propietario"}
+          <section className={styles.detailsSection}>
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Unidad</span>
+                  <span className={styles.infoValue}>{getDptoName()}</span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Propietario</span>
+                  <span className={styles.infoValue}>
+                    {getFullName(item.propietario) ||
+                      getFullName(item.owner) ||
+                      "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Categoría</span>
+                  <span className={styles.infoValue}>
+                    {/* Asumiendo que item.concept es un array o string formateado.
+                        La imagen muestra "-Expensas", "-Multas", "-Reservas".
+                        Si es un array, podrías hacer item.concept.map(c => <div>-{c}</div>)
+                        o si es un string formateado, usarlo directamente.
+                        Asegúrate que tus datos 'item.concept' o 'item.description'
+                        reflejen el formato de la imagen.
+                    */}
+                    {item.concept?.map((c: string, i: number) => (
+                      <div key={i}>-{c}</div>
+                    )) ||
+                      item?.category?.padre?.name ||
+                      "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Observación</span>
+                  <span className={styles.infoValue}>{item.obs || "-/-"}</span>
                 </div>
               </div>
-            )}
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Tipo de pago</div>
-              <div className={styles.value}>
-                {getPaymentType(item.type)}
+              {/* Columna Derecha */}
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Estado</span>
+                  <span
+                    className={`${styles.infoValue} ${
+                      item.status === "P"
+                        ? styles.statusPaid
+                        : item.status === "S"
+                        ? styles.statusPending
+                        : item.status === "R"
+                        ? styles.statusRejected
+                        : item.status === "X"
+                        ? styles.statusCanceled
+                        : ""
+                    }`}
+                  >
+                    {getStatus(item.status)}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Forma de pago</span>
+                  <span className={styles.infoValue}>
+                    {getPaymentType(item.type)}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Titular</span>
+                  <span className={styles.infoValue}>
+                    {getFullName(item.owner) || "-/-"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Número de comprobante</span>
+                  <span className={styles.infoValue}>
+                    {item.voucher || "-/-"}
+                  </span>
+                </div>
               </div>
-            </div>
+            
+        </section>
+          {/* Divisor después de la sección de info y botón */}
+          <hr className={styles.sectionDivider} />
 
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Observación</div>
-              <div className={styles.value}>
-                {item.obs || "Sin observación"}
-              </div>
-            </div>
-
-            <div className={styles.detailRow}>
-              <div className={styles.label}>Número de comprobante</div>
-              <div className={styles.value}>
-                {item.voucher || "Sin comprobante"}
-              </div>
-            </div>
-          </div>
-
-          {/* Separador horizontal */}
-          <div className={styles.divider}></div>
-
-          {/* Botón de comprobante */}
           {item.ext && (
-            <div className={styles.buttonContainer}>
-              <Button 
-                className={`${styles.downloadButton}`}
+            <div className={styles.voucherButtonContainer}>
+              <Button
+                variant="outline"
+                className={styles.voucherButton}
                 onClick={() => {
                   window.open(
                     getUrlImages(
@@ -251,78 +304,100 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   );
                 }}
               >
-                Revisar comprobante
+                Ver comprobante
               </Button>
             </div>
           )}
 
-          {/* Sección de periodos pagados */}
           {item?.details?.length > 0 && (
-            <div className={styles.periodsSection}>
-              <div className={styles.periodsHeader}>
-                <div className={styles.periodsTitle}>Periodos pagados</div>
-                <div className={styles.totalPaid}>
-                  Total pagado: <span className={styles.totalPaidAmount}>Bs {getTotalAmount()}</span>
-                </div>
+            <div className={styles.periodsDetailsSection}>
+              <div className={styles.periodsDetailsHeader}>
+                <h3 className={styles.periodsDetailsTitle}>Periodos Cobrados</h3>
               </div>
 
-              {/* Tabla de periodos */}
-              <div className={styles.tableContainer}>
-                <div className={styles.tableHeader}>
-                  <div className={`${styles.headerCell} ${styles.headerCellLeft}`}>Periodo</div>
-                  <div className={styles.headerCell}>Monto</div>
-                  <div className={styles.headerCell}>Multa</div>
-                  <div className={`${styles.headerCell} ${styles.headerCellRight}`}>Subtotal</div>
-                </div>
-
-                <div className={styles.tableBody}>
-                  {item.details.map((periodo: any, index: number) => {
-                    const isLastRow = index === item.details.length - 1;
-                    const isEvenRow = index % 2 === 1;
-                    
-                    return (
-                      <div 
-                        key={periodo.id} 
-                        className={`${styles.tableRow} 
-                                   ${isEvenRow ? styles.tableRowEven : ''} 
-                                   ${isLastRow ? styles.tableLastRow : ''}`}
+              <div className={styles.periodsTableWrapper}>
+                <div className={styles.periodsTable}>
+                  <div className={styles.periodsTableHeader}>
+                    <div className={styles.periodsTableCell}>Periodo</div>
+                    <div className={styles.periodsTableCell}>Categoría</div>
+                    <div className={styles.periodsTableCell}>Monto</div>
+                    <div className={styles.periodsTableCell}>Multa</div>
+                    <div className={styles.periodsTableCell}>Subtotal</div>
+                  </div>
+                  <div className={styles.periodsTableBody}>
+                    {item.details.map((periodo: any, index: number) => (
+                      <div
+                        className={styles.periodsTableRow}
+                        key={periodo.id || index}
                       >
-                        <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellLeft : ''}`}>
-                          {periodo?.debt_dpto?.debt?.month}/{periodo?.debt_dpto?.debt?.year}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Periodo"
+                        >
+                          {periodo?.debt_dpto?.debt?.month}/
+                          {periodo?.debt_dpto?.debt?.year}
                         </div>
-                        <div className={styles.tableCell}>
-                          Bs {periodo?.debt_dpto?.amount}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Concepto"
+                        >
+                          {item?.category?.padre?.name || "-/-"}
                         </div>
-                        <div className={styles.tableCell}>
-                          Bs {periodo?.debt_dpto?.penalty_amount}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Monto"
+                        >
+                          Bs{" "}
+                          {parseFloat(periodo?.debt_dpto?.amount || 0).toFixed(
+                            2
+                          )}
                         </div>
-                        <div className={`${styles.tableCell} ${isLastRow ? styles.tableCellRight : ''}`}>
-                          Bs {periodo?.amount}
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Multa"
+                        >
+                          Bs{" "}
+                          {parseFloat(
+                            periodo?.debt_dpto?.penalty_amount || 0
+                          ).toFixed(2)}
+                        </div>
+                        <div
+                          className={styles.periodsTableCell}
+                          data-label="Subtotal"
+                        >
+                          Bs {parseFloat(periodo?.amount || 0).toFixed(2)}
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.periodsDetailsFooter}>
+                <div className={styles.periodsDetailsTotal}>
+                  Total cobrado:{" "}
+                  <span className={styles.totalAmountValue}>
+                    Bs {parseFloat(getTotalAmount() || 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Botones de acción (confirmar/rechazar) */}
           {item?.status === "S" && (
-            <div className={styles.buttonActions}>
+            <div className={styles.actionButtonsContainer}>
               <Button
-                className="btn-cancel"
+                variant="danger"
+                className={`${styles.actionButton} ${styles.rejectButton}`}
                 onClick={() => {
                   setOnRechazar(true);
                 }}
-                style={{ marginRight: "10px", flex: 1 }}
               >
                 Rechazar pago
               </Button>
               <Button
-                className="btn btn-primary"
+                variant="success"
+                className={`${styles.actionButton} ${styles.confirmButton}`}
                 onClick={() => onConfirm(true)}
-                style={{ flex: 1 }}
               >
                 Confirmar pago
               </Button>

@@ -110,7 +110,7 @@ const UnitsType = () => {
         form: { type: "text" },
       },
       description: {
-        rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Descripción",
         list: true,

@@ -2,13 +2,44 @@
 import React, { useEffect, useState } from "react";
 import TableFinance from "./TableFinance/TableFinance";
 
+interface CategoriaPrincipal { // Tipo para elementos de la prop 'categorias'
+  id: string | number;
+  name: string;
+  // Otros campos si los hubiera
+}
+
+interface ItemEgreso { // Tipo para elementos de la prop 'subcategorias'
+  categ_id: string | number; // ID del item de egreso en sí
+  name: string;
+  category_id: string | number | null; // ID de la categoría padre (puede ser null)
+  amount: string; // Viene como string desde la API
+  mes: number; // Mes del egreso
+  // Otros campos si los hubiera
+}
+
+interface FormattedCategoryData {
+  id: string | number;
+  name: string;
+  amount: number;
+  sub: FormattedSubItemData[];
+  totalMeses?: number[];
+}
+
+interface FormattedSubItemData {
+  id: string | number;
+  name: string;
+  amount: number;
+  totalMeses?: number[];
+}
+
+
 interface PropType {
-  categorias: any[]; // Es buena práctica tipar más específicamente si es posible
-  subcategorias: any[]; // Es buena práctica tipar más específicamente si es posible
+  categorias: CategoriaPrincipal[];
+  subcategorias: ItemEgreso[];
   title: string;
   title2: string;
   anual?: boolean;
-  selectcategorias?: any; // Asumiendo que los IDs son string o number
+  selectcategorias?: (string | number)[];
 }
 
 const TableEgresos = ({
@@ -19,7 +50,7 @@ const TableEgresos = ({
   anual = false,
   selectcategorias,
 }: PropType) => {
-  const [formatedData, setFormatedData] = useState<any[]>([]);
+  const [formatedData, setFormatedData] = useState<FormattedCategoryData[]>([]);
   const [total, setTotal] = useState<number>(0);
   const meses = [
     "Ene", "Feb", "Mar", "Abr", "May", "Jun",
@@ -27,74 +58,89 @@ const TableEgresos = ({
   ];
 
   useEffect(() => {
-    let processedData: any[] = [];
+    let processedData: FormattedCategoryData[] = [];
     let grandTotal = 0;
 
-    // 1. Inicializar la estructura base con las categorías padre
-    categorias?.forEach((categoria: any) => {
+    // 1. Inicializar la estructura base con las categorías principales
+    categorias?.forEach((categoria: CategoriaPrincipal) => {
       processedData.push({
         id: categoria.id,
         name: categoria.name,
-        amount: 0, // Empezar el total de la categoría en 0
-        sub: [],   // Array para las subcategorías hijas
-        totalMeses: anual ? Array(12).fill(0) : undefined, // Inicializar meses si es anual
+        amount: 0,
+        sub: [],
+        totalMeses: anual ? Array(12).fill(0) : undefined,
       });
     });
 
-    // 2. Procesar cada entrada de subcategoría (transacción/agregado)
-    subcategorias?.forEach((subcategoria: any) => {
-      // Encontrar la categoría padre correspondiente en processedData usando category_id
-      const parentCategory = processedData.find(
-        (cat) => cat.id == subcategoria.category_id // Asumiendo que subcategoria.category_id es el ID del padre
-      );
+    // 2. Procesar cada item de egreso
+    subcategorias?.forEach((itemEgreso: ItemEgreso) => {
+      let parentCategoryInProcessedData: FormattedCategoryData | undefined;
 
-      // Si no se encuentra la categoría padre, saltar esta subcategoría
-      if (!parentCategory) {
-        console.warn(`Categoría padre con ID ${subcategoria.category_id} no encontrada para subcategoría ${subcategoria.name}`);
+      if (itemEgreso.category_id !== null) {
+        // CASO 1: Es un HIJO. Su category_id apunta al id de la categoría principal.
+        parentCategoryInProcessedData = processedData.find(
+          (cat) => cat.id == itemEgreso.category_id
+        );
+      } else {
+        // CASO 2: Es un GASTO DIRECTO bajo una categoría principal (o "padre" en tu terminología).
+        // Su propio itemEgreso.categ_id es el que coincide con el id de la categoría principal.
+        parentCategoryInProcessedData = processedData.find(
+          (cat) => cat.id == itemEgreso.categ_id
+        );
+      }
+
+      // Si no se puede asignar a una categoría principal listada, se omite con advertencia.
+      if (!parentCategoryInProcessedData) {
+        if (itemEgreso.category_id !== null) {
+           console.warn(`EGRESOS: Categoría padre (vía category_id ${itemEgreso.category_id}) no encontrada en la lista de categorías principales para el item ${itemEgreso.name} (ID del item: ${itemEgreso.categ_id})`);
+        } else {
+           console.warn(`EGRESOS: Categoría principal (vía categ_id ${itemEgreso.categ_id}) no encontrada en la lista de categorías principales para el item directo ${itemEgreso.name}`);
+        }
         return;
       }
 
-      const amount = parseFloat(subcategoria.amount) || 0; // Convertir a número, default 0
-      const monthIndex = subcategoria.mes - 1; // Índice basado en 0 para el array de meses
+      const amount = parseFloat(itemEgreso.amount) || 0;
+      const monthIndex = itemEgreso.mes - 1; // Asumiendo que 'mes' es 1-12
 
-      // Sumar el monto al total de la categoría padre
-      parentCategory.amount += amount;
-
-      // Si es vista anual, sumar al mes correspondiente de la categoría padre
-      if (anual && parentCategory.totalMeses && monthIndex >= 0 && monthIndex < 12) {
-        parentCategory.totalMeses[monthIndex] += amount;
+      // Sumar el monto al total de la categoría principal
+      parentCategoryInProcessedData.amount += amount;
+      if (anual && parentCategoryInProcessedData.totalMeses && monthIndex >= 0 && monthIndex < 12) {
+        parentCategoryInProcessedData.totalMeses[monthIndex] += amount;
       }
 
-      // Buscar si esta subcategoría ya existe dentro de la categoría padre
-      // Usar subcategoria.categ_id como el ID único de la subcategoría
-      let existingSubCategory = parentCategory.sub.find(
-        (sub: any) => sub.id == subcategoria.categ_id // Asumiendo que subcategoria.categ_id es el ID de la subcategoría
+      // Agregar o actualizar este itemEgreso en la lista 'sub' de la parentCategoryInProcessedData.
+      // El 'id' del item en la lista 'sub' será el itemEgreso.categ_id.
+      let existingSubItem = parentCategoryInProcessedData.sub.find(
+        (sub: FormattedSubItemData) => sub.id == itemEgreso.categ_id
       );
 
-      if (existingSubCategory) {
-        // Si ya existe, sumar el monto a la subcategoría existente
-        existingSubCategory.amount += amount;
-        // Si es anual, sumar al mes correspondiente de la subcategoría
-        if (anual && existingSubCategory.totalMeses && monthIndex >= 0 && monthIndex < 12) {
-          existingSubCategory.totalMeses[monthIndex] += amount;
+      if (existingSubItem) {
+        // Si ya existe (ej. múltiples transacciones para la misma subcategoría/item directo en diferentes meses o registros)
+        existingSubItem.amount += amount;
+        if (anual && existingSubItem.totalMeses && monthIndex >= 0 && monthIndex < 12) {
+          existingSubItem.totalMeses[monthIndex] += amount;
         }
       } else {
-        // Si no existe, crear la nueva subcategoría y añadirla
+        // Si no existe, crear el nuevo item en la lista 'sub'
         const newSubTotalMeses = anual ? Array(12).fill(0) : undefined;
         if (anual && newSubTotalMeses && monthIndex >= 0 && monthIndex < 12) {
-          newSubTotalMeses[monthIndex] = amount; // Asignar el monto inicial al mes correcto
+          newSubTotalMeses[monthIndex] = amount;
         }
-        parentCategory.sub.push({
-          id: subcategoria.categ_id, // ID de la subcategoría
-          name: subcategoria.name,    // Nombre de la subcategoría
-          amount: amount,            // Monto inicial para esta entrada
-          totalMeses: newSubTotalMeses, // Totales por mes para la subcategoría
+        parentCategoryInProcessedData.sub.push({
+          id: itemEgreso.categ_id,    // ID del item de egreso (ya sea hijo o directo)
+          name: itemEgreso.name,      // Nombre del item de egreso
+          amount: amount,
+          totalMeses: newSubTotalMeses,
         });
       }
-
-      // Sumar al total general (esto se hará independientemente del filtro por ahora)
-      grandTotal += amount;
+      // El grandTotal se sumará aquí y se recalculará después si hay filtros.
+      // (La lógica original de grandTotal estaba bien, la mantendré así)
     });
+
+    // Recalcular grandTotal basado en los montos acumulados en processedData
+    // Esto es más simple que sumarlo dentro del bucle y luego restarlo si hay filtros.
+    grandTotal = processedData.reduce((sum, cat) => sum + cat.amount, 0);
+
 
     // 3. Filtrar por categorías seleccionadas si es necesario
     let finalData = processedData;
@@ -105,9 +151,9 @@ const TableEgresos = ({
     }
 
     setFormatedData(finalData);
-    setTotal(grandTotal); // Actualizar el estado con el total general (filtrado si aplica)
+    setTotal(grandTotal);
 
-  }, [categorias, subcategorias, anual, selectcategorias]); // Dependencias del useEffect
+  }, [categorias, subcategorias, anual, selectcategorias]);
 
   return (
     <TableFinance
@@ -115,9 +161,10 @@ const TableEgresos = ({
       title={title}
       title2={title2}
       total={total}
-      color="text-red-500" // Color específico para egresos
+      color="text-red-500"
       meses={anual ? meses : []}
       variant="expense"
+      tooltip="Monto total de egresos detallado por categorias y subcategorias."
     />
   );
 };

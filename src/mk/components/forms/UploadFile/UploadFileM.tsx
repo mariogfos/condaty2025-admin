@@ -238,6 +238,14 @@ export const UploadFileM = ({
                     fileUpload.click();
                   }
                 }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "2px",
+                  fontSize: "10px",
+                }}
               >
                 {props.img ? (
                   <IconImage size={40} color={"var(--cWhite)"} />

@@ -29,15 +29,16 @@ import {
 } from "@/mk/utils/utils";
 import RenderView from "./RenderView/RenderView";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
 const getStatus = (status: string) => {
   let _status;
   if (status == "A") _status = "Por cobrar";
-  if (status == "E") _status = "En espera";
+  //if (status == "E") _status = "En espera";
   if (status == "P") _status = "Cobrado";
-  if (status == "S") _status = "Por confirmar";
-  if (status == "M") _status = "Moroso";
-  if (status == "R") _status = "Rechazado";
+  if (status == "S") _status = "Revisar pago";
+  if (status == "M") _status = "En mora";
+  //if (status == "R") _status = "Rechazado";
   return _status;
 };
 
@@ -52,6 +53,38 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     penaltyAmount: 0,
     pendingAmount: 0,
   });
+  // Helper function to determine the display status of an item
+  const getDisplayStatus = (item: any) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy a medianoche para una comparación precisa de solo fecha
+
+    // Si el estado es 'A' (Por cobrar) y tiene una fecha de vencimiento en 'debt'
+    if (item.status === "A" && item.debt?.due_at) {
+      const dueDate = new Date(item.debt.due_at); // Parsea 'YYYY-MM-DD' como fecha local a medianoche
+      // No es necesario normalizar dueDate con setHours si ya es YYYY-MM-DD,
+      // ya que new Date('YYYY-MM-DD') lo interpreta como medianoche.
+
+      if (today > dueDate) {
+        return { text: "En mora", code: "M" }; // Efectivamente está en mora por fecha
+      }
+    }
+
+    // Lógica original para otros estados o si no está en mora por fecha
+    switch (item.status) {
+      case "A":
+        return { text: "Por cobrar", code: "A" };
+      case "E":
+        return { text: "En espera", code: "E" };
+      case "P":
+        return { text: "Cobrado", code: "P" };
+      case "S":
+        return { text: "Revisar pago", code: "S" };
+      case "M":
+        return { text: "En mora", code: "M" }; // explícitamente en mora
+      default:
+        return { text: item.status || "Desconocido", code: item.status || "" };
+    }
+  };
 
   // Obtener datos de detalles de expensas directamente con useAxios
   const { data: expenseDetails } = useAxios("/debt-dptos", "GET", {
@@ -65,14 +98,31 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   useEffect(() => {
     if (expenseDetails?.data && expenseDetails.data.length > 0) {
       const expensesData = expenseDetails.data;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy para la comparación
+
+      let calculatedOverdueUnits = 0;
+      expensesData.forEach((item: any) => {
+        let isOverdue = false;
+        if (item.status === "M") {
+          // Ya está marcado como 'M'
+          isOverdue = true;
+        } else if (item.status === "A" && item.debt?.due_at) {
+          const dueDate = new Date(item.debt.due_at);
+          // dueDate se parsea como YYYY-MM-DD 00:00:00 en la zona horaria local
+          if (today > dueDate) {
+            isOverdue = true;
+          }
+        }
+        if (isOverdue) {
+          calculatedOverdueUnits++;
+        }
+      });
 
       // Calcular estadísticas
       const totalUnits = expensesData.length;
       const paidUnits = expensesData.filter(
         (item: any) => item.status === "P"
-      ).length;
-      const overdueUnits = expensesData.filter(
-        (item: any) => item.status === "M"
       ).length;
 
       const totalAmount = expensesData.reduce(
@@ -94,7 +144,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       setStatsData({
         totalUnits,
         paidUnits,
-        overdueUnits,
+        overdueUnits: calculatedOverdueUnits,
         totalAmount,
         paidAmount,
         penaltyAmount,
@@ -108,10 +158,13 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     singular: "Expensa",
     plural: "Expensas",
     filter: true,
+    export: true,
     hideActions: {
       add: true,
-      edit: data?.status !== "A",
-      del: data?.status !== "A",
+      // edit: data?.status !== "A",
+      // del: data?.status !== "A",
+      edit: true,
+      del: true,
     },
     renderView: (props: {
       open: boolean;
@@ -120,7 +173,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       onConfirm?: Function;
     }) => <RenderView {...props} />,
     permiso: "",
-    extraData: true,
+    // extraData: true,
   };
 
   const paramsInitial = {
@@ -168,7 +221,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       due_at: {
         rules: [""],
         api: "",
-        label: "Fecha de vencimiento",
+        label: "Fecha de plazo",
         list: {
           onRender: (props: any) => {
             return <div>{getDateStrMes(props?.item?.debt?.due_at)}</div>;
@@ -178,7 +231,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       amount: {
         rules: ["required"],
         api: "e",
-        label: "Monto",
+        label: "Monto de expensa",
         list: {
           onRender: (props: any) => {
             return <div>Bs {formatNumber(props?.item?.amount)}</div>;
@@ -208,21 +261,41 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           },
         },
       },
-      statusDetail: {
+      status: {
         rules: [""],
         api: "",
         label: "Estado",
         list: {
           onRender: (props: any) => {
+            // Utiliza la función getDisplayStatus que definimos antes
+            const displayStatus = getDisplayStatus(props?.item);
+
             const statusClass = `${styles.statusBadge} ${
-              styles[`status${props?.item?.status}`]
+              styles[`status${displayStatus.code}`] // Usa el código de estado efectivo para el estilo
             }`;
             return (
               <div className={statusClass}>
-                {getStatus(props?.item?.status)}
+                {displayStatus.text}{" "}
+                {/* Muestra el texto del estado efectivo */}
               </div>
             );
           },
+        },
+        filter: {
+          label: "Estado",
+          width: "200px",
+          options: () => {
+            return [
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "E", name: "En espera" },
+              { id: "P", name: "Cobrado" },
+              { id: "S", name: "Revisar pago" },
+              { id: "M", name: "En mora" },
+              //{ id: "R", name: "Rechazado" },
+            ];
+          },
+          optionLabel: "name",
         },
       },
     };
@@ -279,92 +352,89 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* CONTENEDOR ÚNICO PARA TODAS LAS TARJETAS */}
           <div className={styles.allStatsRow}>
             {/* Tarjeta 1 (antes en grupo izquierdo) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{statsData.totalUnits}</span>
-                <span className={styles.statLabel}>Unidades asignadas</span>
-              </div>
-              <div className={styles.statIconContainer}>
-                <IconUnidades className={styles.iconDefault} />
-              </div>
-            </div>
+            <WidgetDashCard
+              data={statsData.totalUnits}
+              title="Unidades asignadas"
+              icon={
+                <div className={styles.statIconContainer}>
+                  <IconUnidades color="var(--cWhite)" />
+                </div>
+              }
+            />
             {/* Tarjeta 2 (antes en grupo izquierdo) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{statsData.paidUnits}</span>
-                <span className={styles.statLabel}>Unidades al día</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
-                <IconUnidades className={styles.iconPaidColor} />
-              </div>
-            </div>
+            <WidgetDashCard
+              data={statsData.paidUnits}
+              title="Unidades al día"
+              icon={
+                <div
+                  className={`${styles.statIconContainer} ${styles.iconPaid}`}
+                >
+                  <IconUnidades color="var(--cSuccess)" />
+                </div>
+              }
+            />
             {/* Tarjeta 3 (antes en grupo izquierdo) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>
-                  {statsData.overdueUnits}
-                </span>
-                <span className={styles.statLabel}>Unidades morosas</span>
-              </div>
-              <div
-                className={`${styles.statIconContainer} ${styles.iconOverdue}`}
-              >
-                <IconUnidades className={styles.iconOverdueColor} />
-              </div>
-            </div>
-
+            <WidgetDashCard
+              data={statsData.overdueUnits}
+              title="Unidades morosas"
+              icon={
+                <div
+                  className={`${styles.statIconContainer} ${styles.iconOverdue}`}
+                >
+                  <IconUnidades color="var(--cError)" />
+                </div>
+              }
+            />
             {/* Tarjeta 4 (antes en grupo derecho) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>
-                  {formatNumber(statsData.totalAmount)}
-                </span>
-                <span className={styles.statLabel}>Monto total de expensa</span>
-              </div>
-              <div className={styles.statIconContainer}>
-                <IconMonedas className={styles.iconDefault} />
-              </div>
-            </div>
+
+            <WidgetDashCard
+              data={"Bs " + formatNumber(statsData.totalAmount)}
+              title="Monto total de expensa"
+              icon={
+                <div className={styles.statIconContainer}>
+                  <IconMonedas color="var(--cInfo)" />
+                </div>
+              }
+            />
             {/* Tarjeta 5 (antes en grupo derecho) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>
-                  {formatNumber(statsData.paidAmount)}
-                </span>
-                <span className={styles.statLabel}>Monto cobrado</span>
-              </div>
-              <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
-                <IconBilletera className={styles.iconPaidColor} />
-              </div>
-            </div>
+
+            <WidgetDashCard
+              data={"Bs " + formatNumber(statsData.paidAmount)}
+              title="Monto cobrado"
+              icon={
+                <div
+                  className={`${styles.statIconContainer} ${styles.iconPaid}`}
+                >
+                  <IconBilletera color="var(--cSuccess)" />
+                </div>
+              }
+            />
             {/* Tarjeta 6 (antes en grupo derecho) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>
-                  {formatNumber(statsData.penaltyAmount)}
-                </span>
-                <span className={styles.statLabel}>Monto por multas</span>
-              </div>
-              <div
-                className={`${styles.statIconContainer} ${styles.iconPenalty}`}
-              >
-                <IconMultas className={styles.iconPenaltyColor} />
-              </div>
-            </div>
+
+            <WidgetDashCard
+              data={"Bs " + formatNumber(statsData.penaltyAmount)}
+              title="Monto por multas"
+              icon={
+                <div
+                  className={`${styles.statIconContainer} ${styles.iconPenalty}`}
+                >
+                  <IconMultas color="var(--cError)" />
+                </div>
+              }
+            />
             {/* Tarjeta 7 (antes en grupo derecho) */}
-            <div className={styles.statCard}>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>
-                  {formatNumber(statsData.pendingAmount)}
-                </span>
-                <span className={styles.statLabel}>Monto por cobrar</span>
-              </div>
-              <div
-                className={`${styles.statIconContainer} ${styles.iconOverdue}`}
-              >
-                <IconHandcoin className={styles.iconOverdueColor} />
-              </div>
-            </div>
+
+            <WidgetDashCard
+              data={"Bs " + formatNumber(statsData.pendingAmount)}
+              title="Monto por cobrar"
+              icon={
+                <div
+                  className={`${styles.statIconContainer} ${styles.iconOverdue}`}
+                >
+                  <IconHandcoin color="var(--cError)" />
+                </div>
+              }
+            />
             {/* Fin de las tarjetas */}
           </div>{" "}
           {/* Fin .allStatsRow */}

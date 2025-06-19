@@ -8,7 +8,6 @@
     padding: var(--spM);
     background-color: var(--cBlackV2);
     margin-bottom: var(--spM);
- 
   }
 
   &.V2 {
@@ -53,9 +52,10 @@
     }
   }
   &.V3 {
-    background-color: var(--cHover);
-    padding: 16px;
-    border-radius: 16px;
+    background-color: var(--cBlackV2);
+    padding: 8px;
+    border-radius: 12px;
+    border: 0.5px solid var(--cWhiteV1);
   }
 
   & > div {

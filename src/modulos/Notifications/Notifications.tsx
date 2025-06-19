@@ -1,20 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Notifications.module.css";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeAgo } from "@/mk/utils/date";
 import { useRouter } from "next/navigation";
 import {
   IconAlertNotification,
   IconPreRegister,
   IconPaymentCommitment,
+  IconNewReserve,
+  IconUser,
+  IconNotification,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -26,6 +30,7 @@ const paramsInitial = {
 const Notifications = () => {
   const router = useRouter();
   const { user } = useAuth();
+  const [openPayment, setOpenPayment] = useState({ open: false, id: null });
 
   const mod: ModCrudType = {
     modulo: "notifications",
@@ -45,6 +50,7 @@ const Notifications = () => {
 
   const renderNotificationIcon = (info: any) => {
     if (!info) return null;
+    console.log(info);
 
     if (info.act === "alerts") {
       return <IconAlertNotification className={styles.alertIcon} />;
@@ -54,6 +60,12 @@ const Notifications = () => {
     }
     if (info.act === "newVoucher" || info.act === "newPayment") {
       return <IconPaymentCommitment className={styles.paymentIcon} />;
+    }
+    if (info.act === "newReservationAdm") {
+      return <IconNewReserve color="var(--cBlack)" />;
+    }
+    if (info.act === "newAdmin") {
+      return <IconUser color="var(--cBlack)" />;
     }
     return null;
   };
@@ -87,20 +99,33 @@ const Notifications = () => {
                   className={
                     isRead ? styles.notificationRead : styles.notificationUnread
                   }
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
                 >
                   <div className={styles.notificationIcon}>
                     {parsedMessage.info &&
                       renderNotificationIcon(parsedMessage.info)}
                   </div>
                   <div className={styles.notificationContent}>
-                    <p className={styles.notificationTitle}>
-                      {parsedMessage.msg?.title || "Sin título"}
-                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p className={styles.notificationTitle}>
+                        {parsedMessage.msg?.title || "Sin título"}
+                      </p>
+                      <p className={styles.notificationDate}>
+                        {getDateTimeAgo(props.item.created_at)}
+                      </p>
+                    </div>
                     <p className={styles.notificationBody}>
                       {parsedMessage.msg?.body || "Sin contenido"}
-                    </p>
-                    <p className={styles.notificationDate}>
-                      {getDateStrMes(props.item.created_at)}
                     </p>
                   </div>
                 </div>
@@ -155,19 +180,32 @@ const Notifications = () => {
       const parsedMessage = JSON.parse(x);
 
       // Navegar según el tipo de notificación
-      if (
-        parsedMessage?.info?.act === "newVoucher" ||
-        parsedMessage?.info?.act === "newPayment"
-      ) {
-        if (parsedMessage.info?.id) {
-          router.push(`/payments/${parsedMessage.info.id}`);
-        }
-      } else if (parsedMessage?.info?.act === "alerts") {
-        if (parsedMessage.info?.id) {
-          router.push(`/alerts/${parsedMessage.info.id}`);
-        }
-      } else if (parsedMessage?.info?.act === "newPreregister") {
+      // if (
+      //   parsedMessage?.info?.act === "newVoucher" ||
+      //   parsedMessage?.info?.act === "newPayment"
+      // ) {
+      //   if (parsedMessage.info?.id) {
+      //     router.push(`/payments/${parsedMessage.info.id}`);
+      //   }
+      // } else if (parsedMessage?.info?.act === "alerts") {
+      //   if (parsedMessage.info?.id) {
+      //     router.push(`/alerts/${parsedMessage.info.id}`);
+      //   }
+      // } else
+      if (parsedMessage?.info?.act === "newPreregister") {
         router.push("/");
+      }
+      if (parsedMessage?.info?.act === "alerts") {
+        router.push(`/alerts`);
+      }
+      if (parsedMessage?.info?.act === "newVoucher") {
+        setOpenPayment({ open: true, id: parsedMessage.info.id });
+      }
+      if (parsedMessage?.info?.act === "newAdmin") {
+        router.push("/users");
+      }
+      if (parsedMessage?.info?.act === "newReservationAdm") {
+        router.push("/reservas");
       }
     } catch (error) {
       console.error("Error processing notification:", error);
@@ -211,7 +249,21 @@ const Notifications = () => {
   return (
     <div className={styles.notificationsContainer}>
       <h1 className={styles.title}>Notificaciones</h1>
-      <List onTabletRow={renderItem} onRowClick={handleRowClick} />
+      <List
+        height={"calc(100vh - 300px)"}
+        onTabletRow={renderItem}
+        onRowClick={handleRowClick}
+        emptyMsg="Lista vacía. Una vez comiencen las interacciones"
+        emptyLine2="con el sistema, verás las notificaciones aquí"
+        emptyIcon={<IconNotification size={80}/>} 
+      />
+      {openPayment.open && (
+        <PaymentRender
+          open={openPayment.open}
+          onClose={() => setOpenPayment({ open: false, id: null })}
+          payment_id={openPayment.id || ""}
+        />
+      )}
     </div>
   );
 };

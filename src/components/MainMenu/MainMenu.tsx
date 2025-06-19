@@ -1,4 +1,4 @@
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import {
   IconComunication,
   IconRedffiliates,
@@ -14,6 +14,8 @@ import {
   IconGuard,
   IconBitacora,
   IconCalendar,
+  IconDepartments,
+  IconSecurity,
 } from "../layout/icons/IconsBiblioteca";
 import styles from "./mainmenu.module.css";
 import MainmenuDropdown from "./MainmenuDropdown";
@@ -29,6 +31,7 @@ type PropsType = {
   setLogout: any;
   collapsed: boolean;
   setSideBarOpen?: any;
+  setOpenClient?: any;
 };
 // const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
 const MainMenu = ({
@@ -36,8 +39,10 @@ const MainMenu = ({
   collapsed,
   setLogout,
   setSideBarOpen,
+  setOpenClient,
 }: PropsType) => {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const { setStore } = useAuth();
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
@@ -49,7 +54,7 @@ const MainMenu = ({
   // };
 
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client.type_dpto] });
+    setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
 
   return (
@@ -69,7 +74,7 @@ const MainMenu = ({
             label="Finanzas"
             icon={<IconPayments />}
             items={[
-              { href: "/balance", label: "Balance general" },
+              { href: "/balance", label: "Flujo de efectivo " },
               {
                 href: "/payments",
                 label: "Ingresos",
@@ -77,7 +82,7 @@ const MainMenu = ({
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
-              { href: "/budget", label: "Presupuestos" },
+              // { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -88,7 +93,7 @@ const MainMenu = ({
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/units", label: "Unidades" },
-              { href: "/activities", label: "Historial" },
+              { href: "/activities", label: "Accesos" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
             ]}
@@ -99,7 +104,6 @@ const MainMenu = ({
             label="Usuarios"
             icon={<IconGroup />}
             items={[
-              { href: "/guards", label: "Guardias" },
               { href: "/owners", label: "Residentes" },
               { href: "/homeowners", label: "Propietarios" },
               { href: "/users", label: "Administradores" },
@@ -107,23 +111,18 @@ const MainMenu = ({
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
           />
+
           <MainmenuDropdown
             label="Comunicación"
             icon={<IconComunicationDialog />}
             items={[
               { href: "/contents", label: "Publicaciones" },
+              { href: "/reels", label: "Muro publicaciones" },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
-              { href: "/alerts", label: "Alertas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
-          />
-          <MainmenuItem
-            href="/binnacle"
-            label="Bitácora"
-            icon={<IconBitacora />}
-            collapsed={collapsed}
           />
 
           <MainmenuItem
@@ -138,13 +137,34 @@ const MainMenu = ({
             icon={<IconCalendar />}
             collapsed={collapsed}
           />
+          {user?.clients?.length > 1 && (
+            <MainmenuItem
+              href="#"
+              onclick={() => setOpenClient(true)}
+              label="Cambiar de condominio"
+              icon={<IconDepartments />}
+              collapsed={collapsed}
+            />
+          )}
+          <MainmenuDropdown
+            label="Vigilancia y seguridad"
+            icon={<IconSecurity />}
+            items={[
+              { href: "/guards", label: "Guardias" },
+              { href: "/alerts", label: "Alertas" },
+              { href: "/binnacle", label: "Bitácora" },
+              // { href: "/ev", label: "Soporte y ATC" },
+            ]}
+            collapsed={collapsed}
+            setSideBarOpen={setSideBarOpen}
+          />
 
-          <MainmenuItem
+          {/* <MainmenuItem
             href="/ev"
             label="Soporte y ATC"
             icon={<IconInterrogation />}
             collapsed={collapsed}
-          />
+          /> */}
         </div>
       ) : (
         <div>

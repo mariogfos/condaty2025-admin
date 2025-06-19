@@ -13,6 +13,8 @@ import useAxios from "@/mk/hooks/useAxios";
 import AccessesTab from "./AccessTab/AccessTab";
 import PedidosTab from "./PedidosTab/PedidosTab";
 import QRTab from "./QrTab/QrTab";
+import InvitationsDetail from "./InvitationsDetail/InvitationsDetail";
+import PedidosDetail from "./PedidosDetail/PedidosDetail";
 
 type TabType = {
   value: string;
@@ -127,22 +129,20 @@ const Activities = () => {
   }, [typeSearch]);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container1}>
       {/* Tabs de navegación */}
-      <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} />
+      {/* <TabsButtons tabs={tabs} sel={typeSearch} setSel={setTypeSearch} /> */}
 
       {/* Contenedor principal */}
-      <div className={styles.contentContainer}>
+      <div className={styles.contentContainer2}>
         {/* Contenido según pestaña activa */}
         <div className={styles.listWrapper}>
-          {typeSearch === "A" && (
-            <AccessesTab
-              paramsInitial={paramsInitialAccess}
-              onRowClick={handleItemClick}
-            />
-          )}
+          <AccessesTab
+            paramsInitial={paramsInitialAccess}
+            onRowClick={handleItemClick}
+          />
 
-          {typeSearch === "Q" && (
+          {/* {typeSearch === "Q" && (
             <QRTab
               paramsInitial={paramsInitialQR}
               onRowClick={handleItemClick}
@@ -154,7 +154,7 @@ const Activities = () => {
               paramsInitial={paramsInitialPedidos}
               onRowClick={handleItemClick}
             />
-          )}
+          )} */}
         </div>
       </div>
 
@@ -178,6 +178,11 @@ const Activities = () => {
           </a>
         </div>
       </DataModal>
+      {/* <InvitationsDetail
+        open={true}
+        onClose={() => setOpenInvitationInfo(false)}
+      /> */}
+      {/* <PedidosDetail open={true} onClose={() => setOpenInvitationInfo(false)} /> */}
     </div>
   );
 };

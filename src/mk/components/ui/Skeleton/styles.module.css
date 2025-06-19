@@ -1,6 +1,6 @@
 .cardSkeleton {
   position: relative;
-
+  background-color: #00e38c;
   &::before {
     content: "";
     position: absolute;
@@ -10,7 +10,7 @@
     background: linear-gradient(
       to right,
       transparent,
-      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.2),
       transparent
     );
   }
@@ -24,7 +24,7 @@
         height: 1.25rem;
         width: 1.25rem;
         border-radius: 0.375rem;
-        background-color: #e5e7eb;
+        background-color: var(--cBlackV2);
 
         &:nth-child(2) {
           margin-left: 0.5rem;
@@ -43,14 +43,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       border-radius: 0.75rem;
-      background-color: #ffffff;
+      background-color: var(--cBlackV2);
       padding: 2rem 1rem;
 
       & > div {
         height: 1.75rem;
         width: 5rem;
         border-radius: 0.375rem;
-        background-color: #e5e7eb;
+        background-color: var(--cBlackV2);
       }
     }
   }
@@ -213,7 +213,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--sM);
-  background-color: #f0f0f0;
+  background-color: var(--cBlackV2);
   padding: var(--spS);
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   animation: pulse-animation 1.5s infinite ease-in-out alternate;
@@ -225,15 +225,15 @@
       height: var(--sL);
       width: var(--sL);
       border-radius: var(--spS);
-      background-color: #e5e7eb;
+      background-color: var(--cBlackV2);
     }
 
     & > div:nth-child(2) {
       margin-left: var(--spS);
-      height: var(--spXl);
+      height: 300px;
       width: 4rem;
       border-radius: var(--spS);
-      background-color: #e5e7eb;
+      background-color: var(--cBlackV2);
       font-size: var(--sM);
       font-weight: var(--bSemiBold);
     }
@@ -247,15 +247,15 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     border-radius: var(--spS);
-    background-color: #ffffff;
+    background-color: var(--cBlackV2);
     padding: var(--spXxl);
 
-    & > div {
+    /* & > div {
       height: 1.75rem;
       width: 5rem;
       border-radius: var(--spS);
       background-color: #e5e7eb;
-    }
+    } */
   }
 }
 

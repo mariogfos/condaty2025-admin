@@ -8,10 +8,14 @@ import { lStatusActive } from "@/mk/utils/utils";
 import Button from "@/mk/components/forms/Button/Button";
 import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const RenderView = (props: any) => {
   const { open, onClose, item, reLoad, onConfirm, extraData } = props;
-
+  const { user } = useAuth();
+  const client = item?.clients?.find(
+    (item: any) => item?.id === user?.client_id
+  );
   const [openActive, setOpenActive] = useState(false);
   const [typeActive, setTypeActive] = useState("");
 
@@ -37,7 +41,7 @@ const RenderView = (props: any) => {
       </DataModal>
     );
   }
-  console.log(item);
+
   return (
     <>
       <DataModal
@@ -84,7 +88,7 @@ const RenderView = (props: any) => {
             <div>
               <p>Estado</p>
               <p>
-                {lStatusActive[item.status]?.name ||
+                {lStatusActive[client?.pivot?.status]?.name ||
                   item.status ||
                   "No disponible"}
               </p>
@@ -95,24 +99,30 @@ const RenderView = (props: any) => {
                 <p>{item?.dpto[0]?.type.name}</p>
               </div>
             )}
-            <div>
-              <p>Número de casa</p>
-              <p>
-                {item?.dpto?.length > 0
-                  ? item?.dpto[0]?.nro
-                  : item?.client_owner?.preunidad || "Sin número de casa"}
-              </p>
-            </div>
+           
+                <>
+                  {item?.dpto?.length > 0 ? (
+                    // CASO 1: Si ya tiene una unidad asignada
+                    <div>
+                      <p>Número de Unidad</p>
+                      <p>{item.dpto[0].nro}</p>
+                    </div>
+                  ) : (
+                    // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                    <div>
+                      <p>Número de Unidad solicitada</p>
+                      <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                    </div>
+                  )}
+                </>
           </section>
         </div>
-        {item?.status === "R" && (
+        {client?.pivot?.status === "W" && (
           <div>
-            <Button onClick={() => openModal("R")} className="btn-cancel">
+            <Button onClick={() => openModal("X")} variant="secondary">
               Rechazar
             </Button>
-            <Button onClick={() => openModal("S")} className="btn btn-primary">
-              Activar
-            </Button>
+            <Button onClick={() => openModal("A")}>Activar</Button>
           </div>
         )}
       </DataModal>

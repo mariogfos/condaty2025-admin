@@ -5,6 +5,8 @@ import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Documents.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
+import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
   { id: "O", name: "Residentes" },
@@ -25,6 +27,15 @@ const Documents = () => {
       fullType: "DET",
     },
     export: true,
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      extraData?: Record<string, any>;
+      noWaiting?: boolean;
+      reLoad?: any;
+    }) => <RenderView {...props} />,
   };
 
   const paramsInitial = {
@@ -48,7 +59,7 @@ const Documents = () => {
         rules: [],
         api: "ae",
         label: "Extensión",
-        list: {},
+        list: false,
       },
       descrip: {
         rules: ["required"],
@@ -62,19 +73,20 @@ const Documents = () => {
         api: "ae*",
         label: "Destino",
         form: { type: "select", options: lOptions },
-        list: {},
+        list: false,
       },
-      position: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Posición",
-        form: {
-          type: "text",
-          label: "Introduce un número del 0 al 5 para ordenar el documento",
-        },
-      },
+      // position: {
+      //   rules: ["required"],
+      //   api: "ae*",
+      //   label: "Posición",
+      //   form: {
+      //     type: "text",
+      //     label: "Introduce un número del 0 al 5 para ordenar el documento",
+      //   },
+      //   list:false
+      // },
       doc: {
-        rules: ["required"],
+        rules: ["required*a"],
         api: "ae*",
         label: "Archivo",
         form: {
@@ -119,7 +131,10 @@ const Documents = () => {
 
   return (
     <div className={styles.style}>
-      <List />
+      <List height={"calc(100vh - 280px)"} 
+       emptyMsg="Lista de documentos vacía. Los documentos del condominio"
+       emptyLine2="serán reflejados aquí una vez sean cargados."
+       emptyIcon={<IconDocs size={80}/>} />
     </div>
   );
 };

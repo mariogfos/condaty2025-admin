@@ -130,12 +130,13 @@ const SurveySingleChoice = ({
           />
         </div>
         <div>
-          <p>Descripción (Opcional)</p>
+          <p>Descripción</p>
           <TextArea
             value={formStateSingleChoice.description}
             onChange={handleChange}
             name="description"
             label="Escribe una descripción"
+            required={false}
             error={errors}
             isLimit={true}
             maxLength={255}

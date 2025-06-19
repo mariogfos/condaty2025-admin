@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap");
 
 :root {
   --accent: #00e38c;
@@ -56,7 +56,7 @@
   --cAccent: #00e38c;
   --cWhite: #fafafa;
   --cWhiteV1: #a7a7a7;
-  --cWhiteV2: #4a4a4a;
+  --cWhiteV2: #414141;
   --cWhiteV3: #ffffff0d;
   --cBlack: #212121;
   --cBlackV1: #292929;
@@ -64,19 +64,29 @@
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
-  --cHoverSuccess: #00af9033;
-  --cHoverInfo: #39acec33;
-  --cHoverError: #da5d5d33;
-  --cHoverWarning: #e1c15133;
   --cHoverBigSidebar: #1f2d27;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
   --cLowAlertHover: #fdd67133;
-  /* Paleta de los toast */
+
+  /* Paleta acciones o estados */
   --cError: #e46055;
   --cSuccess: #34a853;
   --cInfo: #4285fa;
   --cWarning: #e9b01e;
+  --cHoverSuccess: #00af9033;
+  --cHoverInfo: #596376;
+  --cHoverError: #da5d5d33;
+  --cHoverWarning: #e1c15133;
+
+  /* Paleta de toast*/
+  --cToastError: #6e4b48;
+  --cToastSuccess: #246950;
+  --cToastInfo: #596376;
+  --cToastWarning: #6e6648;
+
+  --cAlert: #f37f3d;
+  --cHoverAlert: #f37f3d33;
 
   --cBigSidebar: #246950;
 
@@ -127,7 +137,7 @@
   --spXl: 24px;
   --spXxl: 32px;
   /* Fuentes */
-  --fPrimary: "Inter", sans-serif;
+  --fPrimary: "Roboto", sans-serif;
   --fSecondary: "Roboto", sans-serif;
   /* Border */
   --bRadiusS: 8px;
@@ -145,6 +155,21 @@
   /* --btn-width: 8rem; */
   --responsive-tablet: 768px;
   --responsive-mobile: 480px;
+
+  --figma-main-bg: #333536;
+  --figma-border-color: #a7a7a7; /* Similar a --cWhiteV1 */
+  --figma-text-gray: #a7a7a7; /* Similar a --cWhiteV1 */
+  --figma-text-white: #fafafa; /* Similar a --cWhite */
+
+  --figma-emergency-box-bg: rgba(218, 93, 93, 0.5);
+  --figma-emergency-box-border: rgba(221, 41, 24, 0.849);
+  --figma-emergency-text-color: rgba(247, 32, 12, 0.723);
+
+  --figma-theft-box-bg: rgba(92, 62, 131, 0.5); /* Ejemplo para robo */
+  --figma-theft-box-border: rgba(90, 16, 164, 0.708); /* Ejemplo para robo */
+
+  --figma-warning-text-color: #e9b01e;
+  --figma-success-text-color: #34a853;
 }
 
 /* Reset */
@@ -345,7 +370,7 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px var(--cBlack) inset;
+  -webkit-box-shadow: 0 0 0px 1000px var(--cWhiteV2) inset;
   -webkit-text-fill-color: var(--cWhite);
 }
 
@@ -373,4 +398,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.iconRounded {
+  border-radius: 50%;
+  padding: 8px;
+}
+.bottomLine {
+  border-bottom: 1px solid var(--cWhiteV1);
 }

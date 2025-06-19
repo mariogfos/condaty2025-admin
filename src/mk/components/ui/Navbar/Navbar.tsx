@@ -10,7 +10,7 @@ import {
 import { Avatar } from "../Avatar/Avatar";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import Dropdown from "../Dropdown/Dropdown";
 
 const Navbar = ({
@@ -24,8 +24,8 @@ const Navbar = ({
   const isHome = router.pathname === "/";
   const { logout } = useAuth();
   const { store } = useAuth();
-  const { isDesktop } = useScreenSize();
-
+  // const { isDesktop } = useScreenSize();
+  const isDesktop = true;
   const handleLogout = () => {
     logout();
   };

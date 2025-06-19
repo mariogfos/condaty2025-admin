@@ -8,6 +8,7 @@ import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
+// import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -20,8 +21,8 @@ import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 // });
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Default App Name",
-  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Default Description",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "Condaty",
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Cantady",
   other: {
     google: "notranslate",
   },
@@ -41,6 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* <ReactScan /> */}
       <body cz-shortcut-listen="false">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>

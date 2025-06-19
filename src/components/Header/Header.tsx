@@ -2,13 +2,19 @@
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./header.module.css";
-import { IconMenu, IconSetting, IconNotification } from "../layout/icons/IconsBiblioteca";
+import {
+  IconMenu,
+  IconSetting,
+  IconNotification,
+  IconMessage,
+} from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 type PropsType = {
   isTablet: boolean;
@@ -40,13 +46,12 @@ const Header = ({
   },
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
-  const { store } = useAuth();
-  
+  const { store, setStore } = useAuth();
+
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
-
   ];
 
   const Title = () => {
@@ -56,7 +61,8 @@ const Header = ({
           name={getFullName(user)}
           src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
           onClick={() => {
-            router.push("/profile");
+            // router.push("/profile");
+            setStore({ openProfileModal: true });
           }}
         />
         <p>{getFullName(user)}</p>
@@ -84,23 +90,47 @@ const Header = ({
     );
   };
 
+  const Round = ({ icon, href, onClick }: any) => {
+    return (
+      <div className={styles.notificationContainer}>
+        <Link onClick={onClick} href={href || "#"}>
+          <div className={styles.notificationIcon}>
+            {icon}
+            {store?.notif > 0 && href == "/notifications" && (
+              <div className={styles.notificationBadge}>
+                {store?.notif || 0}
+              </div>
+            )}
+          </div>
+        </Link>
+      </div>
+    );
+  };
+
   const ProfileIcon = () => {
     return (
-      <div className={styles.iconOuterContainer}>
-        <div className={styles.profileContainer}>
+      <div>
+        <div style={{ cursor: "pointer" }}>
           <Avatar
             name={getFullName(user)}
-            src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
+            h={40}
+            w={40}
+            src={getUrlImages(
+              "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
+            )}
             onClick={() => {
-              router.push("/profile");
+              console.log("click");
+              setStore({ ...store, openProfileModal: true });
             }}
-            square={true} 
-            
+
+            // square={true}
           />
         </div>
       </div>
     );
   };
+
+  const { dispatch: openChat } = useEvent("onOpenChat");
 
   if (isTablet)
     return (
@@ -121,10 +151,10 @@ const Header = ({
             path == "/" ? (
               <div className={styles.headerRightContainer}>
                 <NotificationIcon />
-                <Dropdown
+                {/* <Dropdown
                   trigger={<IconSetting circle size={32} />}
                   items={menuItems}
-                />
+                /> */}
               </div>
             ) : (
               right()
@@ -134,16 +164,37 @@ const Header = ({
       </>
     );
 
-    return (
-      <div className={styles["header-desktop"]}>
-        <div className={styles["header-greeting"]}>
-          <h1>¡Hola {getFullName(user)}!</h1>
-          <p>Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente jornada laboral</p>
-        </div>
+  return (
+    <div className={styles["header-desktop"]}>
+      <div className={styles["header-greeting"]}>
+        <h1>¡Hola {getFullName(user)}!</h1>
+        <p>
+          Es un gusto tenerte de nuevo con nosotros, te deseamos una excelente
+          jornada laboral
+        </p>
+      </div>
 
-        <div className={styles["header-controls"]}>
-        <NotificationIcon />
-        <Dropdown
+      <div className={styles["header-controls"]}>
+        {/* <NotificationIcon /> */}
+        <Round
+          icon={<IconNotification color="var(--cWhiteV1)" />}
+          href="/notifications"
+        />
+        {/* <div
+          style={{
+            border: "1px solid var(--cWhiteV1)",
+            padding: "4px",
+            borderRadius: "50%",
+          }}
+        >
+          <IconMessage color="var(--cSuccess)" onClick={openChat} />
+        </div> */}
+        <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
+        <Round
+          icon={<IconMessage color="var(--cSuccess)" />}
+          onClick={openChat}
+        />
+        {/* <Dropdown
           trigger={
             <div className={styles.iconOuterContainer}>
               <div className={styles.settingContainer}>
@@ -152,11 +203,11 @@ const Header = ({
             </div>
           }
           items={menuItems}
-        />
+        /> */}
         <ProfileIcon />
       </div>
-      </div>
-    );
+    </div>
+  );
 };
 
 export default Header;

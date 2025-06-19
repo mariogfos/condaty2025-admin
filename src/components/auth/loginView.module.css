@@ -1,81 +1,91 @@
 .container {
-  width: 100vw; /* Usar toda la anchura de la ventana */
+  width: 100vw;
   height: 100vh;
   display: flex;
-  overflow-y: auto;
-  background-color: var(--darkColor);
-}
-
-.wrapper {
-  width: 100%;
-  height: 100vh;
-  max-width: 100%;
-  background-color: var(--darkColor);
-  display: flex;
-}
-
-.imageContainer {
-  width: 40%;
-  height: 100vh;
+  overflow: hidden;
   position: relative;
+  background-image: url('/assets/images/loginAdmin.webp');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
-.desktopImage {
+.imageBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  z-index: 1; /* Como lo tenías */
 }
-
-.tabletImage {
-  display: none;
-}
-
-.mobileImage {
-  display: none;
-}
-
-.formContainer {
-  width: 60%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--darkColor);
-}
-
-.formWrapper {
-  padding: 0 2rem;
+/* Añade este nuevo bloque para el overlay con blur verde */
+/* Busca o reemplaza el bloque .imageBackground::after que te di antes */
+/* Alternativa para .imageBackground::after (puedes usar esta o la anterior) */
+.imageBackground::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 448px;
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  background-color: rgba(31, 45, 39, 0.7); /* Color #1f2d27 con 70% de opacidad */
+  z-index: 1;
+  /* opacity: 1; /* Si usas rgba para la opacidad del fondo, el opacity del elemento puede ser 1 */
 }
 
-.logo {
-  display: flex;
-  justify-content: flex-start; /* Alineado a la izquierda */
-  margin-bottom: 2rem;
+.topLeftLogoContainer {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 2; /* Encima del fondo y formCenter */
 }
 
-.desktopLogoImage {
-  width: 98px;
+.logoImage {
+  width: 164px;
   height: auto;
 }
 
+.formCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2; /* Como lo tenías */
+}
+
+.formWrapper {
+  padding: 2rem;
+  width: 100%;
+  max-width: 485px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: rgba(41, 41, 41, 0.94);
+  border-radius: 1.875rem;
+  position: relative; /* Añadido por si acaso, para contexto z-index */
+  z-index: 1; /* Asegura que esté al mismo nivel que formCenter si es necesario */
+}
+
+/* Se elimina .logo { display: flex... } ya que no está en formWrapper */
+
 .titleSection {
   color: var(--lightColor);
-  text-align: left;
-  margin-bottom: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem; /* Añadido para compensar el logo eliminado */
 }
 
 .mobileTitle {
   display: none;
 }
 
-.desktopTitle {
+.desktopTitle, .title {
   display: block;
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--neutral-50);
   margin-bottom: 0.5rem;
 }
 
@@ -84,28 +94,29 @@
 }
 
 .adminText {
-  display: none; /* No aparece en las imágenes */
+  display: none;
 }
 
 .form {
   width: 100%;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+/* inputContainer sin estilos específicos aquí, se aplican dentro del componente Input/InputPassword */
 .inputContainer {
-  
   width: 100%;
 }
 
-
-
 .forgotPassword {
-  text-align: center; /* Alineado a la derecha como en las imágenes */
+  text-align: center;
   font-size: 0.75rem;
-  color: var(--cWhite);
+  color: var(--neutral-50);
   cursor: pointer;
-  margin-top: 0.25rem;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
   text-decoration: underline;
   opacity: 0.8;
 }
@@ -113,98 +124,103 @@
 .termsContainer {
   width: 100%;
   text-align: center;
-  font-size: 0.65rem;
-  color: var(--cWhite);
+  font-size: 0.625rem;
+  color: var(--lightColor);
   opacity: 0.7;
   margin-top: 1rem;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .termsContainer a {
-  color: #5dea97;
+  color: #00e38c;
   text-decoration: none;
 }
 
-/* Media queries para dispositivos más pequeños */
+.button {
+  background-color: var(--accent);
+  color: #212121;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  height: 3rem;
+  border: none;
+  cursor: pointer;
+}
+
+.footerTextContainer {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2; /* Encima del fondo y formCenter */
+}
+
+.footerText {
+  font-size: 2rem;
+  line-height: 1.5;
+  color: var(--neutral-50);
+  text-align: center;
+  white-space: nowrap;
+  font-family: 'Poppins', sans-serif;
+}
+
+
 @media (max-width: 768px) {
-  .wrapper {
-    flex-direction: column;
+  .topLeftLogoContainer {
+     top: 1rem;
+     left: 1rem;
   }
-  
-  .imageContainer {
-    width: 100%;
-    height: 40vh;
+  .logoImage {
+     width: 130px;
   }
-  
-  .desktopImage {
-    display: none;
-  }
-  
-  .tabletImage {
-    display: none;
-  }
-  
-  .mobileImage {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .formContainer {
-    width: 100%;
-    height: 60vh;
-  }
-  
   .formWrapper {
-    padding: 1rem;
+    padding: 1.5rem;
+    max-width: 90%;
+    gap: 1rem;
   }
-  
-  .logo {
+
+  .titleSection {
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .form {
+    gap: 0.75rem;
+  }
+
+  .forgotPassword {
+    margin-top: 0.25rem;
     margin-bottom: 1rem;
   }
-  
-  .desktopTitle {
-    display: none;
+
+  .termsContainer {
+    margin-top: 0.75rem;
+    font-size: 0.5rem;
   }
-  
-  .mobileTitle {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  
-  .adminText {
-    display: none;
-  }
-  
-  .welcomeText {
-    display: block;
-    font-size: 0.875rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .inputContainer {
-    margin-bottom: 1rem;
-  }
-  
+
   .button {
-    margin-top: 1rem;
-    margin-bottom: 0.75rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  .footerTextContainer {
+     bottom: 1rem;
+     width: 90%;
+  }
+   .footerText {
+     font-size: 1.2rem;
+   }
+
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .formWrapper {
+    max-width: 60%;
   }
 }
 
-/* Para tablets (tamaño intermedio) */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .desktopImage {
-    display: none;
-  }
-  
-  .tabletImage {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}

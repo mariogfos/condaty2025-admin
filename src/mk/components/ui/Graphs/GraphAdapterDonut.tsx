@@ -1,3 +1,5 @@
+import { formatNumber } from "@/mk/utils/numbers";
+
 const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   const xLabels: any = [];
   let totalRadial = 0;
@@ -9,14 +11,35 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "50%", // Puedes ajustar el tamaño del donut según sea necesario
+          size: "50%",
+          labels: {
+            show: true,
+            value:{
+            color:'var(--cWhite)',
+            formatter: function (val:any) {
+              // return formatNumber(totalRadial) + " Bs";
+              return val!== 0 ? formatNumber(Number(val)) + " Bs" : "";
+            }
+            },
+            total: {
+              show: true,
+              label: options?.centerText || "Total",
+              fontSize: "16px",
+              color: "#00E38C",
+              formatter: function () {
+                return formatNumber(totalRadial) + " Bs";
+              }
+            }
+          }
         },
       },
     },
     dataLabels: {
       ...oDef.dataLabels,
       formatter: function (val: any, opts: any) {
-        if (val !== 0) return Number(val).toFixed(1) + "%";
+        
+        if (val !== 0) return Number(val).toFixed(2) + "%";
+        
       },
       style: {
         fontSize: "16px",
@@ -52,7 +75,9 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       ...oDef.tooltip,
       y: {
         formatter: function (val: any) {
-          return val + " %";
+          // return val + " %";
+          return formatNumber(val.toFixed(2));
+
         },
       },
     },
@@ -68,7 +93,8 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   let totalRa = d.reduce((a: any, b: any) => a + b, 0);
   totalRadial = totalRa;
   d.map((v: any) => {
-    d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
+    // d1.push(Number(((v / totalRadial) * 100).toFixed(1)));
+    d1.push(v);
   });
 
   return { options: p, data: d1 };

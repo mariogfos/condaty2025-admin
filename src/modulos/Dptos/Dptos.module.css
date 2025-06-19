@@ -1,20 +1,26 @@
-
 .titularRow {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .departamentos {
-    width: 100%;
-  }
-  
-  .noTitular {
-    display: flex;
-    align-items: center;
-    color: var(--cGrayV2);
-    font-style: italic;
-    font-size: 14px;
-    padding: 4px 0;
-  }
+  width: 100%;
+}
+
+.noTitular {
+  display: flex;
+  align-items: center;
+  color: var(--cGrayV2);
+  font-style: italic;
+  font-size: 14px;
+  padding: 4px 0;
+}
+.stateLabel {
+  display: flex;
+  align-items: center;
+  color: var(--cWhite);
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}

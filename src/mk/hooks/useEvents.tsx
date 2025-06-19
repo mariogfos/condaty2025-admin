@@ -11,6 +11,7 @@ export interface CustomWindowEventMap extends WindowEventMap {
   onChatSendMsg: AppEvent<string>;
   onChatNewRoom: AppEvent<string>;
   onChatCloseRoom: AppEvent<string>;
+  onOpenChat: AppEvent<string>;
 }
 
 export const useEvent = <PayloadType = unknown,>(

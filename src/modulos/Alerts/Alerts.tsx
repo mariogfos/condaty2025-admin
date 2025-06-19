@@ -1,18 +1,25 @@
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Alerts.module.css";
-import { useEffect, useMemo } from "react";
+import RenderItem from "../shared/RenderItem";
+import useCrudUtils from "../shared/useCrudUtils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import RenderView from "./RenderView/RenderView";
 import {
   IconAlert,
+  IconAlert2,
+  IconAlert3,
   IconAmbulance,
   IconFlame,
+  IconGuardShield,
   IconTheft,
 } from "@/components/layout/icons/IconsBiblioteca";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,13 +30,14 @@ const paramsInitial = {
 
 const lLevels = [
   { id: "T", name: "Todos" },
+  { id: 4, name: "Nivel pánico" },
   { id: 3, name: "Nivel alto" },
   { id: 2, name: "Nivel medio" },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
     case 4:
-      return "Nivel panico";
+      return "Nivel pánico";
     case 3:
       return "Nivel alto";
     case 2:
@@ -47,7 +55,7 @@ const Alerts = () => {
     singular: "alerta",
     plural: "alertas",
     permiso: "",
-    extraData: false,
+    extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
     filter: true,
@@ -102,26 +110,113 @@ const Alerts = () => {
         label: "Informador",
         list: {
           onRender: ({ item }: any) => {
+            let entityToDisplay = null;
+            let avatarTypePrefix = ""; // "OWNER-" or "GUARD-"
+            const isPanic = item?.level === 4;
+
+            // Determinar la entidad a mostrar y el prefijo para el avatar
+            if (isPanic) {
+              // Para alertas de pánico, priorizar owner, fallback a guardia si owner no está
+              if (item.owner) {
+                entityToDisplay = item.owner;
+                avatarTypePrefix = "OWNER-";
+              } else if (item.guardia) {
+                // En tu data de ejemplo, guardia es siempre null
+                entityToDisplay = item.guardia;
+                avatarTypePrefix = "GUARD-";
+              }
+            } else {
+              // Para alertas no pánico, priorizar guardia, fallback a owner
+              if (item.guardia) {
+                // En tu data de ejemplo, guardia es siempre null
+                entityToDisplay = item.guardia;
+                avatarTypePrefix = "GUARD-";
+              } else if (item.owner) {
+                entityToDisplay = item.owner;
+                avatarTypePrefix = "OWNER-";
+              }
+            }
+            // Si después de esto entityToDisplay es null, se mostrará "Información no disponible"
+
+            const fullName = entityToDisplay
+              ? getFullName(entityToDisplay)
+              : "Información no disponible";
+            const ci = entityToDisplay?.ci;
+            const entityId = entityToDisplay?.id;
+            const updatedAt = entityToDisplay?.updated_at;
+
+            const avatarSrc =
+              entityId && avatarTypePrefix && updatedAt
+                ? getUrlImages(
+                    `/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`
+                  )
+                : null;
+
+            // Determinar si la entidad mostrada es un guardia para el estilo 'square' del Avatar
+            const isGuardBeingDisplayed = !!(
+              entityToDisplay &&
+              item.guardia &&
+              entityToDisplay.id === item.guardia.id &&
+              avatarTypePrefix === "GUARD-"
+            );
+
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {item?.level == 4 ? (
-                  getAlertLevelIcon(item?.type)
+                {/* Sección del Avatar */}
+                {avatarSrc ? (
+                  <Avatar src={avatarSrc} name={fullName} />
                 ) : (
+                  // Avatar de fallback con la inicial del nombre o un "?"
                   <Avatar
-                    src={getUrlImages(
-                      "/GUARD-" +
-                        item?.guardia?.id +
-                        ".webp?d=" +
-                        item?.guardia?.updated_at
-                    )}
-                    name={getFullName(item.guardia)}
-                    square
+                    name={
+                      fullName && fullName !== "Información no disponible"
+                        ? fullName.substring(0, 1)
+                        : "?"
+                    }
                   />
                 )}
-                <div>
-                  <p>
-                    {getFullName(item?.level == 4 ? item?.owner : item.guardia)}{" "}
-                  </p>
+
+                {/* Sección de Texto e Icono de Pánico */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {/*  
+                    {isPanic && item.type && (
+                      <span>{getAlertLevelIcon(item.type)}</span>
+                    )} */}
+                    <p
+                      style={{
+                        margin: 0,
+                        fontWeight: 500,
+                        color: "var(--cWhite, #fafafa)",
+                      }}
+                    >
+                      {fullName}
+                    </p>
+                  </div>
+                  {/* Mostrar CI si está disponible */}
+                  {ci && (
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--cWhiteV1, #a7a7a7)",
+                        display: "block",
+                      }}
+                    >
+                      CI: {ci}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -139,7 +234,7 @@ const Alerts = () => {
       created_at: {
         rules: [""],
         api: "",
-        label: "Fecha",
+        label: "Fecha y hora de creación",
         list: {},
         onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
@@ -149,7 +244,7 @@ const Alerts = () => {
       level: {
         rules: ["required"],
         api: "ae",
-        label: "Nivel de alerta",
+        label: "Categoría de alerta",
         list: {
           onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
@@ -164,7 +259,7 @@ const Alerts = () => {
         },
         form: { type: "select", options: lLevels },
         filter: {
-          label: "Nivel",
+          label: "Categoría",
           width: "200px",
           options: () => [...lLevels],
           optionLabel: "name",
@@ -175,7 +270,18 @@ const Alerts = () => {
     []
   );
 
-  const { userCan, List, reLoad } = useCrud({
+  const {
+    userCan,
+    List,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    showToast,
+    execute,
+    reLoad,
+    data,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -183,8 +289,82 @@ const Alerts = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.style}>
-      <List />
+    <div>
+      <div className={styles.dashboardContainer}>
+        <div className={styles.allStatsRow}>
+          <WidgetDashCard
+            title="Alertas Registradas"
+            data={String(data?.extraData?.total_alerts || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cWhite)"}
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Bajo"
+            data={String(data?.extraData?.low_level || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cSuccess)"}
+                style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+            style={{ maxWidth: "300px", width: "100%" }}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Medio"
+            data={String(data?.extraData?.medium_level || 0)}
+            icon={
+              <IconAlert2
+                color={"var(--cWarning)"}
+                style={{ backgroundColor: "var(--cHoverWarning)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Alertas Nivel Alto"
+            data={String(data?.extraData?.high_level || 0)}
+            icon={
+              <IconAlert2
+                color={"#da5d5d"}
+                style={{ backgroundColor: "var(--errorBg)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+          <WidgetDashCard
+            title="Categoria de panico"
+            data={String(data?.extraData?.emergency_buttons || 0)}
+            icon={
+              <IconAlert2
+                color={"#da5d5d"}
+                style={{ backgroundColor: "var(--errorBg)" }}
+                circle
+                size={38}
+              />
+            }
+            className={styles.widgetResumeCard}
+          />
+        </div>
+      </div>
+
+      <List height={"calc(100vh - 460px)"} 
+      emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
+      emptyLine2="registre una se mostrará aquí."
+      emptyIcon={<IconAlert3 size={80}/>} />
     </div>
   );
 };

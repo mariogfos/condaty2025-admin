@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
@@ -11,11 +11,7 @@ import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { getFullName } from "@/mk/utils/string";
 import { UnitsType } from "@/mk/utils/utils";
 
-
-type yearProps = { id: string | number; name: string; }[]
-
-
-
+type yearProps = { id: string | number; name: string }[];
 
 const RenderForm = ({
   open,
@@ -26,30 +22,32 @@ const RenderForm = ({
   extraData,
   user,
   reLoad,
-}:any) => {
-  const [formState, setFormState]:any = useState({ ...item });
-  const [errors, setErrors]:any = useState({});
+}: any) => {
+  const [formState, setFormState]: any = useState({ ...item });
+  const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
-  const client = user.clients.filter((item:any) => item.id === user.client_id)[0];
+  const client = user.clients.filter(
+    (item: any) => item.id === user.client_id
+  )[0];
   // Estado para el check "asignar"
 
-  console.log(extraData,'extradataatrata')
+  console.log(extraData, "extradataatrata");
   const [assignState, setAssignState] = useState(formState.asignar || "");
   const { showToast } = useAuth();
 
-  const handleChange = (e:any) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormState((prev:any) => ({ ...prev, [name]: value }));
+    setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleAssignChange = (e:any) => {
+  const handleAssignChange = (e: any) => {
     setAssignState(e.target.name);
-    setFormState((prev:any) => ({ ...prev, asignar: e.target.name }));
+    setFormState((prev: any) => ({ ...prev, asignar: e.target.name }));
   };
 
   // Validación usando checkRules (adaptada a los campos de Expensas)
   const validate = () => {
-    let errs:any = {};
+    let errs: any = {};
     errs = checkRules({
       value: formState.year,
       rules: ["required"],
@@ -80,13 +78,13 @@ const RenderForm = ({
       key: "asignar",
       errors: errs,
     });
-    if(formState.asignados === 'S'){
-        errs = checkRules({
-            value: formState.dpto_id,
-            rules: ["required"],
-            key: "dpto_id",
-            errors: errs,
-            });
+    if (formState.asignar === "S") {
+      errs = checkRules({
+        value: formState.dpto_id,
+        rules: ["required"],
+        key: "dpto_id",
+        errors: errs,
+      });
     }
     setErrors(errs);
     return errs;
@@ -104,7 +102,7 @@ const RenderForm = ({
         category_id: formState.category_id,
         description: formState.description,
         asignar: formState.asignar,
-        dpto_id:formState.dpto_id
+        dpto_id: formState.dpto_id,
       },
       false
     );
@@ -113,15 +111,14 @@ const RenderForm = ({
       setItem(formState);
       showToast(response?.message, "success");
       onClose();
-    }
-    else{
-        showToast(response?.message, "error");  
+    } else {
+      showToast(response?.message, "error");
     }
   };
 
   // Opciones para el campo Año, generadas dinámicamente
-  const getYearOptions  = () => {
-    const years:yearProps = [{ id: "", name: "Todos" }];
+  const getYearOptions = () => {
+    const years: yearProps = [{ id: "", name: "Todos" }];
     const lastYear = new Date().getFullYear();
     for (let i = lastYear; i >= 2000; i--) {
       years.push({ id: i, name: i.toString() });
@@ -131,17 +128,16 @@ const RenderForm = ({
 
   // Opciones para el campo Mes basadas en el array MONTHS
   const monthOptions = MONTHS.map((month, index) => ({
-    id: index,
+    id: index ,
     name: month,
   }));
 
   // Opciones para el campo Categoría (en este ejemplo solo "Expensas")
   const categoryOptions = [{ id: 1, name: "Expensas" }];
 
-
   useEffect(() => {
     const lista: any = [];
-    extraData?.dptos?.map((item:any, key:number) => {
+    extraData?.dptos?.map((item: any, key: number) => {
       lista[key] = {
         id: item.id,
         nro:
@@ -158,8 +154,12 @@ const RenderForm = ({
   }, [extraData?.dptos]);
 
   return (
-    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave}>
-
+    <DataModal
+      open={open}
+      onClose={onClose}
+      title="Crear Expensa"
+      onSave={onSave}
+    >
       <Select
         label="Año"
         name="year"
@@ -169,7 +169,6 @@ const RenderForm = ({
         error={errors}
       />
 
-   
       <Select
         label="Mes"
         name="month"
@@ -198,19 +197,20 @@ const RenderForm = ({
       />
 
       <TextArea
-        label="Descripción (Opcional)"
+        label="Descripción"
         name="description"
         value={formState.description}
         onChange={handleChange}
+        maxLength={255}
+        required={false}
         // type="textarea"
         error={errors.description}
       />
 
- 
-      <div style={{ marginTop: "1rem" }}>
-        <label>Asignar a</label>
-        <div className="space-y-3">
-          <Check
+      {/* <div style={{ marginTop: "1rem" }}> */}
+      {/* <label>Asignar a</label> */}
+      <div className="space-y-3">
+        {/* <Check
             label="Todas las unidades"
             name="T"
             checked={assignState === "T"}
@@ -245,22 +245,34 @@ const RenderForm = ({
           />
           {errors.asignar && (
             <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.asignar}</p>
-          )}
-        {formState.asignar === 'S' && 
-           <Select
-           label={"Número de " + UnitsType[client.type_dpto]}
-           name="dpto_id"
-           value={formState.dpto_id}
-           options={ldpto}
-           optionLabel="nro"
-           optionValue="id"
-           onChange={handleChange}
-           error={errors}
-         />
-        
-        }
-        </div>
+          )} */}
+        <Select
+          label="Asignar a"
+          name="asignar"
+          value={formState.asignar}
+          options={[
+            { id: "T", name: "Todas las unidades" },
+            { id: "O", name: "Unidades ocupadas" },
+            { id: "L", name: "Unidades no ocupadas" },
+            { id: "S", name: "Asignar a una unidad" },
+          ]}
+          onChange={handleChange}
+          error={errors}
+        />
+        {formState.asignar === "S" && (
+          <Select
+            label={"Número de Unidad"}
+            name="dpto_id"
+            value={formState?.dpto_id}
+            options={ldpto}
+            optionLabel="nro"
+            optionValue="id"
+            onChange={handleChange}
+            error={errors}
+          />
+        )}
       </div>
+      {/* </div> */}
     </DataModal>
   );
 };

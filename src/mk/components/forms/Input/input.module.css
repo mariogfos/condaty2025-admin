@@ -11,7 +11,7 @@
   padding-right: var(--spM);
   display: flex;
   gap: var(--spXs);
-  margin-bottom: calc(var(--spS) * 2.5);
+  margin-bottom: calc(var(--spL));
   font-weight: var(--bRegular);
   color: var(--cWhite);
   & > div > input::placeholder {
@@ -30,28 +30,43 @@
     margin: 0;
     position: relative;
 
-    & > label {
+    & > label { /* Label en estado inicial (dentro del input) */
       position: absolute;
       left: 0;
       top: 0;
       transition: all 0.3s;
       font-size: var(--sM);
       color: var(--cWhiteV1);
-      /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
       padding-right: var(--spXs);
       padding-top: var(--spXs);
+      
+      /* --- MODIFICACIÓN: Para truncar texto largo en el label inicial --- */
+      width: 100%; /* Necesario para que text-overflow funcione correctamente */
+      white-space: nowrap; /* Evita que el texto pase a la siguiente línea */
+      overflow: hidden; /* Oculta el texto que se desborda */
+      text-overflow: ellipsis; /* Muestra "..." al final del texto truncado */
+      box-sizing: border-box; /* Asegura que el padding no incremente el width total más allá del 100% */
+      /* --- FIN DE MODIFICACIÓN --- */
     }
+
     & > input:focus + label,
     & > input:not(:placeholder-shown) + label,
-    & > input[placeholder]:not([placeholder=""]) + label {
+    & > input[placeholder]:not([placeholder=""]) + label { /* Label en estado flotante */
       top: -8px;
       left: -4px;
       font-size: var(--sS);
       transform: translateY(-20%);
       background-color: transparent;
-      /* color: var(--cBlackV2); */
       color: var(--cWhiteV1);
+
+      /* Estilos previamente añadidos para permitir el ajuste en múltiples líneas */
+      white-space: normal;    
+      overflow-wrap: break-word; 
+      width: 100%;            
+      line-height: 1.15;      
+      /* Ya no se necesita text-overflow: ellipsis aquí si permitimos que se ajuste en varias líneas */
+      /* Si también quisieras truncar el flotante a una línea, añade las 3 propiedades de arriba (nowrap, hidden, ellipsis) */
     }
     & input[type="number"]::-webkit-inner-spin-button,
     & input[type="number"]::-webkit-outer-spin-button {
@@ -65,7 +80,7 @@
       border: none;
       outline: none;
       padding: 0;
-      padding-top: 8px;
+      padding-top: 8px; /* Espacio para que el label inicial no se superponga con el texto del input */
       margin: 0;
       color: var(--cWhite);
     }
@@ -94,20 +109,42 @@
       font-size: var(--sXs);
       color: var(--cError);
     }
-
-    /* & > div > input[type="number"] {
-      pointer-events: none;
-    } */
   }
   & input[type="date"]::-webkit-datetime-edit-text,
   & input[type="date"]::-webkit-datetime-edit-year-field,
   & input[type="date"]::-webkit-datetime-edit-month-field,
   & input[type="date"]::-webkit-datetime-edit-day-field {
-    color: white;
+    color: white; /* O var(--cWhite) si lo tienes definido */
   }
   & input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
     border-radius: 50%;
     padding: 4px;
   }
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media (max-width: 480px) { /* Puedes ajustar este valor de breakpoint (ej. 600px, 480px) */
+    & > div {
+      & > label { /* Label en estado inicial en pantallas pequeñas */
+        font-size: var(--sS); /* Reduce el tamaño de la fuente del label inicial */
+                               /* Las propiedades de ellipsis (nowrap, overflow, text-overflow) seguirán activas */
+        /* Podrías necesitar ajustar padding-top si el cambio de fuente es drástico */
+        /* padding-top: calc(var(--spXs) + Xpx); */
+      }
+
+      & > input:focus + label,
+      & > input:not(:placeholder-shown) + label,
+      & > input[placeholder]:not([placeholder=""]) + label { /* Label en estado flotante en pantallas pequeñas */
+        font-size: var(--sXS); /* Reduce aún más el tamaño del label flotante */
+                                 /* Asegúrate de tener definida la variable --sXS o usa un valor fijo (ej. 0.7rem, 10px) */
+        line-height: 1.1;      /* Ajusta la altura de línea para la nueva fuente más pequeña */
+        /* Las propiedades de ajuste en múltiples líneas (normal, break-word, width) seguirán activas */
+      }
+    }
+  }
+
 }

@@ -1,149 +1,189 @@
+// @ts-nocheck
 "use client";
 
-import React, { memo } from "react"; // Quitamos useState, useEffect
+import React, { memo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getUrlImages } from "@/mk/utils/string"; // Mantenemos utilidades necesarias
+import { getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
-import { getDateStrMes } from "@/mk/utils/date";
-import styles from "./RenderView.module.css"; // Reutiliza o crea estilos
-// Quitamos useAxios ya que no se usará aquí
+import { getDateStrMes, getDateTimeStrMesShort } from "@/mk/utils/date"; // getDateTimeStrMesShort para consistencia
+import styles from "./RenderView.module.css"; // Asegúrate que la ruta sea correcta
 import { formatNumber } from "@/mk/utils/numbers";
 
-// Props para el modal de detalles de Egreso (Ahora espera 'item' directamente)
 interface DetailOutlayProps {
   open: boolean;
   onClose: () => void;
-  item: any | null; // El objeto egreso con todos los detalles
-  extraData?: any; // Para buscar nombres de categorías
+  item: any | null;
+  extraData?: any;
+  onDel: () => void;
 }
 
 // eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
-  // Desestructuramos 'item' directamente de las props
-  const { open, onClose, extraData, item } = props;
+  const { open, onClose, extraData, item, onDel } = props;
 
-  // Ya no necesitamos estado local para 'item', isLoading, o loadError
-  // Tampoco necesitamos el useEffect ni fetchOutlayData
+  const paymentMethodMap: Record<string, string> = {
+    'T': 'Transferencia',
+    'O': 'Pago en oficina',
+    'Q': 'QR',
+    'E': 'Efectivo',
+    'C': 'Cheque',
+  };
+  
+  const getPaymentMethodText = (type: string): string => {
+    return paymentMethodMap[type] || type; // Devuelve el código si no se encuentra el mapeo
+  };
 
-  // Función auxiliar para obtener nombre de categoría y subcategoría
   const getCategoryNames = () => {
-    let categoryName = "Desconocida";
-    let subCategoryName = "-/-"; // Nombre por defecto para subcategoría
+    let categoryName = "-/-";
+    let subCategoryName = "-/-";
 
-    // --- Estrategia Principal: Usar los datos embebidos en 'item' ---
     if (item?.category) {
-        const subCategoryData = item.category; // Este objeto es la subcategoría
-        subCategoryName = subCategoryData.name || "Subcategoría sin nombre"; // Nombre de la subcategoría
-
-        // Buscar el objeto 'padre' dentro de la subcategoría
+        const subCategoryData = item.category;
+        subCategoryName = subCategoryData.name || "-/-";
         if (subCategoryData.padre && typeof subCategoryData.padre === 'object') {
-            categoryName = subCategoryData.padre.name || "Categoría sin nombre"; // Nombre de la categoría padre
-        }
-        // Fallback: Si no hay objeto 'padre' pero sí 'category_id' en la subcategoría
-        else if (subCategoryData.category_id && extraData?.categories) {
-             // Intentar buscar el padre en extraData usando el ID
+            categoryName = subCategoryData.padre.name || "-/-";
+        } else if (subCategoryData.category_id && extraData?.categories) {
             const parentCategory = extraData.categories.find((c: any) => c.id === subCategoryData.category_id);
-            categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
-            console.warn("Fallback: Usando category_id de subcategoría para buscar padre en extraData.");
+            categoryName = parentCategory ? parentCategory.name : "-/-";
+        } else {
+            categoryName = subCategoryData.name;
+            subCategoryName = "-/-";
         }
-        // Si no tiene 'padre' ni 'category_id', entonces es una categoría principal
-        else {
-            categoryName = subCategoryData.name; // La categoría principal es ella misma
-            subCategoryName = "-/-"; // No hay subcategoría aplicable
-        }
-    }
-    // --- Estrategia Secundaria (Fallback): Si 'item.category' no existe ---
-    else if (item?.category_id && extraData?.categories) {
-        console.warn("Fallback General: 'item.category' no encontrado, buscando por 'item.category_id' en extraData.");
+    } else if (item?.category_id && extraData?.categories) {
         const foundCategory = extraData.categories.find((c: any) => c.id === item.category_id);
         if (foundCategory) {
-            // Intentar determinar si es padre o hijo basándose en extraData
-             if (foundCategory.category_id) { // Si tiene un padre ID en extraData
+             if (foundCategory.category_id) {
                 const parentCategory = extraData.categories.find((c: any) => c.id === foundCategory.category_id);
-                categoryName = parentCategory ? parentCategory.name : "Categoría Desconocida (ID)";
-                subCategoryName = foundCategory.name; // La encontrada es la subcategoría
-            } else { // No tiene padre ID, es categoría principal
+                categoryName = parentCategory ? parentCategory.name : "-/-";
+                subCategoryName = foundCategory.name;
+            } else {
                 categoryName = foundCategory.name;
                 subCategoryName = "-/-";
             }
         }
     }
-
     return { categoryName, subCategoryName };
-};
+  };
 
-  // Función para obtener el texto del estado
   const getStatusText = (status: string) => {
     const statusMap: Record<string, string> = {
       "A": "Pagado",
-      "C": "Anulado",
+      "X": "Anulado",
     };
     return statusMap[status] || status;
   };
 
-  // Llama a la función auxiliar (solo si hay 'item')
   const { categoryName, subCategoryName } = item ? getCategoryNames() : { categoryName: '', subCategoryName: '' };
+
+  // Determinar clase de estilo para el estado
+  const getStatusStyle = (status: string) => {
+    if (status === 'A') return styles.statusPaid;
+    if (status === 'X') return styles.statusCancelled;
+    return '';
+  };
+  const handleAnularClick = () => {
+    if (item && onDel) { // Verifica que item y onDel existan
+      onDel(item);
+    }
+  };
+
+
+  if (!item) {
+    return (
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title="Información del Egreso"
+        buttonText=""
+        buttonCancel=""
+      >
+        <div className={styles.container}> {/* Contenedor principal también para el mensaje */}
+          <div className={styles.messageContainer}>
+            <p className={styles.messageText}>No se encontró información del egreso.</p>
+            <p className={styles.messageSuggestion}>
+              Por favor, verifica los detalles o intenta de nuevo más tarde.
+            </p>
+          </div>
+        </div>
+      </DataModal>
+    );
+  }
 
   return (
     <DataModal
-      open={open}
-      onClose={onClose}
-      title="Información del Egreso"
-      buttonText=""
-      buttonCancel=""
-    >
-      <div className={styles.container}>
-        {/* Mostrar contenido solo si 'item' tiene datos */}
-        {!item ? (
-           // Mensaje si no hay item (podría ser mientras carga en el padre)
-          <p>Cargando información...</p>
-        ) : (
-          <>
-            <div className={styles.detailsContainer}>
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Categoría</div>
-                <div className={styles.value}>{categoryName}</div>
-              </div>
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Subcategoría</div>
-                <div className={styles.value}>{subCategoryName}</div>
-              </div>
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Monto</div>
-                <div className={styles.value}>Bs {formatNumber(item.amount)}</div>
-              </div>
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Descripción</div>
-                <div className={styles.value}>{item.description || "Sin descripción"}</div>
-              </div>
-               <div className={styles.detailRow}>
-                <div className={styles.label}>Estado</div>
-                <div className={styles.value}>{getStatusText(item.status)}</div>
-              </div>
-              <div className={styles.detailRow}>
-                <div className={styles.label}>Fecha</div>
-                <div className={styles.value}>{getDateStrMes(item.date_at)}</div>
-              </div>
+    open={open}
+    onClose={onClose}
+    title="Detalle del Egreso"
+    buttonText=""
+    buttonCancel=""
+  >
+    {item && onDel && item.status !== 'X' && (
+      <div className={styles.headerActionContainer}>
+        <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
+          Anular egreso
+        </button>
+      </div>
+    )}
+    <div className={styles.container}> {/* Contenedor principal del modal */}
+      <div className={styles.headerSection}>
+        <div className={styles.amountDisplay}>Bs {formatNumber(item.amount)}</div>
+        <div className={styles.dateDisplay}>{getDateTimeStrMesShort(item.date_at)}</div>
+      </div>
+
+      <hr className={styles.sectionDivider} />
+
+      {/* Contenedor de la sección de detalles, usará flex para centrar las columnas */}
+      <section className={styles.detailsSection}> {/* Antes: mainInfoGridContainer */}
+        {/* Columna Izquierda */}
+        <div className={styles.detailsColumn}> {/* Antes: mainInfoGrid > infoColumn */}
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Categoría</span>
+            <span className={styles.infoValue}>{categoryName}</span>
+          </div>
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Subcategoría</span>
+            <span className={styles.infoValue}>{subCategoryName}</span>
+          </div>
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Descripción</span>
+            <span className={styles.infoValue}>{item.description || "-/-"}</span>
+          </div>
+        </div>
+
+        {/* Columna Derecha */}
+        <div className={styles.detailsColumn}> {/* Antes: mainInfoGrid > infoColumn */}
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>Estado</span>
+            <span className={`${styles.infoValue} ${getStatusStyle(item.status)}`}>
+              {getStatusText(item.status)}
+            </span>
+          </div>
+          {item.type && (
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Forma de Pago</span>
+              <span className={styles.infoValue}>{getPaymentMethodText(item.type)}</span>
             </div>
+          )}
+        </div>
+      </section>
 
-            <div className={styles.divider}></div>
+      <hr className={styles.sectionDivider} />
 
-            {item.ext && (
-              <div className={styles.buttonContainer}>
-                <Button
-                  className={`${styles.downloadButton}`}
-                  onClick={() => {
-                    const imageUrl = getUrlImages(
-                      `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()}`
-                    );
-                    window.open(imageUrl, "_blank");
-                  }}
-                >
-                  Descargar comprobante
-                </Button>
-              </div>
-            )}
-          </>
+        {item.ext && (
+          <div className={styles.voucherButtonContainer}>
+            <Button
+              variant="outline" // Para que tome estilos del CSS si es necesario o se defina en el botón mismo
+              className={styles.voucherButton} // Aplicar la nueva clase
+              onClick={() => {
+                const imageUrl = getUrlImages(
+                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()}`
+                );
+                window.open(imageUrl, "_blank");
+              }}
+            >
+              Ver comprobante {/* Texto consistente con el de Ingresos */}
+            </Button>
+          </div>
         )}
       </div>
     </DataModal>

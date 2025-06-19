@@ -16,6 +16,7 @@ import {
   IconLike,
   IconOptions,
   IconPDF,
+  IconPublicacion,
   IconTrash,
   IconVideo,
   IconWorld,
@@ -109,7 +110,7 @@ const Contents = () => {
       extraData: any;
     }) => <RenderView {...props} />,
     loadView: { fullType: "DET" },
-    listAndCard: true,
+    // listAndCard: true,
     // hideActions: { add: true },
     renderForm: (props: {
       item: any;
@@ -585,9 +586,13 @@ const Contents = () => {
     <div className={styles.roles}>
       {/* <IconLike onClick={() => onResponse()} /> */}
       <List
-        onTabletRow={renderItem}
+        // onTabletRow={renderItem}
         actionsWidth="140px"
-        onRenderCard={openCard ? renderCard : null}
+        height={"calc(100vh - 285px)"}
+        emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
+        emptyLine2="noticias las verás aquí."
+        emptyIcon={<IconPublicacion size={80}/>}
+        // onRenderCard={openCard ? renderCard : null}
       />
       {/* {openImport && (
         <ImportDataModal

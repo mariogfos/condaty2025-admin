@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import styles from "./styles.module.css";
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
 
@@ -32,11 +32,12 @@ type PropsType = {
     sumarize?: number | boolean;
     sumDec?: number;
     sortabled?: boolean;
+    onHide?: () => boolean;
   }[];
   data: any;
   footer?: any;
   sumarize?: boolean;
-  onRenderBody?: null | ((row: any, i: number) => any);
+  onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
   onRowClick?: (e: any) => void;
@@ -91,7 +92,8 @@ const Table = ({
   sortCol,
   onSort,
 }: PropsType) => {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState();
   return (
     <div
@@ -198,26 +200,29 @@ const Head = memo(function Head({
   };
   return (
     <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
-      {header.map((item: any, index: number) => (
-        <div
-          key={"th" + index}
-          className={styles[item.responsive] + " " + item.className}
-          style={{
-            ...item.style,
-            overflow: "hidden",
-            ...getWidth(item.width),
-          }}
-          title={
-            onRenderHead
-              ? onRenderHead(item, index, onSort, sortCol, true)
-              : item.label
-          }
-        >
-          {onRenderHead
-            ? onRenderHead(item, index, onSort, sortCol)
-            : renderLabelTitle(item, index, onSort, sortCol)}
-        </div>
-      ))}
+      {header.map(
+        (item: any, index: number) =>
+          !item.onHide?.() && (
+            <div
+              key={"th" + index}
+              className={styles[item.responsive] + " " + item.className}
+              style={{
+                ...item.style,
+                overflow: "hidden",
+                ...getWidth(item.width),
+              }}
+              title={
+                onRenderHead
+                  ? onRenderHead(item, index, onSort, sortCol, true)
+                  : item.label
+              }
+            >
+              {onRenderHead
+                ? onRenderHead(item, index, onSort, sortCol)
+                : renderLabelTitle(item, index, onSort, sortCol)}
+            </div>
+          )
+      )}
 
       {onButtonActions && (
         <div className={styles.onlyDesktop} style={{ ...getWidth("100") }}>
@@ -317,11 +322,12 @@ const Body = memo(function Body({
   onButtonActions: any;
   height?: any;
   setScrollbarWidth?: Function;
-  onRenderBody?: null | ((row: any, i: number) => any);
+  onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
 }) {
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
   const divRef = useRef(null);
   const scrollWidth = useScrollbarWidth(divRef);
   useEffect(() => {
@@ -338,7 +344,6 @@ const Body = memo(function Body({
               flexDirection: onRenderCard ? "row" : "column",
               gridTemplateColumns: onRenderCard ? "1fr 1fr 1fr 1fr 1fr" : "",
               gap: onRenderCard ? "16px" : "0px",
-              // border: onRenderCard ? "none" : "",
             }
       }
     >
@@ -347,33 +352,36 @@ const Body = memo(function Body({
           {isMobile && onTabletRow ? (
             onTabletRow(row, index, onRowClick)
           ) : onRenderBody ? (
-            <div key={"row" + index} onClick={(e) => onRowClick(row)}>
-              {renderBody?.(row, index + 1)}
+            <div key={"row" + index}>
+              {onRenderBody(row, index + 1, onRowClick)}
             </div>
           ) : onRenderCard ? (
             onRenderCard(row, index, onRowClick)
           ) : (
             <div key={"row" + index} onClick={(e) => onRowClick(row)}>
-              {header.map((item: any, i: number) => (
-                <span
-                  key={item.key + i}
-                  className={styles[item.responsive] + " " + item.className}
-                  style={{
-                    ...item.style,
-                    ...getWidth(item.width),
-                  }}
-                >
-                  {item.onRender &&
-                    item.onRender?.({
-                      value: row[item.key],
-                      key: item.key,
-                      item: row,
-                      i: index + 1,
-                      extraData,
-                    })}
-                  {!item.onRender && row[item.key]}
-                </span>
-              ))}
+              {header.map(
+                (item: any, i: number) =>
+                  !item.onHide?.() && (
+                    <span
+                      key={item.key + i}
+                      className={styles[item.responsive] + " " + item.className}
+                      style={{
+                        ...item.style,
+                        ...getWidth(item.width),
+                      }}
+                    >
+                      {item.onRender &&
+                        item.onRender?.({
+                          value: row[item.key],
+                          key: item.key,
+                          item: row,
+                          i: index + 1,
+                          extraData,
+                        })}
+                      {!item.onRender && row[item.key]}
+                    </span>
+                  )
+              )}
               {onButtonActions && (
                 <span
                   className={styles.onlyDesktop}

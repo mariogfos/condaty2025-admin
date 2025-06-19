@@ -60,7 +60,7 @@
 .optionsContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+
   margin-bottom: 24px;
 }
 
@@ -86,16 +86,34 @@
   margin-bottom: 8px;
 }
 
-/* Estilos para la tarjeta de categoría - arreglado para asegurar ancho completo */
 .categoryCard {
-  background-color: var(--cDarkv2, #252525);
-  border-radius: 8px;
+  /* background-color: var(--cWhiteV2); */ /* <-- Comenta o elimina esto si existía */
   overflow: hidden;
-  margin-bottom: 16px;
-  width: 100% !important; /* Forzar ancho completo */
+  width: 100% !important;
   display: block;
   box-sizing: border-box;
+  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV1);
+  transition: background-color 0.2s; /* Añadir transición si se desea */
 }
+
+/* Estilos para filas/tarjetas pares */
+.cardEven {
+  background-color: var(--cBlackV2); /* Color para pares */
+}
+.cardEven:hover {
+   background-color: var(--cBlackV2); /* O un color de hover ligeramente diferente para pares */
+}
+
+
+/* Estilos para filas/tarjetas impares */
+.cardOdd {
+  background-color: var(--cWhiteV2); /* Color para impares */
+}
+.cardOdd:hover {
+    background-color: var(--cBlackV2); /* O un color de hover ligeramente diferente para impares */
+}
+
 
 .categoryHeader {
   padding: 16px;
@@ -109,7 +127,7 @@
 }
 
 .categoryHeader:hover {
-  background-color: var(--cDarkv3, #333333);
+  background-color: var(--cBlackV2);
 }
 
 .categoryTitle {
@@ -131,7 +149,7 @@
 }
 
 .categoryDescription {
-  flex: 2;
+  flex: 1;
   color: var(--cLightv3, #aaaaaa);
   font-size: 14px;
   overflow: hidden;
@@ -188,8 +206,7 @@
 
 /* Subcategorías - ajustes para mejor visualización */
 .subcategoriesContainer {
-  background-color: var(--cDarkv1, #1e1e1e);
-  padding: 16px;
+  background-color: var(--cWhiteV2);
   width: 100%;
   box-sizing: border-box;
 }
@@ -206,21 +223,25 @@
 .subcategoriesList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+ 
   width: 100%;
 }
 
 .subcategoryItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background-color: var(--cDarkv2, #252525);
+  display: flex; /* Ya estaba, mantiene los elementos en línea */
+  justify-content: space-between; /* Separa los grupos (nombre+descripción y acciones) */
+  align-items: center; /* Centra verticalmente */
+  padding: 10px 16px; /* Ajusta el padding como necesites */
+  background-color: var(--cWhiteV2); /* O el color de fondo deseado */
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
   width: 100%;
   box-sizing: border-box;
+  border-bottom: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
+  border-top: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
+  gap: 16px; /* Añadir espacio entre nombre, descripción y acciones */
+  
 }
 
 .subcategoryItem:hover {
@@ -233,29 +254,39 @@
   gap: 2px;
   flex: 1;
   min-width: 0;
+  
 }
 
 .subcategoryName {
   font-size: 14px;
-  color: var(--cWhite, white);
+  font-weight: 500; /* Quizás un poco más de énfasis */
+  color: var(--cWhiteV1);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  padding-left: 35px;
+  flex-shrink: 0; /* Para que no se encoja si la descripción es larga */
+  /* Opcional: darle un flex-basis o width si quieres un tamaño más fijo */
+  /* flex-basis: 150px; */
 }
 
+/* Estilo para la descripción de la subcategoría */
 .subcategoryDesc {
-  font-size: 12px;
+  font-size: 14px; /* Mismo tamaño que la descripción principal */
   color: var(--cLightv3, #aaaaaa);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  flex-grow: 1; /* Para que ocupe el espacio restante entre nombre y acciones */
+  text-align: center; /* Asegurar alineación */
+  padding: 0 16px; /* Similar al padding de categoryDescription */
 }
 
 .subcategoryActions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
-  margin-left: auto;
+  flex-shrink: 0; /* Para que no se encojan los botones */
+  /* margin-left: auto; */ /* No es necesario si justify-content: space-between en el item */
 }
 
 .subcategoryActions button {
@@ -266,8 +297,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   transition: background-color 0.2s;
 }
@@ -348,9 +379,10 @@
 
 .addSubcategoryButton {
   background-color: transparent;
+  font-size: 12px;
   border: none;
   display: flex;
-  align-items: center;
+  align-items: left;
   gap: 8px;
   color: var(--cAccent, #4caf50);
   font-size: 14px;
@@ -359,7 +391,7 @@
   border-radius: 4px;
   transition: background-color 0.2s;
   width: 100%;
-  justify-content: center;
+  justify-content: left;
 }
 
 .addSubcategoryButton:hover {
@@ -475,7 +507,7 @@
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    
   }
 
   .addButton {

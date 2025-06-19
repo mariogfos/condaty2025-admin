@@ -16,7 +16,7 @@ import Table, { RenderColType } from "../../components/ui/Table/Table";
 import DataModal from "../../components/ui/DataModal/DataModal";
 import Button from "../../components/forms/Button/Button";
 import Select from "../../components/forms/Select/Select";
-import useScreenSize from "../useScreenSize";
+// import useScreenSize from "../useScreenSize";
 import styles from "./useCrudStyle.module.css";
 import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -34,6 +34,7 @@ import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import EmptyData from "@/components/NoData/EmptyData";
 
 export type ModCrudType = {
   modulo: string;
@@ -183,7 +184,8 @@ const useCrud = ({
     mod?.noWaiting
   );
   // setParams({ ...paramsInitial });
-  const { isMobile } = useScreenSize();
+  // const { isMobile } = useScreenSize();
+  const isMobile = false;
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -366,7 +368,9 @@ const useCrud = ({
     setOldSearch(searchBy);
   };
   const [oldFilter, setOldFilter]: any = useState({});
-  const onFilter = (opt: string, value: string) => {
+  const onFilter = (_opt: string, value: string) => {
+    let opt = _opt.replace("_filter", "");
+    // console.log("onFilter", opt, value);
     let filterBy = { filterBy: { ...oldFilter.filterBy, [opt]: value } };
     if (getFilter) filterBy = getFilter(opt, value, oldFilter);
     //iterar filterBy para quitar los vacios
@@ -602,6 +606,7 @@ const useCrud = ({
         onChange: onChangeForm,
         onBlur: onBlurForm,
         error: errorForm,
+        setError: setErrorForm,
         setItem: setFormStateForm,
         extraData: extraData,
       });
@@ -648,6 +653,7 @@ const useCrud = ({
           openTag: field.openTag || null,
           closeTag: field.closeTag || null,
           style: { ...field.form.style },
+          rules: field.form.rules || field.rules || null,
           // style: {
           //   ...field.form.style,
           //   ...(field.openTag ? { flex: "1" } : {}),
@@ -873,8 +879,9 @@ const useCrud = ({
       if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
       const onChange = (e: any) => {
-        setFilterSel({ ...filterSel, [e.target.name]: e.target.value });
-        onFilter(e.target.name, e.target.value);
+        const name = e.target.name.replace("_filter", "");
+        setFilterSel({ ...filterSel, [name]: e.target.value });
+        onFilter(name, e.target.value);
       };
 
       return (
@@ -897,7 +904,7 @@ const useCrud = ({
                 <Select
                   key={f.key + i}
                   label={f.label}
-                  name={f.key}
+                  name={f.key + "_filter"}
                   onChange={onChange}
                   options={f.options || []}
                   value={filterSel[f.key] || ""}
@@ -1166,6 +1173,7 @@ const useCrud = ({
                         ? undefined
                         : onButtonActions
                     }
+                    height={props?.height || undefined}
                     className="striped"
                     actionsWidth={"170px"}
                     sumarize={props.sumarize}
@@ -1175,8 +1183,19 @@ const useCrud = ({
                   />
                 ) : (
                   <section>
-                    <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                    <p>No existen datos en este momento.</p>
+                    {/* <IconTableEmpty size={180} color="var(--cBlackV2)" />
+                    <p>No existen datos en este momento.</p> */}
+                    {props.onRenderEmpty ? (
+                      props.onRenderEmpty()
+                    ) : (
+                      <EmptyData
+                        h={props?.height ?? undefined}
+                        message={props.emptyMsg ?? undefined}
+                        line2={props.emptyLine2 ?? undefined}
+                        icon={props.emptyIcon ?? undefined}
+                        size={props.emptyIconSize ?? undefined}
+                      />
+                    )}
                   </section>
                 )}
                 <div>
@@ -1186,11 +1205,11 @@ const useCrud = ({
                     setParams={setParams}
                     params={params}
                     totalPages={Math.ceil(
-                      (data?.message?.total || 1) / (params.perPage || 1)
+                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
                     )}
                     previousLabel=""
                     nextLabel=""
-                    total={data?.message?.total || 0}
+                    total={data?.message?.total ?? 0}
                   />
                 </div>
               </section>
@@ -1208,12 +1227,18 @@ const useCrud = ({
                   extraData,
                   execute,
                   onEdit,
-                  onDel,
+
                   onAdd,
                   openList,
                   setOpenList,
                   reLoad: reLoad,
                   showToast: showToast,
+
+                  onDel: (itemToDelete: any) => {
+                    // Envolvemos para asegurar que se pasa el item correcto
+                    onCloseView(); // Opcional: cerrar la vista actual antes de abrir el confirmador de borrado
+                    onDel(itemToDelete || formState); // Llama al onDel del hook
+                  },
                 })
               ) : (
                 <Detail
@@ -1246,6 +1271,7 @@ const useCrud = ({
                   action,
                   openList,
                   setOpenList,
+                  showToast: showToast,
                 })
               ) : (
                 <Form

@@ -11,10 +11,16 @@ import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAccess, IconAdd } from "@/components/layout/icons/IconsBiblioteca";
+import {
+  IconAccess,
+  IconAdd,
+  IconAdmin,
+} from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -31,15 +37,35 @@ const Users = () => {
     plural: "Administradores",
     filter: true,
     permiso: "",
+    export: true,
+    import: true,
+    hideActions: {
+      edit: true,
+      del: true,
+    },
     //export: true,
     // import: true,
+    // noWaiting:true,
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-    }) => <RenderView {...props} />,
+      noWaiting?: boolean;
+      reLoad?: any;
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"admin"}
+        title="Perfil de Administrador"
+        reLoad={reLoad}
+        del={user.id === props?.item?.id ? false : true}
+        edit={user.id === props?.item?.id ? false : true}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
@@ -71,6 +97,31 @@ const Users = () => {
     extraData: true,
     // hideActions: { add: true },
   };
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/users",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
+    }
+  }, []); // Agrega las dependencias del hook
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
@@ -78,156 +129,163 @@ const Users = () => {
       "/users",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El administrador ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
-        "El residente ya existe en Condaty, se va a vincular al Condominio",
+        "El administrador ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
   }, []);
-  const onDisbled = ({ item }: any) => {
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de Identidad",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+          onBlur: onBlurCi,
+          required: true,
+          // onTop: () => (
+          //   <div style={{ display: "flex" }}>
+          //     <div style={{ flexGrow: 1 }}>Información de acceso</div>
+          //     <div>
+          //       La contraseña sera enviada al correo que indiques en este campo
+          //     </div>
+          //   </div>
+          // ),
+        },
+        list: false,
+      },
+      role_id: {
+        rules: ["required"], // Reglas para el formulario
+        api: "ae", // Se envía a la API al agregar/editar
+        label: "Rol", // Etiqueta general
+        form: {
+          // Configuración para el formulario
+          type: "select",
+          optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
+          optionLabel: "name", // Muestra el campo 'name' del rol
+          optionValue: "id", // Usa el campo 'id' del rol como valor
+          required: true,
+        },
 
+        // filter: { ... } // Tu configuración de filtro (comentada en tu código)
+      },
       fullName: {
-        // rules: ["required"],
+        rules: [],
         api: "ae",
         label: "Nombre del administrador",
         form: false,
         onRender: (item: any) => {
+          // Asegúrate que 'item.item' contiene los datos del residente
+          const administrador = item?.item;
+          const nombreCompleto = getFullName(administrador);
+          const cedulaIdentidad = administrador?.ci; // Obtener el CI
+
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
-                  "/ADM-" + item?.item?.id + ".webp?d=" + item?.item?.updated_at
+                  "/ADM-" +
+                    administrador?.id + // Usar administrador?.id
+                    ".webp?d=" +
+                    administrador?.updated_at // Usar administrador?.updated_at
                 )}
-                name={getFullName(item.item)}
-                square
+                name={nombreCompleto} // Usar nombreCompleto
               />
               <div>
-                <p>{getFullName(item?.item)} </p>
-                {item.item.is_main == "M" && (
+                {" "}
+                {/* Contenedor para Nombre, CI y Estado Admin */}
+                {/* Nombre */}
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
+                </p>
+                {/* CI (si existe) */}
+                {cedulaIdentidad && (
                   <span
                     style={{
-                      color: "var(--cSuccess)",
-                      fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: 4,
-                      borderRadius: 4,
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
                     }}
                   >
-                    {item.item.is_main == "M"
-                      ? "Administrador principal"
-                      : null}
+                    CI: {cedulaIdentidad}
                   </span>
                 )}
               </div>
             </div>
           );
         },
-        list: true,
+        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
       avatar: {
         api: "a*e*",
         label: "Suba una Imagen",
         list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "ADM",
-          style: { width: "100%" },
-          // onRigth: rigthAvatar,
-        },
       },
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
-      ci: {
-        rules: ["required"],
-        api: "a",
-        label: "Cédula de identidad",
-        // form: { type: "text", disabled: true, label: "2222" },
-        form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            // console.log(props,'propsval')
-            return (
-              <fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al administrador
-                    si el carnet no existe ,continúa con el proceso de registro
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="ci"
-                    value={props?.item?.ci}
-                    onChange={props.onChange}
-                    label="Carnet de Identidad"
-                    error={props.error}
-                    disabled={props?.field?.action === "edit"}
-                    onBlur={(e: any) => onBlurCi(e, props)}
-                  />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                    />
-                  )}
-                </div>
-              </fieldset>
-            );
-          },
-        },
 
-        list: { width: "120px" },
-      },
       name: {
-        rules: ["required"],
+        rules: ["required", "max:50", "alpha", "noSpaces"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
           style: { width: "49%" },
           disabled: onDisbled,
+          required: true,
         },
 
         list: false,
@@ -240,10 +298,15 @@ const Users = () => {
         list: false,
       },
       last_name: {
-        rules: ["required"],
+        rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: {
+          type: "text",
+          style: { width: "49%" },
+          disabled: onDisbled,
+          required: true,
+        },
         list: false,
       },
       mother_last_name: {
@@ -253,59 +316,7 @@ const Users = () => {
         form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
         list: false,
       },
-      role_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Rol",
-        form: {
-          type: "select",
-          optionsExtra: "roles",
-          optionLabel: "name",
-          optionValue: "id",
-        },
 
-        list: {
-          width: "150px",
-          onRender: (props: any) => {
-            return (
-              <div>
-                {
-                  props?.extraData?.roles.find(
-                    (i: any) => i.id === props.item.role_id
-                  )?.name
-                }
-              </div>
-            );
-          },
-        },
-        // filter: {
-        //   label: "Filtrar por Rol",
-        //   width: "200px",
-        //   options: (extraData: any) => {
-        //     // console.log(extraData, "extraData");
-        //     let data: any = [{ id: "T", name: "Todos" }];
-        //     extraData?.roles?.map((c: any) => {
-        //       data.push({
-        //         id: c.id,
-        //         name: c.name,
-        //         description:c.description
-        //       });
-        //     });
-        //     return data;
-        //   },
-        // },
-      },
-
-      email: {
-        rules: ["required"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        list: { width: "190px" },
-      },
       // rep_email: {
 
       //   api: "",
@@ -314,30 +325,98 @@ const Users = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
-      address: {
+      rol: {
         rules: [""],
-        api: "ae",
-        label: "Domicilio",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
+        api: "",
+        label: "Rol",
+        form: false,
         list: {
-          width: "200px",
-          onRender: (props: any) => (
-            <div>{props?.item?.address || "Sin domicilio"}</div>
-          ),
+          // Configuración para la lista/tabla
+
+          onRender: (props: any) => {
+            // Encontrar el objeto rol correspondiente al role_id del item
+            const role = props?.extraData?.roles?.find(
+              (r: any) => r.id === props?.item?.role_id
+            );
+            // Obtener el nombre del rol o un texto por defecto
+            const roleName = role?.name || "Sin Rol";
+
+            // Verificar si el rol es 'Administrador' (ignorando mayúsculas/minúsculas)
+            const isAdmin = roleName.toLowerCase() === "administrador";
+
+            // Asignar la clase CSS correspondiente
+            const badgeClass = isAdmin
+              ? styles.isAdminRole
+              : styles.isDefaultRole;
+
+            return (
+              // Renderizar el div con la clase base y la clase específica
+              <div className={`${styles.roleBadge} ${badgeClass}`}>
+                <span>{roleName}</span> {/* Mostrar el nombre del rol */}
+              </div>
+            );
+          },
         },
       },
       phone: {
-        rules: ["number"],
+        rules: ["number", "phone", "max:16"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+      },
+      address: {
+        rules: ["max:100"],
+        api: "ae",
+        label: "Dirección",
+        form: {
+          type: "text",
+          disabled: onDisbled,
+        },
+      },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+        form: {
+          type: "text", // Se recomienda 'text' en lugar de 'number' para emails
+          disabled: onDisbled,
+          onBlur: onBlurEmail,
+
+          // required: true,
+          // onRender: (props: any) => {
+          //   return (
+          //     <div className={styles.fieldSet}>
+          //       <div>
+          //         <div>Información de acceso</div>
+          //         <div>
+          //           La contraseña sera enviada al correo que indiques en este
+          //           campo
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <Input
+          //           name="email"
+          //           value={props?.item?.email || ""}
+          //           onChange={props.onChange}
+          //           label="Correo electrónico"
+          //           error={props.error}
+          //           disabled={onDisbled({
+          //             item: props?.item,
+          //             field: { name: "email" },
+          //           })}
+          //           // Línea que debes agregar/modificar
+          //           onBlur={(e) => onBlurEmail(e, props)}
+          //           required={true}
+          //         />
+          //       </div>
+          //     </div>
+          //   );
+          // },
+        },
+        list: true,
       },
     };
   }, []);
@@ -358,6 +437,7 @@ const Users = () => {
     execute,
     reLoad,
     getExtraData,
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -398,7 +478,22 @@ const Users = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
-      <List onTabletRow={renderItem} />
+      <WidgetDashCard
+        title="Total de Administradores"
+        data={data?.message?.total || 0}
+        icon={
+          <IconAdmin
+            color={"var(--cWhite)"}
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+            circle
+            size={38}
+          />
+        }
+        style={{ width: "280px" }}
+        // className={styles.widgetResumeCard}
+      />
+
+      <List height={"calc(100vh - 400px)"} onTabletRow={renderItem} />
     </div>
   );
 };

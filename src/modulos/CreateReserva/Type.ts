@@ -116,11 +116,15 @@ export interface ApiHomeowner {
       // available_slots?: string[];
   }
   export interface ApiReservationsCalendarResponse {
-      success?: boolean;
-      data?: ApiReservationsCalendarData; // Marcado como opcional por si acaso
-      // Debug_Querys?: any[];
-      // debugMsg?: any[];
-  }
+    success?: boolean;
+    // La API parece anidar los datos así: response.data.data
+    data?: {
+       data?: ApiCalendarAvailabilityData; // <--- Usa la interfaz renombrada y completa
+    } | ApiCalendarAvailabilityData | []; // <-- AÑADIDO: O puede ser directamente el objeto O un array vacío []
+    message?: string; // Mensaje general de la respuesta
+    // Debug_Querys?: any[];
+    // debugMsg?: any[];
+}
   
   // --- Interfaz para Opciones de Select (Usada en el Frontend) ---
   export interface Option {
@@ -139,3 +143,10 @@ export interface ApiHomeowner {
     telefono_responsable: string;
     email_responsable: string;
   }
+  export interface ApiCalendarAvailabilityData { // <--- RENOMBRADA para claridad
+    reserved?: string[];       // Días con alguna reserva (cuando no pides fecha)
+    available?: string[];      // Slots disponibles (cuando pides fecha)
+    reservations?: boolean;    // Si se permite reservar en la fecha pedida
+    message?: string;          // Mensaje asociado a 'reservations'
+    unavailable?: string[];     // Slots no disponibles (cuando pides fecha)
+}

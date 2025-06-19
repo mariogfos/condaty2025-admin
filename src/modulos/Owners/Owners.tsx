@@ -10,10 +10,19 @@ import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
+
 import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
+import {
+  IconHome,
+  IconHomePerson,
+  IconHomePerson2,
+} from "@/components/layout/icons/IconsBiblioteca";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import Select from "@/mk/components/forms/Select/Select";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,6 +32,67 @@ const paramsInitial = {
 };
 
 const Owners = () => {
+  const [unitsModalOpen, setUnitsModalOpen] = useState(false);
+  const [selectedHomeowner, setSelectedHomeowner] = useState(null);
+
+  const getTypefilter = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "D", name: "Dependientes" },
+    { id: "T", name: "Titulares" },
+  ];
+  const openUnitsModal = (homeowner: any) => {
+    setSelectedHomeowner(homeowner);
+    setUnitsModalOpen(true);
+  };
+
+  const closeUnitsModal = () => {
+    setUnitsModalOpen(false);
+    setSelectedHomeowner(null);
+  };
+
+  const UnitsModal = ({
+    open,
+    onClose,
+    homeowner,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    homeowner: any;
+  }) => {
+    if (!homeowner) return null;
+
+    return (
+      <DataModal
+        open={open}
+        onClose={onClose}
+        title={`Unidades de ${getFullName(homeowner)}`}
+        buttonText=""
+      >
+        <div className={styles.unitsContainer}>
+          {homeowner.dptos &&
+            homeowner.dptos.map((dpto: any, index: number) => (
+              <div key={dpto.id} className={styles.unitCard}>
+                <KeyValue title="Nro" value={dpto.nro} />
+                <KeyValue title="Descripción" value={dpto.description} />
+                <KeyValue title="Dimensión" value={`${dpto.dimension} m²`} />
+                <KeyValue
+                  title="Monto de gastos"
+                  value={`$${dpto.expense_amount}`}
+                />
+                <KeyValue
+                  title="Estado"
+                  value={dpto.status === "A" ? "Activo" : "Inactivo"}
+                />
+                {index < homeowner.dptos.length - 1 && (
+                  <hr className={styles.unitDivider} />
+                )}
+              </div>
+            ))}
+        </div>
+      </DataModal>
+    );
+  };
+
   const mod: ModCrudType = {
     modulo: "owners",
     singular: "Residente",
@@ -31,26 +101,44 @@ const Owners = () => {
     export: true,
     import: true,
     permiso: "",
+    hideActions: {
+      edit: true,
+      del: true,
+    },
+    extraData: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
       extraData?: Record<string, any>;
-    }) => <RenderView {...props} />,
+      reLoad?: any;
+    }) => (
+      <ProfileModal
+        open={props?.open}
+        onClose={props?.onClose}
+        dataID={props?.item?.id}
+        type={"owner"}
+        title="Perfil de Residente"
+        edit={false}
+        reLoad={props?.reLoad}
+      />
+    ),
     renderDel: (props: {
       open: boolean;
       onClose: any;
-      mod: ModCrudType;
       item: Record<string, any>;
-      onConfirm?: Function;
-      extraData?: Record<string, any>;
     }) => {
       return (
-        <UnlinkModal open={props.open} onClose={props.onClose}  mod={mod}  item={props.item} reLoad={reLoad} />
-
+        <UnlinkModal
+          open={props.open}
+          onClose={props.onClose}
+          mod={mod}
+          item={props.item}
+          reLoad={reLoad}
+        />
       );
-    }
+    },
     // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -59,169 +147,198 @@ const Owners = () => {
       "/owners",
       "GET",
       {
-        _exist: 1,
-        ci: e.target.value,
+        fullType: "EXIST",
+        type: "ci",
+        searchBy: e.target.value,
       },
       false,
       true
     );
 
-    if (data?.success && data?.data?.length > 0) {
-      const filteredData = data.data;
+    if (data?.success && data.data?.data?.id) {
+      const filteredData = data.data.data;
+      if (filteredData.existCondo) {
+        showToast("El residente ya existe en este Condominio", "warning");
+        props.setItem({});
+        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        return;
+      }
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
-        ci: filteredData[0].ci,
-        name: filteredData[0].name,
-        middle_name: filteredData[0].middle_name,
-        last_name: filteredData[0].last_name,
-        mother_last_name: filteredData[0].mother_last_name,
-        email: filteredData[0].email,
-        phone: filteredData[0].phone,
+        ci: filteredData.ci,
+        name: filteredData.name,
+        middle_name: filteredData.middle_name,
+        last_name: filteredData.last_name,
+        mother_last_name: filteredData.mother_last_name,
+        email: filteredData.email ?? "",
+        phone: filteredData.phone,
         _disabled: true,
+        _emailDisabled: true,
       });
       showToast(
         "El residente ya existe en Condaty, se va a vincular al Condominio",
         "warning"
       );
     } else {
+      props.setError({ ci: "" });
       props.setItem({
         ...props.item,
         _disabled: false,
+        _emailDisabled: false,
       });
-      //no existe
     }
   }, []);
 
-  const onDisbled = ({ item }: any) => {
+  const onBlurEmail = useCallback(async (e: any, props: any) => {
+    if (
+      e.target.value.trim() == "" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+    )
+      return;
+
+    const { data, error } = await execute(
+      "/owners",
+      "GET",
+      {
+        fullType: "EXIST",
+        type: "email",
+        searchBy: e.target.value,
+      },
+      false,
+      true
+    );
+
+    if (data?.success && data.data?.data?.id) {
+      console.log("email", props);
+      showToast("El email ya esta en uso", "warning");
+      props.setError({ email: "El email ya esta en uso" });
+      props.setItem({ ...props.item, email: "" });
+    }
+  }, []);
+
+  const onDisbled = ({ item, field }: any) => {
+    if (field?.name === "email") {
+      return item._emailDisabled;
+    }
     return item._disabled;
   };
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de identidad",
+        form: {
+          type: "text",
+          onBlur: onBlurCi,
+          disabled: onDisbled,
+          required: true,
+        },
+        list: false,
+      },
+      dpto: {
+        // Campo para seleccionar una única unidad (singular)
+        rules: ["required"],
+        api: "ae",
+        label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
+        form: {
+          type: "select",
+          optionsExtra: "dptos",
+          optionLabel: "nro",
+          optionValue: "dpto_id",
+          required: true,
+        },
+        list: false, // No se muestra en la lista principal
+      },
 
       fullName: {
         // rules: ["required"],
         api: "ae",
-        label: "Nombre del residente",
+        label: "Nombre",
         form: false,
+        // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
+          // Asegúrate que 'item.item' contiene los datos del residente
+          const residente = item?.item;
+          const nombreCompleto = getFullName(residente);
+          const cedulaIdentidad = residente?.ci; // Obtener el CI
+
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 src={getUrlImages(
                   "/OWNER-" +
-                    item?.item?.id +
+                    residente?.id + // Usar residente?.id
                     ".webp?d=" +
-                    item?.item?.updated_at
+                    residente?.updated_at // Usar residente?.updated_at
                 )}
-                name={getFullName(item.item)}
-                square
+                name={nombreCompleto} // Usar nombreCompleto
               />
               <div>
-                <p>{getFullName(item?.item)} </p>
-                {item.item.is_main == "M" && (
+                {" "}
+                {/* Contenedor para Nombre, CI y Estado Admin */}
+                {/* Nombre */}
+                <p
+                  style={{
+                    marginBottom: "2px",
+                    fontWeight: 500,
+                    color: "var(--cWhite, #fafafa)",
+                  }}
+                >
+                  {nombreCompleto}
+                </p>
+                {/* CI (si existe) */}
+                {cedulaIdentidad && (
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    CI: {cedulaIdentidad}
+                  </span>
+                )}
+                {/* Estado de Administrador Principal (si aplica) */}
+                {residente?.is_main == "M" && (
                   <span
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: 4,
+                      backgroundColor: "#00af900D", // Fondo verde muy transparente
+                      padding: "2px 4px", // Ajustar padding si es necesario
                       borderRadius: 4,
+                      display: "inline-block", // Para que el padding/fondo funcione bien
                     }}
                   >
-                    {item.item.is_main == "M"
-                      ? "Administrador principal"
-                      : null}
+                    Administrador principal
                   </span>
                 )}
               </div>
             </div>
           );
         },
-        list: true,
+        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
       },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "OWNER",
-          style: { width: "100%" },
-        },
-      },
-      password: {
-        rules: ["_disabled_", "required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
-      ci: {
-        rules: ["required*add"],
-        api: "a",
-        label: "Cédula de identidad",
-        // form: { type: "text", disabled: true, label: "2222" },
-        form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            return (
-              <fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al residente si
-                    el carnet no existe ,continúa con el proceso de registro
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="ci"
-                    value={props?.item?.ci}
-                    onChange={props.onChange}
-                    label="Carnet de Identidad"
-                    error={props.error}
-                    onBlur={(e: any) => onBlurCi(e, props)}
-                    disabled={props?.field?.action === "edit"}
-                  />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                      // disabled={
-                      //   props?.field?.action === "edit" ||
-                      //   props.item._disabled === true
-                      // }
-                    />
-                  )}
-                </div>
-              </fieldset>
-            );
-          },
-        },
 
-        list: false,
-      },
       name: {
         openTag: { style: { display: "flex" } },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Primer nombre",
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
-
         list: false,
       },
       middle_name: {
         closeTag: true,
-        rules: [""],
+        rules: [],
         api: "ae",
         label: "Segundo nombre",
         form: {
@@ -236,12 +353,13 @@ const Owners = () => {
             display: "flex",
           },
         },
-        rules: ["required"],
+        rules: ["required", "alpha"],
         api: "ae",
         label: "Apellido paterno",
         form: {
           type: "text",
           disabled: onDisbled,
+          required: true,
         },
         list: false,
       },
@@ -259,25 +377,22 @@ const Owners = () => {
       units: {
         rules: [""],
         api: "",
-        label: "Unidades",
+        label: "Unidad",
         form: false,
+
         list: {
+          width: "200px",
           onRender: (props: any) => {
-            return props?.item?.dpto[0]?.nro || "Sin datos";
+            return (
+              "Unidad: " +
+              (props?.item?.dpto[0]?.nro
+                ? props?.item?.dpto[0]?.nro
+                : "Sin datos")
+            );
           },
-          width: "90px",
         },
       },
-      email: {
-        rules: ["required"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        list: { width: "180px" },
-      },
+
       // rep_email: {
 
       //   api: "",
@@ -286,15 +401,107 @@ const Owners = () => {
       //   list: false,
       //   style: { width: "500px" },
       // },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+        form: {
+          type: "text",
+          label: "Correo electrónico",
+          disabled: onDisbled,
+          required: true,
+          onBlur: onBlurEmail,
+          // onRender: (props: any) => {
+          //   return (
+          //     <div className={styles.fieldSet}>
+          //       <div>
+          //         <div>Información de acceso</div>
+          //         <div>
+          //           La contraseña sera enviada al correo que indiques en este
+          //           campo
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <Input
+          //           name="email"
+          //           value={props?.item?.email}
+          //           onChange={props.onChange}
+          //           label="Correo electrónico"
+          //           error={props.error}
+          //           disabled={
+          //             props?.field?.action === "edit" || onDisbled(props)
+          //           }
+          //           required={true}
+          //           onBlur={(e) => onBlurEmail(e, props)}
+          //         />
+          //       </div>
+          //     </div>
+          //   );
+          // },
+        },
+        list: { width: "350px" },
+      },
       phone: {
-        rules: ["number"],
+        rules: ["number", "max:10"],
         api: "ae",
-        label: "Celular (Opcional)",
+        label: "Celular",
         form: {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "180px" },
+        list: { width: "200px" },
+      },
+      type: {
+        rules: [""],
+        api: "",
+        label: "Tipo",
+        list: {
+          width: "140px",
+          onRender: (props: any) => {
+            // const clientOwnerData = props?.item?.client_owner;
+            // let esTitularPrincipal = true; // Asumir Titular por defecto
+
+            // // Verificar si client_owner existe y es un objeto
+            // if (clientOwnerData && typeof clientOwnerData === "object") {
+            //   // Si client_owner existe y tiene un titular_id (no es null ni undefined),
+            //   // entonces esta persona es un Dependiente.
+            //   if (
+            //     clientOwnerData.titular_id !== null &&
+            //     clientOwnerData.titular_id !== undefined
+            //   ) {
+            //     esTitularPrincipal = false;
+            //   }
+            //   // Si client_owner.titular_id es null o undefined, se mantiene esTitularPrincipal = true,
+            //   // lo que significa que es un Titular.
+            // }
+            // Si clientOwnerData es null o undefined (no existe el objeto client_owner),
+            // se mantiene la presunción de que esTitularPrincipal = true (Titular).
+
+            // const texto = esTitularPrincipal ? "Titular" : "Dependiente";
+            const texto =
+              props?.item?.dpto[0]?.pivot.is_titular === "Y"
+                ? "Titular"
+                : "Dependiente";
+
+            const badgeClass =
+              props?.item?.dpto[0]?.pivot.is_titular === "Y"
+                ? styles.isTitular
+                : styles.isDependiente;
+
+            return (
+              <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
+                <span>{texto}</span>
+              </div>
+            );
+          },
+        },
+        filter: {
+          label: "Tipo de residente",
+          width: "180px",
+          // Usa la función actualizada para las opciones del filtro
+          options: getTypefilter,
+        },
+        // form: false, // Descomenta si no quieres que aparezca en el formulario
       },
     };
   }, []);
@@ -311,6 +518,9 @@ const Owners = () => {
     showToast,
     execute,
     errors,
+    getExtraData,
+    extraData,
+    data,
   } = useCrud({
     paramsInitial,
     mod,
@@ -344,8 +554,57 @@ const Owners = () => {
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.users}>
-      <List onTabletRow={renderItem} />
+    <div className={styles.style}>
+      <div style={{ display: "flex", gap: "12px" }}>
+        <WidgetDashCard
+          title="Residentes Totales"
+          data={String(data?.extraData?.totals || 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cInfo"}
+              style={{ backgroundColor: "var(--cHoverInfo)" }}
+              circle
+              size={38}
+            />
+          }
+        />
+        <WidgetDashCard
+          title="Titulares"
+          data={String(data?.extraData?.holders || 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cSuccess)"}
+              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+              circle
+              size={38}
+            />
+          }
+        />
+        <WidgetDashCard
+          title="Dependientes"
+          data={String(data?.extraData?.dependents || 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cWarning)"}
+              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              circle
+              size={38}
+            />
+          }
+        />
+      </div>
+      <List height={"calc(100vh - 400px)"} 
+       emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
+       emptyLine2="del condominio una vez los registres"
+       emptyIcon={<IconHomePerson2 size={80}/>} />
+      <UnitsModal
+        open={unitsModalOpen}
+        onClose={closeUnitsModal}
+        homeowner={selectedHomeowner}
+      />
     </div>
   );
 };

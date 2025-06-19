@@ -37,9 +37,9 @@ const TableResumenGeneral = ({
 
     setFormatedData([
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
-      { name: "Ingresos", amount: totalIngresos, sub: [] },
-      { name: "Egresos", amount: totalEgresos, sub: [] },
-      { name: "Saldo", amount: totalIngresos - totalEgresos, sub: [] },
+      { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
+      { name: "Total de Egresos", amount: totalEgresos, sub: [] },
+      { name: "Total de diferencia entre ingresos y egresos", amount: totalIngresos - totalEgresos, sub: [] },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
   }, [subcategoriasE, subcategoriasI]);
@@ -53,6 +53,7 @@ const TableResumenGeneral = ({
       color={`${total < 0 ? "text-error " : "text-accent"}`}
       titleTotal={titleTotal}
       variant="summary"
+      tooltip="Monto total de ingresos y egresos detallado por categorias y subcategorias."
     />
   );
 };
