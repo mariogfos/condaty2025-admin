@@ -148,8 +148,12 @@ const RenderForm = ({
 
         if (data?.success) {
           const deudasArray = data?.data?.deudas || [];
-          setDeudas(deudasArray);
-          if (deudasArray.length === 0) {
+
+          const deudasArrayOrdenado = deudasArray.sort((a, b) => {
+            return a.debt?.year - b.debt?.year || a.debt?.month - b.debt?.month;
+          });
+          setDeudas(deudasArrayOrdenado);
+          if (deudasArrayOrdenado.length === 0) {
             setSelectedPeriodo([]);
             setSelectPeriodoTotal(0);
           }
