@@ -34,7 +34,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
 
     if (item?.out_at) {
       statusText = "Completado";
-      statusClass = styles.statusCompleted;
+      statusClass = styles.statusActive;
     } else if (item?.in_at) {
       statusText = "Por Salir";
       statusClass = styles.statusActive;
