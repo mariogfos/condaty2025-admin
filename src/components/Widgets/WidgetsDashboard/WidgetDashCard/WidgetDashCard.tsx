@@ -17,6 +17,7 @@ interface ItemProps {
   tooltip?: boolean;
   tooltipTitle?: string;
   tooltipColor?: string;
+  tooltipPosition?: "top" | "bottom" | "left" | "right";
   style?: React.CSSProperties;
 }
 
@@ -30,6 +31,7 @@ export const WidgetDashCard = ({
   tooltip,
   tooltipTitle = "",
   tooltipColor,
+  tooltipPosition = "right",
   onClick,
   style,
 }: ItemProps) => {
@@ -45,7 +47,7 @@ export const WidgetDashCard = ({
       <div className={styles.title}>
         {title}{" "}
         {tooltip && (
-          <Tooltip title={tooltipTitle} position="right">
+          <Tooltip title={tooltipTitle} position={tooltipPosition}>
             <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', marginLeft:5 }}>
               <IconInterrogation color={tooltipColor || 'var(--cWhiteV2)'} size={18} />
             </span>
