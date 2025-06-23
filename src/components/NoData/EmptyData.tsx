@@ -10,6 +10,7 @@ interface EmptyDataProps {
   h?: number | string;
   centered?: boolean;
   size?: number | string;
+  fontSize?: number | string;
 }
 
 const EmptyData: FC<EmptyDataProps> = ({
@@ -20,6 +21,7 @@ const EmptyData: FC<EmptyDataProps> = ({
   centered = true,
   icon,
   size = "52",
+  fontSize,
 }) => {
   const containerStyle = {
     height: h,
@@ -34,8 +36,18 @@ const EmptyData: FC<EmptyDataProps> = ({
       <div className={styles.icon}>
         {icon ?? <IconTableEmpty className={styles.icon} size={size} />}
       </div>
-      <div className={styles.message}>{message ?? "No Hay elementos"}</div>
-      <div className={styles.line2}>{line2 ?? null}</div>
+      <div
+        className={styles.message}
+        style={fontSize ? { fontSize } : undefined}
+      >
+        {message ?? "No Hay elementos"}
+      </div>
+      <div
+        className={styles.line2}
+        style={fontSize ? { fontSize } : undefined}
+      >
+        {line2 ?? null}
+      </div>
     </div>
   );
 };

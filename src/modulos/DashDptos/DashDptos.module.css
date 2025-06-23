@@ -47,6 +47,7 @@
   border-radius: 1rem;
   padding: 1.5rem;
   width: 600px;
+  border: 1px solid var(--cWhiteV1);
 }
 
 .cardHeader {
@@ -469,7 +470,7 @@
 .emptyMessage {
   color: var(--cWhiteV1);
   font-size: var(--sM);
-  font-weight: 300;
+  text-align: center;
 }
 .SwitchContainer {
   width: 300px;
