@@ -348,7 +348,8 @@ const Select = ({
           onBlur={onBlur}
           disabled={disabled}
           error={error}
-          style={inputStyle}
+          style={{ ...inputStyle, cursor: "pointer" }}
+          styleInput={{ cursor: "pointer" }}
         />
       </div>
       {openOptions &&
