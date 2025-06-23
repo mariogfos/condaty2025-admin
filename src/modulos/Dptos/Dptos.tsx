@@ -19,6 +19,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import {
   IconDepartment,
   IconDepartments,
+  IconDepartments2,
   IconHome,
 } from "@/components/layout/icons/IconsBiblioteca";
 
@@ -457,7 +458,8 @@ const Dptos = () => {
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
         emptyLine2="del condominio las verás aquí."
-        emptyIcon={<IconDepartments size={80} color="var(--cWhiteV1)"/>} 
+        emptyIcon={<IconDepartments2 size={80} color="var(--cWhiteV1)" />} 
+
       />
       {openImport && (
         <ImportDataModal
