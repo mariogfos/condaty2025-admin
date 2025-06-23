@@ -1,19 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetContentsResume.module.css";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateTimeAgo } from "@/mk/utils/date";
+import useAxios from '@/mk/hooks/useAxios';
+import { ReelCompactList } from '@/modulos/Reel/Reel';
+import type { ContentItem } from '@/modulos/Reel/Reel';
 import EmptyData from "@/components/NoData/EmptyData";
+import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
+import { useRouter } from 'next/navigation';
 
-import {
-  IconComment,
-  IconLike,
-  IconPublicacion,
-} from "@/components/layout/icons/IconsBiblioteca";
+const WidgetContentsResume = () => {
+  const [contents, setContents] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { data, loaded, error, reLoad } = useAxios("/contents", "GET", {
+    perPage: 3,
+    page: 1,
+    fullType: "L",
+    searchBy: ""
+  }, false);
+  const router = useRouter();
 
-const WidgetContentsResume = ({ data }: any) => {
-  console.log(data, "data desde widget contents resume");
+  useEffect(() => {
+    reLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!loaded && loading) return;
+    setLoading(false);
+    if (error) {
+      setContents([]);
+    } else if (data?.data) {
+      const items = data.data.map((item: any) => ({
+        ...item,
+        likes: item.likes || 0,
+        comments_count: item.comments_count || 0,
+        currentImageIndex: 0,
+        isDescriptionExpanded: false,
+      }));
+      setContents(items);
+    } else {
+      setContents([]);
+    }
+  }, [data, loaded, error, loading]);
+
+  // Al hacer click en like o comentario, redirigir al módulo Reel
+  const handleRedirectToReel = () => {
+    router.push('/reels');
+  };
+
   return (
     <WidgetBase
       variant={"V1"}
@@ -22,22 +56,10 @@ const WidgetContentsResume = ({ data }: any) => {
       className={styles.widgetContentsResume}
     >
       <div className={styles.widgetContentsResumeContent}>
-        {data && data.length > 0 ? (
-          data.map((item: any, index: number) => (
-            <div key={index} className={styles.widgetContentsResumeItem}>
-              <div className={styles.widgetContentsResumeItemHeader}>
-                <span className={styles.widgetContentsResumeItemTitle}>
-                  {item.title}
-                </span>
-                <span className={styles.widgetContentsResumeItemDate}>
-                  {item.created_at}
-                </span>
-              </div>
-              <div className={styles.widgetContentsResumeItemContent}>
-                {item.content}
-              </div>
-            </div>
-          ))
+        {loading ? (
+          <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Cargando publicaciones...</div>
+        ) : contents.length > 0 ? (
+          <ReelCompactList items={contents} modoCompacto={true} onLike={handleRedirectToReel} onOpenComments={handleRedirectToReel} />
         ) : (
           <EmptyData
             message="Sin publicaciones. Las noticias de administración aparecerán"

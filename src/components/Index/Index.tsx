@@ -563,7 +563,7 @@ const HomePage = () => {
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume data={dashboard?.data?.posts} />
+              <WidgetContentsResume />
             </div>
           </div>
         </div>

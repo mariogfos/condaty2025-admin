@@ -45,7 +45,7 @@ type Comment = {
   person: CommentUser | null;
 };
 
-type ContentItem = {
+export type ContentItem = {
   id: number;
   destiny: string;
   client_id: string;
@@ -68,6 +68,119 @@ type ContentItem = {
   currentImageIndex?: number;
   isDescriptionExpanded?: boolean;
 };
+
+// --- FUNCIÓN REUTILIZABLE PARA MOSTRAR MULTIMEDIA ---
+export const renderMedia = (item: ContentItem, modoCompacto = false) => {
+  const currentImageIndex = item.currentImageIndex || 0;
+
+  if (item.type === "I" && item.images && item.images.length > 0) {
+    const currentImageObject = item.images[currentImageIndex];
+    if (!currentImageObject) return null;
+    const imageUrl = getUrlImages(`/CONT-${item.id}-${currentImageObject.id}.${currentImageObject.ext}?d=${item.updated_at}`);
+    return (
+      <div
+        className={styles.contentMediaContainer}
+        style={modoCompacto ? { marginTop: 8, borderRadius: 8, maxHeight: 120, minHeight: 80, background: 'var(--cBlackV1)' } : {}}
+      >
+        <img
+          src={imageUrl}
+          alt={item.title || `Imagen ${currentImageIndex + 1} de la publicación`}
+          className={styles.imageCard}
+          loading="lazy"
+          style={modoCompacto ? { maxHeight: 120, borderRadius: 8, objectFit: 'cover' } : {}}
+        />
+      </div>
+    );
+  } else if (item.type === "V") {
+    let embedUrl = '';
+    let isInstagram = false;
+
+    if (item.url.includes('youtube.com/watch?v=') || item.url.includes('youtu.be/')) {
+      let videoId = '';
+      if (item.url.includes('watch?v=')) {
+        const urlParams = typeof URL !== 'undefined' ? new URLSearchParams(new URL(item.url).search) : null;
+        videoId = urlParams?.get('v') || '';
+      } else if (item.url.includes('youtu.be/')) {
+        videoId = item.url.substring(item.url.lastIndexOf('/') + 1).split('?')[0];
+      }
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (item.url.includes('youtube.com/shorts/')) {
+      const videoId = item.url.split('shorts/')[1]?.split('?')[0];
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (item.url.includes('vimeo.com/')) {
+      const videoId = item.url.split('/').pop()?.split('?')[0];
+      if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
+    } else if (item.url.includes('instagram.com/reel/')) {
+      const reelId = item.url.split('reel/')[1]?.split('/')[0];
+      if (reelId) {
+        isInstagram = true;
+      }
+    } else if (item.url.includes('instagram.com/p/')) {
+      const postId = item.url.split('p/')[1]?.split('/')[0];
+      if (postId) {
+        isInstagram = true;
+      }
+    }
+
+    if (embedUrl) {
+      return (
+        <div
+          className={`${styles.contentMediaContainer} ${isInstagram ? styles.instagramEmbedContainer : styles.videoEmbedContainer}`}
+          style={modoCompacto ? { minHeight: 80, maxHeight: 120, height: 120, borderRadius: 8, marginTop: 8 } : {}}
+        >
+          <iframe
+            src={embedUrl}
+            title={item.title || 'Video content'}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen={!isInstagram}
+            className={`${styles.videoFrame} ${isInstagram ? styles.instagramFrame : ''}`}
+            loading="lazy"
+            scrolling={isInstagram ? "no" : "auto"}
+            style={modoCompacto ? { minHeight: 80, maxHeight: 120, height: 120, borderRadius: 8 } : {}}
+          ></iframe>
+        </div>
+      );
+    } else if (item.url) {
+      return (
+        <div className={`${styles.contentMediaContainer} ${styles.externalMediaLink}`} style={modoCompacto ? { padding: 12, fontSize: 13, marginTop: 8 } : {}}>
+          <a href={item.url} target="_blank" rel="noopener noreferrer">
+            Ver contenido multimedia
+          </a>
+          <p className={styles.externalMediaUrl}>{item.url}</p>
+        </div>
+      );
+    }
+  } else if (item.type === "D") {
+    const docUrlIsPlaceholder = item.url === "pdf" || (item.url.endsWith(".pdf") && !item.url.startsWith('http') && !item.url.startsWith('/'));
+    let docUrl = item.url;
+    let effectiveDocUrl = docUrl;
+
+    if (typeof window !== 'undefined') {
+      if (docUrlIsPlaceholder) {
+        docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
+      } else if (!item.url.startsWith('http') && !item.url.startsWith('/')) {
+        docUrl = getUrlImages(item.url.startsWith('/') ? item.url : `/${item.url}`);
+      }
+      effectiveDocUrl = docUrl.startsWith('http') ? docUrl : `${window.location.origin}${docUrl}`;
+    }
+
+    return (
+      <div className={`${styles.contentMediaContainer} ${styles.documentPreviewContainer}`} style={modoCompacto ? { padding: 16, minHeight: 60, gap: 8, borderRadius: 8, marginTop: 8 } : {}}>
+        <IconAdress size={32} color="var(--cWhiteV2)" />
+        <h4 className={styles.documentTitlePreview} style={modoCompacto ? { fontSize: 14, margin: 0 } : {}}>{item.title || "Documento"}</h4>
+        <p className={styles.documentInfoPreview} style={modoCompacto ? { fontSize: 12 } : {}}>
+          {item.description ? (item.description.substring(0, 50) + (item.description.length > 50 ? "..." : "")) : "Haga clic para ver el documento"}
+        </p>
+        <a href={effectiveDocUrl} target="_blank" rel="noopener noreferrer" className={styles.documentLinkButton} style={modoCompacto ? { fontSize: 12, padding: '4px 10px' } : {}}>
+          Abrir Documento <IconDocs size={12}/>
+        </a>
+      </div>
+    );
+  }
+  return null;
+};
+// --- FIN FUNCIÓN REUTILIZABLE ---
 
 const Reel = () => {
   const { user } = useAuth();
@@ -364,130 +477,6 @@ const handleLike = async (contentId: number) => {
   const handleCloseContentModal = () => {
     setSelectedContentForModal(null);
   };
-  
-  const renderMedia = (item: ContentItem) => {
-    const currentImageIndex = item.currentImageIndex || 0;
-
-    if (item.type === "I" && item.images && item.images.length > 0) {
-      const currentImageObject = item.images[currentImageIndex];
-      if (!currentImageObject) return null;
-      const imageUrl = getUrlImages(`/CONT-${item.id}-${currentImageObject.id}.${currentImageObject.ext}?d=${item.updated_at}`);
-      return (
-        <div className={styles.contentMediaContainer} onClick={() => handleOpenContentModal(item)}>
-          <img
-            src={imageUrl}
-            alt={item.title || `Imagen ${currentImageIndex + 1} de la publicación`}
-            className={styles.imageCard}
-            loading="lazy"
-          />
-          {item.images.length > 1 && (
-            <>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleImageNavigation(item.id, 'prev'); }}
-                className={`${styles.carouselButton} ${styles.prevButton}`}
-                aria-label="Imagen anterior"
-              >
-                <IconArrowLeft color="var(--cWhite)" />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleImageNavigation(item.id, 'next'); }}
-                className={`${styles.carouselButton} ${styles.nextButton}`}
-                aria-label="Siguiente imagen"
-              >
-                <IconArrowRight color="var(--cWhite)" />
-              </button>
-              <div className={styles.carouselIndicator}>
-                {currentImageIndex + 1} / {item.images.length}
-              </div>
-            </>
-          )}
-        </div>
-      );
-    } else if (item.type === "V") {
-      let embedUrl = '';
-      let isInstagram = false;
-
-      if (item.url.includes('youtube.com/watch?v=') || item.url.includes('youtu.be/')) {
-        let videoId = '';
-        if (item.url.includes('watch?v=')) {
-            const urlParams = typeof URL !== 'undefined' ? new URLSearchParams(new URL(item.url).search) : null;
-            videoId = urlParams?.get('v') || '';
-        } else if (item.url.includes('youtu.be/')) {
-            videoId = item.url.substring(item.url.lastIndexOf('/') + 1).split('?')[0];
-        }
-        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (item.url.includes('youtube.com/shorts/')) {
-        const videoId = item.url.split('shorts/')[1]?.split('?')[0];
-        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (item.url.includes('vimeo.com/')) {
-        const videoId = item.url.split('/').pop()?.split('?')[0];
-        if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
-      } else if (item.url.includes('instagram.com/reel/')) {
-        const reelId = item.url.split('reel/')[1]?.split('/')[0];
-        if (reelId) {
-            isInstagram = true; 
-        }
-      } else if (item.url.includes('instagram.com/p/')) {
-         const postId = item.url.split('p/')[1]?.split('/')[0];
-         if (postId) {
-            isInstagram = true;
-         }
-      }
-
-      if (embedUrl) {
-        return (
-          <div className={`${styles.contentMediaContainer} ${isInstagram ? styles.instagramEmbedContainer : styles.videoEmbedContainer}`}>
-            <iframe
-              src={embedUrl}
-              title={item.title || 'Video content'}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen={!isInstagram}
-              className={`${styles.videoFrame} ${isInstagram ? styles.instagramFrame : ''}`}
-              loading="lazy"
-              scrolling={isInstagram ? "no" : "auto"}
-            ></iframe>
-          </div>
-        );
-      } else if (item.url) { 
-        return (
-            <div className={`${styles.contentMediaContainer} ${styles.externalMediaLink}`}>
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    Ver contenido multimedia <IconShare size={16} />
-                </a>
-                <p className={styles.externalMediaUrl}>{item.url}</p>
-            </div>
-        );
-      }
-    } else if (item.type === "D") {
-        const docUrlIsPlaceholder = item.url === "pdf" || (item.url.endsWith(".pdf") && !item.url.startsWith('http') && !item.url.startsWith('/'));
-        let docUrl = item.url;
-        let effectiveDocUrl = docUrl;
-
-        if (typeof window !== 'undefined') { 
-            if (docUrlIsPlaceholder) {
-               docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`); 
-            } else if (!item.url.startsWith('http') && !item.url.startsWith('/')) {
-                docUrl = getUrlImages(item.url.startsWith('/') ? item.url : `/${item.url}`);
-            }
-            effectiveDocUrl = docUrl.startsWith('http') ? docUrl : `${window.location.origin}${docUrl}`;
-        }
-        
-        return (
-            <div className={`${styles.contentMediaContainer} ${styles.documentPreviewContainer}`}>
-                <IconAdress size={48} color="var(--cWhiteV2)" />
-                <h4 className={styles.documentTitlePreview}>{item.title || "Documento"}</h4>
-                <p className={styles.documentInfoPreview}>
-                    {item.description ? (item.description.substring(0, 70) + (item.description.length > 70 ? "..." : "")) : "Haga clic para ver el documento"}
-                </p>
-                <a href={effectiveDocUrl} target="_blank" rel="noopener noreferrer" className={styles.documentLinkButton}>
-                    Abrir Documento <IconDocs size={14}/>
-                </a>
-            </div>
-        );
-    }
-    return null;
-  };
 
   if (initialLoadingState && page === 1 && contents.length === 0) {
     return <div className={styles.loadingState}>Cargando publicaciones...</div>;
@@ -709,6 +698,76 @@ const handleLike = async (contentId: number) => {
             </div>
           </div>
       )}
+    </div>
+  );
+};
+
+export const ReelCompactList = ({ items, onLike, onOpenComments, modoCompacto = false }: {
+  items: ContentItem[];
+  onLike?: (id: number) => void;
+  onOpenComments?: (id: number) => void;
+  modoCompacto?: boolean;
+}) => {
+  if (!items || items.length === 0) {
+    return <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Aún no hay publicaciones para mostrar.</div>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: modoCompacto ? 12 : 'var(--spXxl)' }}>
+      {items.map((item: ContentItem) => (
+        <article key={`content-${item.id}`} className={modoCompacto ? styles.contentCardCompact : styles.contentCard} style={modoCompacto ? { boxShadow: 'none', padding: 12, borderRadius: 12, margin: 0 } : {}}>
+          <header className={styles.contentHeader} style={modoCompacto ? { paddingBottom: 8, marginBottom: 8 } : {}}>
+            <div className={styles.userInfo}>
+              <Avatar
+                name={getFullName(item.user)}
+                src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
+                w={modoCompacto ? 32 : 44}
+                h={modoCompacto ? 32 : 44}
+              />
+              <div className={styles.userDetails}>
+                <span className={styles.userName} style={modoCompacto ? { fontSize: 14 } : {}}>{getFullName(item.user) || 'Usuario Desconocido'}</span>
+                <span className={styles.userRole} style={modoCompacto ? { fontSize: 11 } : {}}>Administrador</span>
+              </div>
+            </div>
+            <time dateTime={item.created_at} className={styles.postDate} style={modoCompacto ? { fontSize: 11, marginLeft: 8 } : {}}>
+              {getDateTimeAgo(item.created_at)}
+            </time>
+          </header>
+
+          <section className={styles.contentBody} style={modoCompacto ? { gap: 4 } : {}}>
+            {item.title && <h2 className={styles.contentTitle} style={modoCompacto ? { fontSize: 15, margin: 0, maxHeight: '2.2em' } : {}}>{item.title}</h2>}
+            {item.description && (
+              <p className={styles.contentDescription} style={modoCompacto ? { fontSize: 13, WebkitLineClamp: 2, maxHeight: '2.6em' } : {}}>
+                {item.description.length > 80 ? `${item.description.substring(0, 80)}...` : item.description}
+              </p>
+            )}
+            {renderMedia(item, modoCompacto)}
+          </section>
+
+          <footer className={styles.contentFooter} style={modoCompacto ? { marginTop: 8, paddingTop: 8 } : {}}>
+            <div className={styles.contentStats}>
+              <button
+                className={`${styles.statItem} ${item.liked ? styles.liked : ''}`}
+                onClick={() => onLike && onLike(item.id)}
+                aria-pressed={!!item.liked}
+                aria-label={`Me gusta esta publicación, actualmente tiene ${item.likes} me gusta`}
+                style={modoCompacto ? { fontSize: 13, padding: '4px 10px' } : {}}
+              >
+                <IconLike color={item.liked ? 'var(--cInfo)' : 'var(--cWhiteV1)'} />
+                <span>{item.likes}</span>
+              </button>
+              <button
+                className={styles.statItem}
+                onClick={() => onOpenComments && onOpenComments(item.id)}
+                aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
+                style={modoCompacto ? { fontSize: 13, padding: '4px 10px' } : {}}
+              >
+                <IconComment color={'var(--cWhiteV1)'} />
+                <span>{item.comments_count}</span>
+              </button>
+            </div>
+          </footer>
+        </article>
+      ))}
     </div>
   );
 };
