@@ -47,6 +47,7 @@
   border-radius: 1rem;
   padding: 1.5rem;
   width: 600px;
+  border: 1px solid var(--cWhiteV1);
 }
 
 .cardHeader {
