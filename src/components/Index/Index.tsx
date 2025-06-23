@@ -577,7 +577,6 @@ const HomePage = () => {
                   tooltip={true}
                   tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
                   tooltipColor="var(--cWhiteV1)"
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
                 />
                 <WidgetDashCard
                   title="Residentes"
@@ -585,7 +584,7 @@ const HomePage = () => {
                   tooltip={true}
                   tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
                   tooltipColor="var(--cWhiteV1)"
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Guardias"
@@ -593,7 +592,7 @@ const HomePage = () => {
                   tooltip={true}
                   tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
                   tooltipColor="var(--cWhiteV1)"
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltipPosition="left"
                 />
               </div>
             </WidgetBase>
