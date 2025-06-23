@@ -41,7 +41,7 @@ const WidgetContentsResume = ({ data }: any) => {
         ) : (
           <EmptyData
             message="Sin publicaciones. Las noticias de administración aparecerán"
-            line2="aquí, una vez comiences a crear y publicar contenido"
+            line2="aquí, una vez comiences a crear y publicar contenido."
             h={200}
             icon={<IconPublicacion size={40} />} 
           />

@@ -385,7 +385,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Total de ingresos registrados en el sistema durante el mes actual."
+                  tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
                   tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
@@ -402,7 +402,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Total de egresos registrados en el sistema durante el mes actual."
+                  tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
                   tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
@@ -425,7 +425,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Diferencia entre ingresos y egresos del mes. Si es positivo, hay saldo a favor; si es negativo, saldo en contra."
+                  tooltipTitle="Monto pagado en exceso por un propietario o residente en sus cuotas u otros pagos. Puede compensarse en futuros pagos o devolverse."
                   tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
@@ -442,7 +442,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Monto total de la cartera vencida, es decir, pagos pendientes de los residentes."
+                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
                  tooltipColor="var(--cWhiteV1)"
                 />
               </div>
@@ -478,7 +478,7 @@ const HomePage = () => {
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
                     emptyListMessage="No hay solicitudes de pago. Una vez los residentes"
-                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí"
+                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
@@ -489,7 +489,7 @@ const HomePage = () => {
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
                     emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
-                    emptyListLine2="residente registre una se mostrará aquí"
+                    emptyListLine2="residente registre una se mostrará aquí."
                     emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
@@ -502,7 +502,7 @@ const HomePage = () => {
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
                     emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
-                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí"
+                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
                     emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
@@ -513,7 +513,7 @@ const HomePage = () => {
                     viewAllText="Ver todos"
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
                     emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
-                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí"
+                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
                     emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
