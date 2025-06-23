@@ -298,7 +298,7 @@ const Areas = () => {
       <List height={"calc(100vh - 280px)"} 
        emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
        emptyLine2="del condominio las verás aquí."
-       emptyIcon={<IconDepartment2 size={80}/>}/>
+       emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)" />}/>
        
       {openMaintenance && (
         <MaintenanceModal

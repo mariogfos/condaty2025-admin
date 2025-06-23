@@ -134,7 +134,7 @@ const Documents = () => {
       <List height={"calc(100vh - 280px)"} 
        emptyMsg="Lista de documentos vacía. Los documentos del condominio"
        emptyLine2="serán reflejados aquí, una vez sean cargados."
-       emptyIcon={<IconDocs size={80}/>} />
+       emptyIcon={<IconDocs size={80} color="var(--cWhiteV1)" />} />
     </div>
   );
 };

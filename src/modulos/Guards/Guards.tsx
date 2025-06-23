@@ -468,7 +468,7 @@ const Guards = () => {
       height={"calc(100vh - 395px)"} 
       emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
       emptyLine2="del condominio una vez los registres"
-      emptyIcon={<IconSecurity size={80}/>} />
+      emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />} />
     </div>
   );
 };

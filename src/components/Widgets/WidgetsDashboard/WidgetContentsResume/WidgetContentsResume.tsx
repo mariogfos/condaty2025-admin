@@ -43,7 +43,7 @@ const WidgetContentsResume = ({ data }: any) => {
             message="Sin publicaciones. Las noticias de administración aparecerán"
             line2="aquí, una vez comiences a crear y publicar contenido."
             h={200}
-            icon={<IconPublicacion size={40} />} 
+            icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />} 
           />
         )}
       </div>

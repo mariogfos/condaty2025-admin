@@ -410,10 +410,11 @@ const DefaultersView = () => {
         <div className={styles.listContainer}>
           <List 
             height={"calc(100vh - 380px)"} 
-            renderRight={renderRightPanel}
+            renderRight={data?.data && data.data.length > 0 ? renderRightPanel : undefined}
             emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
             emptyLine2="residentes con pagos atrasados los verás aquí."
-            emptyIcon={<IconCategories size={80} />}
+            emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+            emptyFullScreen={true}
           />
         </div>
       </div>

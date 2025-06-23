@@ -591,7 +591,7 @@ const Contents = () => {
         height={"calc(100vh - 285px)"}
         emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
         emptyLine2="noticias las verás aquí."
-        emptyIcon={<IconPublicacion size={80}/>}
+        emptyIcon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
         // onRenderCard={openCard ? renderCard : null}
       />
       {/* {openImport && (

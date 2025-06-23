@@ -363,7 +363,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 <EmptyData
                   message="Sin propietario a cargo. Para registrar"
                   line2="un propietario a esta unidad."
-                  icon={<IconHomePerson2 size={32}/>} 
+                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
                   centered={true}
                   h={100}
                 />
@@ -442,7 +442,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     <EmptyData
                       message="Sin inquilino asignado. Para asignar"
                       line2="un inquilino a esta unidad."
-                      icon={<IconHomePerson2 size={32}/>} 
+                      icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
                       centered={true}
                 
                     />
@@ -611,7 +611,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   message="Sin pagos registrados. Cuando esta unidad comience a pagar"
                   line2="expensas y otros conceptos, los verás aquí."
                   centered={true}
-                  icon={<IconPagos size={80}/>}
+                  icon={<IconPagos size={80} color="var(--cWhiteV1)" />}
                 />
               ) : (
                 <Table
@@ -713,7 +713,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   message="No existen accesos registrados. El historial de visitantes se mostrará"
                   line2="aquí, una vez la unidad reciba visitas."
                   centered={true}
-                  icon={<IconExitHome size={32}/>} 
+                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />} 
                 />
               )}
             </div>
@@ -831,7 +831,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 <EmptyData
                 message="No hay solicitudes de reserva. Una vez los residentes"
                 line2="comiencen a reservar áreas sociales se mostrarán aquí."
-                icon={<IconReservedAreas size={32}  />}
+                icon={<IconReservedAreas size={32} color="var(--cWhiteV1)"  />}
                 h={120}
                 centered={true}
               />
