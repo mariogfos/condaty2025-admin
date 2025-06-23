@@ -444,7 +444,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       line2="un inquilino a esta unidad."
                       icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
                       centered={true}
-                
+                      fontSize={14}
                     />
                     {/* <Button className={styles.addButton} onClick={onTitular}>
                       Agregar Titular
@@ -569,9 +569,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               )
                             )
                           ) : (
+                            <>
+                            <Br />
                             <p className={styles.emptyMessage}>
                              aquí verás a los dependientes que se vinculen a un propietario o un inquilino.
                             </p>
+                            </>
                           )}
                         </div>
                       </div>
