@@ -470,7 +470,7 @@
 .emptyMessage {
   color: var(--cWhiteV1);
   font-size: var(--sM);
-  font-weight: 300;
+  text-align: center;
 }
 .SwitchContainer {
   width: 300px;
