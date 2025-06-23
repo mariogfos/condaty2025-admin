@@ -15,6 +15,8 @@ import {
   IconAccess,
   IconAdd,
   IconAdmin,
+  IconHomePerson2,
+  IconPersonElegant,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 
@@ -493,7 +495,10 @@ const Users = () => {
         // className={styles.widgetResumeCard}
       />
 
-      <List height={"calc(100vh - 400px)"} onTabletRow={renderItem} />
+      <List height={"calc(100vh - 400px)"} onTabletRow={renderItem}
+        emptyMsg="¡Sin personal registrados! Aquí verás la lista de todo"
+        emptyLine2="tu personal administrativo."
+        emptyIcon={<IconPersonElegant size={80} color="var(--cWhiteV1)"/>} />
     </div>
   );
 };

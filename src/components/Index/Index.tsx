@@ -377,8 +377,17 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/payments")}
                   icon={
                     <IconIngresos
-                      color={!dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cBlackV2)" : "var(--cAccent)"}
-                      style={{ backgroundColor: !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverSuccess)" }}
+                      color={
+                        !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAccent)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverSuccess)",
+                      }}
                       circle
                       size={38}
                     />
@@ -394,8 +403,17 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
                     <IconEgresos
-                      color={!dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cBlackV2)" : "var(--cError)"}
-                      style={{ backgroundColor: !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverError)" }}
+                      color={
+                        !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cError)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverError)",
+                      }}
                       circle
                       size={38}
                     />
@@ -417,8 +435,17 @@ const HomePage = () => {
                   }
                   icon={
                     <IconBriefCaseMoney
-                      color={!balance || balance === 0 ? "var(--cBlackV2)" : "var(--cInfo)"}
-                      style={{ backgroundColor: !balance || balance === 0 ? "var(--cWhiteV2)" : "var(--cHoverInfo)" }}
+                      color={
+                        !balance || balance === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cInfo)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !balance || balance === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverInfo)",
+                      }}
                       circle
                       size={38}
                     />
@@ -434,8 +461,17 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/defaultersview")}
                   icon={
                     <IconWallet
-                      color={!dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cBlackV2)" : "var(--cAlert)"}
-                      style={{ backgroundColor: !dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cWhiteV2)" : "var(--cHoverAlert)" }}
+                      color={
+                        !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAlert)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverAlert)",
+                      }}
                       circle
                       size={38}
                     />
@@ -443,7 +479,7 @@ const HomePage = () => {
                   className={styles.widgetResumeCard}
                   tooltip={true}
                   tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
-                 tooltipColor="var(--cWhiteV1)"
+                  tooltipColor="var(--cWhiteV1)"
                 />
               </div>
             </WidgetBase>

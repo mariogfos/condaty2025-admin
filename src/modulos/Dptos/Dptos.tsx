@@ -418,6 +418,7 @@ const Dptos = () => {
           }
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
+          const isEmpty = !item.value || item.value === 0;
           return (
             <WidgetDashCard
               key={i}
@@ -428,8 +429,8 @@ const Dptos = () => {
                 item?.name === "Casa" ? (
                   <Round
                     style={{
-                      backgroundColor: "var(--cHoverSuccess)",
-                      color: "var(--cSuccess)",
+                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverSuccess)",
+                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)",
                     }}
                   >
                     <IconHome />
@@ -437,8 +438,8 @@ const Dptos = () => {
                 ) : item.name == "Departamento" ? (
                   <Round
                     style={{
-                      backgroundColor: "var(--cHoverWarning)",
-                      color: "var(--cWarning)",
+                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverWarning)",
+                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)",
                     }}
                   >
                     <IconDepartment />
