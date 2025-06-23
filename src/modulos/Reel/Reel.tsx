@@ -4,9 +4,10 @@ import styles from './Reel.module.css';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { getDateTimeAgo } from '@/mk/utils/date';
-import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs } from '@/components/layout/icons/IconsBiblioteca';
+import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs, IconPublicacion } from '@/components/layout/icons/IconsBiblioteca';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import EmptyData from '@/components/NoData/EmptyData';
 
 type User = {
   id: string;
@@ -581,7 +582,15 @@ const handleLike = async (contentId: number) => {
           </article>
         ))
       ) : (
-        !initialLoadingState && <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
+        !initialLoadingState && (
+          <EmptyData
+            message="Aún no hay publicaciones para mostrar."
+            line2="Cuando se publiquen contenidos los verás aquí."
+            icon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
+            h={220}
+            centered={true}
+          />
+        )
       )}
 
       {loadingMoreState && <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>}
@@ -591,10 +600,6 @@ const handleLike = async (contentId: number) => {
       {!initialLoadingState && !hasMore && contents.length > 0 && (
          <div className={styles.noMoreContentState}>Has llegado al final.</div>
       )}
-       {!initialLoadingState && contents.length === 0 && totalDBItems === 0 && (
-         <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
-      )}
-
 
       {isCommentModalOpen && selectedContentIdForComments && (
         <div className={styles.commentModalOverlay} onClick={handleCloseComments}>

@@ -598,7 +598,7 @@ const Owners = () => {
       </div>
       <List height={"calc(100vh - 400px)"} 
        emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
-       emptyLine2="del condominio una vez los registres"
+       emptyLine2="del condominio una vez los registres."
        emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)"/>} />
       <UnitsModal
         open={unitsModalOpen}
