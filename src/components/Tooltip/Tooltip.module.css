@@ -6,10 +6,10 @@
 
 .tooltip {
   visibility: hidden;
-  width: 230px;
+  width: 501x;
   background-color: var(--cWhite);
   color: var(--cWhiteV1);
-  text-align: center;
+  text-align: start;
   padding: 5px;
   border-radius: 4px;
   z-index: 9999;
