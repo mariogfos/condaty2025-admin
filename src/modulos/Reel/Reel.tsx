@@ -70,7 +70,7 @@ export type ContentItem = {
 };
 
 // --- FUNCIÓN REUTILIZABLE PARA MOSTRAR MULTIMEDIA ---
-export const renderMedia = (item: ContentItem, modoCompacto = false, onImageClick?: () => void) => {
+export const renderMedia = (item: ContentItem, modoCompacto = false, onImageClick?: () => void, onNavigateImage?: (direction: 'prev' | 'next') => void) => {
   const currentImageIndex = item.currentImageIndex || 0;
 
   if (item.type === "I" && item.images && item.images.length > 0) {
@@ -83,6 +83,29 @@ export const renderMedia = (item: ContentItem, modoCompacto = false, onImageClic
         style={modoCompacto ? { marginTop: 8, borderRadius: 8, maxHeight: 120, minHeight: 80, background: 'var(--cBlackV1)' } : {}}
         onClick={onImageClick}
       >
+        {item.images.length > 1 && onNavigateImage && (
+          <>
+            <button
+              className={`${styles.carouselButton} ${styles.prevButton}`}
+              onClick={e => { e.stopPropagation(); onNavigateImage('prev'); }}
+              aria-label="Imagen anterior"
+              type="button"
+            >
+              <IconArrowLeft />
+            </button>
+            <button
+              className={`${styles.carouselButton} ${styles.nextButton}`}
+              onClick={e => { e.stopPropagation(); onNavigateImage('next'); }}
+              aria-label="Imagen siguiente"
+              type="button"
+            >
+              <IconArrowRight />
+            </button>
+            <div className={styles.carouselIndicator}>
+              {(currentImageIndex + 1)} / {item.images.length}
+            </div>
+          </>
+        )}
         <img
           src={imageUrl}
           alt={item.title || `Imagen ${currentImageIndex + 1} de la publicación`}
@@ -526,7 +549,12 @@ const handleLike = async (contentId: number) => {
                   )}
                 </div>
               )}
-              {renderMedia(item, false, () => handleOpenContentModal(item))}
+              {renderMedia(
+                item,
+                false,
+                () => handleOpenContentModal(item),
+                direction => handleImageNavigation(item.id, direction)
+              )}
             </section>
 
             <footer className={styles.contentFooter}>
@@ -643,61 +671,62 @@ const handleLike = async (contentId: number) => {
       )}
 
       {selectedContentForModal && (
-          <div className={styles.contentModalOverlay} onClick={handleCloseContentModal}>
-            <div className={styles.contentModalContent} onClick={(e) => e.stopPropagation()}>
-              <button onClick={handleCloseContentModal} className={styles.contentModalCloseButton} aria-label="Cerrar detalle">
-                <IconX size={24} />
-              </button>
-              {/* Aquí reutilizamos la estructura de la tarjeta */}
-              <article className={`${styles.contentCard} ${styles.contentCardInModal}`}>
-                  <header className={styles.contentHeader}>
-                    <div className={styles.userInfo}>
-                      <Avatar
-                        name={getFullName(selectedContentForModal.user)}
-                        src={getUrlImages(`/ADM-${selectedContentForModal.user?.id}.webp?d=${selectedContentForModal.user?.updated_at}`)}
-                        w={44}
-                        h={44}
-                      />
-                      <div className={styles.userDetails}>
-                        <span className={styles.userName}>{getFullName(selectedContentForModal.user) || 'Usuario Desconocido'}</span>
-                        <span className={styles.userRole}>Administrador</span>
-                      </div>
-                    </div>
-                    <time dateTime={selectedContentForModal.created_at} className={styles.postDate}>
-                      {getDateTimeAgo(selectedContentForModal.created_at)}
-                    </time>
-                  </header>
-
-                  <section className={styles.contentBody}>
-                    {selectedContentForModal.title && <h2 className={styles.contentTitle}>{selectedContentForModal.title}</h2>}
-                    {selectedContentForModal.description && (
-                      // En el modal, siempre mostramos la descripción completa
-                      <p className={styles.contentDescription}>{selectedContentForModal.description}</p>
-                    )}
-                    {renderMedia(selectedContentForModal)}
-                  </section>
-
-                  <footer className={styles.contentFooter}>
-                    <div className={styles.contentStats}>
-                      <button
-                        className={`${styles.statItem} ${selectedContentForModal.liked ? styles.liked : ''}`}
-                        onClick={() => handleLike(selectedContentForModal.id)}
-                      >
-                        <IconLike color={selectedContentForModal.liked ? 'var(--cInfo)' : 'var(--cWhiteV1)'} />
-                        <span>{selectedContentForModal.likes}</span>
-                      </button>
-                      <button
-                        className={styles.statItem}
-                        onClick={() => handleOpenComments(selectedContentForModal.id)}
-                      >
-                        <IconComment color={'var(--cWhiteV1)'} />
-                        <span>{selectedContentForModal.comments_count}</span>
-                      </button>
-                    </div>
-                  </footer>
-                </article>
-            </div>
+        <div className={styles.contentModalOverlay} onClick={handleCloseContentModal}>
+          <div className={styles.contentModalContent} onClick={(e) => e.stopPropagation()}>
+            <button onClick={handleCloseContentModal} className={styles.contentModalCloseButton} aria-label="Cerrar detalle">
+              <IconX size={24} />
+            </button>
+            {renderMedia(
+              selectedContentForModal,
+              false,
+              undefined,
+              direction => handleImageNavigation(selectedContentForModal.id, direction)
+            )}
+            <article className={`${styles.contentCard} ${styles.contentCardInModal}`}>
+              <header className={styles.contentHeader}>
+                <div className={styles.userInfo}>
+                  <Avatar
+                    name={getFullName(selectedContentForModal.user)}
+                    src={getUrlImages(`/ADM-${selectedContentForModal.user?.id}.webp?d=${selectedContentForModal.user?.updated_at}`)}
+                    w={44}
+                    h={44}
+                  />
+                  <div className={styles.userDetails}>
+                    <span className={styles.userName}>{getFullName(selectedContentForModal.user) || 'Usuario Desconocido'}</span>
+                    <span className={styles.userRole}>Administrador</span>
+                  </div>
+                </div>
+                <time dateTime={selectedContentForModal.created_at} className={styles.postDate}>
+                  {getDateTimeAgo(selectedContentForModal.created_at)}
+                </time>
+              </header>
+              <section className={styles.contentBody}>
+                {selectedContentForModal.title && <h2 className={styles.contentTitle}>{selectedContentForModal.title}</h2>}
+                {selectedContentForModal.description && (
+                  <p className={styles.contentDescription}>{selectedContentForModal.description}</p>
+                )}
+              </section>
+              <footer className={styles.contentFooter}>
+                <div className={styles.contentStats}>
+                  <button
+                    className={`${styles.statItem} ${selectedContentForModal.liked ? styles.liked : ''}`}
+                    onClick={() => handleLike(selectedContentForModal.id)}
+                  >
+                    <IconLike color={selectedContentForModal.liked ? 'var(--cInfo)' : 'var(--cWhiteV1)'} />
+                    <span>{selectedContentForModal.likes}</span>
+                  </button>
+                  <button
+                    className={styles.statItem}
+                    onClick={() => handleOpenComments(selectedContentForModal.id)}
+                  >
+                    <IconComment color={'var(--cWhiteV1)'} />
+                    <span>{selectedContentForModal.comments_count}</span>
+                  </button>
+                </div>
+              </footer>
+            </article>
           </div>
+        </div>
       )}
     </div>
   );
