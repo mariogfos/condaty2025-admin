@@ -7,7 +7,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import styles from "./HistoryPayments.module.css";
-import { IconPagos } from "@/components/icons/IconPagos";
+import { IconPagos } from "@/components/layout/icons/IconsBiblioteca";
+
 
 interface HistoryPaymentsProps {
   paymentsData: any[];

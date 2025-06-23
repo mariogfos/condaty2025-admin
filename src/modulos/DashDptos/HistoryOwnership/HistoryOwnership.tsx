@@ -7,7 +7,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import EmptyData from "@/components/NoData/EmptyData";
-import { IconHomePerson2 } from "@tabler/icons-react";
+import { IconHomePerson2 } from "@/components/layout/icons/IconsBiblioteca";
+
 
 
 interface HistoryOwnershipProps {

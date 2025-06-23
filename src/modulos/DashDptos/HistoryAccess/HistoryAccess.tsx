@@ -8,7 +8,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useState } from "react";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import Select from "@/mk/components/forms/Select/Select";
-import { IconExitHome } from "@tabler/icons-react";
+import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
+
 
 interface HistoryAccessProps {
   accessData: any[];
