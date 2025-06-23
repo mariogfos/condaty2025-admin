@@ -1,6 +1,13 @@
 .select {
   position: relative;
   width: 100%;
+  & > div:hover {
+    cursor: pointer;
+  }
+
+  & > div > div > div > label {
+    cursor: pointer;
+  }
   /* z-index: 30; */
   /* & > section {
     background-color: var(--cBlackV2);
@@ -27,10 +34,10 @@
       }
     }
   } */
-
 }
 
 .selectOptions {
+  cursor: pointer;
   background-color: var(--cBlackV1);
   border: var(--bWidth) solid var(--cWhiteV3);
   border-radius: var(--bRadius);
@@ -40,7 +47,7 @@
   padding: var(--spS);
   color: var(--cWhiteV1);
 
-  &>ul {
+  & > ul {
     overflow-y: auto;
     max-height: 250px;
     padding: var(--spS) var(--spS);
@@ -63,14 +70,8 @@
     & div {
       display: flex;
     }
-
   }
 }
-
-
-
-
-
 
 /* 
 .select {
