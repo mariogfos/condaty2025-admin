@@ -562,8 +562,17 @@ const Owners = () => {
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={"var(--cInfo"}
-              style={{ backgroundColor: "var(--cHoverInfo)" }}
+              color={
+                !data?.extraData?.totals || data?.extraData?.totals === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
+              }
+              style={{
+                backgroundColor:
+                  !data?.extraData?.totals || data?.extraData?.totals === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverInfo)",
+              }}
               circle
               size={38}
             />
@@ -575,8 +584,17 @@ const Owners = () => {
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={"var(--cSuccess)"}
-              style={{ backgroundColor: "var(--cHoverSuccess)" }}
+              color={
+                !data?.extraData?.holders || data?.extraData?.holders === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cSuccess)"
+              }
+              style={{
+                backgroundColor:
+                  !data?.extraData?.holders || data?.extraData?.holders === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverSuccess)",
+              }}
               circle
               size={38}
             />
@@ -588,8 +606,17 @@ const Owners = () => {
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={"var(--cWarning)"}
-              style={{ backgroundColor: "var(--cHoverWarning)" }}
+              color={
+                !data?.extraData?.dependents || data?.extraData?.dependents === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWarning)"
+              }
+              style={{
+                backgroundColor:
+                  !data?.extraData?.dependents || data?.extraData?.dependents === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverWarning)",
+              }}
               circle
               size={38}
             />
