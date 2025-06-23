@@ -474,7 +474,7 @@ const HomePage = () => {
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Solicitudes de pago"
+                    title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
                     emptyListMessage="No hay pagos por revisar. Una vez los residentes"

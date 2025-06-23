@@ -22,6 +22,7 @@ import {
   LineGraphic,
   PointGraphic,
   IconGraphics,
+  IconLineGraphic,
 } from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
@@ -475,7 +476,7 @@ const BalanceGeneral: React.FC = () => {
                     h={400}
                     icon={
                       charType.filter_charType === "line"
-                        ? <LineGraphic size={80} color="var(--cWhiteV1)" />
+                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
                         : <IconGraphics size={80} color="var(--cWhiteV1)" />
                     }
                   />
@@ -612,7 +613,7 @@ const BalanceGeneral: React.FC = () => {
                     h={400}
                     icon={
                       charType.filter_charType === "line"
-                        ? <LineGraphic size={80} color="var(--cWhiteV1)" />
+                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
                         : <IconGraphics size={80} color="var(--cWhiteV1)" />
                     }
                   />
@@ -688,7 +689,7 @@ const BalanceGeneral: React.FC = () => {
                     h={400}
                     icon={
                       charType.filter_charType === "line"
-                        ? <LineGraphic size={60} color="var(--cWhiteV1)" />
+                        ? <IconLineGraphic size={60} color="var(--cWhiteV1)" />
                         : <IconGraphics size={60} color="var(--cWhiteV1)" />
                     }
                   />
