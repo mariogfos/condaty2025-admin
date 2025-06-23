@@ -264,7 +264,11 @@ const CategoryForm = memo(
               error={combinedErrors}
               required={isCateg === 'S' || wantSubcategories} 
               className={styles.customSelect}
-              disabled={action === "edit" && isSubcategoryMode}
+              disabled={
+                // Si está en modo subcategoría y ya hay categoría padre seleccionada (flujo de subcategoría)
+                (action === "add" && isSubcategoryMode && !!_Item.category_id) ||
+                (action === "edit" && isSubcategoryMode)
+              }
             />
             //   </div>
             // </div>

@@ -354,7 +354,7 @@ const Expenses = () => {
           onRowClick={onClickDetail}
           emptyMsg="Lista de expensa vacía. Una vez generes las cuotas"
           emptyLine2="de los residentes las verás aquí."
-          emptyIcon={<IconCategories size={80} />}
+          emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         />
       </div>
     );

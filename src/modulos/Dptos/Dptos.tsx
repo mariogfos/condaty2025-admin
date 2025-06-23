@@ -457,7 +457,7 @@ const Dptos = () => {
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
         emptyLine2="del condominio as verás aquí."
-        emptyIcon={<IconDepartments size={80}/>} 
+        emptyIcon={<IconDepartments size={80} color="var(--cWhiteV1)"/>} 
       />
       {openImport && (
         <ImportDataModal

@@ -458,7 +458,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       <List height={"calc(100vh - 280px)"}
        emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
        emptyLine2="aquí una vez el guardia registre un acceso."
-       emptyIcon={<IconExitHome size={80}/>} 
+       emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)"/>} 
       />
       <DataModal
         open={openCustomFilterModal}
