@@ -48,6 +48,11 @@ const WidgetContentsResume = () => {
     router.push('/reels');
   };
 
+  // Al hacer click en imagen, redirigir a /reels
+  const handleImageClick = () => {
+    router.push('/reels');
+  };
+
   return (
     <WidgetBase
       variant={"V1"}
@@ -59,7 +64,13 @@ const WidgetContentsResume = () => {
         {loading ? (
           <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Cargando publicaciones...</div>
         ) : contents.length > 0 ? (
-          <ReelCompactList items={contents} modoCompacto={true} onLike={handleRedirectToReel} onOpenComments={handleRedirectToReel} />
+          <ReelCompactList
+            items={contents}
+            modoCompacto={true}
+            onLike={handleRedirectToReel}
+            onOpenComments={handleRedirectToReel}
+            onImageClick={handleImageClick}
+          />
         ) : (
           <EmptyData
             message="Sin publicaciones. Las noticias de administración aparecerán"

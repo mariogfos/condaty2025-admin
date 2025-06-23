@@ -70,7 +70,7 @@ export type ContentItem = {
 };
 
 // --- FUNCIÓN REUTILIZABLE PARA MOSTRAR MULTIMEDIA ---
-export const renderMedia = (item: ContentItem, modoCompacto = false) => {
+export const renderMedia = (item: ContentItem, modoCompacto = false, onImageClick?: () => void) => {
   const currentImageIndex = item.currentImageIndex || 0;
 
   if (item.type === "I" && item.images && item.images.length > 0) {
@@ -81,6 +81,7 @@ export const renderMedia = (item: ContentItem, modoCompacto = false) => {
       <div
         className={styles.contentMediaContainer}
         style={modoCompacto ? { marginTop: 8, borderRadius: 8, maxHeight: 120, minHeight: 80, background: 'var(--cBlackV1)' } : {}}
+        onClick={onImageClick}
       >
         <img
           src={imageUrl}
@@ -525,7 +526,7 @@ const handleLike = async (contentId: number) => {
                   )}
                 </div>
               )}
-              {renderMedia(item)}
+              {renderMedia(item, false, () => handleOpenContentModal(item))}
             </section>
 
             <footer className={styles.contentFooter}>
@@ -702,11 +703,12 @@ const handleLike = async (contentId: number) => {
   );
 };
 
-export const ReelCompactList = ({ items, onLike, onOpenComments, modoCompacto = false }: {
+export const ReelCompactList = ({ items, onLike, onOpenComments, modoCompacto = false, onImageClick }: {
   items: ContentItem[];
   onLike?: (id: number) => void;
   onOpenComments?: (id: number) => void;
   modoCompacto?: boolean;
+  onImageClick?: (id: number) => void;
 }) => {
   if (!items || items.length === 0) {
     return <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Aún no hay publicaciones para mostrar.</div>;
@@ -740,7 +742,7 @@ export const ReelCompactList = ({ items, onLike, onOpenComments, modoCompacto = 
                 {item.description.length > 80 ? `${item.description.substring(0, 80)}...` : item.description}
               </p>
             )}
-            {renderMedia(item, modoCompacto)}
+            {renderMedia(item, modoCompacto, onImageClick ? () => onImageClick(item.id) : undefined)}
           </section>
 
           <footer className={styles.contentFooter} style={modoCompacto ? { marginTop: 8, paddingTop: 8 } : {}}>
