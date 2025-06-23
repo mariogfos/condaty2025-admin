@@ -366,6 +366,63 @@
   background-color: rgba(66, 153, 225, 0.05); /* Fondo azul neón muy transparente */
 }
 
+/* --- Borde izquierdo activo para filas desplegadas (categoría y subcategorías) --- */
+.activeBorder-income {
+  border: 1px solid var(--cSuccess, #00E38C);
+}
+.activeBorder-expense {
+  border: 1px solid var(--cError, #FF5B4D);
+}
+.activeBorder-summary {
+  border: 1px solid var(--cInfo, #4C98DF);
+}
+
+/* --- Bordes exteriores para grupo desplegado (categoría + subcategorías) --- */
+.groupBorder-income-top {
+  border-top: 1px solid var(--cSuccess, #00E38C);
+  border-left: 1px solid var(--cSuccess, #00E38C);
+  border-right: 1px solid var(--cSuccess, #00E38C);
+}
+.groupBorder-expense-top {
+  border-top: 1px solid var(--cError, #FF5B4D);
+  border-left: 1px solid var(--cError, #FF5B4D);
+  border-right: 1px solid var(--cError, #FF5B4D);
+}
+.groupBorder-summary-top {
+  border-top: 1px solid var(--cInfo, #4C98DF);
+  border-left: 1px solid var(--cInfo, #4C98DF);
+  border-right: 1px solid var(--cInfo, #4C98DF);
+}
+
+.groupBorder-income-mid {
+  border-left: 1px solid var(--cSuccess, #00E38C);
+  border-right: 1px solid var(--cSuccess, #00E38C);
+}
+.groupBorder-expense-mid {
+  border-left: 1px solid var(--cError, #FF5B4D);
+  border-right: 1px solid var(--cError, #FF5B4D);
+}
+.groupBorder-summary-mid {
+  border-left: 1px solid var(--cInfo, #4C98DF);
+  border-right: 1px solid var(--cInfo, #4C98DF);
+}
+
+.groupBorder-income-bot {
+  border-left: 1px solid var(--cSuccess, #00E38C);
+  border-right: 1px solid var(--cSuccess, #00E38C);
+  border-bottom: 1px solid var(--cSuccess, #00E38C);
+}
+.groupBorder-expense-bot {
+  border-left: 1px solid var(--cError, #FF5B4D);
+  border-right: 1px solid var(--cError, #FF5B4D);
+  border-bottom: 1px solid var(--cError, #FF5B4D);
+}
+.groupBorder-summary-bot {
+  border-left: 1px solid var(--cInfo, #4C98DF);
+  border-right: 1px solid var(--cInfo, #4C98DF);
+  border-bottom: 1px solid var(--cInfo, #4C98DF);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .tableHeaderRow, .dataRow, .tableTotalRow {

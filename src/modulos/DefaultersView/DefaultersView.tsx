@@ -279,7 +279,7 @@ const DefaultersView = () => {
             <WidgetDefaulterResume
               title={"Total de expensas"}
               amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
-              pointColor={"var(--cInfo)"}
+              pointColor={"var(--cWarning)"}
               icon={
                 <IconHandcoin
                   size={26}
@@ -398,8 +398,8 @@ const DefaultersView = () => {
             <IconHousing
               reverse
               size={32}
-              color={"var(--cInfo)"}
-              style={{ backgroundColor: "var(--cHoverInfo" }}
+              color={!defaultersLength || defaultersLength === 0 ? "var(--cWhiteV1)" : "var(--cInfo)"}
+              style={{ backgroundColor: !defaultersLength || defaultersLength === 0 ? "var(--cHover)" : "var(--cHoverInfo)" }}
               circle
             />
           }

@@ -409,11 +409,19 @@ const Dptos = () => {
           icon={
             <Round
               style={{
-                backgroundColor: "var(--cHoverInfo)",
-                color: "var(--cInfo)",
+                backgroundColor:
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverInfo)"
               }}
             >
-              <IconDepartments />
+              <IconDepartments2
+                color={
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cInfo)"
+                }
+              />
             </Round>
           }
         />
@@ -433,7 +441,7 @@ const Dptos = () => {
                       color: isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)",
                     }}
                   >
-                    <IconHome />
+                    <IconHome color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"} />
                   </Round>
                 ) : item.name == "Departamento" ? (
                   <Round
@@ -442,7 +450,7 @@ const Dptos = () => {
                       color: isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)",
                     }}
                   >
-                    <IconDepartment />
+                    <IconDepartment color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"} />
                   </Round>
                 ) : (
                   <div style={{ width: 40, height: 40 }} />

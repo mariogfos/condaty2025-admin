@@ -475,8 +475,17 @@ const HomeOwners = () => {
         data={data?.message?.total || 0}
         icon={
           <IconHomeOwner
-            color={"var(--cWhite)"}
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+            color={
+              !data?.message?.total || data?.message?.total === 0
+                ? "var(--cWhiteV1)"
+                : "var(--cWhite)"
+            }
+            style={{
+              backgroundColor:
+                !data?.message?.total || data?.message?.total === 0
+                  ? "var(--cHover)"
+                  : "rgba(255, 255, 255, 0.1)",
+            }}
             circle
             size={38}
           />
