@@ -365,7 +365,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   line2="un propietario a esta unidad."
                   icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
                   centered={true}
-                  h={100}
+                  fontSize={14}
+                  
                 />
               ) : (
                 <ItemList
