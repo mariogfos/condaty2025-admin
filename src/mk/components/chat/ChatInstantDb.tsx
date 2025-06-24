@@ -254,13 +254,30 @@ export default function ChatInstantDb() {
             </div>
             <div>
               <div>Canales de contactos</div>
-              <Button variant="secondary" small>
-                <IconWhatsapp style={{ marginTop: "4px" }} /> Contactarme por
-                WhatsApp
-              </Button>
-              <Button variant="secondary" small>
-                <IconEmail /> Contactarme por E-mail
-              </Button>
+              <div
+                style={{
+                  width: "214px",
+                  fontSize: "14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}
+              >
+                <Button
+                  variant="secondary"
+                  small
+                  style={{ justifyContent: "left", gap: "4px" }}
+                >
+                  <IconWhatsapp /> Contactarme por WhatsApp
+                </Button>
+                <Button
+                  variant="secondary"
+                  small
+                  style={{ justifyContent: "left", gap: "4px" }}
+                >
+                  <IconEmail /> Contactarme por E-mail
+                </Button>
+              </div>
               <div>Este chat solo almacena los últimos 100 mensajes</div>
             </div>
           </div>
