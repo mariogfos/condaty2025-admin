@@ -105,11 +105,11 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
   };
 
   const paymentMethods = [
-    { id: 'T', name: 'Transferencia' },
-    { id: 'O', name: 'Pago en oficina' },
-    { id: 'Q', name: 'Qr' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' }
+    { id: "T", name: "Transferencia" },
+    { id: "O", name: "Pago en oficina" },
+    { id: "Q", name: "Qr" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
   ];
 
   return (
@@ -151,8 +151,10 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         name="type"
         label="Forma de pago"
         value={formState?.type}
+        required={true}
         onChange={handleChange}
         options={paymentMethods}
+        error={errors}
       />
       {/* <Select
         name="subcategory_id"
@@ -185,6 +187,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         label={"Subir una imagen"}
         error={errors}
         ext={["jpg", "png", "jpeg", "webp"]}
+        required={true}
         setError={setErrors}
         img={true}
         item={formState}
@@ -195,6 +198,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         name="description"
         label="Concepto del pago"
         value={formState?.description}
+        required={true}
         onChange={handleChange}
         error={errors}
       />

@@ -10,6 +10,7 @@ import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
+import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 
 
 const paramsInitial = {
@@ -21,7 +22,7 @@ const paramsInitial = {
 
 // --- Funciones de formato y opciones (sin cambios) ---
 const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
+    const map: Record<string, string> = { M: "Mensual", Q: "Trimestral", B: "Semestral", Y: "Anual" }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
     return map[periodCode] || periodCode;
 };
 const formatType = (typeCode: string): string => {
@@ -35,7 +36,7 @@ const formatStatus = (statusCode: string): string => {
 };
 const getPeriodOptions = (addDefault = false) => [
     ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
-    { id: "M", name: "Mensual" }, { id: "B", name: "Bimestral" }, { id: "Q", name: "Trimestral" }, { id: "S", name: "Semestral" }, { id: "Y", name: "Anual" }
+    { id: "M", name: "Mensual" }, { id: "B", name: "Semestral" }, { id: "Q", name: "Trimestral" }, { id: "Y", name: "Anual" }
 ];
 const getTypeOptions = (addDefault = false) => [
     ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
@@ -222,7 +223,12 @@ const fields = useMemo(
   return (
     <div className={styles.container}>
       {/* Renderiza la lista que ahora usará onHideActions para los botones */}
-      <List />
+      <List 
+        height={"calc(100vh - 360px)"} 
+        emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
+        emptyLine2="para tu presupuesto, los verás aquí."
+        emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)"/>}
+      />
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

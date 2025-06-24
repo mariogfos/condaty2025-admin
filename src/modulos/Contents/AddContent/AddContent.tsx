@@ -385,6 +385,7 @@ const AddContent = ({
               label="Descripción"
               value={formState?.description}
               onChange={handleChangeInput}
+              // required={true}
               error={errors}
             />
           </CardContent>
@@ -464,7 +465,7 @@ const AddContent = ({
                 prefix={"CONT"}
                 images={formState?.images}
                 item={formState}
-                
+
                 // editor={}
                 // sizePreview={_field.sizePreview}
                 // autoOpen={data?.action == "add"}

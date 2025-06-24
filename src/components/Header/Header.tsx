@@ -6,6 +6,7 @@ import {
   IconMenu,
   IconSetting,
   IconNotification,
+  IconMessage,
 } from "../layout/icons/IconsBiblioteca";
 
 import HeadTitle from "../HeadTitle/HeadTitle";
@@ -13,6 +14,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 type PropsType = {
   isTablet: boolean;
@@ -88,12 +90,31 @@ const Header = ({
     );
   };
 
+  const Round = ({ icon, href, onClick }: any) => {
+    return (
+      <div className={styles.notificationContainer}>
+        <Link onClick={onClick} href={href || "#"}>
+          <div className={styles.notificationIcon}>
+            {icon}
+            {store?.notif > 0 && href == "/notifications" && (
+              <div className={styles.notificationBadge}>
+                {store?.notif || 0}
+              </div>
+            )}
+          </div>
+        </Link>
+      </div>
+    );
+  };
+
   const ProfileIcon = () => {
     return (
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
             name={getFullName(user)}
+            h={40}
+            w={40}
             src={getUrlImages(
               "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
             )}
@@ -108,6 +129,8 @@ const Header = ({
       </div>
     );
   };
+
+  const { dispatch: openChat } = useEvent("onOpenChat");
 
   if (isTablet)
     return (
@@ -152,7 +175,25 @@ const Header = ({
       </div>
 
       <div className={styles["header-controls"]}>
-        <NotificationIcon />
+        {/* <NotificationIcon /> */}
+        <Round
+          icon={<IconNotification color="var(--cWhiteV1)" />}
+          href="/notifications"
+        />
+        {/* <div
+          style={{
+            border: "1px solid var(--cWhiteV1)",
+            padding: "4px",
+            borderRadius: "50%",
+          }}
+        >
+          <IconMessage color="var(--cSuccess)" onClick={openChat} />
+        </div> */}
+        <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
+        <Round
+          icon={<IconMessage color="var(--cSuccess)" />}
+          onClick={openChat}
+        />
         {/* <Dropdown
           trigger={
             <div className={styles.iconOuterContainer}>

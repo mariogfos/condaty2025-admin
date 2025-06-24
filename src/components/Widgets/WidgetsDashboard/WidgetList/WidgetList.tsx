@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import styles from "./WidgetList.module.css"; // Asegúrate que el path sea correcto
+import EmptyData from "@/components/NoData/EmptyData";
 
 interface PropsType {
   data: any[]; // Considera tipar 'any' de forma más específica si es posible
@@ -8,6 +9,8 @@ interface PropsType {
   title: string;
   className?: string;
   emptyListMessage?: string; // Mensaje para cuando no hay datos
+  emptyListLine2?: string; // Segunda línea del mensaje vacío
+  emptyListIcon?: React.ReactNode; // Ícono para cuando no hay datos
   viewAllText?: string; // Texto para el enlace "Ver todas" (opcional)
   onViewAllClick?: () => void; // Handler para el clic en "Ver todas" (opcional)
 }
@@ -19,6 +22,8 @@ export const WidgetList = ({
   title,
   className = "",
   emptyListMessage = "No hay elementos para mostrar.",
+  emptyListLine2,
+  emptyListIcon,
   viewAllText,
   onViewAllClick,
 }: PropsType) => {
@@ -48,7 +53,13 @@ export const WidgetList = ({
             </Fragment>
           ))
         ) : (
-          <p className={styles.widgetListEmptyMessage}>{emptyListMessage}</p>
+          <EmptyData
+            message={emptyListMessage}
+            line2={emptyListLine2}
+            icon={emptyListIcon}
+            h={120}
+            centered={true}
+          />
         )}
       </div>
     </div>

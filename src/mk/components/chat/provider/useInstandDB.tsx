@@ -48,7 +48,7 @@ const useInstandDB = (): useInstantDbType => {
   const [rooms, setRooms]: any = useState([
     {
       value: roomGral,
-      text: "GENERAL",
+      text: "Grupo General",
       closeRoom: "GENERAL",
       isGroup: true,
       newMsg: 0,
@@ -90,7 +90,7 @@ const useInstandDB = (): useInstantDbType => {
 
   const { data: usersChat, reLoad } = useAxios("users", "GET", {
     perPage: -1,
-    cols: "id,name,middle_name,last_name,mother_last_name,updated_at",
+    fullType: "CHAT",
   });
 
   const onNotif = useCallback((e: any) => {
@@ -360,8 +360,9 @@ const useInstandDB = (): useInstantDbType => {
       chats,
       user,
       usersChat: [
-        ...(usersChat?.data || []),
-        { id: "chatBot", name: "Soporte" },
+        { id: roomGral, name: "Grupo General", isGroup: true },
+        { id: "chatBot", name: "Soporte", isBot: true },
+        ...(usersChat?.data ?? []),
       ],
       uniquePresence: [
         ...(uniquePresence || []),

@@ -17,13 +17,19 @@ import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import {
   IconBriefCaseMoney,
   IconEgresos,
+  IconGraphics,
   IconIngresos,
   IconWallet,
+  IconAlerts,
+  IconReservedAreas,
+  IconPagos,
+  IconGroup2,
 } from "../layout/icons/IconsBiblioteca";
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import EmptyData from "@/components/NoData/EmptyData";
 
 const paramsInitial = {
   fullType: "L",
@@ -55,7 +61,20 @@ const HomePage = () => {
   });
 
   const today = new Date();
-  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
   const formattedDate = `Resumen del mes de ${meses[today.getMonth()]}`;
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
@@ -232,40 +251,41 @@ const HomePage = () => {
 
   const alertasList = (data: any) => {
     const hasGuard = !!data?.guardia; // Verifica si el objeto guardia existe y no es nulo
-    const hasOwner = !!data?.owner;   // Verifica si el objeto owner existe y no es nulo
+    const hasOwner = !!data?.owner; // Verifica si el objeto owner existe y no es nulo
 
     let dataSource = null; // Contendrá el objeto guardia o owner
-    let entityType = "";   // Será "GUARD" o "OWNER"
+    let entityType = ""; // Será "GUARD" o "OWNER"
     let primaryText = "Alerta del Sistema"; // Texto por defecto
 
     if (hasGuard) {
-        dataSource = data.guardia;
-        entityType = "GUARD";
-        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto guardia
+      dataSource = data.guardia;
+      entityType = "GUARD";
+      primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto guardia
     } else if (hasOwner) {
-        dataSource = data.owner;
-        entityType = "OWNER";
-        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
+      dataSource = data.owner;
+      entityType = "OWNER";
+      primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
     }
     // Si ni guardia ni owner están presentes, primaryText permanece "Alerta del Sistema"
 
     const userInitials = primaryText
-        ?.split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase();
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
 
     const secondaryText = data.descrip || "Sin descripción";
 
     let levelClass = styles.levelLow;
     let levelTextIndicator = "Nivel bajo";
     if (data.level === 2) {
-        levelClass = styles.levelMedium;
-        levelTextIndicator = "Nivel medio";
-    } else if (data.level === 3 || data.level > 2) { // Mayor que 2 también es alto
-        levelClass = styles.levelHigh;
-        levelTextIndicator = "Nivel alto";
+      levelClass = styles.levelMedium;
+      levelTextIndicator = "Nivel medio";
+    } else if (data.level === 3 || data.level > 2) {
+      // Mayor que 2 también es alto
+      levelClass = styles.levelHigh;
+      levelTextIndicator = "Nivel alto";
     }
 
     // Determinar si podemos intentar cargar una imagen de avatar
@@ -274,10 +294,15 @@ const HomePage = () => {
     let avatarImageUrl = null;
 
     if (canDisplayAvatarImage) {
-        // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
-        // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
-        const updatedAtTimestamp = dataSource.updated_at || dataSource.updatedAt || new Date().toISOString();
-        avatarImageUrl = getUrlImages(`/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`);
+      // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
+      // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
+      const updatedAtTimestamp =
+        dataSource.updated_at ||
+        dataSource.updatedAt ||
+        new Date().toISOString();
+      avatarImageUrl = getUrlImages(
+        `/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`
+      );
     }
 
     return (
@@ -286,7 +311,7 @@ const HomePage = () => {
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
               src={avatarImageUrl} // URL construida dinámicamente
-              name={primaryText}    // El componente Avatar debería manejar el fallback a iniciales si src falla
+              name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}
               h={40}
               className={styles.itemImage}
@@ -295,7 +320,8 @@ const HomePage = () => {
             // Fallback si no hay un usuario específico (guardia u owner) asociado,
             // o si dataSource no tiene un ID, o si avatarImageUrl es null.
             <div className={styles.itemImagePlaceholder}>
-              {userInitials || "!"} {/* Iniciales para "Alerta del Sistema" o si primaryText está vacío */}
+              {userInitials || "!"}{" "}
+              {/* Iniciales para "Alerta del Sistema" o si primaryText está vacío */}
             </div>
           )}
         </div>
@@ -351,13 +377,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/payments")}
                   icon={
                     <IconIngresos
-                      color={"var(--cAccent)"}
-                      style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                      color={
+                        !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAccent)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverSuccess)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Egresos"
@@ -365,13 +403,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
                     <IconEgresos
-                      color={"var(--cError)"}
-                      style={{ backgroundColor: "var(--cHoverError)" }}
+                      color={
+                        !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cError)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverError)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title={balanceMessage}
@@ -385,13 +435,25 @@ const HomePage = () => {
                   }
                   icon={
                     <IconBriefCaseMoney
-                      color={"var(--cInfo)"}
-                      style={{ backgroundColor: "var(--cHoverInfo)" }}
+                      color={
+                        !balance || balance === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cInfo)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !balance || balance === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverInfo)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Monto pagado en exceso por un propietario o residente en sus cuotas u otros pagos. Puede compensarse en futuros pagos o devolverse."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Cartera vencida"
@@ -399,13 +461,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/defaultersview")}
                   icon={
                     <IconWallet
-                      color={"var(--cAlert)"}
-                      style={{ backgroundColor: "var(--cHoverAlert)" }}
+                      color={
+                        !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAlert)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverAlert)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
+                  tooltipColor="var(--cWhiteV1)"
                 />
               </div>
             </WidgetBase>
@@ -421,18 +495,27 @@ const HomePage = () => {
                     ingresos={dashboard?.data?.ingresosHist}
                     egresos={dashboard?.data?.egresosHist}
                     periodo="y"
+                    showEmptyData={(!dashboard?.data?.ingresosHist || !dashboard?.data?.egresosHist || 
+                      (dashboard?.data?.ingresosHist?.length === 0 && dashboard?.data?.egresosHist?.length === 0))}
+                    emptyDataProps={{
+                      message: "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
+                      line2: "que tengas movimiento financiero.",
+                      h: 300,
+                      icon: <IconGraphics size={80} />
+                    }}
                   />
-                  
                 </div>
               </div>
               <section className={styles.fourWidgetSection}>
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Solicitudes de pago"
+                    title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay solicitudes de pago por revisar"
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes"
+                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
+                    emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
                   />
@@ -441,7 +524,9 @@ const HomePage = () => {
                     title="Alertas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage="No hay alertas"
+                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
+                    emptyListLine2="residente registre una se mostrará aquí."
+                    emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
                   />
@@ -452,7 +537,9 @@ const HomePage = () => {
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage="No hay solicitudes de reserva pendientes"
+                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
+                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
+                    emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
                   />
@@ -461,7 +548,9 @@ const HomePage = () => {
                     title="Pre-registro"
                     viewAllText="Ver todos"
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
-                    emptyListMessage="No hay cuentas por activar"
+                    emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
+                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
+                    emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
                   />
@@ -485,29 +574,36 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
                 />
               </div>
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume data={dashboard?.data?.posts} />
+              <WidgetContentsResume />
             </div>
           </div>
         </div>
       </div>
 
-      
       {openPayment && <PaymentRender {...paymentProps} />}
       <ReservationDetailModal
         open={openReservation}
@@ -533,7 +629,6 @@ const HomePage = () => {
         item={dataOwner}
         reLoad={reLoad}
       />
-
     </>
   );
 };

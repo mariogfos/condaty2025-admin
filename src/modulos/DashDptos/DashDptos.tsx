@@ -5,9 +5,14 @@ import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
 import {
   IconArrowDown,
+  IconCalendar,
   IconDelivery,
   IconEdit,
+  IconExitHome,
+  IconHomePerson2,
   IconOther,
+  IconPagos,
+  IconReservedAreas,
   IconTaxi,
   IconTrash,
 } from "@/components/layout/icons/IconsBiblioteca";
@@ -33,6 +38,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import HistoryReservations from "./HistoryReservations/HistoryReservations";
+import { Calendar } from "@/mk/components/Calendar";
 
 interface DashDptosProps {
   id: string | number;
@@ -355,9 +361,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
             <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
               {!datas?.data?.homeowner ? (
                 <EmptyData
-                  message="No existe propietario registrado en esta casa"
-                  // centered={false}
-                  h={100}
+                  message="Sin propietario a cargo. Para registrar"
+                  line2="un propietario a esta unidad."
+                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
+                  centered={true}
+                  fontSize={14}
+                  
                 />
               ) : (
                 <ItemList
@@ -432,8 +441,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 {!datas?.titular ? (
                   <div className={styles.emptyTitular}>
                     <EmptyData
-                      message="No existe titular registrado en esta casa"
-                      centered={false}
+                      message="Sin inquilino asignado. Para asignar"
+                      line2="un inquilino a esta unidad."
+                      icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
+                      centered={true}
+                      fontSize={14}
                     />
                     {/* <Button className={styles.addButton} onClick={onTitular}>
                       Agregar Titular
@@ -558,9 +570,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               )
                             )
                           ) : (
+                            <>
+                            <Br />
                             <p className={styles.emptyMessage}>
-                              No tiene dependientes
+                             aquí verás a los dependientes que se vinculen a un propietario o un inquilino.
                             </p>
+                            </>
                           )}
                         </div>
                       </div>
@@ -597,8 +612,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
             <div className={styles.accountContent}>
               {!datas?.payments || datas.payments.length === 0 ? (
                 <EmptyData
-                  message="No existe historial de pagos para esta unidad"
-                  centered={false}
+                  message="Sin pagos registrados. Cuando esta unidad comience a pagar"
+                  line2="expensas y otros conceptos, los verás aquí."
+                  centered={true}
+                  icon={<IconPagos size={80} color="var(--cWhiteV1)" />}
                 />
               ) : (
                 <Table
@@ -697,8 +714,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 </div>
               ) : (
                 <EmptyData
-                  message="No existe historial de visitas para esta unidad"
-                  centered={false}
+                  message="No existen accesos registrados. El historial de visitantes se mostrará"
+                  line2="aquí, una vez la unidad reciba visitas."
+                  centered={true}
+                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />} 
                 />
               )}
             </div>
@@ -812,10 +831,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   })}
                 </div>
               ) : (
+               
                 <EmptyData
-                  message="No existe historial de visitas para esta unidad"
-                  centered={false}
-                />
+                message="No hay solicitudes de reserva. Una vez los residentes"
+                line2="comiencen a reservar áreas sociales se mostrarán aquí."
+                icon={<IconReservedAreas size={32} color="var(--cWhiteV1)"  />}
+                h={120}
+                centered={true}
+              />
               )}
             </div>
           </WidgetBase>

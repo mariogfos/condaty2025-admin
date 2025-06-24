@@ -16,6 +16,7 @@ import RenderView from "./RenderView/RenderView";
 import PerformBudget from "./PerformBudget/PerformBudget";
 import Input from "@/mk/components/forms/Input/Input";
 import { RenderAnularModal } from "./RenderDel/RenderDel";
+import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 
 interface FormStateFilter {
   filter_date?: string;
@@ -422,7 +423,12 @@ const Outlays = () => {
         </Button>
       </div> */}
 
-      <List />
+      <List 
+        height={"calc(100vh - 360px)"} 
+        emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
+        emptyLine2="aparecerán en esta sección."
+        emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
+      />
 
       {/* Modal para mostrar el gráfico */}
       {openGraph && (

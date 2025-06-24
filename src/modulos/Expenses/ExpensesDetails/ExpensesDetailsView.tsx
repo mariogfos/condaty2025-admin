@@ -357,7 +357,19 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               title="Unidades asignadas"
               icon={
                 <div className={styles.statIconContainer}>
-                  <IconUnidades color="var(--cWhite)" />
+                  <IconUnidades
+                    color={
+                      !statsData.totalUnits || statsData.totalUnits === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cWhite)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.totalUnits || statsData.totalUnits === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
@@ -366,10 +378,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={statsData.paidUnits}
               title="Unidades al día"
               icon={
-                <div
-                  className={`${styles.statIconContainer} ${styles.iconPaid}`}
-                >
-                  <IconUnidades color="var(--cSuccess)" />
+                <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
+                  <IconUnidades
+                    color={
+                      !statsData.paidUnits || statsData.paidUnits === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cSuccess)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.paidUnits || statsData.paidUnits === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
@@ -378,60 +400,112 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={statsData.overdueUnits}
               title="Unidades morosas"
               icon={
-                <div
-                  className={`${styles.statIconContainer} ${styles.iconOverdue}`}
-                >
-                  <IconUnidades color="var(--cError)" />
+                <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
+                  <IconUnidades
+                    color={
+                      !statsData.overdueUnits || statsData.overdueUnits === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cError)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.overdueUnits || statsData.overdueUnits === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
             {/* Tarjeta 4 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.totalAmount, 0)}
+              data={"Bs " + formatNumber(statsData.totalAmount)}
               title="Monto total de expensa"
               icon={
                 <div className={styles.statIconContainer}>
-                  <IconMonedas color="var(--cInfo)" />
+                  <IconMonedas
+                    color={
+                      !statsData.totalAmount || statsData.totalAmount === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cInfo)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.totalAmount || statsData.totalAmount === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
             {/* Tarjeta 5 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.paidAmount, 0)}
+              data={"Bs " + formatNumber(statsData.paidAmount)}
               title="Monto cobrado"
               icon={
-                <div
-                  className={`${styles.statIconContainer} ${styles.iconPaid}`}
-                >
-                  <IconBilletera color="var(--cSuccess)" />
+                <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
+                  <IconBilletera
+                    color={
+                      !statsData.paidAmount || statsData.paidAmount === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cSuccess)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.paidAmount || statsData.paidAmount === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
             {/* Tarjeta 6 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.penaltyAmount, 0)}
+              data={"Bs " + formatNumber(statsData.penaltyAmount)}
               title="Monto por multas"
               icon={
-                <div
-                  className={`${styles.statIconContainer} ${styles.iconPenalty}`}
-                >
-                  <IconMultas color="var(--cError)" />
+                <div className={`${styles.statIconContainer} ${styles.iconPenalty}`}>
+                  <IconMultas
+                    color={
+                      !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cError)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />
             {/* Tarjeta 7 (antes en grupo derecho) */}
 
             <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.pendingAmount, 0)}
+              data={"Bs " + formatNumber(statsData.pendingAmount)}
               title="Monto por cobrar"
               icon={
-                <div
-                  className={`${styles.statIconContainer} ${styles.iconOverdue}`}
-                >
-                  <IconHandcoin color="var(--cError)" />
+                <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
+                  <IconHandcoin
+                    color={
+                      !statsData.pendingAmount || statsData.pendingAmount === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cError)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.pendingAmount || statsData.pendingAmount === 0
+                          ? "var(--cHover)"
+                          : undefined,
+                    }}
+                  />
                 </div>
               }
             />

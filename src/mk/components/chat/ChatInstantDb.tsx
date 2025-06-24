@@ -1,21 +1,25 @@
 "use client";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./chat.module.css";
 import {
-  IconAlert,
-  IconBellAlert,
-  IconBellAlertOff,
-  IconMessage,
+  IconCheck,
+  IconEmail,
+  IconGroup,
+  IconImage,
+  IconReadMessage,
+  IconWhatsapp,
+  IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
-import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
-import ChatBotLLm from "./chatBot/ChatBotLLm";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
 import Logo from "@/components/req/Logo";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { SendMessageType } from "./chat-types";
+import { getTimePMAM } from "@/mk/utils/date1";
+import Switch from "../forms/Switch/Switch";
+import Button from "../forms/Button/Button";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -51,10 +55,16 @@ export default function ChatInstantDb() {
     } else {
       setTypeSearch(rooms[rooms.length - 1].value);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rooms, roomGral]);
 
   const _openNewChat = (userAppId: string, name: string) => {
-    const newRoomId = openNewChat(userAppId, name);
+    let newRoomId = "";
+    if (userAppId == roomGral) {
+      newRoomId = roomGral;
+    } else {
+      newRoomId = openNewChat(userAppId, name);
+    }
     setTypeSearch(newRoomId);
   };
 
@@ -73,7 +83,7 @@ export default function ChatInstantDb() {
         if (m.sender === user.id || m.read_at) return;
         cM = {
           ...cM,
-          [idUser]: { ...cM[idUser], count: (cM[idUser]?.count || 0) + 1 },
+          [idUser]: { ...cM[idUser], count: (cM[idUser]?.count ?? 0) + 1 },
         };
       }
     });
@@ -90,7 +100,7 @@ export default function ChatInstantDb() {
         ...cM,
         [roomGral]: {
           msg: chats?.messages[chats?.messages?.length - 1],
-          count: (cM[roomGral]?.count || 0) + 1,
+          count: (cM[roomGral]?.count ?? 0) + 1,
         },
       };
       newMsg({
@@ -102,7 +112,7 @@ export default function ChatInstantDb() {
         <>
           <div>
             {chats?.messages[chats?.messages?.length - 1].roomId == roomGral &&
-              "(GENERAL) "}
+              "(Grupo General) "}
             {
               usersChat?.find(
                 (e: any) =>
@@ -128,6 +138,7 @@ export default function ChatInstantDb() {
 
     setCountMsg(cM);
     setLastMsg(chats?.messages?.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats?.messages]);
 
   useEffect(() => {
@@ -140,19 +151,7 @@ export default function ChatInstantDb() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countMsg, rooms]);
 
-  const [botActive, setBotActive] = useState(false);
-  const [botActiveController, setBotActiveController] = useState(false);
   const _sendMsg: SendMessageType = async (text, roomId, userId, file) => {
-    if (roomId.indexOf("chatBot") > -1) {
-      if (text == "_activate_") {
-        setBotActive(true);
-        return;
-      }
-      if (text == "_controller_") {
-        setBotActiveController(true);
-        return;
-      }
-    }
     return await sendMessage(text, roomId, userId, file);
   };
 
@@ -165,166 +164,244 @@ export default function ChatInstantDb() {
   }, []);
 
   useEvent("onNotif", onNotif);
+
+  const onOpenChat = useCallback(
+    (e: any) => {
+      // console.log(e);
+      setOpen(!open);
+    },
+    [open]
+  );
+
+  useEvent("onOpenChat", onOpenChat);
+
+  const [currentRoom, setCurrentRoom]: any = useState(null);
+
+  useEffect(() => {
+    setCurrentRoom(rooms?.find((e: any) => e.value == typeSearch));
+  }, [rooms, typeSearch]);
+
+  return (
+    <>
+      <div
+        className={styles.chatdrop + " " + (open && styles.open)}
+        onClick={() => setOpen(false)}
+      ></div>
+      <div
+        className={
+          open
+            ? styles.chatContainer + " close " + styles.close
+            : styles.chatContainer
+        }
+      >
+        {/* encabezado */}
+        <div className={styles.chatHeader}>
+          <div>
+            Activar notificaciones{" "}
+            <Switch
+              value={notifAudio ? "Y" : "N"}
+              name="notifAudio"
+              onChange={() => setNotifAudio(!notifAudio)}
+              checked={notifAudio}
+            />
+          </div>
+          <div>
+            <div>
+              {typeSearch == roomGral ? (
+                <IconGroup size={40} />
+              ) : typeSearch.indexOf("chatBot") != -1 ? (
+                <Logo width={40} />
+              ) : (
+                <Avatar
+                  src={getUrlImages(
+                    "/ADM-" +
+                      currentRoom?.value
+                        .replace("--", "")
+                        .replace(user.id, "") +
+                      ".webp?d=" +
+                      new Date().getTime()
+                  )}
+                  w={40}
+                  h={40}
+                  name={currentRoom?.text ?? ""}
+                />
+              )}
+            </div>
+            <div>{currentRoom && currentRoom.text}</div>
+          </div>
+          <div>
+            <IconX onClick={() => setOpen(false)} />
+          </div>
+        </div>
+        <div className={styles.chatBodyContainer}>
+          <div>
+            <div>
+              {usersChat?.map((u: any, i: number) => {
+                if (u.id == user.id) return null;
+                return (
+                  <ChatContactItem
+                    key={"_" + i + "_" + u.id}
+                    u={u}
+                    user={user}
+                    uniquePresence={uniquePresence}
+                    openChat={_openNewChat}
+                    countMsg={countMsg}
+                    typing={typing}
+                    typeSearch={typeSearch}
+                  />
+                );
+              })}
+            </div>
+            <div>
+              <div>Canales de contactos</div>
+              <Button variant="secondary" small>
+                <IconWhatsapp style={{ marginTop: "4px" }} /> Contactarme por
+                WhatsApp
+              </Button>
+              <Button variant="secondary" small>
+                <IconEmail /> Contactarme por E-mail
+              </Button>
+              <div>Este chat solo almacena los últimos 100 mensajes</div>
+            </div>
+          </div>
+          <div>
+            <ChatRoom
+              user={user}
+              roomId={typeSearch}
+              chats={chats}
+              sendMessage={_sendMsg}
+              sendEmoticon={sendEmoticon}
+              readMessage={readMessage}
+              users={usersChat}
+              typing={typing}
+              sending={sending}
+              isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
+              db={db}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const RenderText = ({ msg, userId, rol }: any) => {
+  return (
+    <div className="truncate" style={{ display: "flex", gap: "4px" }}>
+      {msg?.sender === userId && !msg?.received_at && <IconCheck size={12} />}
+      {msg?.sender === userId && msg?.received_at && !msg?.read_at && (
+        <IconReadMessage size={12} />
+      )}
+      {msg?.sender === userId && msg?.received_at && msg?.read_at && (
+        <IconReadMessage size={12} color="var(--cPrimary)" />
+      )}
+      {msg?.$files?.length > 0 && <IconImage size={12} />}
+      {msg?.text ?? rol}
+    </div>
+  );
+};
+
+const ChatContactItem = ({
+  uniquePresence,
+  u,
+  openChat,
+  user,
+  countMsg,
+  typing,
+  typeSearch,
+}: any) => {
   return (
     <div
       className={
-        open
-          ? styles.chatContainer + " close " + styles.close
-          : styles.chatContainer
+        styles.itemList +
+        " " +
+        (typeSearch.indexOf(u.id) != -1 && styles.active)
       }
+      onClick={() => openChat(u.id, getFullName(u, "NsLm"))}
     >
-      <div
-        style={{
-          position: "absolute",
-          left: "-40px",
-          backgroundColor: "var(--cBlack",
-          top: "10px",
-          width: "40px",
-          height: "40px",
-          padding: "10px",
-          borderRadius: "10px 0  0 10px",
-        }}
-        onClick={() => setOpen(!open)}
-      >
-        <IconMessage color="var(--cSuccess)" />
-      </div>
-      <TabsButtons
-        tabs={_rooms}
-        sel={typeSearch}
-        setSel={setTypeSearch}
-        text="closeRoom"
-      />
-      <ChatRoom
-        user={user}
-        roomId={typeSearch}
-        chats={chats}
-        sendMessage={_sendMsg}
-        sendEmoticon={sendEmoticon}
-        readMessage={readMessage}
-        users={usersChat}
-        typing={typing}
-        sending={sending}
-        isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
-        db={db}
-      />
-      <h4 className={styles.onlineUsersTitle}>Usuarios en línea:</h4>
-      <div className={styles.onlineUsersList}>
-        {usersChat?.map((u: any, i: number) => {
-          if (u.id == user.id) return null;
-          return (
-            <Fragment key={"_" + i + "_" + u.id}>
-              <div
-                className={
-                  uniquePresence.find((e: any) => e.userapp_id == u.id)
-                    ? styles.onlineUser
-                    : styles.offlineUser
-                }
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                onClick={() => _openNewChat(u.id, u.name)}
-              >
-                {u.id == "chatBot" ? (
-                  <Logo width={32} />
-                ) : (
-                  <Avatar
-                    src={getUrlImages(
-                      "/ADM-" + u?.id + ".webp?d=" + u?.updated_at
-                    )}
-                    w={32}
-                    h={32}
-                    name={u?.name || getFullName(user)}
-                  />
-                )}
-                <div>
-                  {getFullName(u, "NmLo")}
-                  <br />
-                  {countMsg[u.id]?.msg?.text && (
-                    <div style={{ color: "var(--cWhiteV1", fontSize: "9px" }}>
-                      {(countMsg[u.id]?.msg?.text as string).substring(0, 50)}
-                      {(countMsg[u.id]?.msg?.text as string).length > 50 &&
-                        "..."}
-                    </div>
-                  )}
-                </div>
-                {countMsg[u.id]?.count > 0 && (
-                  <span style={{ position: "relative" }}>
-                    <div
-                      style={{
-                        color: "var(--cWhite)",
-                        background: "var(--cPrimary)",
-                        fontSize: "9px",
-                        borderRadius: "100%",
-                        width: "16px",
-                        height: "16px",
-                        position: "absolute",
-                        right: "-14px",
-                        top: "-6px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      {countMsg[u.id]?.count}
-                    </div>
-                  </span>
-                )}
-                {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name &&
-                  (typeSearch == roomGral ||
-                    typeSearch.indexOf(user.id) !== false) && (
-                    <span style={{ color: "white" }}>
-                      ...esta escribiendo...
-                    </span>
-                  )}
-                {u.id == "chatBot" &&
-                  countMsg[u.id]?.msg?.received_at &&
-                  !countMsg[u.id]?.msg?.read_at && (
-                    <span style={{ color: "white" }}>
-                      ...esta escribiendo...
-                    </span>
-                  )}
-
-                {/* {JSON.stringify(countMsg[u.id]?.msg)} */}
-              </div>
-            </Fragment>
-          );
-        })}
-      </div>
-
-      <div
-        style={{
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
-        Notificaciones audio:
-        {notifAudio ? (
-          <>
-            {" "}
-            Encendido
-            <IconBellAlert
-              color="var(--cPrimary)"
-              reverse
-              onClick={() => setNotifAudio(false)}
-            />
-          </>
+      <div style={{ position: "relative" }}>
+        {u.id == "chatBot" ? (
+          <Logo width={40} />
+        ) : u.isGroup ? (
+          <IconGroup size={40} />
         ) : (
-          <>
-            {" "}
-            Apagado
-            <IconBellAlertOff
-              color="var(--cPrimary)"
-              reverse
-              onClick={() => setNotifAudio(true)}
-            />
-          </>
+          <Avatar
+            src={getUrlImages("/ADM-" + u?.id + ".webp?d=" + u?.updated_at)}
+            w={40}
+            h={40}
+            name={u?.name ?? getFullName(user)}
+          />
         )}
+        <span
+          className={
+            styles.presence +
+            " " +
+            ((uniquePresence.find((e: any) => e.userapp_id == u.id) ||
+              u.isGroup) &&
+              styles.online)
+          }
+        ></span>
       </div>
-      <div style={{ color: "white" }}>
-        {botActive && <ChatBotLLm />}
-        {/* {botActiveController && <ChatBotLLmCont />} */}
-        {/* {JSON.stringify(db)} */}
+      <div
+        className="truncate"
+        style={{
+          fontSize: "14px",
+          color: "var(--cWhite)",
+          width: "100%",
+        }}
+      >
+        {getFullName(u, "NsLm")}
+        <br />
+        <div
+          className="truncate"
+          style={{
+            color: "var(--cWhiteV1",
+            display: "flex",
+            gap: "4px",
+          }}
+        >
+          {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name ? (
+            "Escribiendo..."
+          ) : (
+            <RenderText
+              msg={countMsg[u.id]?.msg}
+              userId={user.id}
+              rol={u.role_name}
+            />
+          )}
+        </div>
+      </div>
+      {countMsg[u.id]?.count > 0 && (
+        <span style={{ position: "relative" }}>
+          <div
+            style={{
+              color: "var(--cWhite)",
+              background: "var(--cPrimary)",
+              fontSize: "9px",
+              borderRadius: "100%",
+              width: "16px",
+              height: "16px",
+              position: "absolute",
+              right: "-14px",
+              top: "-6px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {countMsg[u.id]?.count}
+          </div>
+        </span>
+      )}
+      <div
+        style={{
+          fontSize: "12px",
+          whiteSpace: "nowrap",
+          alignSelf: "flex-start",
+        }}
+      >
+        {getTimePMAM(countMsg[u.id]?.msg?.created_at)}
       </div>
     </div>
   );
-}
+};

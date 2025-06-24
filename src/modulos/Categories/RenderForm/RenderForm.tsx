@@ -33,6 +33,11 @@ const CategoryForm = memo(
       }
       return initialData;
     });
+    const [formErrors, setFormErrors] = useState<any>({});
+    const combinedErrors = useMemo(() => {
+      return { ...errors, ...formErrors };
+    }, [errors, formErrors]);
+
 
     const [isCateg, setIsCateg] = useState<string>(() => {
       return item?.category_id ? "S" : "C";
@@ -66,43 +71,61 @@ const CategoryForm = memo(
       set_Item(initialData);
       setWantSubcategories(wantsSub);
       setIsCateg(newIsCateg);
+
+      setFormErrors({}); // Limpia los errores de validación al cargar un nuevo item.
+
     }, [item, action]);
 
     const handleChange = useCallback((e: InputEvent) => {
       const { name, value, type, checked } = e.target;
+
+      // Limpia el error del campo que se está editando para feedback instantáneo
+      setFormErrors((prev: any) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+
       set_Item((prevItem) => ({
         ...prevItem,
         [name]: type === "checkbox" ? checked : value,
       }));
-    }, []);
+    }, []); // El array de dependencias vacío es correcto aquí
 
     const handleSave = useCallback(() => {
+      const newErrors: any = {};
+
+      // 1. Lógica de validación
+      if (!_Item.name || _Item.name.trim() === '') {
+        newErrors.name = 'El nombre de la categoría es obligatorio.';
+      }
+      if ((isCateg === 'S' || wantSubcategories) && !_Item.category_id) {
+        newErrors.category_id = 'Debe seleccionar una Categoría Padre.';
+      }
+
+      // 2. Si se encontraron errores, se actualiza el estado y se detiene
+      if (Object.keys(newErrors).length > 0) {
+        setFormErrors(newErrors);
+        return; // Detiene la ejecución aquí
+      }
+
+      // 3. Si no hay errores, se limpia el estado y se procede a guardar
+      setFormErrors({});
       const cleanItem: Partial<CategoryItem> & { type?: string } = { ..._Item };
 
-      if (cleanItem.hijos) {
-        delete cleanItem.hijos;
-      }
-
-      if (wantSubcategories && cleanItem.category_id) {
-      } else {
-        cleanItem.category_id = null;
-      }
-
+      if (cleanItem.hijos) delete cleanItem.hijos;
+      if (isCateg === "C" && !wantSubcategories) cleanItem.category_id = null;
       if ("_initItem" in cleanItem) delete cleanItem._initItem;
       if ("category" in cleanItem) delete cleanItem.category;
       if (action === "edit" && "fixed" in cleanItem) delete cleanItem.fixed;
-
       cleanItem.type = categoryType === "I" ? "I" : "E";
 
       console.log("Guardando desde CategoryForm:", cleanItem);
 
-      if (setItem) {
-        setItem(cleanItem);
-      }
+      if (setItem) setItem(cleanItem);
       onSave(cleanItem);
-      if (getExtraData) {
-        getExtraData();
-      }
+      if (getExtraData) getExtraData();
+      
     }, [
       _Item,
       onSave,
@@ -111,6 +134,7 @@ const CategoryForm = memo(
       action,
       categoryType,
       getExtraData,
+      isCateg,
     ]);
 
     const formattedCategories = useMemo(() => {
@@ -127,10 +151,10 @@ const CategoryForm = memo(
     let dynamicModalTitle = `Editar categoría de ${categoryTypeText}`;
     let dynamicButtonText = "Guardar Cambios";
 
-    if (action === "add") {
-      const isSubcategoryMode =
-        !!_Item.category_id || (isCateg === "C" && wantSubcategories);
+    // Determinar si es subcategoría (tanto en add como en edit)
+    const isSubcategoryMode = (isCateg === "S" || (isCateg === "C" && wantSubcategories));
 
+    if (action === "add") {
       if (isSubcategoryMode) {
         dynamicModalTitle = `Registrar nueva subcategoría de ${categoryTypeText}`;
         dynamicButtonText = "Registrar Subcategoría";
@@ -138,6 +162,9 @@ const CategoryForm = memo(
         dynamicModalTitle = `Registrar nueva categoría de ${categoryTypeText}`;
         dynamicButtonText = "Registrar Categoría";
       }
+    } else if (action === "edit" && isSubcategoryMode) {
+      dynamicModalTitle = `Editar subcategoría de ${categoryTypeText}`;
+      dynamicButtonText = "Guardar Cambios";
     }
 
     if (!open) return null;
@@ -161,9 +188,15 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ""}
             onChange={handleChange}
-            label="Nombre de la categoría"
-            error={errors?.name}
-            required
+            required={true}
+            label={
+              isSubcategoryMode
+                ? (action === "edit" ? "Nombre de la subcategoría" : "Nombre de la subcategoría")
+                : (action === "edit" ? "Nombre de la categoría" : "Nombre de la categoría")
+            }
+            error={combinedErrors}
+            maxLength={50}
+
             // className={styles.customInput}
           />
           {/* </div> */}
@@ -173,10 +206,16 @@ const CategoryForm = memo(
           {/* <div className={styles.fieldContent}> */}
           <TextArea
             name="description"
-            value={_Item.description || ""}
+            value={_Item.description ?? ""}
             onChange={handleChange}
-            label="Descripción de la nueva categoría"
-            error={errors?.description}
+            required={false}
+            label={
+              isSubcategoryMode
+                ? (action === "edit" ? "Descripción de la nueva subcategoría" : "Descripción de la nueva subcategoría")
+                : (action === "edit" ? "Descripción de la nueva categoría" : "Descripción de la nueva categoría")
+            }
+            error={combinedErrors}
+            maxLength={255}
             // className={styles.customTextarea}
           />
           {/* </div>
@@ -220,11 +259,16 @@ const CategoryForm = memo(
               name="category_id"
               label="Categoría Padre"
               options={formattedCategories}
-              value={_Item.category_id || ""}
+              value={_Item.category_id ?? ""}
               onChange={handleChange}
-              error={errors?.category_id}
-              required
+              error={combinedErrors}
+              required={isCateg === 'S' || wantSubcategories} 
               className={styles.customSelect}
+              disabled={
+                // Si está en modo subcategoría y ya hay categoría padre seleccionada (flujo de subcategoría)
+                (action === "add" && isSubcategoryMode && !!_Item.category_id) ||
+                (action === "edit" && isSubcategoryMode)
+              }
             />
             //   </div>
             // </div>

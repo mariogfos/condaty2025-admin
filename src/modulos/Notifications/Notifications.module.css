@@ -21,20 +21,18 @@
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
-  
 }
 
 .notificationRead {
   display: flex;
   padding: 0.75rem 1rem;
- 
+
   border-radius: 0.75rem;
   margin-bottom: 0.5rem;
   cursor: pointer;
   opacity: 0.5;
   transition: all 0.2s ease;
   width: 100%;
-  
 }
 
 .notificationUnread:active,
@@ -64,9 +62,11 @@
 
 .notificationContent {
   flex: 1;
-  width: calc(100% - 3rem); /* Ancho fijo restando el espacio del icono */
   overflow-wrap: break-word;
   word-break: break-word;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .notificationTitle {
@@ -77,22 +77,21 @@
 }
 
 .notificationBody {
-  font-size: 0.75rem;
+  font-size: var(--sM);
   color: var(--lightv3, #a7a7a7);
-  margin-bottom: 0.5rem;
+  /* margin-bottom: 0.5rem; */
 }
 
 .notificationDate {
-  font-size: 0.625rem;
+  font-size: var(--sS);
   color: var(--lightv3, #a7a7a7);
   text-align: right;
 }
 
 /* Estilos para el icono circular */
-.notificationIcon > div {
+.notificationIcon {
   background-color: white;
-  width: 2.5rem;
-  height: 2.5rem;
+  padding: 8px;
   border-radius: 50%;
   display: flex;
   justify-content: center;

@@ -99,14 +99,22 @@ const RenderView = (props: any) => {
                 <p>{item?.dpto[0]?.type.name}</p>
               </div>
             )}
-            <div>
-              <p>Número de Unidad</p>
-              <p>
-                {item?.dpto?.length > 0
-                  ? item?.dpto[0]?.nro
-                  : item?.client_owner?.preunidad || "Sin número de unidad"}
-              </p>
-            </div>
+           
+                <>
+                  {item?.dpto?.length > 0 ? (
+                    // CASO 1: Si ya tiene una unidad asignada
+                    <div>
+                      <p>Número de Unidad</p>
+                      <p>{item.dpto[0].nro}</p>
+                    </div>
+                  ) : (
+                    // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                    <div>
+                      <p>Número de Unidad solicitada</p>
+                      <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                    </div>
+                  )}
+                </>
           </section>
         </div>
         {client?.pivot?.status === "W" && (

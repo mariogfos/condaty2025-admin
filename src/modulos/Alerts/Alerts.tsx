@@ -10,6 +10,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   IconAlert,
   IconAlert2,
+  IconAlert3,
   IconAmbulance,
   IconFlame,
   IconGuardShield,
@@ -296,8 +297,17 @@ const Alerts = () => {
             data={String(data?.extraData?.total_alerts || 0)}
             icon={
               <IconAlert2
-                color={"var(--cWhite)"}
-                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                color={
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWhite)"
+                }
+                style={{
+                  backgroundColor:
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? "var(--cHover)"
+                      : "rgba(255, 255, 255, 0.1)",
+                }}
                 circle
                 size={38}
               />
@@ -309,8 +319,17 @@ const Alerts = () => {
             data={String(data?.extraData?.low_level || 0)}
             icon={
               <IconAlert2
-                color={"var(--cSuccess)"}
-                style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                color={
+                  !data?.extraData?.low_level || data?.extraData?.low_level === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cSuccess)"
+                }
+                style={{
+                  backgroundColor:
+                    !data?.extraData?.low_level || data?.extraData?.low_level === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverSuccess)",
+                }}
                 circle
                 size={38}
               />
@@ -323,8 +342,17 @@ const Alerts = () => {
             data={String(data?.extraData?.medium_level || 0)}
             icon={
               <IconAlert2
-                color={"var(--cWarning)"}
-                style={{ backgroundColor: "var(--cHoverWarning)" }}
+                color={
+                  !data?.extraData?.medium_level || data?.extraData?.medium_level === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWarning)"
+                }
+                style={{
+                  backgroundColor:
+                    !data?.extraData?.medium_level || data?.extraData?.medium_level === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverWarning)",
+                }}
                 circle
                 size={38}
               />
@@ -336,8 +364,17 @@ const Alerts = () => {
             data={String(data?.extraData?.high_level || 0)}
             icon={
               <IconAlert2
-                color={"#da5d5d"}
-                style={{ backgroundColor: "var(--errorBg)" }}
+                color={
+                  !data?.extraData?.high_level || data?.extraData?.high_level === 0
+                    ? "var(--cWhiteV1)"
+                    : "#da5d5d"
+                }
+                style={{
+                  backgroundColor:
+                    !data?.extraData?.high_level || data?.extraData?.high_level === 0
+                      ? "var(--cHover)"
+                      : "var(--errorBg)",
+                }}
                 circle
                 size={38}
               />
@@ -349,8 +386,17 @@ const Alerts = () => {
             data={String(data?.extraData?.emergency_buttons || 0)}
             icon={
               <IconAlert2
-                color={"#da5d5d"}
-                style={{ backgroundColor: "var(--errorBg)" }}
+                color={
+                  !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                    ? "var(--cWhiteV1)"
+                    : "#da5d5d"
+                }
+                style={{
+                  backgroundColor:
+                    !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                      ? "var(--cHover)"
+                      : "var(--errorBg)",
+                }}
                 circle
                 size={38}
               />
@@ -360,7 +406,10 @@ const Alerts = () => {
         </div>
       </div>
 
-      <List />
+      <List height={"calc(100vh - 460px)"} 
+      emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
+      emptyLine2="registre una, se mostrará aquí."
+      emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />} />
     </div>
   );
 };

@@ -131,10 +131,20 @@ const FormElement = memo(
     setError: Function;
     data: { user: any; action: ActionType; mod: any; extraData: any };
   }) => {
+    // console.log("field:::", field);
+
     const _field = {
       ...field,
       ...(field[data?.action] ? field[data?.action] : {}),
     };
+    if (field.required !== false && field.required !== true) {
+      if (_field.rules?.find((r: any) => r == "required")) {
+        _field.required = true;
+      } else {
+        _field.required = false;
+      }
+    }
+    // console.log("_field:::", _field);
     if (_field.onHide?.({ item, user: data?.user, key: _field.key }))
       return null;
     const options =
@@ -155,6 +165,9 @@ const FormElement = memo(
       extraData: data?.extraData,
       action: data.action,
     };
+
+    // console.log(_field);
+
     let val = item[_field.key] || "";
     switch (_field.type) {
       case "text":
@@ -232,11 +245,14 @@ const FormElement = memo(
       case "imageUpload":
         return (
           <LeftRigthElement {...props}>
+            {/* {JSON.stringify(data)} */}
             <UploadFile
               name={_field.key}
               // value={item[_field.key]}
               value={
-                item[_field.id || "id"]
+                data?.action == "add"
+                  ? undefined
+                  : item[_field.id ?? "id"]
                   ? getUrlImages(
                       "/" +
                         _field.prefix +
@@ -312,7 +328,6 @@ const FormElement = memo(
       case "fileUpload":
         return (
           <LeftRigthElement {...props}>
-           
             <UploadFile
               name={_field.key}
               value={item[_field.key]}

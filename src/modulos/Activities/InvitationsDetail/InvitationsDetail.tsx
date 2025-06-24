@@ -1,18 +1,14 @@
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { Card } from "@/mk/components/ui/Card/Card";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes } from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes, formatDateRange } from "@/mk/utils/date";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import { getDateTimeStrMes } from "../../../mk/utils/date";
 import {
   IconArrowLeft,
   IconArrowRight,
 } from "@/components/layout/icons/IconsBiblioteca";
-import LabelValueDetail from "@/components/Detail/LabelValueDetail";
-import ContainerDetail from "@/components/Detail/ContainerDetail";
 
 interface Props {
   item?: any;
@@ -31,43 +27,42 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const owner = item?.owner;
   const visit = item?.visit;
   const invitation = item?.invitation;
-  console.log(item);
-  const Br = () => {
-    return (
-      <div
-        style={{
-          height: 0.5,
-          backgroundColor: "var(--cWhiteV1)",
-          margin: "16px 0px",
-        }}
-      />
-    );
-  };
-  const getStatus = () => {
-    let status = "";
+
+  const getStatusInfo = () => {
+    let statusText = "Desconocido";
+    let statusClass = "";
+
     if (item?.out_at) {
-      status = "Completado";
+      statusText = "Completado";
+      statusClass = styles.statusActive;
     } else if (item?.in_at) {
-      status = "Por Salir";
-    } else if (!item?.confirm_at) {
-      status = "Por confirmar";
+      statusText = "Por Salir";
+      statusClass = styles.statusActive;
     } else if (item?.confirm == "Y") {
-      status = "Por entrar";
-    } else {
-      status = "Denegado";
+      statusText = "Activo";
+      statusClass = styles.statusActive;
+    } else if (item?.confirm == "N") {
+        statusText = "Denegado";
+        statusClass = styles.statusDenied;
+    } else if (!item?.confirm_at) {
+      statusText = "Por confirmar";
+      statusClass = styles.statusPending;
     }
-    return status;
+    return { text: statusText, className: statusClass };
   };
+
   const getAccess = () => {
-    return invitation?.guests?.filter((a: any) => a.status != "A");
+    return invitation?.guests?.filter((a: any) => a.status !== "A") || [];
   };
+
   const getPending = () => {
-    return invitation?.guests?.filter((a: any) => a.status == "A");
+    return invitation?.guests?.filter((a: any) => a.status === "A") || [];
   };
+
   function parseWeekDays(binaryNumber: number): string[] {
     const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
     const result: string[] = [];
-
+    if (!binaryNumber) return result;
     for (let i = 0; i < 7; i++) {
       if (binaryNumber & (1 << i)) {
         result.push(diasSemana[i]);
@@ -76,17 +71,8 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
     return result;
   }
 
-  type AccessTextProps = {
-    text: string;
-    textV2: string;
-  };
-  const AccessText = ({ text, textV2 }: AccessTextProps) => {
-    return (
-      <p style={{ marginBottom: 12 }}>
-        <span style={{ color: "var(--cWhite)" }}>{text}</span>/{textV2}
-      </p>
-    );
-  };
+  const statusInfo = getStatusInfo();
+
   return (
     <DataModal
       open={open}
@@ -94,202 +80,131 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       title="Detalle de la invitación"
       buttonCancel=""
       buttonText=""
-      className={styles.InvitationsDetail}
     >
-      <Card>
-        <Avatar
-          name="Nando peña"
-          h={60}
-          w={60}
-          src={getUrlImages(
-            "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at
-          )}
-        />
-        <p style={{ textAlign: "center", color: "var(--cWhite)" }}>
-          {getFullName(owner)}
-        </p>
-        <p style={{ textAlign: "center", fontWeight: "300" }}>
-          C.I. {owner?.ci} - Unidad: {owner?.dpto?.[0]?.nro}
-        </p>
-        <Br />
-        <ContainerDetail>
-          <LabelValueDetail
-            value={typeInvitation[item?.type]}
-            label="Tipo de invitación"
+      <div className={styles.container}>
+        <section className={styles.headerSection}>
+          <Avatar
+            name={getFullName(owner)}
+            h={60}
+            w={60}
+            src={getUrlImages(
+              "/OWNER-" + owner?.id + ".webp?d=" + owner?.updated_at
+            )}
+            style={{ marginBottom: "var(--spS)" }}
           />
-          {item?.type == "G" && (
-            <LabelValueDetail
-              value={invitation?.title || "-/-"}
-              label="Evento"
-            />
-          )}
-          {item?.type == "I" && (
-            <LabelValueDetail label="Invitado" value={getFullName(visit)} />
-          )}
-          <LabelValueDetail label="Estado" value={getStatus()} />
-          <LabelValueDetail
-            value={invitation?.obs || "-/-"}
-            label="Indicaciones"
-          />
+          <div className={styles.headerName}>{getFullName(owner)}</div>
+          <div className={styles.headerInfo}>
+            C.I. {owner?.ci} - Unidad: {owner?.dpto?.[0]?.nro}
+          </div>
+        </section>
 
-          {item?.type != "C" && (
-            <LabelValueDetail
-              value={
-                item?.type == "F"
-                  ? getDateStrMes(invitation?.start_date) +
-                    "  " +
-                    getDateStrMes(invitation?.end_date)
-                  : getDateStrMes(invitation?.date_event)
-              }
-              label={
-                item?.type == "F" ? "Periodo de validez" : "Fecha de invitación"
-              }
-            />
-          )}
-        </ContainerDetail>
-        <Br />
-        {item?.type == "F" && invitation?.weekday && (
+        <section className={styles.detailsSection}>
+          <div className={styles.detailsColumn}>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Tipo de invitación</span>
+              <span className={styles.infoValue}>
+                {typeInvitation[item?.type]}
+              </span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Invitado</span>
+              <span className={styles.infoValue}>{getFullName(visit) || invitation?.title || '-/-'}</span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Indicaciones</span>
+              <span className={styles.infoValue}>{invitation?.obs || "-/-"}</span>
+            </div>
+          </div>
+          <div className={styles.detailsColumn}>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Estado</span>
+              <span className={`${styles.infoValue} ${statusInfo.className}`}>
+                {statusInfo.text}
+              </span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Teléfono</span>
+              <span className={styles.infoValue}>{visit?.phone || "-/-"}</span>
+            </div>
+            {item?.type !== "C" && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>
+                  {item?.type === "F"
+                    ? "Periodo de validez"
+                    : "Fecha de invitación"}
+                </span>
+                <span className={styles.infoValue}>
+                  {item?.type === "F"
+                    ? (invitation?.start_date && invitation?.end_date
+                        ? formatDateRange(invitation?.start_date, invitation?.end_date)
+                        : "Indefinido")
+                    : (getDateStrMes(invitation?.date_event) || "Indefinido")}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {item?.type === "F" && (
           <>
-            <p
-              style={{
-                color: "var(--cWhite)",
-                marginBottom: 12,
-                fontWeight: "bold",
-              }}
-            >
-              Configuración avanzada
+            <p className={styles.sectionTitle}>Configuración avanzada</p>
+            <section className={styles.detailsSection}>
+              <div className={styles.detailsColumn}>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Días de acceso</span>
+                  <span className={styles.infoValue}>
+                    {parseWeekDays(invitation?.weekday).join(', ') || "No especificado"}
+                  </span>
+                </div>
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Cantidad de accesos</span>
+                  <span className={styles.infoValue}>
+                    {invitation?.max_entries || "Ilimitados"}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.detailsColumn}>
+                
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Horario permitido</span>
+                  <span className={styles.infoValue}>
+                    {invitation?.start_time?.slice(0, 5)} - {invitation?.end_time?.slice(0, 5)}
+                  </span>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {(item?.type === "F" || item?.type === "G") && (
+          <>
+             <p className={styles.sectionTitle}>
+                Accesos {invitation?.access?.length || getAccess().length}/{item?.type === 'F' ? (invitation?.max_entries || 'ilimitados') : invitation?.guests?.length}
             </p>
-            <ContainerDetail>
-              <LabelValueDetail
-                value={parseWeekDays(invitation?.weekday).toString()}
-                label="Días de acceso"
-              />
-              <LabelValueDetail
-                value={
-                  invitation?.start_time.slice(0, 5) +
-                  " - " +
-                  invitation?.end_time.slice(0, 5)
-                }
-                label="Horario permitido"
-              />
-              <LabelValueDetail
-                value={invitation?.max_entries || "-/-"}
-                label="Cantidad"
-              />
-            </ContainerDetail>
-            <Br />
-          </>
-        )}
-        {item?.type == "F" && (
-          <>
-            <AccessText
-              text={"Accessos " + invitation?.access.length}
-              textV2={invitation?.max_entries}
-            />
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 12,
-              }}
-            >
-              {invitation?.access?.map((acc: any) => {
-                return (
-                  <ItemList
-                    variant="V3"
-                    key={acc.id}
-                    title={getFullName(visit)}
-                    left={<Avatar name={getFullName(visit)} />}
-                  >
-                    <div
-                      style={{ display: "flex", fontSize: 12, marginTop: 8 }}
-                    >
-                      <IconArrowRight color="var(--cSuccess)" size={12} />
-                      {getDateTimeStrMes(acc?.in_at)}
+            <div className={styles.listContainer}>
+              {(invitation?.access || getAccess())?.map((acc: any) => (
+                <ItemList
+                  variant="V3"
+                  key={acc.id}
+                  title={getFullName(acc.visit || visit)}
+                  left={<Avatar name={getFullName(acc.visit || visit)} />}
+                >
+                  <div className={styles.accessTime}>
+                    <IconArrowRight className={styles.accessInIcon} size={12} />
+                    {getDateTimeStrMes(acc?.in_at || acc?.access?.in_at)}
+                  </div>
+                  {(acc?.out_at || acc?.access?.out_at) && (
+                    <div className={styles.accessTime}>
+                      <IconArrowLeft className={styles.accessOutIcon} size={12} />
+                      {getDateTimeStrMes(acc?.out_at || acc?.access?.out_at)}
                     </div>
-                    {acc?.out_at && (
-                      <div style={{ display: "flex", fontSize: 12 }}>
-                        <IconArrowLeft color="var(--cError)" size={12} />
-                        {getDateTimeStrMes(acc?.out_at)}
-                      </div>
-                    )}
-                  </ItemList>
-                );
-              })}
+                  )}
+                </ItemList>
+              ))}
             </div>
-            <Br />
           </>
         )}
-
-        {item?.type == "G" && (
-          <>
-            <AccessText
-              text={"Asistieron " + getAccess().length}
-              textV2={invitation?.guests?.length}
-            />
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 12,
-              }}
-            >
-              {getAccess()?.map((acc: any) => {
-                return (
-                  <ItemList
-                    variant="V3"
-                    key={acc.id}
-                    title={getFullName(acc.visit)}
-                    left={<Avatar name={getFullName(acc.visit)} />}
-                  >
-                    <div
-                      style={{ display: "flex", fontSize: 12, marginTop: 8 }}
-                    >
-                      <IconArrowRight color="var(--cSuccess)" size={12} />
-                      {getDateTimeStrMes(acc?.access?.in_at)}
-                    </div>
-                    {acc?.access?.out_at && (
-                      <div style={{ display: "flex", fontSize: 12 }}>
-                        <IconArrowLeft color="var(--cError)" size={12} />
-
-                        {getDateTimeStrMes(acc?.access?.out_at)}
-                      </div>
-                    )}
-                  </ItemList>
-                );
-              })}
-            </div>
-            <Br />
-          </>
-        )}
-        {getPending().length > 0 && (
-          <>
-            <AccessText
-              text={"No asistieron " + getPending().length}
-              textV2={invitation?.guests?.length}
-            />
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 12,
-              }}
-            >
-              {getPending()?.map((acc: any) => {
-                return (
-                  <ItemList
-                    variant="V3"
-                    key={acc.id}
-                    title={getFullName(acc.visit)}
-                    left={<Avatar name={getFullName(acc.visit)} />}
-                  />
-                );
-              })}
-            </div>
-            <Br />
-          </>
-        )}
-      </Card>
+      </div>
     </DataModal>
   );
 };

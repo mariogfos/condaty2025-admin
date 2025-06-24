@@ -10,6 +10,12 @@
   font-size: 0.875rem;
   line-height: 1.5;
 }
+.title {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: 10px;
+  color: var(--cWhite);
+}
 
 /* Contenedor principal de todos los filtros */
 .filterContainer {

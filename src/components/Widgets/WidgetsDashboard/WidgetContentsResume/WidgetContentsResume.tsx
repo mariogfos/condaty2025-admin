@@ -1,91 +1,87 @@
-import React from 'react'
-import WidgetBase from '../../WidgetBase/WidgetBase'
-import styles from './WidgetContentsResume.module.css'
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar'
-import { getFullName, getUrlImages } from '@/mk/utils/string'
-import { getDateTimeAgo } from '@/mk/utils/date'
-import Image from 'next/image'
-import { IconComment, IconLike } from '@/components/layout/icons/IconsBiblioteca'
+import React, { useEffect, useState } from "react";
+import WidgetBase from "../../WidgetBase/WidgetBase";
+import styles from "./WidgetContentsResume.module.css";
+import useAxios from '@/mk/hooks/useAxios';
+import { ReelCompactList } from '@/modulos/Reel/Reel';
+import type { ContentItem } from '@/modulos/Reel/Reel';
+import EmptyData from "@/components/NoData/EmptyData";
+import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
+import { useRouter } from 'next/navigation';
 
-const WidgetContentsResume = ({data}:any) => {
-  console.log(data,'data desde widget contents resume')
+const WidgetContentsResume = () => {
+  const [contents, setContents] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { data, loaded, error, reLoad } = useAxios("/contents", "GET", {
+    perPage: 3,
+    page: 1,
+    fullType: "L",
+    searchBy: ""
+  }, false);
+  const router = useRouter();
+
+  useEffect(() => {
+    reLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!loaded && loading) return;
+    setLoading(false);
+    if (error) {
+      setContents([]);
+    } else if (data?.data) {
+      const items = data.data.map((item: any) => ({
+        ...item,
+        likes: item.likes || 0,
+        comments_count: item.comments_count || 0,
+        currentImageIndex: 0,
+        isDescriptionExpanded: false,
+      }));
+      setContents(items);
+    } else {
+      setContents([]);
+    }
+  }, [data, loaded, error, loading]);
+
+  // Al hacer click en like o comentario, redirigir al módulo Reel
+  const handleRedirectToReel = () => {
+    router.push('/reels');
+  };
+
+  // Al hacer click en imagen, redirigir a /reels
+  const handleImageClick = () => {
+    router.push('/reels');
+  };
+
   return (
-    <WidgetBase variant={'V1'} title={'Comunidad'} >
-    <div style={{maxHeight: 800, overflowY: 'auto'}}>
-    {data?.length > 0 ? data.map((item: any, index: number) => (
-      <div key={item.id}>
-      <div className='bottomLine'/>
-      <div className={styles.contentContainer}>
-      <div className={styles.avatarContainer}>
-        {/* <Avatar
-                  name={getFullName(user)}
-                  src={getUrlImages(
-                    "/ADM-" +
-                      user?.id +
-                      ".webp?d=" +
-                      user?.updated_at
-                  )} */}
-          <div>
-             <Avatar
-                  name={getFullName(item?.user)}
-                  src={getUrlImages(
-                    "/ADM-" +
-                      item?.user?.id +
-                      ".webp?d=" +
-                      item?.user?.updated_at
-                  )}
-                />
-                <section>
-                  <div>{getFullName(item?.user)}</div>
-                  <div className={styles.textSecond}>Administrador</div>
-                </section>
-         </div>
-            <div className={styles.textSecond}>
-                {getDateTimeAgo(item?.created_at)}
-            </div>    
-            
-        
-      </div>  
-         <section className={styles.descriptionArea}>
-          <div>{item?.title}</div>
-            <div className={styles.textSecond} style={{fontSize:14,textAlign:'left',justifyContent:'flex-start',alignItems:'flex-start'}}>{item?.description}</div>
-           {item?.images && item?.images[0] && (
-            <div>
-             <img
-             src={getUrlImages(
-              "/CONT-" +
-                item?.id +
-                "-" +
-                item?.images[0]?.id +
-                ".webp" +
-                "?" +
-                item?.updated_at
-            )}
-               alt={item?.title}
-              //  width={502}
-               height={387}
-               style={{borderRadius:'var(--bRadiusS)'}}
-             />
-             </div>
-           )} 
-            <div style={{display:'flex', alignItems:'center', paddingBottom: 'var(--spS)'}}>
-              
-                  <IconLike color={'var(--cWhiteV1'}/>
-                  <div>{item?.likes}</div>
-             
-                  <IconComment color={'var(--cWhiteV1'}/>
-                  <div>{item?.comments_count}</div>
-               
-            </div>
-        
-        </section>
-    </div>
-    </div>
-    )) :<div style={{display:'flex',justifyContent:'center',alignItems:'center',height: 800}}>Aún no hay publicaciones</div>
-  }
-    </div>
-   </WidgetBase>
-  )
-}
+    <WidgetBase
+      variant={"V1"}
+      title={"Contenidos"}
+      subtitle={"Publicaciones y anuncios del condominio"}
+      className={styles.widgetContentsResume}
+    >
+      <div className={styles.widgetContentsResumeContent}>
+        {loading ? (
+          <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Cargando publicaciones...</div>
+        ) : contents.length > 0 ? (
+          <ReelCompactList
+            items={contents}
+            modoCompacto={true}
+            onLike={handleRedirectToReel}
+            onOpenComments={handleRedirectToReel}
+            onImageClick={handleImageClick}
+          />
+        ) : (
+          <EmptyData
+            message="Sin publicaciones. Las noticias de administración aparecerán"
+            line2="aquí, una vez comiences a crear y publicar contenido."
+            h={200}
+            icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />} 
+          />
+        )}
+      </div>
+    </WidgetBase>
+  );
+};
 
-export default WidgetContentsResume
+export default WidgetContentsResume;

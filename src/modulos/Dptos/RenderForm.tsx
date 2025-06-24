@@ -96,12 +96,12 @@ const RenderForm = ({
       key: "nro",
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.description,
-      rules: ["required"],
-      key: "description",
-      errors: errs,
-    });
+    // errs = checkRules({
+    //   value: formState.description,
+    //   rules: ["required"],
+    //   key: "description",
+    //   errors: errs,
+    // });
     errs = checkRules({
       value: formState.type_id,
       rules: ["required"],
@@ -139,7 +139,7 @@ const RenderForm = ({
       .filter((field: any) => enabledFields[field.id])
       .map((field: any) => ({
         field_id: field.id,
-        value: formState[`field_${field.id}`] || "",
+        value: formState[`field_${field.id}`] ?? "",
       }));
 
     const { data: response } = await execute(
@@ -224,10 +224,10 @@ const RenderForm = ({
         value={formState.description}
         onChange={handleChange}
         error={errors}
-        required={true}
+        required={false}
       />
 
-      <Select
+      {/* <Select
         label="Propietario"
         name="homeowner_id"
         value={formState.homeowner_id}
@@ -235,7 +235,7 @@ const RenderForm = ({
         options={[{ id: "X", name: "Sin propietario" }, ...homeownerOptions]}
         error={errors}
         required={true}
-      />
+      /> */}
 
       {/* campos extra --- para un futuro quiza
       {typeFields.map((field: any) => (

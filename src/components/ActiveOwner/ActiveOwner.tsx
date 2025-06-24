@@ -20,7 +20,7 @@ const ActiveOwner = ({
   const { store, showToast, user } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
-  const [ldpto, setLdpto] = useState([]);
+  // const [ldpto, setLdpto] = useState([]);
   const client = data?.clients?.find(
     (item: any) => item?.id === user?.client_id
   );
@@ -29,27 +29,28 @@ const ActiveOwner = ({
   // A:Aceptado
   // W:En espera
 
-  const { data: dptos, execute } = useAxios(
-    "/dptos",
-    "GET",
-    {
-      fullType: "L",
-    },
-    true
-  );
+  const { data: dptos, execute } = useAxios("/dptos", "GET", {
+    fullType: "PR",
+  });
 
-  useEffect(() => {
-    // console.log('entre')
+  // useEffect(() => {
+  //   const lista =
+  //     dptos?.data?.map((item: any) => ({
+  //       id: item?.id,
+  //       nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
+  //     })) || [];
+  //   setLdpto(lista);
+  // }, [dptos?.data]);
+  const getLDptos = () => {
+    console.log(dptos?.data, "ALLALALLA");
     const lista =
-      dptos?.data
-        ?.filter((item: any) => item?.titular === null)
-        .map((item: any) => ({
-          id: item?.id,
-          nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
-        })) || [];
+      dptos?.data?.map((item: any) => ({
+        id: item?.id,
+        nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
+      })) || [];
 
-    setLdpto(lista);
-  }, [dptos]);
+    return lista;
+  };
 
   const handleChangeInput = (e: any) => {
     const { name, value } = e.target;
@@ -76,7 +77,6 @@ const ActiveOwner = ({
     setErrors(errs);
     return errs;
   };
-  console.log(errors);
 
   const activeResident = async () => {
     const errs = validate();
@@ -108,7 +108,7 @@ const ActiveOwner = ({
       console.log("error:", error);
     }
   };
-  console.log(client);
+  console.log(getLDptos(), "DPTOS");
   return (
     <DataModal
       open={open}
@@ -130,11 +130,11 @@ const ActiveOwner = ({
           <div>
             <Select
               label="Unidad"
-              placeholder={"Número de " + store.UnitsType}
+              // placeholder={"Número de " + store.UnitsType}
               name="dpto_id"
               required={true}
               value={formState.dpto_id}
-              options={ldpto}
+              options={getLDptos()}
               optionLabel="nro"
               error={errors}
               optionValue="id"

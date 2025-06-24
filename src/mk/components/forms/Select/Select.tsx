@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import {
   IconArrowDown,
@@ -24,6 +23,121 @@ interface PropsType extends PropsTypeInputBase {
   style?: CSSProperties;
 }
 
+const Section = ({
+  selectRef1,
+  position,
+  selectOptionsClassName,
+  filter,
+  name,
+  _options,
+  search,
+  onChangeSearch,
+  multiSelect,
+  selectValue,
+  optionValue,
+  optionLabel,
+  handleSelectClickElement,
+  handleSelectMultiClickElement,
+  setOpenOptions,
+  selectRef,
+}: any) => {
+  useOnClickOutside(
+    selectRef1,
+    () => {
+      onChangeSearch({ target: { value: "" } });
+      setOpenOptions(false);
+    },
+    selectRef
+  );
+
+  return (
+    <section
+      ref={selectRef1}
+      className={`${styles.selectOptions} ${selectOptionsClassName}`}
+      style={{
+        top: `${position?.top || 0}px`,
+        left: `${position?.left || 0}px`,
+        width: `${position?.width || 0}px`,
+      }}
+    >
+      <div className={filter ? "" : "hidden"}>
+        <Input
+          type="text"
+          value={search}
+          onChange={onChangeSearch}
+          name={`search${name}`}
+          placeholder={"Buscar..."}
+        />
+      </div>
+      <ul>
+        {_options.map
+          ? _options.map((option: any, key: any) => (
+              <li
+                className={
+                  Array.isArray(selectValue)
+                    ? selectValue.includes(option[optionValue])
+                      ? styles["selected"]
+                      : ""
+                    : selectValue === option[optionValue]
+                    ? styles["selected"]
+                    : ""
+                }
+                key={`li${name}${option[optionValue] || key}`}
+                onClick={
+                  !multiSelect
+                    ? (e) => {
+                        handleSelectClickElement(option[optionValue] || key);
+                        e.stopPropagation();
+                      }
+                    : (e) => {
+                        handleSelectMultiClickElement(
+                          option[optionValue] || key
+                        );
+                        e.stopPropagation();
+                      }
+                }
+              >
+                <div style={{ alignItems: "center", gap: "8px" }}>
+                  {option["img"] && (
+                    <Avatar
+                      className={styles.avatar}
+                      name={option[optionLabel] || option.label}
+                      src={option["img"]}
+                      h={32}
+                      w={32}
+                    />
+                  )}
+                  {multiSelect ? (
+                    Array.isArray(selectValue) &&
+                    selectValue.includes(option[optionValue]) ? (
+                      <IconCheckSquare size={18} />
+                    ) : (
+                      <IconCheckOff size={18} />
+                    )
+                  ) : null}
+                  <div style={{ flexGrow: 1, flexBasis: 0 }}>
+                    {option[optionLabel] || option.label}
+                  </div>
+                </div>
+              </li>
+            ))
+          : Object.keys(_options).map((key) => (
+              <li
+                key={`li${name}${key}`}
+                onClick={() =>
+                  handleSelectClickElement(
+                    _options[key][optionValue] || _options[key].label
+                  )
+                }
+              >
+                {_options[key][optionValue] || _options[key].label}
+              </li>
+            ))}
+      </ul>
+    </section>
+  );
+};
+
 const Select = ({
   value,
   name,
@@ -37,7 +151,7 @@ const Select = ({
   optionValue = "id",
   readOnly = false,
   disabled = false,
-  required = false,
+  required = true,
   placeholder = "",
   label = "",
   inputStyle = {},
@@ -49,6 +163,7 @@ const Select = ({
     value || (multiSelect ? [] : "")
   );
   const [openOptions, setOpenOptions] = useState(false);
+  const [search, setSearch] = useState("");
   const selectRef = useRef<HTMLDivElement>(null);
   const [selectedNames, setSelectedNames]: any = useState("");
   const [position, setPosition]: any = useState(null);
@@ -64,12 +179,8 @@ const Select = ({
     return null;
   };
 
-  const [_options, setOptions]: any = useState([]);
-
   useEffect(() => {
     if (multiSelect) {
-      // Asegúrate de que selectValue es un array.
-      // selectValue debería contener los valores correspondientes a option[optionValue] de las opciones seleccionadas.
       const currentSelectedValues = Array.isArray(selectValue)
         ? selectValue
         : [];
@@ -79,7 +190,6 @@ const Select = ({
         options.length > 0 &&
         currentSelectedValues.length > 0
       ) {
-        // Filtra los objetos de opción completos que han sido seleccionados.
         const selectedFullOptions = options.filter((option: any) =>
           currentSelectedValues.includes(option[optionValue])
         );
@@ -87,11 +197,9 @@ const Select = ({
         let displayString = "";
         const count = selectedFullOptions.length;
 
-        if (count > 5) {
+        if (count > 10) {
           displayString = `${count} elementos seleccionados`;
         } else {
-          // Obtiene los nombres (usando optionLabel) de las opciones seleccionadas.
-          // Provee un fallback si option[optionLabel] o option.label no existen.
           const namesArray = selectedFullOptions.map(
             (option: any) =>
               option[optionLabel] || option.label || String(option[optionValue])
@@ -100,17 +208,9 @@ const Select = ({
         }
         setSelectedNames(displayString);
       } else {
-        // Si no hay opciones seleccionadas o las opciones base están vacías, muestra un string vacío.
         setSelectedNames("");
       }
-    } else {
-      // Opcional: si no es multiSelect, puedes querer limpiar selectedNames
-      // o dejar que la lógica del input maneje el valor directamente.
-      // Si selectedNames solo se usa para multiSelect, esta parte podría no ser necesaria.
-      // Sin embargo, para asegurar que el input esté limpio si se cambia de multiSelect a single select:
-      // setSelectedNames(""); // Descomenta si es necesario.
     }
-    // Asegúrate de incluir todas las dependencias que usa el efecto.
   }, [selectValue, options, multiSelect, optionLabel, optionValue]);
 
   useEffect(() => {
@@ -130,8 +230,9 @@ const Select = ({
 
   const calcPosition = () => {
     const select: any = selectRef.current;
-
     const child: any = selectRef1.current;
+
+    if (!select) return;
 
     let parent: any = select.getBoundingClientRect();
     let childPosition: any = child?.getBoundingClientRect();
@@ -151,7 +252,6 @@ const Select = ({
 
   useEffect(() => {
     if (openOptions) {
-      // handleSelectPosition();
       calcPosition();
     }
   }, [openOptions]);
@@ -168,9 +268,10 @@ const Select = ({
         setSelectValue(valueText);
       }
     }
-  }, [value, selectValue]);
+  }, [value, selectValue, multiSelect, options, optionLabel, optionValue]);
 
   if (!options) return null;
+
   let valueText: any = "";
   if (readOnly) {
     if (options.filter) {
@@ -187,6 +288,7 @@ const Select = ({
     setSelectValue(element);
     setOpenOptions(false);
     onChange({ target: { name: name, value: element } });
+    setSearch("");
   };
 
   const handleSelectMultiClickElement = (element: any) => {
@@ -203,137 +305,25 @@ const Select = ({
 
   const handleSelectClickIcon = (e: any) => {
     e.stopPropagation();
+    e.preventDefault();
     setOpenOptions((old: boolean) => !old);
   };
 
-  // const handleSelectPosition = () => {
-  //   // const select = selectRef.current;
-  //   // if (select) {
-  //   //   const top = select.getBoundingClientRect().top;
-  //   //   const bottom = window.innerHeight - select.getBoundingClientRect().bottom;
-  //   //   return top > bottom ? "bottom-full" : "top-full";
-  //   // }
-  //   // return "";
-  // };
+  const normalizeText = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
 
-  const Section = () => {
-    const [search, setSearch] = useState("");
-    const [_options, setFilterOptions]: any = useState(options);
-    const normalizeText = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase();
+  const filteredOptions = options.filter((option: any) => {
+    const label = option[optionLabel] || option.label || "";
+    return normalizeText(String(label)).includes(normalizeText(search));
+  });
 
-    const onChangeSearch = (e: any) => {
-      const searchValue = normalizeText(e.target.value);
-      setSearch(e.target.value);
-
-      const filteredOptions = options.filter((option: any) =>
-        normalizeText(option[optionLabel]).includes(searchValue)
-      );
-
-      setFilterOptions(filteredOptions);
-    };
-
-    useOnClickOutside(
-      selectRef1,
-      (e: any) => {
-        setOpenOptions(false);
-      },
-      selectRef as any
-    );
-    return (
-      <section
-        ref={selectRef1}
-        className={styles.selectOptions + " " + selectOptionsClassName}
-        style={{
-          top: (position?.top || 0) + "px",
-          left: (position?.left || 0) + "px",
-          width: (position?.width || 0) + "px",
-        }}
-      >
-        <div className={filter ? "" : "hidden"}>
-          <Input
-            type="text"
-            value={search}
-            onChange={onChangeSearch}
-            name={"search" + name}
-            placeholder={"Buscar..."}
-          />
-        </div>
-        <ul>
-          {_options.map
-            ? _options.map((option: any, key: any) => (
-                <li
-                  className={
-                    Array.isArray(selectValue)
-                      ? selectValue.includes(option[optionValue])
-                        ? styles["selected"]
-                        : ""
-                      : selectValue === option[optionValue]
-                      ? styles["selected"]
-                      : ""
-                  }
-                  key={"li" + name + (option[optionValue] || key)}
-                  onClick={
-                    !multiSelect
-                      ? (e) => {
-                          handleSelectClickElement(option[optionValue] || key);
-                          e.stopPropagation();
-                        }
-                      : (e) => {
-                          handleSelectMultiClickElement(
-                            option[optionValue] || key
-                          );
-                          e.stopPropagation();
-                        }
-                  }
-                >
-                  <div style={{ alignItems: "center", gap: "8px" }}>
-                    {option["img"] && (
-                      <Avatar
-                        className={styles.avatar}
-                        name={option[optionLabel] || option.label}
-                        src={option["img"]}
-                        h={32}
-                        w={32}
-                      />
-                    )}
-                    {multiSelect ? (
-                      Array.isArray(selectValue) &&
-                      selectValue.includes(option[optionValue]) ? (
-                        <IconCheckSquare size={18} />
-                      ) : (
-                        <IconCheckOff size={18} />
-                      )
-                    ) : null}
-                    <div style={{ flexGrow: 1, flexBasis: 0 }}>
-                      {option[optionLabel] || option.label}
-                    </div>
-                  </div>
-                </li>
-              ))
-            : Object.keys(_options).map((key) => (
-                <li
-                  key={"li" + name + key}
-                  onClick={() =>
-                    handleSelectClickElement(
-                      _options[key][optionValue] || _options[key].label
-                    )
-                  }
-                >
-                  {_options[key][optionValue] || _options[key].label}
-                </li>
-              ))}
-        </ul>
-      </section>
-    );
-  };
   return (
     <div
       ref={selectRef}
-      className={styles.select + " " + className}
+      className={`${styles.select} ${className}`}
       style={style}
     >
       <div onClick={disabled ? () => {} : handleSelectClickIcon}>
@@ -343,12 +333,8 @@ const Select = ({
             multiSelect
               ? selectedNames
               : options.find
-              ? options.find((i: any) => {
-                  return i[optionValue] == value;
-                })
-                ? options.find((i: any) => {
-                    return i[optionValue] == value;
-                  })[optionLabel]
+              ? options.find((i: any) => i[optionValue] == value)
+                ? options.find((i: any) => i[optionValue] == value)[optionLabel]
                 : ""
               : options[value]?.label
           }
@@ -362,12 +348,30 @@ const Select = ({
           onBlur={onBlur}
           disabled={disabled}
           error={error}
-          style={inputStyle}
+          style={{ ...inputStyle, cursor: "pointer" }}
+          styleInput={{ cursor: "pointer" }}
         />
       </div>
       {openOptions &&
         createPortal(
-          <Section />,
+          <Section
+            selectRef1={selectRef1}
+            position={position}
+            selectOptionsClassName={selectOptionsClassName}
+            filter={filter}
+            name={name}
+            _options={filteredOptions}
+            search={search}
+            onChangeSearch={(e: any) => setSearch(e.target.value)}
+            multiSelect={multiSelect}
+            selectValue={selectValue}
+            optionValue={optionValue}
+            optionLabel={optionLabel}
+            handleSelectClickElement={handleSelectClickElement}
+            handleSelectMultiClickElement={handleSelectMultiClickElement}
+            setOpenOptions={setOpenOptions}
+            selectRef={selectRef}
+          />,
           document.getElementById("portal-root") as any
         )}
     </div>

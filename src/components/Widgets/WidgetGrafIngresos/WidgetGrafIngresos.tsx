@@ -1,7 +1,7 @@
 "use client";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
-import { MONTHS_S } from "@/mk/utils/date";
+import { MONTHS_S_GRAPH } from "@/mk/utils/date";
 import styles from "./WidgetGrafIngresos.module.css";
 
 interface Transaction {
@@ -15,7 +15,6 @@ interface FormattedValue {
   values: number[];
 }
 
-// Interface for pie chart data format
 interface PieChartValue {
   name: string;
   values: number[];
@@ -28,6 +27,7 @@ type PropsType = {
   title?: string;
   subtitle?: string;
   className?: string;
+  periodo?: string; // <-- 1. Se añade la prop 'periodo'
 };
 
 const WidgetGrafIngresos = ({
@@ -37,34 +37,40 @@ const WidgetGrafIngresos = ({
   title,
   subtitle,
   className,
+  periodo, // <-- Se recibe la prop
 }: PropsType) => {
-  const getMonths = (data: Transaction[] | undefined) => {
-    // Verificar que data no sea undefined antes de usar reduce
+
+  // 2. La función ahora considera el 'periodo' para generar los meses
+  const getMonths = (
+    data: Transaction[] | undefined,
+    currentPeriodo?: string
+  ) => {
+    // Si el filtro es anual, siempre devuelve los 12 meses
+    if (currentPeriodo === "y" || currentPeriodo === "ly") {
+      return MONTHS_S_GRAPH;
+    }
+
+    // Para otros filtros, deduce los meses a partir de los datos
     if (!data || data.length === 0) return [];
 
-    const uniqueMonths = data.reduce(
-      (acc: string[], curr) =>
-        acc.includes(MONTHS_S[curr.mes - 1])
-          ? acc
-          : [...acc, MONTHS_S[curr.mes - 1]],
-      []
+    const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
+      (a, b) => a - b
     );
-
-    return uniqueMonths;
+    return monthIndexes.map((index) => MONTHS_S_GRAPH[index]);
   };
 
+  // 3. La función ahora recibe los meses como parámetro para alinear los datos
   const getValuesIngresos = (
     ingresosHist: Transaction[] | undefined,
-    chartType: ChartType
+    chartType: ChartType,
+    months: string[] // <-- Recibe el listado de meses definitivo
   ): FormattedValue[] | PieChartValue[] => {
     if (!ingresosHist || ingresosHist.length === 0) return [];
 
-    // For pie charts, we need a simpler structure
     if (chartType === "pie" || chartType === "donut") {
       const pieData: PieChartValue[] = [];
       const categoryTotals: { [key: string]: number } = {};
 
-      // Sum the values by category
       ingresosHist.forEach((transaction) => {
         if (!categoryTotals[transaction.categoria]) {
           categoryTotals[transaction.categoria] = 0;
@@ -74,19 +80,17 @@ const WidgetGrafIngresos = ({
         );
       });
 
-      // Convert to array of objects with name and value
       for (const categoria in categoryTotals) {
         pieData.push({
           name: categoria,
-          values: [categoryTotals[categoria]], // Ahora values es un array de un elemento
+          values: [categoryTotals[categoria]],
         });
       }
 
       return pieData;
     }
 
-    // Original logic for bar/line charts
-    let values: FormattedValue[] = [];
+    const values: FormattedValue[] = [];
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
     ingresosHist.forEach((transaction) => {
@@ -96,17 +100,15 @@ const WidgetGrafIngresos = ({
       groupedTransactions[transaction.categoria].push(transaction);
     });
 
-    const uniqueMonths = Array.from(
-      new Set(ingresosHist.map((transaction) => transaction.mes))
-    );
-
     for (const categoria in groupedTransactions) {
       const transactions = groupedTransactions[categoria];
       const formattedValues: number[] = [];
 
-      uniqueMonths.forEach((month) => {
+      // Itera sobre la lista de meses definitiva para asegurar que cada mes tenga un valor
+      months.forEach((monthName) => {
+        const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
-          (transaction) => transaction.mes === month
+          (transaction) => transaction.mes === monthNumber
         );
         formattedValues.push(
           matchingTransaction
@@ -121,8 +123,8 @@ const WidgetGrafIngresos = ({
     return values;
   };
 
-  // Determine the primary chart type (first in the array)
   const primaryChartType = chartTypes[0] || "bar";
+  const monthLabels = getMonths(ingresos, periodo); // Se generan los meses una sola vez
 
   return (
     <div className={`${styles.container} ${className || ""}`}>
@@ -133,8 +135,8 @@ const WidgetGrafIngresos = ({
       </p>
       <GraphBase
         data={{
-          labels: getMonths(ingresos),
-          values: getValuesIngresos(ingresos, primaryChartType),
+          labels: monthLabels, // Se usan los meses correctos
+          values: getValuesIngresos(ingresos, primaryChartType, monthLabels), // Se pasan los meses para alinear los datos
         }}
         downloadPdf
         chartTypes={chartTypes}

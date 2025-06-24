@@ -6,6 +6,7 @@ import styles from "./Documents.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
   { id: "O", name: "Residentes" },
@@ -130,7 +131,10 @@ const Documents = () => {
 
   return (
     <div className={styles.style}>
-      <List />
+      <List height={"calc(100vh - 280px)"} 
+       emptyMsg="Lista de documentos vacía. Los documentos del condominio"
+       emptyLine2="serán reflejados aquí, una vez sean cargados."
+       emptyIcon={<IconDocs size={80} color="var(--cWhiteV1)" />} />
     </div>
   );
 };

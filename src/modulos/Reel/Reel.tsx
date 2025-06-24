@@ -4,9 +4,10 @@ import styles from './Reel.module.css';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { getDateTimeAgo } from '@/mk/utils/date';
-import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs } from '@/components/layout/icons/IconsBiblioteca';
+import { IconComment, IconLike, IconArrowLeft, IconArrowRight, IconShare, IconAdress, IconX, IconDocs, IconPublicacion } from '@/components/layout/icons/IconsBiblioteca';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import EmptyData from '@/components/NoData/EmptyData';
 
 type User = {
   id: string;
@@ -45,7 +46,7 @@ type Comment = {
   person: CommentUser | null;
 };
 
-type ContentItem = {
+export type ContentItem = {
   id: number;
   destiny: string;
   client_id: string;
@@ -69,6 +70,143 @@ type ContentItem = {
   isDescriptionExpanded?: boolean;
 };
 
+// --- FUNCIÓN REUTILIZABLE PARA MOSTRAR MULTIMEDIA ---
+export const renderMedia = (item: ContentItem, modoCompacto = false, onImageClick?: () => void, onNavigateImage?: (direction: 'prev' | 'next') => void) => {
+  const currentImageIndex = item.currentImageIndex || 0;
+
+  if (item.type === "I" && item.images && item.images.length > 0) {
+    const currentImageObject = item.images[currentImageIndex];
+    if (!currentImageObject) return null;
+    const imageUrl = getUrlImages(`/CONT-${item.id}-${currentImageObject.id}.${currentImageObject.ext}?d=${item.updated_at}`);
+    return (
+      <div
+        className={styles.contentMediaContainer}
+        style={modoCompacto ? { marginTop: 8, borderRadius: 8, maxHeight: 120, minHeight: 80, background: 'var(--cBlackV1)' } : {}}
+        onClick={onImageClick}
+      >
+        {item.images.length > 1 && onNavigateImage && (
+          <>
+            <button
+              className={`${styles.carouselButton} ${styles.prevButton}`}
+              onClick={e => { e.stopPropagation(); onNavigateImage('prev'); }}
+              aria-label="Imagen anterior"
+              type="button"
+            >
+              <IconArrowLeft />
+            </button>
+            <button
+              className={`${styles.carouselButton} ${styles.nextButton}`}
+              onClick={e => { e.stopPropagation(); onNavigateImage('next'); }}
+              aria-label="Imagen siguiente"
+              type="button"
+            >
+              <IconArrowRight />
+            </button>
+            <div className={styles.carouselIndicator}>
+              {(currentImageIndex + 1)} / {item.images.length}
+            </div>
+          </>
+        )}
+        <img
+          src={imageUrl}
+          alt={item.title || `Imagen ${currentImageIndex + 1} de la publicación`}
+          className={styles.imageCard}
+          loading="lazy"
+          style={modoCompacto ? { maxHeight: 120, borderRadius: 8, objectFit: 'cover' } : {}}
+        />
+      </div>
+    );
+  } else if (item.type === "V") {
+    let embedUrl = '';
+    let isInstagram = false;
+
+    if (item.url.includes('youtube.com/watch?v=') || item.url.includes('youtu.be/')) {
+      let videoId = '';
+      if (item.url.includes('watch?v=')) {
+        const urlParams = typeof URL !== 'undefined' ? new URLSearchParams(new URL(item.url).search) : null;
+        videoId = urlParams?.get('v') || '';
+      } else if (item.url.includes('youtu.be/')) {
+        videoId = item.url.substring(item.url.lastIndexOf('/') + 1).split('?')[0];
+      }
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (item.url.includes('youtube.com/shorts/')) {
+      const videoId = item.url.split('shorts/')[1]?.split('?')[0];
+      if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (item.url.includes('vimeo.com/')) {
+      const videoId = item.url.split('/').pop()?.split('?')[0];
+      if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
+    } else if (item.url.includes('instagram.com/reel/')) {
+      const reelId = item.url.split('reel/')[1]?.split('/')[0];
+      if (reelId) {
+        isInstagram = true;
+      }
+    } else if (item.url.includes('instagram.com/p/')) {
+      const postId = item.url.split('p/')[1]?.split('/')[0];
+      if (postId) {
+        isInstagram = true;
+      }
+    }
+
+    if (embedUrl) {
+      return (
+        <div
+          className={`${styles.contentMediaContainer} ${isInstagram ? styles.instagramEmbedContainer : styles.videoEmbedContainer}`}
+          style={modoCompacto ? { minHeight: 80, maxHeight: 120, height: 120, borderRadius: 8, marginTop: 8 } : {}}
+        >
+          <iframe
+            src={embedUrl}
+            title={item.title || 'Video content'}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen={!isInstagram}
+            className={`${styles.videoFrame} ${isInstagram ? styles.instagramFrame : ''}`}
+            loading="lazy"
+            scrolling={isInstagram ? "no" : "auto"}
+            style={modoCompacto ? { minHeight: 80, maxHeight: 120, height: 120, borderRadius: 8 } : {}}
+          ></iframe>
+        </div>
+      );
+    } else if (item.url) {
+      return (
+        <div className={`${styles.contentMediaContainer} ${styles.externalMediaLink}`} style={modoCompacto ? { padding: 12, fontSize: 13, marginTop: 8 } : {}}>
+          <a href={item.url} target="_blank" rel="noopener noreferrer">
+            Ver contenido multimedia
+          </a>
+          <p className={styles.externalMediaUrl}>{item.url}</p>
+        </div>
+      );
+    }
+  } else if (item.type === "D") {
+    const docUrlIsPlaceholder = item.url === "pdf" || (item.url.endsWith(".pdf") && !item.url.startsWith('http') && !item.url.startsWith('/'));
+    let docUrl = item.url;
+    let effectiveDocUrl = docUrl;
+
+    if (typeof window !== 'undefined') {
+      if (docUrlIsPlaceholder) {
+        docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
+      } else if (!item.url.startsWith('http') && !item.url.startsWith('/')) {
+        docUrl = getUrlImages(item.url.startsWith('/') ? item.url : `/${item.url}`);
+      }
+      effectiveDocUrl = docUrl.startsWith('http') ? docUrl : `${window.location.origin}${docUrl}`;
+    }
+
+    return (
+      <div className={`${styles.contentMediaContainer} ${styles.documentPreviewContainer}`} style={modoCompacto ? { padding: 16, minHeight: 60, gap: 8, borderRadius: 8, marginTop: 8 } : {}}>
+        <IconAdress size={32} color="var(--cWhiteV2)" />
+        <h4 className={styles.documentTitlePreview} style={modoCompacto ? { fontSize: 14, margin: 0 } : {}}>{item.title || "Documento"}</h4>
+        <p className={styles.documentInfoPreview} style={modoCompacto ? { fontSize: 12 } : {}}>
+          {item.description ? (item.description.substring(0, 50) + (item.description.length > 50 ? "..." : "")) : "Haga clic para ver el documento"}
+        </p>
+        <a href={effectiveDocUrl} target="_blank" rel="noopener noreferrer" className={styles.documentLinkButton} style={modoCompacto ? { fontSize: 12, padding: '4px 10px' } : {}}>
+          Abrir Documento <IconDocs size={12}/>
+        </a>
+      </div>
+    );
+  }
+  return null;
+};
+// --- FIN FUNCIÓN REUTILIZABLE ---
+
 const Reel = () => {
   const { user } = useAuth();
   const [contents, setContents] = useState<ContentItem[]>([]);
@@ -79,6 +217,7 @@ const Reel = () => {
   const [selectedImageForModal, setSelectedImageForModal] = useState<string | null>(null);
   const [totalDBItems, setTotalDBItems] = useState(0);
   const itemsPerPage = 20;
+  const [selectedContentForModal, setSelectedContentForModal] = useState<ContentItem | null>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -211,26 +350,42 @@ const Reel = () => {
     if (node) observer.current.observe(node);
   }, [initialLoadingState, loadingMoreState, hasMore]);
 
-  const handleLike = async (contentId: number) => {
-    try {
-      const response = await executeLike('/content-like', 'POST', { id: contentId });
-      if (response?.data) {
-        setContents(prevContents =>
-          prevContents.map(content => {
-            if (content.id === contentId) {
-              return {
-                ...content,
-                liked: content.liked ? 0 : 1,
-                likes: content.liked ? (content.likes > 0 ? content.likes - 1 : 0) : (content.likes || 0) + 1
-              };
-            }
-            return content;
-          })
-        );
-      }
-    } catch (err) {}
-  };
+// CÓDIGO CORREGIDO
+const handleLike = async (contentId: number) => {
+  try {
+    const response = await executeLike('/content-like', 'POST', { id: contentId });
+    if (response?.data) {
+      
+      // 1. Actualizar la lista principal (esta lógica ya la tenías)
+      setContents(prevContents =>
+        prevContents.map(content => {
+          if (content.id === contentId) {
+            return {
+              ...content,
+              liked: content.liked ? 0 : 1,
+              likes: content.liked ? (content.likes > 0 ? content.likes - 1 : 0) : (content.likes || 0) + 1
+            };
+          }
+          return content;
+        })
+      );
 
+      // --- 2. AÑADE ESTA LÓGICA ---
+      // Adicionalmente, actualiza el estado del modal si el item que te gusta es el que está abierto.
+      setSelectedContentForModal(prevModalContent => {
+        if (prevModalContent && prevModalContent.id === contentId) {
+          return {
+            ...prevModalContent,
+            liked: prevModalContent.liked ? 0 : 1,
+            likes: prevModalContent.liked ? (prevModalContent.likes > 0 ? prevModalContent.likes - 1 : 0) : (prevModalContent.likes || 0) + 1
+          };
+        }
+        return prevModalContent; // Si no es el item del modal, no hagas nada.
+      });
+
+    }
+  } catch (err) {}
+};
   const handleToggleDescription = (contentId: number) => {
     setContents(prevContents =>
       prevContents.map(content =>
@@ -309,152 +464,43 @@ const Reel = () => {
   };
 
   const handleImageNavigation = (contentId: number, direction: 'prev' | 'next') => {
-    setContents(prevContents =>
-      prevContents.map((content: ContentItem) => {
-        if (content.id === contentId && content.images && content.images.length > 1) {
-          let newIndex = content.currentImageIndex || 0;
-          if (direction === 'next') {
-            newIndex = (newIndex + 1) % content.images.length;
-          } else {
-            newIndex = (newIndex - 1 + content.images.length) % content.images.length;
-          }
-          return { ...content, currentImageIndex: newIndex };
-        }
-        return content;
-      })
-    );
+    let updatedItemForModal: any | null = null;
+  
+    // Primero, preparamos la nueva lista de contenidos
+    const newContents = contents.map((content) => {
+      // Buscamos el item que queremos modificar
+      if (content.id === contentId && content.images && content.images.length > 1) {
+        // Calculamos el nuevo índice de la imagen
+        const newIndex = direction === 'next'
+          ? ((content.currentImageIndex || 0) + 1) % content.images.length
+          : ((content.currentImageIndex || 0) - 1 + content.images.length) % content.images.length;
+        
+        // Creamos el item actualizado
+        const updatedContent = { ...content, currentImageIndex: newIndex };
+        
+        // Guardamos este item actualizado para usarlo en el modal después
+        updatedItemForModal = updatedContent;
+        
+        return updatedContent;
+      }
+      return content;
+    });
+  
+    // Actualizamos el estado de la lista principal
+    setContents(newContents);
+  
+    // Si el item que se actualizó es el que está visible en el modal,
+    // actualizamos también el estado del modal.
+    if (selectedContentForModal && updatedItemForModal && selectedContentForModal.id === updatedItemForModal.id) {
+      setSelectedContentForModal(updatedItemForModal);
+    }
   };
-
-  const handleOpenImageModal = (imageUrl: string) => {
-    setSelectedImageForModal(imageUrl);
-  };
-
-  const handleCloseImageModal = () => {
-    setSelectedImageForModal(null);
+  const handleOpenContentModal = (contentItem: ContentItem) => {
+    setSelectedContentForModal(contentItem);
   };
   
-  const renderMedia = (item: ContentItem) => {
-    const currentImageIndex = item.currentImageIndex || 0;
-
-    if (item.type === "I" && item.images && item.images.length > 0) {
-      const currentImageObject = item.images[currentImageIndex];
-      if (!currentImageObject) return null;
-      const imageUrl = getUrlImages(`/CONT-${item.id}-${currentImageObject.id}.${currentImageObject.ext}?d=${item.updated_at}`);
-      return (
-        <div className={styles.contentMediaContainer} onClick={() => handleOpenImageModal(imageUrl)}>
-          <img
-            src={imageUrl}
-            alt={item.title || `Imagen ${currentImageIndex + 1} de la publicación`}
-            className={styles.imageCard}
-            loading="lazy"
-          />
-          {item.images.length > 1 && (
-            <>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleImageNavigation(item.id, 'prev'); }}
-                className={`${styles.carouselButton} ${styles.prevButton}`}
-                aria-label="Imagen anterior"
-              >
-                <IconArrowLeft color="var(--cWhite)" />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleImageNavigation(item.id, 'next'); }}
-                className={`${styles.carouselButton} ${styles.nextButton}`}
-                aria-label="Siguiente imagen"
-              >
-                <IconArrowRight color="var(--cWhite)" />
-              </button>
-              <div className={styles.carouselIndicator}>
-                {currentImageIndex + 1} / {item.images.length}
-              </div>
-            </>
-          )}
-        </div>
-      );
-    } else if (item.type === "V") {
-      let embedUrl = '';
-      let isInstagram = false;
-
-      if (item.url.includes('youtube.com/watch?v=') || item.url.includes('youtu.be/')) {
-        let videoId = '';
-        if (item.url.includes('watch?v=')) {
-            const urlParams = typeof URL !== 'undefined' ? new URLSearchParams(new URL(item.url).search) : null;
-            videoId = urlParams?.get('v') || '';
-        } else if (item.url.includes('youtu.be/')) {
-            videoId = item.url.substring(item.url.lastIndexOf('/') + 1).split('?')[0];
-        }
-        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (item.url.includes('youtube.com/shorts/')) {
-        const videoId = item.url.split('shorts/')[1]?.split('?')[0];
-        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      } else if (item.url.includes('vimeo.com/')) {
-        const videoId = item.url.split('/').pop()?.split('?')[0];
-        if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
-      } else if (item.url.includes('instagram.com/reel/')) {
-        const reelId = item.url.split('reel/')[1]?.split('/')[0];
-        if (reelId) {
-            isInstagram = true; 
-        }
-      } else if (item.url.includes('instagram.com/p/')) {
-         const postId = item.url.split('p/')[1]?.split('/')[0];
-         if (postId) {
-            isInstagram = true;
-         }
-      }
-
-      if (embedUrl) {
-        return (
-          <div className={`${styles.contentMediaContainer} ${isInstagram ? styles.instagramEmbedContainer : styles.videoEmbedContainer}`}>
-            <iframe
-              src={embedUrl}
-              title={item.title || 'Video content'}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen={!isInstagram}
-              className={`${styles.videoFrame} ${isInstagram ? styles.instagramFrame : ''}`}
-              loading="lazy"
-              scrolling={isInstagram ? "no" : "auto"}
-            ></iframe>
-          </div>
-        );
-      } else if (item.url) { 
-        return (
-            <div className={`${styles.contentMediaContainer} ${styles.externalMediaLink}`}>
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    Ver contenido multimedia <IconShare size={16} />
-                </a>
-                <p className={styles.externalMediaUrl}>{item.url}</p>
-            </div>
-        );
-      }
-    } else if (item.type === "D") {
-        const docUrlIsPlaceholder = item.url === "pdf" || (item.url.endsWith(".pdf") && !item.url.startsWith('http') && !item.url.startsWith('/'));
-        let docUrl = item.url;
-        let effectiveDocUrl = docUrl;
-
-        if (typeof window !== 'undefined') { 
-            if (docUrlIsPlaceholder) {
-               docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`); 
-            } else if (!item.url.startsWith('http') && !item.url.startsWith('/')) {
-                docUrl = getUrlImages(item.url.startsWith('/') ? item.url : `/${item.url}`);
-            }
-            effectiveDocUrl = docUrl.startsWith('http') ? docUrl : `${window.location.origin}${docUrl}`;
-        }
-        
-        return (
-            <div className={`${styles.contentMediaContainer} ${styles.documentPreviewContainer}`}>
-                <IconAdress size={48} color="var(--cWhiteV2)" />
-                <h4 className={styles.documentTitlePreview}>{item.title || "Documento"}</h4>
-                <p className={styles.documentInfoPreview}>
-                    {item.description ? (item.description.substring(0, 70) + (item.description.length > 70 ? "..." : "")) : "Haga clic para ver el documento"}
-                </p>
-                <a href={effectiveDocUrl} target="_blank" rel="noopener noreferrer" className={styles.documentLinkButton}>
-                    Abrir Documento <IconDocs size={14}/>
-                </a>
-            </div>
-        );
-    }
-    return null;
+  const handleCloseContentModal = () => {
+    setSelectedContentForModal(null);
   };
 
   if (initialLoadingState && page === 1 && contents.length === 0) {
@@ -504,7 +550,12 @@ const Reel = () => {
                   )}
                 </div>
               )}
-              {renderMedia(item)}
+              {renderMedia(
+                item,
+                false,
+                () => handleOpenContentModal(item),
+                direction => handleImageNavigation(item.id, direction)
+              )}
             </section>
 
             <footer className={styles.contentFooter}>
@@ -531,7 +582,15 @@ const Reel = () => {
           </article>
         ))
       ) : (
-        !initialLoadingState && <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
+        !initialLoadingState && (
+          <EmptyData
+            message="Aún no hay publicaciones para mostrar."
+            line2="Cuando se publiquen contenidos los verás aquí."
+            icon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
+            h={220}
+            centered={true}
+          />
+        )
       )}
 
       {loadingMoreState && <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>}
@@ -541,10 +600,6 @@ const Reel = () => {
       {!initialLoadingState && !hasMore && contents.length > 0 && (
          <div className={styles.noMoreContentState}>Has llegado al final.</div>
       )}
-       {!initialLoadingState && contents.length === 0 && totalDBItems === 0 && (
-         <div className={styles.noContentState}>Aún no hay publicaciones para mostrar.</div>
-      )}
-
 
       {isCommentModalOpen && selectedContentIdForComments && (
         <div className={styles.commentModalOverlay} onClick={handleCloseComments}>
@@ -620,16 +675,135 @@ const Reel = () => {
         </div>
       )}
 
-      {selectedImageForModal && (
-        <div className={styles.imageModalOverlay} onClick={handleCloseImageModal}>
-          <div className={styles.imageModalContent} onClick={(e) => e.stopPropagation()}>
-            <button onClick={handleCloseImageModal} className={styles.imageModalCloseButton} aria-label="Cerrar imagen ampliada">
-              <IconX size={32} />
+      {selectedContentForModal && (
+        <div className={styles.contentModalOverlay} onClick={handleCloseContentModal}>
+          <div className={styles.contentModalContent} onClick={(e) => e.stopPropagation()}>
+            <button onClick={handleCloseContentModal} className={styles.contentModalCloseButton} aria-label="Cerrar detalle">
+              <IconX size={24} />
             </button>
-            <img src={selectedImageForModal} alt="Imagen ampliada" className={styles.imageModalImage} />
+            {renderMedia(
+              selectedContentForModal,
+              false,
+              undefined,
+              direction => handleImageNavigation(selectedContentForModal.id, direction)
+            )}
+            <article className={`${styles.contentCard} ${styles.contentCardInModal}`}>
+              <header className={styles.contentHeader}>
+                <div className={styles.userInfo}>
+                  <Avatar
+                    name={getFullName(selectedContentForModal.user)}
+                    src={getUrlImages(`/ADM-${selectedContentForModal.user?.id}.webp?d=${selectedContentForModal.user?.updated_at}`)}
+                    w={44}
+                    h={44}
+                  />
+                  <div className={styles.userDetails}>
+                    <span className={styles.userName}>{getFullName(selectedContentForModal.user) || 'Usuario Desconocido'}</span>
+                    <span className={styles.userRole}>Administrador</span>
+                  </div>
+                </div>
+                <time dateTime={selectedContentForModal.created_at} className={styles.postDate}>
+                  {getDateTimeAgo(selectedContentForModal.created_at)}
+                </time>
+              </header>
+              <section className={styles.contentBody}>
+                {selectedContentForModal.title && <h2 className={styles.contentTitle}>{selectedContentForModal.title}</h2>}
+                {selectedContentForModal.description && (
+                  <p className={styles.contentDescription}>{selectedContentForModal.description}</p>
+                )}
+              </section>
+              <footer className={styles.contentFooter}>
+                <div className={styles.contentStats}>
+                  <button
+                    className={`${styles.statItem} ${selectedContentForModal.liked ? styles.liked : ''}`}
+                    onClick={() => handleLike(selectedContentForModal.id)}
+                  >
+                    <IconLike color={selectedContentForModal.liked ? 'var(--cInfo)' : 'var(--cWhiteV1)'} />
+                    <span>{selectedContentForModal.likes}</span>
+                  </button>
+                  <button
+                    className={styles.statItem}
+                    onClick={() => handleOpenComments(selectedContentForModal.id)}
+                  >
+                    <IconComment color={'var(--cWhiteV1)'} />
+                    <span>{selectedContentForModal.comments_count}</span>
+                  </button>
+                </div>
+              </footer>
+            </article>
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+export const ReelCompactList = ({ items, onLike, onOpenComments, modoCompacto = false, onImageClick }: {
+  items: ContentItem[];
+  onLike?: (id: number) => void;
+  onOpenComments?: (id: number) => void;
+  modoCompacto?: boolean;
+  onImageClick?: (id: number) => void;
+}) => {
+  if (!items || items.length === 0) {
+    return <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Aún no hay publicaciones para mostrar.</div>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: modoCompacto ? 12 : 'var(--spXxl)' }}>
+      {items.map((item: ContentItem) => (
+        <article key={`content-${item.id}`} className={modoCompacto ? styles.contentCardCompact : styles.contentCard} style={modoCompacto ? { boxShadow: 'none', padding: 12, borderRadius: 12, margin: 0 } : {}}>
+          <header className={styles.contentHeader} style={modoCompacto ? { paddingBottom: 8, marginBottom: 8 } : {}}>
+            <div className={styles.userInfo}>
+              <Avatar
+                name={getFullName(item.user)}
+                src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
+                w={modoCompacto ? 32 : 44}
+                h={modoCompacto ? 32 : 44}
+              />
+              <div className={styles.userDetails}>
+                <span className={styles.userName} style={modoCompacto ? { fontSize: 14 } : {}}>{getFullName(item.user) || 'Usuario Desconocido'}</span>
+                <span className={styles.userRole} style={modoCompacto ? { fontSize: 11 } : {}}>Administrador</span>
+              </div>
+            </div>
+            <time dateTime={item.created_at} className={styles.postDate} style={modoCompacto ? { fontSize: 11, marginLeft: 8 } : {}}>
+              {getDateTimeAgo(item.created_at)}
+            </time>
+          </header>
+
+          <section className={styles.contentBody} style={modoCompacto ? { gap: 4 } : {}}>
+            {item.title && <h2 className={styles.contentTitle} style={modoCompacto ? { fontSize: 15, margin: 0, maxHeight: '2.2em' } : {}}>{item.title}</h2>}
+            {item.description && (
+              <p className={styles.contentDescription} style={modoCompacto ? { fontSize: 13, WebkitLineClamp: 2, maxHeight: '2.6em' } : {}}>
+                {item.description.length > 80 ? `${item.description.substring(0, 80)}...` : item.description}
+              </p>
+            )}
+            {renderMedia(item, modoCompacto, onImageClick ? () => onImageClick(item.id) : undefined)}
+          </section>
+
+          <footer className={styles.contentFooter} style={modoCompacto ? { marginTop: 8, paddingTop: 8 } : {}}>
+            <div className={styles.contentStats}>
+              <button
+                className={`${styles.statItem} ${item.liked ? styles.liked : ''}`}
+                onClick={() => onLike && onLike(item.id)}
+                aria-pressed={!!item.liked}
+                aria-label={`Me gusta esta publicación, actualmente tiene ${item.likes} me gusta`}
+                style={modoCompacto ? { fontSize: 13, padding: '4px 10px' } : {}}
+              >
+                <IconLike color={item.liked ? 'var(--cInfo)' : 'var(--cWhiteV1)'} />
+                <span>{item.likes}</span>
+              </button>
+              <button
+                className={styles.statItem}
+                onClick={() => onOpenComments && onOpenComments(item.id)}
+                aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
+                style={modoCompacto ? { fontSize: 13, padding: '4px 10px' } : {}}
+              >
+                <IconComment color={'var(--cWhiteV1)'} />
+                <span>{item.comments_count}</span>
+              </button>
+            </div>
+          </footer>
+        </article>
+      ))}
     </div>
   );
 };

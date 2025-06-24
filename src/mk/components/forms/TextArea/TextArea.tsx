@@ -21,7 +21,7 @@ const TextArea = ({
     onChange = (e) => {},
     value = "",
     disabled = false,
-    required = false,
+    required = true,
     className = "",
     style = {},
     onBlur = () => {},
@@ -44,7 +44,7 @@ const TextArea = ({
         <textarea
           id={name}
           name={name}
-          value={value || ""}
+          value={value ?? ""}
           placeholder={placeholder}
           style={{ width: "100%", ...style }}
           disabled={disabled}
