@@ -367,7 +367,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       //   },
       // },
 
-      type: {
+      type_access: {
         rules: [],
         api: "",
         label: "Tipo de Acceso",
@@ -455,10 +455,11 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     <>
       {" "}
       {/* O un div principal */}
-      <List height={"calc(100vh - 280px)"}
-       emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
-       emptyLine2="aquí una vez el guardia registre un acceso."
-       emptyIcon={<IconExitHome size={80}/>} 
+      <List
+        height={"calc(100vh - 280px)"}
+        emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
+        emptyLine2="aquí una vez el guardia registre un acceso."
+        emptyIcon={<IconExitHome size={80} />}
       />
       <DataModal
         open={openCustomFilterModal}
