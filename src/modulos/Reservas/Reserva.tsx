@@ -122,7 +122,11 @@ const Reserva = () => {
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar src={imageUrl} name={ownerName} />
+                <Avatar
+                  src={imageUrl}
+                  name={ownerName}
+                  hasImage={owner.has_image}
+                />
                 <div>
                   <p style={{ margin: 0, lineHeight: "1.3" }}>{ownerName}</p>
                   {dpto && (

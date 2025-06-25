@@ -5,6 +5,7 @@ import styles from "./avatar.module.css";
 type PropsType = {
   src?: string;
   name?: string;
+  hasImage?: string;
   pin?: boolean;
   children?: any;
   w?: number;
@@ -30,6 +31,7 @@ export const Avatar = ({
   styleText,
   style,
   square,
+  hasImage,
 }: PropsType) => {
   const [imageError, setImageError] = useState(false);
   useEffect(() => {
@@ -45,7 +47,7 @@ export const Avatar = ({
           ...style,
         }}
       >
-        {src && !imageError ? (
+        {src && !imageError && hasImage == 1 ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
