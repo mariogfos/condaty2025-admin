@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@instantdb/admin": "^0.17.12",
@@ -27,6 +29,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@storybook/addon-designs": "^10.0.1",
+    "@storybook/addon-docs": "^9.0.13",
+    "@storybook/addon-onboarding": "^9.0.13",
+    "@storybook/addon-styling-webpack": "^2.0.0",
+    "@storybook/addon-webpack5-compiler-swc": "^3.0.0",
+    "@storybook/builder-webpack5": "^9.0.13",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/nextjs": "^9.0.13",
+    "@storybook/react-webpack5": "^9.0.13",
     "@types/node": "^20.17.19",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19",
@@ -36,8 +47,11 @@
     "eslint": "^9.21.0",
     "eslint-config-next": "15.1.7",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-storybook": "^9.0.13",
     "knip": "^5.60.0",
     "postcss": "^8.5.3",
-    "typescript": "^5"
+    "storybook": "^9.0.13",
+    "typescript": "^5",
+    "webpack": "^5.99.9"
   }
 }

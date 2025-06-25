@@ -43,3 +43,6 @@ next-env.d.ts
 #custom
 .devdbrc
 .env.development
+
+*storybook.log
+storybook-static
