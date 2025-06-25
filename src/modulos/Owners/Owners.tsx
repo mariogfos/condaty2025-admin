@@ -321,7 +321,7 @@ const Owners = () => {
             </div>
           );
         },
-        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
+        list: true,
       },
 
       name: {
@@ -381,7 +381,7 @@ const Owners = () => {
         form: false,
 
         list: {
-          width: "200px",
+          width: "170px",
           onRender: (props: any) => {
             return (
               "Unidad: " +
@@ -439,7 +439,7 @@ const Owners = () => {
           //   );
           // },
         },
-        list: { width: "350px" },
+        list: { width: "220px" },
       },
       phone: {
         rules: ["number", "max:10"],
@@ -449,14 +449,14 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "200px" },
+        list: { width: "100px" },
       },
       type: {
         rules: [""],
         api: "",
         label: "Tipo",
         list: {
-          width: "140px",
+          width: "120px",
           onRender: (props: any) => {
             // const clientOwnerData = props?.item?.client_owner;
             // let esTitularPrincipal = true; // Asumir Titular por defecto
@@ -607,13 +607,15 @@ const Owners = () => {
           icon={
             <IconHomePerson
               color={
-                !data?.extraData?.dependents || data?.extraData?.dependents === 0
+                !data?.extraData?.dependents ||
+                data?.extraData?.dependents === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cWarning)"
               }
               style={{
                 backgroundColor:
-                  !data?.extraData?.dependents || data?.extraData?.dependents === 0
+                  !data?.extraData?.dependents ||
+                  data?.extraData?.dependents === 0
                     ? "var(--cHover)"
                     : "var(--cHoverWarning)",
               }}
@@ -623,10 +625,12 @@ const Owners = () => {
           }
         />
       </div>
-      <List height={"calc(100vh - 400px)"} 
-       emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
-       emptyLine2="del condominio una vez los registres."
-       emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)"/>} />
+      <List
+        height={"calc(100vh - 400px)"}
+        emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
+        emptyLine2="del condominio una vez los registres."
+        emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}
+      />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}
