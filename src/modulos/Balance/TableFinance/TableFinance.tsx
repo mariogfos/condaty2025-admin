@@ -150,51 +150,83 @@ const TableFinance = ({
         </div>
 
         {/* Filas de Datos (Categorías Principales) */}
-        {data.map((item, index) => (
-          <React.Fragment key={`item-${index}`}>
-            <div className={`${styles.dataRow} ${dropStates[index]?.drop ? styles.dataRowActive : ''}`}>
-              <div 
-                className={`${styles.dataCell} ${styles.categoryNameCell}`}
-                onClick={() => item.sub && item.sub.length > 0 && handleItemClick(index)}
-              >
-                {item.sub && item.sub.length > 0 && (
-                  <span className={styles.expandIcon}>
-                    {dropStates[index]?.drop ? <IconArrowUp size={24} /> : <IconArrowDown size={24} />}
-                  </span>
-                )}
-                <span>{item.name}</span>
-              </div>
-              {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                  <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
-                </div>
-              ))}
-              {/* --- INICIO DE LA MODIFICACIÓN --- */}
-              <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-              {/* --- FIN DE LA MODIFICACIÓN --- */}
-                <span>Bs {formatNumber(item.amount)}</span>
-              </div>
-            </div>
+        {data.map((item, index) => {
+          const isOpen = dropStates[index]?.drop;
+          const subLength = item.sub?.length || 0;
+          const getGroupTopClass = () =>
+            variant === 'income'
+              ? styles['groupBorder-income-top']
+              : variant === 'expense'
+              ? styles['groupBorder-expense-top']
+              : styles['groupBorder-summary-top'];
+          const getGroupMidClass = () =>
+            variant === 'income'
+              ? styles['groupBorder-income-mid']
+              : variant === 'expense'
+              ? styles['groupBorder-expense-mid']
+              : styles['groupBorder-summary-mid'];
+          const getGroupBotClass = () =>
+            variant === 'income'
+              ? styles['groupBorder-income-bot']
+              : variant === 'expense'
+              ? styles['groupBorder-expense-bot']
+              : styles['groupBorder-summary-bot'];
 
-            {dropStates[index]?.drop && item.sub && item.sub.map((subItem, subIndex) => (
-              <div className={`${styles.dataRow} ${styles.subItemRow}`} key={`subitem-${index}-${subIndex}`}>
-                <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
-                  <span>{subItem.name}</span>
+          return (
+            <React.Fragment key={`item-${index}`}>
+              <div
+                className={
+                  `${styles.dataRow} ${isOpen ? styles.dataRowActive : ''} ` +
+                  (isOpen ? getGroupTopClass() : '')
+                }
+              >
+                <div
+                  className={`${styles.dataCell} ${styles.categoryNameCell}`}
+                  onClick={() => item.sub && item.sub.length > 0 && handleItemClick(index)}
+                >
+                  {item.sub && item.sub.length > 0 && (
+                    <span className={styles.expandIcon}>
+                      {isOpen ? <IconArrowUp size={24} /> : <IconArrowDown size={24} />}
+                    </span>
+                  )}
+                  <span>{item.name}</span>
                 </div>
                 {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                  <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                    <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
+                  <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
+                    <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
                   </div>
                 ))}
-                {/* --- INICIO DE LA MODIFICACIÓN --- */}
                 <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-                {/* --- FIN DE LA MODIFICACIÓN --- */}
-                  <span>Bs {formatNumber(subItem.amount)}</span>
+                  <span>Bs {formatNumber(item.amount)}</span>
                 </div>
               </div>
-            ))}
-          </React.Fragment>
-        ))}
+              {isOpen && item.sub && item.sub.map((subItem, subIndex) => {
+                const isLast = subIndex === subLength - 1;
+                return (
+                  <div
+                    className={
+                      `${styles.dataRow} ${styles.subItemRow} ` +
+                      (isLast ? getGroupBotClass() : getGroupMidClass())
+                    }
+                    key={`subitem-${index}-${subIndex}`}
+                  >
+                    <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
+                      <span>{subItem.name}</span>
+                    </div>
+                    {Array.from({ length: meses.length }).map((_, mesIdx) => (
+                      <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
+                        <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
+                      </div>
+                    ))}
+                    <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
+                      <span>Bs {formatNumber(subItem.amount)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Fila de Total General */}

@@ -279,7 +279,7 @@ const DefaultersView = () => {
             <WidgetDefaulterResume
               title={"Total de expensas"}
               amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
-              pointColor={"var(--cInfo)"}
+              pointColor={"var(--cWarning)"}
               icon={
                 <IconHandcoin
                   size={26}
@@ -398,8 +398,8 @@ const DefaultersView = () => {
             <IconHousing
               reverse
               size={32}
-              color={"var(--cInfo)"}
-              style={{ backgroundColor: "var(--cHoverInfo" }}
+              color={!defaultersLength || defaultersLength === 0 ? "var(--cWhiteV1)" : "var(--cInfo)"}
+              style={{ backgroundColor: !defaultersLength || defaultersLength === 0 ? "var(--cHover)" : "var(--cHoverInfo)" }}
               circle
             />
           }
@@ -410,10 +410,11 @@ const DefaultersView = () => {
         <div className={styles.listContainer}>
           <List 
             height={"calc(100vh - 380px)"} 
-            renderRight={renderRightPanel}
+            renderRight={data?.data && data.data.length > 0 ? renderRightPanel : undefined}
             emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
             emptyLine2="residentes con pagos atrasados los verás aquí."
-            emptyIcon={<IconCategories size={80} />}
+            emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+            emptyFullScreen={true}
           />
         </div>
       </div>

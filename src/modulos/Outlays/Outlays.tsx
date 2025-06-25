@@ -427,7 +427,7 @@ const Outlays = () => {
         height={"calc(100vh - 360px)"} 
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
-        emptyIcon={<IconIngresos size={80} />}
+        emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
 
       {/* Modal para mostrar el gráfico */}

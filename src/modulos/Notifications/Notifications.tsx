@@ -254,8 +254,8 @@ const Notifications = () => {
         onTabletRow={renderItem}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez comiencen las interacciones"
-        emptyLine2="con el sistema, verás las notificaciones aquí"
-        emptyIcon={<IconNotification size={80}/>} 
+        emptyLine2="con el sistema, verás las notificaciones aquí."
+        emptyIcon={<IconNotification size={80} color="var(--cWhiteV1)"/>} 
       />
       {openPayment.open && (
         <PaymentRender

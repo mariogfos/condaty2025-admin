@@ -305,6 +305,7 @@ const Select = ({
 
   const handleSelectClickIcon = (e: any) => {
     e.stopPropagation();
+    e.preventDefault();
     setOpenOptions((old: boolean) => !old);
   };
 
@@ -347,7 +348,8 @@ const Select = ({
           onBlur={onBlur}
           disabled={disabled}
           error={error}
-          style={inputStyle}
+          style={{ ...inputStyle, cursor: "pointer" }}
+          styleInput={{ cursor: "pointer" }}
         />
       </div>
       {openOptions &&

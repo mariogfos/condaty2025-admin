@@ -37,7 +37,7 @@ export const getFullName = (
     last_name?: string;
     mother_last_name?: string;
   },
-  format: string = "NMLO"
+  format: string = "NsLm"
 ): string => {
   if (!data) {
     return "";
@@ -51,10 +51,10 @@ export const getFullName = (
     fullName += name.slice(0, 1).toUpperCase() + ". ";
   }
 
-  if (middle_name && format.indexOf("M") > -1) {
+  if (middle_name && format.indexOf("S") > -1) {
     fullName += middle_name + " ";
   }
-  if (middle_name && format.indexOf("m") > -1) {
+  if (middle_name && format.indexOf("s") > -1) {
     fullName += middle_name.slice(0, 1).toUpperCase() + ". ";
   }
 
@@ -65,10 +65,10 @@ export const getFullName = (
     fullName += last_name.slice(0, 1).toUpperCase() + ". ";
   }
 
-  if (mother_last_name && format.indexOf("O") > -1) {
+  if (mother_last_name && format.indexOf("M") > -1) {
     fullName += mother_last_name + " ";
   }
-  if (mother_last_name && format.indexOf("o") > -1) {
+  if (mother_last_name && format.indexOf("m") > -1) {
     fullName += mother_last_name.slice(0, 1).toUpperCase() + ". ";
   }
   return fullName.trim();

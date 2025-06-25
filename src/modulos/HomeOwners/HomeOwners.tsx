@@ -475,8 +475,17 @@ const HomeOwners = () => {
         data={data?.message?.total || 0}
         icon={
           <IconHomeOwner
-            color={"var(--cWhite)"}
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+            color={
+              !data?.message?.total || data?.message?.total === 0
+                ? "var(--cWhiteV1)"
+                : "var(--cWhite)"
+            }
+            style={{
+              backgroundColor:
+                !data?.message?.total || data?.message?.total === 0
+                  ? "var(--cHover)"
+                  : "rgba(255, 255, 255, 0.1)",
+            }}
             circle
             size={38}
           />
@@ -486,8 +495,8 @@ const HomeOwners = () => {
 
       <List height={"calc(100vh - 400px)"}
         emptyMsg="Lista de propietarios vacía. Aquí verás a todos los propietarios"
-        emptyLine2="de cada unidad una vez los registres"
-        emptyIcon={<IconHomePerson3 size={80}/>} />
+        emptyLine2="de cada unidad una vez los registres."
+        emptyIcon={<IconHomePerson3 size={80} color="var(--cWhiteV1)"/>} />
       <UnitsModal
         open={unitsModalOpen}
         onClose={closeUnitsModal}

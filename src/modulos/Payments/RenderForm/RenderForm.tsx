@@ -917,7 +917,7 @@ const RenderForm = ({
                     name="obs"
                     onChange={(e) => {
                       // Limitar a 500 caracteres
-                      const value = e.target.value.substring(0, 500);
+                      const value = e.target.value.substring(0, 250);
                       const newEvent = {
                         ...e,
                         target: { ...e.target, name: "obs", value },
@@ -926,7 +926,7 @@ const RenderForm = ({
                     }}
                     value={_formState.obs}
                     required={false}
-                    maxLength={500}
+                    maxLength={250}
                   />
                 </div>
               </div>

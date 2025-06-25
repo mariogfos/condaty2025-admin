@@ -151,10 +151,10 @@ const CategoryForm = memo(
     let dynamicModalTitle = `Editar categoría de ${categoryTypeText}`;
     let dynamicButtonText = "Guardar Cambios";
 
-    if (action === "add") {
-      const isSubcategoryMode =
-        !!_Item.category_id || (isCateg === "C" && wantSubcategories);
+    // Determinar si es subcategoría (tanto en add como en edit)
+    const isSubcategoryMode = (isCateg === "S" || (isCateg === "C" && wantSubcategories));
 
+    if (action === "add") {
       if (isSubcategoryMode) {
         dynamicModalTitle = `Registrar nueva subcategoría de ${categoryTypeText}`;
         dynamicButtonText = "Registrar Subcategoría";
@@ -162,6 +162,9 @@ const CategoryForm = memo(
         dynamicModalTitle = `Registrar nueva categoría de ${categoryTypeText}`;
         dynamicButtonText = "Registrar Categoría";
       }
+    } else if (action === "edit" && isSubcategoryMode) {
+      dynamicModalTitle = `Editar subcategoría de ${categoryTypeText}`;
+      dynamicButtonText = "Guardar Cambios";
     }
 
     if (!open) return null;
@@ -186,8 +189,13 @@ const CategoryForm = memo(
             value={_Item.name || ""}
             onChange={handleChange}
             required={true}
-            label="Nombre de la categoría"
+            label={
+              isSubcategoryMode
+                ? (action === "edit" ? "Nombre de la subcategoría" : "Nombre de la subcategoría")
+                : (action === "edit" ? "Nombre de la categoría" : "Nombre de la categoría")
+            }
             error={combinedErrors}
+            maxLength={50}
 
             // className={styles.customInput}
           />
@@ -201,9 +209,13 @@ const CategoryForm = memo(
             value={_Item.description ?? ""}
             onChange={handleChange}
             required={false}
-            label="Descripción de la nueva categoría"
+            label={
+              isSubcategoryMode
+                ? (action === "edit" ? "Descripción de la nueva subcategoría" : "Descripción de la nueva subcategoría")
+                : (action === "edit" ? "Descripción de la nueva categoría" : "Descripción de la nueva categoría")
+            }
             error={combinedErrors}
-            maxLength={50}
+            maxLength={255}
             // className={styles.customTextarea}
           />
           {/* </div>
@@ -252,6 +264,11 @@ const CategoryForm = memo(
               error={combinedErrors}
               required={isCateg === 'S' || wantSubcategories} 
               className={styles.customSelect}
+              disabled={
+                // Si está en modo subcategoría y ya hay categoría padre seleccionada (flujo de subcategoría)
+                (action === "add" && isSubcategoryMode && !!_Item.category_id) ||
+                (action === "edit" && isSubcategoryMode)
+              }
             />
             //   </div>
             // </div>

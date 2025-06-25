@@ -3,13 +3,14 @@ import { useCallback, useEffect, useState } from "react";
 import styles from "./chat.module.css";
 import {
   IconCheck,
+  IconEmail,
   IconGroup,
   IconImage,
   IconReadMessage,
+  IconWhatsapp,
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
-import TabsButtons from "../ui/TabsButton/TabsButtons";
 import useInstandDB from "./provider/useInstandDB";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "../ui/Avatar/Avatar";
@@ -18,6 +19,7 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import { SendMessageType } from "./chat-types";
 import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
+import Button from "../forms/Button/Button";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -53,6 +55,7 @@ export default function ChatInstantDb() {
     } else {
       setTypeSearch(rooms[rooms.length - 1].value);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rooms, roomGral]);
 
   const _openNewChat = (userAppId: string, name: string) => {
@@ -135,6 +138,7 @@ export default function ChatInstantDb() {
 
     setCountMsg(cM);
     setLastMsg(chats?.messages?.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats?.messages]);
 
   useEffect(() => {
@@ -147,19 +151,7 @@ export default function ChatInstantDb() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countMsg, rooms]);
 
-  const [botActive, setBotActive] = useState(false);
-  const [botActiveController, setBotActiveController] = useState(false);
   const _sendMsg: SendMessageType = async (text, roomId, userId, file) => {
-    if (roomId.indexOf("chatBot") > -1) {
-      if (text == "_activate_") {
-        setBotActive(true);
-        return;
-      }
-      if (text == "_controller_") {
-        setBotActiveController(true);
-        return;
-      }
-    }
     return await sendMessage(text, roomId, userId, file);
   };
 
@@ -175,7 +167,7 @@ export default function ChatInstantDb() {
 
   const onOpenChat = useCallback(
     (e: any) => {
-      console.log(e);
+      // console.log(e);
       setOpen(!open);
     },
     [open]
@@ -183,123 +175,130 @@ export default function ChatInstantDb() {
 
   useEvent("onOpenChat", onOpenChat);
 
+  const [currentRoom, setCurrentRoom]: any = useState(null);
+
+  useEffect(() => {
+    setCurrentRoom(rooms?.find((e: any) => e.value == typeSearch));
+  }, [rooms, typeSearch]);
+
   return (
-    <div
-      className={
-        open
-          ? styles.chatContainer + " close " + styles.close
-          : styles.chatContainer
-      }
-    >
-      {/* encabezado */}
+    <>
       <div
-        style={{
-          height: "54px",
-          borderBottom: "1px solid var(--cWhiteV1)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px",
-          flexShrink: 1,
-        }}
+        className={styles.chatdrop + " " + (open && styles.open)}
+        onClick={() => setOpen(false)}
+      ></div>
+      <div
+        className={
+          open
+            ? styles.chatContainer + " close " + styles.close
+            : styles.chatContainer
+        }
       >
-        <div
-          style={{
-            color: "var(--cWhiteV1)",
-            fontSize: "14px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          Activar notificaciones{" "}
-          <Switch
-            value={notifAudio ? "Y" : "N"}
-            name="notifAudio"
-            onChange={() => setNotifAudio(!notifAudio)}
-            checked={notifAudio}
-          />
-        </div>
-        <IconX onClick={() => setOpen(false)} />
-      </div>
-      <div className={styles.chatBodyContainer}>
-        <div
-          style={{
-            borderRight: "1px solid var(--cWhiteV1)",
-            padding: "0 16px",
-            width: "300px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            gap: "8px",
-            position: "relative",
-            overflow: "hidden",
-            // backgroundColor: "green",
-            // flex: 1,
-          }}
-        >
-          <div
-            style={{
-              flexGrow: 1,
-              // flex: 1,
-              height: "200px",
-              overflowY: "auto",
-              overflowX: "hidden",
-              // backgroundColor: "blue",
-            }}
-          >
-            {/* <div style={{ height: "100%" }}> */}
-            {usersChat?.map((u: any, i: number) => {
-              if (u.id == user.id) return null;
-              return (
-                <ChatContactItem
-                  key={"_" + i + "_" + u.id}
-                  u={u}
-                  user={user}
-                  uniquePresence={uniquePresence}
-                  openChat={_openNewChat}
-                  countMsg={countMsg}
-                  typing={typing}
-                  typeSearch={typeSearch}
+        {/* encabezado */}
+        <div className={styles.chatHeader}>
+          <div>
+            Activar notificaciones{" "}
+            <Switch
+              value={notifAudio ? "Y" : "N"}
+              name="notifAudio"
+              onChange={() => setNotifAudio(!notifAudio)}
+              checked={notifAudio}
+            />
+          </div>
+          <div>
+            <div>
+              {typeSearch == roomGral ? (
+                <IconGroup size={40} />
+              ) : typeSearch.indexOf("chatBot") != -1 ? (
+                <Logo width={40} />
+              ) : (
+                <Avatar
+                  src={getUrlImages(
+                    "/ADM-" +
+                      currentRoom?.value
+                        .replace("--", "")
+                        .replace(user.id, "") +
+                      ".webp?d=" +
+                      new Date().getTime()
+                  )}
+                  w={40}
+                  h={40}
+                  name={currentRoom?.text ?? ""}
                 />
-              );
-            })}
-            {/* </div> */}
+              )}
+            </div>
+            <div>{currentRoom && currentRoom.text}</div>
           </div>
-          <div style={{ flexShrink: 1 }}>
-            Canales de contactos <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <hr />
+          <div>
+            <IconX onClick={() => setOpen(false)} />
           </div>
         </div>
-        <div
-          style={{
-            flexGrow: 1,
-            // backgroundColor: "blue",
-            width: "300px",
-            display: "flex",
-          }}
-        >
-          <ChatRoom
-            user={user}
-            roomId={typeSearch}
-            chats={chats}
-            sendMessage={_sendMsg}
-            sendEmoticon={sendEmoticon}
-            readMessage={readMessage}
-            users={usersChat}
-            typing={typing}
-            sending={sending}
-            isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
-            db={db}
-          />
+        <div className={styles.chatBodyContainer}>
+          <div>
+            <div>
+              {usersChat?.map((u: any, i: number) => {
+                if (u.id == user.id) return null;
+                return (
+                  <ChatContactItem
+                    key={"_" + i + "_" + u.id}
+                    u={u}
+                    user={user}
+                    uniquePresence={uniquePresence}
+                    openChat={_openNewChat}
+                    countMsg={countMsg}
+                    typing={typing}
+                    typeSearch={typeSearch}
+                  />
+                );
+              })}
+            </div>
+            <div>
+              <div>Canales de contactos</div>
+              <div
+                style={{
+                  width: "214px",
+                  fontSize: "14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}
+              >
+                <Button
+                  variant="secondary"
+                  small
+                  style={{ justifyContent: "left", gap: "4px" }}
+                >
+                  <IconWhatsapp /> Contactarme por WhatsApp
+                </Button>
+                <Button
+                  variant="secondary"
+                  small
+                  style={{ justifyContent: "left", gap: "4px" }}
+                >
+                  <IconEmail /> Contactarme por E-mail
+                </Button>
+              </div>
+              <div>Este chat solo almacena los últimos 100 mensajes</div>
+            </div>
+          </div>
+          <div>
+            <ChatRoom
+              user={user}
+              roomId={typeSearch}
+              chats={chats}
+              sendMessage={_sendMsg}
+              sendEmoticon={sendEmoticon}
+              readMessage={readMessage}
+              users={usersChat}
+              typing={typing}
+              sending={sending}
+              isGroup={rooms.find((e) => e.value === typeSearch)?.isGroup}
+              db={db}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -335,7 +334,7 @@ const ChatContactItem = ({
         " " +
         (typeSearch.indexOf(u.id) != -1 && styles.active)
       }
-      onClick={() => openChat(u.id, u.name)}
+      onClick={() => openChat(u.id, getFullName(u, "NsLm"))}
     >
       <div style={{ position: "relative" }}>
         {u.id == "chatBot" ? (
@@ -368,7 +367,7 @@ const ChatContactItem = ({
           width: "100%",
         }}
       >
-        {getFullName(u, "NmLo")}
+        {getFullName(u, "NsLm")}
         <br />
         <div
           className="truncate"
@@ -387,7 +386,6 @@ const ChatContactItem = ({
               rol={u.role_name}
             />
           )}
-          {/* {JSON.stringify(countMsg[u.id]?.msg)} */}
         </div>
       </div>
       {countMsg[u.id]?.count > 0 && (
@@ -412,15 +410,6 @@ const ChatContactItem = ({
           </div>
         </span>
       )}
-      {/* {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name &&
-        (typeSearch == roomGral || typeSearch.indexOf(user.id) !== false) && (
-          <span style={{ color: "white" }}>...esta escribiendo...</span>
-        )}
-      {u.id == "chatBot" &&
-        countMsg[u.id]?.msg?.received_at &&
-        !countMsg[u.id]?.msg?.read_at && (
-          <span style={{ color: "white" }}>...esta escribiendo...</span>
-        )} */}
       <div
         style={{
           fontSize: "12px",

@@ -19,6 +19,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import {
   IconDepartment,
   IconDepartments,
+  IconDepartments2,
   IconHome,
 } from "@/components/layout/icons/IconsBiblioteca";
 
@@ -408,15 +409,24 @@ const Dptos = () => {
           icon={
             <Round
               style={{
-                backgroundColor: "var(--cHoverInfo)",
-                color: "var(--cInfo)",
+                backgroundColor:
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverInfo)"
               }}
             >
-              <IconDepartments />
+              <IconDepartments2
+                color={
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cInfo)"
+                }
+              />
             </Round>
           }
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
+          const isEmpty = !item.value || item.value === 0;
           return (
             <WidgetDashCard
               key={i}
@@ -427,20 +437,20 @@ const Dptos = () => {
                 item?.name === "Casa" ? (
                   <Round
                     style={{
-                      backgroundColor: "var(--cHoverSuccess)",
-                      color: "var(--cSuccess)",
+                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverSuccess)",
+                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)",
                     }}
                   >
-                    <IconHome />
+                    <IconHome color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"} />
                   </Round>
                 ) : item.name == "Departamento" ? (
                   <Round
                     style={{
-                      backgroundColor: "var(--cHoverWarning)",
-                      color: "var(--cWarning)",
+                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverWarning)",
+                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)",
                     }}
                   >
-                    <IconDepartment />
+                    <IconDepartment color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"} />
                   </Round>
                 ) : (
                   <div style={{ width: 40, height: 40 }} />
@@ -456,8 +466,9 @@ const Dptos = () => {
         height={"calc(100vh - 390px)"}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
-        emptyLine2="del condominio as verás aquí."
-        emptyIcon={<IconDepartments size={80}/>} 
+        emptyLine2="del condominio las verás aquí."
+        emptyIcon={<IconDepartments2 size={80} color="var(--cWhiteV1)" />} 
+
       />
       {openImport && (
         <ImportDataModal

@@ -22,6 +22,7 @@ import {
   LineGraphic,
   PointGraphic,
   IconGraphics,
+  IconLineGraphic,
 } from "@/components/layout/icons/IconsBiblioteca";
 // Styles
 import styles from "./Balance.module.css";
@@ -473,7 +474,11 @@ const BalanceGeneral: React.FC = () => {
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
-                    icon={<IconGraphics size={80} />}
+                    icon={
+                      charType.filter_charType === "line"
+                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
+                        : <IconGraphics size={80} color="var(--cWhiteV1)" />
+                    }
                   />
                 ) : (
                   <>
@@ -606,7 +611,11 @@ const BalanceGeneral: React.FC = () => {
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
-                    icon={<IconGraphics size={80} />}
+                    icon={
+                      charType.filter_charType === "line"
+                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
+                        : <IconGraphics size={80} color="var(--cWhiteV1)" />
+                    }
                   />
                 ) : (
                   <>
@@ -678,7 +687,11 @@ const BalanceGeneral: React.FC = () => {
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
-                    icon={<IconGraphics size={60} />}
+                    icon={
+                      charType.filter_charType === "line"
+                        ? <IconLineGraphic size={60} color="var(--cWhiteV1)" />
+                        : <IconGraphics size={60} color="var(--cWhiteV1)" />
+                    }
                   />
                 ) : (
                   <>

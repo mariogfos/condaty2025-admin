@@ -7,6 +7,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import styles from "./HistoryPayments.module.css";
+import { IconPagos } from "@/components/layout/icons/IconsBiblioteca";
+
 
 interface HistoryPaymentsProps {
   paymentsData: any[];
@@ -133,7 +135,7 @@ const HistoryPayments = ({
 
               {paginatedData.length === 0 && (
                 <div className={styles.emptyState}>
-                  <EmptyData message="No hay registros de pagos" />
+                  <EmptyData message="No hay registros de pagos" icon={<IconPagos size={40} color="var(--cWhiteV1)" />} />
                 </div>
               )}
             </div>

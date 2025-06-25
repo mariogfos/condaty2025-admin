@@ -377,13 +377,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/payments")}
                   icon={
                     <IconIngresos
-                      color={!dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cBlackV2)" : "var(--cAccent)"}
-                      style={{ backgroundColor: !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverSuccess)" }}
+                      color={
+                        !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAccent)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverSuccess)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Egresos"
@@ -391,13 +403,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
                     <IconEgresos
-                      color={!dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cBlackV2)" : "var(--cError)"}
-                      style={{ backgroundColor: !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0 ? "var(--cWhiteV2)" : "var(--cHoverError)" }}
+                      color={
+                        !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cError)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverError)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title={balanceMessage}
@@ -411,13 +435,25 @@ const HomePage = () => {
                   }
                   icon={
                     <IconBriefCaseMoney
-                      color={!balance || balance === 0 ? "var(--cBlackV2)" : "var(--cInfo)"}
-                      style={{ backgroundColor: !balance || balance === 0 ? "var(--cWhiteV2)" : "var(--cHoverInfo)" }}
+                      color={
+                        !balance || balance === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cInfo)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !balance || balance === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverInfo)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Monto pagado en exceso por un propietario o residente en sus cuotas u otros pagos. Puede compensarse en futuros pagos o devolverse."
+                  tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
                   title="Cartera vencida"
@@ -425,13 +461,25 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/defaultersview")}
                   icon={
                     <IconWallet
-                      color={!dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cBlackV2)" : "var(--cAlert)"}
-                      style={{ backgroundColor: !dashboard?.data?.morosos || dashboard?.data?.morosos === 0 ? "var(--cWhiteV2)" : "var(--cHoverAlert)" }}
+                      color={
+                        !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cAlert)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverAlert)",
+                      }}
                       circle
                       size={38}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
+                  tooltipColor="var(--cWhiteV1)"
                 />
               </div>
             </WidgetBase>
@@ -465,8 +513,8 @@ const HomePage = () => {
                     title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay solicitudes de pago. Una vez los residentes"
-                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí"
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes"
+                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
                     emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
@@ -477,7 +525,7 @@ const HomePage = () => {
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
                     emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
-                    emptyListLine2="residente registre una se mostrará aquí"
+                    emptyListLine2="residente registre una se mostrará aquí."
                     emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
@@ -490,7 +538,7 @@ const HomePage = () => {
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
                     emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
-                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí"
+                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
                     emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
@@ -501,7 +549,7 @@ const HomePage = () => {
                     viewAllText="Ver todos"
                     onViewAllClick={() => setOpenPreRegistroModal(true)}
                     emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
-                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí"
+                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
                     emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
@@ -526,23 +574,32 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
+                  tooltipColor="var(--cWhiteV1)"
+                   tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
                 />
               </div>
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume data={dashboard?.data?.posts} />
+              <WidgetContentsResume />
             </div>
           </div>
         </div>

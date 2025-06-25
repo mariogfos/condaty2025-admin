@@ -454,21 +454,29 @@ const Guards = () => {
           data={String(data?.message?.total || 0)}
           icon={
             <IconGuardShield
-              color={"#B382D9"}
-              style={{ backgroundColor: "rgba(179, 130, 217, 0.1)" }}
+              color={
+                !data?.message?.total || data?.message?.total === 0
+                  ? "var(--cWhiteV1)"
+                  : "#B382D9"
+              }
+              style={{
+                backgroundColor:
+                  !data?.message?.total || data?.message?.total === 0
+                    ? "var(--cHover)"
+                    : "rgba(179, 130, 217, 0.1)",
+              }}
               circle
               size={38}
             />
           }
           style={{ width: "280px" }}
-          // className={styles.widgetResumeCard}
         />
       </div>
       <List onTabletRow={renderItem} 
       height={"calc(100vh - 395px)"} 
       emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
-      emptyLine2="del condominio una vez los registres"
-      emptyIcon={<IconSecurity size={80}/>} />
+      emptyLine2="del condominio una vez los registres."
+      emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />} />
     </div>
   );
 };

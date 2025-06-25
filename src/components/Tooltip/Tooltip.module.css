@@ -6,15 +6,15 @@
 
 .tooltip {
   visibility: hidden;
-  width: 230px;
+  width: 501px;
   background-color: var(--cWhite);
-  color: var(--cBlackV2);
-  text-align: center;
-  padding: 5px;
+  color: var(--cWhiteV1);
+  text-align: start;
+  padding: 10px;
   border-radius: 4px;
   z-index: 9999;
   position: absolute;
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .container:hover .tooltip {

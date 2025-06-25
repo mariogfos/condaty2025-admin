@@ -237,7 +237,7 @@ const Categories = ({ type = "" }) => {
         }}
         emptyMsg="Sin categorías registradas. Necesitas crear categorías"
         emptyLine2="para organizar tus ingresos."
-        emptyIcon={<IconCategories size={80} />}
+        emptyIcon={<IconCategories size={80}color="var(--cWhiteV1)" />}
         // cardGap="0px" // Mantenido comentado como lo tenías
       />
     </div>

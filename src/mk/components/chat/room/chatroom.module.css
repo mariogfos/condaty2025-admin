@@ -50,6 +50,9 @@
   /* background-color: #ccc; Color de placeholder para el avatar */
   margin-right: 10px;
 }
+.noAvatar {
+  width: 10px;
+}
 
 .messageUser {
   color: var(--cAccent);
@@ -201,7 +204,7 @@
 
 .bubbleHour {
   position: absolute;
-  bottom: -24px;
+  bottom: -28px;
   padding: 0 4px;
   left: 0;
   gap: 14px;
@@ -210,7 +213,10 @@
   height: 21px;
   justify-content: space-between;
   align-items: flex-start;
-  padding-left: 60px;
+  padding-left: 20px;
+  &.isGroup {
+    padding-left: 60;
+  }
 }
 
 .myMessage .bubbleHour {
@@ -224,6 +230,30 @@
   color: var(--cWhiteV1);
   font-size: 9px;
   text-align: right;
+}
+
+.previewContainer {
+  position: absolute;
+  height: 100%;
+  z-index: 5000;
+  background-color: var(--cBlack);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 0;
+  left: 0;
+  & > svg {
+    position: absolute;
+    right: 6px;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+  }
+  & > img {
+    object-fit: contain;
+    max-height: 100%;
+    max-width: 100%;
+  }
 }
 
 @keyframes fadeIn {

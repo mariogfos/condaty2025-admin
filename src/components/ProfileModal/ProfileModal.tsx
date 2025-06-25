@@ -171,9 +171,9 @@ const ProfileModal = ({
   };
   console.log(data?.data);
 
-  // Función para obtener la portada del cliente o la imagen vacía
+  const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
-    if (client?.id && client?.updated_at) {
+    if (!portadaError && client?.id && client?.updated_at) {
       return getUrlImages(
         "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
       );
@@ -230,7 +230,7 @@ const ProfileModal = ({
           <section>
             <Avatar
               src={getPortadaCliente()}
-              //   name={getFullName(user)}
+              onError={() => setPortadaError(true)}
               style={{
                 width: "100%",
                 height: 300,
@@ -239,6 +239,7 @@ const ProfileModal = ({
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 borderBottom: "1px solid var(--cWhiteV2)",
+                background: "var(--cWhiteV2)"
               }}
             />
             <div>

@@ -67,8 +67,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const onConfirm = async (rechazado = true) => {
     setErrors({});
     if (!rechazado) {
-      if (!formState.confirm_obs) {
-        setErrors({ confirm_obs: "La observación es requerida" });
+      if (!formState.confirm_obs || formState.confirm_obs.trim() === "") {
+        setErrors({ confirm_obs: "La observación es obligatoria para rechazar un pago" });
         return;
       }
     }
@@ -417,7 +417,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         <TextArea
           label="Observaciones"
           required
-          errors={errors}
+          error={errors}
           name="confirm_obs"
           onChange={handleChangeInput}
           value={formState?.confirm_obs || ""}

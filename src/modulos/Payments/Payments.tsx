@@ -418,7 +418,7 @@ const Payments = () => {
         height={"calc(100vh - 360px)"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
-        emptyIcon={<IconIngresos size={80} />}
+        emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
 
       {openGraph && (

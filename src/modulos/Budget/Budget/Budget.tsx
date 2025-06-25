@@ -227,7 +227,7 @@ const fields = useMemo(
         height={"calc(100vh - 360px)"} 
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
-        emptyIcon={<IconCategories size={80} />}
+        emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)"/>}
       />
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}

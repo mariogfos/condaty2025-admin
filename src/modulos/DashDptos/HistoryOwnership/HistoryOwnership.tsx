@@ -7,6 +7,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import EmptyData from "@/components/NoData/EmptyData";
+import { IconHomePerson2 } from "@/components/layout/icons/IconsBiblioteca";
+
 
 
 interface HistoryOwnershipProps {
@@ -63,7 +65,7 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
 
         <div className={styles.titularesList}>
           {filteredData.length === 0 ? (
-            <EmptyData message="No existe historial de titulares" />
+            <EmptyData message="No existe historial de titulares" icon={<IconHomePerson2 size={40} color="var(--cWhiteV1)" />} />
           ) : (
             filteredData.map((titular, index) => (
               <div
