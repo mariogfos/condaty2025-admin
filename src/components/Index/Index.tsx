@@ -577,6 +577,7 @@ const HomePage = () => {
                   tooltip={true}
                   tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
                   tooltipColor="var(--cWhiteV1)"
+                   tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Residentes"
