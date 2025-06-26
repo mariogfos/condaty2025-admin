@@ -37,7 +37,7 @@ const paramsInitial = {
 };
 
 const HomePage = () => {
-  const { store, setStore, userCan, showToast, user } = useAuth();
+  const { store, setStore, userCan, showToast } = useAuth();
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
