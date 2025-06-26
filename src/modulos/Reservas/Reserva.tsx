@@ -84,7 +84,7 @@ const Reserva = () => {
             const areaName = area?.title;
             const imageUrl = area?.images?.[0]
               ? getUrlImages(
-                  `/AREA-${area.images[0].area_id}-${area.images[0].id}.webp?d=${area.updated_at}`
+                  `/AREA-${area.images[0].entity_id}-${area.images[0].id}.webp?d=${area.updated_at}`
                 )
               : undefined;
 
