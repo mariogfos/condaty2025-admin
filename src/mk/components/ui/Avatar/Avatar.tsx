@@ -47,7 +47,7 @@ export const Avatar = ({
           ...style,
         }}
       >
-        {src && !imageError && hasImage == 1 ? (
+        {src && !imageError && hasImage !== 0 ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
