@@ -90,7 +90,7 @@ const Reserva = () => {
 
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar src={imageUrl} />
+                <Avatar src={imageUrl} hasImage={1} />
                 <div>
                   <p>{areaName || "Área no disponible"}</p>
                 </div>
