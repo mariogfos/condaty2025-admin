@@ -37,8 +37,10 @@ export const Avatar = ({
   useEffect(() => {
     setImageError(false);
   }, [src]);
-  // if (src?.indexOf("undefined") > -1)
-  //   console.error("se envio una imagen undefined");
+  if (!src || src.indexOf("undefined") > -1) {
+    console.error("se envio una imagen undefined");
+    return null;
+  }
   return (
     <div className={styles.avatar + " " + className} onClick={onClick}>
       <div
