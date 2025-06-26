@@ -5,7 +5,7 @@ import styles from "./avatar.module.css";
 type PropsType = {
   src?: string;
   name?: string;
-  hasImage?: string;
+  hasImage?: string | number;
   pin?: boolean;
   children?: any;
   w?: number;
