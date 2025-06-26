@@ -39,7 +39,7 @@ export const Avatar = ({
   }, [src]);
   // if (src?.indexOf("undefined") > -1)
   //   console.error("se envio una imagen undefined");
-  // return (
+  return (
     <div className={styles.avatar + " " + className} onClick={onClick}>
       <div
         style={{
