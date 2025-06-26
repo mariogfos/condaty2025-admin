@@ -127,6 +127,7 @@ const useInstandDB = (): useInstantDbType => {
             address: user.address,
             email: user.email,
             type: user.type,
+            has_image: user.has_image,
             created_at: user.created_at,
             condominio_id: user.client_id,
             condominio: user?.clients?.find((c: any) => c.id == user?.client_id)
