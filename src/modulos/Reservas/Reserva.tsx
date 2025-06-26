@@ -1,17 +1,12 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getDateStrMes, getDateTimeStrMes, getHourStr } from "@/mk/utils/date";
+import { getDateStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
-import ReservaModal from "./ReservaModal/ReservaModal";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
