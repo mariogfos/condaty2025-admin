@@ -253,6 +253,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
 
                 <div style={{ display: "flex", gap: 8 }}>
                   <Avatar
+                    hasImage={props.item.visit.has_image}
                     name={getFullName(props.item.visit)}
                     src={getUrlImages(
                       "/VISIT-" +
@@ -290,6 +291,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               <div style={{ display: "flex", gap: 8 }}>
                 <div>
                   <Avatar
+                    hasImage={props.item.owner.has_image}
                     name={getFullName(props.item.owner)}
                     src={getUrlImages(
                       "/OWNER-" +

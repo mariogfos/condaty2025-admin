@@ -164,6 +164,7 @@ const EditProfile = ({
       <div className={styles.EditProfile}>
         <section>
           <Avatar
+            // hasImage={formState.has_image}
             name={getFullName(formState)}
             src={getAvatarUrl()}
             w={320}

@@ -56,6 +56,7 @@ const Navbar = ({
             ) : (
               <head>
                 <Avatar
+                  hasImage={user.has_image}
                   name={getFullName(user)}
                   src={getUrlImages(
                     "/ADM-" + user?.id + ".png?d=" + user?.updated_at
@@ -87,6 +88,7 @@ const Navbar = ({
         </span>
         <section>
           <Avatar
+            hasImage={user.has_image}
             name={getFullName(user)}
             src={getUrlImages(
               "/ADM-" + user?.id + ".png?d=" + user?.updated_at

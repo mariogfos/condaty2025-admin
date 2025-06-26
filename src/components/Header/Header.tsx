@@ -60,6 +60,7 @@ const Header = ({
         <Avatar
           name={getFullName(user)}
           src={getUrlImages("/ADM-" + user?.id + ".webp?d=" + user?.updated_at)}
+          hasImage={user.has_image}
           onClick={() => {
             // router.push("/profile");
             setStore({ openProfileModal: true });
@@ -112,6 +113,7 @@ const Header = ({
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
+            hasImage={user.has_image}
             name={getFullName(user)}
             h={40}
             w={40}

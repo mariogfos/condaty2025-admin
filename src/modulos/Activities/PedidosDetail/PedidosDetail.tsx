@@ -53,33 +53,48 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
       className={styles.PedidosDetail}
     >
       <Card>
-        <Avatar name={getFullName(item?.owner)} h={60} w={60} style={{marginBottom:16}}/>
+        <Avatar
+          hasImage={item?.owner?.has_image}
+          name={getFullName(item?.owner)}
+          h={60}
+          w={60}
+          style={{ marginBottom: 16 }}
+        />
         <p
           style={{ textAlign: "center", color: "var(--cWhite)", fontSize: 16 }}
         >
-         {getFullName(item?.owner)}
+          {getFullName(item?.owner)}
         </p>
         <p style={{ textAlign: "center", fontSize: 16, fontWeight: "300" }}>
           C.I. {item?.owner?.ci} - Unidad: {item?.owner?.dpto[0]?.nro}
         </p>
-       
-        
+
         <Br />
         <div className={styles.containerDetail}>
-          <div>          
-          <LabelValue value={item?.other?.other_type?.name} label="Tipo de pedido" />
-          <LabelValue label="Estado" value={item?.other?.status==='I' ? 'Ingresado' :item?.other?.status=== 'O'? 'Completado':''} colorValue="var(--cAccent)"/>
+          <div>
+            <LabelValue
+              value={item?.other?.other_type?.name}
+              label="Tipo de pedido"
+            />
+            <LabelValue
+              label="Estado"
+              value={
+                item?.other?.status === "I"
+                  ? "Ingresado"
+                  : item?.other?.status === "O"
+                  ? "Completado"
+                  : ""
+              }
+              colorValue="var(--cAccent)"
+            />
           </div>
-          <div>   
-              <LabelValue
-                label="Fecha y hora de notificación"
-                value={getDateTimeStrMes(item?.updated_at)}
-              />
+          <div>
+            <LabelValue
+              label="Fecha y hora de notificación"
+              value={getDateTimeStrMes(item?.updated_at)}
+            />
 
-              <LabelValue
-                value={item?.other?.descrip}
-                label="Observación"
-              />
+            <LabelValue value={item?.other?.descrip} label="Observación" />
           </div>
         </div>
         <Br />

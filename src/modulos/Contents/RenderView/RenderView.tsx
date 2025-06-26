@@ -38,7 +38,7 @@ const RenderView = (props: {
   ];
   const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-  console.log(data,'data 41 renderviewcontents')
+  console.log(data, "data 41 renderviewcontents");
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const commentList = (item: any) => {
@@ -51,6 +51,7 @@ const RenderView = (props: {
         subtitle={item?.comment}
         left={
           <Avatar
+            hasImage={item?.affiliate?.has_image}
             onClick={() => setIdOpenAff({ open: true, id: item.affiliate.id })}
             name={getFullName(item.affiliate)}
             src={getUrlImages(
@@ -204,19 +205,16 @@ const RenderView = (props: {
               title={getFullName(user)}
               subtitle={
                 <>
-                
                   {/* <div>{data?.user?.role1[0]?.name}</div>
                   <div>{getDateStrMes(props?.item?.data?.created_at)}</div> */}
                 </>
               }
               left={
                 <Avatar
+                  hasImage={user?.has_image}
                   name={getFullName(user)}
                   src={getUrlImages(
-                    "/ADM-" +
-                      user?.id +
-                      ".webp?d=" +
-                      user?.updated_at
+                    "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
                   )}
                 />
               }
@@ -307,7 +305,6 @@ const RenderView = (props: {
 
               {props?.item?.data?.type == "D" && (
                 <>
-              
                   <a
                     style={{ color: "white" }}
                     target="_blank"
@@ -335,7 +332,6 @@ const RenderView = (props: {
             </section>
           </div>
           <section className={styles["reactionsSection"]}>
-     
             <div>
               <div>
                 <div>Apoyos</div>

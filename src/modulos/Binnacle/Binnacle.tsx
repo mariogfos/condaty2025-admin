@@ -43,6 +43,7 @@ const Binnacle = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
+                  hasImage={props?.item?.guardia.has_image}
                   src={getUrlImages(
                     "/GUARD-" +
                       props?.item?.guardia.id +
@@ -110,10 +111,11 @@ const Binnacle = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 280px)"} 
-      emptyMsg="Lista de bitácora vacía. Cuando los guardias registren"
-      emptyLine2="sus reportes los verás aquí."
-      emptyIcon={<IconPencilPaper size={80} color="var(--cWhiteV1)" />} 
+      <List
+        height={"calc(100vh - 280px)"}
+        emptyMsg="Lista de bitácora vacía. Cuando los guardias registren"
+        emptyLine2="sus reportes los verás aquí."
+        emptyIcon={<IconPencilPaper size={80} color="var(--cWhiteV1)" />}
       />
     </div>
   );

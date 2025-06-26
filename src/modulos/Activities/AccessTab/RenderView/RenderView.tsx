@@ -120,15 +120,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             {item?.type === "O" ? (
               <section className={styles.headerSection}>
                 <Avatar
+                  hasImage={owner.has_image}
                   name={getFullName(owner)}
                   src={getUrlImages(
                     "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
                   )}
                   style={{ marginBottom: "var(--spM)" }}
                 />
-                <div className={styles.amountDisplay}>
-                  {getFullName(owner)}
-                </div>
+                <div className={styles.amountDisplay}>{getFullName(owner)}</div>
                 <div className={styles.dateDisplay}>
                   C.I. : {owner?.ci} {plate ? `- Placa: ${plate}` : ""}
                 </div>
@@ -136,15 +135,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             ) : (
               <section className={styles.headerSection}>
                 <Avatar
+                  hasImage={visit.has_image}
                   name={getFullName(visit)}
                   src={getUrlImages(
                     "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
                   )}
                   style={{ marginBottom: "var(--spM)" }}
                 />
-                <div className={styles.amountDisplay}>
-                  {getFullName(visit)}
-                </div>
+                <div className={styles.amountDisplay}>{getFullName(visit)}</div>
                 <div className={styles.dateDisplay}>
                   C.I. : {visit?.ci} {plate ? `- Placa: ${plate}` : ""}
                 </div>
@@ -188,12 +186,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                 </div>
                 {item?.type !== "O" && (
-                   <div className={styles.infoBlock}>
-                     <span className={styles.infoLabel}>Visitó a</span>
-                     <span className={styles.infoValue}>
-                       {getFullName(item?.owner) || "-/-"}
-                     </span>
-                   </div>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Visitó a</span>
+                    <span className={styles.infoValue}>
+                      {getFullName(item?.owner) || "-/-"}
+                    </span>
+                  </div>
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Unidad</span>
@@ -208,24 +206,26 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 {accesses?.length > 0 && (
                   <>
                     <div className={styles.infoBlock}>
-                       <span className={styles.infoLabel}>Acompañantes</span>
-                       <span className={styles.infoValue}>
-                         {accesses.map((access: any, i: number) => (
-                           <span key={i} style={{ display: 'block' }}>
-                             {getFullName(access?.visit)}
-                           </span>
-                         ))}
-                       </span>
+                      <span className={styles.infoLabel}>Acompañantes</span>
+                      <span className={styles.infoValue}>
+                        {accesses.map((access: any, i: number) => (
+                          <span key={i} style={{ display: "block" }}>
+                            {getFullName(access?.visit)}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                     <div className={styles.infoBlock}>
-                       <span className={styles.infoLabel}>Carnet de identidad</span>
-                       <span className={styles.infoValue}>
-                         {accesses.map((access: any, i: number) => (
-                           <span key={i} style={{ display: 'block' }}>
-                             {access?.visit?.ci || "-/-"}
-                           </span>
-                         ))}
-                       </span>
+                      <span className={styles.infoLabel}>
+                        Carnet de identidad
+                      </span>
+                      <span className={styles.infoValue}>
+                        {accesses.map((access: any, i: number) => (
+                          <span key={i} style={{ display: "block" }}>
+                            {access?.visit?.ci || "-/-"}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                   </>
                 )}
@@ -248,12 +248,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <span className={styles.infoValue}>{obs_in || "-/-"}</span>
                 </div>
                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Observación de salida</span>
+                  <span className={styles.infoLabel}>
+                    Observación de salida
+                  </span>
                   <span className={styles.infoValue}>{obs_out || "-/-"}</span>
                 </div>
               </div>
             </section>
-            
+
             <Br />
 
             {item.type !== "O" && (

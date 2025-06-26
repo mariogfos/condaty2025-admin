@@ -229,6 +229,7 @@ const ProfileModal = ({
 
           <section>
             <Avatar
+              hasImage={data?.data[0]?.has_image}
               src={getPortadaCliente()}
               onError={() => setPortadaError(true)}
               style={{
@@ -239,13 +240,14 @@ const ProfileModal = ({
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 borderBottom: "1px solid var(--cWhiteV2)",
-                background: "var(--cWhiteV2)"
+                background: "var(--cWhiteV2)",
               }}
             />
             <div>
               <div>
                 <div>
                   <Avatar
+                    hasImage={data?.data[0]?.has_image}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
                     w={191}

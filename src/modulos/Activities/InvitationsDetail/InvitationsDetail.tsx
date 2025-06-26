@@ -3,7 +3,11 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import React from "react";
 import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes, getDateTimeStrMes, formatDateRange } from "@/mk/utils/date";
+import {
+  getDateStrMes,
+  getDateTimeStrMes,
+  formatDateRange,
+} from "@/mk/utils/date";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import {
   IconArrowLeft,
@@ -42,8 +46,8 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       statusText = "Activo";
       statusClass = styles.statusActive;
     } else if (item?.confirm == "N") {
-        statusText = "Denegado";
-        statusClass = styles.statusDenied;
+      statusText = "Denegado";
+      statusClass = styles.statusDenied;
     } else if (!item?.confirm_at) {
       statusText = "Por confirmar";
       statusClass = styles.statusPending;
@@ -84,6 +88,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       <div className={styles.container}>
         <section className={styles.headerSection}>
           <Avatar
+            hasImage={owner.has_image}
             name={getFullName(owner)}
             h={60}
             w={60}
@@ -108,11 +113,15 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Invitado</span>
-              <span className={styles.infoValue}>{getFullName(visit) || invitation?.title || '-/-'}</span>
+              <span className={styles.infoValue}>
+                {getFullName(visit) || invitation?.title || "-/-"}
+              </span>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Indicaciones</span>
-              <span className={styles.infoValue}>{invitation?.obs || "-/-"}</span>
+              <span className={styles.infoValue}>
+                {invitation?.obs || "-/-"}
+              </span>
             </div>
           </div>
           <div className={styles.detailsColumn}>
@@ -135,10 +144,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 </span>
                 <span className={styles.infoValue}>
                   {item?.type === "F"
-                    ? (invitation?.start_date && invitation?.end_date
-                        ? formatDateRange(invitation?.start_date, invitation?.end_date)
-                        : "Indefinido")
-                    : (getDateStrMes(invitation?.date_event) || "Indefinido")}
+                    ? invitation?.start_date && invitation?.end_date
+                      ? formatDateRange(
+                          invitation?.start_date,
+                          invitation?.end_date
+                        )
+                      : "Indefinido"
+                    : getDateStrMes(invitation?.date_event) || "Indefinido"}
                 </span>
               </div>
             )}
@@ -153,7 +165,8 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Días de acceso</span>
                   <span className={styles.infoValue}>
-                    {parseWeekDays(invitation?.weekday).join(', ') || "No especificado"}
+                    {parseWeekDays(invitation?.weekday).join(", ") ||
+                      "No especificado"}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
@@ -164,11 +177,11 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 </div>
               </div>
               <div className={styles.detailsColumn}>
-                
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Horario permitido</span>
                   <span className={styles.infoValue}>
-                    {invitation?.start_time?.slice(0, 5)} - {invitation?.end_time?.slice(0, 5)}
+                    {invitation?.start_time?.slice(0, 5)} -{" "}
+                    {invitation?.end_time?.slice(0, 5)}
                   </span>
                 </div>
               </div>
@@ -178,8 +191,11 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
 
         {(item?.type === "F" || item?.type === "G") && (
           <>
-             <p className={styles.sectionTitle}>
-                Accesos {invitation?.access?.length || getAccess().length}/{item?.type === 'F' ? (invitation?.max_entries || 'ilimitados') : invitation?.guests?.length}
+            <p className={styles.sectionTitle}>
+              Accesos {invitation?.access?.length || getAccess().length}/
+              {item?.type === "F"
+                ? invitation?.max_entries || "ilimitados"
+                : invitation?.guests?.length}
             </p>
             <div className={styles.listContainer}>
               {(invitation?.access || getAccess())?.map((acc: any) => (
@@ -187,7 +203,14 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                   variant="V3"
                   key={acc.id}
                   title={getFullName(acc.visit || visit)}
-                  left={<Avatar name={getFullName(acc.visit || visit)} />}
+                  left={
+                    <Avatar
+                      hasImage={
+                        acc.visit ? acc.visit?.has_image : visit?.has_image
+                      }
+                      name={getFullName(acc.visit || visit)}
+                    />
+                  }
                 >
                   <div className={styles.accessTime}>
                     <IconArrowRight className={styles.accessInIcon} size={12} />
@@ -195,7 +218,10 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                   </div>
                   {(acc?.out_at || acc?.access?.out_at) && (
                     <div className={styles.accessTime}>
-                      <IconArrowLeft className={styles.accessOutIcon} size={12} />
+                      <IconArrowLeft
+                        className={styles.accessOutIcon}
+                        size={12}
+                      />
                       {getDateTimeStrMes(acc?.out_at || acc?.access?.out_at)}
                     </div>
                   )}

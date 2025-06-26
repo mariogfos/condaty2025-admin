@@ -3,7 +3,6 @@ import styles from "../Users.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 
-
 const RenderView = (props: {
   open: boolean;
   onClose: any;
@@ -11,8 +10,7 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-
- console.log('extraDatasaassasa')
+  console.log("extraDatasaassasa");
   return (
     <DataModal
       open={props.open}
@@ -25,12 +23,13 @@ const RenderView = (props: {
       <div>
         <div>
           <Avatar
+            hasImage={props.item?.has_image}
             src={getUrlImages(
               "/ADM-" + props.item.id + ".webp?d=" + props.item.updated_at
             )}
             h={170}
             w={170}
-            style={{borderRadius:16}}
+            style={{ borderRadius: 16 }}
             name={getFullName(props.item)}
           />
           <div>
@@ -50,7 +49,6 @@ const RenderView = (props: {
           </div>
         </div>
         <section>
-
           <div>
             <p>Cédula de identidad</p>
             <p>{props.item?.ci}</p>
@@ -61,7 +59,13 @@ const RenderView = (props: {
           </div>
           <div>
             <p>Rol</p>
-            <p>{ props?.extraData?.roles.find((i:any)=> i.id === props.item.role_id)?.description }</p>
+            <p>
+              {
+                props?.extraData?.roles.find(
+                  (i: any) => i.id === props.item.role_id
+                )?.description
+              }
+            </p>
           </div>
           <div>
             <p>Número de Whatsapp</p>
@@ -73,15 +77,11 @@ const RenderView = (props: {
           </div>
           <div>
             <p>Email</p>
-            <p>
-              {props.item.email}
-            </p>
+            <p>{props.item.email}</p>
           </div>
           <div>
             <p>Dirección</p>
-            <p>
-              {props.item.address}
-            </p>
+            <p>{props.item.address}</p>
           </div>
         </section>
       </div>

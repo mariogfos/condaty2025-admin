@@ -226,6 +226,9 @@ const ChatRoom = ({
                   msg.sender !== user.id &&
                   lastSender !== msg.sender ? (
                     <Avatar
+                      hasImage={
+                        userMsg?.name ? userMsg.has_image : user.has_image
+                      }
                       src={getUrlImages(
                         "/ADM-" + userMsg?.id + ".webp?d=" + userMsg?.updated_at
                       )}

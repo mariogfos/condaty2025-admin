@@ -117,6 +117,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
+              hasImage={data.owner.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
               )}
@@ -169,6 +170,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
+              hasImage={data.owner.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
               )}
@@ -213,6 +215,7 @@ const HomePage = () => {
       <div className={styles.itemRow}>
         <div className={styles.itemImageContainer}>
           <Avatar
+            hasImage={ownerData.has_image}
             src={getUrlImages(
               `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
             )}
@@ -310,6 +313,7 @@ const HomePage = () => {
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
+              hasImage={dataSource.has_image}
               src={avatarImageUrl} // URL construida dinámicamente
               name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}
@@ -378,13 +382,15 @@ const HomePage = () => {
                   icon={
                     <IconIngresos
                       color={
-                        !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                        !dashboard?.data?.TotalIngresos ||
+                        dashboard?.data?.TotalIngresos === 0
                           ? "var(--cWhiteV1)"
                           : "var(--cAccent)"
                       }
                       style={{
                         backgroundColor:
-                          !dashboard?.data?.TotalIngresos || dashboard?.data?.TotalIngresos === 0
+                          !dashboard?.data?.TotalIngresos ||
+                          dashboard?.data?.TotalIngresos === 0
                             ? "var(--cHover)"
                             : "var(--cHoverSuccess)",
                       }}
@@ -404,13 +410,15 @@ const HomePage = () => {
                   icon={
                     <IconEgresos
                       color={
-                        !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                        !dashboard?.data?.TotalEgresos ||
+                        dashboard?.data?.TotalEgresos === 0
                           ? "var(--cWhiteV1)"
                           : "var(--cError)"
                       }
                       style={{
                         backgroundColor:
-                          !dashboard?.data?.TotalEgresos || dashboard?.data?.TotalEgresos === 0
+                          !dashboard?.data?.TotalEgresos ||
+                          dashboard?.data?.TotalEgresos === 0
                             ? "var(--cHover)"
                             : "var(--cHoverError)",
                       }}
@@ -462,13 +470,15 @@ const HomePage = () => {
                   icon={
                     <IconWallet
                       color={
-                        !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                        !dashboard?.data?.morosos ||
+                        dashboard?.data?.morosos === 0
                           ? "var(--cWhiteV1)"
                           : "var(--cAlert)"
                       }
                       style={{
                         backgroundColor:
-                          !dashboard?.data?.morosos || dashboard?.data?.morosos === 0
+                          !dashboard?.data?.morosos ||
+                          dashboard?.data?.morosos === 0
                             ? "var(--cHover)"
                             : "var(--cHoverAlert)",
                       }}
@@ -495,13 +505,18 @@ const HomePage = () => {
                     ingresos={dashboard?.data?.ingresosHist}
                     egresos={dashboard?.data?.egresosHist}
                     periodo="y"
-                    showEmptyData={(!dashboard?.data?.ingresosHist || !dashboard?.data?.egresosHist || 
-                      (dashboard?.data?.ingresosHist?.length === 0 && dashboard?.data?.egresosHist?.length === 0))}
+                    showEmptyData={
+                      !dashboard?.data?.ingresosHist ||
+                      !dashboard?.data?.egresosHist ||
+                      (dashboard?.data?.ingresosHist?.length === 0 &&
+                        dashboard?.data?.egresosHist?.length === 0)
+                    }
                     emptyDataProps={{
-                      message: "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
+                      message:
+                        "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
                       line2: "que tengas movimiento financiero.",
                       h: 300,
-                      icon: <IconGraphics size={80} />
+                      icon: <IconGraphics size={80} />,
                     }}
                   />
                 </div>
@@ -577,7 +592,7 @@ const HomePage = () => {
                   tooltip={true}
                   tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
                   tooltipColor="var(--cWhiteV1)"
-                   tooltipPosition="left"
+                  tooltipPosition="left"
                 />
                 <WidgetDashCard
                   title="Residentes"

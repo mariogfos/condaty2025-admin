@@ -1315,6 +1315,7 @@ const CreateReserva = () => {
                       <div className={styles.summaryOwnerInfo}>
                         <div className={styles.ownerIdentifier}>
                           <Avatar
+                            hasImage={ownerData.has_image}
                             src={getUrlImages(
                               `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
                             )}

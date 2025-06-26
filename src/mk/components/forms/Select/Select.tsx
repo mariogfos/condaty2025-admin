@@ -100,8 +100,9 @@ const Section = ({
                 <div style={{ alignItems: "center", gap: "8px" }}>
                   {option["img"] && (
                     <Avatar
+                      hasImage={option.has_image}
                       className={styles.avatar}
-                      name={option[optionLabel] || option.label}
+                      name={option[optionLabel] ?? option.label}
                       src={option["img"]}
                       h={32}
                       w={32}

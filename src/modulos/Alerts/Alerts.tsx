@@ -164,7 +164,11 @@ const Alerts = () => {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {/* Sección del Avatar */}
                 {avatarSrc ? (
-                  <Avatar src={avatarSrc} name={fullName} />
+                  <Avatar
+                    hasImage={entityToDisplay?.has_image}
+                    src={avatarSrc}
+                    name={fullName}
+                  />
                 ) : (
                   // Avatar de fallback con la inicial del nombre o un "?"
                   <Avatar
@@ -298,13 +302,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                  !data?.extraData?.total_alerts ||
+                  data?.extraData?.total_alerts === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cWhite)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    !data?.extraData?.total_alerts ||
+                    data?.extraData?.total_alerts === 0
                       ? "var(--cHover)"
                       : "rgba(255, 255, 255, 0.1)",
                 }}
@@ -320,13 +326,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.low_level || data?.extraData?.low_level === 0
+                  !data?.extraData?.low_level ||
+                  data?.extraData?.low_level === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cSuccess)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.low_level || data?.extraData?.low_level === 0
+                    !data?.extraData?.low_level ||
+                    data?.extraData?.low_level === 0
                       ? "var(--cHover)"
                       : "var(--cHoverSuccess)",
                 }}
@@ -343,13 +351,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.medium_level || data?.extraData?.medium_level === 0
+                  !data?.extraData?.medium_level ||
+                  data?.extraData?.medium_level === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cWarning)"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.medium_level || data?.extraData?.medium_level === 0
+                    !data?.extraData?.medium_level ||
+                    data?.extraData?.medium_level === 0
                       ? "var(--cHover)"
                       : "var(--cHoverWarning)",
                 }}
@@ -365,13 +375,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.high_level || data?.extraData?.high_level === 0
+                  !data?.extraData?.high_level ||
+                  data?.extraData?.high_level === 0
                     ? "var(--cWhiteV1)"
                     : "#da5d5d"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.high_level || data?.extraData?.high_level === 0
+                    !data?.extraData?.high_level ||
+                    data?.extraData?.high_level === 0
                       ? "var(--cHover)"
                       : "var(--errorBg)",
                 }}
@@ -387,13 +399,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                  !data?.extraData?.emergency_buttons ||
+                  data?.extraData?.emergency_buttons === 0
                     ? "var(--cWhiteV1)"
                     : "#da5d5d"
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                    !data?.extraData?.emergency_buttons ||
+                    data?.extraData?.emergency_buttons === 0
                       ? "var(--cHover)"
                       : "var(--errorBg)",
                 }}
@@ -406,10 +420,12 @@ const Alerts = () => {
         </div>
       </div>
 
-      <List height={"calc(100vh - 460px)"} 
-      emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
-      emptyLine2="registre una, se mostrará aquí."
-      emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />} />
+      <List
+        height={"calc(100vh - 460px)"}
+        emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
+        emptyLine2="registre una, se mostrará aquí."
+        emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
+      />
     </div>
   );
 };

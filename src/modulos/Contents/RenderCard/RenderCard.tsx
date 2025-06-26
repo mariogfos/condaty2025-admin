@@ -22,7 +22,9 @@ type PropsType = {
 };
 
 const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
-  const [openDrop, setOpenDrop] = useState<{ open: boolean; item: any | null }>({ open: false, item: null });
+  const [openDrop, setOpenDrop] = useState<{ open: boolean; item: any | null }>(
+    { open: false, item: null }
+  );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
@@ -66,6 +68,7 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
         <div>
           <div>
             <Avatar
+              hasImage={item?.user?.has_image}
               name={getFullName(item?.user)}
               src={getUrlImages(
                 "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
@@ -288,7 +291,7 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                 WebkitLineClamp: 1,
                 WebkitBoxOrient: "vertical",
                 textOverflow: "ellipsis",
-                fontSize: "12px"
+                fontSize: "12px",
               }}
             >
               {getDestinys()?.join(", ")}
@@ -302,7 +305,7 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                 fontWeight: 600,
                 fontSize: 16,
                 marginTop: "8px",
-                 overflow: "hidden",
+                overflow: "hidden",
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
@@ -322,7 +325,12 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
                 wordBreak: "break-word",
                 overflowWrap: "break-word",
                 display: "-webkit-box",
-                WebkitLineClamp: item.images && item.images.length > 0 ? 2 : (item?.title ? 2 : 8),
+                WebkitLineClamp:
+                  item.images && item.images.length > 0
+                    ? 2
+                    : item?.title
+                    ? 2
+                    : 8,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -351,7 +359,9 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
             }}
           >
             <IconLike />
-            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>{item.likes}</p>
+            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>
+              {item.likes}
+            </p>
           </div>
           <div
             style={{
@@ -361,7 +371,9 @@ const RenderCard = ({ extraData, item, onClick, onEdit, onDel }: PropsType) => {
             }}
           >
             <IconComment />
-            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>{item?.comments_count}</p>
+            <p style={{ fontSize: 12, color: "var(--cWhiteV1)" }}>
+              {item?.comments_count}
+            </p>
           </div>
         </div>
       </div>

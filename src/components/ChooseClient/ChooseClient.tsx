@@ -54,6 +54,7 @@ const ChooseClient = ({ open, onClose }: Props) => {
           <Avatar
             src={getUrlImages("/CLIENT-" + c.id + ".webp?d=")}
             name={c.name}
+            hasImage={c.has_image}
           />
         }
         right={

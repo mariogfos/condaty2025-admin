@@ -53,6 +53,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
         <ItemList
           left={
             <Avatar
+              hasImage={user?.has_image}
               src={getUrlImages(
                 "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
               )}

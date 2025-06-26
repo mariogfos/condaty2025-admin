@@ -189,6 +189,7 @@ const Profile = () => {
               {/* Avatar para móvil */}
               <div className={styles.mobileAvatarWrapper}>
                 <Avatar
+                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={112}
@@ -209,6 +210,7 @@ const Profile = () => {
               {/* Avatar para desktop */}
               <div className={styles.desktopImageContainer}>
                 <Avatar
+                  hasImage={user?.has_image}
                   src={getAvatarUrl()}
                   name={getFullName(user)}
                   w={350}
@@ -340,6 +342,7 @@ const Profile = () => {
       >
         <div className={styles.profileModal}>
           <Avatar
+            hasImage={user?.has_image}
             name={getFullName(user)}
             src={getAvatarUrl()}
             w={100}

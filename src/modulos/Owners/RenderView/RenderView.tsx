@@ -56,6 +56,7 @@ const RenderView = (props: any) => {
         <div>
           <div>
             <Avatar
+              hasImage={item?.has_image}
               src={getUrlImages(
                 "/OWNER-" + item.id + ".webp?d=" + item.updated_at
               )}
@@ -99,22 +100,22 @@ const RenderView = (props: any) => {
                 <p>{item?.dpto[0]?.type.name}</p>
               </div>
             )}
-           
-                <>
-                  {item?.dpto?.length > 0 ? (
-                    // CASO 1: Si ya tiene una unidad asignada
-                    <div>
-                      <p>Número de Unidad</p>
-                      <p>{item.dpto[0].nro}</p>
-                    </div>
-                  ) : (
-                    // CASO 2: Si solo tiene una unidad solicitada (preunidad)
-                    <div>
-                      <p>Número de Unidad solicitada</p>
-                      <p>{client?.pivot?.preunidad || "No especificada"}</p>
-                    </div>
-                  )}
-                </>
+
+            <>
+              {item?.dpto?.length > 0 ? (
+                // CASO 1: Si ya tiene una unidad asignada
+                <div>
+                  <p>Número de Unidad</p>
+                  <p>{item.dpto[0].nro}</p>
+                </div>
+              ) : (
+                // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                <div>
+                  <p>Número de Unidad solicitada</p>
+                  <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                </div>
+              )}
+            </>
           </section>
         </div>
         {client?.pivot?.status === "W" && (

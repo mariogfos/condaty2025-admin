@@ -60,6 +60,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
         <div className={styles.requesterSection}>
           <div className={styles.requesterInfoContainer}>
             <Avatar
+              hasImage={details.owner?.has_image}
               src={getUrlImages(
                 `/OWNER-${details.owner.id}.webp?d=${details.owner.updated_at}`
               )}

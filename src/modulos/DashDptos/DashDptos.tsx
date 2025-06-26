@@ -291,6 +291,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
     return (
       <Avatar
+        hasImage={item?.visit?.has_image}
         name={getFullName(item.visit)}
         w={40}
         h={40}
@@ -363,10 +364,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 <EmptyData
                   message="Sin propietario a cargo. Para registrar"
                   line2="un propietario a esta unidad."
-                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
+                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                   centered={true}
                   fontSize={14}
-                  
                 />
               ) : (
                 <ItemList
@@ -374,6 +374,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   subtitle={"Propietario"}
                   left={
                     <Avatar
+                      hasImage={datas?.data?.homeowner?.has_image}
                       // src={
                       //   datas?.data?.id
                       //     ? getUrlImages(
@@ -443,7 +444,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     <EmptyData
                       message="Sin inquilino asignado. Para asignar"
                       line2="un inquilino a esta unidad."
-                      icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />} 
+                      icon={
+                        <IconHomePerson2 size={32} color="var(--cWhiteV1)" />
+                      }
                       centered={true}
                       fontSize={14}
                     />
@@ -458,6 +461,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                       subtitle={"Titular"}
                       left={
                         <Avatar
+                          hasImage={datas?.titular?.has_image}
                           src={
                             datas?.titular?.id
                               ? getUrlImages(
@@ -543,6 +547,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                                   className={styles.tooltip}
                                 >
                                   <Avatar
+                                    hasImage={dependiente.owner?.has_image}
                                     key={index}
                                     src={
                                       dependiente.owner?.id
@@ -571,10 +576,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                             )
                           ) : (
                             <>
-                            <Br />
-                            <p className={styles.emptyMessage}>
-                             aquí verás a los dependientes que se vinculen a un propietario o un inquilino.
-                            </p>
+                              <Br />
+                              <p className={styles.emptyMessage}>
+                                aquí verás a los dependientes que se vinculen a
+                                un propietario o un inquilino.
+                              </p>
                             </>
                           )}
                         </div>
@@ -717,7 +723,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   message="No existen accesos registrados. El historial de visitantes se mostrará"
                   line2="aquí, una vez la unidad reciba visitas."
                   centered={true}
-                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />} 
+                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />}
                 />
               )}
             </div>
@@ -831,14 +837,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   })}
                 </div>
               ) : (
-               
                 <EmptyData
-                message="No hay solicitudes de reserva. Una vez los residentes"
-                line2="comiencen a reservar áreas sociales se mostrarán aquí."
-                icon={<IconReservedAreas size={32} color="var(--cWhiteV1)"  />}
-                h={120}
-                centered={true}
-              />
+                  message="No hay solicitudes de reserva. Una vez los residentes"
+                  line2="comiencen a reservar áreas sociales se mostrarán aquí."
+                  icon={<IconReservedAreas size={32} color="var(--cWhiteV1)" />}
+                  h={120}
+                  centered={true}
+                />
               )}
             </div>
           </WidgetBase>

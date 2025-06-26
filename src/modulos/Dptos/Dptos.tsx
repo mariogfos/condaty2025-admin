@@ -196,7 +196,10 @@ const Dptos = () => {
           onRender: (props: any) => {
             return props?.item?.homeowner ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar name={getFullName(props?.item?.homeowner)} />
+                <Avatar
+                  hasImage={props?.item?.homeowner?.has_image}
+                  name={getFullName(props?.item?.homeowner)}
+                />
                 <div>
                   <p style={{ color: "var(--cWhite)" }}>
                     {getFullName(props?.item?.homeowner)}
@@ -231,6 +234,7 @@ const Dptos = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
+                  hasImage={props?.item?.titular?.owner?.has_image}
                   src={getUrlImages(
                     "/OWNER-" +
                       props?.item?.titular?.owner_id +
@@ -412,7 +416,7 @@ const Dptos = () => {
                 backgroundColor:
                   !data?.message?.total || data?.message?.total === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)"
+                    : "var(--cHoverInfo)",
               }}
             >
               <IconDepartments2
@@ -437,20 +441,28 @@ const Dptos = () => {
                 item?.name === "Casa" ? (
                   <Round
                     style={{
-                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverSuccess)",
+                      backgroundColor: isEmpty
+                        ? "var(--cHover)"
+                        : "var(--cHoverSuccess)",
                       color: isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)",
                     }}
                   >
-                    <IconHome color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"} />
+                    <IconHome
+                      color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"}
+                    />
                   </Round>
                 ) : item.name == "Departamento" ? (
                   <Round
                     style={{
-                      backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverWarning)",
+                      backgroundColor: isEmpty
+                        ? "var(--cHover)"
+                        : "var(--cHoverWarning)",
                       color: isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)",
                     }}
                   >
-                    <IconDepartment color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"} />
+                    <IconDepartment
+                      color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"}
+                    />
                   </Round>
                 ) : (
                   <div style={{ width: 40, height: 40 }} />
@@ -467,8 +479,7 @@ const Dptos = () => {
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
         emptyLine2="del condominio las verás aquí."
-        emptyIcon={<IconDepartments2 size={80} color="var(--cWhiteV1)" />} 
-
+        emptyIcon={<IconDepartments2 size={80} color="var(--cWhiteV1)" />}
       />
       {openImport && (
         <ImportDataModal

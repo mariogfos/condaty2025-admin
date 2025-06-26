@@ -213,6 +213,15 @@ export default function ChatInstantDb() {
                 <Logo width={40} />
               ) : (
                 <Avatar
+                  hasImage={
+                    usersChat.find(
+                      (e: any) =>
+                        e.id ==
+                        currentRoom?.value
+                          .replace("--", "")
+                          .replace(user.id, "")
+                    )?.has_image
+                  }
                   src={getUrlImages(
                     "/ADM-" +
                       currentRoom?.value
@@ -343,6 +352,7 @@ const ChatContactItem = ({
           <IconGroup size={40} />
         ) : (
           <Avatar
+            hasImage={u.name ? u.has_image : user.has_image}
             src={getUrlImages("/ADM-" + u?.id + ".webp?d=" + u?.updated_at)}
             w={40}
             h={40}

@@ -197,6 +197,7 @@ const Guards = () => {
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
+                hasImage={guardia?.has_image}
                 src={getUrlImages(
                   "/GUARD-" +
                     guardia?.id + // Usar residente?.id
@@ -472,11 +473,13 @@ const Guards = () => {
           style={{ width: "280px" }}
         />
       </div>
-      <List onTabletRow={renderItem} 
-      height={"calc(100vh - 395px)"} 
-      emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
-      emptyLine2="del condominio una vez los registres."
-      emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />} />
+      <List
+        onTabletRow={renderItem}
+        height={"calc(100vh - 395px)"}
+        emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
+        emptyLine2="del condominio una vez los registres."
+        emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />}
+      />
     </div>
   );
 };
