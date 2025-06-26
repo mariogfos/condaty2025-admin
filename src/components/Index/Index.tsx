@@ -621,6 +621,7 @@ const HomePage = () => {
       </div>
 
       {openPayment && <PaymentRender {...paymentProps} />}
+      {openReservation  && (
       <ReservationDetailModal
         open={openReservation}
         onClose={() => {
@@ -630,6 +631,7 @@ const HomePage = () => {
         reservationId={selectedReservationId}
         reLoad={() => reLoad()}
       />
+      )}
       <DataModal
         open={openPreRegistroModal}
         title="Lista completa de pre-registros"
