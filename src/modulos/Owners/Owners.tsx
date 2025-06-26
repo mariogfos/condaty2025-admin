@@ -451,7 +451,7 @@ const Owners = () => {
         },
         list: { width: "100px" },
       },
-      type: {
+      type_owner: {
         rules: [""],
         api: "",
         label: "Tipo",
