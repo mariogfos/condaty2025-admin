@@ -5,7 +5,17 @@ export default function GraphAdapterLine(data:any, options:any, oDef: any = {}) 
       curve: "smooth",
       width: 2,
     },
-
+    xaxis: {
+      categories: xLabels,
+      labels: {
+        style: {
+          colors: "#FFFFFF",
+          fontSize: "12px",
+          fontWeight: 400,
+          fontFamily: "Poppins, Arial,",
+        },
+      },
+    },
     markers: {
       size: 6,
       discrete: [],

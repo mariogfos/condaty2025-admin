@@ -81,8 +81,7 @@ const TableEgresos = ({
         parentCategoryInProcessedData = processedData.find(
           (cat) => cat.id == itemEgreso.category_id
         );
-      } else {
-        // CASO 2: Es un GASTO DIRECTO bajo una categoría principal (o "padre" en tu terminología).
+      } else {     
         // Su propio itemEgreso.categ_id es el que coincide con el id de la categoría principal.
         parentCategoryInProcessedData = processedData.find(
           (cat) => cat.id == itemEgreso.categ_id
