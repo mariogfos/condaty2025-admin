@@ -22,8 +22,10 @@ import MainmenuDropdown from "./MainmenuDropdown";
 import MainMenuHeader from "./MainMenuHeader";
 import MainmenuItem from "./MainMenuItem";
 import { UnitsType } from "@/mk/utils/utils";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { useEvent } from "@/mk/hooks/useEvents";
+import { usePathname } from "next/navigation";
 
 type PropsType = {
   user?: any;
@@ -47,12 +49,53 @@ const MainMenu = ({
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   )[0];
-  // const play = () => {
-  //   sound
-  //     .play()
-  //     .catch((err) => console.error("Error al reproducir el audio:", err));
-  // };
+  const [bage, setBage]: any = useState({});
 
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === "/payments" && bage?.payments > 0) {
+      setBage((prevBage: any) => ({
+        ...prevBage,
+        payments: 0,
+      }));
+    }
+    if (pathname === "/reservas" && bage?.reservas > 0) {
+      setBage((prevBage: any) => ({
+        ...prevBage,
+        reservas: 0,
+      }));
+    }
+    if (pathname == "/alerts" && bage?.alerts > 0) {
+      setBage((prevBage: any) => ({
+        ...prevBage,
+        alerts: 0,
+      }));
+    }
+    if (pathname == "/reels" && bage?.alerts > 0) {
+      setBage((prevBage: any) => ({
+        ...prevBage,
+        reels: 0,
+      }));
+    }
+  }, [pathname]);
+
+  const onNotif = useCallback((data: any) => {
+    console.log(data, "MENUUUU");
+    if (data?.payload?.act == "newVoucher") {
+      setBage({ ...bage, payments: (bage?.payments || 0) + 1 });
+    }
+    if (data?.payload?.act == "newReservationAdm") {
+      setBage({ ...bage, reservas: (bage?.reservas || 0) + 1 });
+    }
+    if (data?.payload?.act == "alerts") {
+      setBage({ ...bage, alerts: (bage?.alerts || 0) + 1 });
+    }
+    if (data?.payload?.act == "newContent") {
+      setBage({ ...bage, reels: (bage?.reels || 0) + 1 });
+    }
+  }, []);
+  useEvent("onNotif", onNotif);
   useEffect(() => {
     setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
@@ -75,10 +118,7 @@ const MainMenu = ({
             icon={<IconPayments />}
             items={[
               { href: "/balance", label: "Flujo de efectivo " },
-              {
-                href: "/payments",
-                label: "Ingresos",
-              },
+              { href: "/payments", label: "Ingresos", bage: bage?.payments },
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
@@ -134,6 +174,7 @@ const MainMenu = ({
           <MainmenuItem
             href="/reservas"
             label="Reservas"
+            bage={bage?.reservas}
             icon={<IconCalendar />}
             collapsed={collapsed}
           />
@@ -151,7 +192,7 @@ const MainMenu = ({
             icon={<IconSecurity />}
             items={[
               { href: "/guards", label: "Guardias" },
-              { href: "/alerts", label: "Alertas" },
+              { href: "/alerts", label: "Alertas", bage: bage.alerts },
               { href: "/binnacle", label: "Bitácora" },
               // { href: "/ev", label: "Soporte y ATC" },
             ]}
