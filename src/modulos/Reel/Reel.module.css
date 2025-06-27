@@ -271,10 +271,10 @@
 }
 
 .statItem.liked {
-  color: var(--cInfo);
+  color: var(--cSuccess);
 }
 .statItem.liked svg {
-  fill: var(--cInfo);
+  fill: var(--cSuccess);
   transform: scale(1.1);
 }
 

@@ -283,7 +283,7 @@ const AddContent = ({
           <div>
             <p onClick={() => onClose()}>Volver</p>
             <IconArrowLeft />
-            <p>Crear nueva publicacion</p>
+            <p>Crear nueva publicación</p>
           </div>
           {/* <CardContent
             title="Publicar como"

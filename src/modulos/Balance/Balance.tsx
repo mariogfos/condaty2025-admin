@@ -397,6 +397,7 @@ const BalanceGeneral: React.FC = () => {
                 setFormStateFilter({
                   ...formStateFilter,
                   filter_mov: e.target.value,
+                  filter_categ: "",
                 });
               }}
               options={[
@@ -646,7 +647,19 @@ const BalanceGeneral: React.FC = () => {
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
                         <WidgetGrafIngresos
-                          ingresos={finanzas?.data.ingresosHist}
+                          ingresos={(() => {
+                            const ingresosHist = finanzas?.data.ingresosHist || [];
+                            const selectcategorias = typeof formStateFilter.filter_categ === "string"
+                              ? formStateFilter.filter_categ
+                                ? [formStateFilter.filter_categ]
+                                : []
+                              : formStateFilter.filter_categ;
+                            if (selectcategorias && selectcategorias.length > 0) {
+                              // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
+                              return ingresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                            }
+                            return ingresosHist;
+                          })()}
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
                           title={" "}
@@ -655,17 +668,39 @@ const BalanceGeneral: React.FC = () => {
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
-                            {legendCategoriasIngresos.map((cat, idx) => (
-                              <div className={styles.legendItem} key={cat.name || idx}>
-                                <div
-                                  className={styles.legendColor}
-                                  style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
-                                ></div>
-                                <span>
-                                  {cat.name}: Bs {formatNumber(cat.total)}
-                                </span>
-                              </div>
-                            ))}
+                            {(() => {
+                              const selectcategorias = typeof formStateFilter.filter_categ === "string"
+                                ? formStateFilter.filter_categ
+                                  ? [formStateFilter.filter_categ]
+                                  : []
+                                : formStateFilter.filter_categ;
+                              let legend = legendCategoriasIngresos;
+                              if (selectcategorias && selectcategorias.length > 0) {
+                                // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
+                                legend = (finanzas?.data?.ingresosHist || [])
+                                  .filter((item: any) => selectcategorias.includes(item.category_id))
+                                  .reduce((acc: any[], item: any) => {
+                                    let found = acc.find((a) => a.id === item.categ_id);
+                                    if (found) {
+                                      found.total += parseFloat(item.ingresos || 0);
+                                    } else {
+                                      acc.push({ id: item.categ_id, name: item.categoria, total: parseFloat(item.ingresos || 0) });
+                                    }
+                                    return acc;
+                                  }, []);
+                              }
+                              return legend.map((cat, idx) => (
+                                <div className={styles.legendItem} key={cat.name || idx}>
+                                  <div
+                                    className={styles.legendColor}
+                                    style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                  ></div>
+                                  <span>
+                                    {cat.name}: Bs {formatNumber(cat.total)}
+                                  </span>
+                                </div>
+                              ));
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -722,7 +757,19 @@ const BalanceGeneral: React.FC = () => {
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
                         <WidgetGrafEgresos
-                          egresos={finanzas?.data.egresosHist}
+                          egresos={(() => {
+                            const egresosHist = finanzas?.data.egresosHist || [];
+                            const selectcategorias = typeof formStateFilter.filter_categ === "string"
+                              ? formStateFilter.filter_categ
+                                ? [formStateFilter.filter_categ]
+                                : []
+                              : formStateFilter.filter_categ;
+                            if (selectcategorias && selectcategorias.length > 0) {
+                              // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
+                              return egresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                            }
+                            return egresosHist;
+                          })()}
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
                           title={" "}
@@ -731,17 +778,39 @@ const BalanceGeneral: React.FC = () => {
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
-                            {legendCategoriasEgresos.map((cat, idx) => (
-                              <div className={styles.legendItem} key={cat.name || idx}>
-                                <div
-                                  className={styles.legendColor}
-                                  style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
-                                ></div>
-                                <span>
-                                  {cat.name}: Bs {formatNumber(cat.total)}
-                                </span>
-                              </div>
-                            ))}
+                            {(() => {
+                              const selectcategorias = typeof formStateFilter.filter_categ === "string"
+                                ? formStateFilter.filter_categ
+                                  ? [formStateFilter.filter_categ]
+                                  : []
+                                : formStateFilter.filter_categ;
+                              let legend = legendCategoriasEgresos;
+                              if (selectcategorias && selectcategorias.length > 0) {
+                                // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
+                                legend = (finanzas?.data?.egresosHist || [])
+                                  .filter((item: any) => selectcategorias.includes(item.category_id))
+                                  .reduce((acc: any[], item: any) => {
+                                    let found = acc.find((a) => a.id === item.categ_id);
+                                    if (found) {
+                                      found.total += parseFloat(item.egresos || 0);
+                                    } else {
+                                      acc.push({ id: item.categ_id, name: item.categoria, total: parseFloat(item.egresos || 0) });
+                                    }
+                                    return acc;
+                                  }, []);
+                              }
+                              return legend.map((cat, idx) => (
+                                <div className={styles.legendItem} key={cat.name || idx}>
+                                  <div
+                                    className={styles.legendColor}
+                                    style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                  ></div>
+                                  <span>
+                                    {cat.name}: Bs {formatNumber(cat.total)}
+                                  </span>
+                                </div>
+                              ));
+                            })()}
                           </div>
                         </div>
                       </div>

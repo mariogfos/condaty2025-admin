@@ -370,6 +370,7 @@ const Reel = () => {
   const [newCommentText, setNewCommentText] = useState("");
   const [postingComment, setPostingComment] = useState(false);
   const { execute: executePostComment, error: postCommentError } = useAxios();
+  const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     reLoadInitial();
@@ -671,6 +672,12 @@ const Reel = () => {
     setSelectedContentForModal(null);
   };
 
+  useEffect(() => {
+    if (isCommentModalOpen && commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [comments, isCommentModalOpen]);
+
   if (initialLoadingState && page === 1 && contents.length === 0) {
     return <div className={styles.loadingState}>Cargando publicaciones...</div>;
   }
@@ -752,7 +759,8 @@ const Reel = () => {
                     aria-label={`Me gusta esta publicación, actualmente tiene ${item.likes} me gusta`}
                   >
                     <IconLike
-                      color={item.liked ? "var(--cInfo)" : "var(--cWhiteV1)"}
+                      color={item.liked ? "var(--cSuccess)" : "var(--cWhiteV1)"}
+                      size={24}
                     />
                     <span>{item.likes}</span>
                   </button>
@@ -761,7 +769,7 @@ const Reel = () => {
                     onClick={() => handleOpenComments(item.id)}
                     aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
                   >
-                    <IconComment color={"var(--cWhiteV1)"} />
+                    <IconComment color={"var(--cWhiteV1)"} size={24} />
                     <span>{item.comments_count}</span>
                   </button>
                 </div>
@@ -879,6 +887,7 @@ const Reel = () => {
                       </div>
                     </li>
                   ))}
+                  <div ref={commentsEndRef} />
                 </ul>
               ) : (
                 <div className={styles.noCommentsYet}>
@@ -987,9 +996,10 @@ const Reel = () => {
                     <IconLike
                       color={
                         selectedContentForModal.liked
-                          ? "var(--cInfo)"
+                          ? "var(--cSuccess)"
                           : "var(--cWhiteV1)"
                       }
+                      size={24}
                     />
                     <span>{selectedContentForModal.likes}</span>
                   </button>
@@ -999,7 +1009,7 @@ const Reel = () => {
                       handleOpenComments(selectedContentForModal.id)
                     }
                   >
-                    <IconComment color={"var(--cWhiteV1)"} />
+                    <IconComment color={"var(--cWhiteV1)"} size={24} />
                     <span>{selectedContentForModal.comments_count}</span>
                   </button>
                 </div>
@@ -1151,7 +1161,8 @@ export const ReelCompactList = ({
                 }
               >
                 <IconLike
-                  color={item.liked ? "var(--cInfo)" : "var(--cWhiteV1)"}
+                  color={item.liked ? "var(--cSuccess)" : "var(--cWhiteV1)"}
+                  size={24}
                 />
                 <span>{item.likes}</span>
               </button>
@@ -1163,7 +1174,7 @@ export const ReelCompactList = ({
                   modoCompacto ? { fontSize: 13, padding: "4px 10px" } : {}
                 }
               >
-                <IconComment color={"var(--cWhiteV1)"} />
+                <IconComment color={"var(--cWhiteV1)"} size={24} />
                 <span>{item.comments_count}</span>
               </button>
             </div>
