@@ -10,12 +10,14 @@ interface MainmenuItemProps {
   icon: React.ReactNode;
   onclick?: () => void;
   collapsed?: boolean;
+  bage?: number | any;
 }
 
 const MainmenuItem: React.FC<MainmenuItemProps> = ({
   href,
   label,
   labelColor,
+  bage,
   icon,
   onclick,
   collapsed,
@@ -32,6 +34,16 @@ const MainmenuItem: React.FC<MainmenuItemProps> = ({
       >
         <p>{icon}</p>
         {!collapsed && <p style={{ color: labelColor }}>{label}</p>}
+        {bage > 0 && (
+          <p
+            style={{
+              height: 8,
+              width: 8,
+              backgroundColor: "var(--cError)",
+              borderRadius: "50%",
+            }}
+          />
+        )}
       </Link>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import styles from "./mainmenu.module.css";
 import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
@@ -7,7 +7,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 interface MainmenuDropdownProps {
   label: string;
   icon: React.ReactNode;
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; bage?: number | any }[];
   collapsed?: boolean;
   setSideBarOpen?: (open: boolean) => void; // Asegurar que este sea una función opcional
 }
@@ -28,7 +28,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
+  const hasItemWithBadge = items.some((item) => item.bage && item.bage > 0);
   // Manejo del click fuera del dropdown para cerrarlo
   // useEffect(() => {
   //   const handleClickOutside = (event: MouseEvent) => {
@@ -95,6 +95,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     }
     return false;
   };
+  console.log(items);
 
   return (
     <div
@@ -107,6 +108,16 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
         <div>
           {icon}
           {!collapsed && <p>{label}</p>}
+          {hasItemWithBadge && (
+            <p
+              style={{
+                height: 8,
+                width: 8,
+                backgroundColor: "var(--cError)",
+                borderRadius: "50%",
+              }}
+            />
+          )}
         </div>
         {!collapsed && (!isOpen ? <IconArrowDown /> : <IconArrowUp />)}
       </div>
@@ -119,8 +130,19 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
               href={item.href}
               className={validatePathname(item) ? styles.active : ""}
               onClick={handleLinkClick} // Llama a handleLinkClick para cerrar
+              style={{ display: "flex", gap: 4 }}
             >
               {item.label}
+              {item.bage > 0 && (
+                <p
+                  style={{
+                    height: 8,
+                    width: 8,
+                    backgroundColor: "var(--cError)",
+                    borderRadius: "50%",
+                  }}
+                />
+              )}
             </Link>
           ))}
         </div>
