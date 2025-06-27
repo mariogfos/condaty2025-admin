@@ -1,17 +1,12 @@
 // import useScreenSize from "@/mk/hooks/useScreenSize";
 import {
-  IconComunication,
-  IconRedffiliates,
   IconLogout,
-  IconNetwork,
   IconCandidates,
   IconHome,
   IconPayments,
   IconMonitorLine,
   IconGroup,
   IconComunicationDialog,
-  IconInterrogation,
-  IconGuard,
   IconBitacora,
   IconCalendar,
   IconDepartments,
@@ -35,7 +30,6 @@ type PropsType = {
   setSideBarOpen?: any;
   setOpenClient?: any;
 };
-// const sound = new Audio("/sound/waiting-146636.mp3"); // Crear una instancia de Audio
 const MainMenu = ({
   user,
   collapsed,
