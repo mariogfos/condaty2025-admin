@@ -336,7 +336,7 @@ const RenderView = (props: {
               <div>
                 <div>Apoyos</div>
                 <div>
-                  <IconLike color="var(--cInfo)" />
+                  <IconLike color="var(--cAccent)" />
                   {props?.item?.data?.likes}
                 </div>
               </div>

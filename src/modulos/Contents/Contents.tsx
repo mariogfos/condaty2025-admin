@@ -270,7 +270,7 @@ const Contents = () => {
             <div
               style={{ display: "flex", alignItems: "center", fontSize: 14 }}
             >
-              <IconLike color={"var(--cInfo)"} size={24} />
+              <IconLike color={"var(--cAccent)"} size={24} />
               {formatNumber(item?.item?.likes, 0)} <IconComment size={24} />
               {formatNumber(item?.item?.comments_count, 0)}
             </div>
