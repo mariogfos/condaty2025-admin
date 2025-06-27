@@ -190,6 +190,7 @@ const ChatRoom = ({
             <img src={previewURL} alt="Preview" />
           </div>
         )}
+        {/* <div style={{ color: "white" }}>{JSON.stringify(users)}</div> */}
         {messages?.map((msg: any, i: number) => {
           const userMsg = users?.find((e: any) => e.id === msg.sender);
           const date = getDateStr(new Date(msg.created_at).toISOString());

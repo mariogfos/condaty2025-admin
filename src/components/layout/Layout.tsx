@@ -194,30 +194,34 @@ const Layout = ({ children }: any) => {
       <section>{children}</section>
       <section>{/* Fotter Here!! */}</section>
 
-      <ProfileModal
-        open={store?.openProfileModal}
-        onClose={() => {
-          setStore({ openProfileModal: false });
-        }}
-        dataID={user?.id}
-        titleBack="Volver atras"
-        type="admin"
-        del={false}
-      />
-      <DataModal
-        open={onLogout}
-        title="Cerrar sesión"
-        onClose={() => {
-          setOnLogout(false);
-        }}
-        buttonText="Cerrar sesión"
-        buttonCancel="Cancelar"
-        onSave={() => logout()}
-      >
-        <p className={styles.modalLogout}>
-          ¿Estás seguro de que deseas cerrar sesión?
-        </p>
-      </DataModal>
+      {store?.openProfileModal && (
+        <ProfileModal
+          open={store?.openProfileModal}
+          onClose={() => {
+            setStore({ openProfileModal: false });
+          }}
+          dataID={user?.id}
+          titleBack="Volver atras"
+          type="admin"
+          del={false}
+        />
+      )}
+      {onLogout && (
+        <DataModal
+          open={onLogout}
+          title="Cerrar sesión"
+          onClose={() => {
+            setOnLogout(false);
+          }}
+          buttonText="Cerrar sesión"
+          buttonCancel="Cancelar"
+          onSave={() => logout()}
+        >
+          <p className={styles.modalLogout}>
+            ¿Estás seguro de que deseas cerrar sesión?
+          </p>
+        </DataModal>
+      )}
       {openAlert?.open && (
         <DataModal
           style={{ border: "1px solid var(--cError)" }}

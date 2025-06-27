@@ -169,7 +169,7 @@ const ProfileModal = ({
       // setOpenConfirm({ open: false, id: null });
     }
   };
-  console.log(data?.data);
+  // console.log(data?.data);
 
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {

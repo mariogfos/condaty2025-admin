@@ -44,90 +44,91 @@ const RenderView = (props: any) => {
 
   return (
     <>
-      <DataModal
-        open={open}
-        onClose={onClose}
-        title={"Detalle del residente"}
-        buttonText=""
-        buttonCancel=""
-        style={{ width: "max-content" }}
-        className={styles.renderView}
-      >
-        <div>
+      {open && (
+        <DataModal
+          open={open}
+          onClose={onClose}
+          title={"Detalle del residente"}
+          buttonText=""
+          buttonCancel=""
+          style={{ width: "max-content" }}
+          className={styles.renderView}
+        >
           <div>
-            <Avatar
-              hasImage={item?.has_image}
-              src={getUrlImages(
-                "/OWNER-" + item.id + ".webp?d=" + item.updated_at
-              )}
-              h={170}
-              w={170}
-              style={{ borderRadius: 16 }}
-              name={getFullName(item)}
-            />
             <div>
-              <p className={styles.title}>{getFullName(item)}</p>
-            </div>
-          </div>
-          <section>
-            <div>
-              <p>Cédula de identidad</p>
-              <p>{item?.ci || "No disponible"}</p>
-            </div>
-            <div>
-              <p>Correo electrónico</p>
-              <p>{item?.email || "No disponible"}</p>
-            </div>
-            <div>
-              <p>Número de Whatsapp</p>
-              <p>
-                {(item.prefix_phone ? "+" + item.prefix_phone : "") +
-                  " " +
-                  (item?.phone || "No disponible")}
-              </p>
-            </div>
-            <div>
-              <p>Estado</p>
-              <p>
-                {lStatusActive[client?.pivot?.status]?.name ||
-                  item.status ||
-                  "No disponible"}
-              </p>
-            </div>
-            {item?.dpto?.[0]?.type.name && (
+              <Avatar
+                hasImage={item?.has_image}
+                src={getUrlImages(
+                  "/OWNER-" + item.id + ".webp?d=" + item.updated_at
+                )}
+                h={170}
+                w={170}
+                style={{ borderRadius: 16 }}
+                name={getFullName(item)}
+              />
               <div>
-                <p>Tipo de unidad</p>
-                <p>{item?.dpto[0]?.type.name}</p>
+                <p className={styles.title}>{getFullName(item)}</p>
               </div>
-            )}
-
-            <>
-              {item?.dpto?.length > 0 ? (
-                // CASO 1: Si ya tiene una unidad asignada
+            </div>
+            <section>
+              <div>
+                <p>Cédula de identidad</p>
+                <p>{item?.ci || "No disponible"}</p>
+              </div>
+              <div>
+                <p>Correo electrónico</p>
+                <p>{item?.email || "No disponible"}</p>
+              </div>
+              <div>
+                <p>Número de Whatsapp</p>
+                <p>
+                  {(item.prefix_phone ? "+" + item.prefix_phone : "") +
+                    " " +
+                    (item?.phone || "No disponible")}
+                </p>
+              </div>
+              <div>
+                <p>Estado</p>
+                <p>
+                  {lStatusActive[client?.pivot?.status]?.name ||
+                    item.status ||
+                    "No disponible"}
+                </p>
+              </div>
+              {item?.dpto?.[0]?.type.name && (
                 <div>
-                  <p>Número de Unidad</p>
-                  <p>{item.dpto[0].nro}</p>
-                </div>
-              ) : (
-                // CASO 2: Si solo tiene una unidad solicitada (preunidad)
-                <div>
-                  <p>Número de Unidad solicitada</p>
-                  <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                  <p>Tipo de unidad</p>
+                  <p>{item?.dpto[0]?.type.name}</p>
                 </div>
               )}
-            </>
-          </section>
-        </div>
-        {client?.pivot?.status === "W" && (
-          <div>
-            <Button onClick={() => openModal("X")} variant="secondary">
-              Rechazar
-            </Button>
-            <Button onClick={() => openModal("A")}>Activar</Button>
-          </div>
-        )}
-      </DataModal>
 
+              <>
+                {item?.dpto?.length > 0 ? (
+                  // CASO 1: Si ya tiene una unidad asignada
+                  <div>
+                    <p>Número de Unidad</p>
+                    <p>{item.dpto[0].nro}</p>
+                  </div>
+                ) : (
+                  // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                  <div>
+                    <p>Número de Unidad solicitada</p>
+                    <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                  </div>
+                )}
+              </>
+            </section>
+          </div>
+          {client?.pivot?.status === "W" && (
+            <div>
+              <Button onClick={() => openModal("X")} variant="secondary">
+                Rechazar
+              </Button>
+              <Button onClick={() => openModal("A")}>Activar</Button>
+            </div>
+          )}
+        </DataModal>
+      )}
       {openActive && (
         <ActiveOwner
           open={openActive}

@@ -77,16 +77,16 @@ const useNotifInstandDB = (
   const { dispatch } = useEvent("onNotif");
   useEffect(() => {
     if (data?.notif?.length > 0) {
-      console.log(
-        "notif",
-        data?.notif[0],
-        lastNotif,
-        data?.notif[0].created_at
-      );
+      // console.log(
+      //   "notif",
+      //   data?.notif[0],
+      //   lastNotif,
+      //   data?.notif[0].created_at
+      // );
       if (data?.notif[0].created_at == -1) {
         localStorage.setItem("lastNotifInstantDB", "0");
         setLastNotif(0);
-        console.log("notif reseteada");
+        // console.log("notif reseteada");
       }
 
       if (lastNotif !== null && lastNotif < data?.notif[0].created_at) {

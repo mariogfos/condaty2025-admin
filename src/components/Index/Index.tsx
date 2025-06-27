@@ -37,7 +37,7 @@ const paramsInitial = {
 };
 
 const HomePage = () => {
-  const { store, setStore, userCan, showToast, user } = useAuth();
+  const { store, setStore, userCan, showToast } = useAuth();
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
@@ -621,6 +621,7 @@ const HomePage = () => {
       </div>
 
       {openPayment && <PaymentRender {...paymentProps} />}
+      {openReservation  && (
       <ReservationDetailModal
         open={openReservation}
         onClose={() => {
@@ -630,6 +631,7 @@ const HomePage = () => {
         reservationId={selectedReservationId}
         reLoad={() => reLoad()}
       />
+      )}
       <DataModal
         open={openPreRegistroModal}
         title="Lista completa de pre-registros"

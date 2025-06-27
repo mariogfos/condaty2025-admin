@@ -29,7 +29,7 @@ import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
 import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
-import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
+import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
@@ -341,6 +341,30 @@ const BalanceGeneral: React.FC = () => {
     }
   };
 
+  // Agrupar y sumar categorías únicas para ingresos
+  const legendCategoriasIngresos = React.useMemo(() => {
+    const map = new Map();
+    (finanzas?.data?.ingresosHist || []).forEach((item: any) => {
+      if (!map.has(item.categ_id)) {
+        map.set(item.categ_id, { name: item.categoria, total: 0 });
+      }
+      map.get(item.categ_id).total += parseFloat(item.ingresos || 0);
+    });
+    return Array.from(map.values());
+  }, [finanzas?.data?.ingresosHist]);
+
+  // Agrupar y sumar categorías únicas para egresos
+  const legendCategoriasEgresos = React.useMemo(() => {
+    const map = new Map();
+    (finanzas?.data?.egresosHist || []).forEach((item: any) => {
+      if (!map.has(item.categ_id)) {
+        map.set(item.categ_id, { name: item.categoria, total: 0 });
+      }
+      map.get(item.categ_id).total += parseFloat(item.egresos || 0);
+    });
+    return Array.from(map.values());
+  }, [finanzas?.data?.egresosHist]);
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Flujo de efectivo</h1>
@@ -621,7 +645,6 @@ const BalanceGeneral: React.FC = () => {
                   <>
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
-                     
                         <WidgetGrafIngresos
                           ingresos={finanzas?.data.ingresosHist}
                           chartTypes={[charType.filter_charType as ChartType]}
@@ -632,16 +655,17 @@ const BalanceGeneral: React.FC = () => {
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
-                            <div className={styles.legendItem}>
-                              <div
-                                className={styles.legendColor}
-                                style={{ backgroundColor: "#00E38C" }}
-                              ></div>
-                              <span>
-                                Ingresos: Bs{" "}
-                                {formatNumber(calculatedTotals.totalIngresos)}
-                              </span>
-                            </div>
+                            {legendCategoriasIngresos.map((cat, idx) => (
+                              <div className={styles.legendItem} key={cat.name || idx}>
+                                <div
+                                  className={styles.legendColor}
+                                  style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                ></div>
+                                <span>
+                                  {cat.name}: Bs {formatNumber(cat.total)}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -697,7 +721,6 @@ const BalanceGeneral: React.FC = () => {
                   <>
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
-                     
                         <WidgetGrafEgresos
                           egresos={finanzas?.data.egresosHist}
                           chartTypes={[charType.filter_charType as ChartType]}
@@ -708,16 +731,17 @@ const BalanceGeneral: React.FC = () => {
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
-                            <div className={styles.legendItem}>
-                              <div
-                                className={styles.legendColor}
-                                style={{ backgroundColor: "#FF5B4D" }}
-                              ></div>
-                              <span>
-                                Egresos: Bs{" "}
-                                {formatNumber(calculatedTotals.totalEgresos)}
-                              </span>
-                            </div>
+                            {legendCategoriasEgresos.map((cat, idx) => (
+                              <div className={styles.legendItem} key={cat.name || idx}>
+                                <div
+                                  className={styles.legendColor}
+                                  style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                ></div>
+                                <span>
+                                  {cat.name}: Bs {formatNumber(cat.total)}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>

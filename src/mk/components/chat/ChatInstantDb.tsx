@@ -352,7 +352,7 @@ const ChatContactItem = ({
           <IconGroup size={40} />
         ) : (
           <Avatar
-            hasImage={u.name ? u.has_image : user.has_image}
+            hasImage={u?.name ? u.has_image : user.has_image}
             src={getUrlImages("/ADM-" + u?.id + ".webp?d=" + u?.updated_at)}
             w={40}
             h={40}

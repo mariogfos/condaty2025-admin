@@ -143,25 +143,6 @@ const AddContent = ({
   //   });
   //   return data;
   // };
-  const lDestinies = () => {
-    const level = user?.role.level;
-    const r = [];
-    if (level == 1 || level == 0) {
-      r.push({ id: 0, name: "Todos" });
-    }
-    if (level == 2) r.push({ id: 0, name: "Mi organización" });
-    if (level == 3) r.push({ id: 0, name: "Mi departamento" });
-    if (level == 4) r.push({ id: 0, name: "Mi municipio" });
-    // if (level == 4) r.push({ id: 0, name: "Mi localidad" });
-    if (level == 5) r.push({ id: 0, name: "Mi barrio" });
-
-    if (level <= 1) r.push({ id: 2, name: "Organización" });
-    if (level <= 2) r.push({ id: 3, name: "Departamento" });
-    if (level <= 3) r.push({ id: 4, name: "Municipo" });
-    // if (level <= 4) r.push({ id: 5, name: "Localidad" });
-    // if (level <= 5) r.push({ id: 5, name: "Barrio" });
-    return r;
-  };
   const selDestinies = (value: any) => {
     let selDestinies = [];
     if (value == 2) selDestinies = extraData?.listas;
@@ -189,12 +170,13 @@ const AddContent = ({
   const validate = (field: any = "") => {
     let errors: any = {};
 
-    errors = checkRules({
-      value: formState?.destiny,
-      rules: ["required"],
-      key: "destiny",
-      errors,
-    });
+    // Eliminada la validación de destiny
+    // errors = checkRules({
+    //   value: formState?.destiny,
+    //   rules: ["required"],
+    //   key: "destiny",
+    //   errors,
+    // });
     // errors = checkRules({
     //   value: formState?.candidate_id,
     //   rules: ["required"],
@@ -250,15 +232,12 @@ const AddContent = ({
     }
 
     let method = formState.id ? "PUT" : "POST";
-    // console.log(formState,'fst 259 addcontent')
+    // Forzar destiny a "T"
     const { data } = await execute(
       "/contents" + (formState.id ? "/" + formState.id : ""),
       method,
       {
-        // candidate_id: formState?.candidate_id,
-        // lDestiny: ldestinys,
-        destiny: formState?.destiny,
-        // affCount: formState.affCount,
+        destiny: "T",
         url: formState?.url,
         title: formState?.title,
         description: formState?.description,
@@ -282,7 +261,7 @@ const AddContent = ({
       "/contents",
       "GET",
       {
-        destiny: formState.destiny,
+        destiny: "T",
         fullType: "DES",
         lDestiny: sel,
       },
@@ -320,7 +299,7 @@ const AddContent = ({
             /> 
           </CardContent> */}
 
-          <CardContent
+{/*           <CardContent
             title="Destino"
             destinys={getDestinysNames().toString()}
             subtitle={
@@ -341,7 +320,7 @@ const AddContent = ({
               options={lComDestinies}
               error={errors}
             />
-          </CardContent>
+          </CardContent> */}
 
           <CardContent title="Tipo de publicación">
             <div style={{ display: "flex", width: "100%" }}>
