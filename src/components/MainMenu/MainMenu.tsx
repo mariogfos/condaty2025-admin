@@ -39,53 +39,53 @@ const MainMenu = ({
 }: PropsType) => {
   // const { isMobile } = useScreenSize();
   const isMobile = false;
-  const { setStore } = useAuth();
+  const { setStore, store } = useAuth();
   const client = user?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   )[0];
-  const [bage, setBage]: any = useState({});
+  // const [bage, setBage]: any = useState({});
 
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname === "/payments" && bage?.payments > 0) {
-      setBage({
-        ...bage,
-        payments: 0,
+    if (pathname === "/payments" && store?.paymentsBage > 0) {
+      setStore({
+        ...store,
+        paymentsBage: 0,
       });
     }
-    if (pathname === "/reservas" && bage?.reservas > 0) {
-      setBage({
-        ...bage,
-        reservas: 0,
+    if (pathname === "/reservas" && store?.reservasBage > 0) {
+      setStore({
+        ...store,
+        reservasBage: 0,
       });
     }
-    if (pathname == "/alerts" && bage?.alerts > 0) {
-      setBage({
-        ...bage,
-        alerts: 0,
+    if (pathname == "/alerts" && store?.alertsBage > 0) {
+      setStore({
+        ...store,
+        alertsBage: 0,
       });
     }
-    if (pathname == "/reels" && bage?.alerts > 0) {
-      setBage({
-        ...bage,
-        reels: 0,
+    if (pathname == "/reels" && store?.reelsBage > 0) {
+      setStore({
+        ...store,
+        reelsBage: 0,
       });
     }
   }, [pathname]);
 
   const onNotif = useCallback((data: any) => {
     if (data?.payload?.act == "newVoucher") {
-      setBage({ ...bage, payments: (bage?.payments || 0) + 1 });
+      setStore({ ...store, paymentsBage: (store?.paymentsBage || 0) + 1 });
     }
     if (data?.payload?.act == "newReservationAdm") {
-      setBage({ ...bage, reservas: (bage?.reservas || 0) + 1 });
+      setStore({ ...store, reservasBage: (store?.reservasBage || 0) + 1 });
     }
     if (data?.payload?.act == "alerts") {
-      setBage({ ...bage, alerts: (bage?.alerts || 0) + 1 });
+      setStore({ ...store, alertsBage: (store?.alertsBage || 0) + 1 });
     }
     if (data?.payload?.act == "newContent") {
-      setBage({ ...bage, reels: (bage?.reels || 0) + 1 });
+      setStore({ ...store, reelsBage: (store?.reelsBage || 0) + 1 });
     }
   }, []);
 
@@ -113,7 +113,11 @@ const MainMenu = ({
             icon={<IconPayments />}
             items={[
               { href: "/balance", label: "Flujo de efectivo " },
-              { href: "/payments", label: "Ingresos", bage: bage?.payments },
+              {
+                href: "/payments",
+                label: "Ingresos",
+                bage: store?.paymentsBage,
+              },
               { href: "/outlays", label: "Egresos" },
               { href: "/defaultersview", label: "Morosos" },
               { href: "/expenses", label: "Expensas" },
@@ -169,7 +173,7 @@ const MainMenu = ({
           <MainmenuItem
             href="/reservas"
             label="Reservas"
-            bage={bage?.reservas}
+            bage={store?.reservasBage}
             icon={<IconCalendar />}
             collapsed={collapsed}
           />
@@ -187,7 +191,7 @@ const MainMenu = ({
             icon={<IconSecurity />}
             items={[
               { href: "/guards", label: "Guardias" },
-              { href: "/alerts", label: "Alertas", bage: bage.alerts },
+              { href: "/alerts", label: "Alertas", bage: store?.alertsBage },
               { href: "/binnacle", label: "Bitácora" },
               // { href: "/ev", label: "Soporte y ATC" },
             ]}
