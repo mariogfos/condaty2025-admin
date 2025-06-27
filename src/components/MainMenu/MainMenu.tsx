@@ -55,28 +55,28 @@ const MainMenu = ({
 
   useEffect(() => {
     if (pathname === "/payments" && bage?.payments > 0) {
-      setBage((prevBage: any) => ({
-        ...prevBage,
+      setBage({
+        ...bage,
         payments: 0,
-      }));
+      });
     }
     if (pathname === "/reservas" && bage?.reservas > 0) {
-      setBage((prevBage: any) => ({
-        ...prevBage,
+      setBage({
+        ...bage,
         reservas: 0,
-      }));
+      });
     }
     if (pathname == "/alerts" && bage?.alerts > 0) {
-      setBage((prevBage: any) => ({
-        ...prevBage,
+      setBage({
+        ...bage,
         alerts: 0,
-      }));
+      });
     }
     if (pathname == "/reels" && bage?.alerts > 0) {
-      setBage((prevBage: any) => ({
-        ...prevBage,
+      setBage({
+        ...bage,
         reels: 0,
-      }));
+      });
     }
   }, [pathname]);
 
