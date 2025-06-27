@@ -106,6 +106,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     if (data?.success == true) {
       _onClose();
       showToast("Mantenimiento creado con éxito", "success");
+    } else {
+      showToast(data?.msg || "Ocurrió un error", "error");
     }
   };
 
