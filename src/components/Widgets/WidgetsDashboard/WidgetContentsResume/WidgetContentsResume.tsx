@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from "react";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetContentsResume.module.css";
-import useAxios from '@/mk/hooks/useAxios';
-import { ReelCompactList } from '@/modulos/Reel/Reel';
-import type { ContentItem } from '@/modulos/Reel/Reel';
+import useAxios from "@/mk/hooks/useAxios";
+import { ReelCompactList } from "@/modulos/Reel/Reel";
+import type { ContentItem } from "@/modulos/Reel/Reel";
 import EmptyData from "@/components/NoData/EmptyData";
 import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const WidgetContentsResume = () => {
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { data, loaded, error, reLoad } = useAxios("/contents", "GET", {
-    perPage: 3,
-    page: 1,
-    fullType: "L",
-    searchBy: ""
-  }, false);
+  const { data, loaded, error, reLoad } = useAxios(
+    "/contents",
+    "GET",
+    {
+      perPage: 3,
+      page: 1,
+      fullType: "L",
+      searchBy: "",
+    },
+    false
+  );
   const router = useRouter();
 
   useEffect(() => {
     reLoad();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -45,12 +50,12 @@ const WidgetContentsResume = () => {
 
   // Al hacer click en like o comentario, redirigir al módulo Reel
   const handleRedirectToReel = () => {
-    router.push('/reels');
+    router.push("/reels");
   };
 
   // Al hacer click en imagen, redirigir a /reels
   const handleImageClick = () => {
-    router.push('/reels');
+    router.push("/reels");
   };
 
   return (
@@ -62,11 +67,20 @@ const WidgetContentsResume = () => {
     >
       <div className={styles.widgetContentsResumeContent}>
         {loading ? (
-          <div style={{ padding: '32px 0', color: 'var(--cWhiteV1)', textAlign: 'center', fontSize: '16px' }}>Cargando publicaciones...</div>
+          <div
+            style={{
+              padding: "32px 0",
+              color: "var(--cWhiteV1)",
+              textAlign: "center",
+              fontSize: "16px",
+            }}
+          >
+            Cargando publicaciones...
+          </div>
         ) : contents.length > 0 ? (
           <ReelCompactList
             items={contents}
-            modoCompacto={true}
+            // modoCompacto={true}
             onLike={handleRedirectToReel}
             onOpenComments={handleRedirectToReel}
             onImageClick={handleImageClick}
@@ -76,7 +90,7 @@ const WidgetContentsResume = () => {
             message="Sin publicaciones. Las noticias de administración aparecerán"
             line2="aquí, una vez comiences a crear y publicar contenido."
             h={200}
-            icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />} 
+            icon={<IconPublicacion size={40} color="var(--cWhiteV1)" />}
           />
         )}
       </div>
