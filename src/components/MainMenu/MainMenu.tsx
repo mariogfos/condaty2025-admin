@@ -81,7 +81,6 @@ const MainMenu = ({
   }, [pathname]);
 
   const onNotif = useCallback((data: any) => {
-    console.log(data, "MENUUUU");
     if (data?.payload?.act == "newVoucher") {
       setBage({ ...bage, payments: (bage?.payments || 0) + 1 });
     }
@@ -95,7 +94,9 @@ const MainMenu = ({
       setBage({ ...bage, reels: (bage?.reels || 0) + 1 });
     }
   }, []);
+
   useEvent("onNotif", onNotif);
+
   useEffect(() => {
     setStore({ UnitsType: UnitsType[client?.type_dpto] });
   }, []);
