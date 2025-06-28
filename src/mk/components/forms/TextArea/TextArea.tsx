@@ -61,7 +61,6 @@ const TextArea = ({
         <div
           id={`${name}-charCounter`}
           className={styles.charCounter}
-          style={{ marginTop: -20, marginBottom: 12 }}
         >
           {charCount}/{maxLength} caracteres
         </div>
