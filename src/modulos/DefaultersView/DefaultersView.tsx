@@ -236,16 +236,16 @@ const DefaultersView = () => {
   // Actualizar datos cuando cambia extraData
   useEffect(() => {
     if (data?.data) {
-      chargeExtraData();
-      setDefaultersLength(data.data.length || 0);
+      setDefaultersLength(data.data.length ?? 0);
     }
   }, [data]);
 
-  const chargeExtraData = async () => {
-    if (extraDat) {
+  useEffect(() => {
+    if (extraDat?.data) {
       setExtraData(extraDat?.data);
     }
-  };
+  }, [extraDat]);
+
   // console.log(extraData,'extraDat')
 
   // Calcular el total de morosidad
