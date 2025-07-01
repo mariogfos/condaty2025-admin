@@ -437,3 +437,29 @@
 .alignCellContentRight {
   justify-content: flex-end !important; 
 }
+
+.tableResponsiveWrapper {
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.tableFinance {
+  min-width: 1200px; /* Aumenta el ancho mínimo para vistas anuales */
+}
+
+@media (max-width: 1200px) {
+  .scrollHint {
+    display: block;
+    color: var(--cWhiteV1);
+    font-size: 13px;
+    text-align: right;
+    margin-bottom: 4px;
+    margin-right: 8px;
+  }
+}
+
+.scrollHint {
+  display: none;
+}

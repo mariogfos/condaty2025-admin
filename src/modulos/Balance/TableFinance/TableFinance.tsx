@@ -128,8 +128,9 @@ const TableFinance = ({
   };
 
   return (
-    <>
-      <div className={getContainerClass()}>
+    <div className={styles.tableResponsiveWrapper}>
+      <div className={styles.scrollHint}>Desliza horizontalmente para ver todos los meses →</div>
+      <div className={getContainerClass() + ' ' + styles.tableFinance}>
         {/* Encabezado de la Tabla */}
         <div className={styles.tableHeaderRow}>
           <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
@@ -253,7 +254,7 @@ const TableFinance = ({
         </div>
         
       )}
-    </> 
+    </div>
   );
 };
 

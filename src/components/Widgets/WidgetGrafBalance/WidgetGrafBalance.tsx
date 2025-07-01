@@ -188,7 +188,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           ],
         }}
         chartTypes={chartTypes}
-        downloadPdf
+        //downloadPdf
         options={{
           height: h,
           colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],

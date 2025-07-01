@@ -1,9 +1,10 @@
 "use client";
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getUrlImages } from "@/mk/utils/string";
 import { getDateDesdeHasta } from "@/mk/utils/date";
+import html2canvas from "html2canvas";
 
 // Components
 import Select from "@/mk/components/forms/Select/Select";
@@ -71,6 +72,7 @@ const BalanceGeneral: React.FC = () => {
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [formState, setFormState] = useState<FormStateType>({});
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: finanzas, reLoad: reLoadFinanzas } = useAxios(
     "/balances",
@@ -120,8 +122,23 @@ const BalanceGeneral: React.FC = () => {
     { id: "sc", name: "Personalizado" },
   ];
 
-  const exportar = () => {
-    reLoadFinanzas({ ...formStateFilter, exportar: true });
+  const exportar = async () => {
+    let fileObj = null;
+    if (chartRef.current) {
+      const canvas = await html2canvas(chartRef.current, { backgroundColor: null });
+      const base64 = canvas.toDataURL("image/webp", 0.92);
+      let base64String = base64.replace("data:image/webp;base64,", "");
+      base64String = encodeURIComponent(base64String);
+      fileObj = { ext: "webp", file: base64String };
+      // Descargar la imagen para pruebas
+     /*  const link = document.createElement('a');
+      link.download = 'grafica.webp';
+      link.href = base64;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link); */
+    }
+    reLoadFinanzas({ ...formStateFilter, exportar: true, grafica: fileObj ? JSON.stringify(fileObj) : null });
   };
 
   useEffect(() => {
@@ -455,7 +472,7 @@ const BalanceGeneral: React.FC = () => {
                           (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
                         : getPeriodoText(formStateFilter.filter_date)}
                     </h2>
-                    <div className={styles.chartContainer}>
+                    <div ref={chartRef} className={styles.chartContainer}>
                       <WidgetGrafBalance
                         saldoInicial={finanzas?.data?.saldoInicial}
                         ingresos={finanzas?.data?.ingresosHist}
@@ -516,7 +533,16 @@ const BalanceGeneral: React.FC = () => {
                       <Button
                         onClick={exportar}
                         variant="secondary"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          width: 'auto',
+                          background: 'var(--cWhiteV2)',
+                          color: 'var(--cWhite)',
+                          border: 'none',
+                          borderRadius: '12px'
+                        }}
                       >
                         <IconExport size={22} />
                         Descargar tablas
@@ -651,7 +677,16 @@ const BalanceGeneral: React.FC = () => {
                       <Button
                         onClick={exportar}
                         variant="secondary"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          width: 'auto',
+                          background: 'var(--cWhiteV2)',
+                          color: 'var(--cWhite)',
+                          border: 'none',
+                          borderRadius: '12px'
+                        }}
                       >
                         <IconExport size={22} />
                         Descargar tablas
@@ -761,7 +796,16 @@ const BalanceGeneral: React.FC = () => {
                       <Button
                         onClick={exportar}
                         variant="secondary"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          width: 'auto',
+                          background: 'var(--cWhiteV2)',
+                          color: 'var(--cWhite)',
+                          border: 'none',
+                          borderRadius: '12px'
+                        }}
                       >
                         <IconExport size={22} />
                         Descargar tablas

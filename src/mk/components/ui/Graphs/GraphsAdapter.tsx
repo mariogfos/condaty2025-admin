@@ -108,9 +108,9 @@ const GraphsAdapter = ({
       labels: {
         style: {
           colors: colorWhite,
-          fontSize: "12px",
+          fontSize: "16px",
           fontWeight: 400,
-          fontFamily: "Inter, Arial,",
+          fontFamily: "Roboto",
         },
       },
     },
@@ -120,7 +120,7 @@ const GraphsAdapter = ({
       theme: true,
       style: {
         fontSize: "12px",
-        fontFamily: "Inter",
+        fontFamily: "Roboto",
       },
       y: {
         formatter: function (val: any) {
@@ -132,8 +132,8 @@ const GraphsAdapter = ({
       labels: {
         style: {
           colors: [colorWhite],
-          fontSize: "10px",
-          fontFamily: "Inter, Arial,",
+          fontSize: "16px",
+          fontFamily: "Roboto",
         },
         formatter: (value: any) => {
           return "Bs. " + formatNumber(value);
@@ -151,9 +151,9 @@ const GraphsAdapter = ({
       offsetY: 0,
       floating: false,
       style: {
-        fontSize: "14px",
+        fontSize: "32px",
         fontWeight: 900,
-        fontFamily: "Inter",
+        fontFamily: "Roboto",
         color: "#a7a7a7",
       },
     },
