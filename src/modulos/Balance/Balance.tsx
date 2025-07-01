@@ -15,7 +15,7 @@ import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import TableIngresos from "./TableIngresos";
 import TableEgresos from "./TableEgresos";
 import TableResumenGeneral from "./TableResumenGeneral";
-// Icons
+
 import {
   IconArrowDown,
   IconExport,
@@ -24,7 +24,7 @@ import {
   IconGraphics,
   IconLineGraphic,
 } from "@/components/layout/icons/IconsBiblioteca";
-// Styles
+
 import styles from "./Balance.module.css";
 import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
 import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
@@ -33,33 +33,22 @@ import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
-// Interfaces
-interface CategoryOption {
-  id: string | number;
-  name: string;
-}
+
 
 interface ChartTypeOption {
   id: ChartType;
   name: string;
 }
-
 interface FilterState {
   filter_date: string;
   filter_mov: string;
-  filter_categ: string | string[];
+  filter_categ: string[];
 }
-
 interface FormStateType {
   date_inicio?: string;
   date_fin?: string;
   [key: string]: string | undefined;
 }
-
-interface FilterType {
-  [key: string]: string;
-}
-
 interface ErrorType {
   [key: string]: string;
 }
@@ -68,69 +57,11 @@ interface ChartTypeState {
   filter_charType: ChartType;
 }
 
-const mod = {
-  modulo: "balance",
-  singular: "balance",
-  permiso: "",
-  plural: "balances",
-};
-
-const paramsInitial = {
-  searchBy: "",
-};
-
 const BalanceGeneral: React.FC = () => {
-  const getSearch = (search: string | boolean, _searchBy = "") => {
-    if (search === true) return "";
-    return "|search:" + search;
-  };
-
-  const [filter, setFilter] = useState<FilterType>({});
-
-  const getFilter = (
-    opt: { opt?: string; value?: string | boolean } | string = "",
-    firstDay = "",
-    lastDay = "",
-    _searchBy = ""
-  ) => {
-    if (typeof opt === "object" && opt?.value === true) return "";
-
-    let searchBy = "";
-    Object.keys(filter).forEach((key) => {
-      if (
-        typeof opt === "object" &&
-        key !== opt.opt &&
-        filter[key] &&
-        filter[key] !== ""
-      ) {
-        searchBy += filter[key];
-      }
-    });
-
-    let _search = "";
-
-    if (
-      typeof opt === "object" &&
-      opt?.opt &&
-      opt?.value &&
-      opt?.value !== ""
-    ) {
-      _search += "|" + opt.opt + ":" + opt.value;
-    }
-
-    searchBy += _search;
-
-    if (typeof opt === "object" && opt?.opt) {
-      setFilter({ ...filter, [opt.opt]: _search });
-    }
-
-    return searchBy;
-  };
-
   const [formStateFilter, setFormStateFilter] = useState<FilterState>({
     filter_date: "m",
     filter_mov: "T",
-    filter_categ: "",
+    filter_categ: [],
   });
   const [filtered, setFiltered] = useState(true);
   const [charType, setCharType] = useState<ChartTypeState>({
@@ -160,20 +91,25 @@ const BalanceGeneral: React.FC = () => {
       }
     }
     setFiltered(false);
+    let newLchars: ChartTypeOption[];
     if (formStateFilter.filter_mov === "T") {
-      setCharType({ filter_charType: "bar" as ChartType });
-      setLchars([
+      newLchars = [
         { id: "bar" as ChartType, name: "Barra" },
         { id: "line" as ChartType, name: "Linea" },
-      ]);
+      ];
     } else {
-      setCharType({ filter_charType: "bar" as ChartType });
-      setLchars([
+      newLchars = [
         { id: "bar" as ChartType, name: "Barra" },
         { id: "pie" as ChartType, name: "Torta" },
         { id: "line" as ChartType, name: "Linea" },
-      ]);
+      ];
     }
+    setLchars(newLchars);
+    // Mantener el tipo de gráfico si sigue siendo válido
+    if (!newLchars.some((c) => c.id === charType.filter_charType)) {
+      setCharType({ filter_charType: newLchars[0].id });
+    }
+    // Si sigue siendo válido, no lo cambiamos
   }, [formStateFilter]);
 
   const ldate = [
@@ -196,7 +132,7 @@ const BalanceGeneral: React.FC = () => {
       finanzas?.message &&
       finanzas?.data?.export !== undefined
     ) {
-      console.log(finanzas?.message, "error al exportar");
+      
     }
   }, [finanzas]);
 
@@ -218,6 +154,18 @@ const BalanceGeneral: React.FC = () => {
         date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
       };
     }
+
+    if (
+      formState.date_inicio &&
+      formState.date_fin &&
+      formState.date_inicio.slice(0, 4) !== formState.date_fin.slice(0, 4)
+    ) {
+      err = {
+        ...err,
+        date_inicio: "El periodo personalizado debe estar dentro del mismo año",
+        date_fin: "El periodo personalizado debe estar dentro del mismo año",
+      };
+    }
     if (Object.keys(err).length > 0) {
       setErrors(err);
       return;
@@ -231,6 +179,7 @@ const BalanceGeneral: React.FC = () => {
     setOpenCustomFilter(false);
     setErrors({});
   };
+  
 
   const getCategories = () => {
     let data = [];
@@ -242,30 +191,20 @@ const BalanceGeneral: React.FC = () => {
     return data;
   };
 
-  const getGestionAnio = (filterDateValue: string) => {
-    const now = new Date();
-    let year = now.getFullYear();
-    if (filterDateValue === "ly") {
-      year = now.getFullYear() - 1;
-    } else if (filterDateValue === "lm") {
-      const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      year = prevMonthDate.getFullYear();
-    } else if (filterDateValue.startsWith("c:")) {
-      const dates = filterDateValue.substring(2).split(",");
-      if (dates[0]) {
-        const startDate = new Date(dates[0] + "T00:00:00"); // Asegurar que se interprete como local
-        year = startDate.getFullYear();
-        if (dates[1]) {
-          const endDate = new Date(dates[1] + "T00:00:00"); // Asegurar que se interprete como local
-          const endYear = endDate.getFullYear();
-          if (year !== endYear) {
-            return `gestión ${year} - ${endYear}`;
-          }
-        }
+  useEffect(() => {
+    const categoriasDisponibles = getCategories().map((cat: any) => cat.id);
+    const currentCateg = formStateFilter.filter_categ;
+    
+    // Solo manejar arrays
+    if (Array.isArray(currentCateg)) {
+      const nuevas = currentCateg.filter((cat: string) => 
+        categoriasDisponibles.includes(cat)
+      );
+      if (nuevas.length !== currentCateg.length) {
+        setFormStateFilter(prev => ({ ...prev, filter_categ: nuevas }));
       }
     }
-    return `gestión ${year}`;
-  };
+  }, [formStateFilter.filter_mov]);
 
   const calculatedTotals = useMemo(() => {
     let totalEgresos = 0;
@@ -330,9 +269,9 @@ const BalanceGeneral: React.FC = () => {
             const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
             const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
             
-            // Asegurarse de que las fechas se muestren correctamente
-            fechaInicio.setHours(fechaInicio.getHours() + 4); // Ajustar a UTC-4
-            fechaFin.setHours(fechaFin.getHours() + 4); // Ajustar a UTC-4
+       
+            fechaInicio.setHours(fechaInicio.getHours() + 4); 
+            fechaFin.setHours(fechaFin.getHours() + 4); 
             
             return `Balance desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]} de ${fechaFin.getFullYear()}`;
           }
@@ -353,7 +292,7 @@ const BalanceGeneral: React.FC = () => {
     return Array.from(map.values());
   }, [finanzas?.data?.ingresosHist]);
 
-  // Agrupar y sumar categorías únicas para egresos
+
   const legendCategoriasEgresos = React.useMemo(() => {
     const map = new Map();
     (finanzas?.data?.egresosHist || []).forEach((item: any) => {
@@ -397,7 +336,7 @@ const BalanceGeneral: React.FC = () => {
                 setFormStateFilter({
                   ...formStateFilter,
                   filter_mov: e.target.value,
-                  filter_categ: "",
+                  filter_categ: [],
                 });
               }}
               options={[
@@ -422,9 +361,11 @@ const BalanceGeneral: React.FC = () => {
                 error={errors}
                 multiSelect={true}
                 onChange={(e) => {
+                  let value = e.target.value;
+                  if (Array.isArray(value) && value.length === 0) value = "";
                   setFormStateFilter({
                     ...formStateFilter,
-                    filter_categ: e.target.value,
+                    filter_categ: value,
                   });
                 }}
                 options={getCategories()}
@@ -676,7 +617,7 @@ const BalanceGeneral: React.FC = () => {
                                 : formStateFilter.filter_categ;
                               let legend = legendCategoriasIngresos;
                               if (selectcategorias && selectcategorias.length > 0) {
-                                // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
+                               
                                 legend = (finanzas?.data?.ingresosHist || [])
                                   .filter((item: any) => selectcategorias.includes(item.category_id))
                                   .reduce((acc: any[], item: any) => {

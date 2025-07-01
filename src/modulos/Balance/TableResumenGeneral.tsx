@@ -20,21 +20,15 @@ const TableResumenGeneral = ({
 }: PropType) => {
   const [formatedData, setFormatedData]: any = useState([]);
   const [total, setTotal]: any = useState(0);
-
   useEffect(() => {
     let totalEgresos = 0;
     let totalIngresos = 0;
-
     subcategoriasE?.map((subcategoria: any) => {
       totalEgresos += Number(subcategoria.amount);
     });
     subcategoriasI?.map((subcategoria: any) => {
       totalIngresos += Number(subcategoria.amount);
     });
-    // totalIngresos =
-    //   Number(ingresos?.total_amount) + Number(ingresos?.total_penaltyAmount) ||
-    //   0;
-
     setFormatedData([
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
       { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
@@ -43,7 +37,6 @@ const TableResumenGeneral = ({
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
   }, [subcategoriasE, subcategoriasI]);
-
   return (
     <TableFinance
       data={formatedData}
@@ -57,5 +50,4 @@ const TableResumenGeneral = ({
     />
   );
 };
-
 export default TableResumenGeneral;
