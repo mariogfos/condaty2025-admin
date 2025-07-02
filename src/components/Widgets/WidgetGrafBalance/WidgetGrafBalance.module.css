@@ -4,7 +4,7 @@
   
   .title {
   
-    font-size: var(--sXxl);
+    font-size: var(--sXl);
     font-family: var(--fPrimary);
     font-weight: var(--bBold);
     
@@ -12,7 +12,7 @@
   
   .subtitle {
     color: var(--cWhiteV1);
-    font-size: var(--sXl);
+    font-size: var(--sLg);
     size: 20px;
     font-family: var(--fPrimary);
     font-weight: var(--bRegular);

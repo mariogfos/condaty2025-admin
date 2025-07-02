@@ -132,7 +132,7 @@ const GraphsAdapter = ({
       labels: {
         style: {
           colors: [colorWhite],
-          fontSize: "16px",
+          fontSize: "14px",
           fontFamily: "Roboto",
         },
         formatter: (value: any) => {
