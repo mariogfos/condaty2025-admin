@@ -37,7 +37,7 @@ const Template: Story = {
           {...args} 
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          filter={false}
+          filter={args.filter !== undefined ? args.filter : false}
         />
         <div style={{ marginTop: '20px' }}>
           <p>Valor seleccionado: {value}</p>
@@ -76,6 +76,7 @@ const MultipleTemplate: Story = {
           {...args} 
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          filter={args.filter !== undefined ? args.filter : false}
         />
         <div style={{ marginTop: '20px' }}>
           <p>Valores seleccionados: {JSON.stringify(value)}</p>
