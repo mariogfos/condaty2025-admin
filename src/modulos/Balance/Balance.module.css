@@ -237,12 +237,12 @@
 }
 .legendContainer {
   display: flex;
-  flex-wrap: wrap; 
-  gap: 1rem 1.5rem; 
-  align-items: center; 
-  flex-grow: 1; 
-  justify-content: center; 
-  padding-right: 1rem; 
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between;
+  padding-right: 1rem;
 }
 .legendItem {
   display: flex;
@@ -257,7 +257,7 @@
 .legendItem span {
   color: var(--cWhiteV1, #A7A7A7);
   font-size: 0.875rem; /* 14px */
-  font-family: Inter, Arial, sans-serif;
+  font-family: Roboto;
 }
 .exportButtonCustom {
   background-color: transparent;
@@ -280,4 +280,9 @@
 }
 .exportButtonCustom svg {
   fill: currentColor; 
+}
+.legendItem .legendAmount {
+  color: var(--cWhite, #fff) !important;
+  font-family: Roboto;
+  margin-left: 0.25em;
 }

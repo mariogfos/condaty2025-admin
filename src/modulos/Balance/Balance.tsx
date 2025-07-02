@@ -490,8 +490,7 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "#FFD700" }}
                             ></div>
                             <span>
-                              Saldo Inicial: Bs{" "}
-                              {formatNumber(calculatedTotals.saldoInicial)}
+                              Saldo Inicial: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -500,8 +499,7 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "#00E38C" }}
                             ></div>
                             <span>
-                              Ingresos: Bs{" "}
-                              {formatNumber(calculatedTotals.totalIngresos)}
+                              Ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -510,8 +508,7 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "#FF5B4D" }}
                             ></div>
                             <span>
-                              Egresos: Bs{" "}
-                              {formatNumber(calculatedTotals.totalEgresos)}
+                              Egresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -520,8 +517,7 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "#4C98DF" }}
                             ></div>
                             <span>
-                              Saldo Final: Bs{" "}
-                              {formatNumber(calculatedTotals.saldoFinal)}
+                              Saldo Final: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
                             </span>
                           </div>
                         </div>
