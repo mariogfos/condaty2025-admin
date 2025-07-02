@@ -3,10 +3,8 @@ import React, { useState, useMemo, useEffect } from "react";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Payments.module.css";
-import { getUrlImages } from "@/mk/utils/string";
 import {
   getDateStrMes,
-  getDateTimeStrMesShort,
   getDateDesdeHasta,
 } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
@@ -16,16 +14,14 @@ import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGr
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import dptos from "@/app/dptos/page";
-import Input from "@/mk/components/forms/Input/Input"; // Importación añadida
+import Input from "@/mk/components/forms/Input/Input";
 import { RenderAnularModal } from "./RenderDel/RenderDel";
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
   filter_mov?: string;
-  // Añadimos claves opcionales para filtros personalizados si se usan directamente aquí
-  paid_at?: string; // Para el filtro de useCrud
+  paid_at?: string;
 }
 
 const Payments = () => {
@@ -74,7 +70,7 @@ const Payments = () => {
     { id: "lm", name: "Mes anterior" },
     { id: "y", name: "Este año" },
     { id: "ly", name: "Año anterior" },
-    { id: "custom", name: "Personalizado" }, // Opción añadida
+    { id: "custom", name: "Personalizado" }, 
   ];
 
   const getPaymentTypeOptions = () => [
@@ -143,7 +139,7 @@ const Payments = () => {
           },
         },
         filter: {
-          key: "paid_at", // Asegura que la clave sea correcta
+          key: "paid_at",
           label: "Periodo",
 
           options: getPeriodOptions,
@@ -178,13 +174,12 @@ const Payments = () => {
             }));
             return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
           },
-          // extraData: "categories",
+
         },
       },
       subcategory_id: {
-        // <--- Columna "Subcategoría"
-        rules: ["required"], // Considera si realmente es requerido
-        api: "ae",
+
+        rules: ["required"], 
         label: "Subcategoria",
         form: {
           type: "select",
@@ -192,19 +187,15 @@ const Payments = () => {
           options: () => [], // Se maneja en RenderForm
         },
         list: {
-          // <--- Lógica de renderizado para la columna "Subcategoría"
+
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
               return `sin datos`;
             }
-            // *** CORRECCIÓN LÓGICA ***
-            // Verificar si el objeto 'padre' existe y NO es null
             if (category.padre && typeof category.padre === "object") {
-              // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
               return category.name || `(Sin nombre)`;
             } else {
-              // Si NO existe el objeto padre, no hay subcategoría aplicable.
               return "-/-";
             }
           },
@@ -290,26 +281,6 @@ const Payments = () => {
     []
   );
 
-  const onClickGraph = async () => {
-    try {
-      const periodo = convertFilterDate();
-      const response = await execute("/balances", "GET", {
-        ...formStateFilter,
-        filter_date: periodo,
-        filter_mov: "I",
-        filter_categ: formStateFilter.filter_category
-          ? [formStateFilter.filter_category]
-          : [],
-      });
-
-      if (response && response.data) {
-        setDataGraph(response.data);
-        setOpenGraph(true);
-      }
-    } catch (error) {
-      console.error("Error al cargar datos del gráfico:", error);
-    }
-  };
 
   const goToCategories = (type = "") => {
     if (type) {
@@ -343,8 +314,6 @@ const Payments = () => {
     return { filterBy: currentFilters };
   };
 
-  // En Payments.tsx
-  // En Payments.tsx
   const onSaveCustomFilter = () => {
     let err: { startDate?: string; endDate?: string } = {};
     if (!customDateRange.startDate) {
@@ -364,10 +333,7 @@ const Payments = () => {
       setCustomDateErrors(err);
       return;
     }
-
     const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-
-    // Llama a la función onFilter del hook useCrud.
     onFilter("paid_at", customDateFilterString);
 
     setOpenCustomFilter(false);
@@ -402,7 +368,7 @@ const Payments = () => {
     mod,
     fields,
     extraButtons,
-    getFilter: handleGetFilter, // Pasar la función aquí
+    getFilter: handleGetFilter, 
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

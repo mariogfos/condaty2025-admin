@@ -311,8 +311,8 @@
   border-right: 0.5px solid var(--cWhiteV2, #a7a7a7);
 }
 
-.deuda-cell:nth-child(4) { /* Subtotal cell */
-  font-weight: 500; /* font-medium */
+.deuda-cell:nth-child(4) { 
+  font-weight: 500;
 }
 .deuda-item:nth-child(odd) .deuda-cell:nth-child(4) {
   color: var(--cWhiteV1, #fbfbfb);
@@ -330,7 +330,7 @@
   display: flex;
   justify-content: flex-end;
   color: var(--cWhite);
-  padding: var(--spM) 0; /* Quitar padding lateral si la tabla ocupa todo el ancho */
+  padding: var(--spM) 0; 
   font-weight: var(--bMedium);
   font-size: 1rem;
 }
@@ -339,7 +339,7 @@
   color: var(--cError);
   font-size: var(--sM);
   margin-top: var(--spS);
-  text-align: right; /* Para alinearlo con el total */
+  text-align: right; 
 }
 
 .amount-input-disabled {

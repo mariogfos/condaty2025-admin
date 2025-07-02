@@ -1,5 +1,4 @@
 .container {
-  /* padding: 20px; */
   width: 100%;
 }
 
@@ -102,7 +101,7 @@
   }
 }
 
-/* Estilo general para los badges de estado */
+
 .statusBadge {
   font-weight: var(--bMedium);
   padding: 6px var(--spM);
@@ -116,7 +115,6 @@
   white-space: nowrap;
 }
 
-/* Estilos para cada estado con fondos semitransparentes y texto coloreado */
 .statusP {
   background-color: var(--accentBg);
   color: var(--cPrimary);

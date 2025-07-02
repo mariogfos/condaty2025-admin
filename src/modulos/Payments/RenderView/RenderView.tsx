@@ -10,18 +10,17 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 
-// Define explícitamente la interfaz para las props
+
 interface DetailPaymentProps {
   open: boolean;
   onClose: () => void;
-  // item: any;
+
   extraData?: any;
   reLoad?: () => void;
   payment_id: string | number;
   onDel?: () => void;
 }
 
-// eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
@@ -30,7 +29,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   const [item, setItem] = useState(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
-  console.log(payment_id);
+
   const fetchPaymentData = async () => {
     if (payment_id && open) {
       const { data } = await execute(
@@ -48,11 +47,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       setItem(data?.data);
     }
   };
-  console.log(item);
+ 
   useEffect(() => {
     fetchPaymentData();
   }, [payment_id]);
-  // console.log(item,)
+
 
   const handleChangeInput = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
