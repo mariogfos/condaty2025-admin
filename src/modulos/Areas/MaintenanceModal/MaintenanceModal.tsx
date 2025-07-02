@@ -23,6 +23,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [tab, setTab] = useState("P");
   const [formState, setFormState]: any = useState({});
   const [dataM, setDataM] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
   const [errors, setErrors] = useState({});
   const [reservas, setReservas] = useState([]);
@@ -119,6 +120,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   };
 
   const getAreasM = async () => {
+    setLoading(true);
     const { data } = await execute("/reservations", "GET", {
       fullType: "L",
       filterBy: "status:M",
@@ -128,6 +130,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     if (data?.success == true) {
       setDataM(data?.data);
     }
+    setLoading(false);
   };
   useEffect(() => {
     setDataM([]);
@@ -146,7 +149,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       setOpenConfirm({ open: false, id: null });
     }
   };
-
+  console.log(new Date().toISOString().split("T")[0]);
   return (
     <DataModal
       title="Mantenimiento"
@@ -195,10 +198,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   error={errors}
                   value={formState?.date_at}
                   onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                 />
                 <Input
                   label="Fecha de fin"
                   type="datetime-local"
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                   name="date_end"
                   error={errors}
                   value={formState?.date_end}
@@ -367,7 +372,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                 </div>
               </div>
             ))}
-            {dataM.length === 0 && (
+            {dataM.length === 0 && loading === false && (
               <div
                 style={{
                   textAlign: "center",
