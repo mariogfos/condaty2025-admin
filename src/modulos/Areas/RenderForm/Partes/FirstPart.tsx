@@ -67,7 +67,7 @@ const FirstPart = ({
         options={[
           { id: "A", name: "Activa" },
           { id: "X", name: "Inactiva" },
-          { id: "M", name: "En mantenimiento" },
+          // { id: "M", name: "En mantenimiento" },
         ]}
         error={errors}
       />

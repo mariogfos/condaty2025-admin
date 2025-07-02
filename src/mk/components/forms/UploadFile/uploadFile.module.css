@@ -67,6 +67,11 @@
     }
   }
 }
+.error {
+  color: var(--cError);
+  font-size: 10px;
+  margin-bottom: var(--spS);
+}
 .uploadFileMultiple {
   & > div > div {
     display: "relative";

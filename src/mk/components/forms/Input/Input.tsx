@@ -250,6 +250,13 @@ const Input = (props: PropsType) => {
 
   const currentDisplayValue = type === "currency" ? displayValue : value || "";
   const inputType = type === "currency" ? "text" : type;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (type === "number" && (e.key === "e" || e.key === "E")) {
+      e.preventDefault();
+      return;
+    }
+    onKeyDown(e);
+  };
 
   return (
     <ControlLabel
@@ -276,7 +283,7 @@ const Input = (props: PropsType) => {
         onBlur={type === "currency" ? handleCurrencyBlur : onBlur}
         name={name}
         value={currentDisplayValue}
-        onKeyDown={onKeyDown}
+        onKeyDown={handleKeyDown}
         readOnly={readOnly}
         disabled={disabled}
         required={required}
