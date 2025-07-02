@@ -155,7 +155,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
           },
           {
             value: "A",
-            text: "Areas en mantenimiento",
+            text: "Áreas en mantenimiento",
           },
         ]}
         sel={tab}
