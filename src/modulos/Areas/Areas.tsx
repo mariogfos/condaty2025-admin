@@ -265,9 +265,16 @@ const Areas = () => {
           let status = "";
           if (props?.item?.status === "A") status = "Activa";
           if (props?.item?.status === "X") status = "Inactiva";
-          if (props?.item?.status === "M") status = "En mantenimiento";
+          // if (props?.item?.status === "M") status = "En mantenimiento";
 
           return status;
+        },
+        filter: {
+          options: () => [
+            { id: "A", name: "Activa" },
+            { id: "X", name: "Inactiva" },
+            // { id: "M", name: "En mantenimiento" },
+          ],
         },
       },
     }),
@@ -295,11 +302,13 @@ const Areas = () => {
     <div
     //  className={styles.style}
     >
-      <List height={"calc(100vh - 280px)"} 
-       emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
-       emptyLine2="del condominio las verás aquí."
-       emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)" />}/>
-       
+      <List
+        height={"calc(100vh - 280px)"}
+        emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
+        emptyLine2="del condominio las verás aquí."
+        emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)" />}
+      />
+
       {openMaintenance && (
         <MaintenanceModal
           open={openMaintenance}
