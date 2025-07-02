@@ -131,14 +131,14 @@ const BalanceGeneral: React.FC = () => {
       base64String = encodeURIComponent(base64String);
       fileObj = { ext: "webp", file: base64String };
       // Descargar la imagen para pruebas
-  /*     const link = document.createElement('a');
+      const link = document.createElement('a');
       link.download = 'grafica.webp';
       link.href = base64;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); */
+      document.body.removeChild(link); 
     }
-    reLoadFinanzas({ ...formStateFilter, exportar: true, grafica: fileObj ? JSON.stringify(fileObj) : null });
+    reLoadFinanzas({ ...formStateFilter, exportar: true, grafica: fileObj ? fileObj : null });
   };
 
   useEffect(() => {
