@@ -41,10 +41,20 @@ const TableFinance = ({
 }: PropsType) => {
   const [dropStates, setDropStates] = useState<Array<{ drop: boolean }>>([]);
   const isTwoColumnLayout = meses.length === 0;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setDropStates(data.map(() => ({ drop: false })));
   }, [data]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1536);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleItemClick = (index: number) => {
     setDropStates(
@@ -226,14 +236,11 @@ const TableFinance = ({
             </React.Fragment>
           );
         })}
-      </div>
-
-      {/* Fila de Total General */}
-      {typeof total !== 'undefined' && (
-        <div className={styles.tableTotalRowContainer}>
+        {/* Fila de Total General SOLO en móvil */}
+        {isMobile && typeof total !== 'undefined' && (
           <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
             <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
-            {tooltip && (
+              {tooltip && (
                 <div className={styles.tooltipContainer}>
                   <IconTableHelp className={styles.tooltipIcon} />
                   <span className={styles.tooltip}>
@@ -242,17 +249,33 @@ const TableFinance = ({
                 </div>
               )}
               <span>{titleTotal || "Total de " + title}</span>
-              
             </div>
-            
-
             <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-
+              <span>Bs {formatNumber(total)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Fila de Total General SOLO en desktop */}
+      {!isMobile && typeof total !== 'undefined' && (
+        <div className={styles.tableTotalRowContainer}>
+          <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
+            <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
+              {tooltip && (
+                <div className={styles.tooltipContainer}>
+                  <IconTableHelp className={styles.tooltipIcon} />
+                  <span className={styles.tooltip}>
+                    {tooltip}
+                  </span>
+                </div>
+              )}
+              <span>{titleTotal || "Total de " + title}</span>
+            </div>
+            <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
               <span>Bs {formatNumber(total)}</span>
             </div>
           </div>
         </div>
-        
       )}
     </div>
   );

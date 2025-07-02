@@ -167,9 +167,14 @@
   font-size: 14px;
   font-weight: 500;
   min-width: 300px;
-
 }
 
+@media (max-width: 768px) {
+  .tableTotalRow {
+    min-width: 600px;
+    width: 100%;
+  }
+}
 
 .totalRowOutside {
   margin-top: 0px;
@@ -443,6 +448,27 @@
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
   position: relative;
+
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border-radius: 0 0 1rem 1rem;
+}
+
+.tableResponsiveWrapper::-webkit-scrollbar {
+  height: 10px;
+  background: transparent;
+}
+.tableResponsiveWrapper::-webkit-scrollbar-thumb {
+  background: var(--cWhiteV2, #444);
+  border-radius: 8px;
+  border: 2px solid rgba(44,47,51,0.7);
+}
+.tableResponsiveWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableResponsiveWrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cWhiteV2, #444) transparent;
 }
 
 .tableFinance {
