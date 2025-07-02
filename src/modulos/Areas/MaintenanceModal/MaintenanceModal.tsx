@@ -159,6 +159,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       setOpenConfirm({ open: false, id: null });
     }
   };
+  console.log(loading);
 
   return (
     <DataModal
