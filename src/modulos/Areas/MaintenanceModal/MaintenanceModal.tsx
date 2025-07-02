@@ -159,8 +159,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       setOpenConfirm({ open: false, id: null });
     }
   };
-  console.log(loading);
-
+  console.log(new Date().toISOString().split("T")[0]);
   return (
     <DataModal
       title="Mantenimiento"
