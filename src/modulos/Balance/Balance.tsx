@@ -76,7 +76,7 @@ const BalanceGeneral: React.FC = () => {
 
   const { data: finanzas, reLoad: reLoadFinanzas } = useAxios(
     "/balances",
-    "GET",
+    "POST",
     {}
   );
   const { setStore } = useAuth();
@@ -275,7 +275,7 @@ const BalanceGeneral: React.FC = () => {
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
         return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Balance del año ${now.getFullYear()}`;
+        return `Balance desde enero hasta diciembre de ${now.getFullYear()}`;
       case "ly":
         return `Balance del año ${now.getFullYear() - 1}`;
       default:
