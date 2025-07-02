@@ -131,7 +131,7 @@ const BalanceGeneral: React.FC = () => {
       base64String = encodeURIComponent(base64String);
       fileObj = { ext: "webp", file: base64String };
       // Descargar la imagen para pruebas
-     /*  const link = document.createElement('a');
+  /*     const link = document.createElement('a');
       link.download = 'grafica.webp';
       link.href = base64;
       document.body.appendChild(link);
@@ -549,7 +549,7 @@ const BalanceGeneral: React.FC = () => {
                       </Button>
                     </div>
                     <h2 className={styles.chartSectionTitle}>
-                      {`Resumen detallado de los ingresos`}
+                      {`Resumen detallado de todos los ingresos`}
                     </h2>
                     <TableIngresos
                       title="Ingresos"
@@ -565,7 +565,7 @@ const BalanceGeneral: React.FC = () => {
 
                     <div className={styles.divider} />
                     <h2 className={styles.chartSectionTitle}>
-                      {`Resumen detallado de los egresos`}
+                      {`Resumen detallado de todos los egresos`}
                     </h2>
                     <TableEgresos
                       title="Egresos"

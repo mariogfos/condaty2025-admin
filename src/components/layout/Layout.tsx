@@ -146,6 +146,20 @@ const Layout = ({ children }: any) => {
     soundBell?.pause();
     soundBell?.load();
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1023) {
+        setSideMenuOpen(true); // Colapsado
+      } else {
+        setSideMenuOpen(false); // Expandido
+      }
+    };
+    handleResize(); // Ejecutar al montar
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <main className={layoutClassName}>
       <section>
