@@ -347,7 +347,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   {reserva.date_end && (
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       <span style={{ color: "var(--cWhite)" }}>
-                        Fecha de fin:
+                        Fecha de finalización:
                       </span>{" "}
                       {getDateStrMes(reserva.date_end) + " "}
                       {reserva.end_time}
