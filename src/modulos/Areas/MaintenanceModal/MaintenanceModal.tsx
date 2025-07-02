@@ -142,8 +142,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       setOpenConfirm({ open: false, id: null });
     }
   };
-  console.log(loading);
-
+  console.log(new Date().toISOString().split("T")[0]);
   return (
     <DataModal
       title="Mantenimiento"
@@ -192,10 +191,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   error={errors}
                   value={formState?.date_at}
                   onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                 />
                 <Input
                   label="Fecha de fin"
                   type="datetime-local"
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                   name="date_end"
                   error={errors}
                   value={formState?.date_end}
