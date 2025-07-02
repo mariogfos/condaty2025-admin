@@ -165,7 +165,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
         <>
           <TitleSubtitle title="Seleccione el área social que requiere mantenimiento" />
           <Select
-            label="Area"
+            label="Área social"
             name="area_id"
             value={formState?.area_id}
             error={errors}
