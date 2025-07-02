@@ -39,12 +39,18 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   };
 
   const getReservas = async () => {
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      date_at: formState.date_at,
-      date_end: formState.date_end,
-      area_id: formState.area_id,
-    });
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        date_at: formState.date_at,
+        date_end: formState.date_end,
+        area_id: formState.area_id,
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
       setReservas(data?.data);
     }
@@ -142,7 +148,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       setOpenConfirm({ open: false, id: null });
     }
   };
-  console.log(new Date().toISOString().split("T")[0]);
+
   return (
     <DataModal
       title="Mantenimiento"
@@ -235,9 +241,6 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     <div style={{ fontWeight: "bold", color: "var(--cWhite)" }}>
                       {getFullName(reserva?.owner)}
                     </div>
-                    {/* <div style={{ color: "var(--cWhiteV1)" }}>
-                  Unidad: {reserva?.dpto?.nro}
-                </div> */}
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       Fecha: {reserva.date_at}
                       {reserva.start_time && ` - Hora: ${reserva.start_time}`}
