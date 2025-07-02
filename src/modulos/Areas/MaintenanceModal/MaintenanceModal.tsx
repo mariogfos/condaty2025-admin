@@ -372,7 +372,10 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                       {reserva.end_time}
                     </div>
                   )}
-                  <div style={{ color: "var(--cWhiteV1)" }}>
+                  <div style={{ 
+                      color: "var(--cWhiteV1)" ,
+                      overflowWrap: 'break-word'
+                    }}>
                     <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
                     {reserva.reason || "No especificado"}
                   </div>
