@@ -163,7 +163,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       />
       {tab == "P" && (
         <>
-          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento" />
+          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento." />
           <Select
             label="Área social"
             name="area_id"
