@@ -61,7 +61,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.max_capacity,
-      rules: ["required", "max:5"],
+      rules: ["required", "number", "max:5"],
       key: "max_capacity",
       errors,
     });
@@ -79,7 +79,7 @@ const RenderForm = ({
     let errors: any = {};
     errors = checkRules({
       value: formState?.price,
-      rules: ["max:10"],
+      rules: ["max:10", "number"],
       key: "price",
       errors,
     });
