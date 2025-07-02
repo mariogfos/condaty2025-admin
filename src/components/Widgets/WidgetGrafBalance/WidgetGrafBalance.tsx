@@ -191,7 +191,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         //downloadPdf
         options={{
           height: h,
-          colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
+          colors: ["var(--cCompl7)", "var(--cCompl9)", "var(--cCompl8)", "var(--cCompl5)"],
           chart: {
             legend: {
               show: false,

@@ -487,7 +487,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "#FFD700" }}
+                              style={{ backgroundColor: "var(--cCompl1)" }}
                             ></div>
                             <span>
                               Saldo Inicial: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
@@ -496,7 +496,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "#00E38C" }}
+                              style={{ backgroundColor: "var(--cCompl2)" }}
                             ></div>
                             <span>
                               Ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
@@ -505,7 +505,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "#FF5B4D" }}
+                              style={{ backgroundColor: "var(--cCompl3)" }}
                             ></div>
                             <span>
                               Egresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
@@ -514,7 +514,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "#4C98DF" }}
+                              style={{ backgroundColor: "var(--cCompl4)" }}
                             ></div>
                             <span>
                               Saldo Final: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
