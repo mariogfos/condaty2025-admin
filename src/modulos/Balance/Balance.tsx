@@ -277,7 +277,7 @@ const BalanceGeneral: React.FC = () => {
       case "y":
         return `Balance desde enero hasta diciembre de ${now.getFullYear()}`;
       case "ly":
-        return `Balance del año ${now.getFullYear() - 1}`;
+        return `Balance desde enero hasta diciembre de ${now.getFullYear() - 1}`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
@@ -320,6 +320,16 @@ const BalanceGeneral: React.FC = () => {
     });
     return Array.from(map.values());
   }, [finanzas?.data?.egresosHist]);
+
+  const getSubtitle = () => {
+    if (formStateFilter.filter_date === "y") {
+      return `Total del saldo acumulado · Gestión ${new Date().getFullYear()}`;
+    }
+    if (formStateFilter.filter_date === "ly") {
+      return `Total del saldo acumulado · Gestión ${new Date().getFullYear() - 1}`;
+    }
+    return "Total del saldo acumulado";
+  };
 
   return (
     <div className={styles.container}>
@@ -478,7 +488,7 @@ const BalanceGeneral: React.FC = () => {
                         ingresos={finanzas?.data?.ingresosHist}
                         egresos={finanzas?.data?.egresosHist}
                         chartTypes={[charType.filter_charType as ChartType]}
-                        subtitle={`Saldo Final del Periodo`}
+                        subtitle={getSubtitle()}
                         title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
                         periodo={formStateFilter?.filter_date}
                       />
@@ -487,7 +497,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl1)" }}
+                              style={{ backgroundColor: "var(--cCompl7)" }}
                             ></div>
                             <span>
                               Saldo Inicial: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
@@ -496,28 +506,28 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl2)" }}
+                              style={{ backgroundColor: "var(--cCompl9)" }}
                             ></div>
                             <span>
-                              Ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
+                              Total de ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl3)" }}
+                              style={{ backgroundColor: "var(--cCompl8)" }}
                             ></div>
                             <span>
-                              Egresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
+                              Total de egresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl4)" }}
+                              style={{ backgroundColor: "var(--cCompl5)" }}
                             ></div>
                             <span>
-                              Saldo Final: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
+                              Total de saldo acumulado: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
                             </span>
                           </div>
                         </div>
