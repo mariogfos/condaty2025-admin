@@ -3,7 +3,7 @@
 .dataSearch {
   padding-right: 0;
   width: 100%;
-  background-color: var(--cBlackV1);
+  background-color: var(--cWhiteV2);
   & > div > input::placeholder {
     color: var(--cWhiteV1);
   }
@@ -11,11 +11,11 @@
     color: var(--cError);
   }
 
-  & > span:nth-child(3) {
+  /* & > span:nth-child(3) {
     background-color: var(--cPrimary);
     border-radius: var(--bRadius);
     margin-top: 0px;
     margin-right: -2px;
     height: 50px;
-  }
+  } */
 }
