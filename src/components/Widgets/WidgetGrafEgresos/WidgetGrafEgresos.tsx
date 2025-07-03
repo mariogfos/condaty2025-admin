@@ -133,7 +133,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
           labels: monthLabels,
           values: getValuesEgresos(egresos, primaryChartType, monthLabels),
         }}
-        downloadPdf
+        //downloadPdf
         chartTypes={chartTypes}
         options={{
           title: "",

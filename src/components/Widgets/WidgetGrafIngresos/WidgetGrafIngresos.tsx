@@ -138,7 +138,7 @@ const WidgetGrafIngresos = ({
           labels: monthLabels, // Se usan los meses correctos
           values: getValuesIngresos(ingresos, primaryChartType, monthLabels), // Se pasan los meses para alinear los datos
         }}
-        downloadPdf
+       // downloadPdf
         chartTypes={chartTypes}
         options={{
           title: "",
