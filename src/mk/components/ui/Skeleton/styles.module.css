@@ -114,7 +114,7 @@
   flex-direction: column;
   justify-content: space-between;
   border-radius: var(--spS);
-  padding: var(--sL);
+  /* padding: var(--sL); */
 
   & > div {
     background-color: var(--darkv1);

@@ -169,6 +169,7 @@ const RenderForm = ({
     setLevel(level + 1);
   };
   const onSave = async () => {
+    setOpenList(true);
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
       "/areas" + (formState.id ? "/" + formState.id : ""),
