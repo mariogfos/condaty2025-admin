@@ -497,7 +497,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl7)" }}
+                              style={{ backgroundColor: "var(--cCompl1)" }}
                             ></div>
                             <span>
                               Saldo Inicial: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
@@ -506,7 +506,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl9)" }}
+                              style={{ backgroundColor: "var(--cAccent)" }}
                             ></div>
                             <span>
                               Total de ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
@@ -524,7 +524,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl5)" }}
+                              style={{ backgroundColor: "var(--cCompl9)" }}
                             ></div>
                             <span>
                               Total de saldo acumulado: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
@@ -669,7 +669,8 @@ const BalanceGeneral: React.FC = () => {
                                     style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
                                   ></div>
                                   <span>
-                                    {cat.name}: Bs {formatNumber(cat.total)}
+                                    <span>{cat.name}:</span>
+                                    <span className={styles.legendAmount}> Bs {formatNumber(cat.total)}</span>
                                   </span>
                                 </div>
                               ));
@@ -788,7 +789,8 @@ const BalanceGeneral: React.FC = () => {
                                     style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
                                   ></div>
                                   <span>
-                                    {cat.name}: Bs {formatNumber(cat.total)}
+                                    <span>{cat.name}:</span>
+                                    <span className={styles.legendAmount}> Bs {formatNumber(cat.total)}</span>
                                   </span>
                                 </div>
                               ));

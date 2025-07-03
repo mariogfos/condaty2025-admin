@@ -256,7 +256,7 @@
 }
 .legendItem span {
   color: var(--cWhiteV1, #A7A7A7);
-  font-size: 0.875rem; /* 14px */
+  font-size: var(--sLg); /* 14px */
   font-family: Roboto;
 }
 .exportButtonCustom {
