@@ -67,9 +67,9 @@ const RenderForm = ({
       errors: errs,
     });
     errs = checkRules({
-      value: formState.category_id,
+      value: formState.type,
       rules: ["required"],
-      key: "category_id",
+      key: "type",
       errors: errs,
     });
     errs = checkRules({
@@ -99,7 +99,7 @@ const RenderForm = ({
         year: formState.year,
         month: formState.month,
         due_at: formState.due_at,
-        category_id: formState.category_id,
+        type: formState.type,
         description: formState.description,
         asignar: formState.asignar,
         dpto_id: formState.dpto_id,
@@ -128,12 +128,15 @@ const RenderForm = ({
 
   // Opciones para el campo Mes basadas en el array MONTHS
   const monthOptions = MONTHS.map((month, index) => ({
-    id: index ,
+    id: index,
     name: month,
   }));
 
   // Opciones para el campo Categoría (en este ejemplo solo "Expensas")
-  const categoryOptions = [{ id: 1, name: "Expensas" }];
+  const typeOptions = [
+    { id: 1, name: "Expensas" },
+    { id: 2, name: "Reservas" },
+  ];
 
   useEffect(() => {
     const lista: any = [];
@@ -188,10 +191,10 @@ const RenderForm = ({
       />
 
       <Select
-        label="Categoría"
-        name="category_id"
-        value={formState.category_id}
-        options={categoryOptions}
+        label="Tipo"
+        name="type"
+        value={formState.type}
+        options={typeOptions}
         onChange={handleChange}
         error={errors}
       />

@@ -2,19 +2,16 @@
 
 .tableContainer {
   margin-top: 1rem;
-  /* margin-bottom: 1.5rem; /* Se quita el margen inferior si el total va pegado o tiene el suyo propio */
-  /* border-radius: 1rem; /* Comentamos o eliminamos la línea original */
-  border-top-left-radius: 1rem;     /* Esquina superior izquierda redondeada */
-  border-top-right-radius: 1rem;    /* Esquina superior derecha redondeada */
-  border-bottom-right-radius: 0;      /* Esquina inferior derecha NO redondeada */
-    /* Esquina inferior izquierda redondeada */
+  border-top-left-radius: 1rem;    
+  border-top-right-radius: 1rem;  
+  border-bottom-right-radius: 0;    
   background-color: var(--darkv1, #2c2f33);
   border: 0.5px solid var(--cBorder, #a7a7a7);
-  overflow: hidden; /* Muy importante para que el border-radius afecte a los hijos */
+  overflow: hidden; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
 }
-/* Fila de Encabezado */
+
 .tableHeaderRow {
   display: flex;
   background-color: #333536;
@@ -59,7 +56,7 @@
   
 }
 
-/* Filas de Datos */
+
 .dataRow {
   display: flex;
   height: 56px;
@@ -170,25 +167,25 @@
   font-size: 14px;
   font-weight: 500;
   min-width: 300px;
-  /* Ya no está dentro de .tableContainer, por lo que su fondo y bordes son independientes */
 }
 
-/* Clase opcional para la fila total cuando está fuera del contenedor principal */
-.totalRowOutside {
-  margin-top: 0px; /* O un pequeño espacio si lo prefieres, ej: 0.25rem o 4px */
-  border-bottom-left-radius: 1rem;  /* Redondea esquina inferior izquierda */
-  border-bottom-right-radius: 1rem; /* Redondea esquina inferior derecha */
-  
-  /* Las esquinas superiores no se redondean (valor implícito de 0 si no se especifica o se usa la forma larga) */
-  /* border-radius: 0 0 1rem 1rem; es una forma abreviada para lo de arriba */
+@media (max-width: 768px) {
+  .tableTotalRow {
+    min-width: 600px;
+    width: 100%;
+  }
+}
 
-  /* Si quieres un borde superior para separarla visualmente de la tabla de arriba,
-     pero que no sea el mismo borde del contenedor principal. */
-  /* border-top: 0.5px solid var(--cBorderTableLines, #52525b); */
+.totalRowOutside {
+  margin-top: 0px;
+  border-bottom-left-radius: 1rem;  
+  border-bottom-right-radius: 1rem; 
+  
+
 }
 
 .totalLabelCell {
-  background-color: #2c2f33; /* Mantén el fondo si es parte del diseño del total */
+  background-color: #2c2f33; 
   flex: 2;
   min-width: 200px;
   flex-shrink: 0;
@@ -198,26 +195,16 @@
  
   order: 1;
   border-bottom-left-radius: 1rem;
-  /* Si tenía border-radius por estar en las esquinas y ya no lo necesitas: */
-  /* border-bottom-left-radius: 0; (si .tableTotalRow no tiene su propio radio) */
+
 }
 
 
 .totalEmptyMonthCells {
   flex: 1;
-  /* Si .tableTotalRow tiene fondo, esta celda podría necesitar el mismo fondo */
-  /* background-color: #2c2f33; (o el color de fondo de las celdas de total) */
-  order: 0; /* Esto estaba mal, debería ser 1 para estar en medio */
-             /* Corregido: La propiedad order no es necesaria si el flex-grow es correcto
-                o si las celdas vacías simplemente llenan el espacio.
-                Vamos a basarnos en flex-grow para las celdas vacías.
-             */
-  flex-grow: 1; /* Asegura que ocupe el espacio de los meses */
-  flex-basis: 0; /* Necesario con flex-grow:1 para que funcione bien */
-   /* Si .tableTotalRow tiene un color de fondo global, no necesitas esto.
-     Si solo las celdas de texto tienen fondo, esta celda podría necesitarlo.
-     Ej. background-color: #2c2f33; (igual que .totalLabelCell si es el diseño)
-  */
+  order: 0;       
+  flex-grow: 1;
+  flex-basis: 0; 
+
 }
 
 
@@ -236,7 +223,6 @@
   text-overflow: ellipsis;
 }
 
-/* Tooltip */
 .tooltipContainer {
   display: flex;
   align-items: center;
@@ -301,10 +287,7 @@
 
 /* Estilos para variantes */
 .totalRow-income {
-  background-color:   rgba(0, 227, 140, 0.05); /* Fondo verde neón muy transparente */ 
-  /* Fondos y bordes se manejan en celdas individuales si es necesario,
-     o si toda la fila necesita un borde, se puede añadir aquí.
-     Por ejemplo: border-top: 1px solid rgba(0, 227, 140, 0.5); */
+  background-color:   rgba(0, 227, 140, 0.05); 
   border-left: 0.3px solid var(--cPrimary);
   border-right: 0.3px solid var(--cPrimary);
   border-bottom: 0.3px solid var(--cPrimary);
@@ -316,57 +299,56 @@
 }
 
 .totalLabelCell-income {
-  background-color:   rgba(0, 227, 140, 0.05); /* Fondo verde neón muy transparente */ 
+  background-color:   rgba(0, 227, 140, 0.05); 
   
 }
 
 .totalAmountCell-income {
-  background-color:  rgba(0, 227, 140, 0.05); /* Fondo verde neón muy transparente */
+  background-color:  rgba(0, 227, 140, 0.05); 
 }
 
 .totalRow-expense {
-  background-color: rgba(245, 101, 101, 0.05); /* Fondo rojo/rosa neón muy transparente */
+  background-color: rgba(245, 101, 101, 0.05); 
   border-left: 0.3px solid var(--cError);
   border-right: 0.3px solid var(--cError);
   border-bottom: 0.3px solid var(--cError);
   border-style: solid; 
-  /* Por ejemplo: border-top: 1px solid rgba(245, 101, 101, 0.5); */
+
 }
 
 .text-expense {
-  color: var(--cWhite) /* Texto con el color rojo/rosa sólido principal */
+  color: var(--cWhite) 
 }
 
 .totalLabelCell-expense {
-  background-color: rgba(245, 101, 101, 0.05); /* Fondo rojo/rosa neón muy transparente */
+  background-color: rgba(245, 101, 101, 0.05); 
 }
 
 .totalAmountCell-expense {
-  background-color: rgba(245, 101, 101, 0.05); /* Fondo rojo/rosa neón muy transparente */
+  background-color: rgba(245, 101, 101, 0.05); 
 }
 
 .totalRow-summary {
-  background-color: rgba(66, 153, 225, 0.05); /* Fondo azul neón muy transparente */
+  background-color: rgba(66, 153, 225, 0.05); 
   border-left: 0.3px solid #4299E1;
   border-right: 0.3px solid #4299E1;
   border-bottom: 0.3px solid #4299E1;
   border-style: solid; 
-  /* Por ejemplo: border-top: 1px solid rgba(66, 153, 225, 0.5); */
+
 }
 
 .text-summary {
-  color: var(--cWhite) /* Texto con el color azul sólido principal */
+  color: var(--cWhite) 
 }
 
 .totalLabelCell-summary {
-  background-color: rgba(66, 153, 225, 0.05); /* Fondo azul neón muy transparente */
+  background-color: rgba(66, 153, 225, 0.05); 
 }
 
 .totalAmountCell-summary {
-  background-color: rgba(66, 153, 225, 0.05); /* Fondo azul neón muy transparente */
+  background-color: rgba(66, 153, 225, 0.05); 
 }
 
-/* --- Borde izquierdo activo para filas desplegadas (categoría y subcategorías) --- */
 .activeBorder-income {
   border: 1px solid var(--cSuccess, #00E38C);
 }
@@ -377,7 +359,6 @@
   border: 1px solid var(--cInfo, #4C98DF);
 }
 
-/* --- Bordes exteriores para grupo desplegado (categoría + subcategorías) --- */
 .groupBorder-income-top {
   border-top: 1px solid var(--cSuccess, #00E38C);
   border-left: 1px solid var(--cSuccess, #00E38C);
@@ -459,5 +440,52 @@
 }
 
 .alignCellContentRight {
-  justify-content: flex-end !important; /* Alinea el contenido (el span) a la derecha dentro de la celda */
+  justify-content: flex-end !important; 
+}
+
+.tableResponsiveWrapper {
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border-radius: 0 0 1rem 1rem;
+}
+
+.tableResponsiveWrapper::-webkit-scrollbar {
+  height: 10px;
+  background: transparent;
+}
+.tableResponsiveWrapper::-webkit-scrollbar-thumb {
+  background: var(--cWhiteV2, #444);
+  border-radius: 8px;
+  border: 2px solid rgba(44,47,51,0.7);
+}
+.tableResponsiveWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableResponsiveWrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cWhiteV2, #444) transparent;
+}
+
+.tableFinance {
+  min-width: 1200px; /* Aumenta el ancho mínimo para vistas anuales */
+}
+
+@media (max-width: 1200px) {
+  .scrollHint {
+    display: block;
+    color: var(--cWhiteV1);
+    font-size: 13px;
+    text-align: right;
+    margin-bottom: 4px;
+    margin-right: 8px;
+  }
+}
+
+.scrollHint {
+  display: none;
 }

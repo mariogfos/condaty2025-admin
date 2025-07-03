@@ -29,22 +29,22 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     setIsOpen(!isOpen);
   };
   const hasItemWithBadge = items.some((item) => item.bage && item.bage > 0);
-  // Manejo del click fuera del dropdown para cerrarlo
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (
-  //       dropdownRef.current &&
-  //       !dropdownRef.current.contains(event.target as Node)
-  //     ) {
-  //       setIsOpen(false);
-  //     }
-  //   };
-
-  //   document.addEventListener("mouseup", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mouseup", handleClickOutside);
-  //   };
-  // }, []);
+  // Manejo del click fuera del dropdown para cerrarlo SOLO si está colapsado
+  useEffect(() => {
+    if (!collapsed) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [collapsed]);
 
   // Verifica si la ruta está activa para gestionar el estado del dropdown
   useEffect(() => {

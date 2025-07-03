@@ -7,25 +7,23 @@ import { IconArrowUp, IconArrowDown, IconTableHelp } from "@/components/layout/i
 
 interface SubItem {
   name: string;
-  totalMeses?: (string | number)[]; // Permitir números para formato
+  totalMeses?: (string | number)[]; 
   amount: number;
 }
-
 interface DataItem {
   name: string;
   sub: SubItem[];
-  totalMeses?: (string | number)[]; // Permitir números para formato
+  totalMeses?: (string | number)[]; 
   amount: number;
 }
-
 interface PropsType {
   data: DataItem[];
-  title: string; // Ej. "Ingresos"
-  title2: string; // Ej. "Total Anual" o simplemente "Total"
-  total?: number; // Gran total para la tabla
-  color?: string; // Clase de color para el texto del total (ej. text-income)
-  titleTotal?: string; // Ej. "Total de Ingresos"
-  meses?: string[]; // Array de nombres de meses para el encabezado, ej. ["ENE", "FEB", ...]
+  title: string; 
+  title2: string; 
+  total?: number; 
+  color?: string; 
+  titleTotal?: string; 
+  meses?: string[]; 
   tooltip?: string;
   variant?: 'income' | 'expense' | 'summary';
 }
@@ -35,34 +33,44 @@ const TableFinance = ({
   title,
   title2,
   total,
-  color = "text-white", // Se usará junto con la variante para el texto del total
+  color = "text-white", 
   titleTotal,
-  meses = [], // ["ENE", "FEB", ...]
+  meses = [], 
   tooltip,
   variant = 'income',
 }: PropsType) => {
   const [dropStates, setDropStates] = useState<Array<{ drop: boolean }>>([]);
   const isTwoColumnLayout = meses.length === 0;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setDropStates(data.map(() => ({ drop: false })));
   }, [data]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1536);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleItemClick = (index: number) => {
     setDropStates(
       dropStates.map((state, i) => {
         if (i === index) {
-          // Si es el ítem clickeado, invierte su estado 'drop'
+      
           return { ...state, drop: !state.drop };
         }
-        // Para todos los demás ítems, mantiene su estado actual
-        return state; // o return { ...state }; si state tiene más propiedades
+    
+        return state; 
       })
     );
   };
 
   const getContainerClass = () => {
-    // Esta función ya la tenías y aplica clases de TableFinanceColors.module.css
+
     switch (variant) {
       case 'income':
         return `${styles.tableContainer} ${styles['tableContainer-income']}`;
@@ -76,7 +84,7 @@ const TableFinance = ({
   };
 
   const getTotalRowVariantClass = () => {
-    // Esta función ya la tenías
+
     switch (variant) {
       case 'income':
         return styles['totalRow-income'];
@@ -90,7 +98,7 @@ const TableFinance = ({
   };
   
   const getTotalTextColorClass = () => {
-    // Esta función ya la tenías para el texto del total
+
      switch (variant) {
       case 'income':
         return styles['text-income'];
@@ -99,7 +107,7 @@ const TableFinance = ({
       case 'summary':
         return styles['text-summary'];
       default:
-        return ""; // O un color por defecto
+        return "";
     }
   }
 
@@ -130,8 +138,9 @@ const TableFinance = ({
   };
 
   return (
-    <>
-      <div className={getContainerClass()}>
+    <div className={styles.tableResponsiveWrapper}>
+      <div className={styles.scrollHint}>Desliza horizontalmente para ver todos los meses →</div>
+      <div className={getContainerClass() + ' ' + styles.tableFinance}>
         {/* Encabezado de la Tabla */}
         <div className={styles.tableHeaderRow}>
           <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
@@ -142,14 +151,14 @@ const TableFinance = ({
               <span>{mes.toUpperCase()}</span>
             </div>
           ))}
-          {/* --- INICIO DE LA MODIFICACIÓN --- */}
+
           <div className={`${styles.headerCell} ${styles.totalHeaderCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-          {/* --- FIN DE LA MODIFICACIÓN --- */}
+
             <span>{title2}</span>
           </div>
         </div>
 
-        {/* Filas de Datos (Categorías Principales) */}
+
         {data.map((item, index) => {
           const isOpen = dropStates[index]?.drop;
           const subLength = item.sub?.length || 0;
@@ -227,14 +236,11 @@ const TableFinance = ({
             </React.Fragment>
           );
         })}
-      </div>
-
-      {/* Fila de Total General */}
-      {typeof total !== 'undefined' && (
-        <div className={styles.tableTotalRowContainer}>
+        {/* Fila de Total General SOLO en móvil */}
+        {isMobile && typeof total !== 'undefined' && (
           <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
             <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
-            {tooltip && (
+              {tooltip && (
                 <div className={styles.tooltipContainer}>
                   <IconTableHelp className={styles.tooltipIcon} />
                   <span className={styles.tooltip}>
@@ -243,19 +249,35 @@ const TableFinance = ({
                 </div>
               )}
               <span>{titleTotal || "Total de " + title}</span>
-              
             </div>
-            
-            {/* --- INICIO DE LA MODIFICACIÓN --- */}
             <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
-            {/* --- FIN DE LA MODIFICACIÓN --- */}
+              <span>Bs {formatNumber(total)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Fila de Total General SOLO en desktop */}
+      {!isMobile && typeof total !== 'undefined' && (
+        <div className={styles.tableTotalRowContainer}>
+          <div className={`${styles.tableTotalRow} ${getTotalRowVariantClass()} ${styles.totalRowOutside}`}>
+            <div className={`${styles.totalLabelCell} ${getTotalLabelCellVariantClass()} ${getTotalTextColorClass()}`}>
+              {tooltip && (
+                <div className={styles.tooltipContainer}>
+                  <IconTableHelp className={styles.tooltipIcon} />
+                  <span className={styles.tooltip}>
+                    {tooltip}
+                  </span>
+                </div>
+              )}
+              <span>{titleTotal || "Total de " + title}</span>
+            </div>
+            <div className={`${styles.totalAmountCell} ${getTotalAmountCellVariantClass()} ${getTotalTextColorClass()} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
               <span>Bs {formatNumber(total)}</span>
             </div>
           </div>
         </div>
-        
       )}
-    </> 
+    </div>
   );
 };
 

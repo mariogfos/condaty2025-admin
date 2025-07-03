@@ -71,7 +71,7 @@ const RenderForm = ({
   const { store } = useAuth();
 
   const isExpensasWithoutDebt =
-    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+    _formState.subcategory_id === extraData?.client_config?.cat_expensas && extraData?.client_config?.cat_reservations
     deudas?.length === 0 &&
     !isLoadingDeudas &&
     _formState.dpto_id;

@@ -155,7 +155,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
           },
           {
             value: "A",
-            text: "Areas en mantenimiento",
+            text: "Áreas en mantenimiento",
           },
         ]}
         sel={tab}
@@ -163,9 +163,9 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       />
       {tab == "P" && (
         <>
-          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento" />
+          <TitleSubtitle title="Seleccione el área social que requiere mantenimiento." />
           <Select
-            label="Area"
+            label="Área social"
             name="area_id"
             value={formState?.area_id}
             error={errors}

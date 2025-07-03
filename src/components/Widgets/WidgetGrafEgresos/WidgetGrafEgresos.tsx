@@ -123,17 +123,17 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
 
   return (
     <div className={`${styles.container} ${className || ""}`}>
-      <p className={styles.title}>{title || "Resumen de Egresos"}</p>
       <p className={styles.subtitle}>
         {subtitle ||
           "Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías"}
       </p>
+      <p className={styles.title}>{title || "Resumen de Egresos"}</p>
       <GraphBase
         data={{
           labels: monthLabels,
           values: getValuesEgresos(egresos, primaryChartType, monthLabels),
         }}
-        downloadPdf
+        //downloadPdf
         chartTypes={chartTypes}
         options={{
           title: "",

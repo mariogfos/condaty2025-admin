@@ -128,17 +128,17 @@ const WidgetGrafIngresos = ({
 
   return (
     <div className={`${styles.container} ${className || ""}`}>
-      <p className={styles.title}>{title || "Resumen de Ingresos"}</p>
       <p className={styles.subtitle}>
         {subtitle ||
           " Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías"}
       </p>
+      <p className={styles.title}>{title || "Resumen de Ingresos"}</p>
       <GraphBase
         data={{
           labels: monthLabels, // Se usan los meses correctos
           values: getValuesIngresos(ingresos, primaryChartType, monthLabels), // Se pasan los meses para alinear los datos
         }}
-        downloadPdf
+       // downloadPdf
         chartTypes={chartTypes}
         options={{
           title: "",

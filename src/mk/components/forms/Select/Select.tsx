@@ -256,20 +256,29 @@ const Select = ({
       calcPosition();
     }
   }, [openOptions]);
-
+//cambio for value in multiselect
   useEffect(() => {
-    if (!multiSelect) {
-      if (selectValue !== value) {
-        let valueText = options?.filter(
-          (o: any) => o[optionValue] === value
-        )[0];
-        if (valueText) {
-          valueText = valueText[optionLabel];
-        }
-        setSelectValue(valueText);
+    if (multiSelect) {
+      if (
+        Array.isArray(value) &&
+        JSON.stringify(value) !== JSON.stringify(selectValue)
+      ) {
+        setSelectValue(value);
+      }
+      if (
+        Array.isArray(value) &&
+        value.length === 0 &&
+        Array.isArray(selectValue) &&
+        selectValue.length !== 0
+      ) {
+        setSelectValue([]);
+      }
+    } else {
+      if (value !== selectValue) {
+        setSelectValue(value);
       }
     }
-  }, [value, selectValue, multiSelect, options, optionLabel, optionValue]);
+  }, [value, multiSelect]);
 
   if (!options) return null;
 

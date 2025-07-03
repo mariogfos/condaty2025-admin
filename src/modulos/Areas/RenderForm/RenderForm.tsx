@@ -61,7 +61,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.max_capacity,
-      rules: ["required", "max:5"],
+      rules: ["required", "number", "max:5"],
       key: "max_capacity",
       errors,
     });
@@ -79,7 +79,7 @@ const RenderForm = ({
     let errors: any = {};
     errors = checkRules({
       value: formState?.price,
-      rules: ["max:10"],
+      rules: ["max:10", "number"],
       key: "price",
       errors,
     });
@@ -169,6 +169,7 @@ const RenderForm = ({
     setLevel(level + 1);
   };
   const onSave = async () => {
+    setOpenList(true);
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
       "/areas" + (formState.id ? "/" + formState.id : ""),
