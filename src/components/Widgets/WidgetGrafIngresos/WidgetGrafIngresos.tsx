@@ -45,14 +45,18 @@ const WidgetGrafIngresos = ({
     data: Transaction[] | undefined,
     currentPeriodo?: string
   ) => {
-    // Si el filtro es anual, siempre devuelve los 12 meses
+    if (!data || data.length === 0) return [];
+
+    // Si el filtro es anual, mostrar solo desde el primer mes con datos hasta el último mes con datos
     if (currentPeriodo === "y" || currentPeriodo === "ly") {
-      return MONTHS_S_GRAPH;
+      const mesesConDatos = data.map((t) => t.mes - 1);
+      if (mesesConDatos.length === 0) return [];
+      const minMes = Math.min(...mesesConDatos);
+      const maxMes = Math.max(...mesesConDatos);
+      return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
     }
 
     // Para otros filtros, deduce los meses a partir de los datos
-    if (!data || data.length === 0) return [];
-
     const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
       (a, b) => a - b
     );
