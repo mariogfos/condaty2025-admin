@@ -521,7 +521,7 @@ const BalanceGeneral: React.FC = () => {
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cAccent)" }}
+                              style={{ backgroundColor: "var(--cCompl7)" }}
                             ></div>
                             <span>
                               <span>Total de ingresos:</span>
