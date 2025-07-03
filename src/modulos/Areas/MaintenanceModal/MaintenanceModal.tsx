@@ -2,7 +2,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import TitleSubtitle from "./TitleSubtitle";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -29,6 +29,13 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [reservas, setReservas] = useState([]);
   const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
   const { showToast } = useAuth();
+
+  const activeAreas = useMemo(() => {
+    if (!areas) {
+      return [];
+    }
+    return areas.filter((area: any) => area.status === "A");
+  }, [areas]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -183,7 +190,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             value={formState?.area_id}
             error={errors}
             onChange={handleChange}
-            options={areas || []}
+            options={activeAreas || []}
             optionLabel="title"
             optionValue="id"
           />
@@ -365,7 +372,10 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                       {reserva.end_time}
                     </div>
                   )}
-                  <div style={{ color: "var(--cWhiteV1)" }}>
+                  <div style={{ 
+                      color: "var(--cWhiteV1)" ,
+                      overflowWrap: 'break-word'
+                    }}>
                     <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
                     {reserva.reason || "No especificado"}
                   </div>
