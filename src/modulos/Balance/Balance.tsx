@@ -275,9 +275,9 @@ const BalanceGeneral: React.FC = () => {
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
         return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Balance desde enero hasta diciembre de ${now.getFullYear()}`;
+        return `Balance desde Enero hasta  ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "ly":
-        return `Balance desde enero hasta diciembre de ${now.getFullYear() - 1}`;
+        return `Balance desde Enero hasta Diciembre de ${now.getFullYear() - 1}`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
