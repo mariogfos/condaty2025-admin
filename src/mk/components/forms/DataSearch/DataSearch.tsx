@@ -5,7 +5,7 @@ import {
   IconSearch,
   IconX,
 } from "../../../../components/layout/icons/IconsBiblioteca";
-import Button from "../Button/Button";
+// import Button from "../Button/Button";
 import styles from "./dataSearch.module.css";
 import { PropsTypeInputBase } from "../ControlLabel";
 
@@ -62,10 +62,9 @@ const DataSearch = ({
       placeholder="Buscar"
       onKeyDown={handleKeyDown}
       value={searchBy}
-      style={{ backgroundColor: "var(--cBlackV1" }}
       onChange={onChange}
       iconLeft={
-        !value ? (
+        !value && !searchBy ? (
           <IconSearch
             size={16}
             color={"var(--cWhiteV1)"}
@@ -81,9 +80,21 @@ const DataSearch = ({
       }
       iconRight={
         searchBy && (
-          <Button variant="primary" onClick={() => onSearch()}>
-            {textButton}
-          </Button>
+          // <Button variant="primary" onClick={() => onSearch()}>
+          //   {textButton}
+          // </Button>
+          <div
+            onClick={() => onSearch()}
+            style={{
+              backgroundColor: "var(--cPrimary)",
+              padding: 4,
+              borderRadius: "100%",
+              display: "flex",
+              marginRight: 8,
+            }}
+          >
+            <IconSearch color="var(--cBlack)" />
+          </div>
         )
       }
     />

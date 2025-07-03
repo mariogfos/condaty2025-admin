@@ -890,6 +890,7 @@ const useCrud = ({
             <div>
               {
                 <DataSearch
+                  // label="Buscar"
                   value={searchs.searchBy || ""}
                   name={mod.modulo + "Search"}
                   setSearch={onSearch || setSearchs}
@@ -914,16 +915,13 @@ const useCrud = ({
             </>
           )}
           {mod.import && (
-            <div
-              style={{ marginTop: "12px", cursor: "pointer" }}
-              onClick={onImport}
-            >
+            <div className={styles.iconsMenu} onClick={onImport}>
               <IconImport />
             </div>
           )}
           {mod.export && (
-            <div style={{ marginTop: "12px", cursor: "pointer" }}>
-              <IconExport onClick={() => onExport("pdf")} />
+            <div className={styles.iconsMenu} onClick={() => onExport("pdf")}>
+              <IconExport />
             </div>
           )}
           {mod.listAndCard && (
