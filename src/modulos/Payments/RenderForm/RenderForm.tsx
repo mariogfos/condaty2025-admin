@@ -127,8 +127,17 @@ const RenderForm = ({
         (dpto) => dpto.nro === nroDpto
       );
       const realDptoId = selectedDpto?.id;
+      const subcatId = _formState.subcategory_id;
 
-      if (!realDptoId) return;
+      if (!realDptoId || !subcatId) return;
+
+      // Determinar el fullType según la subcategoría
+      let fullType = "PDD";
+      if (subcatId === extraData?.client_config?.cat_expensas) {
+        fullType = "ED";
+      } else if (subcatId === extraData?.client_config?.cat_reservations) {
+        fullType = "RD";
+      }
 
       setIsLoadingDeudas(true);
       try {
@@ -138,7 +147,7 @@ const RenderForm = ({
           {
             perPage: -1,
             page: 1,
-            fullType: "PDD",
+            fullType,
             searchBy: realDptoId,
           },
           false,
@@ -163,7 +172,7 @@ const RenderForm = ({
         setIsLoadingDeudas(false);
       }
     },
-    [execute, extraData?.dptos]
+    [execute, extraData?.dptos, _formState.subcategory_id, extraData?.client_config?.cat_expensas, extraData?.client_config?.cat_reservations]
   );
 
   useEffect(() => {
@@ -192,12 +201,13 @@ const RenderForm = ({
 
     const isExpensasSelected =
       _formState.subcategory_id === extraData?.client_config?.cat_expensas;
+    const isReservationsSelected =
+      _formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
-    if (_formState.dpto_id && isExpensasSelected) {
-
+    // Consultar deudas si se selecciona expensas o reservas
+    if (_formState.dpto_id && (isExpensasSelected || isReservationsSelected)) {
       const deudasKey = `${_formState.dpto_id}_${_formState.subcategory_id}`;
       if (deudasKey !== lastLoadedDeudas.current) {
-
         lastLoadedDeudas.current = deudasKey;
         setSelectedPeriodo([]);
         setSelectPeriodoTotal(0);
@@ -205,7 +215,6 @@ const RenderForm = ({
       }
     } else {
       if (deudas.length > 0 || isLoadingDeudas) {
-
         setDeudas([]);
         setSelectedPeriodo([]);
         setSelectPeriodoTotal(0);
@@ -213,10 +222,10 @@ const RenderForm = ({
       }
     }
   }, [
-
     _formState.dpto_id,
     _formState.subcategory_id,
     extraData?.client_config?.cat_expensas,
+    extraData?.client_config?.cat_reservations,
     getDeudas, 
   ]);
 
@@ -233,13 +242,18 @@ const RenderForm = ({
       if (selectedCategory && selectedCategory.hijos) {
         newSubcategories = selectedCategory.hijos || [];
 
-
+        // Buscar si la subcategoría es cat_expensas o cat_reservations
         const catExpensasChild = newSubcategories.find(
           (hijo) => hijo.id === extraData?.client_config?.cat_expensas
         );
-
+        const catReservationsChild = newSubcategories.find(
+          (hijo) => hijo.id === extraData?.client_config?.cat_reservations
+        );
         if (catExpensasChild) {
-          newSubcategoryId = extraData.client_config.cat_expensas; 
+          newSubcategoryId = extraData.client_config.cat_expensas;
+          lockSubcategory = true;
+        } else if (catReservationsChild) {
+          newSubcategoryId = extraData.client_config.cat_reservations;
           lockSubcategory = true;
         }
       }
@@ -687,8 +701,8 @@ const RenderForm = ({
                   />
                 </div>
               </div>
-              {_formState.subcategory_id ===
-                extraData?.client_config?.cat_expensas && (
+              {(_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+                _formState.subcategory_id === extraData?.client_config?.cat_reservations) && (
                 <>
                   {!_formState.dpto_id ? (
                     <EmptyData
@@ -705,14 +719,14 @@ const RenderForm = ({
                       />
                       <p className={styles["no-deudas-message"]}>
                         No se encontraron deudas pendientes para esta unidad. No
-                        se puede registrar un pago de expensas.
+                        se puede registrar un pago de {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'}.
                       </p>
                     </div>
                   ) : (
                     <div className={styles["deudas-container"]}>
                       <div className={styles["deudas-title-row"]}>
                         <p className={styles["deudas-title"]}>
-                          Seleccione las expensas a pagar:
+                          Seleccione las {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'} a pagar:
                         </p>
                         <div
                           className={styles["select-all-container"]}
@@ -778,9 +792,7 @@ const RenderForm = ({
                                 typeof periodo.debt === "object" &&
                                 periodo.debt.month &&
                                 periodo.debt.year
-                                  ? `${MONTHS_S[periodo.debt.month] ?? "?"}/${
-                                      periodo.debt.year ?? "?"
-                                    }`
+                                  ? `${MONTHS_S[periodo.debt.month] ?? "?"}/$${periodo.debt.year ?? "?"}`
                                   : "N/A"}
                               </div>
                               <div className={styles["deuda-cell"]}>
