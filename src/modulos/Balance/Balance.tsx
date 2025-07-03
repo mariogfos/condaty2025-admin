@@ -331,6 +331,21 @@ const BalanceGeneral: React.FC = () => {
     return "Total del saldo acumulado";
   };
 
+  // Filtrar datos hasta el mes actual si el filtro es año actual
+  const filtrarHastaMesActual = (data: any[], tipo: string) => {
+    if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
+      const mesActual = new Date().getMonth();
+      // Suponiendo que los datos tienen un campo 'mes' (0=enero, 11=diciembre)
+      return data.filter((item: any) => {
+        // Si el campo es string tipo '01', '02', etc, conviértelo a número
+        let mes = item.mes;
+        if (typeof mes === "string") mes = parseInt(mes, 10) - 1;
+        return mes <= mesActual;
+      });
+    }
+    return data;
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Flujo de efectivo</h1>
@@ -509,7 +524,8 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "var(--cAccent)" }}
                             ></div>
                             <span>
-                              Total de ingresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
+                              <span>Total de ingresos:</span>
+                              <span className={styles.legendAmount}> Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -627,15 +643,15 @@ const BalanceGeneral: React.FC = () => {
                                 ? [formStateFilter.filter_categ]
                                 : []
                               : formStateFilter.filter_categ;
+                            let datos = ingresosHist;
                             if (selectcategorias && selectcategorias.length > 0) {
-                              // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
-                              return ingresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                              datos = ingresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
                             }
-                            return ingresosHist;
+                            return filtrarHastaMesActual(datos, 'I');
                           })()}
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
-                          title={" "}
+                          title={`Bs ${formatNumber(calculatedTotals.totalIngresos)}`}
                           subtitle={getPeriodoText(formStateFilter.filter_date)}
                           periodo={formStateFilter?.filter_date}
                         />
@@ -747,17 +763,17 @@ const BalanceGeneral: React.FC = () => {
                                 ? [formStateFilter.filter_categ]
                                 : []
                               : formStateFilter.filter_categ;
+                            let datos = egresosHist;
                             if (selectcategorias && selectcategorias.length > 0) {
-                              // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
-                              return egresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                              datos = egresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
                             }
-                            return egresosHist;
+                            return filtrarHastaMesActual(datos, 'E');
                           })()}
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
-                          title={" "}
+                          title={`Bs ${formatNumber(calculatedTotals.totalEgresos)}`}
                           subtitle={getPeriodoText(formStateFilter.filter_date)}
-                          periodo={formStateFilter?.filter_date} 
+                          periodo={formStateFilter?.filter_date}
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>

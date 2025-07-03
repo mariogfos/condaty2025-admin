@@ -3,12 +3,15 @@
   }
   
   .title {
-    color: var(--t-white);
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--sXl);
+    font-family: var(--fPrimary);
+    font-weight: var(--bBold);
   }
   
   .subtitle {
-    color: var(--light-v3);
-    font-size: 0.875rem;
+    color: var(--cWhiteV1);
+    font-size: var(--sLg);
+    font-family: var(--fPrimary);
+    font-weight: var(--bRegular);
+    margin-bottom: 8px;
   }
