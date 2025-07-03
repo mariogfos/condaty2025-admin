@@ -52,7 +52,11 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       true
     );
     if (data?.success == true) {
-      setReservas(data?.data);
+      const orderUpdate_at = data?.data?.map((item: any) => ({
+        ...item,
+        orderUpdate_at: getDateStrMes(item?.orderUpdate_at),
+      }));
+      setReservas(orderUpdate_at);
     }
   };
   useEffect(() => {
