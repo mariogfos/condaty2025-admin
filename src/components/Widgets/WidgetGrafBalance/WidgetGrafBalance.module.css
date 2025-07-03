@@ -16,4 +16,5 @@
     size: 20px;
     font-family: var(--fPrimary);
     font-weight: var(--bRegular);
+    margin-bottom: 8px;
   }
