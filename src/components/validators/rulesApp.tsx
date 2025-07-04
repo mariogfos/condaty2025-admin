@@ -221,7 +221,7 @@ export const validDateTimeGreater: ValidFunctionType = (
     compareDate = new Date(compareDate.getTime() + param[1] * 60 * 60 * 1000);
   }
 
-  return date > compareDate
+  return date >= compareDate
     ? ""
     : "La fecha no debe ser menor a " +
         compareDate.toISOString().split("T")[0] +

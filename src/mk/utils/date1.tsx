@@ -182,7 +182,7 @@ export const getDateStrMes = (
   // if (date[0] != getUTCNow().substring(0, 4)) {
   //   year = ` del ${date[0]}`;
   // }
-  return `${date[2]} de ${MONTHS[parseInt(date[1])]}${year}`;
+  return `${date[2]} de ${MONTHS[parseInt(date[1])].toLowerCase()}${year}`;
 };
 export const getDateTimeStrMesShort = (
   dateStr: string | null = "",
