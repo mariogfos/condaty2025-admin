@@ -141,7 +141,7 @@ const Pagination = ({
               onClick={goToNextPage}
               disabled={currentPage >= safeTotal}
             >
-              Pagina Siguiente{" "}
+              Página siguiente{" "}
               <IconArrowNext size={18} color="var(--cWhiteV1)" />
             </button>
           </div>

@@ -132,6 +132,7 @@ const MainMenu = ({
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/units", label: "Unidades" },
+              { href: "/areas" , label: "Áreas sociales"},
               { href: "/activities", label: "Accesos" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
@@ -164,12 +165,12 @@ const MainMenu = ({
             setSideBarOpen={setSideBarOpen}
           />
 
-          <MainmenuItem
+          {/* <MainmenuItem
             href="/areas"
             label="Areas sociales"
             icon={<IconBitacora />}
             collapsed={collapsed}
-          />
+          /> */}
           <MainmenuItem
             href="/reservas"
             label="Reservas"

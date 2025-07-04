@@ -16,8 +16,8 @@ interface PropsType extends PropsTypeInputBase {
     | "search"
     | "checkbox"
     | "currency";
-  min?: number;
-  max?: number;
+  min?: any;
+  max?: any;
 }
 
 const Input = (props: PropsType) => {

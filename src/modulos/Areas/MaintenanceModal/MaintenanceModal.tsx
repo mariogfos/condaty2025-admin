@@ -2,7 +2,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import TitleSubtitle from "./TitleSubtitle";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -23,11 +23,19 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [tab, setTab] = useState("P");
   const [formState, setFormState]: any = useState({});
   const [dataM, setDataM] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
   const [errors, setErrors] = useState({});
   const [reservas, setReservas] = useState([]);
   const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
   const { showToast } = useAuth();
+
+  const activeAreas = useMemo(() => {
+    if (!areas) {
+      return [];
+    }
+    return areas.filter((area: any) => area.status === "A");
+  }, [areas]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -38,14 +46,24 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   };
 
   const getReservas = async () => {
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      date_at: formState.date_at,
-      date_end: formState.date_end,
-      area_id: formState.area_id,
-    });
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        date_at: formState.date_at,
+        date_end: formState.date_end,
+        area_id: formState.area_id,
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
-      setReservas(data?.data);
+      const orderUpdate_at = data?.data?.map((item: any) => ({
+        ...item,
+        orderUpdate_at: getDateStrMes(item?.orderUpdate_at),
+      }));
+      setReservas(orderUpdate_at);
     }
   };
   useEffect(() => {
@@ -112,6 +130,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   };
 
   const getAreasM = async () => {
+    setLoading(true);
     const { data } = await execute("/reservations", "GET", {
       fullType: "L",
       filterBy: "status:M",
@@ -121,6 +140,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     if (data?.success == true) {
       setDataM(data?.data);
     }
+    setLoading(false);
   };
   useEffect(() => {
     setDataM([]);
@@ -170,7 +190,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             value={formState?.area_id}
             error={errors}
             onChange={handleChange}
-            options={areas || []}
+            options={activeAreas || []}
             optionLabel="title"
             optionValue="id"
           />
@@ -188,10 +208,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   error={errors}
                   value={formState?.date_at}
                   onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                 />
                 <Input
-                  label="Fecha de fin"
+                  label="Fecha de finalización"
                   type="datetime-local"
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
                   name="date_end"
                   error={errors}
                   value={formState?.date_end}
@@ -230,9 +252,6 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     <div style={{ fontWeight: "bold", color: "var(--cWhite)" }}>
                       {getFullName(reserva?.owner)}
                     </div>
-                    {/* <div style={{ color: "var(--cWhiteV1)" }}>
-                  Unidad: {reserva?.dpto?.nro}
-                </div> */}
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       Fecha: {reserva.date_at}
                       {reserva.start_time && ` - Hora: ${reserva.start_time}`}
@@ -284,6 +303,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   gap: "12px",
                   minWidth: "400px",
                   position: "relative",
+                  overflowWrap: 'break-word'
                 }}
               >
                 <IconX
@@ -321,6 +341,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                       color: "var(--cWhite)",
                       fontSize: "16px",
                       marginBottom: "4px",
+                      overflowWrap: 'break-word',
+                      minWidth: 0,
                     }}
                   >
                     {reserva.area?.title || "Área sin nombre"}
@@ -347,20 +369,23 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   {reserva.date_end && (
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       <span style={{ color: "var(--cWhite)" }}>
-                        Fecha de fin:
+                        Fecha de finalización:
                       </span>{" "}
                       {getDateStrMes(reserva.date_end) + " "}
                       {reserva.end_time}
                     </div>
                   )}
-                  <div style={{ color: "var(--cWhiteV1)" }}>
+                  <div style={{ 
+                      color: "var(--cWhiteV1)" ,
+                      overflowWrap: 'break-word'
+                    }}>
                     <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
                     {reserva.reason || "No especificado"}
                   </div>
                 </div>
               </div>
             ))}
-            {dataM.length === 0 && (
+            {dataM.length === 0 && loading === false && (
               <div
                 style={{
                   textAlign: "center",

@@ -6,6 +6,7 @@
   background-color: var(--cWhiteV2);
   & > div > input::placeholder {
     color: var(--cWhiteV1);
+    font-size: var(--sM);
   }
   & > span > svg.error {
     color: var(--cError);

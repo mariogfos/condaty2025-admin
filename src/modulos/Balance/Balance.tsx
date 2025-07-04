@@ -275,9 +275,9 @@ const BalanceGeneral: React.FC = () => {
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
         return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Balance desde enero hasta diciembre de ${now.getFullYear()}`;
+        return `Balance desde Enero hasta  ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "ly":
-        return `Balance desde enero hasta diciembre de ${now.getFullYear() - 1}`;
+        return `Balance desde Enero hasta Diciembre de ${now.getFullYear() - 1}`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
@@ -340,7 +340,7 @@ const BalanceGeneral: React.FC = () => {
         // Si el campo es string tipo '01', '02', etc, conviértelo a número
         let mes = item.mes;
         if (typeof mes === "string") mes = parseInt(mes, 10) - 1;
-        return mes <= mesActual;
+        return (mes - 1) <= mesActual;
       });
     }
     return data;
@@ -633,8 +633,16 @@ const BalanceGeneral: React.FC = () => {
                   />
                 ) : (
                   <>
+                  <h2 className={styles.chartSectionTitle}>
+                      {formStateFilter.filter_date == "d" ||
+                      formStateFilter.filter_date == "ld"
+                        ? "Balance de " +
+                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
+                        : getPeriodoText(formStateFilter.filter_date)}
+                    </h2>
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
+                      
                         <WidgetGrafIngresos
                           ingresos={(() => {
                             const ingresosHist = finanzas?.data.ingresosHist || [];
@@ -652,7 +660,7 @@ const BalanceGeneral: React.FC = () => {
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
                           title={`Bs ${formatNumber(calculatedTotals.totalIngresos)}`}
-                          subtitle={getPeriodoText(formStateFilter.filter_date)}
+                          subtitle={"Total de ingresos"}
                           periodo={formStateFilter?.filter_date}
                         />
                         <div className={styles.legendAndExportWrapper}>
@@ -752,9 +760,19 @@ const BalanceGeneral: React.FC = () => {
                     }
                   />
                 ) : (
+                  
                   <>
+                  <h2 className={styles.chartSectionTitle}>
+                      {formStateFilter.filter_date == "d" ||
+                      formStateFilter.filter_date == "ld"
+                        ? "Balance de " +
+                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
+                        : getPeriodoText(formStateFilter.filter_date)}
+                    </h2>
+                  
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
+                        
                         <WidgetGrafEgresos
                           egresos={(() => {
                             const egresosHist = finanzas?.data.egresosHist || [];
@@ -772,7 +790,7 @@ const BalanceGeneral: React.FC = () => {
                           chartTypes={[charType.filter_charType as ChartType]}
                           h={360}
                           title={`Bs ${formatNumber(calculatedTotals.totalEgresos)}`}
-                          subtitle={getPeriodoText(formStateFilter.filter_date)}
+                          subtitle={"Total de egresos"}
                           periodo={formStateFilter?.filter_date}
                         />
                         <div className={styles.legendAndExportWrapper}>
