@@ -114,3 +114,11 @@
   gap: var(--spM);
   align-items: center;
 }
+.iconsMenu {
+  background-color: var(--cWhiteV2);
+  height: 48px;
+  padding: 0px 10px;
+  border-radius: var(--bRadiusS);
+  display: flex;
+  align-items: center;
+}
