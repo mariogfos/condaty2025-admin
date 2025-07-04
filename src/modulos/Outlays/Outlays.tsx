@@ -340,11 +340,14 @@ const Outlays = () => {
     userCan,
     List,
     onView,
+    setStore,
     onEdit,
     onDel,
     reLoad,
     onAdd,
     execute,
+    onSearch,
+    searchs,
     params,
     setParams,
     onFilter,
@@ -407,15 +410,23 @@ const Outlays = () => {
     setOpenCustomFilter(false);
     setCustomDateErrors({});
   };
+  const { onLongPress, selItem } = useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod,
+    onEdit,
+    onDel,
+  });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.outlays}>
-      <h1 className={styles.title}>Egresos</h1>
+      {/* <h1 className={styles.title}>Egresos</h1>
       <p className={styles.subtitle}>
         Administre, agregue y elimine todos los egresos
-      </p>
+      </p> */}
       {/*  
       <div className={styles.buttonsContainer}>
         <Button onClick={onClickGraph} className={styles.graphButton}>
@@ -423,8 +434,8 @@ const Outlays = () => {
         </Button>
       </div> */}
 
-      <List 
-        height={"calc(100vh - 360px)"} 
+      <List
+        height={"calc(100vh - 330px)"}
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}

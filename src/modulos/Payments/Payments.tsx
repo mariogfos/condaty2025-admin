@@ -319,9 +319,9 @@ const Payments = () => {
     }
   };
 
-  const { setStore } = useAuth();
+  const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ title: "INGRESOS" });
+    setStore({ ...store, title: "Ingresos" });
   }, []);
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
@@ -409,13 +409,13 @@ const Payments = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Ingresos</h1>
+      {/* <h1 className={styles.title}>Ingresos</h1>
       <p className={styles.subtitle}>
         Administre, agregue y elimine todos los ingresos
-      </p>
+      </p> */}
 
       <List
-        height={"calc(100vh - 360px)"}
+        height={"calc(100vh - 330px)"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
