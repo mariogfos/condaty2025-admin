@@ -17,35 +17,35 @@
 }
 .filterContainer {
   display: flex;
-  flex-wrap: wrap; 
-  gap: 0.75rem; 
-  align-items: flex-start; 
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
   border-radius: 0.75rem;
-  width: 100%; 
+  width: 100%;
 }
-@media (min-width: 1024px) { 
+@media (min-width: 1024px) {
   .filterContainer {
     width: 70%;
-    min-width: 500px; 
-    margin-right: auto; 
+    min-width: 500px;
+    margin-right: auto;
     margin-right: 0;
   }
 }
 .filterItem {
-  flex-grow: 1;   
-  flex-shrink: 1; 
-  flex-basis: 177px; 
-  min-width: 177px; 
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 177px;
+  min-width: 177px;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
 }
 .chartTypeSelectorContainer {
-  flex-grow: 0;   
-  flex-shrink: 0; 
-  width: 98px;      
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 98px;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
 }
 .filterLabel {
   font-size: 12px;
@@ -56,21 +56,21 @@
 .chartTypeButtonWrapper {
   display: flex;
   align-items: center;
-  width: 100%; 
-  height: 48px; 
+  width: 100%;
+  height: 48px;
   background-color: #414141;
-  border-radius: 0.5rem; 
-  overflow: hidden; 
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 .chartTypeButton {
-  flex: 1; 
+  flex: 1;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: transparent; 
+  background-color: transparent;
   border: none;
-  padding: 0.375rem; 
+  padding: 0.375rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
@@ -79,12 +79,12 @@
   cursor: not-allowed;
 }
 .chartTypeButton:not(:disabled):hover:not(.chartTypeButtonActive) {
-  background-color: #525252; 
+  background-color: #525252;
 }
 .chartTypeButton.chartTypeButtonActive {
-  background-color: #1f2d27; 
-  outline: 0.5px solid var(--cAccent, #00e38c); 
-  outline-offset: -2px; 
+  background-color: #1f2d27;
+  outline: 0.5px solid var(--cAccent, #00e38c);
+  outline-offset: -2px;
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
 }
@@ -98,7 +98,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 52px; 
+  height: 52px;
   background-color: rgba(0, 0, 0, 0.2);
   z-index: 50;
   border-radius: 0.75rem;
@@ -117,7 +117,7 @@
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
 }
 .exportButtonContainer {
   width: 100%;
@@ -155,29 +155,29 @@
 }
 @media (max-width: 768px) {
   .filterContainer {
-    flex-direction: column; 
+    flex-direction: column;
     width: 100%;
     margin-left: 0;
-    align-items: stretch; 
-  } 
+    align-items: stretch;
+  }
   .filterItem,
   .chartTypeSelectorContainer {
-    width: 100%; 
-    flex-basis: auto; 
+    width: 100%;
+    flex-basis: auto;
   }
   .exportButton {
     width: 100%;
   }
-  .legendAndExportWrapper { 
+  .legendAndExportWrapper {
     flex-direction: column;
-    align-items: center; 
-    gap: 1rem; 
+    align-items: center;
+    gap: 1rem;
   }
   .legendContainer {
-    justify-content: center; 
-    width: 100%; 
+    justify-content: center;
+    width: 100%;
   }
-  .exportButtonCustom { 
+  .exportButtonCustom {
     align-self: center;
   }
 }
@@ -198,41 +198,41 @@
 }
 .chartActionsHeader {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 0.75rem; 
-  min-height: 30px; 
+  margin-bottom: 0.75rem;
+  min-height: 30px;
 }
 .exportButtonAsIcon {
-  background-color: transparent; 
-  border: 1px solid transparent; 
-  padding: 0.6rem; 
-  border-radius: 0.375rem; 
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.6rem;
+  border-radius: 0.375rem;
   cursor: pointer;
-  line-height: 0; 
+  line-height: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-  
-  min-width: auto; 
+
+  min-width: auto;
   width: auto;
-  color: var(--cWhiteV1, #a7a7a7); 
+  color: var(--cWhiteV1, #a7a7a7);
 }
 .exportButtonAsIcon:hover {
-  background-color: var(--cBlackV2, #333536); 
+  background-color: var(--cBlackV2, #333536);
 }
 .exportButtonAsIcon svg {
-  fill: currentColor; 
+  fill: currentColor;
 }
 .exportButtonAsIcon:hover svg {
-  fill: var(--cWhite, #fafafa); 
+  fill: var(--cWhite, #fafafa);
 }
 .legendAndExportWrapper {
   display: flex;
-  justify-content: space-between; 
-  align-items: center; 
-  margin-top: 1.5rem; 
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
   width: 100%;
 }
 .legendContainer {
@@ -252,26 +252,27 @@
 .legendColor {
   width: 12px;
   height: 12px;
-  border-radius: 50%; 
+  border-radius: 50%;
 }
 .legendItem span {
-  color: var(--cWhiteV1, #A7A7A7);
+  color: var(--cWhiteV1, #a7a7a7);
   font-size: var(--sLg); /* 14px */
   font-family: Roboto;
 }
 .exportButtonCustom {
   background-color: transparent;
-  border: 1px solid var(--cBorderTransparent, #444); 
+  border: 1px solid var(--cBorderTransparent, #444);
   color: var(--cWhiteV1, #a7a7a7);
-  padding: 0.5rem 0.75rem; 
-  border-radius: 0.375rem; 
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
   cursor: pointer;
-  display: inline-flex; 
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
   margin-left: 1rem;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 .exportButtonCustom:hover {
   background-color: var(--cBlackV2, #333536);
@@ -279,7 +280,7 @@
   color: var(--cWhite, #fafafa);
 }
 .exportButtonCustom svg {
-  fill: currentColor; 
+  fill: currentColor;
 }
 .legendItem .legendAmount {
   color: var(--cWhite, #fff) !important;
