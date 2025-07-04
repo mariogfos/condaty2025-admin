@@ -1137,6 +1137,11 @@ const useCrud = ({
     }, [fields]);
     return (
       <div className={styles.useCrud}>
+        {store?.title && (
+          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
+            {store?.title}
+          </p>
+        )}
         {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
