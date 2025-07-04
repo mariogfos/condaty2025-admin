@@ -8,6 +8,7 @@ import {
 import Button from "../Button/Button";
 import styles from "./dataSearch.module.css";
 import { PropsTypeInputBase } from "../ControlLabel";
+import idioma from "@/mk/utils/traductor/es";
 
 interface PropsType extends PropsTypeInputBase {
   setSearch: Function;
@@ -19,7 +20,7 @@ const DataSearch = ({
   name,
   value,
   label = "",
-  textButton = "Buscar",
+  textButton = idioma.search,
   className = "",
 }: PropsType) => {
   const [searchBy, setSearchBy] = useState("");
@@ -59,7 +60,7 @@ const DataSearch = ({
       className={styles.dataSearch + " " + className}
       required={false}
       label={label}
-      placeholder="Buscar"
+      placeholder={textButton + "..."}
       onKeyDown={handleKeyDown}
       value={searchBy}
       style={{ backgroundColor: "var(--cBlackV1" }}
@@ -67,7 +68,7 @@ const DataSearch = ({
       iconLeft={
         !value ? (
           <IconSearch
-            size={16}
+            size={24}
             color={"var(--cWhiteV1)"}
             style={{ marginRight: "var(--spS)" }}
           />
