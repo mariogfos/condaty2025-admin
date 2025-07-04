@@ -211,7 +211,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   min={new Date().toISOString().split("T")[0] + "T00:00"}
                 />
                 <Input
-                  label="Fecha de fin"
+                  label="Fecha de finalización"
                   type="datetime-local"
                   min={new Date().toISOString().split("T")[0] + "T00:00"}
                   name="date_end"
@@ -303,6 +303,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                   gap: "12px",
                   minWidth: "400px",
                   position: "relative",
+                  overflowWrap: 'break-word'
                 }}
               >
                 <IconX
@@ -340,6 +341,8 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                       color: "var(--cWhite)",
                       fontSize: "16px",
                       marginBottom: "4px",
+                      overflowWrap: 'break-word',
+                      minWidth: 0,
                     }}
                   >
                     {reserva.area?.title || "Área sin nombre"}
