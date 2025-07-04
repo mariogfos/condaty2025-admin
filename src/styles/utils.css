@@ -239,7 +239,7 @@
 /* textos */
 .tTitle,
 h1 {
-  font-size: var(--sXl);
+  font-size: var(--sXxl);
   color: var(--cWhite);
   font-weight: var(--bBold);
 }

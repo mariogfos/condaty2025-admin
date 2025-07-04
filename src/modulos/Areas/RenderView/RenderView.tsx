@@ -22,6 +22,8 @@ const RenderView = ({ open, item, onClose }: any) => {
   const [indexVisible, setIndexVisible] = useState(0);
   const [openDays, setOpenDays] = useState(false);
   const [openPolicy, setOpenPolicy] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const nextIndex = () => {
     setIndexVisible((prevIndex) => (prevIndex + 1) % item?.images?.length);
@@ -60,7 +62,7 @@ const RenderView = ({ open, item, onClose }: any) => {
   return (
     <>
       <DataModal
-        title="Detalle del área social"
+        title="Detalle del Área Social"
         open={open}
         onClose={onClose}
         buttonText=""
@@ -104,7 +106,20 @@ const RenderView = ({ open, item, onClose }: any) => {
             </div>
             <div className={styles.containerInfo}>
               <p className={styles.title}>{item?.title}</p>
-              <p>{item?.description}</p>
+              <p className={isExpanded ? undefined : styles.truncatedText}>
+                {item?.description}
+              </p>
+              <p
+              style={{
+                color: "var(--cAccent)",
+                cursor: "pointer",
+                width: 100,
+                fontWeight: 600,
+              }}
+              onClick={toggleExpanded}
+            >
+              {isExpanded ? "Ver menos" : "Ver más"}
+            </p>
               <Br />
               <p className={styles.title}>Datos generales</p>
               <KeyValue
@@ -121,7 +136,7 @@ const RenderView = ({ open, item, onClose }: any) => {
 
               <KeyValue
                 title={"Costo"}
-                value={"Bs " + formatNumber(item?.price, 0)}
+                value={"Bs. " + formatNumber(item?.price)}
               />
               <KeyValue
                 title={"Cantidad máx. de personas"}
@@ -149,7 +164,7 @@ const RenderView = ({ open, item, onClose }: any) => {
               />
               <KeyValue
                 title={"Porcentaje por cancelación"}
-                value={formatNumber(item?.penalty_fee, 0) + "%"}
+                value={formatNumber(item?.penalty_fee,1) + "%"}
               />
             </div>
           </div>

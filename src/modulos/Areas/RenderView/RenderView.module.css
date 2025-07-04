@@ -1,7 +1,7 @@
 .renderView {
   .title {
     color: var(--cWhite);
-    font-size: 16px;
+    font-size: var(--sL);
     font-weight: 500;
   }
   .containerFirstSection {
@@ -42,19 +42,28 @@
     .containerInfo {
       flex-grow: 1;
       flex-basis: 0;
+      overflow-wrap: break-word;
+      min-width: 0;
     }
   }
 }
 .policyContainer {
   .title {
     color: var(--cWhite);
-    font-size: 16px;
+    font-size: var(--sL);
     font-weight: 500;
     margin-bottom: 8px;
   }
   .subtitle {
     white-space: pre-wrap;
-    font-size: 14px;
+    font-size: var(--sM);
     font-weight: 400;
   }
+}
+.truncatedText {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

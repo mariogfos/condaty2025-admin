@@ -291,8 +291,8 @@ const Areas = () => {
           return (
             <p
               style={{
-                color: statusColor[props?.item?.status].color,
-                background: statusColor[props?.item?.status].background,
+                color: statusColor[props?.item?.status]?.color,
+                background: statusColor[props?.item?.status]?.background,
                 padding: "6px 8px",
                 borderRadius: "4px",
                 fontSize: 14,
