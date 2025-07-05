@@ -62,7 +62,7 @@ const RenderView = ({ open, item, onClose }: any) => {
   return (
     <>
       <DataModal
-        title="Detalle del Área Social"
+        title="Detalle del área social"
         open={open}
         onClose={onClose}
         buttonText=""
