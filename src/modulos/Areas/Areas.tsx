@@ -102,7 +102,9 @@ const Areas = () => {
             </p>
           </div>
         ),
-        list: true,
+        list: {
+          width: "400px",
+        },
         form: { type: "text" },
       },
       description: {
@@ -310,6 +312,7 @@ const Areas = () => {
         },
         filter: {
           options: () => [
+            { id: "ALL", name: "Todos"},
             { id: "A", name: "Activa" },
             { id: "X", name: "Inactiva" },
           ],
