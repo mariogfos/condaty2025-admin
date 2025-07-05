@@ -491,14 +491,17 @@ const Users = () => {
             size={38}
           />
         }
-        style={{ width: "280px" }}
+        style={{ width: "290px" }}
         // className={styles.widgetResumeCard}
       />
 
-      <List height={"calc(100vh - 400px)"} onTabletRow={renderItem}
+      <List
+        height={"calc(100vh - 430px)"}
+        onTabletRow={renderItem}
         emptyMsg="¡Sin personal registrados! Aquí verás la lista de todo"
         emptyLine2="tu personal administrativo."
-        emptyIcon={<IconPersonElegant size={80} color="var(--cWhiteV1)"/>} />
+        emptyIcon={<IconPersonElegant size={80} color="var(--cWhiteV1)" />}
+      />
     </div>
   );
 };
