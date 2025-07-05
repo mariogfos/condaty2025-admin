@@ -118,7 +118,7 @@ const Documents = () => {
   );
 
   useEffect(() => {
-    setStore({ title: mod.plural.toUpperCase() });
+    setStore({ title: "Documentos" });
   }, []);
 
   const { userCan, List } = useCrud({
@@ -131,10 +131,12 @@ const Documents = () => {
 
   return (
     <div className={styles.style}>
-      <List height={"calc(100vh - 280px)"} 
-       emptyMsg="Lista de documentos vacía. Los documentos del condominio"
-       emptyLine2="serán reflejados aquí, una vez sean cargados."
-       emptyIcon={<IconDocs size={80} color="var(--cWhiteV1)" />} />
+      <List
+        height={"calc(100vh - 330px)"}
+        emptyMsg="Lista de documentos vacía. Los documentos del condominio"
+        emptyLine2="serán reflejados aquí, una vez sean cargados."
+        emptyIcon={<IconDocs size={80} color="var(--cWhiteV1)" />}
+      />
     </div>
   );
 };

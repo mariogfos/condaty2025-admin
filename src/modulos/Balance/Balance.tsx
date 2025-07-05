@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import useAxios from "@/mk/hooks/useAxios";
 import { getUrlImages } from "@/mk/utils/string";
@@ -34,7 +33,6 @@ import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
-
 
 interface ChartTypeOption {
   id: ChartType;
@@ -82,6 +80,7 @@ const BalanceGeneral: React.FC = () => {
   const { setStore } = useAuth();
   useEffect(() => {
     setStore({ title: "BALANCE" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -125,20 +124,26 @@ const BalanceGeneral: React.FC = () => {
   const exportar = async () => {
     let fileObj = null;
     if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, { backgroundColor: null });
+      const canvas = await html2canvas(chartRef.current, {
+        backgroundColor: null,
+      });
       const base64 = canvas.toDataURL("image/webp", 0.92);
       let base64String = base64.replace("data:image/webp;base64,", "");
       base64String = encodeURIComponent(base64String);
       fileObj = { ext: "webp", file: base64String };
       // Descargar la imagen para pruebas
-/*       const link = document.createElement('a');
+      /*       const link = document.createElement('a');
       link.download = 'grafica.webp';
       link.href = base64;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);  */
     }
-    reLoadFinanzas({ ...formStateFilter, exportar: true, grafica: fileObj ? fileObj : null });
+    reLoadFinanzas({
+      ...formStateFilter,
+      exportar: true,
+      grafica: fileObj ?? null,
+    });
   };
 
   useEffect(() => {
@@ -149,7 +154,7 @@ const BalanceGeneral: React.FC = () => {
       finanzas?.message &&
       finanzas?.data?.export !== undefined
     ) {
-      
+      //CR:: revisar este if
     }
   }, [finanzas]);
 
@@ -196,14 +201,13 @@ const BalanceGeneral: React.FC = () => {
     setOpenCustomFilter(false);
     setErrors({});
   };
-  
 
   const getCategories = () => {
     let data = [];
     if (formStateFilter.filter_mov === "I") {
-      data = finanzas?.data?.categI || [];
+      data = finanzas?.data?.categI ?? [];
     } else {
-      data = finanzas?.data?.categE || [];
+      data = finanzas?.data?.categE ?? [];
     }
     return data;
   };
@@ -211,14 +215,14 @@ const BalanceGeneral: React.FC = () => {
   useEffect(() => {
     const categoriasDisponibles = getCategories().map((cat: any) => cat.id);
     const currentCateg = formStateFilter.filter_categ;
-    
+
     // Solo manejar arrays
     if (Array.isArray(currentCateg)) {
-      const nuevas = currentCateg.filter((cat: string) => 
+      const nuevas = currentCateg.filter((cat: string) =>
         categoriasDisponibles.includes(cat)
       );
       if (nuevas.length !== currentCateg.length) {
-        setFormStateFilter(prev => ({ ...prev, filter_categ: nuevas }));
+        setFormStateFilter((prev) => ({ ...prev, filter_categ: nuevas }));
       }
     }
   }, [formStateFilter.filter_mov]);
@@ -246,38 +250,66 @@ const BalanceGeneral: React.FC = () => {
   const getPeriodoText = (filterDateValue: string) => {
     const now = new Date();
     const meses = [
-      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
     ];
 
+    let ayer = new Date(now);
     switch (filterDateValue) {
       case "d":
-        return `Balance del ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+        return `Balance del ${now.getDate()} de ${
+          meses[now.getMonth()]
+        } de ${now.getFullYear()}`;
       case "ld":
-        const ayer = new Date(now);
-        ayer.setDate(now.getDate() - 1);
-        return `Balance del ${ayer.getDate()} de ${meses[ayer.getMonth()]} de ${ayer.getFullYear()}`;
+        ayer = new Date(now.getDate() - 1);
+        return `Balance del ${ayer.getDate()} de ${
+          meses[ayer.getMonth()]
+        } de ${ayer.getFullYear()}`;
       case "w":
         const inicioSemana = new Date(now);
         inicioSemana.setDate(now.getDate() - now.getDay() + 1);
         const finSemana = new Date(inicioSemana);
         finSemana.setDate(inicioSemana.getDate() + 6);
-        return `Balance desde ${inicioSemana.getDate()} de ${meses[inicioSemana.getMonth()]} hasta ${finSemana.getDate()} de ${meses[finSemana.getMonth()]} de ${finSemana.getFullYear()}`;
+        return `Balance desde ${inicioSemana.getDate()} de ${
+          meses[inicioSemana.getMonth()]
+        } hasta ${finSemana.getDate()} de ${
+          meses[finSemana.getMonth()]
+        } de ${finSemana.getFullYear()}`;
       case "lw":
         const inicioSemanaAnterior = new Date(now);
         inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
         const finSemanaAnterior = new Date(inicioSemanaAnterior);
         finSemanaAnterior.setDate(inicioSemanaAnterior.getDate() + 6);
-        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${meses[inicioSemanaAnterior.getMonth()]} hasta ${finSemanaAnterior.getDate()} de ${meses[finSemanaAnterior.getMonth()]} de ${finSemanaAnterior.getFullYear()}`;
+        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${
+          meses[inicioSemanaAnterior.getMonth()]
+        } hasta ${finSemanaAnterior.getDate()} de ${
+          meses[finSemanaAnterior.getMonth()]
+        } de ${finSemanaAnterior.getFullYear()}`;
       case "m":
         return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "lm":
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
-        return `Balance de ${meses[mesAnterior.getMonth()]} de ${mesAnterior.getFullYear()}`;
+        return `Balance de ${
+          meses[mesAnterior.getMonth()]
+        } de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Balance desde Enero hasta  ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+        return `Balance desde Enero hasta  ${
+          meses[now.getMonth()]
+        } de ${now.getFullYear()}`;
       case "ly":
-        return `Balance desde Enero hasta Diciembre de ${now.getFullYear() - 1}`;
+        return `Balance desde Enero hasta Diciembre de ${
+          now.getFullYear() - 1
+        }`;
       default:
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
@@ -285,12 +317,15 @@ const BalanceGeneral: React.FC = () => {
             // Crear las fechas y ajustarlas a UTC-4
             const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
             const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
-            
-       
-            fechaInicio.setHours(fechaInicio.getHours() + 4); 
-            fechaFin.setHours(fechaFin.getHours() + 4); 
-            
-            return `Balance desde ${fechaInicio.getDate()} de ${meses[fechaInicio.getMonth()]} de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${meses[fechaFin.getMonth()]} de ${fechaFin.getFullYear()}`;
+
+            fechaInicio.setHours(fechaInicio.getHours() + 4);
+            fechaFin.setHours(fechaFin.getHours() + 4);
+
+            return `Balance desde ${fechaInicio.getDate()} de ${
+              meses[fechaInicio.getMonth()]
+            } de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${
+              meses[fechaFin.getMonth()]
+            } de ${fechaFin.getFullYear()}`;
           }
         }
         return "Balance general";
@@ -300,23 +335,22 @@ const BalanceGeneral: React.FC = () => {
   // Agrupar y sumar categorías únicas para ingresos
   const legendCategoriasIngresos = React.useMemo(() => {
     const map = new Map();
-    (finanzas?.data?.ingresosHist || []).forEach((item: any) => {
+    (finanzas?.data?.ingresosHist ?? []).forEach((item: any) => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.ingresos || 0);
+      map.get(item.categ_id).total += parseFloat(item.ingresos ?? 0);
     });
     return Array.from(map.values());
   }, [finanzas?.data?.ingresosHist]);
 
-
   const legendCategoriasEgresos = React.useMemo(() => {
     const map = new Map();
-    (finanzas?.data?.egresosHist || []).forEach((item: any) => {
+    (finanzas?.data?.egresosHist ?? []).forEach((item: any) => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.egresos || 0);
+      map.get(item.categ_id).total += parseFloat(item.egresos ?? 0);
     });
     return Array.from(map.values());
   }, [finanzas?.data?.egresosHist]);
@@ -326,7 +360,9 @@ const BalanceGeneral: React.FC = () => {
       return `Total del saldo acumulado · Gestión ${new Date().getFullYear()}`;
     }
     if (formStateFilter.filter_date === "ly") {
-      return `Total del saldo acumulado · Gestión ${new Date().getFullYear() - 1}`;
+      return `Total del saldo acumulado · Gestión ${
+        new Date().getFullYear() - 1
+      }`;
     }
     return "Total del saldo acumulado";
   };
@@ -340,7 +376,7 @@ const BalanceGeneral: React.FC = () => {
         // Si el campo es string tipo '01', '02', etc, conviértelo a número
         let mes = item.mes;
         if (typeof mes === "string") mes = parseInt(mes, 10) - 1;
-        return (mes - 1) <= mesActual;
+        return mes - 1 <= mesActual;
       });
     }
     return data;
@@ -476,16 +512,20 @@ const BalanceGeneral: React.FC = () => {
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && (
               <>
-                {(!finanzas?.data?.ingresos || finanzas?.data?.ingresos?.length === 0) && 
-                 (!finanzas?.data?.egresos || finanzas?.data?.egresos?.length === 0) ? (
+                {(!finanzas?.data?.ingresos ||
+                  finanzas?.data?.ingresos?.length === 0) &&
+                (!finanzas?.data?.egresos ||
+                  finanzas?.data?.egresos?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line"
-                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
-                        : <IconGraphics size={80} color="var(--cWhiteV1)" />
+                      charType.filter_charType === "line" ? (
+                        <IconLineGraphic size={80} color="var(--cWhiteV1)" />
+                      ) : (
+                        <IconGraphics size={80} color="var(--cWhiteV1)" />
+                      )
                     }
                   />
                 ) : (
@@ -502,9 +542,11 @@ const BalanceGeneral: React.FC = () => {
                         saldoInicial={finanzas?.data?.saldoInicial}
                         ingresos={finanzas?.data?.ingresosHist}
                         egresos={finanzas?.data?.egresosHist}
-                        chartTypes={[charType.filter_charType as ChartType]}
+                        chartTypes={[charType.filter_charType]}
                         subtitle={getSubtitle()}
-                        title={`Bs ${formatNumber(calculatedTotals.saldoFinal)}`}
+                        title={`Bs ${formatNumber(
+                          calculatedTotals.saldoFinal
+                        )}`}
                         periodo={formStateFilter?.filter_date}
                       />
                       <div className={styles.legendAndExportWrapper}>
@@ -515,7 +557,10 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "var(--cCompl1)" }}
                             ></div>
                             <span>
-                              Saldo Inicial: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoInicial)}</span>
+                              Saldo Inicial:{" "}
+                              <span className={styles.legendAmount}>
+                                Bs {formatNumber(calculatedTotals.saldoInicial)}
+                              </span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -525,7 +570,11 @@ const BalanceGeneral: React.FC = () => {
                             ></div>
                             <span>
                               <span>Total de ingresos:</span>
-                              <span className={styles.legendAmount}> Bs {formatNumber(calculatedTotals.totalIngresos)}</span>
+                              <span className={styles.legendAmount}>
+                                {" "}
+                                Bs{" "}
+                                {formatNumber(calculatedTotals.totalIngresos)}
+                              </span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -534,7 +583,10 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "var(--cCompl8)" }}
                             ></div>
                             <span>
-                              Total de egresos: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.totalEgresos)}</span>
+                              Total de egresos:{" "}
+                              <span className={styles.legendAmount}>
+                                Bs {formatNumber(calculatedTotals.totalEgresos)}
+                              </span>
                             </span>
                           </div>
                           <div className={styles.legendItem}>
@@ -543,7 +595,10 @@ const BalanceGeneral: React.FC = () => {
                               style={{ backgroundColor: "var(--cCompl9)" }}
                             ></div>
                             <span>
-                              Total de saldo acumulado: <span className={styles.legendAmount}>Bs {formatNumber(calculatedTotals.saldoFinal)}</span>
+                              Total de saldo acumulado:{" "}
+                              <span className={styles.legendAmount}>
+                                Bs {formatNumber(calculatedTotals.saldoFinal)}
+                              </span>
                             </span>
                           </div>
                         </div>
@@ -551,19 +606,25 @@ const BalanceGeneral: React.FC = () => {
                     </div>
 
                     <div className={styles.divider} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginBottom: "16px",
+                      }}
+                    >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          width: 'auto',
-                          background: 'var(--cWhiteV2)',
-                          color: 'var(--cWhite)',
-                          border: 'none',
-                          borderRadius: '12px'
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          width: "auto",
+                          background: "var(--cWhiteV2)",
+                          color: "var(--cWhite)",
+                          border: "none",
+                          borderRadius: "12px",
                         }}
                       >
                         <IconExport size={22} />
@@ -620,20 +681,23 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "I" && (
               <>
-                {(!finanzas?.data?.ingresos || finanzas?.data?.ingresos?.length === 0) ? (
+                {!finanzas?.data?.ingresos ||
+                finanzas?.data?.ingresos?.length === 0 ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line"
-                        ? <IconLineGraphic size={80} color="var(--cWhiteV1)" />
-                        : <IconGraphics size={80} color="var(--cWhiteV1)" />
+                      charType.filter_charType === "line" ? (
+                        <IconLineGraphic size={80} color="var(--cWhiteV1)" />
+                      ) : (
+                        <IconGraphics size={80} color="var(--cWhiteV1)" />
+                      )
                     }
                   />
                 ) : (
                   <>
-                  <h2 className={styles.chartSectionTitle}>
+                    <h2 className={styles.chartSectionTitle}>
                       {formStateFilter.filter_date == "d" ||
                       formStateFilter.filter_date == "ld"
                         ? "Balance de " +
@@ -642,59 +706,89 @@ const BalanceGeneral: React.FC = () => {
                     </h2>
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
-                      
                         <WidgetGrafIngresos
                           ingresos={(() => {
-                            const ingresosHist = finanzas?.data.ingresosHist || [];
-                            const selectcategorias = typeof formStateFilter.filter_categ === "string"
-                              ? formStateFilter.filter_categ
-                                ? [formStateFilter.filter_categ]
-                                : []
-                              : formStateFilter.filter_categ;
+                            const ingresosHist =
+                              finanzas?.data.ingresosHist || [];
+                            const selectcategorias =
+                              typeof formStateFilter.filter_categ === "string"
+                                ? formStateFilter.filter_categ
+                                  ? [formStateFilter.filter_categ]
+                                  : []
+                                : formStateFilter.filter_categ;
                             let datos = ingresosHist;
-                            if (selectcategorias && selectcategorias.length > 0) {
-                              datos = ingresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                            if (
+                              selectcategorias &&
+                              selectcategorias.length > 0
+                            ) {
+                              datos = ingresosHist.filter((item: any) =>
+                                selectcategorias.includes(item.category_id)
+                              );
                             }
-                            return filtrarHastaMesActual(datos, 'I');
+                            return filtrarHastaMesActual(datos, "I");
                           })()}
-                          chartTypes={[charType.filter_charType as ChartType]}
+                          chartTypes={[charType.filter_charType]}
                           h={360}
-                          title={`Bs ${formatNumber(calculatedTotals.totalIngresos)}`}
+                          title={`Bs ${formatNumber(
+                            calculatedTotals.totalIngresos
+                          )}`}
                           subtitle={"Total de ingresos"}
                           periodo={formStateFilter?.filter_date}
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
                             {(() => {
-                              const selectcategorias = typeof formStateFilter.filter_categ === "string"
-                                ? formStateFilter.filter_categ
-                                  ? [formStateFilter.filter_categ]
-                                  : []
-                                : formStateFilter.filter_categ;
+                              const selectcategorias =
+                                typeof formStateFilter.filter_categ === "string"
+                                  ? formStateFilter.filter_categ
+                                    ? [formStateFilter.filter_categ]
+                                    : []
+                                  : formStateFilter.filter_categ;
                               let legend = legendCategoriasIngresos;
-                              if (selectcategorias && selectcategorias.length > 0) {
-                               
-                                legend = (finanzas?.data?.ingresosHist || [])
-                                  .filter((item: any) => selectcategorias.includes(item.category_id))
+                              if (
+                                selectcategorias &&
+                                selectcategorias.length > 0
+                              ) {
+                                legend = (finanzas?.data?.ingresosHist ?? [])
+                                  .filter((item: any) =>
+                                    selectcategorias.includes(item.category_id)
+                                  )
                                   .reduce((acc: any[], item: any) => {
-                                    let found = acc.find((a) => a.id === item.categ_id);
+                                    let found = acc.find(
+                                      (a) => a.id === item.categ_id
+                                    );
                                     if (found) {
-                                      found.total += parseFloat(item.ingresos || 0);
+                                      found.total += parseFloat(
+                                        item.ingresos ?? 0
+                                      );
                                     } else {
-                                      acc.push({ id: item.categ_id, name: item.categoria, total: parseFloat(item.ingresos || 0) });
+                                      acc.push({
+                                        id: item.categ_id,
+                                        name: item.categoria,
+                                        total: parseFloat(item.ingresos ?? 0),
+                                      });
                                     }
                                     return acc;
                                   }, []);
                               }
                               return legend.map((cat, idx) => (
-                                <div className={styles.legendItem} key={cat.name || idx}>
+                                <div
+                                  className={styles.legendItem}
+                                  key={cat.name ?? idx}
+                                >
                                   <div
                                     className={styles.legendColor}
-                                    style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                    style={{
+                                      backgroundColor:
+                                        COLORS20[idx % COLORS20.length],
+                                    }}
                                   ></div>
                                   <span>
                                     <span>{cat.name}:</span>
-                                    <span className={styles.legendAmount}> Bs {formatNumber(cat.total)}</span>
+                                    <span className={styles.legendAmount}>
+                                      {" "}
+                                      Bs {formatNumber(cat.total)}
+                                    </span>
                                   </span>
                                 </div>
                               ));
@@ -704,19 +798,25 @@ const BalanceGeneral: React.FC = () => {
                       </div>
                     </div>
                     <div className={styles.divider} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginBottom: "16px",
+                      }}
+                    >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          width: 'auto',
-                          background: 'var(--cWhiteV2)',
-                          color: 'var(--cWhite)',
-                          border: 'none',
-                          borderRadius: '12px'
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          width: "auto",
+                          background: "var(--cWhiteV2)",
+                          color: "var(--cWhite)",
+                          border: "none",
+                          borderRadius: "12px",
                         }}
                       >
                         <IconExport size={22} />
@@ -748,83 +848,116 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "E" && (
               <>
-                {(!finanzas?.data?.egresos || finanzas?.data?.egresos?.length === 0) ? (
+                {!finanzas?.data?.egresos ||
+                finanzas?.data?.egresos?.length === 0 ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line"
-                        ? <IconLineGraphic size={60} color="var(--cWhiteV1)" />
-                        : <IconGraphics size={60} color="var(--cWhiteV1)" />
+                      charType.filter_charType === "line" ? (
+                        <IconLineGraphic size={60} color="var(--cWhiteV1)" />
+                      ) : (
+                        <IconGraphics size={60} color="var(--cWhiteV1)" />
+                      )
                     }
                   />
                 ) : (
-                  
                   <>
-                  <h2 className={styles.chartSectionTitle}>
+                    <h2 className={styles.chartSectionTitle}>
                       {formStateFilter.filter_date == "d" ||
                       formStateFilter.filter_date == "ld"
                         ? "Balance de " +
                           (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
                         : getPeriodoText(formStateFilter.filter_date)}
                     </h2>
-                  
+
                     <div className={styles.chartContainer}>
                       <div className={styles.chartAndLegendContainer}>
-                        
                         <WidgetGrafEgresos
                           egresos={(() => {
-                            const egresosHist = finanzas?.data.egresosHist || [];
-                            const selectcategorias = typeof formStateFilter.filter_categ === "string"
-                              ? formStateFilter.filter_categ
-                                ? [formStateFilter.filter_categ]
-                                : []
-                              : formStateFilter.filter_categ;
+                            const egresosHist =
+                              finanzas?.data.egresosHist || [];
+                            const selectcategorias =
+                              typeof formStateFilter.filter_categ === "string"
+                                ? formStateFilter.filter_categ
+                                  ? [formStateFilter.filter_categ]
+                                  : []
+                                : formStateFilter.filter_categ;
                             let datos = egresosHist;
-                            if (selectcategorias && selectcategorias.length > 0) {
-                              datos = egresosHist.filter((item: any) => selectcategorias.includes(item.category_id));
+                            if (
+                              selectcategorias &&
+                              selectcategorias.length > 0
+                            ) {
+                              datos = egresosHist.filter((item: any) =>
+                                selectcategorias.includes(item.category_id)
+                              );
                             }
-                            return filtrarHastaMesActual(datos, 'E');
+                            return filtrarHastaMesActual(datos, "E");
                           })()}
-                          chartTypes={[charType.filter_charType as ChartType]}
+                          chartTypes={[charType.filter_charType]}
                           h={360}
-                          title={`Bs ${formatNumber(calculatedTotals.totalEgresos)}`}
+                          title={`Bs ${formatNumber(
+                            calculatedTotals.totalEgresos
+                          )}`}
                           subtitle={"Total de egresos"}
                           periodo={formStateFilter?.filter_date}
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
                             {(() => {
-                              const selectcategorias = typeof formStateFilter.filter_categ === "string"
-                                ? formStateFilter.filter_categ
-                                  ? [formStateFilter.filter_categ]
-                                  : []
-                                : formStateFilter.filter_categ;
+                              const selectcategorias =
+                                typeof formStateFilter.filter_categ === "string"
+                                  ? formStateFilter.filter_categ
+                                    ? [formStateFilter.filter_categ]
+                                    : []
+                                  : formStateFilter.filter_categ;
                               let legend = legendCategoriasEgresos;
-                              if (selectcategorias && selectcategorias.length > 0) {
+                              if (
+                                selectcategorias &&
+                                selectcategorias.length > 0
+                              ) {
                                 // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
-                                legend = (finanzas?.data?.egresosHist || [])
-                                  .filter((item: any) => selectcategorias.includes(item.category_id))
+                                legend = (finanzas?.data?.egresosHist ?? [])
+                                  .filter((item: any) =>
+                                    selectcategorias.includes(item.category_id)
+                                  )
                                   .reduce((acc: any[], item: any) => {
-                                    let found = acc.find((a) => a.id === item.categ_id);
+                                    let found = acc.find(
+                                      (a) => a.id === item.categ_id
+                                    );
                                     if (found) {
-                                      found.total += parseFloat(item.egresos || 0);
+                                      found.total += parseFloat(
+                                        item.egresos ?? 0
+                                      );
                                     } else {
-                                      acc.push({ id: item.categ_id, name: item.categoria, total: parseFloat(item.egresos || 0) });
+                                      acc.push({
+                                        id: item.categ_id,
+                                        name: item.categoria,
+                                        total: parseFloat(item.egresos ?? 0),
+                                      });
                                     }
                                     return acc;
                                   }, []);
                               }
                               return legend.map((cat, idx) => (
-                                <div className={styles.legendItem} key={cat.name || idx}>
+                                <div
+                                  className={styles.legendItem}
+                                  key={cat.name ?? idx}
+                                >
                                   <div
                                     className={styles.legendColor}
-                                    style={{ backgroundColor: COLORS20[idx % COLORS20.length] }}
+                                    style={{
+                                      backgroundColor:
+                                        COLORS20[idx % COLORS20.length],
+                                    }}
                                   ></div>
                                   <span>
                                     <span>{cat.name}:</span>
-                                    <span className={styles.legendAmount}> Bs {formatNumber(cat.total)}</span>
+                                    <span className={styles.legendAmount}>
+                                      {" "}
+                                      Bs {formatNumber(cat.total)}
+                                    </span>
                                   </span>
                                 </div>
                               ));
@@ -834,19 +967,25 @@ const BalanceGeneral: React.FC = () => {
                       </div>
                     </div>
                     <div className={styles.divider} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginBottom: "16px",
+                      }}
+                    >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          width: 'auto',
-                          background: 'var(--cWhiteV2)',
-                          color: 'var(--cWhite)',
-                          border: 'none',
-                          borderRadius: '12px'
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          width: "auto",
+                          background: "var(--cWhiteV2)",
+                          color: "var(--cWhite)",
+                          border: "none",
+                          borderRadius: "12px",
                         }}
                       >
                         <IconExport size={22} />

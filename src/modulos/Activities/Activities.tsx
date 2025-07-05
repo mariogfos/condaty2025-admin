@@ -57,9 +57,9 @@ const Activities = () => {
   const linkDownload = useRef<string>("");
   const { execute } = useAxios("", "GET", {});
 
-  useEffect(() => {
-    setStore({ title: "ACTIVIDADES" });
-  }, []);
+  // useEffect(() => {
+  //   setStore({ title: "ACTIVIDADES" });
+  // }, []);
 
   // Manejo de invitaciones
   const handleItemClick = (item: any) => {

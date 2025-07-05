@@ -30,7 +30,8 @@
     margin: 0;
     position: relative;
 
-    & > label { /* Label en estado inicial (dentro del input) */
+    & > label {
+      /* Label en estado inicial (dentro del input) */
       position: absolute;
       left: 0;
       top: 0;
@@ -40,7 +41,7 @@
       padding-left: var(--spXs);
       padding-right: var(--spXs);
       padding-top: var(--spXs);
-      
+
       /* --- MODIFICACIÓN: Para truncar texto largo en el label inicial --- */
       width: 100%; /* Necesario para que text-overflow funcione correctamente */
       white-space: nowrap; /* Evita que el texto pase a la siguiente línea */
@@ -52,7 +53,8 @@
 
     & > input:focus + label,
     & > input:not(:placeholder-shown) + label,
-    & > input[placeholder]:not([placeholder=""]) + label { /* Label en estado flotante */
+    & > input[placeholder]:not([placeholder=""]) + label {
+      /* Label en estado flotante */
       top: -8px;
       left: -4px;
       font-size: var(--sS);
@@ -61,10 +63,10 @@
       color: var(--cWhiteV1);
 
       /* Estilos previamente añadidos para permitir el ajuste en múltiples líneas */
-      white-space: normal;    
-      overflow-wrap: break-word; 
-      width: 100%;            
-      line-height: 1.15;      
+      white-space: normal;
+      overflow-wrap: break-word;
+      width: 100%;
+      line-height: 1.15;
       /* Ya no se necesita text-overflow: ellipsis aquí si permitimos que se ajuste en varias líneas */
       /* Si también quisieras truncar el flotante a una línea, añade las 3 propiedades de arriba (nowrap, hidden, ellipsis) */
     }
@@ -80,7 +82,7 @@
       border: none;
       outline: none;
       padding: 0;
-      padding-top: 8px; /* Espacio para que el label inicial no se superponga con el texto del input */
+      /* padding-top: 8px; */
       margin: 0;
       color: var(--cWhite);
     }
@@ -127,24 +129,28 @@
     pointer-events: none;
   }
 
-  @media (max-width: 480px) { /* Puedes ajustar este valor de breakpoint (ej. 600px, 480px) */
+  @media (max-width: 480px) {
+    /* Puedes ajustar este valor de breakpoint (ej. 600px, 480px) */
     & > div {
-      & > label { /* Label en estado inicial en pantallas pequeñas */
-        font-size: var(--sS); /* Reduce el tamaño de la fuente del label inicial */
-                               /* Las propiedades de ellipsis (nowrap, overflow, text-overflow) seguirán activas */
+      & > label {
+        /* Label en estado inicial en pantallas pequeñas */
+        font-size: var(
+          --sS
+        ); /* Reduce el tamaño de la fuente del label inicial */
+        /* Las propiedades de ellipsis (nowrap, overflow, text-overflow) seguirán activas */
         /* Podrías necesitar ajustar padding-top si el cambio de fuente es drástico */
         /* padding-top: calc(var(--spXs) + Xpx); */
       }
 
       & > input:focus + label,
       & > input:not(:placeholder-shown) + label,
-      & > input[placeholder]:not([placeholder=""]) + label { /* Label en estado flotante en pantallas pequeñas */
+      & > input[placeholder]:not([placeholder=""]) + label {
+        /* Label en estado flotante en pantallas pequeñas */
         font-size: var(--sXS); /* Reduce aún más el tamaño del label flotante */
-                                 /* Asegúrate de tener definida la variable --sXS o usa un valor fijo (ej. 0.7rem, 10px) */
-        line-height: 1.1;      /* Ajusta la altura de línea para la nueva fuente más pequeña */
+        /* Asegúrate de tener definida la variable --sXS o usa un valor fijo (ej. 0.7rem, 10px) */
+        line-height: 1.1; /* Ajusta la altura de línea para la nueva fuente más pequeña */
         /* Las propiedades de ajuste en múltiples líneas (normal, break-word, width) seguirán activas */
       }
     }
   }
-
 }

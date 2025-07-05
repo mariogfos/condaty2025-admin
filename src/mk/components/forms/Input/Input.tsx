@@ -37,6 +37,7 @@ const Input = (props: PropsType) => {
     onKeyDown = (e: any) => {},
     checked = false,
     maxLength,
+    label,
     min,
     max,
   } = props;
@@ -287,7 +288,7 @@ const Input = (props: PropsType) => {
         readOnly={readOnly}
         disabled={disabled}
         required={required}
-        style={styleInput}
+        style={{ paddingTop: !label ? 0 : 8, ...styleInput }}
         aria-autocomplete="none"
         autoComplete="new-password"
         checked={checked}

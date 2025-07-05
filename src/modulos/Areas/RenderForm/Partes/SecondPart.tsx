@@ -217,6 +217,7 @@ const SecondPart = ({
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
+  console.log(sortedDays());
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>

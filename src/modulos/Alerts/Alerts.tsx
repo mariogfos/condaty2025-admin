@@ -67,9 +67,6 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={reLoad} />,
   };
   const { setStore } = useAuth();
-  useEffect(() => {
-    setStore({ title: mod.plural.toUpperCase() });
-  }, []);
   const getAlertLevelClass = (level: any) => {
     switch (level) {
       case 4:
@@ -289,6 +286,14 @@ const Alerts = () => {
     paramsInitial,
     mod,
     fields,
+  });
+  const { onLongPress, selItem } = useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod,
+    onEdit,
+    onDel,
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
