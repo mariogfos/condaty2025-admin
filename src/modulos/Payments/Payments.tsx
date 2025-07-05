@@ -17,6 +17,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import Input from "@/mk/components/forms/Input/Input";
 import { RenderAnularModal } from "./RenderDel/RenderDel";
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
+import { formatBs } from "@/mk/utils/numbers";
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
@@ -27,8 +28,8 @@ interface FormStateFilter {
 const Payments = () => {
   const router = useRouter();
   const [openGraph, setOpenGraph] = useState<boolean>(false);
-  const [dataGraph, setDataGraph] = useState<any>({});
-  const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
+  const [dataGraph] = useState<any>({});
+  const [formStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateRange, setCustomDateRange] = useState<{
     startDate?: string;
@@ -180,7 +181,7 @@ const Payments = () => {
       subcategory_id: {
 
         rules: ["required"], 
-        label: "Subcategoria",
+        label: "Subcategoría",
         form: {
           type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
@@ -226,7 +227,7 @@ const Payments = () => {
           },
         },
         filter: {
-          label: "Tipo de pago",
+          label: "Forma de pago",
 
           options: getPaymentTypeOptions,
         },
@@ -273,7 +274,7 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
-            return <div>Bs.{props.item.amount}</div>;
+            return <div>{formatBs(props.item.amount)}</div>;
           },
         },
       },

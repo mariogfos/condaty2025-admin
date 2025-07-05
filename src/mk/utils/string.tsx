@@ -162,3 +162,4 @@ export const getInitials = (name = "", lastName = "") => {
   const lastInitial = lastName?.charAt(0)?.toUpperCase() || "";
   return `${firstInitial}${lastInitial}`;
 };
+

@@ -525,6 +525,142 @@ const RenderForm = ({
     onClose();
   }, [onClose]);
 
+  let deudasContent;
+  if (!_formState.dpto_id) {
+    deudasContent = <EmptyData message="Seleccione una unidad para ver deudas" h={200} />;
+  } else if (isLoadingDeudas) {
+    deudasContent = <EmptyData message="Cargando deudas..." h={200} />;
+  } else if (deudas?.length === 0) {
+    deudasContent = (
+      <div className={styles["no-deudas-container"]}>
+        <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
+        <p className={styles["no-deudas-message"]}>
+          No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'}.
+        </p>
+      </div>
+    );
+  } else {
+    deudasContent = (
+      <div className={styles["deudas-container"]}>
+        <div className={styles["deudas-title-row"]}>
+          <p className={styles["deudas-title"]}>
+            Seleccione las {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'} a pagar:
+          </p>
+          <div
+            className={styles["select-all-container"]}
+            onClick={() => {
+              if (selectedPeriodo.length === deudas.length) {
+                setSelectedPeriodo([]);
+                setSelectPeriodoTotal(0);
+              }
+              else {
+                const allPeriodos = deudas.map((periodo) => ({
+                  id: periodo.id,
+                  amount:
+                    Number(periodo.amount) +
+                    Number(periodo.penalty_amount),
+                }));
+
+                const totalAmount = allPeriodos.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                );
+
+                setSelectedPeriodo(allPeriodos);
+                setSelectPeriodoTotal(totalAmount);
+              }
+            }}
+          >
+            <span className={styles["select-all-text"]}>
+              Pagar todo
+            </span>
+            {selectedPeriodo.length === deudas.length ? (
+              <IconCheckSquare
+                className={`${styles["check-icon"]} ${styles.selected}`}
+              />
+            ) : (
+              <IconCheckOff className={styles["check-icon"]} />
+            )}
+          </div>
+        </div>
+
+        <div className={styles["deudas-table"]}>
+          <div className={styles["deudas-header"]}>
+            <span className={styles["header-item"]}>Periodo</span>
+            <span className={styles["header-item"]}>Monto</span>
+            <span className={styles["header-item"]}>Multa</span>
+            <span className={styles["header-item"]}>
+              SubTotal
+            </span>
+            <span className={styles["header-item"]}>
+              Seleccionar
+            </span>
+          </div>
+
+          {deudas.map((periodo) => (
+            <div
+              key={String(periodo.id)}
+              onClick={() => handleSelectPeriodo(periodo)}
+              className={styles["deuda-item"]}
+            >
+              <div className={styles["deuda-row"]}>
+
+                <div className={styles["deuda-cell"]}>
+                  {periodo.debt &&
+                  typeof periodo.debt === "object" &&
+                  periodo.debt.month &&
+                  periodo.debt.year
+                    ? `${MONTHS_S[periodo.debt.month] ?? "?"}/$${periodo.debt.year ?? "?"}`
+                    : "N/A"}
+                </div>
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " + Number(periodo.amount ?? 0).toFixed(2)}{" "}
+                </div>
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " +
+                    Number(periodo.penalty_amount ?? 0).toFixed(
+                      2
+                    )}{" "}
+
+                </div>
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " +
+                    (
+                      Number(periodo.amount ?? 0) +
+                      Number(periodo.penalty_amount ?? 0)
+                    ).toFixed(2)}{" "}
+
+                </div>
+
+                <div
+                  className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
+                >
+                  {selectedPeriodo.some(
+                    (item) => item.id === periodo.id
+                  ) ? (
+                    <IconCheckSquare
+                      className={`${styles["check-icon"]} ${styles.selected}`}
+                    />
+                  ) : (
+                    <IconCheckOff
+                      className={styles["check-icon"]}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className={styles["total-container"]}>
+          <p>
+            Total a pagar: {formatNumber(selecPeriodoTotal, 2)}{" "}
+            Bs.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Toast toast={toast} showToast={showToast} />
@@ -555,7 +691,8 @@ const RenderForm = ({
                 value={_formState.paid_at || ""}
                 onChange={handleChangeInput}
                 error={_errors}
-                max={new Date().toISOString().split("T")[0]} 
+                max={new Date().toISOString().split("T")[0]}
+                min={new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
               />
             </div>
           </div>
@@ -606,7 +743,7 @@ const RenderForm = ({
                 />
               </div>
             </div>
-            <>
+            <div>
               <div className={styles["payment-section"]}>
                 <div className={styles["input-row"]}>
                   <div className={styles["input-half"]}>
@@ -657,7 +794,7 @@ const RenderForm = ({
               </div>
 
               <div className={styles["upload-section"]}>
-                <p className={styles["section-title"]}>Subir comprobante</p>
+
                 <UploadFile
                   name="file"
                   ext={exten}
@@ -680,7 +817,7 @@ const RenderForm = ({
                     name="voucher"
                     onChange={(e) => {
                       const value = e.target.value
-                        .replace(/[^0-9]/g, "")
+                        .replace(/\D/g, "")
                         .substring(0, 10);
                       const newEvent = {
                         ...e,
@@ -703,152 +840,11 @@ const RenderForm = ({
               </div>
               {(_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
                 _formState.subcategory_id === extraData?.client_config?.cat_reservations) && (
-                <>
-                  {!_formState.dpto_id ? (
-                    <EmptyData
-                      message="Seleccione una unidad para ver deudas"
-                      h={200}
-                    />
-                  ) : isLoadingDeudas ? (
-                    <EmptyData message="Cargando deudas..." h={200} />
-                  ) : deudas?.length === 0 ? (
-                    <div className={styles["no-deudas-container"]}>
-                      <EmptyData
-                        message="Esta unidad no tiene deudas pendientes"
-                        h={200}
-                      />
-                      <p className={styles["no-deudas-message"]}>
-                        No se encontraron deudas pendientes para esta unidad. No
-                        se puede registrar un pago de {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'}.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className={styles["deudas-container"]}>
-                      <div className={styles["deudas-title-row"]}>
-                        <p className={styles["deudas-title"]}>
-                          Seleccione las {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'} a pagar:
-                        </p>
-                        <div
-                          className={styles["select-all-container"]}
-                          onClick={() => {
-                            if (selectedPeriodo.length === deudas.length) {
-                              setSelectedPeriodo([]);
-                              setSelectPeriodoTotal(0);
-                            }
-                            else {
-                              const allPeriodos = deudas.map((periodo) => ({
-                                id: periodo.id,
-                                amount:
-                                  Number(periodo.amount) +
-                                  Number(periodo.penalty_amount),
-                              }));
-
-                              const totalAmount = allPeriodos.reduce(
-                                (sum, item) => sum + item.amount,
-                                0
-                              );
-
-                              setSelectedPeriodo(allPeriodos);
-                              setSelectPeriodoTotal(totalAmount);
-                            }
-                          }}
-                        >
-                          <span className={styles["select-all-text"]}>
-                            Pagar todo
-                          </span>
-                          {selectedPeriodo.length === deudas.length ? (
-                            <IconCheckSquare
-                              className={`${styles["check-icon"]} ${styles.selected}`}
-                            />
-                          ) : (
-                            <IconCheckOff className={styles["check-icon"]} />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={styles["deudas-table"]}>
-                        <div className={styles["deudas-header"]}>
-                          <span className={styles["header-item"]}>Periodo</span>
-                          <span className={styles["header-item"]}>Monto</span>
-                          <span className={styles["header-item"]}>Multa</span>
-                          <span className={styles["header-item"]}>
-                            SubTotal
-                          </span>
-                          <span className={styles["header-item"]}>
-                            Seleccionar
-                          </span>
-                        </div>
-
-                        {deudas.map((periodo) => (
-                          <div
-                            key={String(periodo.id)}
-                            onClick={() => handleSelectPeriodo(periodo)}
-                            className={styles["deuda-item"]}
-                          >
-                            <div className={styles["deuda-row"]}>
-
-                              <div className={styles["deuda-cell"]}>
-                                {periodo.debt &&
-                                typeof periodo.debt === "object" &&
-                                periodo.debt.month &&
-                                periodo.debt.year
-                                  ? `${MONTHS_S[periodo.debt.month] ?? "?"}/$${periodo.debt.year ?? "?"}`
-                                  : "N/A"}
-                              </div>
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " + Number(periodo.amount ?? 0).toFixed(2)}{" "}
-                              </div>
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " +
-                                  Number(periodo.penalty_amount ?? 0).toFixed(
-                                    2
-                                  )}{" "}
-
-                              </div>
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " +
-                                  (
-                                    Number(periodo.amount ?? 0) +
-                                    Number(periodo.penalty_amount ?? 0)
-                                  ).toFixed(2)}{" "}
-
-                              </div>
-
-                              <div
-                                className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
-                              >
-                                {selectedPeriodo.some(
-                                  (item) => item.id === periodo.id
-                                ) ? (
-                                  <IconCheckSquare
-                                    className={`${styles["check-icon"]} ${styles.selected}`}
-                                  />
-                                ) : (
-                                  <IconCheckOff
-                                    className={styles["check-icon"]}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className={styles["total-container"]}>
-                        <p>
-                          Total a pagar: {formatNumber(selecPeriodoTotal, 2)}{" "}
-                          Bs.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </>
+                <div>
+                  {deudasContent}
+                </div>
               )}
-
-
               <div className={styles["obs-section"]}>
-                <p className={styles["section-title"]}>
-                  Indica una descripción para este ingreso
-                </p>
                 <div className={styles["obs-input"]}>
                   <TextArea
                     label="Descripción"
@@ -868,7 +864,7 @@ const RenderForm = ({
                   />
                 </div>
               </div>
-            </>
+            </div>
           </div>
         </div>
       </DataModal>

@@ -113,4 +113,37 @@
   display: flex;
   gap: var(--spM);
   align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .extraButtons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .extraButtons > div > button,
+  .extraButtons > button {
+    font-size: clamp(11px, 4vw, 13px) !important;
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 1024px) {
+  .extraButtons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .extraButtons > div > button,
+  .extraButtons > button {
+    font-size: clamp(11px, 3vw, 13px) !important;
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+    word-break: break-word;
+  }
 }

@@ -36,17 +36,22 @@
   border: 1px solid var(--cWhiteV1) !important;
   color: var(--cWhiteV1) !important;
   background-color: transparent !important;
-  font-size: var(--sM);
-  padding: var(--spS) var(--spL) !important;
+  font-size: clamp(12px, 3vw, 14px);
+  padding: 0 var(--spL) !important;
   border-radius: var(--bRadius) !important;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
+  flex-shrink: 0;
   width: 120px;
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
   margin: 0 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  text-align: center;
 }
 
 .categoriesButton:hover {
@@ -88,6 +93,7 @@
   .graphButton, .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
+    font-size: clamp(11px, 4vw, 13px);
   }
 }
 
@@ -98,6 +104,20 @@
   
   .categoriesButton {
     width: 32%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .categoriesButton {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: clamp(11px, 3vw, 13px) !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-align: center;
+    flex-direction: row;
+    flex-shrink: 0;
+    padding: 0 var(--spM) !important;
   }
 }
 
@@ -126,8 +146,8 @@
 }
 
 .statusR {
-  background-color: var(--cHoverError);
-  color: var(--cError);
+  background-color: var(--cHoverCompl5);
+  color: var(--cMediumAlert);
 }
 
 .statusE {

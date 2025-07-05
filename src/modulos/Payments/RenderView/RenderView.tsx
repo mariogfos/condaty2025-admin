@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
+import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
 import styles from "./RenderView.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -197,7 +197,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           <div className={styles.headerSection}>
             <div className={styles.amountDisplay}>Bs {item.amount}</div>
             <div className={styles.dateDisplay}>
-              {getDateTimeStrMesShort(item.paid_at)}
+              {formatToDayDDMMYYYYHHMM(item.paid_at)}
             </div>
           </div>
 

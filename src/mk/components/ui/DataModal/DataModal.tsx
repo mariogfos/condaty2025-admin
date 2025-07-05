@@ -82,7 +82,7 @@ const DataModal = ({
           onBack={() => _close(false)}
           right={
             iconClose &&
-            !fullScreen && <IconX className="" onClick={() => _close(false)} />
+            !fullScreen && <IconX className="" size={32} onClick={() => _close(false)} />
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
           colorTitle={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}

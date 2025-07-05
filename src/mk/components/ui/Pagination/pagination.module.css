@@ -30,7 +30,7 @@
 .goToPageButton {
   background: transparent;
   border: none;
-  color: var(--accent);
+  color: var(--cWhite);
   font-size: 14px;
   padding: 4px 0;
   cursor: pointer;
