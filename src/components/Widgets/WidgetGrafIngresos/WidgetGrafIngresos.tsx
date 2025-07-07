@@ -28,6 +28,7 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string; // <-- 1. Se añade la prop 'periodo'
+  exportando?: boolean;
 };
 
 const WidgetGrafIngresos = ({
@@ -38,6 +39,7 @@ const WidgetGrafIngresos = ({
   subtitle,
   className,
   periodo, // <-- Se recibe la prop
+  exportando,
 }: PropsType) => {
 
   // 2. La función ahora considera el 'periodo' para generar los meses
@@ -47,15 +49,18 @@ const WidgetGrafIngresos = ({
   ) => {
     if (!data || data.length === 0) return [];
 
-    // Si el filtro es anual, mostrar solo desde el primer mes con datos hasta el último mes con datos
-    if (currentPeriodo === "y" || currentPeriodo === "ly") {
+    // Si el filtro es año anterior, mostrar SIEMPRE los 12 meses
+    if (currentPeriodo === "ly") {
+      return MONTHS_S_GRAPH.slice();
+    }
+    // Si el filtro es anual actual, mostrar desde el primer mes con datos hasta el último
+    if (currentPeriodo === "y") {
       const mesesConDatos = data.map((t) => t.mes - 1);
       if (mesesConDatos.length === 0) return [];
       const minMes = Math.min(...mesesConDatos);
       const maxMes = Math.max(...mesesConDatos);
       return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
     }
-
     // Para otros filtros, deduce los meses a partir de los datos
     const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
       (a, b) => a - b
@@ -150,6 +155,7 @@ const WidgetGrafIngresos = ({
           label: "",
           height: h,
         }}
+        exportando={exportando}
       />
     </div>
   );

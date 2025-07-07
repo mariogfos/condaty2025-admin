@@ -29,6 +29,7 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string;
+  exportando?: boolean;
 };
 
 const WidgetGrafEgresos: React.FC<PropsType> = ({
@@ -39,6 +40,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   subtitle,
   className,
   periodo,
+  exportando,
 }) => {
   const getMonths = (
     data: Transaction[] | undefined,
@@ -46,15 +48,18 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   ) => {
     if (!data || data.length === 0) return [];
 
-    // Si el filtro es anual, mostrar solo desde el primer mes con datos hasta el último mes con datos
-    if (currentPeriodo === "y" || currentPeriodo === "ly") {
+    // Si el filtro es año anterior, mostrar SIEMPRE los 12 meses
+    if (currentPeriodo === "ly") {
+      return MONTHS_S_GRAPH.slice();
+    }
+    // Si el filtro es anual actual, mostrar desde el primer mes con datos hasta el último
+    if (currentPeriodo === "y") {
       const mesesConDatos = data.map((t) => t.mes - 1);
       if (mesesConDatos.length === 0) return [];
       const minMes = Math.min(...mesesConDatos);
       const maxMes = Math.max(...mesesConDatos);
       return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
     }
-
     // Para otros filtros, deduce los meses a partir de los datos
     const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
       (a, b) => a - b
@@ -147,6 +152,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
           label: "",
           height: h,
         }}
+        exportando={exportando}
       />
     </div>
   );

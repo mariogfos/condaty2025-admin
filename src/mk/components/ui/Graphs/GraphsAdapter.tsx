@@ -14,7 +14,8 @@ const GraphsAdapter = ({
   chartType,
   options,
   downloadPdf,
-}: ProptypesAdapter) => {
+  exportando = false,
+}: ProptypesAdapter & { exportando?: boolean }) => {
   const [optionsChart, setOptionsChart]: any = useState(null);
   const [dataChart, setDataChart]: any = useState(null);
 
@@ -26,8 +27,9 @@ const GraphsAdapter = ({
 
   const o = {
     chart: {
+      background: exportando ? '#fff' : undefined, // Fondo blanco solo al exportar
       theme: {
-        mode: "dark",
+        mode: exportando ? "light" : "dark", // Tema claro solo al exportar
       },
       stackOnlyBar: true,
       redrawOnParentResize: true,
@@ -118,9 +120,28 @@ const GraphsAdapter = ({
       enabled: true,
       followCursor: false,
       theme: true,
+      shared: false,
+      intersect: true,
       style: {
         fontSize: "12px",
         fontFamily: "Roboto",
+      },
+      custom: function({ series, seriesIndex, dataPointIndex, w }: any) {
+        const seriesName = w.globals.seriesNames[seriesIndex];
+        const value = series[seriesIndex][dataPointIndex];
+        const xLabel = w.globals.labels[dataPointIndex];
+        // Obtener el color de la serie
+        const color = w.globals.colors[seriesIndex] || '#A7A7A7';
+        
+        return `
+          <div style="padding: 8px; background: rgba(255, 255, 255, 0.9); border-radius: 4px; display: flex; align-items: center; gap: 8px;">
+            <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${color}; margin-right:6px;"></span>
+            <div>
+              <div style="margin-bottom: 4px; color: #A7A7A7;">${seriesName}</div>
+              <div style=" font-weight: bold; color: #000;"> Bs ${formatNumber(value)}</div>
+            </div>
+          </div>
+        `;
       },
       y: {
         formatter: function (val: any) {
