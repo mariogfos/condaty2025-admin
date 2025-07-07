@@ -179,8 +179,8 @@ const SecondPart = ({
     // Limpiar modal
     setOpenModal(false);
     setSelectedDays([]);
-    setFormState({ ...formState, start_hour: "", end_hour: "" });
-    setPeriods([]);
+    // setFormState({ ...formState, start_hour: "", end_hour: "" });
+    // setPeriods([]);
   };
 
   useEffect(() => {
@@ -501,7 +501,7 @@ const SecondPart = ({
           onClose={() => {
             setFormState({ ...formState, start_hour: "", end_hour: "" });
             setSelectedDays([]);
-            setPeriods([]);
+            // setPeriods([]);
             setOpenModal(false);
           }}
           onSave={handleSave}
