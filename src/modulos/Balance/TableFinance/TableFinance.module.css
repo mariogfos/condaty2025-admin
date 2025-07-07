@@ -45,7 +45,7 @@
   flex-basis: 0;
   min-width: 40px;
   flex-shrink: 0;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   padding: 0 1rem;
   border-right: none;
@@ -55,7 +55,8 @@
   flex: 1;
   min-width: 150px;
   flex-shrink: 0;
-  justify-content: center !important;
+  justify-content: flex-end !important;
+
 }
 
 .dataRow {
@@ -123,7 +124,7 @@
 }
 
 .monthDataCell.no-value {
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .totalDataCell {
