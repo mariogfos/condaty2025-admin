@@ -9,49 +9,20 @@ interface PropsType {
   formState: any;
 }
 const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
+  const Br = () => {
+    return (
+      <div
+        style={{
+          backgroundColor: "var(--cWhiteV1)",
+          height: 0.5,
+          margin: "16px 0px",
+        }}
+      />
+    );
+  };
+
   return (
     <>
-      <p className={styles.title}>Reglas de uso</p>
-      <p className={styles.subtitle}>
-        Describe las reglas de uso y proporciona directrices para el uso
-        adecuado de las áreas comunes
-      </p>
-      <TextArea
-        label="Descripción"
-        required
-        name="usage_rules"
-        value={formState?.usage_rules}
-        onChange={handleChange}
-        error={errors}
-      />
-      <p className={styles.title}>Política de reembolso</p>
-      <p className={styles.subtitle}>
-        Describe las políticas de reembolso para reservas rechazadas (cómo,
-        cuándo y qué porcentaje se devuelve al residente)
-      </p>
-      <TextArea
-        label="Descripción"
-        name="cancellation_policy"
-        required
-        value={formState?.cancellation_policy}
-        onChange={handleChange}
-        error={errors}
-      />
-      <p className={styles.title}>Aprobación automática</p>
-      <p className={styles.subtitle}>
-        Establece el tiempo máximo (en horas) que administración tiene para
-        aprobar una reserva. Si se supera este límite, la reserva se aprobará
-        automáticamente.
-      </p>
-      <Input
-        type="number"
-        label="Horas de respuesta de aprobación"
-        required
-        name="approval_response_hours"
-        value={formState?.approval_response_hours}
-        onChange={handleChange}
-        error={errors}
-      />
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <div style={{ flex: 1 }}>
           <p className={styles.title}>¿Restringir reserva por mora?</p>
@@ -74,6 +45,73 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
           value={formState?.penalty_or_debt_restriction}
         />
       </div>
+      <Br />
+      <p className={styles.title}>Reglas de uso</p>
+      <p className={styles.subtitle}>
+        Describe las reglas de uso y proporciona directrices para el uso
+        adecuado de las áreas comunes
+      </p>
+      <TextArea
+        label="Descripción"
+        required
+        name="usage_rules"
+        value={formState?.usage_rules}
+        onChange={handleChange}
+        error={errors}
+      />
+      <Br />
+      <p className={styles.title}>Política de reembolso</p>
+      <p className={styles.subtitle}>
+        Describe las políticas de reembolso para reservas rechazadas (cómo,
+        cuándo y qué porcentaje se devuelve al residente)
+      </p>
+      <TextArea
+        label="Descripción"
+        name="cancellation_policy"
+        required
+        value={formState?.cancellation_policy}
+        onChange={handleChange}
+        error={errors}
+      />
+      {/* <p className={styles.title}>Aprobación automática</p>
+      <p className={styles.subtitle}>
+        Establece el tiempo máximo (en horas) que administración tiene para
+        aprobar una reserva. Si se supera este límite, la reserva se aprobará
+        automáticamente.
+      </p>
+      <Input
+        type="number"
+        label="Horas de respuesta de aprobación"
+        required
+        name="approval_response_hours"
+        value={formState?.approval_response_hours}
+        onChange={handleChange}
+        error={errors}
+      /> */}
+      <Br />
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div>
+          <p className={styles.title}>¿Aprobación de administración?</p>
+          <p className={styles.subtitle}>
+            Activa esta opción si deseas que cada reserva de esta área deba ser
+            revisada y aprobada por administración antes de aprobarse
+          </p>
+        </div>
+        <Switch
+          name="requires_approval"
+          optionValue={["A", "X"]}
+          onChange={(e: any) => {
+            handleChange({
+              target: {
+                name: "requires_approval",
+                value: e.target.checked ? "A" : "X",
+              },
+            });
+          }}
+          value={formState?.requires_approval}
+        />
+      </div>
+      <Br />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./mainmenu.module.css";
 import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
@@ -95,7 +95,6 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     }
     return false;
   };
-  console.log(items);
 
   return (
     <div
