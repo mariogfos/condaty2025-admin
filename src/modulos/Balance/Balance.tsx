@@ -120,23 +120,23 @@ const BalanceGeneral: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
     let fileObj = null;
     let refToCapture = chartRefBalance;
-    let fileName = "grafica-balance.webp";
+    let fileName = "grafica-balance.png";
     if (formStateFilter.filter_mov === "I") {
       refToCapture = chartRefIngresos;
-      fileName = "grafica-ingresos.webp";
+      fileName = "grafica-ingresos.png";
     } else if (formStateFilter.filter_mov === "E") {
       refToCapture = chartRefEgresos;
-      fileName = "grafica-egresos.webp";
+      fileName = "grafica-egresos.png";
     }
     if (refToCapture.current) {
       const canvas = await html2canvas(refToCapture.current, {
         backgroundColor: "#fff",
       });
-      const base64 = canvas.toDataURL("image/webp", 0.92);
-      let base64String = base64.replace("data:image/webp;base64,", "");
+      const base64 = canvas.toDataURL("image/png", 0.8);
+      let base64String = base64.replace("data:image/png;base64,", "");
       base64String = encodeURIComponent(base64String);
-      fileObj = { ext: "webp", file: base64String };
-  /*     // Descargar la imagen para pruebas
+      fileObj = { ext: "png", file: base64String };
+      /*     // Descargar la imagen para pruebas
       const link = document.createElement("a");
       link.download = fileName;
       link.href = base64;
