@@ -72,19 +72,18 @@ const BalanceGeneral: React.FC = () => {
     loaded,
   } = useAxios("/balances", "POST", {});
   const { setStore } = useAuth();
+  const [loadingLocal, setLoadingLocal] = useState(false);
   useEffect(() => {
     setStore({ title: "BALANCE" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    if (!filtered) {
-      if (formStateFilter.filter_date === "sc") {
-        setOpenCustomFilter(true);
-      } else {
-        reLoadFinanzas(formStateFilter);
-      }
+    if (formStateFilter.filter_date === "sc") {
+      setOpenCustomFilter(true);
+    } else {
+      reLoadFinanzas(formStateFilter);
+     // setLoadingLocal(true);
     }
-    setFiltered(false);
     let newLchars: ChartTypeOption[];
     if (formStateFilter.filter_mov === "T") {
       newLchars = [
@@ -106,6 +105,10 @@ const BalanceGeneral: React.FC = () => {
     // Si sigue siendo válido, no lo cambiamos
   }, [formStateFilter]);
 
+  useEffect(() => {
+    if (loaded) setLoadingLocal(false);
+  }, [loaded]);
+
   const ldate = [
     { id: "m", name: "Este mes" },
     { id: "lm", name: "Mes anterior" },
@@ -120,23 +123,21 @@ const BalanceGeneral: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
     let fileObj = null;
     let refToCapture = chartRefBalance;
-    let fileName = "grafica-balance.webp";
+    let fileName = "grafica-balance.png";
     if (formStateFilter.filter_mov === "I") {
       refToCapture = chartRefIngresos;
-      fileName = "grafica-ingresos.webp";
+      fileName = "grafica-ingresos.png";
     } else if (formStateFilter.filter_mov === "E") {
       refToCapture = chartRefEgresos;
-      fileName = "grafica-egresos.webp";
+      fileName = "grafica-egresos.png";
     }
     if (refToCapture.current) {
-      const canvas = await html2canvas(refToCapture.current, {
-        backgroundColor: "#fff",
-      });
-      const base64 = canvas.toDataURL("image/webp", 0.92);
-      let base64String = base64.replace("data:image/webp;base64,", "");
+      const canvas = await html2canvas(refToCapture.current);
+      const base64 = canvas.toDataURL("image/png", 0.92);
+      let base64String = base64.replace("data:image/png;base64,", "");
       base64String = encodeURIComponent(base64String);
-      fileObj = { ext: "webp", file: base64String };
-  /*     // Descargar la imagen para pruebas
+      fileObj = { ext: "png", file: base64String };
+      /*     // Descargar la imagen para pruebas
       const link = document.createElement("a");
       link.download = fileName;
       link.href = base64;
@@ -416,6 +417,7 @@ const BalanceGeneral: React.FC = () => {
               name="mov"
               error={errors}
               onChange={(e) => {
+                setLoadingLocal(true); // <-- AÑADE ESTA LÍNEA AQUÍ
                 setFormStateFilter({
                   ...formStateFilter,
                   filter_mov: e.target.value,
@@ -638,7 +640,7 @@ const BalanceGeneral: React.FC = () => {
                         }}
                       >
                         <IconExport size={22} />
-                        Descargar tablas
+                        Descargar PDF
                       </Button>
                     </div>
                     <h2 className={styles.chartSectionTitle}>
@@ -691,9 +693,10 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "I" && (
               <>
-                {loaded &&
-                (!finanzas?.data?.ingresos ||
-                  finanzas?.data?.ingresos?.length === 0) ? (
+                {loadingLocal || !loaded ? (
+                  <LoadingScreen />
+                ) : !finanzas?.data?.ingresos ||
+                  finanzas?.data?.ingresos?.length === 0 ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -879,7 +882,7 @@ const BalanceGeneral: React.FC = () => {
                         }}
                       >
                         <IconExport size={22} />
-                        Descargar tablas
+                        Descargar PDF
                       </Button>
                     </div>
                     <TableIngresos
@@ -907,9 +910,10 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "E" && (
               <>
-                {loaded &&
-                (!finanzas?.data?.egresos ||
-                  finanzas?.data?.egresos?.length === 0) ? (
+                {loadingLocal || !loaded ? (
+                  <LoadingScreen />
+                ) : !finanzas?.data?.egresos ||
+                  finanzas?.data?.egresos?.length === 0 ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -1097,7 +1101,7 @@ const BalanceGeneral: React.FC = () => {
                         }}
                       >
                         <IconExport size={22} />
-                        Descargar tablas
+                        Descargar PDF
                       </Button>
                     </div>
                     <TableEgresos
