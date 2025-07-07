@@ -40,7 +40,7 @@ type PropsType = {
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
-  onRowClick?: (e: any) => void;
+  onRowClick?: (e: any, scrollTo?: number) => void;
   onTabletRow?: (
     item: Record<string, any>,
     i: number,
@@ -52,6 +52,7 @@ type PropsType = {
   className?: string;
   height?: string;
   showHeader?: boolean;
+  scrollTo?: number | null;
   extraData?: any;
   sortCol?: { col: string; asc: boolean };
   onSort?: (col: string, asc: boolean) => void;
@@ -91,6 +92,7 @@ const Table = ({
   extraData = null,
   sortCol,
   onSort,
+  scrollTo = null,
 }: PropsType) => {
   // const { isMobile } = useScreenSize();
   const isMobile = false;
@@ -126,6 +128,7 @@ const Table = ({
           setScrollbarWidth={setScrollbarWidth}
           onRenderBody={onRenderBody}
           extraData={extraData}
+          scrollTo={scrollTo}
         />
       </div>
       {sumarize && (
@@ -299,7 +302,7 @@ const Sumarize = memo(function Sumarize({
   );
 });
 
-const Body = memo(function Body({
+const Body = ({
   onTabletRow,
   onRowClick,
   data,
@@ -312,6 +315,7 @@ const Body = memo(function Body({
   onRenderBody,
   extraData,
   onRenderCard,
+  scrollTo = null,
 }: {
   onTabletRow: any;
   onRowClick: any;
@@ -325,14 +329,28 @@ const Body = memo(function Body({
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
-}) {
+  scrollTo?: number | null;
+}) => {
   // const { isMobile } = useScreenSize();
   const isMobile = false;
-  const divRef = useRef(null);
+  const divRef: any = useRef(null);
   const scrollWidth = useScrollbarWidth(divRef);
   useEffect(() => {
     if (setScrollbarWidth) setScrollbarWidth(scrollWidth);
   }, [scrollWidth]);
+
+  useEffect(() => {
+    console.log("scrollTo Set", scrollTo);
+    if (scrollTo) divRef.current.scrollTop = scrollTo;
+  }, [scrollTo]);
+
+  const _onRowClick = (e: any) => {
+    if (onRowClick) {
+      const scrollTo = divRef?.current?.scrollTop ?? -1;
+      console.log("sendScroll", scrollTo);
+      onRowClick(e, scrollTo);
+    }
+  };
   return (
     <main
       ref={divRef}
@@ -358,7 +376,7 @@ const Body = memo(function Body({
           ) : onRenderCard ? (
             onRenderCard(row, index, onRowClick)
           ) : (
-            <div key={"row" + index} onClick={(e) => onRowClick(row)}>
+            <div key={"row" + index} onClick={(e) => _onRowClick(row)}>
               {header.map(
                 (item: any, i: number) =>
                   !item.onHide?.() && (
@@ -396,6 +414,6 @@ const Body = memo(function Body({
       ))}
     </main>
   );
-});
+};
 
 export default Table;

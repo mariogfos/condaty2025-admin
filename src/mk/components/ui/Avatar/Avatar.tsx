@@ -38,7 +38,7 @@ export const Avatar = ({
     setImageError(false);
   }, [src]);
   if (!src || src.indexOf("undefined") > -1) {
-    console.error("se envio una imagen undefined");
+    // console.error("se envio una imagen undefined");
     return null;
   }
   return (

@@ -82,7 +82,7 @@ const BalanceGeneral: React.FC = () => {
       setOpenCustomFilter(true);
     } else {
       reLoadFinanzas(formStateFilter);
-     // setLoadingLocal(true);
+      // setLoadingLocal(true);
     }
     let newLchars: ChartTypeOption[];
     if (formStateFilter.filter_mov === "T") {
@@ -124,11 +124,14 @@ const BalanceGeneral: React.FC = () => {
     let fileObj = null;
     let refToCapture = chartRefBalance;
     let fileName = "grafica-balance.png";
+    let fileName = "grafica-balance.png";
     if (formStateFilter.filter_mov === "I") {
       refToCapture = chartRefIngresos;
       fileName = "grafica-ingresos.png";
+      fileName = "grafica-ingresos.png";
     } else if (formStateFilter.filter_mov === "E") {
       refToCapture = chartRefEgresos;
+      fileName = "grafica-egresos.png";
       fileName = "grafica-egresos.png";
     }
     if (refToCapture.current) {
@@ -136,6 +139,8 @@ const BalanceGeneral: React.FC = () => {
       const base64 = canvas.toDataURL("image/png", 0.92);
       let base64String = base64.replace("data:image/png;base64,", "");
       base64String = encodeURIComponent(base64String);
+      fileObj = { ext: "png", file: base64String };
+      /*     // Descargar la imagen para pruebas
       fileObj = { ext: "png", file: base64String };
       /*     // Descargar la imagen para pruebas
       const link = document.createElement("a");
