@@ -95,7 +95,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
     }
     return false;
   };
-  console.log(items);
+  // console.log(items);
 
   return (
     <div
