@@ -200,11 +200,18 @@ const TableFinance = ({
                   )}
                   <span>{item.name}</span>
                 </div>
-                {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                  <div key={`item-${index}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                    <span>{item.totalMeses && item.totalMeses[mesIdx] ? formatNumber(item.totalMeses[mesIdx]) : "-"}</span>
-                  </div>
-                ))}
+                {Array.from({ length: meses.length }).map((_, mesIdx) => {
+                  const valor = item.totalMeses && item.totalMeses[mesIdx];
+                  const isNoValue = !valor || valor === '-' || valor === 0;
+                  return (
+                    <div
+                      key={`item-${index}-mes-${mesIdx}`}
+                      className={`${styles.dataCell} ${styles.monthDataCell} ${(!valor || valor === '-') ? styles['no-value'] : ''}`}
+                    >
+                      <span>{valor && valor !== 0 ? formatNumber(valor) : "-"}</span>
+                    </div>
+                  );
+                })}
                 <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
                   <span>Bs {formatNumber(item.amount)}</span>
                 </div>
@@ -222,11 +229,14 @@ const TableFinance = ({
                     <div className={`${styles.dataCell} ${styles.subCategoryNameCell}`}>
                       <span>{subItem.name}</span>
                     </div>
-                    {Array.from({ length: meses.length }).map((_, mesIdx) => (
-                      <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell}`}>
-                        <span>{subItem.totalMeses && subItem.totalMeses[mesIdx] ? formatNumber(subItem.totalMeses[mesIdx]) : "-"}</span>
-                      </div>
-                    ))}
+                    {Array.from({ length: meses.length }).map((_, mesIdx) => {
+                      const valor = subItem.totalMeses && subItem.totalMeses[mesIdx];
+                      return (
+                        <div key={`subitem-${index}-${subIndex}-mes-${mesIdx}`} className={`${styles.dataCell} ${styles.monthDataCell} ${(!valor || valor === '-') ? styles['no-value'] : ''}`}>
+                          <span>{valor && valor !== 0 ? formatNumber(valor) : "-"}</span>
+                        </div>
+                      );
+                    })}
                     <div className={`${styles.dataCell} ${styles.totalDataCell} ${isTwoColumnLayout ? styles.alignCellContentRight : ''}`}>
                       <span>Bs {formatNumber(subItem.amount)}</span>
                     </div>

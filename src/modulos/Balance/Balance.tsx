@@ -71,8 +71,12 @@ const BalanceGeneral: React.FC = () => {
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [formState, setFormState] = useState<FormStateType>({});
   const chartRef = useRef<HTMLDivElement>(null);
+  const chartRefBalance = useRef<HTMLDivElement>(null);
+  const chartRefIngresos = useRef<HTMLDivElement>(null);
+  const chartRefEgresos = useRef<HTMLDivElement>(null);
+  const [exportando, setExportando] = useState(false);
 
-  const { data: finanzas, reLoad: reLoadFinanzas } = useAxios(
+  const { data: finanzas, reLoad: reLoadFinanzas, loaded } = useAxios(
     "/balances",
     "POST",
     {}
@@ -122,23 +126,36 @@ const BalanceGeneral: React.FC = () => {
   ];
 
   const exportar = async () => {
+    setExportando(true);
+    // Esperar a que el gráfico se re-renderice con fondo blanco
+    await new Promise((resolve) => setTimeout(resolve, 100));
     let fileObj = null;
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current, {
-        backgroundColor: null,
+    let refToCapture = chartRefBalance;
+    let fileName = 'grafica-balance.webp';
+    if (formStateFilter.filter_mov === 'I') {
+      refToCapture = chartRefIngresos;
+      fileName = 'grafica-ingresos.webp';
+    } else if (formStateFilter.filter_mov === 'E') {
+      refToCapture = chartRefEgresos;
+      fileName = 'grafica-egresos.webp';
+    }
+    if (refToCapture.current) {
+      const canvas = await html2canvas(refToCapture.current, {
+        backgroundColor: '#fff',
       });
-      const base64 = canvas.toDataURL("image/webp", 0.92);
-      let base64String = base64.replace("data:image/webp;base64,", "");
+      const base64 = canvas.toDataURL('image/webp', 0.92);
+      let base64String = base64.replace('data:image/webp;base64,', '');
       base64String = encodeURIComponent(base64String);
-      fileObj = { ext: "webp", file: base64String };
+      fileObj = { ext: 'webp', file: base64String };
       // Descargar la imagen para pruebas
-      /*       const link = document.createElement('a');
-      link.download = 'grafica.webp';
+      const link = document.createElement('a');
+      link.download = fileName;
       link.href = base64;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);  */
+      document.body.removeChild(link);
     }
+    setExportando(false);
     reLoadFinanzas({
       ...formStateFilter,
       exportar: true,
@@ -512,10 +529,11 @@ const BalanceGeneral: React.FC = () => {
           <LoadingScreen>
             {formStateFilter.filter_mov === "T" && (
               <>
-                {(!finanzas?.data?.ingresos ||
-                  finanzas?.data?.ingresos?.length === 0) &&
-                (!finanzas?.data?.egresos ||
-                  finanzas?.data?.egresos?.length === 0) ? (
+                {loaded &&
+                  (!finanzas?.data?.ingresos ||
+                    finanzas?.data?.ingresos?.length === 0) &&
+                  (!finanzas?.data?.egresos ||
+                    finanzas?.data?.egresos?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -537,7 +555,7 @@ const BalanceGeneral: React.FC = () => {
                           (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
                         : getPeriodoText(formStateFilter.filter_date)}
                     </h2>
-                    <div ref={chartRef} className={styles.chartContainer}>
+                    <div ref={chartRefBalance} className={styles.chartContainer}>
                       <WidgetGrafBalance
                         saldoInicial={finanzas?.data?.saldoInicial}
                         ingresos={finanzas?.data?.ingresosHist}
@@ -548,6 +566,7 @@ const BalanceGeneral: React.FC = () => {
                           calculatedTotals.saldoFinal
                         )}`}
                         periodo={formStateFilter?.filter_date}
+                        exportando={exportando}
                       />
                       <div className={styles.legendAndExportWrapper}>
                         <div className={styles.legendContainer}>
@@ -681,8 +700,9 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "I" && (
               <>
-                {!finanzas?.data?.ingresos ||
-                finanzas?.data?.ingresos?.length === 0 ? (
+                {loaded &&
+                  (!finanzas?.data?.ingresos ||
+                    finanzas?.data?.ingresos?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -705,7 +725,7 @@ const BalanceGeneral: React.FC = () => {
                         : getPeriodoText(formStateFilter.filter_date)}
                     </h2>
                     <div className={styles.chartContainer}>
-                      <div className={styles.chartAndLegendContainer}>
+                      <div ref={chartRefIngresos} className={styles.chartAndLegendContainer}>
                         <WidgetGrafIngresos
                           ingresos={(() => {
                             const ingresosHist =
@@ -730,7 +750,37 @@ const BalanceGeneral: React.FC = () => {
                           chartTypes={[charType.filter_charType]}
                           h={360}
                           title={`Bs ${formatNumber(
-                            calculatedTotals.totalIngresos
+                            (() => {
+                              // Agrupar igual que la leyenda del widget
+                              const datos = (() => {
+                                const ingresosHist = finanzas?.data.ingresosHist || [];
+                                const selectcategorias =
+                                  typeof formStateFilter.filter_categ === "string"
+                                    ? formStateFilter.filter_categ
+                                      ? [formStateFilter.filter_categ]
+                                      : []
+                                    : formStateFilter.filter_categ;
+                                let datosFiltrados = ingresosHist;
+                                if (
+                                  selectcategorias &&
+                                  selectcategorias.length > 0
+                                ) {
+                                  datosFiltrados = ingresosHist.filter((item: any) =>
+                                    selectcategorias.includes(item.category_id)
+                                  );
+                                }
+                                return filtrarHastaMesActual(datosFiltrados, "I");
+                              })();
+                              // Agrupar por categoria y sumar
+                              const map = new Map();
+                              datos.forEach((item: any) => {
+                                if (!map.has(item.categoria)) {
+                                  map.set(item.categoria, 0);
+                                }
+                                map.set(item.categoria, map.get(item.categoria) + parseFloat(item.ingresos || 0));
+                              });
+                              return Array.from(map.values()).reduce((acc, val) => acc + val, 0);
+                            })()
                           )}`}
                           subtitle={"Total de ingresos"}
                           periodo={formStateFilter?.filter_date}
@@ -848,8 +898,9 @@ const BalanceGeneral: React.FC = () => {
 
             {formStateFilter.filter_mov === "E" && (
               <>
-                {!finanzas?.data?.egresos ||
-                finanzas?.data?.egresos?.length === 0 ? (
+                {loaded &&
+                  (!finanzas?.data?.egresos ||
+                    finanzas?.data?.egresos?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -873,7 +924,7 @@ const BalanceGeneral: React.FC = () => {
                     </h2>
 
                     <div className={styles.chartContainer}>
-                      <div className={styles.chartAndLegendContainer}>
+                      <div ref={chartRefEgresos} className={styles.chartAndLegendContainer}>
                         <WidgetGrafEgresos
                           egresos={(() => {
                             const egresosHist =
@@ -898,7 +949,37 @@ const BalanceGeneral: React.FC = () => {
                           chartTypes={[charType.filter_charType]}
                           h={360}
                           title={`Bs ${formatNumber(
-                            calculatedTotals.totalEgresos
+                            (() => {
+                              // Agrupar igual que la leyenda del widget
+                              const datos = (() => {
+                                const egresosHist = finanzas?.data.egresosHist || [];
+                                const selectcategorias =
+                                  typeof formStateFilter.filter_categ === "string"
+                                    ? formStateFilter.filter_categ
+                                      ? [formStateFilter.filter_categ]
+                                      : []
+                                    : formStateFilter.filter_categ;
+                                let datosFiltrados = egresosHist;
+                                if (
+                                  selectcategorias &&
+                                  selectcategorias.length > 0
+                                ) {
+                                  datosFiltrados = egresosHist.filter((item: any) =>
+                                    selectcategorias.includes(item.category_id)
+                                  );
+                                }
+                                return filtrarHastaMesActual(datosFiltrados, "E");
+                              })();
+                              // Agrupar por categoria y sumar
+                              const map = new Map();
+                              datos.forEach((item: any) => {
+                                if (!map.has(item.categoria)) {
+                                  map.set(item.categoria, 0);
+                                }
+                                map.set(item.categoria, map.get(item.categoria) + parseFloat(item.egresos || 0));
+                              });
+                              return Array.from(map.values()).reduce((acc, val) => acc + val, 0);
+                            })()
                           )}`}
                           subtitle={"Total de egresos"}
                           periodo={formStateFilter?.filter_date}

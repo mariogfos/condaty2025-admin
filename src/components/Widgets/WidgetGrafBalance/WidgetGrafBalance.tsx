@@ -34,6 +34,7 @@ type PropsType = {
   subtitle?: string;
   className?: string;
   periodo?: string;
+  exportando?: boolean;
 };
 
 const WidgetGrafBalance: React.FC<PropsType> = ({
@@ -46,6 +47,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   subtitle,
   className,
   periodo = "",
+  exportando = false,
 }: PropsType) => {
   const [balance, setBalance] = useState<BalanceData>({
     inicial: [],
@@ -109,7 +111,15 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         saldos: [...fullYearData.saldos],
     };
 
-    if (periodo.startsWith("c:")) {
+    if (periodo === "ly") {
+      displayMeses = MONTHS_S_GRAPH.slice();
+      displayBalanceData = {
+        inicial: fullYearData.inicial.slice(0, 12),
+        ingresos: fullYearData.ingresos.slice(0, 12),
+        egresos: fullYearData.egresos.slice(0, 12),
+        saldos: fullYearData.saldos.slice(0, 12),
+      };
+    } else if (periodo.startsWith("c:")) {
       const [startDateStr, endDateStr] = periodo.substring(2).split(',');
       const startDate = new Date(startDateStr + "T00:00:00");
       const endDate = new Date(endDateStr + "T00:00:00");
@@ -198,6 +208,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
             },
           },
         }}
+        exportando={exportando}
       />
     </div>
   );

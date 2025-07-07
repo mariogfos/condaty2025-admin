@@ -37,20 +37,23 @@
 .titleHeaderCell {
   flex: 2;
   min-width: 200px;
-  flex-shrink: 0;
   border-left: none;
 }
 
 .monthHeaderCell {
   flex: 1;
-  min-width: 70px;
+  flex-basis: 0;
+  min-width: 40px;
   flex-shrink: 0;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+  border-right: none;
 }
 
 .totalHeaderCell {
   flex: 1;
-  min-width: 100px;
+  min-width: 150px;
   flex-shrink: 0;
   justify-content: center !important
   
@@ -112,9 +115,17 @@
 
 .monthDataCell {
   flex: 1;
-  min-width: 70px;
+  flex-basis: 0;
+  min-width: 40px;
   flex-shrink: 0;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1rem;
+  border-right: none;
+}
+
+.monthDataCell.no-value {
+  justify-content: center;
 }
 
 .totalDataCell {
@@ -423,15 +434,14 @@
   }
 
   .monthHeaderCell, .monthDataCell {
-    width: 50px;
-    min-width: 40px;
+    min-width: 32px;
     font-size: 11px;
-    padding: 0 0.25rem;
+    padding: 0 0.5rem;
   }
 
   .totalHeaderCell, .totalDataCell, .totalAmountCell {
-    width: 120px;
-    min-width: 100px;
+   
+    min-width: 150px;
     font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
