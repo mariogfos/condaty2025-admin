@@ -958,7 +958,7 @@ const useCrud = ({
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
               >
-                {"Crear " + mod.singular}
+                {"Agregar " + mod.singular}
               </Button>
             </div>
           )}
@@ -973,9 +973,9 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={"Eliminar " + mod.singular}
-          buttonText="Eliminar"
-          buttonCancel=""
+          title={"Desvincular " + mod.singular}
+          buttonText="Desvincular"
+          buttonCancel="Cancelar"
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
@@ -984,12 +984,12 @@ const useCrud = ({
             message
           ) : (
             <>
-              ¿Estás seguro de eliminar esta información?
+              ¿Estás seguro de desvincular esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que al momento de eliminar ya no podrás recuperarla.
+              Recuerda que, al momento de desvincular, ya no podrás recuperarla.
             </>
           )}
         </DataModal>
@@ -1137,6 +1137,11 @@ const useCrud = ({
     }, [fields]);
     return (
       <div className={styles.useCrud}>
+        {store?.title && (
+          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
+            {store?.title}
+          </p>
+        )}
         {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (

@@ -1,7 +1,7 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
@@ -9,6 +9,7 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -23,6 +24,7 @@ const statusColor: any = {
 
 const Areas = () => {
   const [openMaintenance, setOpenMaintenance] = useState(false);
+  const { store, setStore } = useAuth();
   const mod = {
     modulo: "areas",
     singular: "área social",
@@ -82,6 +84,8 @@ const Areas = () => {
         onRender: ({ item }: any) => (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Avatar
+              w={40}
+              h={40}
               name={item.title}
               src={getUrlImages(
                 "/AREA-" +
@@ -98,7 +102,9 @@ const Areas = () => {
             </p>
           </div>
         ),
-        list: true,
+        list: {
+          width: "400px",
+        },
         form: { type: "text" },
       },
       description: {
@@ -306,6 +312,7 @@ const Areas = () => {
         },
         filter: {
           options: () => [
+            { id: "ALL", name: "Todos"},
             { id: "A", name: "Activa" },
             { id: "X", name: "Inactiva" },
           ],
@@ -330,12 +337,14 @@ const Areas = () => {
     fields,
     extraButtons,
   });
-
+  useEffect(() => {
+    setStore({ ...store, title: "Áreas sociales" });
+  }, []);
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
       <List
-        height={"calc(100vh - 280px)"}
+        height={"calc(100vh - 330px)"}
         emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
         emptyLine2="del condominio las verás aquí."
         emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)" />}

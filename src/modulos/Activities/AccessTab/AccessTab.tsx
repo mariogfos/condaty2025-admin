@@ -19,6 +19,7 @@ import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import useCrudUtils from "@/modulos/shared/useCrudUtils";
 
 interface AccessesTabProps {
   paramsInitial: any;
@@ -406,7 +407,20 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   }, []);
 
   // Instancia de useCrud para Accesos
-  const { userCan, List, data, reLoad, params, setParams } = useCrud({
+  const {
+    userCan,
+    List,
+    data,
+    reLoad,
+    params,
+    setParams,
+    onSearch,
+    searchs,
+    setStore,
+
+    onEdit,
+    onDel,
+  } = useCrud({
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
@@ -450,6 +464,14 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
 
   // Validación de permisos
   const canAccess = userCan(modAccess.permiso, "R");
+  const { onLongPress, selItem } = useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod: modAccess,
+    onEdit,
+    onDel,
+  });
 
   if (!canAccess) return <NotAccess />;
 
@@ -458,7 +480,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       {" "}
       {/* O un div principal */}
       <List
-        height={"calc(100vh - 280px)"}
+        height={"calc(100vh - 330px)"}
         emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
         emptyLine2="aquí una vez el guardia registre un acceso."
         emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)" />}
