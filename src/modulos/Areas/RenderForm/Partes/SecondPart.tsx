@@ -470,7 +470,7 @@ const SecondPart = ({
             label="Tiempo"
             name="min_cancel_hours"
             required
-            placeholder="El tiempo debe ser en horas"
+            placeholder="Usa el formato: 2h, 4h, 6h"
             value={formState?.min_cancel_hours}
             onChange={handleChange}
             error={errors}
