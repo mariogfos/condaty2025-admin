@@ -17,6 +17,7 @@
   & > div > input::placeholder {
     color: var(--cWhiteV1);
     opacity: 0.5;
+    font-size: var(--sM);
   }
   & > span {
     flex-shrink: 1;
