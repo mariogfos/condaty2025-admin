@@ -27,6 +27,7 @@ import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
+
 interface ChartTypeOption {
   id: ChartType;
   name: string;
@@ -44,24 +45,18 @@ interface FormStateType {
 interface ErrorType {
   [key: string]: string;
 }
-interface ChartTypeState {
-  filter_charType: ChartType;
-}
+
 const BalanceGeneral: React.FC = () => {
   const [formStateFilter, setFormStateFilter] = useState<FilterState>({
     filter_date: "m",
     filter_mov: "T",
     filter_categ: [],
   });
-  const [filtered, setFiltered] = useState(true);
-  const [charType, setCharType] = useState<ChartTypeState>({
-    filter_charType: "bar" as ChartType,
-  });
+  const [charType, setCharType] = useState<ChartType>("bar");
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [formState, setFormState] = useState<FormStateType>({});
-  const chartRef = useRef<HTMLDivElement>(null);
   const chartRefBalance = useRef<HTMLDivElement>(null);
   const chartRefIngresos = useRef<HTMLDivElement>(null);
   const chartRefEgresos = useRef<HTMLDivElement>(null);
@@ -72,42 +67,70 @@ const BalanceGeneral: React.FC = () => {
     loaded,
   } = useAxios("/balances", "POST", {});
   const { setStore } = useAuth();
-  const [loadingLocal, setLoadingLocal] = useState(false);
+  const [loadingLocal, setLoadingLocal] = useState(true);
+
   useEffect(() => {
     setStore({ title: "BALANCE" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setStore]);
+
+  const getCategories = useMemo(() => {
+    if (formStateFilter.filter_mov === "I") {
+      return finanzas?.data?.categI ?? [];
+    }
+    if (formStateFilter.filter_mov === "E") {
+      return finanzas?.data?.categE ?? [];
+    }
+    return [];
+  }, [
+    finanzas?.data?.categI,
+    finanzas?.data?.categE,
+    formStateFilter.filter_mov,
+  ]);
+
   useEffect(() => {
     if (formStateFilter.filter_date === "sc") {
       setOpenCustomFilter(true);
     } else {
       reLoadFinanzas(formStateFilter);
-      // setLoadingLocal(true);
     }
-    let newLchars: ChartTypeOption[];
-    if (formStateFilter.filter_mov === "T") {
-      newLchars = [
-        { id: "bar" as ChartType, name: "Barra" },
-        { id: "line" as ChartType, name: "Linea" },
-      ];
-    } else {
-      newLchars = [
-        { id: "bar" as ChartType, name: "Barra" },
-        { id: "pie" as ChartType, name: "Torta" },
-        { id: "line" as ChartType, name: "Linea" },
-      ];
-    }
+
+    const newLchars: ChartTypeOption[] =
+      formStateFilter.filter_mov === "T"
+        ? [
+            { id: "bar", name: "Barra" },
+            { id: "line", name: "Linea" },
+          ]
+        : [
+            { id: "bar", name: "Barra" },
+            { id: "pie", name: "Torta" },
+            { id: "line", name: "Linea" },
+          ];
+
     setLchars(newLchars);
-    // Mantener el tipo de gráfico si sigue siendo válido
-    if (!newLchars.some((c) => c.id === charType.filter_charType)) {
-      setCharType({ filter_charType: newLchars[0].id });
+    if (!newLchars.some((c) => c.id === charType)) {
+      setCharType(newLchars[0].id);
     }
-    // Si sigue siendo válido, no lo cambiamos
-  }, [formStateFilter]);
+  }, [formStateFilter, reLoadFinanzas, charType]);
 
   useEffect(() => {
-    if (loaded) setLoadingLocal(false);
+    if (loaded) {
+      setLoadingLocal(false);
+    }
   }, [loaded]);
+
+  useEffect(() => {
+    const categoriasDisponibles = getCategories.map((cat: any) => cat.id);
+    const currentCateg = formStateFilter.filter_categ;
+
+    if (Array.isArray(currentCateg)) {
+      const nuevas = currentCateg.filter((cat: string) =>
+        categoriasDisponibles.includes(cat)
+      );
+      if (nuevas.length !== currentCateg.length) {
+        setFormStateFilter((prev) => ({ ...prev, filter_categ: nuevas }));
+      }
+    }
+  }, [formStateFilter.filter_mov, formStateFilter.filter_categ, getCategories]);
 
   const ldate = [
     { id: "m", name: "Este mes" },
@@ -119,147 +142,84 @@ const BalanceGeneral: React.FC = () => {
 
   const exportar = async () => {
     setExportando(true);
-    // Esperar a que el gráfico se re-renderice con fondo blanco
     await new Promise((resolve) => setTimeout(resolve, 100));
-    let fileObj = null;
+
     let refToCapture = chartRefBalance;
-    let fileName = "grafica-balance.png";
-    let fileName = "grafica-balance.png";
-    if (formStateFilter.filter_mov === "I") {
-      refToCapture = chartRefIngresos;
-      fileName = "grafica-ingresos.png";
-      fileName = "grafica-ingresos.png";
-    } else if (formStateFilter.filter_mov === "E") {
-      refToCapture = chartRefEgresos;
-      fileName = "grafica-egresos.png";
-      fileName = "grafica-egresos.png";
-    }
+    if (formStateFilter.filter_mov === "I") refToCapture = chartRefIngresos;
+    if (formStateFilter.filter_mov === "E") refToCapture = chartRefEgresos;
+
     if (refToCapture.current) {
       const canvas = await html2canvas(refToCapture.current);
       const base64 = canvas.toDataURL("image/png", 0.92);
-      let base64String = base64.replace("data:image/png;base64,", "");
-      base64String = encodeURIComponent(base64String);
-      fileObj = { ext: "png", file: base64String };
-      /*     // Descargar la imagen para pruebas
-      fileObj = { ext: "png", file: base64String };
-      /*     // Descargar la imagen para pruebas
-      const link = document.createElement("a");
-      link.download = fileName;
-      link.href = base64;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link); */
+      const base64String = encodeURIComponent(
+        base64.replace("data:image/png;base64,", "")
+      );
+      const fileObj = { ext: "png", file: base64String };
+      reLoadFinanzas({
+        ...formStateFilter,
+        exportar: true,
+        grafica: fileObj,
+      });
     }
     setExportando(false);
-    reLoadFinanzas({
-      ...formStateFilter,
-      exportar: true,
-      grafica: fileObj ?? null,
-    });
   };
 
   useEffect(() => {
     if (finanzas?.success === true && finanzas?.data?.export) {
       window.open(getUrlImages("/" + finanzas.data.export.path), "_blank");
-    } else if (
-      finanzas?.success === false &&
-      finanzas?.message &&
-      finanzas?.data?.export !== undefined
-    ) {
-      //CR:: revisar este if
     }
   }, [finanzas]);
 
   const onSaveCustomFilter = () => {
-    let err: ErrorType = {};
-    if (!formState.date_inicio) {
-      err = { ...err, date_inicio: "La fecha de inicio es obligatoria" };
-    }
-    if (!formState.date_fin) {
-      err = { ...err, date_fin: "La fecha de fin es obligatoria" };
-    }
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio > formState.date_fin
-    ) {
-      err = {
-        ...err,
-        date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
-      };
+    const err: ErrorType = {};
+    if (!formState.date_inicio)
+      err.date_inicio = "La fecha de inicio es obligatoria";
+    if (!formState.date_fin) err.date_fin = "La fecha de fin es obligatoria";
+
+    if (formState.date_inicio && formState.date_fin) {
+      if (formState.date_inicio > formState.date_fin) {
+        err.date_inicio = "La fecha de inicio no puede ser mayor a la de fin";
+      }
+      if (
+        formState.date_inicio.slice(0, 4) !== formState.date_fin.slice(0, 4)
+      ) {
+        const msg = "El periodo personalizado debe estar dentro del mismo año";
+        err.date_inicio = msg;
+        err.date_fin = msg;
+      }
     }
 
-    if (
-      formState.date_inicio &&
-      formState.date_fin &&
-      formState.date_inicio.slice(0, 4) !== formState.date_fin.slice(0, 4)
-    ) {
-      err = {
-        ...err,
-        date_inicio: "El periodo personalizado debe estar dentro del mismo año",
-        date_fin: "El periodo personalizado debe estar dentro del mismo año",
-      };
-    }
     if (Object.keys(err).length > 0) {
       setErrors(err);
       return;
     }
+
     if (formState.date_inicio && formState.date_fin) {
       setFormStateFilter({
         ...formStateFilter,
-        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
+        filter_date: `c:${formState.date_inicio},${formState.date_fin}`,
       });
     }
     setOpenCustomFilter(false);
     setErrors({});
   };
 
-  const getCategories = () => {
-    let data = [];
-    if (formStateFilter.filter_mov === "I") {
-      data = finanzas?.data?.categI ?? [];
-    } else {
-      data = finanzas?.data?.categE ?? [];
-    }
-    return data;
-  };
-
-  useEffect(() => {
-    const categoriasDisponibles = getCategories().map((cat: any) => cat.id);
-    const currentCateg = formStateFilter.filter_categ;
-
-    // Solo manejar arrays
-    if (Array.isArray(currentCateg)) {
-      const nuevas = currentCateg.filter((cat: string) =>
-        categoriasDisponibles.includes(cat)
-      );
-      if (nuevas.length !== currentCateg.length) {
-        setFormStateFilter((prev) => ({ ...prev, filter_categ: nuevas }));
-      }
-    }
-  }, [formStateFilter.filter_mov]);
-
   const calculatedTotals = useMemo(() => {
-    let totalEgresos = 0;
-    let totalIngresos = 0;
+    const totalEgresos = (finanzas?.data?.egresos ?? []).reduce(
+      (acc: number, item: any) => acc + (Number(item.amount) || 0),
+      0
+    );
+    const totalIngresos = (finanzas?.data?.ingresos ?? []).reduce(
+      (acc: number, item: any) => acc + (Number(item.amount) || 0),
+      0
+    );
     const saldoInicial = Number(finanzas?.data?.saldoInicial) || 0;
-
-    finanzas?.data?.egresos?.forEach((subcategoria: any) => {
-      totalEgresos += Number(subcategoria.amount) || 0;
-    });
-    finanzas?.data?.ingresos?.forEach((subcategoria: any) => {
-      totalIngresos += Number(subcategoria.amount) || 0;
-    });
-
     const saldoFinal = totalIngresos - totalEgresos + saldoInicial;
     return { totalIngresos, totalEgresos, saldoInicial, saldoFinal };
-  }, [
-    finanzas?.data?.ingresos,
-    finanzas?.data?.egresos,
-    finanzas?.data?.saldoInicial,
-  ]);
+  }, [finanzas?.data]);
 
-  const getPeriodoText = (filterDateValue: string) => {
+  const getPeriodoText = useMemo(() => {
+    const filterDateValue = formStateFilter.filter_date;
     const now = new Date();
     const meses = [
       "Enero",
@@ -276,37 +236,7 @@ const BalanceGeneral: React.FC = () => {
       "Diciembre",
     ];
 
-    let ayer = new Date(now);
     switch (filterDateValue) {
-      case "d":
-        return `Balance del ${now.getDate()} de ${
-          meses[now.getMonth()]
-        } de ${now.getFullYear()}`;
-      case "ld":
-        ayer = new Date(now.getDate() - 1);
-        return `Balance del ${ayer.getDate()} de ${
-          meses[ayer.getMonth()]
-        } de ${ayer.getFullYear()}`;
-      case "w":
-        const inicioSemana = new Date(now);
-        inicioSemana.setDate(now.getDate() - now.getDay() + 1);
-        const finSemana = new Date(inicioSemana);
-        finSemana.setDate(inicioSemana.getDate() + 6);
-        return `Balance desde ${inicioSemana.getDate()} de ${
-          meses[inicioSemana.getMonth()]
-        } hasta ${finSemana.getDate()} de ${
-          meses[finSemana.getMonth()]
-        } de ${finSemana.getFullYear()}`;
-      case "lw":
-        const inicioSemanaAnterior = new Date(now);
-        inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
-        const finSemanaAnterior = new Date(inicioSemanaAnterior);
-        finSemanaAnterior.setDate(inicioSemanaAnterior.getDate() + 6);
-        return `Balance desde ${inicioSemanaAnterior.getDate()} de ${
-          meses[inicioSemanaAnterior.getMonth()]
-        } hasta ${finSemanaAnterior.getDate()} de ${
-          meses[finSemanaAnterior.getMonth()]
-        } de ${finSemanaAnterior.getFullYear()}`;
       case "m":
         return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
       case "lm":
@@ -315,7 +245,7 @@ const BalanceGeneral: React.FC = () => {
           meses[mesAnterior.getMonth()]
         } de ${mesAnterior.getFullYear()}`;
       case "y":
-        return `Balance desde Enero hasta  ${
+        return `Balance desde Enero hasta ${
           meses[now.getMonth()]
         } de ${now.getFullYear()}`;
       case "ly":
@@ -326,12 +256,8 @@ const BalanceGeneral: React.FC = () => {
         if (filterDateValue.startsWith("c:")) {
           const dates = filterDateValue.substring(2).split(",");
           if (dates[0] && dates[1]) {
-            // Crear las fechas y ajustarlas a UTC-4
-            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
-            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
-
-            fechaInicio.setHours(fechaInicio.getHours() + 4);
-
+            const fechaInicio = new Date(dates[0] + "T04:00:00");
+            const fechaFin = new Date(dates[1] + "T04:00:00");
             return `Balance desde ${fechaInicio.getDate()} de ${
               meses[fechaInicio.getMonth()]
             } de ${fechaInicio.getFullYear()} hasta ${fechaFin.getDate()} de ${
@@ -341,57 +267,109 @@ const BalanceGeneral: React.FC = () => {
         }
         return "Balance general";
     }
+  }, [formStateFilter.filter_date]);
+
+  const getSubtitle = useMemo(() => {
+    if (formStateFilter.filter_date === "y")
+      return `Total del saldo acumulado · Gestión ${new Date().getFullYear()}`;
+    if (formStateFilter.filter_date === "ly")
+      return `Total del saldo acumulado · Gestión ${
+        new Date().getFullYear() - 1
+      }`;
+    return "Total del saldo acumulado";
+  }, [formStateFilter.filter_date]);
+
+  const filtrarHastaMesActual = (data: any[]) => {
+    if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
+      const mesActual = new Date().getMonth();
+      return data.filter(
+        (item: any) => parseInt(item.mes, 10) - 1 <= mesActual
+      );
+    }
+    return data;
   };
 
-  // Agrupar y sumar categorías únicas para ingresos
-  const legendCategoriasIngresos = React.useMemo(() => {
+  const emptyDataIcon = useMemo(
+    () =>
+      charType === "line" ? (
+        <IconLineGraphic size={80} color="var(--cWhiteV1)" />
+      ) : (
+        <IconGraphics size={80} color="var(--cWhiteV1)" />
+      ),
+    [charType]
+  );
+
+  const filteredIngresosHist = useMemo(() => {
+    const ingresosHist = finanzas?.data?.ingresosHist || [];
+    const categs = formStateFilter.filter_categ;
+    let datos = ingresosHist;
+    if (categs && categs.length > 0) {
+      datos = ingresosHist.filter((item: any) =>
+        categs.includes(item.category_id)
+      );
+    }
+    return filtrarHastaMesActual(datos);
+  }, [
+    finanzas?.data?.ingresosHist,
+    formStateFilter.filter_categ,
+    formStateFilter.filter_date,
+  ]);
+
+  const filteredEgresosHist = useMemo(() => {
+    const egresosHist = finanzas?.data?.egresosHist || [];
+    const categs = formStateFilter.filter_categ;
+    let datos = egresosHist;
+    if (categs && categs.length > 0) {
+      datos = egresosHist.filter((item: any) =>
+        categs.includes(item.category_id)
+      );
+    }
+    return filtrarHastaMesActual(datos);
+  }, [
+    finanzas?.data?.egresosHist,
+    formStateFilter.filter_categ,
+    formStateFilter.filter_date,
+  ]);
+
+  const totalFilteredIngresos = useMemo(
+    () =>
+      filteredIngresosHist.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.ingresos || 0),
+        0
+      ),
+    [filteredIngresosHist]
+  );
+
+  const totalFilteredEgresos = useMemo(
+    () =>
+      filteredEgresosHist.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.egresos || 0),
+        0
+      ),
+    [filteredEgresosHist]
+  );
+
+  const legendDataIngresos = useMemo(() => {
     const map = new Map();
-    (finanzas?.data?.ingresosHist ?? []).forEach((item: any) => {
+    filteredIngresosHist.forEach((item: any) => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
       map.get(item.categ_id).total += parseFloat(item.ingresos ?? 0);
     });
     return Array.from(map.values());
-  }, [finanzas?.data?.ingresosHist]);
+  }, [filteredIngresosHist]);
 
-  const legendCategoriasEgresos = React.useMemo(() => {
+  const legendDataEgresos = useMemo(() => {
     const map = new Map();
-    (finanzas?.data?.egresosHist ?? []).forEach((item: any) => {
+    filteredEgresosHist.forEach((item: any) => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
       map.get(item.categ_id).total += parseFloat(item.egresos ?? 0);
     });
     return Array.from(map.values());
-  }, [finanzas?.data?.egresosHist]);
-
-  const getSubtitle = () => {
-    if (formStateFilter.filter_date === "y") {
-      return `Total del saldo acumulado · Gestión ${new Date().getFullYear()}`;
-    }
-    if (formStateFilter.filter_date === "ly") {
-      return `Total del saldo acumulado · Gestión ${
-        new Date().getFullYear() - 1
-      }`;
-    }
-    return "Total del saldo acumulado";
-  };
-
-  // Filtrar datos hasta el mes actual si el filtro es año actual
-  const filtrarHastaMesActual = (data: any[], tipo: string) => {
-    if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
-      const mesActual = new Date().getMonth();
-      // Suponiendo que los datos tienen un campo 'mes' (0=enero, 11=diciembre)
-      return data.filter((item: any) => {
-        // Si el campo es string tipo '01', '02', etc, conviértelo a número
-        let mes = item.mes;
-        if (typeof mes === "string") mes = parseInt(mes, 10) - 1;
-        return mes - 1 <= mesActual;
-      });
-    }
-    return data;
-  };
+  }, [filteredEgresosHist]);
 
   return (
     <div className={styles.container}>
@@ -405,6 +383,7 @@ const BalanceGeneral: React.FC = () => {
               name="periodo"
               error={errors}
               onChange={(e) => {
+                setLoadingLocal(true);
                 setFormStateFilter({
                   ...formStateFilter,
                   filter_date: e.target.value,
@@ -422,7 +401,7 @@ const BalanceGeneral: React.FC = () => {
               name="mov"
               error={errors}
               onChange={(e) => {
-                setLoadingLocal(true); // <-- AÑADE ESTA LÍNEA AQUÍ
+                setLoadingLocal(true);
                 setFormStateFilter({
                   ...formStateFilter,
                   filter_mov: e.target.value,
@@ -451,14 +430,13 @@ const BalanceGeneral: React.FC = () => {
                 error={errors}
                 multiSelect={true}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  if (Array.isArray(value) && value.length === 0) value = "";
+                  setLoadingLocal(true);
                   setFormStateFilter({
                     ...formStateFilter,
-                    filter_categ: value,
+                    filter_categ: e.target.value,
                   });
                 }}
-                options={getCategories()}
+                options={getCategories}
                 required
                 iconLeft={<IconArrowDown />}
               />
@@ -472,21 +450,15 @@ const BalanceGeneral: React.FC = () => {
                 type="button"
                 title="Gráfico de Barras"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === "bar"
-                    ? styles.chartTypeButtonActive
-                    : ""
+                  charType === "bar" ? styles.chartTypeButtonActive : ""
                 }`}
-                onClick={() => {
-                  if (lchars.some((c) => c.id === "bar")) {
-                    setCharType({ filter_charType: "bar" });
-                  }
-                }}
+                onClick={() => setCharType("bar")}
                 disabled={!lchars.some((c) => c.id === "bar")}
               >
                 <LineGraphic
                   size={20}
                   color={
-                    charType.filter_charType === "bar"
+                    charType === "bar"
                       ? "var(--cAccent, #00E38C)"
                       : "var(--cWhiteV1, #A7A7A7)"
                   }
@@ -496,21 +468,15 @@ const BalanceGeneral: React.FC = () => {
                 type="button"
                 title="Gráfico de Línea"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === "line"
-                    ? styles.chartTypeButtonActive
-                    : ""
+                  charType === "line" ? styles.chartTypeButtonActive : ""
                 }`}
-                onClick={() => {
-                  if (lchars.some((c) => c.id === "line")) {
-                    setCharType({ filter_charType: "line" });
-                  }
-                }}
+                onClick={() => setCharType("line")}
                 disabled={!lchars.some((c) => c.id === "line")}
               >
                 <PointGraphic
                   size={20}
                   color={
-                    charType.filter_charType === "line"
+                    charType === "line"
                       ? "var(--cAccent, #00E38C)"
                       : "var(--cWhiteV1, #A7A7A7)"
                   }
@@ -521,324 +487,201 @@ const BalanceGeneral: React.FC = () => {
         </div>
 
         <div className={styles.loadingContainer}>
-          <LoadingScreen>
-            {formStateFilter.filter_mov === "T" && (
-              <>
-                {loaded &&
-                (!finanzas?.data?.ingresos ||
-                  finanzas?.data?.ingresos?.length === 0) &&
-                (!finanzas?.data?.egresos ||
-                  finanzas?.data?.egresos?.length === 0) ? (
-                  <EmptyData
-                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
-                    line2="a medida que tengas ingresos y egresos."
-                    h={400}
-                    icon={
-                      charType.filter_charType === "line" ? (
-                        <IconLineGraphic size={80} color="var(--cWhiteV1)" />
-                      ) : (
-                        <IconGraphics size={80} color="var(--cWhiteV1)" />
-                      )
-                    }
-                  />
-                ) : (
-                  <>
-                    <h2 className={styles.chartSectionTitle}>
-                      {formStateFilter.filter_date == "d" ||
-                      formStateFilter.filter_date == "ld"
-                        ? "Balance de " +
-                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                        : getPeriodoText(formStateFilter.filter_date)}
-                    </h2>
-                    <div
-                      ref={chartRefBalance}
-                      className={styles.chartContainer}
-                    >
-                      <WidgetGrafBalance
-                        saldoInicial={finanzas?.data?.saldoInicial}
-                        ingresos={finanzas?.data?.ingresosHist}
-                        egresos={finanzas?.data?.egresosHist}
-                        chartTypes={[charType.filter_charType]}
-                        subtitle={getSubtitle()}
-                        title={`Bs ${formatNumber(
-                          calculatedTotals.saldoFinal
-                        )}`}
-                        periodo={formStateFilter?.filter_date}
-                        exportando={exportando}
+          {(loadingLocal || !loaded) && <LoadingScreen />}
+          {!loadingLocal && loaded && (
+            <>
+              {formStateFilter.filter_mov === "T" && (
+                <>
+                  {(!finanzas?.data?.ingresos ||
+                    finanzas.data.ingresos.length === 0) &&
+                  (!finanzas?.data?.egresos ||
+                    finanzas.data.egresos.length === 0) ? (
+                    <EmptyData
+                      message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                      line2="a medida que tengas ingresos y egresos."
+                      h={400}
+                      icon={emptyDataIcon}
+                    />
+                  ) : (
+                    <>
+                      <h2 className={styles.chartSectionTitle}>
+                        {getPeriodoText}
+                      </h2>
+                      <div
+                        ref={chartRefBalance}
+                        className={styles.chartContainer}
+                      >
+                        <WidgetGrafBalance
+                          saldoInicial={finanzas?.data?.saldoInicial}
+                          ingresos={finanzas?.data?.ingresosHist}
+                          egresos={finanzas?.data?.egresosHist}
+                          chartTypes={[charType]}
+                          subtitle={getSubtitle}
+                          title={`Bs ${formatNumber(
+                            calculatedTotals.saldoFinal
+                          )}`}
+                          periodo={formStateFilter?.filter_date}
+                          exportando={exportando}
+                        />
+                        <div className={styles.legendAndExportWrapper}>
+                          <div className={styles.legendContainer}>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "var(--cCompl1)" }}
+                              ></div>
+                              <span>
+                                Saldo Inicial:{" "}
+                                <span className={styles.legendAmount}>
+                                  Bs{" "}
+                                  {formatNumber(calculatedTotals.saldoInicial)}
+                                </span>
+                              </span>
+                            </div>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "var(--cCompl7)" }}
+                              ></div>
+                              <span>
+                                Total de ingresos:
+                                <span className={styles.legendAmount}>
+                                  {" "}
+                                  Bs{" "}
+                                  {formatNumber(calculatedTotals.totalIngresos)}
+                                </span>
+                              </span>
+                            </div>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "var(--cCompl8)" }}
+                              ></div>
+                              <span>
+                                Total de egresos:{" "}
+                                <span className={styles.legendAmount}>
+                                  Bs{" "}
+                                  {formatNumber(calculatedTotals.totalEgresos)}
+                                </span>
+                              </span>
+                            </div>
+                            <div className={styles.legendItem}>
+                              <div
+                                className={styles.legendColor}
+                                style={{ backgroundColor: "var(--cCompl9)" }}
+                              ></div>
+                              <span>
+                                Total de saldo acumulado:{" "}
+                                <span className={styles.legendAmount}>
+                                  Bs {formatNumber(calculatedTotals.saldoFinal)}
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.divider} />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        <Button
+                          onClick={exportar}
+                          variant="secondary"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            width: "auto",
+                            background: "var(--cWhiteV2)",
+                            color: "var(--cWhite)",
+                            border: "none",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          <IconExport size={22} /> Descargar PDF
+                        </Button>
+                      </div>
+                      <h2
+                        className={styles.chartSectionTitle}
+                      >{`Resumen detallado de todos los ingresos`}</h2>
+                      <TableIngresos
+                        title="Ingresos"
+                        title2="Total"
+                        categorias={finanzas?.data?.categI}
+                        subcategorias={finanzas?.data?.ingresos}
+                        anual={
+                          formStateFilter?.filter_date === "y" ||
+                          formStateFilter?.filter_date === "ly" ||
+                          formStateFilter?.filter_date.includes("c:")
+                        }
                       />
-                      <div className={styles.legendAndExportWrapper}>
-                        <div className={styles.legendContainer}>
-                          <div className={styles.legendItem}>
-                            <div
-                              className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl1)" }}
-                            ></div>
-                            <span>
-                              Saldo Inicial:{" "}
-                              <span className={styles.legendAmount}>
-                                Bs {formatNumber(calculatedTotals.saldoInicial)}
-                              </span>
-                            </span>
-                          </div>
-                          <div className={styles.legendItem}>
-                            <div
-                              className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl7)" }}
-                            ></div>
-                            <span>
-                              <span>Total de ingresos:</span>
-                              <span className={styles.legendAmount}>
-                                {" "}
-                                Bs{" "}
-                                {formatNumber(calculatedTotals.totalIngresos)}
-                              </span>
-                            </span>
-                          </div>
-                          <div className={styles.legendItem}>
-                            <div
-                              className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl8)" }}
-                            ></div>
-                            <span>
-                              Total de egresos:{" "}
-                              <span className={styles.legendAmount}>
-                                Bs {formatNumber(calculatedTotals.totalEgresos)}
-                              </span>
-                            </span>
-                          </div>
-                          <div className={styles.legendItem}>
-                            <div
-                              className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl9)" }}
-                            ></div>
-                            <span>
-                              Total de saldo acumulado:{" "}
-                              <span className={styles.legendAmount}>
-                                Bs {formatNumber(calculatedTotals.saldoFinal)}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      <div className={styles.divider} />
+                      <h2
+                        className={styles.chartSectionTitle}
+                      >{`Resumen detallado de todos los egresos`}</h2>
+                      <TableEgresos
+                        title="Egresos"
+                        title2="Total"
+                        categorias={finanzas?.data?.categE}
+                        subcategorias={finanzas?.data?.egresos}
+                        anual={
+                          formStateFilter?.filter_date === "y" ||
+                          formStateFilter?.filter_date === "ly" ||
+                          formStateFilter?.filter_date.includes("c:")
+                        }
+                      />
+                      <div className={styles.divider} />
+                      <h2
+                        className={styles.chartSectionTitle}
+                      >{`Resumen detallado de totales`}</h2>
+                      <TableResumenGeneral
+                        subcategoriasE={finanzas?.data?.egresos}
+                        subcategoriasI={finanzas?.data?.ingresos}
+                        title={"Resumen general"}
+                        title2={"Total"}
+                        titleTotal={"Total acumulado"}
+                        saldoInicial={finanzas?.data?.saldoInicial}
+                      />
+                    </>
+                  )}
+                </>
+              )}
 
-                    <div className={styles.divider} />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      <Button
-                        onClick={exportar}
-                        variant="secondary"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          width: "auto",
-                          background: "var(--cWhiteV2)",
-                          color: "var(--cWhite)",
-                          border: "none",
-                          borderRadius: "12px",
-                        }}
-                      >
-                        <IconExport size={22} />
-                        Descargar PDF
-                      </Button>
-                    </div>
-                    <h2 className={styles.chartSectionTitle}>
-                      {`Resumen detallado de todos los ingresos`}
-                    </h2>
-                    <TableIngresos
-                      title="Ingresos"
-                      title2="Total"
-                      categorias={finanzas?.data?.categI}
-                      subcategorias={finanzas?.data?.ingresos}
-                      anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
-                      }
+              {formStateFilter.filter_mov === "I" && (
+                <>
+                  {!finanzas?.data?.ingresos ||
+                  finanzas.data.ingresos.length === 0 ? (
+                    <EmptyData
+                      message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                      line2="a medida que tengas ingresos y egresos."
+                      h={400}
+                      icon={emptyDataIcon}
                     />
-
-                    <div className={styles.divider} />
-                    <h2 className={styles.chartSectionTitle}>
-                      {`Resumen detallado de todos los egresos`}
-                    </h2>
-                    <TableEgresos
-                      title="Egresos"
-                      title2="Total"
-                      categorias={finanzas?.data?.categE}
-                      subcategorias={finanzas?.data?.egresos}
-                      anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
-                      }
-                    />
-
-                    <div className={styles.divider} />
-                    <h2 className={styles.chartSectionTitle}>
-                      {`Resumen detallado de totales`}
-                    </h2>
-                    <TableResumenGeneral
-                      subcategoriasE={finanzas?.data?.egresos}
-                      subcategoriasI={finanzas?.data?.ingresos}
-                      title={"Resumen general"}
-                      title2={"Total"}
-                      titleTotal={"Total acumulado"}
-                      saldoInicial={finanzas?.data?.saldoInicial}
-                    />
-                  </>
-                )}
-              </>
-            )}
-
-            {formStateFilter.filter_mov === "I" && (
-              <>
-                {loadingLocal || !loaded ? (
-                  <LoadingScreen />
-                ) : !finanzas?.data?.ingresos ||
-                  finanzas?.data?.ingresos?.length === 0 ? (
-                  <EmptyData
-                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
-                    line2="a medida que tengas ingresos y egresos."
-                    h={400}
-                    icon={
-                      charType.filter_charType === "line" ? (
-                        <IconLineGraphic size={80} color="var(--cWhiteV1)" />
-                      ) : (
-                        <IconGraphics size={80} color="var(--cWhiteV1)" />
-                      )
-                    }
-                  />
-                ) : (
-                  <>
-                    <h2 className={styles.chartSectionTitle}>
-                      {formStateFilter.filter_date == "d" ||
-                      formStateFilter.filter_date == "ld"
-                        ? "Balance de " +
-                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                        : getPeriodoText(formStateFilter.filter_date)}
-                    </h2>
-                    <div className={styles.chartContainer}>
-                      <div
-                        ref={chartRefIngresos}
-                        className={styles.chartAndLegendContainer}
-                      >
-                        <WidgetGrafIngresos
-                          ingresos={(() => {
-                            const ingresosHist =
-                              finanzas?.data.ingresosHist || [];
-                            const selectcategorias =
-                              typeof formStateFilter.filter_categ === "string"
-                                ? formStateFilter.filter_categ
-                                  ? [formStateFilter.filter_categ]
-                                  : []
-                                : formStateFilter.filter_categ;
-                            let datos = ingresosHist;
-                            if (
-                              selectcategorias &&
-                              selectcategorias.length > 0
-                            ) {
-                              datos = ingresosHist.filter((item: any) =>
-                                selectcategorias.includes(item.category_id)
-                              );
-                            }
-                            return filtrarHastaMesActual(datos, "I");
-                          })()}
-                          chartTypes={[charType.filter_charType]}
-                          h={360}
-                          title={`Bs ${formatNumber(
-                            (() => {
-                              // Agrupar igual que la leyenda del widget
-                              const datos = (() => {
-                                const ingresosHist =
-                                  finanzas?.data.ingresosHist || [];
-                                const selectcategorias =
-                                  typeof formStateFilter.filter_categ ===
-                                  "string"
-                                    ? formStateFilter.filter_categ
-                                      ? [formStateFilter.filter_categ]
-                                      : []
-                                    : formStateFilter.filter_categ;
-                                let datosFiltrados = ingresosHist;
-                                if (
-                                  selectcategorias &&
-                                  selectcategorias.length > 0
-                                ) {
-                                  datosFiltrados = ingresosHist.filter(
-                                    (item: any) =>
-                                      selectcategorias.includes(
-                                        item.category_id
-                                      )
-                                  );
-                                }
-                                return filtrarHastaMesActual(
-                                  datosFiltrados,
-                                  "I"
-                                );
-                              })();
-                              // Agrupar por categoria y sumar
-                              const map = new Map();
-                              datos.forEach((item: any) => {
-                                if (!map.has(item.categoria)) {
-                                  map.set(item.categoria, 0);
-                                }
-                                map.set(
-                                  item.categoria,
-                                  map.get(item.categoria) +
-                                    parseFloat(item.ingresos || 0)
-                                );
-                              });
-                              return Array.from(map.values()).reduce(
-                                (acc, val) => acc + val,
-                                0
-                              );
-                            })()
-                          )}`}
-                          subtitle={"Total de ingresos"}
-                          periodo={formStateFilter?.filter_date}
-                        />
-                        <div className={styles.legendAndExportWrapper}>
-                          <div className={styles.legendContainer}>
-                            {(() => {
-                              const selectcategorias =
-                                typeof formStateFilter.filter_categ === "string"
-                                  ? formStateFilter.filter_categ
-                                    ? [formStateFilter.filter_categ]
-                                    : []
-                                  : formStateFilter.filter_categ;
-                              let legend = legendCategoriasIngresos;
-                              if (
-                                selectcategorias &&
-                                selectcategorias.length > 0
-                              ) {
-                                legend = (finanzas?.data?.ingresosHist ?? [])
-                                  .filter((item: any) =>
-                                    selectcategorias.includes(item.category_id)
-                                  )
-                                  .reduce((acc: any[], item: any) => {
-                                    let found = acc.find(
-                                      (a) => a.id === item.categ_id
-                                    );
-                                    if (found) {
-                                      found.total += parseFloat(
-                                        item.ingresos ?? 0
-                                      );
-                                    } else {
-                                      acc.push({
-                                        id: item.categ_id,
-                                        name: item.categoria,
-                                        total: parseFloat(item.ingresos ?? 0),
-                                      });
-                                    }
-                                    return acc;
-                                  }, []);
-                              }
-                              return legend.map((cat, idx) => (
+                  ) : (
+                    <>
+                      <h2 className={styles.chartSectionTitle}>
+                        {getPeriodoText}
+                      </h2>
+                      <div className={styles.chartContainer}>
+                        <div
+                          ref={chartRefIngresos}
+                          className={styles.chartAndLegendContainer}
+                        >
+                          <WidgetGrafIngresos
+                            ingresos={filteredIngresosHist}
+                            chartTypes={[charType]}
+                            h={360}
+                            title={`Bs ${formatNumber(totalFilteredIngresos)}`}
+                            subtitle={"Total de ingresos"}
+                            periodo={formStateFilter?.filter_date}
+                          />
+                          <div className={styles.legendAndExportWrapper}>
+                            <div className={styles.legendContainer}>
+                              {legendDataIngresos.map((cat, idx) => (
                                 <div
                                   className={styles.legendItem}
                                   key={cat.name ?? idx}
@@ -858,206 +701,84 @@ const BalanceGeneral: React.FC = () => {
                                     </span>
                                   </span>
                                 </div>
-                              ));
-                            })()}
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className={styles.divider} />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      <Button
-                        onClick={exportar}
-                        variant="secondary"
+                      <div className={styles.divider} />
+                      <div
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          width: "auto",
-                          background: "var(--cWhiteV2)",
-                          color: "var(--cWhite)",
-                          border: "none",
-                          borderRadius: "12px",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          marginBottom: "16px",
                         }}
                       >
-                        <IconExport size={22} />
-                        Descargar PDF
-                      </Button>
-                    </div>
-                    <TableIngresos
-                      title="Ingresos"
-                      title2="Total"
-                      categorias={finanzas?.data?.categI}
-                      subcategorias={finanzas?.data?.ingresos}
-                      anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
-                      }
-                      selectcategorias={
-                        typeof formStateFilter.filter_categ === "string"
-                          ? formStateFilter.filter_categ
-                            ? [formStateFilter.filter_categ]
-                            : []
-                          : formStateFilter.filter_categ
-                      }
+                        <Button
+                          onClick={exportar}
+                          variant="secondary"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            width: "auto",
+                            background: "var(--cWhiteV2)",
+                            color: "var(--cWhite)",
+                            border: "none",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          <IconExport size={22} /> Descargar PDF
+                        </Button>
+                      </div>
+                      <TableIngresos
+                        title="Ingresos"
+                        title2="Total"
+                        categorias={finanzas?.data?.categI}
+                        subcategorias={finanzas?.data?.ingresos}
+                        anual={
+                          formStateFilter?.filter_date === "y" ||
+                          formStateFilter?.filter_date === "ly" ||
+                          formStateFilter?.filter_date.includes("c:")
+                        }
+                        selectcategorias={formStateFilter.filter_categ}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+
+              {formStateFilter.filter_mov === "E" && (
+                <>
+                  {!finanzas?.data?.egresos ||
+                  finanzas.data.egresos.length === 0 ? (
+                    <EmptyData
+                      message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
+                      line2="a medida que tengas ingresos y egresos."
+                      h={400}
+                      icon={emptyDataIcon}
                     />
-                  </>
-                )}
-              </>
-            )}
-
-            {formStateFilter.filter_mov === "E" && (
-              <>
-                {loadingLocal || !loaded ? (
-                  <LoadingScreen />
-                ) : !finanzas?.data?.egresos ||
-                  finanzas?.data?.egresos?.length === 0 ? (
-                  <EmptyData
-                    message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
-                    line2="a medida que tengas ingresos y egresos."
-                    h={400}
-                    icon={
-                      charType.filter_charType === "line" ? (
-                        <IconLineGraphic size={60} color="var(--cWhiteV1)" />
-                      ) : (
-                        <IconGraphics size={60} color="var(--cWhiteV1)" />
-                      )
-                    }
-                  />
-                ) : (
-                  <>
-                    <h2 className={styles.chartSectionTitle}>
-                      {formStateFilter.filter_date == "d" ||
-                      formStateFilter.filter_date == "ld"
-                        ? "Balance de " +
-                          (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer")
-                        : getPeriodoText(formStateFilter.filter_date)}
-                    </h2>
-
-                    <div className={styles.chartContainer}>
-                      <div
-                        ref={chartRefEgresos}
-                        className={styles.chartAndLegendContainer}
-                      >
-                        <WidgetGrafEgresos
-                          egresos={(() => {
-                            const egresosHist =
-                              finanzas?.data.egresosHist || [];
-                            const selectcategorias =
-                              typeof formStateFilter.filter_categ === "string"
-                                ? formStateFilter.filter_categ
-                                  ? [formStateFilter.filter_categ]
-                                  : []
-                                : formStateFilter.filter_categ;
-                            let datos = egresosHist;
-                            if (
-                              selectcategorias &&
-                              selectcategorias.length > 0
-                            ) {
-                              datos = egresosHist.filter((item: any) =>
-                                selectcategorias.includes(item.category_id)
-                              );
-                            }
-                            return filtrarHastaMesActual(datos, "E");
-                          })()}
-                          chartTypes={[charType.filter_charType]}
-                          h={360}
-                          title={`Bs ${formatNumber(
-                            (() => {
-                              // Agrupar igual que la leyenda del widget
-                              const datos = (() => {
-                                const egresosHist =
-                                  finanzas?.data.egresosHist || [];
-                                const selectcategorias =
-                                  typeof formStateFilter.filter_categ ===
-                                  "string"
-                                    ? formStateFilter.filter_categ
-                                      ? [formStateFilter.filter_categ]
-                                      : []
-                                    : formStateFilter.filter_categ;
-                                let datosFiltrados = egresosHist;
-                                if (
-                                  selectcategorias &&
-                                  selectcategorias.length > 0
-                                ) {
-                                  datosFiltrados = egresosHist.filter(
-                                    (item: any) =>
-                                      selectcategorias.includes(
-                                        item.category_id
-                                      )
-                                  );
-                                }
-                                return filtrarHastaMesActual(
-                                  datosFiltrados,
-                                  "E"
-                                );
-                              })();
-                              // Agrupar por categoria y sumar
-                              const map = new Map();
-                              datos.forEach((item: any) => {
-                                if (!map.has(item.categoria)) {
-                                  map.set(item.categoria, 0);
-                                }
-                                map.set(
-                                  item.categoria,
-                                  map.get(item.categoria) +
-                                    parseFloat(item.egresos || 0)
-                                );
-                              });
-                              return Array.from(map.values()).reduce(
-                                (acc, val) => acc + val,
-                                0
-                              );
-                            })()
-                          )}`}
-                          subtitle={"Total de egresos"}
-                          periodo={formStateFilter?.filter_date}
-                        />
-                        <div className={styles.legendAndExportWrapper}>
-                          <div className={styles.legendContainer}>
-                            {(() => {
-                              const selectcategorias =
-                                typeof formStateFilter.filter_categ === "string"
-                                  ? formStateFilter.filter_categ
-                                    ? [formStateFilter.filter_categ]
-                                    : []
-                                  : formStateFilter.filter_categ;
-                              let legend = legendCategoriasEgresos;
-                              if (
-                                selectcategorias &&
-                                selectcategorias.length > 0
-                              ) {
-                                // Mostrar solo subcategorías/hijas cuyo category_id coincida con la categoría padre seleccionada
-                                legend = (finanzas?.data?.egresosHist ?? [])
-                                  .filter((item: any) =>
-                                    selectcategorias.includes(item.category_id)
-                                  )
-                                  .reduce((acc: any[], item: any) => {
-                                    let found = acc.find(
-                                      (a) => a.id === item.categ_id
-                                    );
-                                    if (found) {
-                                      found.total += parseFloat(
-                                        item.egresos ?? 0
-                                      );
-                                    } else {
-                                      acc.push({
-                                        id: item.categ_id,
-                                        name: item.categoria,
-                                        total: parseFloat(item.egresos ?? 0),
-                                      });
-                                    }
-                                    return acc;
-                                  }, []);
-                              }
-                              return legend.map((cat, idx) => (
+                  ) : (
+                    <>
+                      <h2 className={styles.chartSectionTitle}>
+                        {getPeriodoText}
+                      </h2>
+                      <div className={styles.chartContainer}>
+                        <div
+                          ref={chartRefEgresos}
+                          className={styles.chartAndLegendContainer}
+                        >
+                          <WidgetGrafEgresos
+                            egresos={filteredEgresosHist}
+                            chartTypes={[charType]}
+                            h={360}
+                            title={`Bs ${formatNumber(totalFilteredEgresos)}`}
+                            subtitle={"Total de egresos"}
+                            periodo={formStateFilter?.filter_date}
+                          />
+                          <div className={styles.legendAndExportWrapper}>
+                            <div className={styles.legendContainer}>
+                              {legendDataEgresos.map((cat, idx) => (
                                 <div
                                   className={styles.legendItem}
                                   key={cat.name ?? idx}
@@ -1077,61 +798,54 @@ const BalanceGeneral: React.FC = () => {
                                     </span>
                                   </span>
                                 </div>
-                              ));
-                            })()}
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className={styles.divider} />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      <Button
-                        onClick={exportar}
-                        variant="secondary"
+                      <div className={styles.divider} />
+                      <div
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          width: "auto",
-                          background: "var(--cWhiteV2)",
-                          color: "var(--cWhite)",
-                          border: "none",
-                          borderRadius: "12px",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          marginBottom: "16px",
                         }}
                       >
-                        <IconExport size={22} />
-                        Descargar PDF
-                      </Button>
-                    </div>
-                    <TableEgresos
-                      title="Egresos"
-                      title2="Total"
-                      categorias={finanzas?.data?.categE}
-                      subcategorias={finanzas?.data?.egresos}
-                      anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
-                      }
-                      selectcategorias={
-                        typeof formStateFilter.filter_categ === "string"
-                          ? formStateFilter.filter_categ
-                            ? [formStateFilter.filter_categ]
-                            : []
-                          : formStateFilter.filter_categ
-                      }
-                    />
-                  </>
-                )}
-              </>
-            )}
-          </LoadingScreen>
+                        <Button
+                          onClick={exportar}
+                          variant="secondary"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            width: "auto",
+                            background: "var(--cWhiteV2)",
+                            color: "var(--cWhite)",
+                            border: "none",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          <IconExport size={22} /> Descargar PDF
+                        </Button>
+                      </div>
+                      <TableEgresos
+                        title="Egresos"
+                        title2="Total"
+                        categorias={finanzas?.data?.categE}
+                        subcategorias={finanzas?.data?.egresos}
+                        anual={
+                          formStateFilter?.filter_date === "y" ||
+                          formStateFilter?.filter_date === "ly" ||
+                          formStateFilter?.filter_date.includes("c:")
+                        }
+                        selectcategorias={formStateFilter.filter_categ}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -1151,9 +865,9 @@ const BalanceGeneral: React.FC = () => {
           name="date_inicio"
           error={errors}
           value={formState["date_inicio"]}
-          onChange={(e) => {
-            setFormState({ ...formState, date_inicio: e.target.value });
-          }}
+          onChange={(e) =>
+            setFormState({ ...formState, date_inicio: e.target.value })
+          }
           required
         />
         <Input
@@ -1162,9 +876,9 @@ const BalanceGeneral: React.FC = () => {
           name="date_fin"
           error={errors}
           value={formState["date_fin"]}
-          onChange={(e) => {
-            setFormState({ ...formState, date_fin: e.target.value });
-          }}
+          onChange={(e) =>
+            setFormState({ ...formState, date_fin: e.target.value })
+          }
           required
         />
       </DataModal>
