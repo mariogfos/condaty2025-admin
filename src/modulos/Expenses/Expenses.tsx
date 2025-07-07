@@ -349,7 +349,7 @@ const Expenses = () => {
     return (
       <div>
         <List
-          height={"calc(100vh - 230px)"}
+          height={"calc(100vh - 270px)"}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
           emptyMsg="Lista de expensa vacía. Una vez generes las cuotas"

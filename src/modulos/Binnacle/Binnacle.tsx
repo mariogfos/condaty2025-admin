@@ -112,7 +112,7 @@ const Binnacle = () => {
   return (
     <div>
       <List
-        height={"calc(100vh - 280px)"}
+        height={"calc(100vh - 330px)"}
         emptyMsg="Lista de bitácora vacía. Cuando los guardias registren"
         emptyLine2="sus reportes los verás aquí."
         emptyIcon={<IconPencilPaper size={80} color="var(--cWhiteV1)" />}

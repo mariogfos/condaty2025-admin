@@ -15,7 +15,8 @@ const GraphBase = ({
   options,
   background = "#333536",
   downloadPdf = false,
-}: ProptypesBase) => {
+  exportando = false,
+}: ProptypesBase & { exportando?: boolean }) => {
   const [chartType, setChartType] = React.useState<ChartType>("bar");
   const [lChartType, setLChartType] = React.useState<LChartType[]>([
     { id: "bar", name: "Barra" },
@@ -61,7 +62,7 @@ const GraphBase = ({
           required
         />
       )}
-      <GraphsAdapter data={data} chartType={chartType} options={options} downloadPdf={downloadPdf} />
+      <GraphsAdapter data={data} chartType={chartType} options={options} downloadPdf={downloadPdf} exportando={exportando} />
     </div>
   );
 };

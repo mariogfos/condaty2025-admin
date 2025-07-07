@@ -475,7 +475,7 @@ const Guards = () => {
       </div>
       <List
         onTabletRow={renderItem}
-        height={"calc(100vh - 395px)"}
+        height={"calc(100vh - 430px)"}
         emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
         emptyLine2="del condominio una vez los registres."
         emptyIcon={<IconSecurity size={80} color="var(--cWhiteV1)" />}
