@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "../RenderForm.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import Input from "@/mk/components/forms/Input/Input";
 import Switch from "@/mk/components/forms/Switch/Switch";
 interface PropsType {
   handleChange: any;
@@ -46,10 +45,10 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         />
       </div>
       <Br />
-      <p className={styles.title}>Reglas de uso</p>
+      <p className={styles.title}>Políticas de uso</p>
       <p className={styles.subtitle}>
-        Describe las reglas de uso y proporciona directrices para el uso
-        adecuado de las áreas comunes
+        Describe las reglas y restricciones de uso y proporciona directrices
+        para el uso adecuado del área social
       </p>
       <TextArea
         label="Descripción"
@@ -89,12 +88,19 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         error={errors}
       /> */}
       <Br />
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
-            Activa esta opción si deseas que cada reserva de esta área deba ser
-            revisada y aprobada por administración antes de aprobarse
+            Si activas esta opción cada solicitud de reserva pasará por tu
+            gestión
           </p>
         </div>
         <Switch

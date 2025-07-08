@@ -134,12 +134,12 @@ const RenderForm = ({
       key: "cancellation_policy",
       errors,
     });
-    errors = checkRules({
-      value: formState?.approval_response_hours,
-      rules: ["required", "max:3"],
-      key: "approval_response_hours",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState?.approval_response_hours,
+    //   rules: ["required", "max:3"],
+    //   key: "approval_response_hours",
+    //   errors,
+    // });
     // errors = checkRules({
     //   value: formState?.penalty_or_debt_restriction,
     //   rules: ["required"],

@@ -22,12 +22,35 @@ const FourPart = ({ item }: { item: any }) => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpanded = () => setIsExpanded(!isExpanded);
+
+  const allImages = React.useMemo(() => {
+    const backendImages =
+      item?.images?.map((img: any) => ({
+        type: "backend",
+        src: getUrlImages(
+          `/AREA-${item?.id}-${img?.id}.webp?${item?.updated_at}`
+        ),
+      })) || [];
+
+    const localAvatars = Object.keys(item?.avatar || {})
+      .filter((key) => item?.avatar?.[key]?.file)
+      .map((key) => ({
+        type: "local",
+        src: `data:image/webp;base64,${item?.avatar?.[key]?.file}`,
+      }));
+
+    return [...backendImages, ...localAvatars];
+  }, [item]);
+
+  const totalImages = allImages.length;
+
   const nextIndex = () => {
-    setIndexVisible((prevIndex) => (prevIndex + 1) % item?.images?.length);
+    setIndexVisible((prevIndex) => (prevIndex + 1) % totalImages);
   };
+
   const prevIndex = () => {
     setIndexVisible((prevIndex) =>
-      prevIndex === 0 ? item?.images?.length - 1 : prevIndex - 1
+      prevIndex === 0 ? totalImages - 1 : prevIndex - 1
     );
   };
   const Br = () => {
@@ -56,36 +79,30 @@ const FourPart = ({ item }: { item: any }) => {
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
+
   return (
     <>
       <div className={styles.renderView}>
         <div className={styles.containerFirstSection}>
           <div className={styles.containerImage}>
             <div className={styles.image}>
-              {item?.images?.[indexVisible]?.id && (
-                <img
-                  alt=""
-                  width={"100%"}
-                  height={"auto"}
-                  src={getUrlImages(
-                    "/AREA-" +
-                      item?.id +
-                      "-" +
-                      item?.images?.[indexVisible]?.id +
-                      ".webp" +
-                      "?" +
-                      item?.updated_at
-                  )}
-                />
-              )}
+              {/* {item?.images?.[indexVisible]?.id && item.id && ( */}
+              <img
+                alt=""
+                width="100%"
+                height="auto"
+                src={allImages?.[indexVisible]?.src}
+              />
+              {/* )} */}
             </div>
-            {item?.images?.length > 1 && (
+            {(item?.images?.length > 1 ||
+              Object?.keys(item?.avatar || {}).length > 0) && (
               <div className={styles.containerButton}>
                 <div className={styles.button} onClick={prevIndex}>
                   <IconArrowLeft size={18} color="var(--cWhite)" />
                 </div>
                 <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
-                  {indexVisible + 1} / {item?.images?.length}
+                  {indexVisible + 1} / {totalImages}
                 </p>
                 <div className={styles.button} onClick={nextIndex}>
                   <IconArrowRight size={18} color="var(--cWhite)" />
@@ -146,10 +163,12 @@ const FourPart = ({ item }: { item: any }) => {
               title={"Máximo de reservas por semana"}
               value={item?.max_reservations_per_week}
             />
-            <KeyValue
-              title={"Cancelación sin multa"}
-              value={item?.min_cancel_hours + "h"}
-            />
+            {item.item?.price > 0 && (
+              <KeyValue
+                title={"Cancelación sin multa"}
+                value={item?.min_cancel_hours + "h"}
+              />
+            )}
             <KeyValue
               title={"Porcentaje por cancelación"}
               value={formatNumber(item?.penalty_fee, 1) + "%"}
