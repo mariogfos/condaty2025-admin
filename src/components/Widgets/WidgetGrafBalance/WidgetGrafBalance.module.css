@@ -1,18 +1,13 @@
 .container {
-  background-color: transparent;
+  width: 100%;
 }
 
 .title {
   font-size: var(--sXl);
   font-family: var(--fPrimary);
   font-weight: var(--bBold);
-  color: var(--cWhiteV1);
+  color: var(--cWhite);
 }
-
-.lightChart .title {
-  color: var(--cBlack) !important;
-}
-
 .subtitle {
   color: var(--cWhiteV1);
   font-size: var(--sLg);

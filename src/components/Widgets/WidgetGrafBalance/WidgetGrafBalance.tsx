@@ -207,6 +207,16 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
       </p>
       <p className={styles.title}>{title || 'Resumen general'}</p>
+      <p
+        style={{
+          color: 'var(--darkv1)',
+          fontWeight: 500,
+          fontSize: 18,
+
+        }}
+      >
+        {title}
+      </p>
 
       <GraphBase
         data={{
