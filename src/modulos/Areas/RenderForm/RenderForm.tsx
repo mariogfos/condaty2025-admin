@@ -10,6 +10,7 @@ import ThirdPart from "./Partes/ThirdPart";
 import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import FourPart from "./Partes/FourPart";
 
 const RenderForm = ({
   onClose,
@@ -26,7 +27,11 @@ const RenderForm = ({
   reLoad,
   action,
 }: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+  const [formState, setFormState]: any = useState({
+    ...item,
+    booking_mode: item?.booking_mode || "day",
+    has_price: item?.price ? "S" : "N",
+  });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
@@ -77,12 +82,7 @@ const RenderForm = ({
   };
   const validateLevel2 = () => {
     let errors: any = {};
-    errors = checkRules({
-      value: formState?.price,
-      rules: ["max:10", "number"],
-      key: "price",
-      errors,
-    });
+
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
@@ -97,18 +97,26 @@ const RenderForm = ({
       key: "max_reservations_per_week",
       errors,
     });
-    errors = checkRules({
-      value: formState?.min_cancel_hours,
-      rules: ["required", "max:2"],
-      key: "min_cancel_hours",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.penalty_fee,
-      rules: ["required", "max:5"],
-      key: "penalty_fee",
-      errors,
-    });
+    if (formState?.has_price == "S") {
+      errors = checkRules({
+        value: formState?.price,
+        rules: ["required", "max:10", "number"],
+        key: "price",
+        errors,
+      });
+      errors = checkRules({
+        value: formState?.min_cancel_hours,
+        rules: ["required", "max:2"],
+        key: "min_cancel_hours",
+        errors,
+      });
+      errors = checkRules({
+        value: formState?.penalty_fee,
+        rules: ["required", "max:5"],
+        key: "penalty_fee",
+        errors,
+      });
+    }
     setErrors(errors);
     return errors;
   };
@@ -126,12 +134,12 @@ const RenderForm = ({
       key: "cancellation_policy",
       errors,
     });
-    errors = checkRules({
-      value: formState?.approval_response_hours,
-      rules: ["required", "max:3"],
-      key: "approval_response_hours",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState?.approval_response_hours,
+    //   rules: ["required", "max:3"],
+    //   key: "approval_response_hours",
+    //   errors,
+    // });
     // errors = checkRules({
     //   value: formState?.penalty_or_debt_restriction,
     //   rules: ["required"],
@@ -163,6 +171,8 @@ const RenderForm = ({
     }
     if (level === 3) {
       if (hasErrors(validateLevel3())) return;
+    }
+    if (level == 4) {
       onSave();
       return;
     }
@@ -193,6 +203,7 @@ const RenderForm = ({
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
+        reservation_duration: parseFloat(formState?.reservation_duration),
       }
     );
 
@@ -217,7 +228,7 @@ const RenderForm = ({
         }}
       >
         <p style={{ fontSize: 24, fontWeight: 600 }}>Creación de área social</p>
-        <StepProgressBar currentStep={level} totalSteps={3} />
+        <StepProgressBar currentStep={level} totalSteps={4} />
         <Card>
           {level === 1 && (
             <FirstPart
@@ -240,6 +251,13 @@ const RenderForm = ({
               handleChange={handleChange}
               errors={errors}
               formState={formState}
+            />
+          )}
+          {level === 4 && (
+            <FourPart
+              // handleChange={handleChange}
+              // errors={errors}
+              item={formState}
             />
           )}
           <div

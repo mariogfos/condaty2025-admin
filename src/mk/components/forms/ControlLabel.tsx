@@ -23,6 +23,8 @@ export interface PropsTypeInputBase {
   onKeyDown?: (e: any) => void;
   maxLength?: number;
   ref?: any;
+  prefix?: string;
+  suffix?: string;
 }
 
 interface PropsType extends PropsTypeInputBase {
@@ -47,11 +49,13 @@ const ControlLabel = (props: PropsType) => {
       style={props.style}
     >
       {props.iconLeft && <span>{props.iconLeft}</span>}
+      {props.prefix && <span>{props.prefix}</span>}
       <div>
         {props.children}
         {props.label && <label htmlFor={props.name}>{label}</label>}
       </div>
       {props.iconRight && <span>{props.iconRight}</span>}
+      {props.suffix && <span>{props.suffix}</span>}
       {!props.error ? null : (
         <p className={stylesInput.error}>{props.error[props.name] || null}</p>
       )}
