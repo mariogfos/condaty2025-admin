@@ -211,8 +211,17 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         style={{
           color: 'var(--darkv1)',
           fontWeight: 500,
+          fontSize: 12,
+        }}
+      >
+        {subtitle ||
+          `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
+      </p>
+      <p
+        style={{
+          color: 'var(--darkv1)',
+          fontWeight: 500,
           fontSize: 18,
-
         }}
       >
         {title}

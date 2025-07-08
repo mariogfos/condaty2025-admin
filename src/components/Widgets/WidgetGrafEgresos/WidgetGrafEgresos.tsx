@@ -143,8 +143,17 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
         style={{
           color: 'var(--darkv1)',
           fontWeight: 500,
+          fontSize: 12,
+        }}
+      >
+        {subtitle ||
+          'Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías'}
+      </p>
+      <p
+        style={{
+          color: 'var(--darkv1)',
+          fontWeight: 500,
           fontSize: 18,
-
         }}
       >
         {title}

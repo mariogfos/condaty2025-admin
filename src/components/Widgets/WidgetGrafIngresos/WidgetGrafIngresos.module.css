@@ -10,7 +10,7 @@
   }
 
   .subtitle {
-    color: var(--cWhiteV1);
+    color: var(--cWhite);
     font-size: var(--sLg);
     font-family: var(--fPrimary);
     font-weight: var(--bRegular);

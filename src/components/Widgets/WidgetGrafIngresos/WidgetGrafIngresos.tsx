@@ -145,6 +145,16 @@ const WidgetGrafIngresos = ({
         style={{
           color: 'var(--darkv1)',
           fontWeight: 500,
+          fontSize: 12,
+        }}
+      >
+        {subtitle ||
+          ' Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías'}
+      </p>
+      <p
+        style={{
+          color: 'var(--darkv1)',
+          fontWeight: 500,
           fontSize: 18,
         }}
       >
