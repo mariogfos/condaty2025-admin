@@ -35,7 +35,6 @@ const SecondPart = ({
     formState?.available_days || []
   );
   const prevBookingMode = useRef(formState?.booking_mode);
-  // const [selectdHour, setSelectdHour]: any = useState("");
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const { showToast } = useAuth();
@@ -69,8 +68,6 @@ const SecondPart = ({
   };
 
   const handleChangePeriods = (newPeriod: string) => {
-    // setSelectdHour(newPeriod);
-
     setFormState({
       ...formState,
       available_days: [],
@@ -78,21 +75,9 @@ const SecondPart = ({
       reservation_duration: newPeriod,
     });
 
-    // Limpiar estados relacionados
     setSelectedDays([]);
     setPeriods([]);
   };
-  // useEffect(() => {
-  //   if (
-  //     formState?.start_hour &&
-  //     formState?.end_hour &&
-  //     formState?.booking_mode === "hour"
-  //   ) {
-  //     getHours();
-  //   }
-  //   setPeriods([]);
-  //   setSelectdHour("");
-  // }, [formState?.start_hour, formState?.end_hour]);
   const Br = () => {
     return (
       <div
@@ -214,8 +199,6 @@ const SecondPart = ({
         penalty_fee: "",
       });
     }
-
-    // Actualiza el valor anterior
     prevHasPrice.current = formState?.has_price;
   }, [formState?.has_price]);
 
@@ -230,8 +213,6 @@ const SecondPart = ({
         ...h,
         minutes: parseTimeToMinutes(h.name),
       }));
-
-      // Encuentra los saltos exactos en función de la duración
       const validHours = allHourMinutes.filter((hour) => {
         const diff = hour.minutes - startMinutes;
         return hour.minutes > startMinutes && diff % durationInMinutes === 0;
@@ -469,6 +450,7 @@ const SecondPart = ({
             type="number"
             label="Tiempo"
             name="min_cancel_hours"
+            suffix="h"
             required
             placeholder="Usa el formato: 2h, 4h, 6h"
             value={formState?.min_cancel_hours}
@@ -554,29 +536,35 @@ const SecondPart = ({
                   width: "100%",
                 }}
               >
-                {selectedDays.map((day: any) => (
-                  <div
-                    key={day}
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                  >
-                    <p style={{ fontSize: 14 }}>{day}</p>
+                {selectedDays
+                  .sort((a: any, b: any) => days.indexOf(a) - days.indexOf(b))
+                  .map((day: any) => (
+                    <div
+                      key={day}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
+                    >
+                      <p style={{ fontSize: 14 }}>{day}</p>
 
-                    {periods.map((period: any, index: any) => (
-                      <div
-                        key={index}
-                        style={{
-                          border: "0.5px solid var(--cWhiteV1) ",
-                          padding: 8,
-                          borderRadius: 8,
-                        }}
-                      >
-                        <p style={{ color: "var(--cWhiteV1)", fontSize: 14 }}>
-                          {period}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                      {periods.map((period: any, index: any) => (
+                        <div
+                          key={index}
+                          style={{
+                            border: "0.5px solid var(--cWhiteV1) ",
+                            padding: 8,
+                            borderRadius: 8,
+                          }}
+                        >
+                          <p style={{ color: "var(--cWhiteV1)", fontSize: 14 }}>
+                            {period}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
               </div>
             </>
           )}

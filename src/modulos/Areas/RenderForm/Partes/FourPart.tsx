@@ -79,7 +79,7 @@ const FourPart = ({ item }: { item: any }) => {
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
-
+  console.log(item);
   return (
     <>
       <div className={styles.renderView}>
@@ -159,11 +159,17 @@ const FourPart = ({ item }: { item: any }) => {
               title={"Aprobación de administración"}
               value={item?.requires_approval == "A" ? "Sí" : "No"}
             />
+            {item?.booking_mode === "hour" && (
+              <KeyValue
+                title={"Reservación por día"}
+                value={item?.max_reservations_per_day}
+              />
+            )}
             <KeyValue
-              title={"Máximo de reservas por semana"}
+              title={"Reservación por semana"}
               value={item?.max_reservations_per_week}
             />
-            {item.item?.price > 0 && (
+            {item?.price > 0 && (
               <KeyValue
                 title={"Cancelación sin multa"}
                 value={item?.min_cancel_hours + "h"}
