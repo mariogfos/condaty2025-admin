@@ -130,22 +130,28 @@ const SecondPart = ({
   ]);
 
   const handleSave = () => {
-    if (
-      !selectedDays.length ||
-      !formState?.start_hour ||
-      !formState?.end_hour ||
-      (!formState?.reservation_duration && formState?.booking_mode == "hour")
-    )
+    // if (
+    //   !selectedDays.length ||
+    //   !formState?.start_hour ||
+    //   !formState?.end_hour ||
+    //   (!formState?.reservation_duration && formState?.booking_mode == "hour")
+    // )
+    //   return;
+    if (!selectedDays.length) {
+      showToast("Debe seleccionar al menos un día", "error");
       return;
+    }
+    if (!formState?.start_hour || !formState?.end_hour) {
+      showToast("Debe seleccionar una hora de inicio y fin", "error");
+      return;
+    }
 
     const updatedHours: any = {};
 
     selectedDays.forEach((day: string) => {
       if (formState?.booking_mode === "hour") {
-        // Por hora: guardar todos los periodos generados
         updatedHours[day] = [...(periods || [])];
       } else {
-        // Por día: guardar el rango completo
         updatedHours[day] = [`${formState?.start_hour}-${formState.end_hour}`];
       }
     });
@@ -244,6 +250,9 @@ const SecondPart = ({
     );
   };
 
+  useEffect(() => {
+    setFormState({ ...formState, end_hour: "" });
+  }, [formState?.start_hour]);
   return (
     <>
       <p className={styles.title}>Define el tipo de reserva</p>
