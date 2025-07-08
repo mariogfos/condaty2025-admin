@@ -112,7 +112,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       customDateRange.endDate &&
       customDateRange.startDate > customDateRange.endDate
     ) {
-      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+      err.startDate = "La fecha de inicio no puede ser mayor a la fecha fin";
     }
 
     if (Object.keys(err).length > 0) {

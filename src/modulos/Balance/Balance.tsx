@@ -193,7 +193,7 @@ const BalanceGeneral: React.FC = () => {
       err = {
         ...err,
 
-        date_inicio: 'La fecha de inicio no puede ser mayor a la de fin',
+        date_inicio: 'La fecha de inicio no puede ser mayor a la fecha fin',
       };
     }
 

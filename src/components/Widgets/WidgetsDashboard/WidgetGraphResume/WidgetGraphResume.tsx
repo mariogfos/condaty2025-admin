@@ -156,7 +156,7 @@ const WidgetGraphResume = ({
               chartTypes={chartTypes}
               options={{
                 height: h,
-                colors: ["#FFD700", "#00E38C", "#FF5B4D", "#4C98DF"],
+                colors: ["var(--cCompl1)", "var(--cCompl7)", "var(--cCompl8)", "var(--cCompl9)"],
               }}
             />
             <div className={styles.legendContainer}>
