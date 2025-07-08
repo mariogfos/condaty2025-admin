@@ -63,6 +63,75 @@ export const validRule = (
       return ""; // Sin error
     },
     requiredFile: () => (!value?.file ? "Este campo es requerido" : ""),
+    requiredImageMultiple: () => {
+      const _key = key ?? "avatar";
+      const val2 = formState?.images;
+      console.log("rules", val2, formState[_key]);
+      if (!val2 && !formState[_key]) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        !val2 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).length <= 0
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        !val2 &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) => a.file != "delete" && a.file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      //EDITAR
+      if (val2 && val2.length <= 0 && !formState[_key]) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length <= 0 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).length <= 0
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length <= 0 &&
+        formState[_key] &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) =>
+            formState[_key][a].file != "delete" && formState[_key][a].file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+
+      if (
+        val2 &&
+        val2.length > 0 &&
+        formState[_key] &&
+        Object?.keys(formState[_key] ?? {}).filter((a: any) => {
+          console.log("map", formState[_key][a]);
+          if (formState[_key][a].file === "delete" && formState[_key][a].id > 0)
+            return true;
+        }).length >= val2.length &&
+        !Object?.keys(formState[_key] ?? {}).some(
+          (a: any) =>
+            formState[_key][a].file != "delete" && formState[_key][a].file != ""
+        )
+      ) {
+        return "Debe cargar al menos una imagen";
+      }
+      return ""; // Sin errors
+    },
     onExist: async () => {
       if (!execute) return "no existe execute";
       const { data: response } = await execute(param[0], "GET", {
@@ -212,7 +281,7 @@ type CheckRulesType = {
   value: any;
   rules: string[];
   errors?: Record<string, string> | null;
-  key?: string | null;
+  key?: string;
   data?: Record<string, any>;
   execute?: Function;
 };
@@ -221,16 +290,16 @@ export const checkRules = ({
   value = "",
   rules = [],
   errors = null,
-  key = null,
+  key = undefined,
   data = {},
   execute,
 }: CheckRulesType): string | Record<string, string> | null => {
   if (!rules || rules.length === 0) return errors || "";
 
   for (const rule of rules) {
-    if (!rule || (rule !== "required" && !value)) continue;
+    if (!rule || (rule.indexOf("required") === -1 && !value)) continue;
 
-    const error = validRule(value, rule, data, undefined, execute);
+    const error = validRule(value, rule, data, key, execute);
     if (error) {
       return errors ? { ...errors, [key || "error"]: error } : error;
     }
