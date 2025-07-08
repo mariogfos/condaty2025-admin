@@ -130,13 +130,6 @@ const SecondPart = ({
   ]);
 
   const handleSave = () => {
-    // if (
-    //   !selectedDays.length ||
-    //   !formState?.start_hour ||
-    //   !formState?.end_hour ||
-    //   (!formState?.reservation_duration && formState?.booking_mode == "hour")
-    // )
-    //   return;
     if (!selectedDays.length) {
       showToast("Debe seleccionar al menos un día", "error");
       return;
@@ -145,7 +138,6 @@ const SecondPart = ({
       showToast("Debe seleccionar una hora de inicio y fin", "error");
       return;
     }
-
     const updatedHours: any = {};
 
     selectedDays.forEach((day: string) => {
@@ -279,7 +271,6 @@ const SecondPart = ({
             disponibilidad se verán afectados por el periodo de duración
           </p>
           <WeekdayToggleGroup
-            // days={getHours()}
             days={["1h", "2h", "3h", "4h"]}
             selectedDays={
               formState?.id
