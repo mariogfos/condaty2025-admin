@@ -43,9 +43,19 @@ const RenderForm = ({
 
   const validateLevel1 = () => {
     let errors: any = {};
-    if (!formState?.avatar && !formState.id) {
-      errors["avatar"] = "Debe seleccionar una imagen";
-    }
+    // console.log("onsave level1", formState);
+    // if (!formState?.avatar && !formState.id) {
+    //   errors["avatar"] = "Debe seleccionar una imagen";
+    // }
+
+    errors = checkRules({
+      value: formState?.avatar,
+      rules: ["requiredImageMultiple"],
+      key: "avatar",
+      errors,
+      data: formState,
+    });
+
     errors = checkRules({
       value: formState?.title,
       rules: ["required", "textDash"],
@@ -145,10 +155,10 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      if (!formState?.avatar && !formState.id) {
-        showToast("Debe seleccionar una imagen", "error");
-        return;
-      }
+      // if (!formState?.avatar && !formState.id) {
+      //   showToast("Debe seleccionar una imagen", "error");
+      //   return;
+      // }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;

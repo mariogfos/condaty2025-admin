@@ -304,7 +304,7 @@ const UploadFileMultiple = ({
         )} */}
       </div>
       {!props.error ? null : (
-        <p className={styles.error}>{props.error[name] || null}</p>
+        <p className={styles.error}>{props.error[name] ?? null}</p>
       )}
     </>
   );
