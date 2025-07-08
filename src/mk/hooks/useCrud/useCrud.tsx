@@ -923,10 +923,7 @@ const useCrud = ({
             </div>
           )}
           {mod.export && (
-            <div
-              style={{ cursor: "pointer", background: 'var(--cWhiteV2)', borderRadius: '8px', padding: '8px', gap: '8px'}}
-              onClick={() => onExport("pdf")}
-            >
+            <div className={styles.iconsMenu} onClick={() => onExport("pdf")}>
               <IconExport />
             </div>
           )}
@@ -964,7 +961,7 @@ const useCrud = ({
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
               >
-                {"Nuevo " + mod.singular}
+                {"Agregar " + mod.singular}
               </Button>
             </div>
           )}
