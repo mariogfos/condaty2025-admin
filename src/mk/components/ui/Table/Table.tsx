@@ -11,6 +11,7 @@ import styles from "./styles.module.css";
 // import useScreenSize from "@/mk/hooks/useScreenSize";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 export type RenderColType = {
   value: any;
@@ -34,13 +35,14 @@ type PropsType = {
     sortabled?: boolean;
     onHide?: () => boolean;
   }[];
+  id?: string;
   data: any;
   footer?: any;
   sumarize?: boolean;
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
-  onRowClick?: (e: any) => void;
+  onRowClick?: (e: any, scrollTo?: number) => void;
   onTabletRow?: (
     item: Record<string, any>,
     i: number,
@@ -73,6 +75,7 @@ const getWidth = (width: any) => {
 
 const Table = ({
   header = [],
+  id,
   data,
   footer,
   sumarize = false,
@@ -95,6 +98,7 @@ const Table = ({
   // const { isMobile } = useScreenSize();
   const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState();
+  // console.log("tableid", id);
   return (
     <div
       className={styles.table + " " + styles[className] + " " + className}
@@ -126,6 +130,7 @@ const Table = ({
           setScrollbarWidth={setScrollbarWidth}
           onRenderBody={onRenderBody}
           extraData={extraData}
+          id={id}
         />
       </div>
       {sumarize && (
@@ -299,7 +304,7 @@ const Sumarize = memo(function Sumarize({
   );
 });
 
-const Body = memo(function Body({
+const Body = ({
   onTabletRow,
   onRowClick,
   data,
@@ -312,6 +317,7 @@ const Body = memo(function Body({
   onRenderBody,
   extraData,
   onRenderCard,
+  id,
 }: {
   onTabletRow: any;
   onRowClick: any;
@@ -325,14 +331,56 @@ const Body = memo(function Body({
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
-}) {
+  id?: string;
+}) => {
   // const { isMobile } = useScreenSize();
+  const { store, setStore } = useAuth();
   const isMobile = false;
-  const divRef = useRef(null);
+  const divRef: any = useRef(null);
   const scrollWidth = useScrollbarWidth(divRef);
   useEffect(() => {
     if (setScrollbarWidth) setScrollbarWidth(scrollWidth);
   }, [scrollWidth]);
+
+  // useEffect(() => {
+  //   // const scrollTop = store["scrollTop" + id];
+  //   // console.log("scrollTo Set", id, scrollTop);
+  //   // if (scrollTop) divRef.current.scrollTop = scrollTop;
+
+  //   const intervalId = setInterval(() => {
+  //     if (divRef.current) {
+  //       const scrollPosition = divRef.current.scrollTop;
+  //       if (scrollPosition != oldPos.current) {
+  //         oldPos.current = scrollPosition;
+  //         console.log(`Posición actual del scroll: ${scrollPosition}px`);
+  //       }
+  //     }
+  //   }, 300);
+
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, [id, store["scrollTop" + id]]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      // console.log("Body se crea");
+      const scrollTop = store["scrollTop" + id];
+      // console.log("scrollTo Set0", id, scrollTop);
+      if (scrollTop) divRef.current.scrollTop = scrollTop;
+    }, 10);
+  }, []);
+
+  const _onRowClick = (e: any) => {
+    // if (id) {
+    const scrollTop = divRef?.current?.scrollTop;
+    // console.log("sendScroll", scrollTop);
+    setStore({ ["scrollTop" + id]: scrollTop });
+    // }
+    if (onRowClick) {
+      onRowClick(e);
+    }
+  };
   return (
     <main
       ref={divRef}
@@ -358,7 +406,7 @@ const Body = memo(function Body({
           ) : onRenderCard ? (
             onRenderCard(row, index, onRowClick)
           ) : (
-            <div key={"row" + index} onClick={(e) => onRowClick(row)}>
+            <div key={"row" + index} onClick={(e) => _onRowClick(row)}>
               {header.map(
                 (item: any, i: number) =>
                   !item.onHide?.() && (
@@ -396,6 +444,6 @@ const Body = memo(function Body({
       ))}
     </main>
   );
-});
+};
 
 export default Table;

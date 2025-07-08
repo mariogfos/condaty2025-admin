@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import TableFinance from "./TableFinance/TableFinance";
-import t from "../../mk/utils/traductor";
-
 interface PropType {
   subcategoriasE: any;
   subcategoriasI: any;
@@ -18,7 +16,7 @@ const TableResumenGeneral = ({
   title2,
   saldoInicial,
 }: PropType) => {
-  const [formatedData, setFormatedData]: any = useState([]);
+  const [formattedData, setFormattedData]: any = useState([]);
   const [total, setTotal]: any = useState(0);
   useEffect(() => {
     let totalEgresos = 0;
@@ -29,17 +27,21 @@ const TableResumenGeneral = ({
     subcategoriasI?.map((subcategoria: any) => {
       totalIngresos += Number(subcategoria.amount);
     });
-    setFormatedData([
+    setFormattedData([
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
       { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
       { name: "Total de Egresos", amount: totalEgresos, sub: [] },
-      { name: "Total de diferencia entre ingresos y egresos", amount: totalIngresos - totalEgresos, sub: [] },
+      {
+        name: "Total de diferencia entre ingresos y egresos",
+        amount: totalIngresos - totalEgresos,
+        sub: [],
+      },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
   }, [subcategoriasE, subcategoriasI]);
   return (
     <TableFinance
-      data={formatedData}
+      data={formattedData}
       title={title}
       title2={title2}
       total={total || 0}

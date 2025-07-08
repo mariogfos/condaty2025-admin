@@ -249,6 +249,7 @@ const useCrud = ({
   const onView = useCallback(async (item: Record<string, any>) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
     if (mod.loadView) {
       let searchBy = item.id;
       if (mod.loadView.key_id) {
@@ -271,6 +272,7 @@ const useCrud = ({
       );
       // const { data: d, ...rest } = view?.data ?? {};
       // initOpen(setOpenView, { ...d, ...rest }, "view");
+
       initOpen(setOpenView, view?.data, "view");
       return;
     }
@@ -313,6 +315,7 @@ const useCrud = ({
   };
   const onCloseView = () => {
     if (!openList) setOpenList(true);
+    // if (scrollTo>-1)
     setOpenView(false);
   };
 
@@ -958,7 +961,7 @@ const useCrud = ({
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
               >
-                {"Crear " + mod.singular}
+                {"Agregar " + mod.singular}
               </Button>
             </div>
           )}
@@ -973,9 +976,9 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={"Eliminar " + mod.singular}
-          buttonText="Eliminar"
-          buttonCancel=""
+          title={"Desvincular " + mod.singular}
+          buttonText="Desvincular"
+          buttonCancel="Cancelar"
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
@@ -984,12 +987,12 @@ const useCrud = ({
             message
           ) : (
             <>
-              ¿Estás seguro de eliminar esta información?
+              ¿Estás seguro de desvincular esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que al momento de eliminar ya no podrás recuperarla.
+              Recuerda que, al momento de desvincular, ya no podrás recuperarla.
             </>
           )}
         </DataModal>
@@ -1098,13 +1101,13 @@ const useCrud = ({
         if (field.filter) {
           const colF: any = {
             key,
-            label: field.filter?.label || field.list?.label || field.label,
-            width: field.filter?.width || field.list.width || "300px",
+            label: field.filter?.label ?? field.list?.label ?? field.label,
+            width: field.filter?.width ?? field.list.width ?? "300px",
             order:
-              field.filter?.order || field?.list?.order || field?.order || 1000,
+              field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
-              : field.filter?.options(extraData) || field.form.options || [],
+              : field.filter?.options(extraData) ?? field.form.options ?? [],
           };
           lFilter.push(colF);
           lFilter.sort((a: any, b: any) => a.order - b.order);
@@ -1113,14 +1116,14 @@ const useCrud = ({
         const col: any = {
           key,
           responsive: "",
-          label: field.list.label || field.label,
-          className: field.list.className || "",
+          label: field.list.label ?? field.label,
+          className: field.list.className ?? "",
           width: field.list.width,
           onRender: _onRender(field, true),
-          order: field.list.order || field.order || 1000,
-          style: field.list.style || field.style || {},
-          sumarize: field.list.sumarize || field.sumarize || false,
-          sortabled: field.list.sortabled || field.sortabled || false,
+          order: field.list.order ?? field.order ?? 1000,
+          style: field.list.style ?? field.style ?? {},
+          sumarize: field.list.sumarize ?? field.sumarize ?? false,
+          sortabled: field.list.sortabled ?? field.sortabled ?? false,
         };
         head.push(col);
       }
@@ -1137,6 +1140,11 @@ const useCrud = ({
     }, [fields]);
     return (
       <div className={styles.useCrud}>
+        {store?.title && (
+          <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
+            {store?.title}
+          </p>
+        )}
         {openList && <AddMenu filters={lFilter} extraButtons={extraButtons} />}
         <LoadingScreen type="TableSkeleton">
           {openList && (
@@ -1178,6 +1186,8 @@ const useCrud = ({
                     extraData={extraData}
                     onSort={onSort}
                     sortCol={sortCol}
+                    // scrollTo={scrollTo}
+                    id={mod?.modulo}
                   />
                 ) : (
                   <section>

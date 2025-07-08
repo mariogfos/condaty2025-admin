@@ -251,7 +251,7 @@ const Reserva = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 280px)"} />
+      <List height={"calc(100vh - 330px)"} />
       {/* Asegúrate de que ReservaModal/RenderView también manejen los nuevos estados si es necesario */}
     </div>
   );

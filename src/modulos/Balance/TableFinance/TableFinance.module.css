@@ -2,12 +2,12 @@
 
 .tableContainer {
   margin-top: 1rem;
-  border-top-left-radius: 1rem;    
-  border-top-right-radius: 1rem;  
-  border-bottom-right-radius: 0;    
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 0;
   background-color: var(--darkv1, #2c2f33);
   border: 0.5px solid var(--cBorder, #a7a7a7);
-  overflow: hidden; 
+  overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
 }
@@ -37,25 +37,27 @@
 .titleHeaderCell {
   flex: 2;
   min-width: 200px;
-  flex-shrink: 0;
   border-left: none;
 }
 
 .monthHeaderCell {
   flex: 1;
-  min-width: 70px;
+  flex-basis: 0;
+  min-width: 40px;
   flex-shrink: 0;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1rem;
+  border-right: none;
 }
 
 .totalHeaderCell {
   flex: 1;
-  min-width: 100px;
+  min-width: 150px;
   flex-shrink: 0;
-  justify-content: center !important
-  
-}
+  justify-content: flex-end !important;
 
+}
 
 .dataRow {
   display: flex;
@@ -112,9 +114,17 @@
 
 .monthDataCell {
   flex: 1;
-  min-width: 70px;
+  flex-basis: 0;
+  min-width: 40px;
   flex-shrink: 0;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1rem;
+  border-right: none;
+}
+
+.monthDataCell.no-value {
+  justify-content: flex-end;
 }
 
 .totalDataCell {
@@ -178,35 +188,29 @@
 
 .totalRowOutside {
   margin-top: 0px;
-  border-bottom-left-radius: 1rem;  
-  border-bottom-right-radius: 1rem; 
-  
-
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
 }
 
 .totalLabelCell {
-  background-color: #2c2f33; 
+  background-color: #2c2f33;
   flex: 2;
   min-width: 200px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   padding: 0 1rem;
- 
+
   order: 1;
   border-bottom-left-radius: 1rem;
-
 }
-
 
 .totalEmptyMonthCells {
   flex: 1;
-  order: 0;       
+  order: 0;
   flex-grow: 1;
-  flex-basis: 0; 
-
+  flex-basis: 0;
 }
-
 
 .totalAmountCell {
   flex: 1;
@@ -233,7 +237,7 @@
 
 .tooltipIcon {
   color: var(--cWhite);
-  
+
   transition: all 0.2s ease;
 }
 
@@ -281,17 +285,21 @@
 
 /* Animación */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Estilos para variantes */
 .totalRow-income {
-  background-color:   rgba(0, 227, 140, 0.05); 
+  background-color: rgba(0, 227, 140, 0.05);
   border-left: 0.3px solid var(--cPrimary);
   border-right: 0.3px solid var(--cPrimary);
   border-bottom: 0.3px solid var(--cPrimary);
-  border-style: solid; 
+  border-style: solid;
 }
 
 .text-income {
@@ -299,139 +307,143 @@
 }
 
 .totalLabelCell-income {
-  background-color:   rgba(0, 227, 140, 0.05); 
-  
+  background-color: rgba(0, 227, 140, 0.05);
 }
 
 .totalAmountCell-income {
-  background-color:  rgba(0, 227, 140, 0.05); 
+  background-color: rgba(0, 227, 140, 0.05);
 }
 
 .totalRow-expense {
-  background-color: rgba(245, 101, 101, 0.05); 
+  background-color: rgba(245, 101, 101, 0.05);
   border-left: 0.3px solid var(--cError);
   border-right: 0.3px solid var(--cError);
   border-bottom: 0.3px solid var(--cError);
-  border-style: solid; 
-
+  border-style: solid;
 }
 
 .text-expense {
-  color: var(--cWhite) 
+  color: var(--cWhite);
 }
 
 .totalLabelCell-expense {
-  background-color: rgba(245, 101, 101, 0.05); 
+  background-color: rgba(245, 101, 101, 0.05);
 }
 
 .totalAmountCell-expense {
-  background-color: rgba(245, 101, 101, 0.05); 
+  background-color: rgba(245, 101, 101, 0.05);
 }
 
 .totalRow-summary {
-  background-color: rgba(66, 153, 225, 0.05); 
-  border-left: 0.3px solid #4299E1;
-  border-right: 0.3px solid #4299E1;
-  border-bottom: 0.3px solid #4299E1;
-  border-style: solid; 
-
+  background-color: rgba(66, 153, 225, 0.05);
+  border-left: 0.3px solid #4299e1;
+  border-right: 0.3px solid #4299e1;
+  border-bottom: 0.3px solid #4299e1;
+  border-style: solid;
 }
 
 .text-summary {
-  color: var(--cWhite) 
+  color: var(--cWhite);
 }
 
 .totalLabelCell-summary {
-  background-color: rgba(66, 153, 225, 0.05); 
+  background-color: rgba(66, 153, 225, 0.05);
 }
 
 .totalAmountCell-summary {
-  background-color: rgba(66, 153, 225, 0.05); 
+  background-color: rgba(66, 153, 225, 0.05);
 }
 
 .activeBorder-income {
-  border: 1px solid var(--cSuccess, #00E38C);
+  border: 1px solid var(--cSuccess, #00e38c);
 }
 .activeBorder-expense {
-  border: 1px solid var(--cError, #FF5B4D);
+  border: 1px solid var(--cError, #ff5b4d);
 }
 .activeBorder-summary {
-  border: 1px solid var(--cInfo, #4C98DF);
+  border: 1px solid var(--cInfo, #4c98df);
 }
 
 .groupBorder-income-top {
-  border-top: 1px solid var(--cSuccess, #00E38C);
-  border-left: 1px solid var(--cSuccess, #00E38C);
-  border-right: 1px solid var(--cSuccess, #00E38C);
+  border-top: 1px solid var(--cSuccess, #00e38c);
+  border-left: 1px solid var(--cSuccess, #00e38c);
+  border-right: 1px solid var(--cSuccess, #00e38c);
 }
 .groupBorder-expense-top {
-  border-top: 1px solid var(--cError, #FF5B4D);
-  border-left: 1px solid var(--cError, #FF5B4D);
-  border-right: 1px solid var(--cError, #FF5B4D);
+  border-top: 1px solid var(--cError, #ff5b4d);
+  border-left: 1px solid var(--cError, #ff5b4d);
+  border-right: 1px solid var(--cError, #ff5b4d);
 }
 .groupBorder-summary-top {
-  border-top: 1px solid var(--cInfo, #4C98DF);
-  border-left: 1px solid var(--cInfo, #4C98DF);
-  border-right: 1px solid var(--cInfo, #4C98DF);
+  border-top: 1px solid var(--cInfo, #4c98df);
+  border-left: 1px solid var(--cInfo, #4c98df);
+  border-right: 1px solid var(--cInfo, #4c98df);
 }
 
 .groupBorder-income-mid {
-  border-left: 1px solid var(--cSuccess, #00E38C);
-  border-right: 1px solid var(--cSuccess, #00E38C);
+  border-left: 1px solid var(--cSuccess, #00e38c);
+  border-right: 1px solid var(--cSuccess, #00e38c);
 }
 .groupBorder-expense-mid {
-  border-left: 1px solid var(--cError, #FF5B4D);
-  border-right: 1px solid var(--cError, #FF5B4D);
+  border-left: 1px solid var(--cError, #ff5b4d);
+  border-right: 1px solid var(--cError, #ff5b4d);
 }
 .groupBorder-summary-mid {
-  border-left: 1px solid var(--cInfo, #4C98DF);
-  border-right: 1px solid var(--cInfo, #4C98DF);
+  border-left: 1px solid var(--cInfo, #4c98df);
+  border-right: 1px solid var(--cInfo, #4c98df);
 }
 
 .groupBorder-income-bot {
-  border-left: 1px solid var(--cSuccess, #00E38C);
-  border-right: 1px solid var(--cSuccess, #00E38C);
-  border-bottom: 1px solid var(--cSuccess, #00E38C);
+  border-left: 1px solid var(--cSuccess, #00e38c);
+  border-right: 1px solid var(--cSuccess, #00e38c);
+  border-bottom: 1px solid var(--cSuccess, #00e38c);
 }
 .groupBorder-expense-bot {
-  border-left: 1px solid var(--cError, #FF5B4D);
-  border-right: 1px solid var(--cError, #FF5B4D);
-  border-bottom: 1px solid var(--cError, #FF5B4D);
+  border-left: 1px solid var(--cError, #ff5b4d);
+  border-right: 1px solid var(--cError, #ff5b4d);
+  border-bottom: 1px solid var(--cError, #ff5b4d);
 }
 .groupBorder-summary-bot {
-  border-left: 1px solid var(--cInfo, #4C98DF);
-  border-right: 1px solid var(--cInfo, #4C98DF);
-  border-bottom: 1px solid var(--cInfo, #4C98DF);
+  border-left: 1px solid var(--cInfo, #4c98df);
+  border-right: 1px solid var(--cInfo, #4c98df);
+  border-bottom: 1px solid var(--cInfo, #4c98df);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .tableHeaderRow, .dataRow, .tableTotalRow {
+  .tableHeaderRow,
+  .dataRow,
+  .tableTotalRow {
     height: auto;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
 
-  .headerCell, .dataCell {
+  .headerCell,
+  .dataCell {
     font-size: 12px;
   }
 
-  .titleHeaderCell, .categoryNameCell, .subCategoryNameCell, .totalLabelCell {
+  .titleHeaderCell,
+  .categoryNameCell,
+  .subCategoryNameCell,
+  .totalLabelCell {
     width: 120px;
     min-width: 100px;
     font-size: 13px;
   }
 
-  .monthHeaderCell, .monthDataCell {
-    width: 50px;
-    min-width: 40px;
+  .monthHeaderCell,
+  .monthDataCell {
+    min-width: 32px;
     font-size: 11px;
-    padding: 0 0.25rem;
+    padding: 0 0.5rem;
   }
 
-  .totalHeaderCell, .totalDataCell, .totalAmountCell {
-    width: 120px;
-    min-width: 100px;
+  .totalHeaderCell,
+  .totalDataCell,
+  .totalAmountCell {
+    min-width: 150px;
     font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
@@ -440,7 +452,7 @@
 }
 
 .alignCellContentRight {
-  justify-content: flex-end !important; 
+  justify-content: flex-end !important;
 }
 
 .tableResponsiveWrapper {
@@ -449,7 +461,7 @@
   -webkit-overflow-scrolling: touch;
   position: relative;
 
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
   border-radius: 0 0 1rem 1rem;
 }
 
@@ -460,7 +472,7 @@
 .tableResponsiveWrapper::-webkit-scrollbar-thumb {
   background: var(--cWhiteV2, #444);
   border-radius: 8px;
-  border: 2px solid rgba(44,47,51,0.7);
+  border: 2px solid rgba(44, 47, 51, 0.7);
 }
 .tableResponsiveWrapper::-webkit-scrollbar-track {
   background: transparent;
