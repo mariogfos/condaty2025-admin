@@ -1092,19 +1092,6 @@ const useCrud = ({
     setParams({ ...params, sortBy: col, orderBy: nAsc ? "asc" : "desc" });
   };
   const List = memo((props: any) => {
-    const [scrollTo, setScrollTo]: any = useState(null);
-
-    useEffect(() => {
-      console.log("scrollToList", scrollTo);
-    }, [scrollTo]);
-    useEffect(() => {
-      console.log("List se Crea", scrollTo);
-    }, []);
-
-    const _onView = async (e: any, scrollTo?: number) => {
-      if (onView) await onView(e);
-      if (scrollTo) setScrollTo(scrollTo);
-    };
     const getHeader = () => {
       const head: Object[] = [];
       const lFilter: Object[] = [];
@@ -1179,7 +1166,7 @@ const useCrud = ({
                   <Table
                     data={data?.data}
                     onRowClick={
-                      mod.hideActions?.view ? props.onRowClick : _onView
+                      mod.hideActions?.view ? props.onRowClick : onView
                     }
                     header={header}
                     onTabletRow={props.onTabletRow}
@@ -1199,7 +1186,8 @@ const useCrud = ({
                     extraData={extraData}
                     onSort={onSort}
                     sortCol={sortCol}
-                    scrollTo={scrollTo}
+                    // scrollTo={scrollTo}
+                    id={mod?.modulo}
                   />
                 ) : (
                   <section>
