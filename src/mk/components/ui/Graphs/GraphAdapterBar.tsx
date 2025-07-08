@@ -16,9 +16,9 @@ export default function GraphAdapterBar(
       labels: {
         style: {
           colors: '#A7A7A7',
-          fontSize: '12px',
-          fontWeight: 400,
-          fontFamily: 'Poppins, Arial,',
+          fontSize: '16px',
+          fontWeight: 500,
+          fontFamily: 'Roboto, Arial,',
         },
       },
     },

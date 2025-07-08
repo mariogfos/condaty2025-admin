@@ -210,8 +210,8 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       <p
         style={{
           color: 'var(--darkv1)',
-          fontWeight: 500,
-          fontSize: 12,
+          fontWeight: 'var(--bSemibold)',
+          fontSize: 'var(--sM)',
         }}
       >
         {subtitle ||
@@ -220,8 +220,8 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       <p
         style={{
           color: 'var(--darkv1)',
-          fontWeight: 500,
-          fontSize: 18,
+          fontWeight: 'var(--bBold)',
+          fontSize: 'var(--sXl)',
         }}
       >
         {title}

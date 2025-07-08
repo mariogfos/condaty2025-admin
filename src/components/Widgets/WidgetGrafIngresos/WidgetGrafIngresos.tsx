@@ -144,8 +144,8 @@ const WidgetGrafIngresos = ({
       <p
         style={{
           color: 'var(--darkv1)',
-          fontWeight: 500,
-          fontSize: 12,
+          fontWeight: 'var(--bSemibold)',
+          fontSize: 'var(--sM)',
         }}
       >
         {subtitle ||
@@ -154,8 +154,8 @@ const WidgetGrafIngresos = ({
       <p
         style={{
           color: 'var(--darkv1)',
-          fontWeight: 500,
-          fontSize: 18,
+          fontWeight: 'var(--bBold)',
+          fontSize: 'var(--sXl)',
         }}
       >
         {title}
