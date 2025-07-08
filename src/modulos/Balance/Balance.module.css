@@ -286,3 +286,8 @@
   font-family: Roboto;
   margin-left: 0.25em;
 }
+.legendAmountLight {
+  color: var(--cBlack, #000) !important;
+  font-family: Roboto;
+  margin-left: 0.25em;
+}
