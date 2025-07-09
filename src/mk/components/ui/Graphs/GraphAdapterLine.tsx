@@ -1,25 +1,29 @@
-export default function GraphAdapterLine(data:any, options:any, oDef: any = {}) {
+export default function GraphAdapterLine(
+  data: any,
+  options: any,
+  oDef: any = {}
+) {
   const xLabels = data.labels;
   const l = {
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     xaxis: {
       categories: xLabels,
       labels: {
         style: {
-          colors: "#FFFFFF",
-          fontSize: "12px",
+          colors: '#A7A7A7',
+          fontSize: '12px',
           fontWeight: 400,
-          fontFamily: "Poppins, Arial,",
+          fontFamily: 'Poppins, Arial,',
         },
       },
     },
     markers: {
       size: 6,
       discrete: [],
-      strokeColors: "#333536",
+      strokeColors: '#333536',
       strokeWidth: 0,
     },
   };
@@ -29,7 +33,7 @@ export default function GraphAdapterLine(data:any, options:any, oDef: any = {}) 
     e.values.forEach((e1: any) => {
       d1.push(Number(e1));
     });
-    d.push({ data: d1, name: e.name || "11" });
+    d.push({ data: d1, name: e.name || '11' });
   });
   return {
     options: l,

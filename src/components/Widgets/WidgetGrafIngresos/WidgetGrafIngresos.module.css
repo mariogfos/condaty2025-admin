@@ -1,15 +1,16 @@
 .container {
     width: 100%;
   }
-  
+
   .title {
     font-size: var(--sXl);
     font-family: var(--fPrimary);
     font-weight: var(--bBold);
+     color: var(--cWhite);
   }
-  
+
   .subtitle {
-    color: var(--cWhiteV1);
+    color: var(--cWhite);
     font-size: var(--sLg);
     font-family: var(--fPrimary);
     font-weight: var(--bRegular);
