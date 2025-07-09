@@ -22,10 +22,10 @@ const FourPart = ({ item }: { item: any }) => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpanded = () => setIsExpanded(!isExpanded);
-
   const allImages = React.useMemo(() => {
     const backendImages =
       item?.images?.map((img: any) => ({
+        id: img?.id,
         type: "backend",
         src: getUrlImages(
           `/AREA-${item?.id}-${img?.id}.webp?${item?.updated_at}`
@@ -35,11 +35,14 @@ const FourPart = ({ item }: { item: any }) => {
     const localAvatars = Object.keys(item?.avatar || {})
       .filter((key) => item?.avatar?.[key]?.file)
       .map((key) => ({
+        id: Number(item?.avatar?.[key]?.id),
         type: "local",
         src: `data:image/webp;base64,${item?.avatar?.[key]?.file}`,
       }));
 
-    return [...backendImages, ...localAvatars];
+    const data = [...backendImages, ...localAvatars];
+
+    return Array.from(new Map(data.map((item) => [item.id, item])).values());
   }, [item]);
 
   const totalImages = allImages.length;
@@ -79,7 +82,6 @@ const FourPart = ({ item }: { item: any }) => {
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
-  console.log(item);
   return (
     <>
       <div className={styles.renderView}>
