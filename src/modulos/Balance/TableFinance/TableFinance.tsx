@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "@/mk/utils/numbers";
 
@@ -161,14 +160,13 @@ const TableFinance = ({
         Desliza horizontalmente para ver todos los meses →
       </div>
       <div className={getContainerClass() + " " + styles.tableFinance}>
-        {/* Encabezado de la Tabla */}
         <div className={styles.tableHeaderRow}>
           <div className={`${styles.headerCell} ${styles.titleHeaderCell}`}>
             <span>{title}</span>
           </div>
           {meses.map((mes, index) => (
             <div
-              key={index}
+              key={"meses" + index}
               className={`${styles.headerCell} ${styles.monthHeaderCell}`}
             >
               <span>{mes.toUpperCase()}</span>
@@ -188,7 +186,7 @@ const TableFinance = ({
           const isOpen = dropStates[index]?.drop;
           const subLength = item.sub?.length || 0;
           return (
-            <React.Fragment key={`item-${index}`}>
+            <React.Fragment key={"item" + index}>
               <div
                 className={
                   `${styles.dataRow} ${isOpen ? styles.dataRowActive : ""} ` +
@@ -212,7 +210,6 @@ const TableFinance = ({
                 </div>
                 {Array.from({ length: meses.length }).map((_, mesIdx) => {
                   const valor = item.totalMeses?.[mesIdx];
-                  const isNoValue = !valor || valor === "-" || valor === 0;
                   return (
                     <div
                       key={`item-${index}-mes-${mesIdx}`}
@@ -300,7 +297,7 @@ const TableFinance = ({
                   <span className={styles.tooltip}>{tooltip}</span>
                 </div>
               )}
-              <span>{titleTotal || "Total de " + title}</span>
+              <span>{titleTotal ?? "Total de " + title}</span>
             </div>
             <div
               className={`${
@@ -333,7 +330,7 @@ const TableFinance = ({
                   <span className={styles.tooltip}>{tooltip}</span>
                 </div>
               )}
-              <span>{titleTotal || "Total de " + title}</span>
+              <span>{titleTotal ?? "Total de " + title}</span>
             </div>
             <div
               className={`${
