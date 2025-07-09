@@ -227,7 +227,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 <span className={styles.infoValue}>{getDptoName()}</span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Propietario</span>
+                <span className={styles.infoLabel}>Pagado por </span>
                 <span className={styles.infoValue}>
                   {getFullName(item.propietario) ||
                     getFullName(item.owner) ||
@@ -254,6 +254,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Observación</span>
                 <span className={styles.infoValue}>{item.obs || '-/-'}</span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Registrado por</span>
+                <span className={styles.infoValue}>
+                  {getFullName(item.user) ||
+                    getFullName(item.user) ||
+                    '-/-'}
+                </span>
               </div>
             </div>
             {/* Columna Derecha */}
@@ -365,18 +373,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           className={styles.periodsTableCell}
                           data-label="Monto"
                         >
-
-                          {formatBs(periodo?.debt_dpto?.amount || 0)
-                          }
+                          {formatBs(periodo?.debt_dpto?.amount || 0)}
                         </div>
                         <div
                           className={styles.periodsTableCell}
                           data-label="Multa"
                         >
-
-                          {formatBs(
-                            periodo?.debt_dpto?.penalty_amount || 0
-                          )}
+                          {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
                         </div>
                         <div
                           className={styles.periodsTableCell}

@@ -58,10 +58,7 @@ const TextArea = ({
         />
       </ControlLabel>
       {isLimit && (
-        <div
-          id={`${name}-charCounter`}
-          className={styles.charCounter}
-        >
+        <div id={`${name}-charCounter`} className={styles.charCounter}>
           {charCount}/{maxLength} caracteres
         </div>
       )}

@@ -116,7 +116,7 @@ const RenderForm = ({
       });
       errors = checkRules({
         value: formState?.min_cancel_hours,
-        rules: ["required", "max:2", "integer"],
+        rules: ["required", "less:200", "integer"],
         key: "min_cancel_hours",
         errors,
       });

@@ -92,11 +92,11 @@
 }
 .charCounter {
   /* flex: 1; */
+  position: absolute;
+
+  right: 0;
+  bottom: -2;
   font-size: 0.875rem; /* Tamaño de texto */
-  color: #6c757d; /* Color neutro */
+  color: var(--cWhite); /* Color neutro */
   text-align: right; /* Alineación a la derecha */
-  margin-top: var(--spS); /* Añade espacio arriba */
-  margin-bottom: var(--spS); /* Añade espacio abajo */
-  padding-top: var(--spXs); /* Añade padding interno arriba */
-  padding-bottom: var(--spXs); /* Añade padding interno abajo */
 }
