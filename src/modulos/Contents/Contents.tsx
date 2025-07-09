@@ -94,6 +94,7 @@ const Contents = () => {
     singular: "publicación",
     plural: "Publicaciones",
     permiso: "contents",
+    titleAdd: "Nueva",
     // import: true,
     export: true,
     extraData: true,
