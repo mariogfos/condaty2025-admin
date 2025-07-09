@@ -65,7 +65,6 @@ export const validRule = (
     requiredImageMultiple: () => {
       const _key = key ?? "avatar";
       const val2 = formState?.images;
-      console.log("rules", val2, formState[_key]);
       if (!val2 && !formState[_key]) {
         return "Debe cargar al menos una imagen";
       }
