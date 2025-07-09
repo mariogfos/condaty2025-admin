@@ -428,6 +428,7 @@ const BalanceGeneral: React.FC = () => {
     return legend;
   };
 
+
   let ingresosContent;
   if (loadingLocal || !loaded) {
     ingresosContent = <LoadingScreen />;
@@ -454,10 +455,7 @@ const BalanceGeneral: React.FC = () => {
       <div>
         <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
-          <div
-            ref={chartRefIngresos}
-            className={styles.chartAndLegendContainer}
-          >
+          <div ref={chartRefIngresos} className={styles.chartContainer}>
             <WidgetGrafIngresos
               ingresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
@@ -569,7 +567,7 @@ const BalanceGeneral: React.FC = () => {
       <div>
         <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
-          <div ref={chartRefEgresos} className={styles.chartAndLegendContainer}>
+          <div ref={chartRefEgresos} className={styles.chartContainer}>
             <WidgetGrafEgresos
               egresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
@@ -817,7 +815,7 @@ const BalanceGeneral: React.FC = () => {
                     <div className={styles.chartContainer}>
                       <div
                         ref={chartRefBalance}
-                        className={styles.chartAndLegendContainer}
+                        className={styles.chartContainer}
                       >
                         <WidgetGrafBalance
                           saldoInicial={finanzas?.data?.saldoInicial}
