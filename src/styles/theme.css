@@ -1,40 +1,46 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap");
 
 :root {
-  --accent: #00e38c;
-  --primary: #fff;
-  --secondary: #000;
-  --terciary: #595959;
-  --title: #3b3b3b;
-  --subTitle: #1e1e1e;
-  --textMenu: #4c4c4c;
-  --tBlack: #3b3b3b;
-  --tWhite: #fafafa;
-  --pBlack: #212121;
-  --info: #00e38c;
-  --success: #00e38c;
+  /* =================================================
+    == NUEVA PALETA DE COLORES - TEMA CELESTE CLARO ==
+    =================================================
+  */
+
+  /* Paleta Principal */
+  --accent: #46c8c3;
+  --primary: #ffffff; /* Superficies principales como tarjetas */
+  --secondary: #333536; /* Color de texto principal */
+  --terciary: #6c757d; /* Color de texto secundario/apagado */
+  --title: #212529; /* Títulos principales, más oscuros */
+  --subTitle: #333536; /* Subtítulos */
+  --textMenu: #495057; /* Texto en menús */
+  --tBlack: #333536; /* Alias para texto oscuro */
+  --tWhite: #fafafa; /* Texto sobre fondos oscuros o de acento */
+  --pBlack: #333536; /* Texto de párrafo */
+  --info: #46c8c3; /* Mantenemos el acento como color de información */
+  --success: #34a853;
   --warning: #ffcd3d;
-  --danger: #ff0000;
+  --danger: #e46055;
 
   /* Accents */
-  --accentColor: #00e38c;
-  --accentv1: #4ee7ac;
-  --accentv2: #bfffe7;
+  --accentColor: #46c8c3;
+  --accentv1: #85d8d4; /* Acento más claro */
+  --accentv2: #c2eeec; /* Acento mucho más claro */
 
   /* Etiquetas */
-  --accentBg: #00e38c26;
+  --accentBg: #46c8c326; /* Fondo de acento con transparencia */
   --errorBg: #ea433526;
 
-  /* Darks */
-  --darkColor: #212121;
-  --darkv1: #292929;
-  --darkv2: #333536;
+  /* Darks (Ahora son los colores de texto y elementos oscuros) */
+  --darkColor: #333536; /* Texto principal */
+  --darkv1: #495057; /* Texto secundario */
+  --darkv2: #6c757d; /* Texto más claro o placeholders */
 
-  /* Lights */
-  --lightColor: #fafafa;
-  --lightv1: #eeeeee;
-  --lightv2: #d8d8d8;
-  --lightv3: #a7a7a7;
+  /* Lights (Ahora son los colores de fondo y superficies) */
+  --lightColor: #fdfdfd; /* Fondo principal de la aplicación */
+  --lightv1: #f8f9fa; /* Fondo ligeramente más oscuro (para secciones) */
+  --lightv2: #e9ecef; /* Bordes y divisores */
+  --lightv3: #ced4da; /* Elementos deshabilitados */
 
   /* Alerts */
   --hightAlert: #ff5b4d;
@@ -43,28 +49,28 @@
   --warning: #fbbc05;
   --error: #ea4335;
   --success: #34a853;
-  --info: #4285fa;
+  --info: #4285fa; /* Un azul estándar para 'info' funciona mejor */
 
   /* sidebar */
-  --cSidebar: #246950;
-  --cFillSidebar: #1f2d27;
+  --cSidebar: #318d89; /* Una versión más oscura del acento para el sidebar */
+  --cFillSidebar: #2a7a76; /* Versión aún más oscura para hovers/activos */
 
-  /* Paleta de colores principales */
-  --cPrimary: #00e38c;
-  --cSecondary: #212121;
-  --cTerciary: #393c3f;
-  --cAccent: #00e38c;
-  --cWhite: #fafafa;
-  --cWhiteV1: #a7a7a7;
-  --cWhiteV2: #414141;
-  --cWhiteV3: #ffffff0d;
-  --cBlack: #212121;
-  --cBlackV1: #292929;
-  --cBlackV2: #333536;
-  --cBlackV3: #393c3f;
-  --cHover: #ffffff0d;
-  --cHoverAccent: #f5822033;
-  --cHoverBigSidebar: #1f2d27;
+  /* Paleta de colores principales (versión refinada para componentes) */
+  --cPrimary: #46c8c3;
+  --cSecondary: #333536; /* Texto/elementos oscuros */
+  --cTerciary: #e9ecef; /* Bordes/fondos sutiles */
+  --cAccent: #46c8c3;
+  --cWhite: #fafafa; /* Texto sobre fondos oscuros */
+  --cWhiteV1: #6c757d; /* Texto placeholder o deshabilitado */
+  --cWhiteV2: #f1f3f5; /* Fondo de inputs o áreas sutiles */
+  --cWhiteV3: #0000000d; /* Sombra/hover muy sutil (negro transparente) */
+  --cBlack: #ffffff; /* Color de fondo de tarjeta/widget */
+  --cBlackV1: #f8f9fa; /* Variación de fondo 1 */
+  --cBlackV2: #f1f3f5; /* Variación de fondo 2 */
+  --cBlackV3: #e9ecef; /* Variación de fondo 3 / bordes */
+  --cHover: #0000000a; /* Hover general (negro muy transparente) */
+  --cHoverAccent: #46c8c333; /* Hover para el color de acento */
+  --cHoverBigSidebar: #2a7a76;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
   --cLowAlertHover: #fdd67133;
@@ -74,8 +80,8 @@
   --cSuccess: #34a853;
   --cInfo: #4285fa;
   --cWarning: #e9b01e;
-  --cHoverSuccess: #00af9033;
-  --cHoverInfo: #596376;
+  --cHoverSuccess: #34a85333;
+  --cHoverInfo: #4285fa33;
   --cHoverError: #da5d5d33;
   --cHoverWarning: #e1c15133;
 
@@ -88,8 +94,9 @@
   --cAlert: #f37f3d;
   --cHoverAlert: #f37f3d33;
 
-  --cBigSidebar: #246950;
+  --cBigSidebar: #318d89;
 
+  /* Paleta de colores complementarios (se mantienen, funcionan bien en fondo claro) */
   --cCompl1: #ffdd7f;
   --cCompl2: #a2faa3;
   --cCompl3: #b382d9;
@@ -100,14 +107,10 @@
   --cCompl8: #de6a60;
   --cCompl9: #5ab0e9;
 
-  --cHoverCompl1: #FAFAFA1A;
+  --cHoverCompl1: #0000001A;
   --cHoverCompl5: #f7b26733;
 
-
-  --cHoverCompl5: #f7b26733;
-
-
-  /* Paleta de colores Random */
+  /* Paleta de colores Random (se mantienen) */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;
   --cRandom3: #d8bfd8;
@@ -166,17 +169,17 @@
   --responsive-tablet: 768px;
   --responsive-mobile: 480px;
 
-  --figma-main-bg: #333536;
-  --figma-border-color: #a7a7a7; /* Similar a --cWhiteV1 */
-  --figma-text-gray: #a7a7a7; /* Similar a --cWhiteV1 */
-  --figma-text-white: #fafafa; /* Similar a --cWhite */
+  --figma-main-bg: #f8f9fa; /* Usamos un color de fondo claro */
+  --figma-border-color: #ced4da; /* Usamos un color de borde claro */
+  --figma-text-gray: #6c757d; /* Usamos un color de texto gris */
+  --figma-text-white: #333536; /* En tema claro, este es el texto oscuro */
 
-  --figma-emergency-box-bg: rgba(218, 93, 93, 0.5);
-  --figma-emergency-box-border: rgba(221, 41, 24, 0.849);
-  --figma-emergency-text-color: rgba(247, 32, 12, 0.723);
+  --figma-emergency-box-bg: rgba(228, 96, 85, 0.2);
+  --figma-emergency-box-border: rgba(228, 96, 85, 0.8);
+  --figma-emergency-text-color: #c52a1c;
 
-  --figma-theft-box-bg: rgba(92, 62, 131, 0.5); /* Ejemplo para robo */
-  --figma-theft-box-border: rgba(90, 16, 164, 0.708); /* Ejemplo para robo */
+  --figma-theft-box-bg: rgba(92, 62, 131, 0.2);
+  --figma-theft-box-border: rgba(90, 16, 164, 0.7);
 
   --figma-warning-text-color: #e9b01e;
   --figma-success-text-color: #34a853;
@@ -197,8 +200,9 @@ body {
   font-size: var(--sM);
   font-family: var(--fPrimary);
   font-weight: var(--bRegular);
-  color: var(--cWhite);
-  background-color: var(--cBlack);
+  /* === CAMBIO IMPORTANTE: INVERSIÓN A TEMA CLARO === */
+  color: var(--darkColor);
+  background-color: var(--lightColor);
 }
 
 input,
@@ -206,29 +210,28 @@ button {
   font-family: var(--fPrimary);
 }
 
-/* splash */
+/* splash: Ajustado para el nuevo tema claro */
 .splash {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--cBlack);
+  background-color: var(--lightColor); /* Fondo claro */
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   z-index: 1000;
-  color: var(--cWhiteV3);
+  color: var(--darkv2); /* Texto oscuro */
 }
 
 .splash > div > span {
-  color: var(--cWhite);
+  color: var(--darkColor); /* Texto principal oscuro */
   font-weight: var(--bBold);
 }
 
 /* loading  */
-
 .loader-container {
   width: 100vw;
   height: 100vh;
@@ -236,6 +239,7 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: rgba(255, 255, 255, 0.5); /* Fondo de carga claro */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   position: absolute;
@@ -265,10 +269,11 @@ button {
 }
 
 svg.circle {
-  background-color: var(--cWhite);
-  color: var(--cBlack);
+  background-color: var(--cBlack); /* Fondo de tarjeta */
+  color: var(--darkColor); /* Icono oscuro */
   border-radius: 100%;
   padding: var(--spXs);
+  border: 1px solid var(--lightv2);
 }
 
 /* MARK:Key Value */
@@ -282,7 +287,7 @@ svg.circle {
   left: 28px;
   background-color: var(--cPrimary);
   border-radius: 9999px;
-  border: 2px solid var(--cWhiteV1);
+  border: 2px solid var(--darkv2); /* Borde oscuro para contraste */
   width: 14px;
   height: 14px;
 }
@@ -305,11 +310,12 @@ svg.circle {
         display: flex;
         gap: var(--sPs);
         font-size: var(--sS);
-        color: var(--cWhiteV3);
+        color: var(--darkv2); /* Texto del label */
         margin-right: var(--sPs);
       }
 
       & > .label-active {
+        color: var(--darkColor); /* Texto activo oscuro */
         font-weight: var(--bBold);
       }
 
@@ -362,13 +368,15 @@ svg.circle {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: #aab; /* Scrollbar más visible en tema claro */
   border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 
 input:-webkit-autofill,
@@ -380,23 +388,29 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px var(--cWhiteV2) inset;
-  -webkit-text-fill-color: var(--cWhite);
+  -webkit-box-shadow: 0 0 0px 1000px var(--cWhiteV2) inset; /* Fondo de autofill claro */
+  -webkit-text-fill-color: var(--darkColor); /* Texto de autofill oscuro */
 }
 
 .apexcharts-xaxis-label,
 .apexcharts-yaxis-label {
-  background: transparent !important;
+  fill: var(--darkv1) !important; /* Texto de los ejes del gráfico */
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+  filter: invert(0.2); /* Ajusta el icono del calendario para que sea visible */
   margin-right: 4px;
 }
 .apexcharts-tooltip {
-  background: var(--cWhite);
-  color: var(--cBlack);
+  background: var(--cBlack); /* Fondo de tooltip */
+  color: var(--darkColor); /* Texto de tooltip */
   font-family: var(--fPrimary);
+  border: 1px solid var(--lightv2) !important;
+}
+
+.apexcharts-tooltip-title {
+    background: var(--lightv1) !important;
+    border-bottom: 1px solid var(--lightv2) !important;
 }
 
 #SvgjsText8413 {
@@ -404,7 +418,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .truncatedText {
-  /* background-color: #39acec; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -416,5 +429,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 8px;
 }
 .bottomLine {
-  border-bottom: 1px solid var(--cWhiteV1);
+  border-bottom: 1px solid var(--lightv2); /* Borde divisor claro */
 }

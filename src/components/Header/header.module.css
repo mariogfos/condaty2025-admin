@@ -4,9 +4,9 @@
   align-items: center;
   width: 100%;
   height: 72px;
-  background-color: #333536;
+  background-color: var(--cBlack, #333536);
   padding: 16px 24px;
-  border-bottom: 0.5px solid #a6a6a6;
+  border-bottom: 0.5px solid var(--cWhiteV1, #a6a6a6);
 }
 
 .header-title {
@@ -23,7 +23,7 @@
 }
 
 .header-greeting h1 {
-  color: #fafafa;
+  color: var(--cBlack);
   font-size: 24px;
   font-weight: 600;
   margin: 0;
@@ -31,7 +31,7 @@
 }
 
 .header-greeting p {
-  color: #a6a6a6;
+  color: var(--cWhiteV1, #a6a6a6);
   font-size: 16px;
   font-weight: 400;
   margin: 0;
@@ -39,7 +39,7 @@
 }
 
 .header-title p {
-  color: #fafafa;
+  color: var(--cBlack);
   font-size: 14px;
   font-weight: 600;
   margin-top: 4px;
@@ -52,7 +52,7 @@
 .header-title p:last-child {
   font-size: 10px;
   font-weight: 400;
-  color: #a6a6a6;
+  color: var(--cWhiteV1, #a6a6a6);
 }
 
 .tooltip {
@@ -80,7 +80,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 0.84px solid #a6a6a6;
+  border: 0.84px solid var(--cWhiteV1, #a6a6a6);
   overflow: hidden;
   padding: 3.35px 5.02px;
 }
@@ -89,7 +89,7 @@
 .notificationContainer {
   cursor: pointer;
   padding: 8px;
-  border: 0.5px solid var(--cWhiteV1);
+  border: 0.5px solid var(--cWhiteV1, #a6a6a6);
   border-radius: 100%;
 }
 
@@ -99,7 +99,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fafafa;
+  color: var(--cWhite, #fafafa);
   cursor: pointer;
 }
 
@@ -120,7 +120,7 @@
   width: 16px;
   height: 16px;
   background-color: var(--error, #ff5252);
-  color: white;
+  color: var(--cWhite, #fff);
   border-radius: 50%;
   font-size: 8px;
   display: flex;
@@ -130,7 +130,7 @@
 
 /* Estilo para el icono de configuración */
 .tooltip svg {
-  color: #fafafa;
+  color: var(--cWhite, #fafafa);
   width: 21.52px;
   height: 21.52px;
 }
