@@ -662,7 +662,7 @@ const RenderForm = ({
             deudas?.length > 0 &&
             selectedPeriodo.length === 0)
         }
-        title={"Nuevo ingreso"}
+        title={"Registrar ingreso"}
       >
         <div className={styles["income-form-container"]}>
           {/* Fecha de pago */}
@@ -671,7 +671,7 @@ const RenderForm = ({
               <Input
                 type="date"
                 name="paid_at"
-                label="Selecciona fecha de pago"
+                label="Seleccionar fecha"
                 required={true}
                 value={_formState.paid_at || ""}
                 onChange={handleChangeInput}
@@ -686,7 +686,7 @@ const RenderForm = ({
             <div className={styles["input-container"]}>
               <Select
                 name="dpto_id"
-                label="Unidad"
+                label="Seleccionar Unidad"
                 required={true}
                 value={_formState.dpto_id}
                 onChange={handleChangeInput}
