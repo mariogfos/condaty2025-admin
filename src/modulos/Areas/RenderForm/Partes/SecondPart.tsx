@@ -523,7 +523,7 @@ const SecondPart = ({
             selectedDays={selectedDays}
             onClick={handleChangeWeekday}
           />
-          {formState?.reservation_duration && periods.length > 0 && (
+          {(periods.length > 0 || formState?.end_hour) && (
             <>
               <p className={styles.title} style={{ marginTop: 12 }}>
                 Periodos actuales
@@ -563,6 +563,17 @@ const SecondPart = ({
                           </p>
                         </div>
                       ))}
+                      {formState?.booking_mode == "day" && (
+                        <div
+                          style={{
+                            border: "0.5px solid var(--cWhiteV1) ",
+                            padding: 8,
+                            borderRadius: 8,
+                          }}
+                        >
+                          {formState?.start_hour + "-" + formState?.end_hour}
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>

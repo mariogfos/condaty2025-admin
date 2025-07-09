@@ -98,7 +98,7 @@ const TableFinance = ({
   };
 
   const getTotalTextColorClass = () => {
-    switch (variant) {
+     switch (variant) {
       case "income":
         return styles["text-income"];
       case "expense":
@@ -233,23 +233,23 @@ const TableFinance = ({
               </div>
               {isOpen &&
                 item.sub?.map((subItem, subIndex) => {
-                  const isLast = subIndex === subLength - 1;
-                  return (
-                    <div
-                      className={
-                        `${styles.dataRow} ${styles.subItemRow} ` +
-                        (isLast ? getGroupBotClass() : getGroupMidClass())
-                      }
-                      key={`subitem-${index}-${subIndex}`}
-                    >
+                const isLast = subIndex === subLength - 1;
+                return (
+                  <div
+                    className={
+                      `${styles.dataRow} ${styles.subItemRow} ` +
+                      (isLast ? getGroupBotClass() : getGroupMidClass())
+                    }
+                    key={`subitem-${index}-${subIndex}`}
+                  >
                       <div
                         className={`${styles.dataCell} ${styles.subCategoryNameCell}`}
                       >
-                        <span>{subItem.name}</span>
-                      </div>
-                      {Array.from({ length: meses.length }).map((_, mesIdx) => {
+                      <span>{subItem.name}</span>
+                    </div>
+                    {Array.from({ length: meses.length }).map((_, mesIdx) => {
                         const valor = subItem.totalMeses?.[mesIdx];
-                        return (
+                      return (
                           <div
                             key={`subitem-${index}-${subIndex}-mes-${mesIdx}`}
                             className={`${styles.dataCell} ${
@@ -261,9 +261,9 @@ const TableFinance = ({
                             <span>
                               {valor && valor !== 0 ? formatNumber(valor) : "-"}
                             </span>
-                          </div>
-                        );
-                      })}
+                        </div>
+                      );
+                    })}
                       <div
                         className={`${styles.dataCell} ${
                           styles.totalDataCell
@@ -271,11 +271,11 @@ const TableFinance = ({
                           isTwoColumnLayout ? styles.alignCellContentRight : ""
                         }`}
                       >
-                        <span>Bs {formatNumber(subItem.amount)}</span>
-                      </div>
+                      <span>Bs {formatNumber(subItem.amount)}</span>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
             </React.Fragment>
           );
         })}

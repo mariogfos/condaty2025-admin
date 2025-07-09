@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState, useMemo, useRef } from "react";
-import useAxios from "@/mk/hooks/useAxios";
-import { getUrlImages } from "@/mk/utils/string";
-import html2canvas from "html2canvas";
-import Select from "@/mk/components/forms/Select/Select";
-import Button from "@/mk/components/forms/Button/Button";
-import Input from "@/mk/components/forms/Input/Input";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import TableIngresos from "./TableIngresos";
-import TableEgresos from "./TableEgresos";
-import TableResumenGeneral from "./TableResumenGeneral";
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import useAxios from '@/mk/hooks/useAxios';
+import { getUrlImages } from '@/mk/utils/string';
+import html2canvas from 'html2canvas';
+import Select from '@/mk/components/forms/Select/Select';
+import Button from '@/mk/components/forms/Button/Button';
+import Input from '@/mk/components/forms/Input/Input';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import TableIngresos from './TableIngresos';
+import TableEgresos from './TableEgresos';
+import TableResumenGeneral from './TableResumenGeneral';
 import {
   IconArrowDown,
   IconExport,
@@ -19,15 +19,16 @@ import {
   PointGraphic,
   IconGraphics,
   IconLineGraphic,
-} from "@/components/layout/icons/IconsBiblioteca";
-import styles from "./Balance.module.css";
-import WidgetGrafEgresos from "@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos";
-import WidgetGrafIngresos from "@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos";
-import WidgetGrafBalance from "@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance";
-import { ChartType, COLORS20 } from "@/mk/components/ui/Graphs/GraphsTypes";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import { formatNumber } from "@/mk/utils/numbers";
-import EmptyData from "@/components/NoData/EmptyData";
+} from '@/components/layout/icons/IconsBiblioteca';
+import styles from './Balance.module.css';
+import WidgetGrafEgresos from '@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos';
+import WidgetGrafIngresos from '@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos';
+import WidgetGrafBalance from '@/components/Widgets/WidgetGrafBalance/WidgetGrafBalance';
+import { ChartType, COLORS20 } from '@/mk/components/ui/Graphs/GraphsTypes';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import { formatNumber } from '@/mk/utils/numbers';
+import EmptyData from '@/components/NoData/EmptyData';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 interface ChartTypeOption {
   id: ChartType;
   name: string;
@@ -51,13 +52,13 @@ interface ChartTypeState {
 }
 const BalanceGeneral: React.FC = () => {
   const [formStateFilter, setFormStateFilter] = useState<FilterState>({
-    filter_date: "m",
-    filter_mov: "T",
+    filter_date: 'm',
+    filter_mov: 'T',
     filter_categ: [],
   });
   const [filtered, setFiltered] = useState(true);
   const [charType, setCharType] = useState<ChartTypeState>({
-    filter_charType: "bar" as ChartType,
+    filter_charType: 'bar' as ChartType,
   });
   const [errors, setErrors] = useState<ErrorType>({});
   const [lchars, setLchars] = useState<ChartTypeOption[]>([]);
@@ -74,20 +75,20 @@ const BalanceGeneral: React.FC = () => {
     reLoad: reLoadFinanzas,
 
     loaded,
-  } = useAxios("/balances", "POST", {});
+  } = useAxios('/balances', 'POST', {});
 
   const { setStore } = useAuth();
 
   const [loadingLocal, setLoadingLocal] = useState(false);
 
   useEffect(() => {
-    setStore({ title: "BALANCE" });
+    setStore({ title: 'BALANCE' });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (formStateFilter.filter_date === "sc") {
+    if (formStateFilter.filter_date === 'sc') {
       setOpenCustomFilter(true);
     } else {
       reLoadFinanzas(formStateFilter);
@@ -97,19 +98,19 @@ const BalanceGeneral: React.FC = () => {
 
     let newLchars: ChartTypeOption[];
 
-    if (formStateFilter.filter_mov === "T") {
+    if (formStateFilter.filter_mov === 'T') {
       newLchars = [
-        { id: "bar" as ChartType, name: "Barra" },
+        { id: 'bar' as ChartType, name: 'Barra' },
 
-        { id: "line" as ChartType, name: "Linea" },
+        { id: 'line' as ChartType, name: 'Linea' },
       ];
     } else {
       newLchars = [
-        { id: "bar" as ChartType, name: "Barra" },
+        { id: 'bar' as ChartType, name: 'Barra' },
 
-        { id: "pie" as ChartType, name: "Torta" },
+        { id: 'pie' as ChartType, name: 'Torta' },
 
-        { id: "line" as ChartType, name: "Linea" },
+        { id: 'line' as ChartType, name: 'Linea' },
       ];
     }
 
@@ -117,7 +118,7 @@ const BalanceGeneral: React.FC = () => {
 
     // Mantener el tipo de gráfico si sigue siendo válido
 
-    if (!newLchars.some((c) => c.id === charType.filter_charType)) {
+    if (!newLchars.some(c => c.id === charType.filter_charType)) {
       setCharType({ filter_charType: newLchars[0].id });
     }
 
@@ -129,15 +130,15 @@ const BalanceGeneral: React.FC = () => {
   }, [loaded]);
 
   const ldate = [
-    { id: "m", name: "Este mes" },
+    { id: 'm', name: 'Este mes' },
 
-    { id: "lm", name: "Mes anterior" },
+    { id: 'lm', name: 'Mes anterior' },
 
-    { id: "y", name: "Este año" },
+    { id: 'y', name: 'Este año' },
 
-    { id: "ly", name: "Año anterior" },
+    { id: 'ly', name: 'Año anterior' },
 
-    { id: "sc", name: "Personalizado" },
+    { id: 'sc', name: 'Personalizado' },
   ];
 
   const exportar = async () => {
@@ -145,34 +146,34 @@ const BalanceGeneral: React.FC = () => {
 
     // Esperar a que el gráfico se re-renderice con fondo blanco
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     let fileObj = null;
 
     let refToCapture = chartRefBalance;
 
-    let fileName = "grafica-balance.png";
+    let fileName = 'grafica-balance.png';
 
-    if (formStateFilter.filter_mov === "I") {
+    if (formStateFilter.filter_mov === 'I') {
       refToCapture = chartRefIngresos;
 
-      fileName = "grafica-ingresos.png";
-    } else if (formStateFilter.filter_mov === "E") {
+      fileName = 'grafica-ingresos.png';
+    } else if (formStateFilter.filter_mov === 'E') {
       refToCapture = chartRefEgresos;
 
-      fileName = "grafica-egresos.png";
+      fileName = 'grafica-egresos.png';
     }
 
     if (refToCapture.current) {
       const canvas = await html2canvas(refToCapture.current);
 
-      const base64 = canvas.toDataURL("image/png", 0.92);
+      const base64 = canvas.toDataURL('image/png', 0.92);
 
-      let base64String = base64.replace("data:image/png;base64,", "");
+      let base64String = base64.replace('data:image/png;base64,', '');
 
       base64String = encodeURIComponent(base64String);
 
-      fileObj = { ext: "png", file: base64String };
+      fileObj = { ext: 'png', file: base64String };
 
       /* // Descargar la imagen para pruebas
 
@@ -202,7 +203,7 @@ document.body.removeChild(link); */
 
   useEffect(() => {
     if (finanzas?.success === true && finanzas?.data?.export) {
-      window.open(getUrlImages("/" + finanzas.data.export.path), "_blank");
+      window.open(getUrlImages('/' + finanzas.data.export.path), '_blank');
     } else if (
       finanzas?.success === false &&
       finanzas?.message &&
@@ -216,11 +217,11 @@ document.body.removeChild(link); */
     let err: ErrorType = {};
 
     if (!formState.date_inicio) {
-      err = { ...err, date_inicio: "La fecha de inicio es obligatoria" };
+      err = { ...err, date_inicio: 'La fecha de inicio es obligatoria' };
     }
 
     if (!formState.date_fin) {
-      err = { ...err, date_fin: "La fecha de fin es obligatoria" };
+      err = { ...err, date_fin: 'La fecha de fin es obligatoria' };
     }
 
     if (
@@ -231,7 +232,7 @@ document.body.removeChild(link); */
       err = {
         ...err,
 
-        date_inicio: "La fecha de inicio no puede ser mayor a la de fin",
+        date_inicio: 'La fecha de inicio no puede ser mayor a la de fin',
       };
     }
 
@@ -243,9 +244,9 @@ document.body.removeChild(link); */
       err = {
         ...err,
 
-        date_inicio: "El periodo personalizado debe estar dentro del mismo año",
+        date_inicio: 'El periodo personalizado debe estar dentro del mismo año',
 
-        date_fin: "El periodo personalizado debe estar dentro del mismo año",
+        date_fin: 'El periodo personalizado debe estar dentro del mismo año',
       };
     }
     if (Object.keys(err).length > 0) {
@@ -255,7 +256,7 @@ document.body.removeChild(link); */
     if (formState.date_inicio && formState.date_fin) {
       setFormStateFilter({
         ...formStateFilter,
-        filter_date: "c:" + formState.date_inicio + "," + formState.date_fin,
+        filter_date: 'c:' + formState.date_inicio + ',' + formState.date_fin,
       });
     }
     setOpenCustomFilter(false);
@@ -265,7 +266,7 @@ document.body.removeChild(link); */
   const getCategories = () => {
     let data = [];
 
-    if (formStateFilter.filter_mov === "I") {
+    if (formStateFilter.filter_mov === 'I') {
       data = finanzas?.data?.categI ?? [];
     } else {
       data = finanzas?.data?.categE ?? [];
@@ -287,7 +288,7 @@ document.body.removeChild(link); */
       );
 
       if (nuevas.length !== currentCateg.length) {
-        setFormStateFilter((prev) => ({ ...prev, filter_categ: nuevas }));
+        setFormStateFilter(prev => ({ ...prev, filter_categ: nuevas }));
       }
     }
   }, [formStateFilter.filter_mov]);
@@ -322,47 +323,47 @@ document.body.removeChild(link); */
     const now = new Date();
 
     const meses = [
-      "Enero",
+      'Enero',
 
-      "Febrero",
+      'Febrero',
 
-      "Marzo",
+      'Marzo',
 
-      "Abril",
+      'Abril',
 
-      "Mayo",
+      'Mayo',
 
-      "Junio",
+      'Junio',
 
-      "Julio",
+      'Julio',
 
-      "Agosto",
+      'Agosto',
 
-      "Septiembre",
+      'Septiembre',
 
-      "Octubre",
+      'Octubre',
 
-      "Noviembre",
+      'Noviembre',
 
-      "Diciembre",
+      'Diciembre',
     ];
 
     let ayer = new Date(now);
 
     switch (filterDateValue) {
-      case "d":
+      case 'd':
         return `Balance del ${now.getDate()} de ${
           meses[now.getMonth()]
         } de ${now.getFullYear()}`;
 
-      case "ld":
+      case 'ld':
         ayer = new Date(now.getDate() - 1);
 
         return `Balance del ${ayer.getDate()} de ${
           meses[ayer.getMonth()]
         } de ${ayer.getFullYear()}`;
 
-      case "w":
+      case 'w':
         const inicioSemana = new Date(now);
 
         inicioSemana.setDate(now.getDate() - now.getDay() + 1);
@@ -377,7 +378,7 @@ document.body.removeChild(link); */
           meses[finSemana.getMonth()]
         } de ${finSemana.getFullYear()}`;
 
-      case "lw":
+      case 'lw':
         const inicioSemanaAnterior = new Date(now);
 
         inicioSemanaAnterior.setDate(now.getDate() - now.getDay() - 6);
@@ -392,36 +393,36 @@ document.body.removeChild(link); */
           meses[finSemanaAnterior.getMonth()]
         } de ${finSemanaAnterior.getFullYear()}`;
 
-      case "m":
+      case 'm':
         return `Balance de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
 
-      case "lm":
+      case 'lm':
         const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1);
 
         return `Balance de ${
           meses[mesAnterior.getMonth()]
         } de ${mesAnterior.getFullYear()}`;
 
-      case "y":
+      case 'y':
         return `Balance desde Enero hasta ${
           meses[now.getMonth()]
         } de ${now.getFullYear()}`;
 
-      case "ly":
+      case 'ly':
         return `Balance desde Enero hasta Diciembre de ${
           now.getFullYear() - 1
         }`;
 
       default:
-        if (filterDateValue.startsWith("c:")) {
-          const dates = filterDateValue.substring(2).split(",");
+        if (filterDateValue.startsWith('c:')) {
+          const dates = filterDateValue.substring(2).split(',');
 
           if (dates[0] && dates[1]) {
             // Crear las fechas y ajustarlas a UTC-4
 
-            const fechaInicio = new Date(dates[0] + "T00:00:00-04:00");
+            const fechaInicio = new Date(dates[0] + 'T00:00:00-04:00');
 
-            const fechaFin = new Date(dates[1] + "T00:00:00-04:00");
+            const fechaFin = new Date(dates[1] + 'T00:00:00-04:00');
 
             fechaInicio.setHours(fechaInicio.getHours() + 4);
 
@@ -433,7 +434,7 @@ document.body.removeChild(link); */
           }
         }
 
-        return "Balance general";
+        return 'Balance general';
     }
   };
 
@@ -468,23 +469,23 @@ document.body.removeChild(link); */
   }, [finanzas?.data?.egresosHist]);
 
   const getSubtitle = () => {
-    if (formStateFilter.filter_date === "y") {
+    if (formStateFilter.filter_date === 'y') {
       return `Total del saldo acumulado · Gestión ${new Date().getFullYear()}`;
     }
 
-    if (formStateFilter.filter_date === "ly") {
+    if (formStateFilter.filter_date === 'ly') {
       return `Total del saldo acumulado · Gestión ${
         new Date().getFullYear() - 1
       }`;
     }
 
-    return "Total del saldo acumulado";
+    return 'Total del saldo acumulado';
   };
 
   // Filtrar datos hasta el mes actual si el filtro es año actual
 
   const filtrarHastaMesActual = (data: any[], tipo: string) => {
-    if (formStateFilter.filter_date === "y" && Array.isArray(data)) {
+    if (formStateFilter.filter_date === 'y' && Array.isArray(data)) {
       const mesActual = new Date().getMonth();
 
       // Suponiendo que los datos tienen un campo 'mes' (0=enero, 11=diciembre)
@@ -494,7 +495,7 @@ document.body.removeChild(link); */
 
         let mes = item.mes;
 
-        if (typeof mes === "string") mes = parseInt(mes, 10) - 1;
+        if (typeof mes === 'string') mes = parseInt(mes, 10) - 1;
 
         return mes - 1 <= mesActual;
       });
@@ -506,11 +507,11 @@ document.body.removeChild(link); */
   let tituloBalance;
 
   if (
-    formStateFilter.filter_date == "d" ||
-    formStateFilter.filter_date == "ld"
+    formStateFilter.filter_date == 'd' ||
+    formStateFilter.filter_date == 'ld'
   ) {
     tituloBalance =
-      "Balance de " + (formStateFilter.filter_date == "d" ? "Hoy" : "Ayer");
+      'Balance de ' + (formStateFilter.filter_date == 'd' ? 'Hoy' : 'Ayer');
   } else {
     tituloBalance = getPeriodoText(formStateFilter.filter_date);
   }
@@ -527,7 +528,7 @@ document.body.removeChild(link); */
               value={formStateFilter?.filter_date}
               name="periodo"
               error={errors}
-              onChange={(e) => {
+              onChange={e => {
                 setFormStateFilter({
                   ...formStateFilter,
 
@@ -546,7 +547,7 @@ document.body.removeChild(link); */
               value={formStateFilter?.filter_mov}
               name="mov"
               error={errors}
-              onChange={(e) => {
+              onChange={e => {
                 setLoadingLocal(true); // <-- AÑADE ESTA LÍNEA AQUÍ
 
                 setFormStateFilter({
@@ -558,11 +559,11 @@ document.body.removeChild(link); */
                 });
               }}
               options={[
-                { id: "T", name: "Ingresos y egresos" },
+                { id: 'T', name: 'Ingresos y egresos' },
 
-                { id: "I", name: "Ingresos" },
+                { id: 'I', name: 'Ingresos' },
 
-                { id: "E", name: "Egresos" },
+                { id: 'E', name: 'Egresos' },
               ]}
               required
               iconLeft={<IconArrowDown />}
@@ -571,7 +572,7 @@ document.body.removeChild(link); */
 
           <div className={styles.filterItem}>
             <div className={styles.relativeContainer}>
-              {formStateFilter.filter_mov === "T" && (
+              {formStateFilter.filter_mov === 'T' && (
                 <div className={styles.overlayDisabled}></div>
               )}
 
@@ -582,10 +583,10 @@ document.body.removeChild(link); */
                 name="categ"
                 error={errors}
                 multiSelect={true}
-                onChange={(e) => {
+                onChange={e => {
                   let value = e.target.value;
 
-                  if (Array.isArray(value) && value.length === 0) value = "";
+                  if (Array.isArray(value) && value.length === 0) value = '';
 
                   setFormStateFilter({
                     ...formStateFilter,
@@ -608,23 +609,23 @@ document.body.removeChild(link); */
                 type="button"
                 title="Gráfico de Barras"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === "bar"
+                  charType.filter_charType === 'bar'
                     ? styles.chartTypeButtonActive
-                    : ""
+                    : ''
                 }`}
                 onClick={() => {
-                  if (lchars.some((c) => c.id === "bar")) {
-                    setCharType({ filter_charType: "bar" });
+                  if (lchars.some(c => c.id === 'bar')) {
+                    setCharType({ filter_charType: 'bar' });
                   }
                 }}
-                disabled={!lchars.some((c) => c.id === "bar")}
+                disabled={!lchars.some(c => c.id === 'bar')}
               >
                 <LineGraphic
                   size={20}
                   color={
-                    charType.filter_charType === "bar"
-                      ? "var(--cAccent, #00E38C)"
-                      : "var(--cWhiteV1, #A7A7A7)"
+                    charType.filter_charType === 'bar'
+                      ? 'var(--cAccent, #00E38C)'
+                      : 'var(--cWhiteV1, #A7A7A7)'
                   }
                 />
               </button>
@@ -633,23 +634,23 @@ document.body.removeChild(link); */
                 type="button"
                 title="Gráfico de Línea"
                 className={`${styles.chartTypeButton} ${
-                  charType.filter_charType === "line"
+                  charType.filter_charType === 'line'
                     ? styles.chartTypeButtonActive
-                    : ""
+                    : ''
                 }`}
                 onClick={() => {
-                  if (lchars.some((c) => c.id === "line")) {
-                    setCharType({ filter_charType: "line" });
+                  if (lchars.some(c => c.id === 'line')) {
+                    setCharType({ filter_charType: 'line' });
                   }
                 }}
-                disabled={!lchars.some((c) => c.id === "line")}
+                disabled={!lchars.some(c => c.id === 'line')}
               >
                 <PointGraphic
                   size={20}
                   color={
-                    charType.filter_charType === "line"
-                      ? "var(--cAccent, #00E38C)"
-                      : "var(--cWhiteV1, #A7A7A7)"
+                    charType.filter_charType === 'line'
+                      ? 'var(--cAccent, #00E38C)'
+                      : 'var(--cWhiteV1, #A7A7A7)'
                   }
                 />
               </button>
@@ -659,7 +660,7 @@ document.body.removeChild(link); */
 
         <div className={styles.loadingContainer}>
           <LoadingScreen>
-            {formStateFilter.filter_mov === "T" && (
+            {formStateFilter.filter_mov === 'T' && (
               <>
                 {loaded &&
                 (!finanzas?.data?.ingresos ||
@@ -671,7 +672,7 @@ document.body.removeChild(link); */
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line" ? (
+                      charType.filter_charType === 'line' ? (
                         <IconLineGraphic size={80} color="var(--cWhiteV1)" />
                       ) : (
                         <IconGraphics size={80} color="var(--cWhiteV1)" />
@@ -706,11 +707,11 @@ document.body.removeChild(link); */
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl1)" }}
+                              style={{ backgroundColor: 'var(--cCompl1)' }}
                             ></div>
 
                             <span>
-                              Saldo Inicial:{" "}
+                              Saldo Inicial:{' '}
                               <span className={styles.legendAmount}>
                                 Bs {formatNumber(calculatedTotals.saldoInicial)}
                               </span>
@@ -720,15 +721,15 @@ document.body.removeChild(link); */
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl7)" }}
+                              style={{ backgroundColor: 'var(--cCompl7)' }}
                             ></div>
 
                             <span>
                               <span>Total de ingresos:</span>
 
                               <span className={styles.legendAmount}>
-                                {" "}
-                                Bs{" "}
+                                {' '}
+                                Bs{' '}
                                 {formatNumber(calculatedTotals.totalIngresos)}
                               </span>
                             </span>
@@ -737,11 +738,11 @@ document.body.removeChild(link); */
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl8)" }}
+                              style={{ backgroundColor: 'var(--cCompl8)' }}
                             ></div>
 
                             <span>
-                              Total de egresos:{" "}
+                              Total de egresos:{' '}
                               <span className={styles.legendAmount}>
                                 Bs {formatNumber(calculatedTotals.totalEgresos)}
                               </span>
@@ -751,11 +752,11 @@ document.body.removeChild(link); */
                           <div className={styles.legendItem}>
                             <div
                               className={styles.legendColor}
-                              style={{ backgroundColor: "var(--cCompl9)" }}
+                              style={{ backgroundColor: 'var(--cCompl9)' }}
                             ></div>
 
                             <span>
-                              Total de saldo acumulado:{" "}
+                              Total de saldo acumulado:{' '}
                               <span className={styles.legendAmount}>
                                 Bs {formatNumber(calculatedTotals.saldoFinal)}
                               </span>
@@ -769,32 +770,32 @@ document.body.removeChild(link); */
 
                     <div
                       style={{
-                        display: "flex",
+                        display: 'flex',
 
-                        justifyContent: "flex-end",
+                        justifyContent: 'flex-end',
 
-                        marginBottom: "16px",
+                        marginBottom: '16px',
                       }}
                     >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: "inline-flex",
+                          display: 'inline-flex',
 
-                          alignItems: "center",
+                          alignItems: 'center',
 
-                          gap: "8px",
+                          gap: '8px',
 
-                          width: "auto",
+                          width: 'auto',
 
-                          background: "var(--cWhiteV2)",
+                          background: 'var(--cWhiteV2)',
 
-                          color: "var(--cWhite)",
+                          color: 'var(--cWhite)',
 
-                          border: "none",
+                          border: 'none',
 
-                          borderRadius: "12px",
+                          borderRadius: '12px',
                         }}
                       >
                         <IconExport size={22} />
@@ -812,9 +813,9 @@ document.body.removeChild(link); */
                       categorias={finanzas?.data?.categI}
                       subcategorias={finanzas?.data?.ingresos}
                       anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
+                        formStateFilter?.filter_date === 'y' ||
+                        formStateFilter?.filter_date === 'ly' ||
+                        formStateFilter?.filter_date.indexOf('c:') > -1
                       }
                     />
 
@@ -830,9 +831,9 @@ document.body.removeChild(link); */
                       categorias={finanzas?.data?.categE}
                       subcategorias={finanzas?.data?.egresos}
                       anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
+                        formStateFilter?.filter_date === 'y' ||
+                        formStateFilter?.filter_date === 'ly' ||
+                        formStateFilter?.filter_date.indexOf('c:') > -1
                       }
                     />
 
@@ -845,9 +846,9 @@ document.body.removeChild(link); */
                     <TableResumenGeneral
                       subcategoriasE={finanzas?.data?.egresos}
                       subcategoriasI={finanzas?.data?.ingresos}
-                      title={"Resumen general"}
-                      title2={"Total"}
-                      titleTotal={"Total acumulado"}
+                      title={'Resumen general'}
+                      title2={'Total'}
+                      titleTotal={'Total acumulado'}
                       saldoInicial={finanzas?.data?.saldoInicial}
                     />
                   </>
@@ -855,7 +856,7 @@ document.body.removeChild(link); */
               </>
             )}
 
-            {formStateFilter.filter_mov === "I" && (
+            {formStateFilter.filter_mov === 'I' && (
               <div>
                 {loadingLocal || !loaded ? (
                   <LoadingScreen />
@@ -866,7 +867,7 @@ document.body.removeChild(link); */
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line" ? (
+                      charType.filter_charType === 'line' ? (
                         <IconLineGraphic size={80} color="var(--cWhiteV1)" />
                       ) : (
                         <IconGraphics size={80} color="var(--cWhiteV1)" />
@@ -890,7 +891,7 @@ document.body.removeChild(link); */
                               finanzas?.data.ingresosHist || [];
 
                             const selectcategorias =
-                              typeof formStateFilter.filter_categ === "string"
+                              typeof formStateFilter.filter_categ === 'string'
                                 ? formStateFilter.filter_categ
                                   ? [formStateFilter.filter_categ]
                                   : []
@@ -907,7 +908,7 @@ document.body.removeChild(link); */
                               );
                             }
 
-                            return filtrarHastaMesActual(datos, "I");
+                            return filtrarHastaMesActual(datos, 'I');
                           })()}
                           chartTypes={[charType.filter_charType]}
                           h={360}
@@ -919,7 +920,7 @@ document.body.removeChild(link); */
 
                                 const selectcategorias =
                                   typeof formStateFilter.filter_categ ===
-                                  "string"
+                                  'string'
                                     ? formStateFilter.filter_categ
                                       ? [formStateFilter.filter_categ]
                                       : []
@@ -942,7 +943,7 @@ document.body.removeChild(link); */
                                 return filtrarHastaMesActual(
                                   datosFiltrados,
 
-                                  "I"
+                                  'I'
                                 );
                               })();
 
@@ -970,7 +971,7 @@ document.body.removeChild(link); */
                               );
                             })()
                           )}`}
-                          subtitle={"Total de ingresos"}
+                          subtitle={'Total de ingresos'}
                           periodo={formStateFilter?.filter_date}
                         />
 
@@ -978,7 +979,7 @@ document.body.removeChild(link); */
                           <div className={styles.legendContainer}>
                             {(() => {
                               const selectcategorias =
-                                typeof formStateFilter.filter_categ === "string"
+                                typeof formStateFilter.filter_categ === 'string'
                                   ? formStateFilter.filter_categ
                                     ? [formStateFilter.filter_categ]
                                     : []
@@ -998,7 +999,7 @@ document.body.removeChild(link); */
 
                                   .reduce((acc: any[], item: any) => {
                                     let found = acc.find(
-                                      (a) => a.id === item.categ_id
+                                      a => a.id === item.categ_id
                                     );
 
                                     if (found) {
@@ -1036,7 +1037,7 @@ document.body.removeChild(link); */
                                     <span>{cat.name}:</span>
 
                                     <span className={styles.legendAmount}>
-                                      {" "}
+                                      {' '}
                                       Bs {formatNumber(cat.total)}
                                     </span>
                                   </span>
@@ -1052,32 +1053,32 @@ document.body.removeChild(link); */
 
                     <div
                       style={{
-                        display: "flex",
+                        display: 'flex',
 
-                        justifyContent: "flex-end",
+                        justifyContent: 'flex-end',
 
-                        marginBottom: "16px",
+                        marginBottom: '16px',
                       }}
                     >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: "inline-flex",
+                          display: 'inline-flex',
 
-                          alignItems: "center",
+                          alignItems: 'center',
 
-                          gap: "8px",
+                          gap: '8px',
 
-                          width: "auto",
+                          width: 'auto',
 
-                          background: "var(--cWhiteV2)",
+                          background: 'var(--cWhiteV2)',
 
-                          color: "var(--cWhite)",
+                          color: 'var(--cWhite)',
 
-                          border: "none",
+                          border: 'none',
 
-                          borderRadius: "12px",
+                          borderRadius: '12px',
                         }}
                       >
                         <IconExport size={22} />
@@ -1091,12 +1092,12 @@ document.body.removeChild(link); */
                       categorias={finanzas?.data?.categI}
                       subcategorias={finanzas?.data?.ingresos}
                       anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
+                        formStateFilter?.filter_date === 'y' ||
+                        formStateFilter?.filter_date === 'ly' ||
+                        formStateFilter?.filter_date.indexOf('c:') > -1
                       }
                       selectcategorias={
-                        typeof formStateFilter.filter_categ === "string"
+                        typeof formStateFilter.filter_categ === 'string'
                           ? formStateFilter.filter_categ
                             ? [formStateFilter.filter_categ]
                             : []
@@ -1108,7 +1109,7 @@ document.body.removeChild(link); */
               </div>
             )}
 
-            {formStateFilter.filter_mov === "E" && (
+            {formStateFilter.filter_mov === 'E' && (
               <div>
                 {loadingLocal || !loaded ? (
                   <LoadingScreen />
@@ -1119,7 +1120,7 @@ document.body.removeChild(link); */
                     line2="a medida que tengas ingresos y egresos."
                     h={400}
                     icon={
-                      charType.filter_charType === "line" ? (
+                      charType.filter_charType === 'line' ? (
                         <IconLineGraphic size={60} color="var(--cWhiteV1)" />
                       ) : (
                         <IconGraphics size={60} color="var(--cWhiteV1)" />
@@ -1143,7 +1144,7 @@ document.body.removeChild(link); */
                               finanzas?.data.egresosHist || [];
 
                             const selectcategorias =
-                              typeof formStateFilter.filter_categ === "string"
+                              typeof formStateFilter.filter_categ === 'string'
                                 ? formStateFilter.filter_categ
                                   ? [formStateFilter.filter_categ]
                                   : []
@@ -1160,7 +1161,7 @@ document.body.removeChild(link); */
                               );
                             }
 
-                            return filtrarHastaMesActual(datos, "E");
+                            return filtrarHastaMesActual(datos, 'E');
                           })()}
                           chartTypes={[charType.filter_charType]}
                           h={360}
@@ -1174,7 +1175,7 @@ document.body.removeChild(link); */
 
                                 const selectcategorias =
                                   typeof formStateFilter.filter_categ ===
-                                  "string"
+                                  'string'
                                     ? formStateFilter.filter_categ
                                       ? [formStateFilter.filter_categ]
                                       : []
@@ -1197,7 +1198,7 @@ document.body.removeChild(link); */
                                 return filtrarHastaMesActual(
                                   datosFiltrados,
 
-                                  "E"
+                                  'E'
                                 );
                               })();
 
@@ -1225,7 +1226,7 @@ document.body.removeChild(link); */
                               );
                             })()
                           )}`}
-                          subtitle={"Total de egresos"}
+                          subtitle={'Total de egresos'}
                           periodo={formStateFilter?.filter_date}
                         />
 
@@ -1233,7 +1234,7 @@ document.body.removeChild(link); */
                           <div className={styles.legendContainer}>
                             {(() => {
                               const selectcategorias =
-                                typeof formStateFilter.filter_categ === "string"
+                                typeof formStateFilter.filter_categ === 'string'
                                   ? formStateFilter.filter_categ
                                     ? [formStateFilter.filter_categ]
                                     : []
@@ -1255,7 +1256,7 @@ document.body.removeChild(link); */
 
                                   .reduce((acc: any[], item: any) => {
                                     let found = acc.find(
-                                      (a) => a.id === item.categ_id
+                                      a => a.id === item.categ_id
                                     );
 
                                     if (found) {
@@ -1293,7 +1294,7 @@ document.body.removeChild(link); */
                                     <span>{cat.name}:</span>
 
                                     <span className={styles.legendAmount}>
-                                      {" "}
+                                      {' '}
                                       Bs {formatNumber(cat.total)}
                                     </span>
                                   </span>
@@ -1307,23 +1308,23 @@ document.body.removeChild(link); */
                     <div className={styles.divider} />
                     <div
                       style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        marginBottom: "16px",
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginBottom: '16px',
                       }}
                     >
                       <Button
                         onClick={exportar}
                         variant="secondary"
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          width: "auto",
-                          background: "var(--cWhiteV2)",
-                          color: "var(--cWhite)",
-                          border: "none",
-                          borderRadius: "12px",
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          width: 'auto',
+                          background: 'var(--cWhiteV2)',
+                          color: 'var(--cWhite)',
+                          border: 'none',
+                          borderRadius: '12px',
                         }}
                       >
                         <IconExport size={22} />
@@ -1336,12 +1337,12 @@ document.body.removeChild(link); */
                       categorias={finanzas?.data?.categE}
                       subcategorias={finanzas?.data?.egresos}
                       anual={
-                        formStateFilter?.filter_date === "y" ||
-                        formStateFilter?.filter_date === "ly" ||
-                        formStateFilter?.filter_date.indexOf("c:") > -1
+                        formStateFilter?.filter_date === 'y' ||
+                        formStateFilter?.filter_date === 'ly' ||
+                        formStateFilter?.filter_date.indexOf('c:') > -1
                       }
                       selectcategorias={
-                        typeof formStateFilter.filter_categ === "string"
+                        typeof formStateFilter.filter_categ === 'string'
                           ? formStateFilter.filter_categ
                             ? [formStateFilter.filter_categ]
                             : []
@@ -1356,42 +1357,51 @@ document.body.removeChild(link); */
         </div>
       </div>
 
-      <DataModal
+      <DateRangeFilterModal
         open={openCustomFilter}
-        title="Personalizar"
-        onSave={onSaveCustomFilter}
         onClose={() => {
           setFormState({});
-
           setOpenCustomFilter(false);
-
           setErrors({});
         }}
-      >
-        <Input
-          type="date"
-          label="Fecha de inicio"
-          name="date_inicio"
-          error={errors}
-          value={formState["date_inicio"]}
-          onChange={(e) => {
-            setFormState({ ...formState, date_inicio: e.target.value });
-          }}
-          required
-        />
-
-        <Input
-          type="date"
-          label="Fecha de fin"
-          name="date_fin"
-          error={errors}
-          value={formState["date_fin"]}
-          onChange={(e) => {
-            setFormState({ ...formState, date_fin: e.target.value });
-          }}
-          required
-        />
-      </DataModal>
+        onSave={({ startDate, endDate }) => {
+          let err: ErrorType = {};
+          if (!startDate)
+            err = { ...err, date_inicio: 'La fecha de inicio es obligatoria' };
+          if (!endDate)
+            err = { ...err, date_fin: 'La fecha de fin es obligatoria' };
+          if (startDate && endDate && startDate > endDate)
+            err = {
+              ...err,
+              date_inicio: 'La fecha de inicio no puede ser mayor a la de fin',
+            };
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err = {
+              ...err,
+              date_inicio:
+                'El periodo personalizado debe estar dentro del mismo año',
+              date_fin:
+                'El periodo personalizado debe estar dentro del mismo año',
+            };
+          }
+          if (Object.keys(err).length > 0) {
+            setErrors(err);
+            return;
+          }
+          setFormStateFilter({
+            ...formStateFilter,
+            filter_date: 'c:' + startDate + ',' + endDate,
+          });
+          setOpenCustomFilter(false);
+          setErrors({});
+        }}
+        errorStart={errors.date_inicio}
+        errorEnd={errors.date_fin}
+      />
     </div>
   );
 };
