@@ -18,9 +18,20 @@ const FirstPart = ({
   setErrors,
   formState,
 }: PropsType) => {
+  const Br = () => {
+    return (
+      <div
+        style={{
+          backgroundColor: "var(--cWhiteV1)",
+          height: 0.5,
+          margin: "12px 0px",
+        }}
+      />
+    );
+  };
   return (
     <>
-      <p className={styles.title}>Fotografía del área social</p>
+      {/* <p className={styles.title}>Fotografía del área social</p> */}
       <UploadFileMultiple
         name="avatar"
         value={formState?.avatar}
@@ -38,6 +49,7 @@ const FirstPart = ({
         // sizePreview={_field.sizePreview}
         // autoOpen={data?.action == "add"}
       />
+      <Br />
       <p className={styles.title}>Datos generales</p>
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -81,7 +93,7 @@ const FirstPart = ({
         onChange={handleChange}
         error={errors}
       />
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      {/* <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <div>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
@@ -102,7 +114,7 @@ const FirstPart = ({
           }}
           value={formState?.requires_approval}
         />
-      </div>
+      </div> */}
     </>
   );
 };

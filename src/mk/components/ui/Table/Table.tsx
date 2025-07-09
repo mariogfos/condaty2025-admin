@@ -11,6 +11,7 @@ import styles from "./styles.module.css";
 // import useScreenSize from "@/mk/hooks/useScreenSize";
 import { formatNumber } from "@/mk/utils/numbers";
 import useScrollbarWidth from "@/mk/hooks/useScrollbarWidth";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 export type RenderColType = {
   value: any;
@@ -34,6 +35,7 @@ type PropsType = {
     sortabled?: boolean;
     onHide?: () => boolean;
   }[];
+  id?: string;
   data: any;
   footer?: any;
   sumarize?: boolean;
@@ -52,7 +54,6 @@ type PropsType = {
   className?: string;
   height?: string;
   showHeader?: boolean;
-  scrollTo?: number | null;
   extraData?: any;
   sortCol?: { col: string; asc: boolean };
   onSort?: (col: string, asc: boolean) => void;
@@ -74,6 +75,7 @@ const getWidth = (width: any) => {
 
 const Table = ({
   header = [],
+  id,
   data,
   footer,
   sumarize = false,
@@ -92,11 +94,11 @@ const Table = ({
   extraData = null,
   sortCol,
   onSort,
-  scrollTo = null,
 }: PropsType) => {
   // const { isMobile } = useScreenSize();
   const isMobile = false;
   const [scrollbarWidth, setScrollbarWidth] = useState();
+  // console.log("tableid", id);
   return (
     <div
       className={styles.table + " " + styles[className] + " " + className}
@@ -128,7 +130,7 @@ const Table = ({
           setScrollbarWidth={setScrollbarWidth}
           onRenderBody={onRenderBody}
           extraData={extraData}
-          scrollTo={scrollTo}
+          id={id}
         />
       </div>
       {sumarize && (
@@ -315,7 +317,7 @@ const Body = ({
   onRenderBody,
   extraData,
   onRenderCard,
-  scrollTo = null,
+  id,
 }: {
   onTabletRow: any;
   onRowClick: any;
@@ -329,9 +331,10 @@ const Body = ({
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   extraData?: any;
   onRenderCard?: any;
-  scrollTo?: number | null;
+  id?: string;
 }) => {
   // const { isMobile } = useScreenSize();
+  const { store, setStore } = useAuth();
   const isMobile = false;
   const divRef: any = useRef(null);
   const scrollWidth = useScrollbarWidth(divRef);
@@ -339,16 +342,43 @@ const Body = ({
     if (setScrollbarWidth) setScrollbarWidth(scrollWidth);
   }, [scrollWidth]);
 
+  // useEffect(() => {
+  //   // const scrollTop = store["scrollTop" + id];
+  //   // console.log("scrollTo Set", id, scrollTop);
+  //   // if (scrollTop) divRef.current.scrollTop = scrollTop;
+
+  //   const intervalId = setInterval(() => {
+  //     if (divRef.current) {
+  //       const scrollPosition = divRef.current.scrollTop;
+  //       if (scrollPosition != oldPos.current) {
+  //         oldPos.current = scrollPosition;
+  //         console.log(`Posición actual del scroll: ${scrollPosition}px`);
+  //       }
+  //     }
+  //   }, 300);
+
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, [id, store["scrollTop" + id]]);
+
   useEffect(() => {
-    console.log("scrollTo Set", scrollTo);
-    if (scrollTo) divRef.current.scrollTop = scrollTo;
-  }, [scrollTo]);
+    setTimeout(() => {
+      // console.log("Body se crea");
+      const scrollTop = store["scrollTop" + id];
+      // console.log("scrollTo Set0", id, scrollTop);
+      if (scrollTop) divRef.current.scrollTop = scrollTop;
+    }, 10);
+  }, []);
 
   const _onRowClick = (e: any) => {
+    // if (id) {
+    const scrollTop = divRef?.current?.scrollTop;
+    // console.log("sendScroll", scrollTop);
+    setStore({ ["scrollTop" + id]: scrollTop });
+    // }
     if (onRowClick) {
-      const scrollTo = divRef?.current?.scrollTop ?? -1;
-      console.log("sendScroll", scrollTo);
-      onRowClick(e, scrollTo);
+      onRowClick(e);
     }
   };
   return (
