@@ -227,15 +227,21 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 <span className={styles.infoValue}>{getDptoName()}</span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Pagado por </span>
+                <span className={styles.infoLabel}>Propietario </span>
                 <span className={styles.infoValue}>
-                  {getFullName(item.propietario) ||
-                    getFullName(item.owner) ||
-                    '-/-'}
+                  {item.details && item.details[0]?.debt_dpto?.dpto?.homeowner
+                    ? getFullName(item.details[0].debt_dpto.dpto.homeowner)
+                    : '-/-'}
                 </span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Categoría</span>
+                <span className={styles.infoLabel}>Titular</span>
+                <span className={styles.infoValue}>
+                  {getFullName(item.owner) || '-/-'}
+                </span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
                   {/* Asumiendo que item.concept es un array o string formateado.
                         La imagen muestra "-Expensas", "-Multas", "-Reservas".
@@ -254,14 +260,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Observación</span>
                 <span className={styles.infoValue}>{item.obs || '-/-'}</span>
-              </div>
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Registrado por</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.user) ||
-                    getFullName(item.user) ||
-                    '-/-'}
-                </span>
               </div>
             </div>
             {/* Columna Derecha */}
@@ -291,9 +289,31 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 </span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Titular</span>
+                <span className={styles.infoLabel}>Pagado por</span>
                 <span className={styles.infoValue}>
                   {getFullName(item.owner) || '-/-'}
+                </span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>
+                  {item.status === 'P'
+                    ? 'Aprobado por'
+                    : item.status === 'X'
+                    ? 'Anulado por'
+                    : item.status === 'R'
+                    ? 'Rechazado por'
+                    : item.status === 'S'
+                    ? 'Por confirmar por'
+                    : 'Aprobado por'}
+                </span>
+                <span className={styles.infoValue}>
+                  {item.confirmed_by ? getFullName(item.confirmed_by) : '-/-'}
+                </span>
+              </div>
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Registrado por</span>
+                <span className={styles.infoValue}>
+                  {item.user ? getFullName(item.user) : '-/-'}
                 </span>
               </div>
               <div className={styles.infoBlock}>
