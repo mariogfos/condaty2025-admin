@@ -319,14 +319,14 @@ const Outlays = () => {
 
   // Definición de botones extras para enviar al useCrud
   const extraButtons = [
-    <Button
-      key="presupuesto-button"
-      // onClick={() => goToCategories("E")}
-      onClick={() => setOpenModal(true)}
-      className={styles.categoriesButton}
-    >
-      Ejecutar presupuesto
-    </Button>,
+    // <Button
+    //   key="presupuesto-button"
+    //   // onClick={() => goToCategories("E")}
+    //   onClick={() => setOpenModal(true)}
+    //   className={styles.categoriesButton}
+    // >
+    //   Ejecutar presupuesto
+    // </Button>,
     <Button
       key="categories-button"
       onClick={() => goToCategories("E")}
