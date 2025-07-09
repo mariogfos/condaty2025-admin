@@ -18,6 +18,8 @@ interface PropsType extends PropsTypeInputBase {
     | "currency";
   min?: any;
   max?: any;
+  prefix?: string;
+  suffix?: string;
 }
 
 const Input = (props: PropsType) => {
@@ -38,6 +40,8 @@ const Input = (props: PropsType) => {
     checked = false,
     maxLength,
     label,
+    prefix,
+    suffix,
     min,
     max,
   } = props;
@@ -268,6 +272,8 @@ const Input = (props: PropsType) => {
       error={props.error}
       iconLeft={props.iconLeft}
       iconRight={props.iconRight}
+      prefix={prefix}
+      suffix={suffix}
       style={props.style}
       styleInput={styleInput}
       className={`${styles.input} ${className} ${

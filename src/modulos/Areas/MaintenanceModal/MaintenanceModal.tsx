@@ -12,6 +12,7 @@ import { getDateStrMes } from "../../../mk/utils/date1";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { IconX } from "@/components/layout/icons/IconsBiblioteca";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import SkeletonAdapterComponent from "@/mk/components/ui/LoadingScreen/SkeletonAdapter";
 
 interface Props {
   open: boolean;
@@ -70,11 +71,12 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     if (
       formState.date_at &&
       formState.date_end &&
-      formState.date_at <= formState.date_end
+      formState.date_at <= formState.date_end &&
+      formState.area_id
     ) {
       getReservas();
     }
-  }, [formState.date_at, formState.date_end]);
+  }, [formState.date_at, formState.date_end, formState.area_id]);
 
   const _onClose = () => {
     setFormState({});
@@ -280,124 +282,133 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             title="Áreas en mantenimiento"
             subtitle="Las siguientes áreas están en mantenimiento."
           />
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: "16px",
-              marginTop: "16px",
-              maxHeight: "calc(100vh - 300px)",
-              overflowY: "auto",
-              padding: "4px",
-            }}
-          >
-            {dataM.map((reserva: any) => (
-              <div
-                key={reserva.id}
-                style={{
-                  padding: "20px",
-                  borderRadius: "12px",
-                  backgroundColor: "var(--cBlackV1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                  minWidth: "400px",
-                  position: "relative",
-                  overflowWrap: 'break-word'
-                }}
-              >
-                <IconX
-                  onClick={() => setOpenConfirm({ open: true, id: reserva.id })}
-                  style={{
-                    position: "absolute",
-                    top: "12px",
-                    right: "12px",
-                    cursor: "pointer",
-                  }}
-                />
-
+          {loading ? (
+            <SkeletonAdapterComponent type="TableSkeleton" />
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                gap: "16px",
+                marginTop: "16px",
+                maxHeight: "calc(100vh - 300px)",
+                overflowY: "auto",
+                padding: "4px",
+              }}
+            >
+              {dataM.map((reserva: any) => (
                 <div
+                  key={reserva.id}
                   style={{
+                    padding: "20px",
+                    borderRadius: "12px",
+                    backgroundColor: "var(--cBlackV1)",
                     display: "flex",
-                    alignItems: "center",
+                    flexDirection: "column",
                     gap: "12px",
+                    minWidth: "400px",
+                    position: "relative",
+                    overflowWrap: "break-word",
                   }}
                 >
-                  <Avatar
-                    src={getUrlImages(
-                      "/AREA-" +
-                        reserva?.area?.id +
-                        "-" +
-                        reserva?.area?.images?.[0]?.id +
-                        ".webp" +
-                        "?" +
-                        reserva?.area?.updated_at
-                    )}
+                  <IconX
+                    onClick={() =>
+                      setOpenConfirm({ open: true, id: reserva.id })
+                    }
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      cursor: "pointer",
+                    }}
                   />
 
                   <div
                     style={{
-                      fontWeight: "bold",
-                      color: "var(--cWhite)",
-                      fontSize: "16px",
-                      marginBottom: "4px",
-                      overflowWrap: 'break-word',
-                      minWidth: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
                     }}
                   >
-                    {reserva.area?.title || "Área sin nombre"}
-                  </div>
-                </div>
+                    <Avatar
+                      src={getUrlImages(
+                        "/AREA-" +
+                          reserva?.area?.id +
+                          "-" +
+                          reserva?.area?.images?.[0]?.id +
+                          ".webp" +
+                          "?" +
+                          reserva?.area?.updated_at
+                      )}
+                    />
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
-                    backgroundColor: "var(--cBlackV2)",
-                    padding: "12px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div style={{ color: "var(--cWhiteV1)" }}>
-                    <span style={{ color: "var(--cWhite)" }}>
-                      Fecha de inicio:
-                    </span>{" "}
-                    {getDateStrMes(reserva.date_at) + " "}
-                    {reserva.start_time}
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        color: "var(--cWhite)",
+                        fontSize: "16px",
+                        marginBottom: "4px",
+                        overflowWrap: "break-word",
+                        minWidth: 0,
+                        paddingRight: 16,
+                      }}
+                    >
+                      {reserva.area?.title || "Área sin nombre"}
+                    </div>
                   </div>
-                  {reserva.date_end && (
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      backgroundColor: "var(--cBlackV2)",
+                      padding: "12px",
+                      borderRadius: "8px",
+                    }}
+                  >
                     <div style={{ color: "var(--cWhiteV1)" }}>
                       <span style={{ color: "var(--cWhite)" }}>
-                        Fecha de finalización:
+                        Fecha de inicio:
                       </span>{" "}
-                      {getDateStrMes(reserva.date_end) + " "}
-                      {reserva.end_time}
+                      {getDateStrMes(reserva.date_at) + " "}
+                      {reserva.start_time}
                     </div>
-                  )}
-                  <div style={{ 
-                      color: "var(--cWhiteV1)" ,
-                      overflowWrap: 'break-word'
-                    }}>
-                    <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
-                    {reserva.reason || "No especificado"}
+                    {reserva.date_end && (
+                      <div style={{ color: "var(--cWhiteV1)" }}>
+                        <span style={{ color: "var(--cWhite)" }}>
+                          Fecha de finalización:
+                        </span>{" "}
+                        {getDateStrMes(reserva.date_end) + " "}
+                        {reserva.end_time}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        color: "var(--cWhiteV1)",
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      <span style={{ color: "var(--cWhite)" }}>Motivo:</span>{" "}
+                      {reserva.reason || "No especificado"}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {dataM.length === 0 && loading === false && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "40px",
-                  color: "var(--cWhiteV1)",
-                  gridColumn: "1/-1",
-                }}
-              >
-                No hay áreas en mantenimiento actualmente
-              </div>
-            )}
-          </div>
+              ))}
+              {dataM.length === 0 && loading === false && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    color: "var(--cWhiteV1)",
+                    gridColumn: "1/-1",
+                  }}
+                >
+                  No hay áreas en mantenimiento actualmente
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
       {openConfirm.open && (
