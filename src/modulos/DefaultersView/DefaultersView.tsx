@@ -23,7 +23,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
 const DefaultersView = () => {
-  const { setStore } = useAuth();
+
 
   useEffect(() => {});
 
@@ -70,7 +70,10 @@ const DefaultersView = () => {
     page: 1,
     perPage: -1,
   };
-
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Morosos' });
+  }, []);
   // Definición de campos para el CRUD con filtros
   const fields = useMemo(
     () => ({

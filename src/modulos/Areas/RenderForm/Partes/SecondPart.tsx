@@ -34,7 +34,7 @@ const SecondPart = ({
   const [selectedDays, setSelectedDays]: any = useState(
     formState?.available_days || []
   );
-  const prevBookingMode = useRef(formState?.booking_mode);
+  const prevBookingMode = useRef(null);
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const { showToast } = useAuth();
@@ -91,7 +91,6 @@ const SecondPart = ({
   };
 
   const parseTimeToMinutes = (timeStr: string) => {
-    // console.log(timeStr);
     const [h, m] = timeStr.split(":").map(Number);
     return h * 60 + m;
   };
@@ -121,7 +120,6 @@ const SecondPart = ({
         `${minutesToTimeString(t)}-${minutesToTimeString(t + periodLength)}`
       );
     }
-    console.log(result, "RESUKT");
     setPeriods(result);
   }, [
     formState?.reservation_duration,
