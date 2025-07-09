@@ -280,7 +280,7 @@ export const UploadFile = ({
                 /> */}
               {(editedImage ||
                 selectedFiles?.type?.startsWith("image/") ||
-                value) &&
+                (value && value.ext == "webp")) &&
               img ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -306,7 +306,13 @@ export const UploadFile = ({
                   </p>
                 </>
               ) : (
-                <IconDocs size={80} color={"var(--cWhite)"} />
+                <>
+                  <IconDocs size={80} color={"var(--cWhite)"} />
+                  <p>
+                    Archivo seleccionado: <br />
+                    <span>{selectedFiles.name}</span>
+                  </p>
+                </>
               )}
               {/* <p>
                 Archivo seleccionado: <span>{selectedFiles.name}</span>

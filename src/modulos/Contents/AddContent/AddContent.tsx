@@ -183,6 +183,15 @@ const AddContent = ({
     //   key: "candidate_id",
     //   errors,
     // });
+
+    errors = checkRules({
+      value: formState?.avatar,
+      rules: ["requiredImageMultiple"],
+      key: "avatar",
+      errors,
+      data: formState,
+    });
+
     if (formState?.isType == "N") {
       errors = checkRules({
         value: formState?.title,
@@ -299,7 +308,7 @@ const AddContent = ({
             /> 
           </CardContent> */}
 
-{/*           <CardContent
+          {/*           <CardContent
             title="Destino"
             destinys={getDestinysNames().toString()}
             subtitle={
