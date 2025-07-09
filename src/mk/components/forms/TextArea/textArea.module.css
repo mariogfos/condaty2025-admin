@@ -20,6 +20,7 @@
   position: relative;
   & > div > textarea::placeholder {
     color: var(--cWhiteV1);
+    font-size: var(--sL);
   }
   & > span {
     flex-shrink: 1;
@@ -36,7 +37,7 @@
       left: 0;
       top: 0;
       transition: all 0.3s;
-      font-size: var(--sM);
+      font-size: var(--sL);
       color: var(--cWhiteV1);
       /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
@@ -45,7 +46,7 @@
     & textarea:focus + label,
     & textarea:not(:placeholder-shown) + label,
     & textarea[placeholder]:not([placeholder=""]) + label {
-      top: -10px;
+      top: -8px;
       left: -4px;
       font-size: var(--sS);
       transform: translateY(-28%);
