@@ -79,7 +79,7 @@ const HomePage = () => {
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
-  const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
+  const balanceMessage = balance > 0 ? "Balance a favor" : "Balance en contra";
 
   const paymentProps: any = {
     open: openPayment,
@@ -460,7 +460,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Monto pagado en exceso por un propietario o residente en sus cuotas u otros pagos. Puede compensarse en futuros pagos o devolverse."
+                  tooltipTitle="Diferencia entre los ingresos y egresos registrados en el condominio durante este mes."
                   tooltipColor="var(--cWhiteV1)"
                 />
                 <WidgetDashCard
@@ -488,7 +488,7 @@ const HomePage = () => {
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
+                  tooltipTitle="Total acumulado de cuotas impagas por parte de residentes o propietarios, cuyo vencimiento ya ha pasado. Este monto representa la deuda activa vencida del condominio."
                   tooltipColor="var(--cWhiteV1)"
                 />
               </div>
@@ -621,16 +621,16 @@ const HomePage = () => {
       </div>
 
       {openPayment && <PaymentRender {...paymentProps} />}
-      {openReservation  && (
-      <ReservationDetailModal
-        open={openReservation}
-        onClose={() => {
-          setOpenReservation(false);
-          setSelectedReservationId(null);
-        }}
-        reservationId={selectedReservationId}
-        reLoad={() => reLoad()}
-      />
+      {openReservation && (
+        <ReservationDetailModal
+          open={openReservation}
+          onClose={() => {
+            setOpenReservation(false);
+            setSelectedReservationId(null);
+          }}
+          reservationId={selectedReservationId}
+          reLoad={() => reLoad()}
+        />
       )}
       <DataModal
         open={openPreRegistroModal}
