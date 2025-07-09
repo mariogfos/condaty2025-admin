@@ -453,6 +453,31 @@ const BalanceGeneral: React.FC = () => {
   } else {
     ingresosContent = (
       <div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '16px',
+          }}
+        >
+          <Button
+            onClick={exportar}
+            variant="secondary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: 'auto',
+              background: 'var(--cWhiteV2)',
+              color: 'var(--cWhite)',
+              border: 'none',
+              borderRadius: '12px',
+            }}
+          >
+            <IconExport size={22} />
+            Descargar PDF
+          </Button>
+        </div>
         <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
           <div ref={chartRefIngresos} className={styles.chartContainer}>
@@ -499,31 +524,7 @@ const BalanceGeneral: React.FC = () => {
           </div>
         </div>
         <div className={styles.divider} />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '16px',
-          }}
-        >
-          <Button
-            onClick={exportar}
-            variant="secondary"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              width: 'auto',
-              background: 'var(--cWhiteV2)',
-              color: 'var(--cWhite)',
-              border: 'none',
-              borderRadius: '12px',
-            }}
-          >
-            <IconExport size={22} />
-            Descargar PDF
-          </Button>
-        </div>
+
         <TableIngresos
           title="Ingresos"
           title2="Total"
@@ -565,6 +566,31 @@ const BalanceGeneral: React.FC = () => {
   } else {
     egresosContent = (
       <div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '16px',
+          }}
+        >
+          <Button
+            onClick={exportar}
+            variant="secondary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: 'auto',
+              background: 'var(--cWhiteV2)',
+              color: 'var(--cWhite)',
+              border: 'none',
+              borderRadius: '12px',
+            }}
+          >
+            <IconExport size={22} />
+            Descargar PDF
+          </Button>
+        </div>
         <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
           <div ref={chartRefEgresos} className={styles.chartContainer}>
@@ -611,31 +637,7 @@ const BalanceGeneral: React.FC = () => {
           </div>
         </div>
         <div className={styles.divider} />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '16px',
-          }}
-        >
-          <Button
-            onClick={exportar}
-            variant="secondary"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              width: 'auto',
-              background: 'var(--cWhiteV2)',
-              color: 'var(--cWhite)',
-              border: 'none',
-              borderRadius: '12px',
-            }}
-          >
-            <IconExport size={22} />
-            Descargar PDF
-          </Button>
-        </div>
+
         <TableEgresos
           title="Egresos"
           title2="Total"
@@ -809,6 +811,31 @@ const BalanceGeneral: React.FC = () => {
                   />
                 ) : (
                   <>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginBottom: '16px',
+                      }}
+                    >
+                      <Button
+                        onClick={exportar}
+                        variant="secondary"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          width: 'auto',
+                          background: 'var(--cWhiteV2)',
+                          color: 'var(--cWhite)',
+                          border: 'none',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        <IconExport size={22} />
+                        Descargar PDF
+                      </Button>
+                    </div>
                     <h2 className={styles.chartSectionTitle}>
                       {tituloBalance}
                     </h2>
@@ -896,31 +923,7 @@ const BalanceGeneral: React.FC = () => {
                       </div>
                     </div>
                     <div className={styles.divider} />
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        marginBottom: '16px',
-                      }}
-                    >
-                      <Button
-                        onClick={exportar}
-                        variant="secondary"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          width: 'auto',
-                          background: 'var(--cWhiteV2)',
-                          color: 'var(--cWhite)',
-                          border: 'none',
-                          borderRadius: '12px',
-                        }}
-                      >
-                        <IconExport size={22} />
-                        Descargar PDF
-                      </Button>
-                    </div>
+
                     <h2 className={styles.chartSectionTitle}>
                       {`Resumen detallado de todos los ingresos`}
                     </h2>
