@@ -189,6 +189,7 @@ const UploadFileMultiple = ({
           width: "100%",
           flexWrap: "wrap",
           border: "1px solid var(--cWhiteV2)",
+          backgroundColor: "var(--cWhiteV2)",
           padding: "var(--sM)",
           borderRadius: "var(--bRadius)",
           position: "relative",
@@ -304,7 +305,7 @@ const UploadFileMultiple = ({
         )} */}
       </div>
       {!props.error ? null : (
-        <p className={styles.error}>{props.error[name] || null}</p>
+        <p className={styles.error}>{props.error[name] ?? null}</p>
       )}
     </>
   );

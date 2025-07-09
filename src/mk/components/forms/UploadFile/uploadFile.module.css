@@ -2,6 +2,7 @@
   margin-top: var(--spS);
   margin-bottom: var(--spS);
   position: relative;
+
   & > p {
     color: var(--cError);
     font-size: 12px;
@@ -19,10 +20,11 @@
     justify-content: center;
     align-items: center;
     padding: var(--spXl);
-    border-style: solid;
+    border: 1px solid var(--cWhiteV3);
+    border-radius: var(--bRadiusS);
+    background-color: var(--cWhiteV2);
     color: var(--cWhite);
     cursor: pointer;
-    border-radius: var(--bRadiusS);
     & > input[type="file"] {
       display: none;
     }
@@ -81,7 +83,7 @@
   & > label {
     position: absolute;
     left: 8px;
-    top: -8px;
+    top: 0px;
     transition: all 0.3s;
     font-size: var(--sS);
     color: var(--cWhiteV1);
