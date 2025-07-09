@@ -81,7 +81,7 @@
   & > label {
     position: absolute;
     left: 8px;
-    top: -8px;
+    top: 0px;
     transition: all 0.3s;
     font-size: var(--sS);
     color: var(--cWhiteV1);
