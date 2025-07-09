@@ -605,7 +605,7 @@ const RenderForm = ({
                   typeof periodo.debt === 'object' &&
                   periodo.debt.month &&
                   periodo.debt.year
-                    ? `${MONTHS_S[periodo.debt.month] ?? '?'}/$${
+                    ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${
                         periodo.debt.year ?? '?'
                       }`
                     : 'N/A'}
