@@ -95,7 +95,7 @@
   position: absolute;
 
   right: 0;
-  bottom: -2;
+  bottom: -2px;
   font-size: 0.875rem; /* Tamaño de texto */
   color: var(--cWhite); /* Color neutro */
   text-align: right; /* Alineación a la derecha */
