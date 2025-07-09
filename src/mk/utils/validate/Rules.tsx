@@ -35,7 +35,6 @@ export const validRule = (
 
   const [rule, params] = (_rule + ":").split(":");
   const param = params ? params.split(",") : [];
-  // console.log(Number(value), Number(formState[param[0]]));
   const validations: Record<string, Function> = {
     validateIf: () =>
       param[1] !== formState[param[0]] ? "validar hasta aqui" : "",
@@ -114,8 +113,8 @@ export const validRule = (
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
     less: () =>
-      Number(value) > Number(formState[param[0]])
-        ? `Debe ser menor o igual a ${formatNumber(formState[param[0]], 0)}`
+      Number(value) > Number(param[0])
+        ? `Debe ser menor o igual a ${param[0]}`
         : "",
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(

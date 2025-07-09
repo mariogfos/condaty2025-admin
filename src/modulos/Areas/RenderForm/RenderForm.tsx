@@ -112,7 +112,7 @@ const RenderForm = ({
       });
       errors = checkRules({
         value: formState?.penalty_fee,
-        rules: ["required", "max:5", "integer"],
+        rules: ["required", "less:100", "integer"],
         key: "penalty_fee",
         errors,
       });
