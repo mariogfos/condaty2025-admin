@@ -72,10 +72,9 @@ const RenderForm = ({
 
   // Verificamos si estamos en el caso de expensas sin deudas
   const isExpensasWithoutDebt =
-    _formState.subcategory_id === extraData?.client_config?.cat_expensas && extraData?.client_config?.cat_reservations
-    deudas?.length === 0 &&
-    !isLoadingDeudas &&
-    _formState.dpto_id;
+    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+    extraData?.client_config?.cat_reservations;
+  deudas?.length === 0 && !isLoadingDeudas && _formState.dpto_id;
 
   const lDptos = useMemo(
     () =>
@@ -698,7 +697,10 @@ const RenderForm = ({
               </div>
 
               {/* Sección de subir comprobante */}
-              <div className={styles["upload-section"]}>
+              <div
+                className={styles["upload-section"]}
+                // style={{ backgroundColor: "var(--cWhiteV2)" }}
+              >
                 <p className={styles["section-title"]}>Subir comprobante</p>
                 <UploadFile
                   name="file"
