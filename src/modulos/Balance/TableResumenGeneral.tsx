@@ -38,13 +38,14 @@ const TableResumenGeneral = ({
       },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subcategoriasE, subcategoriasI]);
   return (
     <TableFinance
       data={formattedData}
       title={title}
       title2={title2}
-      total={total || 0}
+      total={total ?? 0}
       color={`${total < 0 ? "text-error " : "text-accent"}`}
       titleTotal={titleTotal}
       variant="summary"

@@ -62,6 +62,8 @@ export type ModCrudType = {
   listAndCard?: boolean;
   noWaiting?: boolean;
   search?: boolean | object;
+  titleAdd?: string;
+  titleEdit?: string;
 };
 
 export type TypeRenderForm = {
@@ -175,6 +177,11 @@ const useCrud = ({
   const [searchs, setSearchs]: any = useState({});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
+
+  if (mod) {
+    mod.titleAdd = mod.titleAdd ?? "Registrar";
+    mod.titleEdit = mod.titleEdit ?? "Editar";
+  }
 
   // console.log("Etradata", params, mod.extraData);
   const { data, reLoad, execute, loaded } = useAxios(
@@ -774,8 +781,12 @@ const useCrud = ({
       <DataModal
         open={open}
         onClose={() => onClose()}
-        title={(action == "add" ? "Crear " : "Editar ") + mod.singular}
-        buttonText={action == "add" ? "Crear " + mod.singular : "Actualizar"}
+        title={
+          (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
+        }
+        buttonText={
+          action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
+        }
         buttonCancel=""
         onSave={(e) =>
           onConfirm
@@ -961,7 +972,7 @@ const useCrud = ({
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
               >
-                {"Agregar " + mod.singular}
+                {mod.titleAdd + " " + mod.singular}
               </Button>
             </div>
           )}
