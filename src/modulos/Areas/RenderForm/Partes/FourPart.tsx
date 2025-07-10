@@ -23,7 +23,7 @@ const FourPart = ({ item }: { item: any }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpanded = () => setIsExpanded(!isExpanded);
   const allImages = React.useMemo(() => {
-    const backendImages =
+    const _backendImages =
       item?.images?.map((img: any) => ({
         id: img?.id,
         type: "backend",
@@ -33,14 +33,20 @@ const FourPart = ({ item }: { item: any }) => {
       })) || [];
 
     const localAvatars = Object.keys(item?.avatar || {})
-      .filter((key) => item?.avatar?.[key]?.file)
+      .filter(
+        (key) => item?.avatar?.[key]?.file && item.avatar[key].file != "delete"
+      )
       .map((key) => ({
         id: Number(item?.avatar?.[key]?.id),
         type: "local",
         src: `data:image/webp;base64,${item?.avatar?.[key]?.file}`,
       }));
 
-    const data = [...backendImages, ...localAvatars];
+    // const backendImages = _backendImages.filter((img) => img.id != item?.avatar?.[key]?.id)
+    console.log("images", _backendImages, localAvatars);
+    let data = [..._backendImages, ...localAvatars];
+
+    // const data = [...localAvatars];
 
     return Array.from(new Map(data.map((item) => [item.id, item])).values());
   }, [item]);
