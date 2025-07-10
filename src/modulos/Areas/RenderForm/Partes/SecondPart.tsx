@@ -48,7 +48,10 @@ const SecondPart = ({
     ) {
       return showToast("Debe seleccionar una hora primero", "error");
     }
-    if (formState?.available_days?.includes(day)) {
+    if (
+      formState?.available_days?.includes(day) ||
+      selectedDays.includes(day)
+    ) {
       return;
     }
     setSelectedDays([...selectedDays, day]);
@@ -325,7 +328,8 @@ const SecondPart = ({
               <div
                 key={index}
                 style={{
-                  maxWidth: 200,
+                  maxWidth: 210,
+                  minWidth: 210,
                   border: "0.5px solid var(--cWhiteV1)",
                   borderRadius: 8,
                   padding: 12,
