@@ -1,15 +1,15 @@
 // @ts-nocheck
-import React from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./RenderView.module.css";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { formatToDayDDMMYYYYHHMM } from "@/mk/utils/date";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import useAxios from "@/mk/hooks/useAxios";
-import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
-import PedidosDetail from "../../PedidosDetail/PedidosDetail";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import Br from "@/components/Detail/Br";
+import React from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import styles from './RenderView.module.css';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import useAxios from '@/mk/hooks/useAxios';
+import InvitationsDetail from '../../InvitationsDetail/InvitationsDetail';
+import PedidosDetail from '../../PedidosDetail/PedidosDetail';
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import Br from '@/components/Detail/Br';
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -27,11 +27,11 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   extraData,
 }) => {
   const { data } = useAxios(
-    "/accesses",
-    "GET",
+    '/accesses',
+    'GET',
     {
       searchBy: item.id,
-      fullType: "DET",
+      fullType: 'DET',
       perPage: -1,
       page: 1,
     },
@@ -41,34 +41,34 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   const [openOrders, setOpenOrders] = React.useState(false);
 
   const openDetailsModal = () => {
-    if (item?.type === "P") {
+    if (item?.type === 'P') {
       setOpenOrders(true);
     }
     if (
-      item?.type === "I" ||
-      item?.type === "G" ||
-      item?.type === "C" ||
-      item?.type === "F"
+      item?.type === 'I' ||
+      item?.type === 'G' ||
+      item?.type === 'C' ||
+      item?.type === 'F'
     ) {
       setOpenInvitation(true);
     }
-    if (item?.type === "O") {
+    if (item?.type === 'O') {
       setOpenInvitation(true);
     }
   };
 
   const getStatus = () => {
-    let status = "";
+    let status = '';
     if (item?.out_at) {
-      status = "Completado";
+      status = 'Completado';
     } else if (item?.in_at) {
-      status = "Por Salir";
+      status = 'Por Salir';
     } else if (!item?.confirm_at) {
-      status = "Por confirmar";
-    } else if (item?.confirm == "Y") {
-      status = "Por entrar";
+      status = 'Por confirmar';
+    } else if (item?.confirm == 'Y') {
+      status = 'Por entrar';
     } else {
-      status = "Denegado";
+      status = 'Denegado';
     }
     return status;
   };
@@ -88,17 +88,17 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   } = accessDetail;
 
   const typeMap: Record<string, string> = {
-    C: "Sin Qr",
-    G: "Qr Grupal",
-    I: "Qr Individual",
-    P: "Pedido",
-    O: "Llave QR",
-    F: "Qr Frecuente",
+    C: 'Sin Qr',
+    G: 'Qr Grupal',
+    I: 'Qr Individual',
+    P: 'Pedido',
+    O: 'Llave QR',
+    F: 'Qr Frecuente',
   };
 
   const getTypeAccess = (type: string, param: any) => {
-    if (type === "P") {
-      return "Pedido:" + param?.other?.other_type?.name;
+    if (type === 'P') {
+      return 'Pedido:' + param?.other?.other_type?.name;
     }
     return typeMap[type];
   };
@@ -117,34 +117,34 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           type="CardSkeleton"
         >
           <div className={styles.container}>
-            {item?.type === "O" ? (
+            {item?.type === 'O' ? (
               <section className={styles.headerSection}>
                 <Avatar
-                  hasImage={owner.has_image}
+                  hasImage={!!owner?.has_image}
                   name={getFullName(owner)}
                   src={getUrlImages(
-                    "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
+                    '/OWNER-' + owner?.id + '.webp?' + owner?.updated_at
                   )}
-                  style={{ marginBottom: "var(--spM)" }}
+                  style={{ marginBottom: 'var(--spM)' }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(owner)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {owner?.ci} {plate ? `- Placa: ${plate}` : ""}
+                  C.I. : {owner?.ci} {plate ? `- Placa: ${plate}` : ''}
                 </div>
               </section>
             ) : (
               <section className={styles.headerSection}>
                 <Avatar
-                  hasImage={visit.has_image}
+                  hasImage={!!visit?.has_image}
                   name={getFullName(visit)}
                   src={getUrlImages(
-                    "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
+                    '/VISIT-' + visit?.id + '.webp?' + visit?.updated_at
                   )}
-                  style={{ marginBottom: "var(--spM)" }}
+                  style={{ marginBottom: 'var(--spM)' }}
                 />
                 <div className={styles.amountDisplay}>{getFullName(visit)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {visit?.ci} {plate ? `- Placa: ${plate}` : ""}
+                  C.I. : {visit?.ci} {plate ? `- Placa: ${plate}` : ''}
                 </div>
               </section>
             )}
@@ -164,7 +164,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <span className={styles.infoLabel}>Estado</span>
                   <span
                     className={styles.infoValue}
-                    style={{ color: item?.out_at ? "var(--cAccent)" : "" }}
+                    style={{ color: item?.out_at ? 'var(--cAccent)' : '' }}
                   >
                     {getStatus()}
                   </span>
@@ -174,7 +174,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     Fecha y hora de ingreso
                   </span>
                   <span className={styles.infoValue}>
-                    {formatToDayDDMMYYYYHHMM(in_at) || "-/-"}
+                    {formatToDayDDMMYYYYHHMM(in_at) || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
@@ -182,21 +182,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     Fecha y hora de salida
                   </span>
                   <span className={styles.infoValue}>
-                    {formatToDayDDMMYYYYHHMM(out_at) || "-/-"}
+                    {formatToDayDDMMYYYYHHMM(out_at) || '-/-'}
                   </span>
                 </div>
-                {item?.type !== "O" && (
+                {item?.type !== 'O' && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Visitó a</span>
                     <span className={styles.infoValue}>
-                      {getFullName(item?.owner) || "-/-"}
+                      {getFullName(item?.owner) || '-/-'}
                     </span>
                   </div>
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Unidad</span>
                   <span className={styles.infoValue}>
-                    {owner?.dpto[0]?.nro || "-/-"}
+                    {owner?.dpto[0]?.nro || '-/-'}
                   </span>
                 </div>
               </div>
@@ -209,7 +209,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       <span className={styles.infoLabel}>Acompañantes</span>
                       <span className={styles.infoValue}>
                         {accesses.map((access: any, i: number) => (
-                          <span key={i} style={{ display: "block" }}>
+                          <span key={i} style={{ display: 'block' }}>
                             {getFullName(access?.visit)}
                           </span>
                         ))}
@@ -221,8 +221,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       </span>
                       <span className={styles.infoValue}>
                         {accesses.map((access: any, i: number) => (
-                          <span key={i} style={{ display: "block" }}>
-                            {access?.visit?.ci || "-/-"}
+                          <span key={i} style={{ display: 'block' }}>
+                            {access?.visit?.ci || '-/-'}
                           </span>
                         ))}
                       </span>
@@ -232,37 +232,37 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Guardia de ingreso</span>
                   <span className={styles.infoValue}>
-                    {getFullName(guardia) || "-/-"}
+                    {getFullName(guardia) || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Guardia de salida</span>
                   <span className={styles.infoValue}>
-                    {getFullName(out_guard) || "-/-"}
+                    {getFullName(out_guard) || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
                     Observación de entrada
                   </span>
-                  <span className={styles.infoValue}>{obs_in || "-/-"}</span>
+                  <span className={styles.infoValue}>{obs_in || '-/-'}</span>
                 </div>
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
                     Observación de salida
                   </span>
-                  <span className={styles.infoValue}>{obs_out || "-/-"}</span>
+                  <span className={styles.infoValue}>{obs_out || '-/-'}</span>
                 </div>
               </div>
             </section>
 
             <Br />
 
-            {item.type !== "O" && (
+            {item.type !== 'O' && (
               <div
                 onClick={openDetailsModal}
                 className="link"
-                style={{ marginTop: "var(--spS)", textAlign: "center" }}
+                style={{ marginTop: 'var(--spS)', textAlign: 'center' }}
               >
                 Ver detalles de la invitación
               </div>
