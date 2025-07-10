@@ -909,6 +909,7 @@ const useCrud = ({
                   value={searchs.searchBy || ''}
                   name={mod.modulo + 'Search'}
                   setSearch={onSearch || setSearchs}
+                  searchMsg={extraData?.searchMsg}
                 />
               }
             </div>

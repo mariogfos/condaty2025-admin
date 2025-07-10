@@ -53,7 +53,7 @@ const Payments = () => {
     },
     filter: true,
     export: true,
-    
+
   };
 
   const getPeriodOptions = () => [
@@ -122,7 +122,7 @@ const Payments = () => {
       paid_at: {
         rules: [],
         api: 'ae',
-        label: 'Fecha de Cobro',
+        label: 'Fecha de cobro',
         form: {
           type: 'date',
         },
@@ -258,7 +258,7 @@ const Payments = () => {
       amount: {
         rules: ['required', 'number'],
         api: 'ae',
-        label: 'Monto Total',
+        label: 'Monto total',
         form: {
           type: 'number',
           placeholder: 'Ej: 100.00',
