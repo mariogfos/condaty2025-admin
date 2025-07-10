@@ -33,6 +33,7 @@
   color: var(--cPrimary);
 }
 
+/* esto? ver si se deja fila vacio o no despues de cada estilo */
 .statusMora {
   background-color: var(--cHoverError);
   color: var(--cError);

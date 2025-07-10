@@ -1,25 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
-import { useState, useEffect, Fragment, memo, useCallback } from "react";
-import useAxios from "../useAxios";
-import { getUrlImages } from "../../utils/string";
-import { useAuth } from "../../contexts/AuthProvider";
+'use client';
+import { useState, useEffect, Fragment, memo, useCallback } from 'react';
+import useAxios from '../useAxios';
+import { getUrlImages } from '../../utils/string';
+import { useAuth } from '../../contexts/AuthProvider';
 import {
   ActionType,
   checkRulesFields,
   getParamFields,
   hasErrors,
-} from "../../utils/validate/Rules";
-import { logError } from "../../utils/logs";
-import LoadingScreen from "../../components/ui/LoadingScreen/LoadingScreen";
-import Table, { RenderColType } from "../../components/ui/Table/Table";
-import DataModal from "../../components/ui/DataModal/DataModal";
-import Button from "../../components/forms/Button/Button";
-import Select from "../../components/forms/Select/Select";
+} from '../../utils/validate/Rules';
+import { logError } from '../../utils/logs';
+import LoadingScreen from '../../components/ui/LoadingScreen/LoadingScreen';
+import Table, { RenderColType } from '../../components/ui/Table/Table';
+import DataModal from '../../components/ui/DataModal/DataModal';
+import Button from '../../components/forms/Button/Button';
+import Select from '../../components/forms/Select/Select';
 // import useScreenSize from "../useScreenSize";
-import styles from "./useCrudStyle.module.css";
-import FloatButton from "@/mk/components/forms/FloatButton/FloatButton";
-import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import styles from './useCrudStyle.module.css';
+import FloatButton from '@/mk/components/forms/FloatButton/FloatButton';
+import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
 import {
   IconAdmin,
   IconEdit,
@@ -29,12 +29,13 @@ import {
   IconTableEmpty,
   IconTrash,
   IconExport,
-} from "@/components/layout/icons/IconsBiblioteca";
-import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
-import FormElement from "./FormElement";
-import Pagination from "@/mk/components/ui/Pagination/Pagination";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
-import EmptyData from "@/components/NoData/EmptyData";
+} from '@/components/layout/icons/IconsBiblioteca';
+import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
+import FormElement from './FormElement';
+import Pagination from '@/mk/components/ui/Pagination/Pagination';
+import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
+import EmptyData from '@/components/NoData/EmptyData';
+import { IconEmptySearch } from '@/components/layout/icons/IconsBiblioteca';
 
 export type ModCrudType = {
   modulo: string;
@@ -62,6 +63,8 @@ export type ModCrudType = {
   listAndCard?: boolean;
   noWaiting?: boolean;
   search?: boolean | object;
+  titleAdd?: string;
+  titleEdit?: string;
 };
 
 export type TypeRenderForm = {
@@ -173,13 +176,18 @@ const useCrud = ({
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
   const [searchs, setSearchs]: any = useState({});
-  const [action, setAction] = useState<ActionType>("add");
+  const [action, setAction] = useState<ActionType>('add');
   const [openCard, setOpenCard] = useState(false);
+
+  if (mod) {
+    mod.titleAdd = mod.titleAdd ?? 'Registrar';
+    mod.titleEdit = mod.titleEdit ?? 'Editar';
+  }
 
   // console.log("Etradata", params, mod.extraData);
   const { data, reLoad, execute, loaded } = useAxios(
-    "/" + mod.modulo,
-    "GET",
+    '/' + mod.modulo,
+    'GET',
     params,
     mod?.noWaiting
   );
@@ -198,15 +206,15 @@ const useCrud = ({
   const initOpen = (
     setOpen: Function,
     data: Record<string, any> = {},
-    action: ActionType = "add"
+    action: ActionType = 'add'
   ) => {
     setAction(action);
     let dataNew: any = {};
-    if (action == "add") {
+    if (action == 'add') {
       for (const key in fields) {
         if (fields[key].form?.precarga) {
           dataNew[key] =
-            typeof fields[key].form?.precarga == "function"
+            typeof fields[key].form?.precarga == 'function'
               ? fields[key].form?.precarga({ key, data })
               : fields[key].form?.precarga;
         }
@@ -217,7 +225,7 @@ const useCrud = ({
       for (const key in fields) {
         if (fields[key].form?.edit?.precarga) {
           dataNew[key] =
-            typeof fields[key].form?.edit?.precarga == "function"
+            typeof fields[key].form?.edit?.precarga == 'function'
               ? fields[key].form?.edit.precarga({ key, data })
               : fields[key].form?.edit.precarga;
         }
@@ -229,26 +237,26 @@ const useCrud = ({
   };
 
   const onAdd = useCallback(() => {
-    if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para crear", "error");
+    if (!userCan(mod.permiso, 'C'))
+      return showToast('No tiene permisos para crear', 'error');
     initOpen(setOpen);
   }, []);
 
   const onDel = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "D"))
-      return showToast("No tiene permisos para eliminar", "error");
-    initOpen(setOpenDel, item, "del");
+    if (!userCan(mod.permiso, 'D'))
+      return showToast('No tiene permisos para eliminar', 'error');
+    initOpen(setOpenDel, item, 'del');
   }, []);
 
   const onEdit = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "U"))
-      return showToast("No tiene permisos para editar", "error");
-    initOpen(setOpen, item, "edit");
+    if (!userCan(mod.permiso, 'U'))
+      return showToast('No tiene permisos para editar', 'error');
+    initOpen(setOpen, item, 'edit');
   }, []);
 
   const onView = useCallback(async (item: Record<string, any>) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
+    if (!userCan(mod.permiso, 'R'))
+      return showToast('No tiene permisos para visualizar', 'error');
 
     if (mod.loadView) {
       let searchBy = item.id;
@@ -258,12 +266,12 @@ const useCrud = ({
       }
 
       const { data: view } = await execute(
-        "/" + mod.modulo,
-        "GET",
+        '/' + mod.modulo,
+        'GET',
         {
           page: 1,
           perPage: 1,
-          fullType: "DET",
+          fullType: 'DET',
           searchBy: searchBy,
           ...mod.loadView,
         },
@@ -273,26 +281,26 @@ const useCrud = ({
       // const { data: d, ...rest } = view?.data ?? {};
       // initOpen(setOpenView, { ...d, ...rest }, "view");
 
-      initOpen(setOpenView, view?.data, "view");
+      initOpen(setOpenView, view?.data, 'view');
       return;
     }
-    initOpen(setOpenView, item, "view");
+    initOpen(setOpenView, item, 'view');
   }, []);
 
   const onImport = useCallback((e: any) => {
     // e.stopPropagation();
-    if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para importar", "error");
+    if (!userCan(mod.permiso, 'C'))
+      return showToast('No tiene permisos para importar', 'error');
     if (_onImport) {
       _onImport();
     }
   }, []);
   const onExist = useCallback(
-    async ({ type = "", cols = "id", modulo = "", searchBy = "" }: any) => {
-      if (modulo == "") modulo = mod.modulo;
+    async ({ type = '', cols = 'id', modulo = '', searchBy = '' }: any) => {
+      if (modulo == '') modulo = mod.modulo;
       const { data: row } = await execute(
-        "/" + modulo,
-        "GET",
+        '/' + modulo,
+        'GET',
         {
           type,
           searchBy,
@@ -320,10 +328,10 @@ const useCrud = ({
   };
 
   const onSave = async (data: Record<string, any>, _setErrors?: Function) => {
-    if (!userCan(mod.permiso, action == "del" ? "D" : action))
-      return showToast("No tiene permisos para esta acción", "error");
+    if (!userCan(mod.permiso, action == 'del' ? 'D' : action))
+      return showToast('No tiene permisos para esta acción', 'error');
 
-    if (action != "del") {
+    if (action != 'del') {
       const errors = checkRulesFields(fields, data, action, execute);
       if (_setErrors) {
         _setErrors(errors);
@@ -333,12 +341,12 @@ const useCrud = ({
       if (hasErrors(errors)) return;
     }
 
-    const url = "/" + mod.modulo + (data.id ? "/" + data.id : "");
-    let method = "POST";
+    const url = '/' + mod.modulo + (data.id ? '/' + data.id : '');
+    let method = 'POST';
     if (data.id) {
-      method = "PUT";
-      if (action == "del") {
-        method = "DELETE";
+      method = 'PUT';
+      if (action == 'del') {
+        method = 'DELETE';
       }
     }
 
@@ -347,7 +355,7 @@ const useCrud = ({
     const { data: response, error: err } = await execute(
       url,
       method,
-      action == "del" ? { id: data.id } : param,
+      action == 'del' ? { id: data.id } : param,
       false,
       mod?.noWaiting
     );
@@ -355,10 +363,10 @@ const useCrud = ({
       onCloseCrud();
       setOpenDel(false);
       reLoad(null, mod?.noWaiting);
-      showToast(mod.saveMsg?.[action] || response?.message, "success");
+      showToast(mod.saveMsg?.[action] || response?.message, 'success');
     } else {
-      showToast(response?.message, "error");
-      logError("Error onSave:", err);
+      showToast(response?.message, 'error');
+      logError('Error onSave:', err);
     }
   };
 
@@ -372,16 +380,16 @@ const useCrud = ({
   };
   const [oldFilter, setOldFilter]: any = useState({});
   const onFilter = (_opt: string, value: string) => {
-    let opt = _opt.replace("_filter", "");
+    let opt = _opt.replace('_filter', '');
     // console.log("onFilter", opt, value);
     let filterBy = { filterBy: { ...oldFilter.filterBy, [opt]: value } };
     if (getFilter) filterBy = getFilter(opt, value, oldFilter);
     //iterar filterBy para quitar los vacios
     let fil: any = [];
     for (const key in filterBy.filterBy) {
-      if (filterBy.filterBy[key]) fil.push(key + ":" + filterBy.filterBy[key]);
+      if (filterBy.filterBy[key]) fil.push(key + ':' + filterBy.filterBy[key]);
     }
-    fil = fil.join("|");
+    fil = fil.join('|');
     //setParams({ ...params, ...(fil ? { filterBy: fil } : {}) });
     setParams({ ...params, ...(fil ? { filterBy: fil, page: 1 } : {}) });
     setOldFilter(filterBy);
@@ -409,45 +417,45 @@ const useCrud = ({
     setOpenDel(false);
   };
 
-  type ExportType = "pdf" | "xls" | "csv";
+  type ExportType = 'pdf' | 'xls' | 'csv';
 
   const onExport = async (
     type?: string, // Cambiar el tipo a string opcional
     callBack: (url: string) => void = (url: string) => {}
   ) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
+    if (!userCan(mod.permiso, 'R'))
+      return showToast('No tiene permisos para visualizar', 'error');
     const { data: file } = await execute(
-      "/" + mod.modulo,
-      "GET",
+      '/' + mod.modulo,
+      'GET',
       {
         ...params,
-        fullType: "L", // Agregar fullType: "L"
-        _export: type ?? "pdf", // Usar ?? para valor por defecto
-        exportCols: mod?.exportCols || params.cols || "",
-        exportTitulo: mod?.exportTitulo || "Listado de " + mod.plural,
-        exportTitulos: mod?.exportTitulos || "",
-        exportAnchos: mod?.exportAnchos || "",
+        fullType: 'L', // Agregar fullType: "L"
+        _export: type ?? 'pdf', // Usar ?? para valor por defecto
+        exportCols: mod?.exportCols || params.cols || '',
+        exportTitulo: mod?.exportTitulo || 'Listado de ' + mod.plural,
+        exportTitulos: mod?.exportTitulos || '',
+        exportAnchos: mod?.exportAnchos || '',
       },
       false,
       mod?.noWaiting
     );
     if (file?.success) {
-      window.open(getUrlImages("/" + file.data.path)); // Abrir directamente en lugar de usar callback
-      callBack(getUrlImages("/" + file.data.path)); // Mantener callback por compatibilidad
+      window.open(getUrlImages('/' + file.data.path)); // Abrir directamente en lugar de usar callback
+      callBack(getUrlImages('/' + file.data.path)); // Mantener callback por compatibilidad
     } else {
-      showToast("Hubo un error al exportar el archivo", "error");
-      showToast("Hubo un error al exportar el archivo", "error");
-      logError("Error onExport:", file);
+      showToast('Hubo un error al exportar el archivo', 'error');
+      showToast('Hubo un error al exportar el archivo', 'error');
+      logError('Error onExport:', file);
     }
   };
   const onExportItem = (
     item: Record<string, any>,
-    type: ExportType = "pdf"
+    type: ExportType = 'pdf'
   ) => {
-    if (!userCan(mod.permiso, "R"))
-      return showToast("No tiene permisos para visualizar", "error");
-    initOpen(setOpenView, item, "export");
+    if (!userCan(mod.permiso, 'R'))
+      return showToast('No tiene permisos para visualizar', 'error');
+    initOpen(setOpenView, item, 'export');
   };
 
   useEffect(() => {
@@ -458,12 +466,12 @@ const useCrud = ({
   const [extraData, setExtraData]: any = useState({});
   const getExtraData = async () => {
     const { data: extraData } = await execute(
-      "/" + mod.modulo,
-      "GET",
+      '/' + mod.modulo,
+      'GET',
       {
         perPage: -1,
         page: 1,
-        fullType: "EXTRA",
+        fullType: 'EXTRA',
         ...(mod.extraData?.params || {}),
       },
       false,
@@ -493,7 +501,7 @@ const useCrud = ({
         if (!field.label) continue;
         const col: any = {
           key,
-          responsive: "onlyDesktop",
+          responsive: 'onlyDesktop',
           label: field.label,
           onRenderView: field.onRenderView || null,
           onRender: _onRender(field),
@@ -517,11 +525,11 @@ const useCrud = ({
       <DataModal
         open={open}
         onClose={() => onClose()}
-        title={"Detalle de " + mod.singular}
+        title={'Detalle de ' + mod.singular}
         buttonText=""
         buttonCancel=""
       >
-        <div className={""}>
+        <div className={''}>
           {header.map((col: any, index: number) => (
             <Fragment key={col.key + index}>
               {col.onRenderView ? (
@@ -588,7 +596,7 @@ const useCrud = ({
       </DataModal>
     );
   });
-  Detail.displayName = "Detail";
+  Detail.displayName = 'Detail';
 
   const RenderField = ({
     field,
@@ -668,9 +676,9 @@ const useCrud = ({
         //   col.disabled = col.disabled(item);
         // }
         if (
-          field.form.type == "select" &&
+          field.form.type == 'select' &&
           field.form.options &&
-          typeof field.form.options == "function"
+          typeof field.form.options == 'function'
         )
           col.options = field.form.options({ item, user, key, extraData });
         head.push(col);
@@ -684,7 +692,7 @@ const useCrud = ({
         // console.log("col", col, i);
         if (col.openTag && openTag == -1) {
           headF.push({
-            key: "openTag" + i,
+            key: 'openTag' + i,
             openTag: col.openTag,
             // style: col.tagStyle,
             // className: col.tagClass,
@@ -774,10 +782,14 @@ const useCrud = ({
       <DataModal
         open={open}
         onClose={() => onClose()}
-        title={(action == "add" ? "Crear " : "Editar ") + mod.singular}
-        buttonText={action == "add" ? "Crear " + mod.singular : "Actualizar"}
+        title={
+          (action == 'add' ? mod.titleAdd : mod.titleEdit) + ' ' + mod.singular
+        }
+        buttonText={
+          action == 'add' ? mod.titleAdd + ' ' + mod.singular : 'Actualizar'
+        }
         buttonCancel=""
-        onSave={(e) =>
+        onSave={e =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)
             : onSave(formStateForm, setErrorForm)
@@ -785,11 +797,11 @@ const useCrud = ({
       >
         <div
           style={{
-            display: "flex",
-            width: "100%",
-            flexWrap: "wrap",
+            display: 'flex',
+            width: '100%',
+            flexWrap: 'wrap',
             gap: 8,
-            justifyContent: "space-between",
+            justifyContent: 'space-between',
           }}
         >
           {header.map((field: any, index: number) => (
@@ -798,16 +810,16 @@ const useCrud = ({
                 <div
                   className={field.openTag?.className}
                   style={{
-                    display: "block",
-                    justifyContent: "space-around",
-                    flexWrap: "wrap",
-                    gap: "var(--spS)",
-                    width: "100%",
+                    display: 'block',
+                    justifyContent: 'space-around',
+                    flexWrap: 'wrap',
+                    gap: 'var(--spS)',
+                    width: '100%',
                     ...(field.openTag?.border
                       ? {
-                          border: "1px solid var(--cWhiteV1)",
-                          borderRadius: "var(--bRadiusS)",
-                          padding: "var(--spM)",
+                          border: '1px solid var(--cWhiteV1)',
+                          borderRadius: 'var(--bRadiusS)',
+                          padding: 'var(--spM)',
                         }
                       : {}),
                     ...field.openTag?.style,
@@ -817,9 +829,9 @@ const useCrud = ({
                   {field.openTag?.onTop && (
                     <div
                       style={{
-                        width: "100%",
-                        flex: "100%",
-                        marginBottom: "var(--spS)",
+                        width: '100%',
+                        flex: '100%',
+                        marginBottom: 'var(--spS)',
                       }}
                     >
                       {field.openTag.onTop({
@@ -834,7 +846,7 @@ const useCrud = ({
                       <RenderField
                         field={{
                           ...field,
-                          style: { ...field.style, flex: "1" },
+                          style: { ...field.style, flex: '1' },
                         }}
                         i={index}
                         formStateForm={formStateForm}
@@ -867,7 +879,7 @@ const useCrud = ({
       </DataModal>
     );
   });
-  Form.displayName = "Form";
+  Form.displayName = 'Form';
   const [filterSel, setFilterSel]: any = useState({});
   const AddMenu = memo(
     ({
@@ -882,7 +894,7 @@ const useCrud = ({
       if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
       const onChange = (e: any) => {
-        const name = e.target.name.replace("_filter", "");
+        const name = e.target.name.replace('_filter', '');
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
@@ -894,9 +906,10 @@ const useCrud = ({
               {
                 <DataSearch
                   // label="Buscar"
-                  value={searchs.searchBy || ""}
-                  name={mod.modulo + "Search"}
+                  value={searchs.searchBy || ''}
+                  name={mod.modulo + 'Search'}
                   setSearch={onSearch || setSearchs}
+                  searchMsg={extraData?.searchMsg}
                 />
               }
             </div>
@@ -908,10 +921,10 @@ const useCrud = ({
                 <Select
                   key={f.key + i}
                   label={f.label}
-                  name={f.key + "_filter"}
+                  name={f.key + '_filter'}
                   onChange={onChange}
                   options={f.options || []}
-                  value={filterSel[f.key] || ""}
+                  value={filterSel[f.key] || ''}
                   style={{ width: f.width }}
                 />
               ))}
@@ -923,20 +936,20 @@ const useCrud = ({
             </div>
           )}
           {mod.export && (
-            <div className={styles.iconsMenu} onClick={() => onExport("pdf")}>
+            <div className={styles.iconsMenu} onClick={() => onExport('pdf')}>
               <IconExport />
             </div>
           )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
               <div
-                className={!openCard ? styles.active : ""}
+                className={!openCard ? styles.active : ''}
                 onClick={() => setOpenCard(false)}
               >
                 <IconMenu />
               </div>
               <div
-                className={openCard ? styles.active : ""}
+                className={openCard ? styles.active : ''}
                 onClick={() => setOpenCard(true)}
               >
                 <IconGrilla />
@@ -961,7 +974,7 @@ const useCrud = ({
                 style={{ height: 48 }} // Asegurar la altura con estilo inline
                 variant="primary" // Asegurar que estamos usando el estilo correcto
               >
-                {"Agregar " + mod.singular}
+                {mod.titleAdd + ' ' + mod.singular}
               </Button>
             </div>
           )}
@@ -969,17 +982,17 @@ const useCrud = ({
       );
     }
   );
-  AddMenu.displayName = "AddMenu";
+  AddMenu.displayName = 'AddMenu';
 
   const FormDelete = memo(
-    ({ open, onClose, item, onConfirm, message = "" }: PropsDetail) => {
+    ({ open, onClose, item, onConfirm, message = '' }: PropsDetail) => {
       return (
         <DataModal
           id="Eliminar"
-          title={"Desvincular " + mod.singular}
+          title={'Desvincular ' + mod.singular}
           buttonText="Desvincular"
           buttonCancel="Cancelar"
-          onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
+          onSave={e => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
         >
@@ -999,7 +1012,7 @@ const useCrud = ({
       );
     }
   );
-  FormDelete.displayName = "FormDelete";
+  FormDelete.displayName = 'FormDelete';
 
   const onButtonActions = (item: Record<string, any>) => {
     let hideEdit = mod.hideActions?.edit;
@@ -1040,13 +1053,13 @@ const useCrud = ({
   const findOptions = (
     value: any,
     options: Record<string, any>[],
-    key: string = "id",
-    label: string = "name"
+    key: string = 'id',
+    label: string = 'name'
   ) => {
-    if (!Array.isArray(options) || options.length == 0) return "";
+    if (!Array.isArray(options) || options.length == 0) return '';
     const r = options?.find((s: any) => s[key] == value);
     if (r) return r[label];
-    return "";
+    return '';
   };
   const _onRender = (field: any, lista = false) => {
     const render = lista
@@ -1061,7 +1074,7 @@ const useCrud = ({
         optionValue: field.list?.optionValue ?? field.form?.optionValue,
         optionLabel: field.list?.optionLabel ?? field.form?.optionLabel,
       };
-      if (opt.type === "select" && opt.optionsExtra)
+      if (opt.type === 'select' && opt.optionsExtra)
         return (item: RenderColType) => {
           return findOptions(
             item.value,
@@ -1070,11 +1083,11 @@ const useCrud = ({
             opt.optionLabel
           );
         };
-      if (opt.type === "select" && !opt.optionsExtra)
+      if (opt.type === 'select' && !opt.optionsExtra)
         return (item: RenderColType) => {
           return findOptions(
             item.value,
-            typeof opt.options == "function"
+            typeof opt.options == 'function'
               ? opt.options({ key: opt.optionValue, item, user, extraData })
               : opt.options,
             opt.optionValue,
@@ -1085,11 +1098,11 @@ const useCrud = ({
     return render;
   };
 
-  const [sortCol, setSortCol] = useState({ col: "", asc: true });
+  const [sortCol, setSortCol] = useState({ col: '', asc: true });
   const onSort = (col: string, asc: boolean) => {
     const nAsc: boolean = sortCol.col === col ? !sortCol.asc : asc;
     setSortCol({ col, asc: nAsc });
-    setParams({ ...params, sortBy: col, orderBy: nAsc ? "asc" : "desc" });
+    setParams({ ...params, sortBy: col, orderBy: nAsc ? 'asc' : 'desc' });
   };
   const List = memo((props: any) => {
     const getHeader = () => {
@@ -1102,7 +1115,7 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list.width ?? "300px",
+            width: field.filter?.width ?? field.list.width ?? '300px',
             order:
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
@@ -1115,9 +1128,9 @@ const useCrud = ({
         if (!field.list) continue;
         const col: any = {
           key,
-          responsive: "",
+          responsive: '',
           label: field.list.label ?? field.label,
-          className: field.list.className ?? "",
+          className: field.list.className ?? '',
           width: field.list.width,
           onRender: _onRender(field, true),
           order: field.list.order ?? field.order ?? 1000,
@@ -1138,6 +1151,33 @@ const useCrud = ({
       setHeader(getHeader());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fields]);
+    let emptyContent;
+    if (props.onRenderEmpty) {
+      emptyContent = props.onRenderEmpty();
+    } else if (
+      (params?.filterBy && params?.filterBy.length > 0) ||
+      (searchs && Object.keys(searchs).length > 0)
+    ) {
+      emptyContent = (
+        <EmptyData
+          h={props?.height ?? undefined}
+          icon={<IconEmptySearch size={60} />}
+          message="No se encontraron coincidencias. Ajusta tus filtros o"
+          line2="prueba on una búsqueda diferente"
+        />
+      );
+    } else {
+      emptyContent = (
+        <EmptyData
+          h={props?.height ?? undefined}
+          message={props.emptyMsg ?? undefined}
+          line2={props.emptyLine2 ?? undefined}
+          icon={props.emptyIcon ?? undefined}
+          size={props.emptyIconSize ?? undefined}
+        />
+      );
+    }
+
     return (
       <div className={styles.useCrud}>
         {store?.title && openList && (
@@ -1150,15 +1190,15 @@ const useCrud = ({
           {openList && (
             <div
               style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "var(--spM)",
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 'var(--spM)',
               }}
             >
               <section
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
+                  display: 'flex',
+                  flexDirection: 'column',
                   flexGrow: 1,
                 }}
               >
@@ -1181,7 +1221,7 @@ const useCrud = ({
                     }
                     height={props?.height || undefined}
                     className="striped"
-                    actionsWidth={"170px"}
+                    actionsWidth={'170px'}
                     sumarize={props.sumarize}
                     extraData={extraData}
                     onSort={onSort}
@@ -1190,21 +1230,7 @@ const useCrud = ({
                     id={mod?.modulo}
                   />
                 ) : (
-                  <section>
-                    {/* <IconTableEmpty size={180} color="var(--cBlackV2)" />
-                    <p>No existen datos en este momento.</p> */}
-                    {props.onRenderEmpty ? (
-                      props.onRenderEmpty()
-                    ) : (
-                      <EmptyData
-                        h={props?.height ?? undefined}
-                        message={props.emptyMsg ?? undefined}
-                        line2={props.emptyLine2 ?? undefined}
-                        icon={props.emptyIcon ?? undefined}
-                        size={props.emptyIconSize ?? undefined}
-                      />
-                    )}
-                  </section>
+                  <section>{emptyContent}</section>
                 )}
                 <div>
                   <Pagination
@@ -1344,7 +1370,7 @@ const useCrud = ({
       </div>
     );
   });
-  List.displayName = "List";
+  List.displayName = 'List';
   return {
     user,
     showToast,

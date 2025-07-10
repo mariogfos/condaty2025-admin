@@ -1,21 +1,18 @@
-'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import styles from './Payments.module.css';
-import { getDateStrMes, getDateDesdeHasta } from '@/mk/utils/date';
-import Button from '@/mk/components/forms/Button/Button';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { useRouter } from 'next/navigation';
-import WidgetGrafIngresos from '@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos';
-import RenderForm from './RenderForm/RenderForm';
-import RenderView from './RenderView/RenderView';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import Input from '@/mk/components/forms/Input/Input';
-import { RenderAnularModal } from './RenderDel/RenderDel';
-import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
-import { formatBs } from '@/mk/utils/numbers';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+"use client";
+import React, { useState, useMemo, useEffect } from "react";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import styles from "./Payments.module.css";
+import { getDateStrMes } from "@/mk/utils/date";
+import Button from "@/mk/components/forms/Button/Button";
+import { useRouter } from "next/navigation";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { RenderAnularModal } from "./RenderDel/RenderDel";
+import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
+import { formatBs } from "@/mk/utils/numbers";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
@@ -25,10 +22,9 @@ interface FormStateFilter {
 
 const Payments = () => {
   const router = useRouter();
-  const [openGraph, setOpenGraph] = useState<boolean>(false);
-  const [dataGraph] = useState<any>({});
   const [formStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  //esto? se usa el estado para que? solo se usa el seter del estado pero el estado no se usa?
   const [customDateRange, setCustomDateRange] = useState<{
     startDate?: string;
     endDate?: string;
@@ -39,17 +35,17 @@ const Payments = () => {
   }>({});
 
   const mod = {
-    modulo: 'payments',
-    singular: 'Ingreso',
-    plural: 'Ingresos',
-    permiso: '',
+    modulo: "payments",
+    singular: "Ingreso",
+    plural: "Ingresos",
+    permiso: "",
     extraData: true,
     renderForm: RenderForm,
     renderView: (props: any) => (
       <RenderView {...props} payment_id={props?.item?.id} />
     ),
     renderDel: RenderAnularModal,
-    loadView: { fullType: 'DET' },
+    loadView: { fullType: "DET" },
     hideActions: {
       view: false,
       add: false,
@@ -58,67 +54,70 @@ const Payments = () => {
     },
     filter: true,
     export: true,
+
   };
 
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana pasada' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' },
+    { id: "ALL", name: "Todos" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const getPaymentTypeOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'T', name: 'Transferencia' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' },
-    { id: 'Q', name: 'QR' },
-    { id: 'O', name: 'Pago en oficina' },
+    { id: "ALL", name: "Todos" },
+    { id: "T", name: "Transferencia" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
+    { id: "Q", name: "QR" },
+    { id: "O", name: "Pago en oficina" },
   ];
 
   const getStatusOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'R', name: 'Rechazado' },
-    { id: 'X', name: 'Anulado' },
+    { id: "ALL", name: "Todos" },
+    { id: "P", name: "Cobrado" },
+    { id: "S", name: "Por confirmar" },
+    { id: "R", name: "Rechazado" },
+    { id: "X", name: "Anulado" },
   ];
   const removeCommas = (text: string | number): string => {
-    return String(text).replace(/[,]/g, '');
+    return String(text).replace(/[,]/g, "");
   };
 
   const paramsInitial = {
     perPage: 20,
     page: 1,
-    fullType: 'L',
-    searchBy: '',
+    fullType: "L",
+    searchBy: "",
   };
 
   const convertFilterDate = () => {
-    let periodo = 'm';
-    if (formStateFilter.filter_date === 'month') periodo = 'm';
-    if (formStateFilter.filter_date === 'lmonth') periodo = 'lm';
-    if (formStateFilter.filter_date === 'year') periodo = 'y';
-    if (formStateFilter.filter_date === 'lyear') periodo = 'ly';
+    //esto? se usa??
+    let periodo = "m";
+    if (formStateFilter.filter_date === "month") periodo = "m";
+    if (formStateFilter.filter_date === "lmonth") periodo = "lm";
+    if (formStateFilter.filter_date === "year") periodo = "y";
+    if (formStateFilter.filter_date === "lyear") periodo = "ly";
     // Si es personalizado, ya tiene el formato 'c:...'
-    if (formStateFilter.paid_at?.startsWith('c:'))
+    if (formStateFilter.paid_at?.startsWith("c:"))
       return formStateFilter.paid_at;
     return periodo;
   };
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       dptos: {
-        api: 'ae',
-        label: 'Unidad',
+        api: "ae",
+        label: "Unidad",
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return <div>{removeCommas(props.item.dptos)}</div>;
           },
         },
@@ -126,60 +125,63 @@ const Payments = () => {
       paid_at: {
         rules: [],
         api: 'ae',
-        label: 'Fecha de Cobro',
+        label: 'Fecha de cobro',
         form: {
-          type: 'date',
+          type: "date",
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return (
-              <div>{getDateStrMes(props.item.paid_at) || 'No pagado'}</div>
+              <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
             );
           },
         },
         filter: {
-          key: 'paid_at',
-          label: 'Periodo',
+          key: "paid_at",
+          label: "Periodo",
 
           options: getPeriodOptions,
         },
       },
 
       category_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Categoría',
+        rules: ["required"],
+        api: "ae",
+        label: "Categoría",
         form: {
-          type: 'select',
-          optionsExtra: 'categories',
-          placeholder: 'Seleccione una categoría',
+          type: "select",
+          optionsExtra: "categories",
+          placeholder: "Seleccione una categoría",
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return (
               <div>
-                {props.item.category?.padre?.name || 'Sin categoría padre'}
+                {props.item.category?.padre?.name || "Sin categoría padre"}
+                {/* //esto? */}
               </div>
             );
           },
         },
         filter: {
-          label: 'Categoría',
+          label: "Categoría",
           options: (extraData: any) => {
-            const categories = extraData?.categories || [];
+            const categories = extraData?.categories || []; //esto?
             const categoryOptions = categories.map((category: any) => ({
               id: category.id,
               name: category.name,
             }));
-            return [{ id: 'ALL', name: 'Todos' }, ...categoryOptions];
+            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
           },
         },
       },
       subcategory_id: {
-        rules: ['required'],
-        label: 'Subcategoría',
+        rules: ["required"],
+        label: "Subcategoría",
         form: {
-          type: 'select',
+          type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [], // Se maneja en RenderForm
         },
@@ -189,58 +191,60 @@ const Payments = () => {
             if (!category) {
               return `sin datos`;
             }
-            if (category.padre && typeof category.padre === 'object') {
-              return category.name || `(Sin nombre)`;
+            if (category.padre && typeof category.padre === "object") {
+              return category.name || `(Sin nombre)`; //esto?
             } else {
-              return '-/-';
+              return "-/-";
             }
           },
         },
       },
       type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Forma de pago',
+        rules: ["required"],
+        api: "ae",
+        label: "Forma de pago",
         form: {
-          type: 'select',
+          type: "select",
           options: [
-            { id: 'T', name: 'Transferencia' },
-            { id: 'E', name: 'Efectivo' },
-            { id: 'C', name: 'Cheque' },
+            { id: "T", name: "Transferencia" },
+            { id: "E", name: "Efectivo" },
+            { id: "C", name: "Cheque" },
           ],
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             const typeMap: Record<string, string> = {
-              T: 'Transferencia bancaria',
-              E: 'Efectivo',
-              C: 'Cheque',
-              Q: 'Pago QR',
-              O: 'Pago en oficina',
+              T: "Transferencia bancaria",
+              E: "Efectivo",
+              C: "Cheque",
+              Q: "Pago QR",
+              O: "Pago en oficina",
             };
             return <div>{typeMap[props.item.type] || props.item.type}</div>;
           },
         },
         filter: {
-          label: 'Forma de pago',
+          label: "Forma de pago",
 
           options: getPaymentTypeOptions,
         },
       },
       status: {
         rules: [],
-        api: 'ae',
-        label: 'Estado',
+        api: "ae",
+        label: "Estado",
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             const statusMap: Record<string, string> = {
-              P: 'Cobrado',
-              S: 'Por confirmar',
-              R: 'Rechazado',
-              E: 'Por subir comprobante',
-              A: 'Por pagar',
-              M: 'Moroso',
-              X: 'Anulado',
+              P: "Cobrado",
+              S: "Por confirmar",
+              R: "Rechazado",
+              E: "Por subir comprobante",
+              A: "Por pagar",
+              M: "Moroso",
+              X: "Anulado",
             };
             return (
               <div
@@ -254,7 +258,7 @@ const Payments = () => {
           },
         },
         filter: {
-          label: 'Estado del ingreso',
+          label: "Estado del ingreso",
 
           options: getStatusOptions,
         },
@@ -262,13 +266,14 @@ const Payments = () => {
       amount: {
         rules: ['required', 'number'],
         api: 'ae',
-        label: 'Monto Total',
+        label: 'Monto total',
         form: {
-          type: 'number',
-          placeholder: 'Ej: 100.00',
+          type: "number",
+          placeholder: "Ej: 100.00",
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return <div>{formatBs(props.item.amount)}</div>;
           },
         },
@@ -277,23 +282,23 @@ const Payments = () => {
     []
   );
 
-  const goToCategories = (type = '') => {
+  const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push('/categories');
+      router.push("/categories");
     }
   };
 
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Ingresos' });
-  }, []);
+    setStore({ ...store, title: "Ingresos" });
+  }, []); //esto? poner que ignore la linea
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
-    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) }; //esto?
 
-    if (opt === 'paid_at' && value === 'custom') {
+    if (opt === "paid_at" && value === "custom") {
       setCustomDateRange({});
       setCustomDateErrors({});
       setOpenCustomFilter(true);
@@ -301,7 +306,7 @@ const Payments = () => {
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -309,133 +314,60 @@ const Payments = () => {
     return { filterBy: currentFilters };
   };
 
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = 'La fecha de inicio es obligatoria';
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = 'La fecha de fin es obligatoria';
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
-    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('paid_at', customDateFilterString);
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
   const extraButtons = [
     <Button
       key="categories-button"
-      onClick={() => goToCategories('I')}
+      onClick={() => goToCategories("I")}
       className={styles.categoriesButton}
     >
       Categorías
     </Button>,
   ];
 
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute,
-    params,
-    setParams,
-    extraData,
-    onFilter,
-    showToast,
-  } = useCrud({
+  const { userCan, List, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
     getFilter: handleGetFilter,
   });
-
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
-
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.container}>
-      {/* <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>
-        Administre, agregue y elimine todos los ingresos
-      </p> */}
-
       <List
-        height={'calc(100vh - 330px)'}
+        height={"calc(100vh - 330px)"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
-
-      {openGraph && (
-        <DataModal
-          open={openGraph}
-          onClose={() => {
-            setOpenGraph(false);
-          }}
-          title=""
-          buttonText=""
-          buttonCancel=""
-        >
-          <>
-            <WidgetGrafIngresos
-              ingresos={dataGraph?.data?.ingresosHist || []}
-              chartTypes={['pie']}
-              h={360}
-              title={'Resumen de Ingresos por categorías'}
-              subtitle={
-                'Ingresos perteneciente en fecha ' +
-                getDateDesdeHasta(convertFilterDate())
-              }
-            />
-          </>
-        </DataModal>
-      )}
-
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-          setCustomDateRange({});
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
           if (
             startDate &&
             endDate &&
             startDate.slice(0, 4) !== endDate.slice(0, 4)
           ) {
             err.startDate =
-              'El periodo personalizado debe estar dentro del mismo año';
+              "El periodo personalizado debe estar dentro del mismo año";
             err.endDate =
-              'El periodo personalizado debe estar dentro del mismo año';
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('paid_at', customDateFilterString);
+          onFilter("paid_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

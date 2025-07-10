@@ -142,10 +142,6 @@ const RenderView = ({ open, item, onClose }: any) => {
                 title={"Cantidad máx. de personas"}
                 value={item?.max_capacity}
               />
-              {/* <KeyValue
-            title={"Máximo de reservas por semana"}
-            value={item?.max_reservations_per_week + " reservas"}
-          /> */}
               <KeyValue
                 title={"Restricción por mora"}
                 value={item?.penalty_or_debt_restriction == "A" ? "Sí" : "No"}
@@ -154,14 +150,22 @@ const RenderView = ({ open, item, onClose }: any) => {
                 title={"Aprobación de administración"}
                 value={item?.requires_approval == "A" ? "Sí" : "No"}
               />
+              {item?.booking_mode === "hour" && (
+                <KeyValue
+                  title={"Reservación por día"}
+                  value={item?.max_reservations_per_day}
+                />
+              )}
               <KeyValue
-                title={"Máximo de reservas por semana"}
+                title={"Reservación por semana"}
                 value={item?.max_reservations_per_week}
               />
-              <KeyValue
-                title={"Cancelación sin multa"}
-                value={item?.min_cancel_hours + "h"}
-              />
+              {item?.price > 0 && (
+                <KeyValue
+                  title={"Cancelación sin multa"}
+                  value={item?.min_cancel_hours + "h"}
+                />
+              )}
               <KeyValue
                 title={"Porcentaje por cancelación"}
                 value={formatNumber(item?.penalty_fee, 1) + "%"}

@@ -1,24 +1,24 @@
 export type ChartType =
-  | "line"
-  | "bar"
-  | "radialBar"
-  | "pie"
-  | "donut"
-  | "radar"
-  | "polarArea"
-  | "bubble"
-  | "scatter"
-  | "heatmap"
-  | "candlestick"
-  | "radialBar"
-  | "treemap"
-  | "sunburst"
-  | "boxPlot"
-  | "histogram"
-  | "funnel"
-  | "pyramid"
-  | "gantt"
-  | "waterfall";
+  | 'line'
+  | 'bar'
+  | 'radialBar'
+  | 'pie'
+  | 'donut'
+  | 'radar'
+  | 'polarArea'
+  | 'bubble'
+  | 'scatter'
+  | 'heatmap'
+  | 'candlestick'
+  | 'radialBar'
+  | 'treemap'
+  | 'sunburst'
+  | 'boxPlot'
+  | 'histogram'
+  | 'funnel'
+  | 'pyramid'
+  | 'gantt'
+  | 'waterfall';
 
 type dataGraph = {
   label?: string;
@@ -60,25 +60,25 @@ export interface ProptypesBase extends commonTypes {
 }
 
 export const COLORS20 = [
-  "#00E38C",
-  "#4C98DF",
-  "#F37F3D",
-  "#F2C85B",
-  "#D2527F",
-  "#7E57C2",
-  "#26A69A",
-  "#EF5350",
-  "#5C6BC0",
-  "#66BB6A",
-  "#FFCA28",
-  "#8D6E63",
-  "#26C6DA",
-  "#AB47BC",
-  "#FF7043",
-  "#9CCC65",
-  "#7B1FA2",
-  "#EC407A",
-  "#78909C",
-  "#FFA726",
+  '#00E38C',
+  '#4C98DF',
+  '#F37F3D',
+  '#F2C85B',
+  '#D2527F',
+  '#7E57C2',
+  '#26A69A',
+  '#EF5350',
+  '#5C6BC0',
+  '#66BB6A',
+  '#FFCA28',
+  '#8D6E63',
+  '#26C6DA',
+  '#AB47BC',
+  '#FF7043',
+  '#9CCC65',
+  '#7B1FA2',
+  '#EC407A',
+  '#78909C',
+  '#FFA726',
 ];
 //agregaraaa

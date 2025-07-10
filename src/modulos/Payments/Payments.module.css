@@ -15,36 +15,20 @@
   margin-bottom: 20px;
 }
 
-.graphButton {
-  background-color: var(--cBlackV2) !important;
-  color: var(--cWhite) !important;
-  font-size: var(--sM);
-  padding: var(--spS) var(--spL) !important;
-  border-radius: var(--bRadiusM) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 150px;
-  height: 48px !important;
-}
-
-.graphButton:hover {
-  opacity: 0.9;
-}
-
+/* //esto? esopacios demas  */
 .categoriesButton {
   border: 1px solid var(--cWhiteV1) !important;
   color: var(--cWhiteV1) !important;
   background-color: transparent !important;
   font-size: clamp(12px, 3vw, 14px);
-  padding: 0 var(--spL) !important;
+
   border-radius: var(--bRadius) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
   flex-shrink: 0;
-  width: 120px;
+
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
@@ -80,47 +64,23 @@
   .container {
     padding: 10px;
   }
-  
+
   .title {
     font-size: var(--sXl);
   }
-  
+
   .buttonsContainer {
     flex-direction: column;
     align-items: flex-start;
   }
-  
-  .graphButton, .categoriesButton {
+
+  .graphButton,
+  .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
     font-size: clamp(11px, 4vw, 13px);
   }
 }
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .graphButton {
-    width: 32%;
-  }
-  
-  .categoriesButton {
-    width: 32%;
-  }
-}
-
-@media (max-width: 1024px) {
-  .categoriesButton {
-    width: 100% !important;
-    min-width: 0 !important;
-    font-size: clamp(11px, 3vw, 13px) !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    text-align: center;
-    flex-direction: row;
-    flex-shrink: 0;
-    padding: 0 var(--spM) !important;
-  }
-}
-
 
 .statusBadge {
   font-weight: var(--bMedium);
