@@ -1,15 +1,15 @@
 // @ts-nocheck
 
-import React, { memo, useState, useEffect } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
-import styles from './RenderView.module.css';
-import useAxios from '@/mk/hooks/useAxios';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import { formatBs } from '@/mk/utils/numbers';
+import React, { memo, useState, useEffect } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import Button from "@/mk/components/forms/Button/Button";
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from "@/mk/utils/date";
+import styles from "./RenderView.module.css";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { formatBs } from "@/mk/utils/numbers";
 
 interface DetailPaymentProps {
   open: boolean;
@@ -21,7 +21,8 @@ interface DetailPaymentProps {
   onDel?: () => void;
 }
 
-const RenderView: React.FC<DetailPaymentProps> = memo(props => {
+const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
+  ///esto? porque tanto error, revisa todo el archivo
   const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
@@ -33,10 +34,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const fetchPaymentData = async () => {
     if (payment_id && open) {
       const { data } = await execute(
-        '/payments',
-        'GET',
+        "/payments",
+        "GET",
         {
-          fullType: 'DET',
+          fullType: "DET",
           searchBy: payment_id,
           page: 1,
           perPage: 1,
@@ -56,8 +57,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     let value = e.target.value;
-    if ((e.target as HTMLInputElement).type === 'checkbox') {
-      value = (e.target as HTMLInputElement).checked ? 'P' : 'N';
+    if ((e.target as HTMLInputElement).type === "checkbox") {
+      value = (e.target as HTMLInputElement).checked ? "P" : "N";
     }
     setFormState({ ...formState, [e.target.name]: value });
   };
@@ -65,38 +66,38 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const onConfirm = async (rechazado = true) => {
     setErrors({});
     if (!rechazado) {
-      if (!formState.confirm_obs || formState.confirm_obs.trim() === '') {
+      if (!formState.confirm_obs || formState.confirm_obs.trim() === "") {
         setErrors({
-          confirm_obs: 'La observación es obligatoria para rechazar un pago',
+          confirm_obs: "La observación es obligatoria para rechazar un pago",
         });
         return;
       }
     }
-    const { data: payment, error } = await execute('/payment-confirm', 'POST', {
+    const { data: payment, error } = await execute("/payment-confirm", "POST", {
       id: item?.id,
-      confirm: rechazado ? 'P' : 'R',
+      confirm: rechazado ? "P" : "R",
       confirm_obs: formState.confirm_obs,
     });
 
     if (payment?.success === true) {
-      showToast(payment?.message, 'success');
+      showToast(payment?.message, "success");
       if (reLoad) reLoad();
-      setFormState({ confirm_obs: '' });
+      setFormState({ confirm_obs: "" });
       onClose();
       setOnRechazar(false);
     } else {
-      showToast(error?.data?.message || error?.message, 'error');
+      showToast(error?.data?.message || error?.message, "error");
     }
   };
 
   // Función para mapear el tipo de pago
   const getPaymentType = (type: string) => {
     const typeMap: Record<string, string> = {
-      T: 'Transferencia bancaria',
-      E: 'Efectivo',
-      C: 'Cheque',
-      Q: 'QR',
-      O: 'Pago en oficina',
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "QR",
+      O: "Pago en oficina",
     };
     return typeMap[type] || type;
   };
@@ -104,33 +105,33 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      P: 'Cobrado',
-      S: 'Por confirmar',
-      R: 'Rechazado',
-      E: 'Por subir comprobante',
-      A: 'Por pagar',
-      M: 'Moroso',
-      X: 'Anulado',
+      P: "Cobrado",
+      S: "Por confirmar",
+      R: "Rechazado",
+      E: "Por subir comprobante",
+      A: "Por pagar",
+      M: "Moroso",
+      X: "Anulado",
     };
     return statusMap[status] || status;
   };
 
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
+    if (!extraData?.dptos) return (item?.dptos || "-/-").replace(/,/g, "");
 
     const dpto = extraData.dptos.find(
       (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
     );
 
     if (dpto) {
-      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, '') : '';
+      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
       const descSinComa = dpto.description
-        ? dpto.description.replace(/,/g, '')
-        : '';
+        ? dpto.description.replace(/,/g, "")
+        : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
-      return (item?.dptos || '-/-').replace(/,/g, '');
+      return (item?.dptos || "-/-").replace(/,/g, "");
     }
   };
   const getTotalAmount = () => {
@@ -160,26 +161,26 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   }
 
   let aprobadoLabel;
-  if (item.status === 'P') {
-    aprobadoLabel = 'Aprobado por';
-  } else if (item.status === 'X') {
-    aprobadoLabel = 'Anulado por';
-  } else if (item.status === 'R') {
-    aprobadoLabel = 'Rechazado por';
-  } else if (item.status === 'S') {
-    aprobadoLabel = 'Por confirmar por';
+  if (item.status === "P") {
+    aprobadoLabel = "Aprobado por";
+  } else if (item.status === "X") {
+    aprobadoLabel = "Anulado por";
+  } else if (item.status === "R") {
+    aprobadoLabel = "Rechazado por";
+  } else if (item.status === "S") {
+    aprobadoLabel = "Por confirmar por";
   } else {
-    aprobadoLabel = 'Aprobado por';
+    aprobadoLabel = "Aprobado por";
   }
 
-  let statusClass = '';
-  if (item.status === 'P') {
+  let statusClass = "";
+  if (item.status === "P") {
     statusClass = styles.statusPaid;
-  } else if (item.status === 'S') {
+  } else if (item.status === "S") {
     statusClass = styles.statusPending;
-  } else if (item.status === 'R') {
+  } else if (item.status === "R") {
     statusClass = styles.statusRejected;
-  } else if (item.status === 'X') {
+  } else if (item.status === "X") {
     statusClass = styles.statusCanceled;
   }
 
@@ -192,7 +193,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === 'P' && (
+        {item && onDel && item.status === "P" && (
           <div className={styles.headerActionContainer}>
             {/* REEMPLAZO DEL BOTÓN */}
             <button
@@ -226,13 +227,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 <span className={styles.infoValue}>
                   {item.details?.[0]?.debt_dpto?.dpto?.homeowner
                     ? getFullName(item.details[0].debt_dpto.dpto.homeowner)
-                    : '-/-'}
+                    : "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
                 <span className={styles.infoValue}>
-                  {getFullName(item.owner) || '-/-'}
+                  {getFullName(item.owner) || "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
@@ -242,12 +243,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                     <div key={i}>-{c}</div>
                   )) ||
                     item?.category?.padre?.name ||
-                    '-/-'}
+                    "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Observación</span>
-                <span className={styles.infoValue}>{item.obs || '-/-'}</span>
+                <span className={styles.infoValue}>{item.obs || "-/-"}</span>
               </div>
             </div>
             {/* Columna Derecha */}
@@ -267,25 +268,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>
                 <span className={styles.infoValue}>
-                  {getFullName(item.owner) || '-/-'}
+                  {getFullName(item.owner) || "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>{aprobadoLabel}</span>
                 <span className={styles.infoValue}>
-                  {item.confirmed_by ? getFullName(item.confirmed_by) : '-/-'}
+                  {item.confirmed_by ? getFullName(item.confirmed_by) : "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Registrado por</span>
                 <span className={styles.infoValue}>
-                  {item.user ? getFullName(item.user) : '-/-'}
+                  {item.user ? getFullName(item.user) : "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
                 <span className={styles.infoValue}>
-                  {item.voucher || '-/-'}
+                  {item.voucher || "-/-"}
                 </span>
               </div>
             </div>
@@ -301,14 +302,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 onClick={() => {
                   window.open(
                     getUrlImages(
-                      '/PAYMENT-' +
+                      "/PAYMENT-" +
                         item.id +
-                        '.' +
+                        "." +
                         item.ext +
-                        '?d=' +
+                        "?d=" +
                         item.updated_at
                     ),
-                    '_blank'
+                    "_blank"
                   );
                 }}
               >
@@ -349,7 +350,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           className={styles.periodsTableCell}
                           data-label="Concepto"
                         >
-                          {item?.category?.padre?.name || '-/-'}
+                          {item?.category?.padre?.name || "-/-"}
                         </div>
                         <div
                           className={styles.periodsTableCell}
@@ -376,7 +377,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
-                  Total pagado:{' '}
+                  Total pagado:{" "}
                   <span className={styles.totalAmountValue}>
                     {formatBs(getTotalAmount())}
                   </span>
@@ -385,7 +386,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             </div>
           )}
 
-          {item?.status === 'S' && (
+          {item?.status === "S" && (
             <div className={styles.actionButtonsContainer}>
               <Button
                 variant="danger"
@@ -422,7 +423,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           error={errors}
           name="confirm_obs"
           onChange={handleChangeInput}
-          value={formState?.confirm_obs || ''}
+          value={formState?.confirm_obs || ""}
         />
       </DataModal>
     </>

@@ -1,4 +1,4 @@
-// @ts-nocheck
+//esto? // @ts-nocheck porque psuiste esto? eso evita que se rebisen erores e typescript
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -17,15 +17,15 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import {
-  IconArrowDown,
+  IconArrowDown, //esto?
   IconCheckOff,
   IconCheckSquare,
-  IconDocs,
-  IconPDF,
+  IconDocs, //esto?
+  IconPDF, //esto?
 } from "@/components/layout/icons/IconsBiblioteca";
 import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
-import { UnitsType } from "@/mk/utils/utils";
+import { UnitsType } from "@/mk/utils/utils"; //esto?
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
@@ -35,7 +35,7 @@ const RenderForm = ({
   open,
   onClose,
   item,
-  onSave,
+  onSave, //esto?
   extraData,
   execute,
   showToast,
@@ -698,6 +698,7 @@ const RenderForm = ({
               </div>
 
               {/* Sección de subir comprobante */}
+              <div className={styles["upload-section"]}>
               <div className={styles["upload-section"]}>
                 <p className={styles["section-title"]}>Subir comprobante</p>
                 <UploadFile

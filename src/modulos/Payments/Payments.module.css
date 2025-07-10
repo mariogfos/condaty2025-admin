@@ -15,8 +15,7 @@
   margin-bottom: 20px;
 }
 
-
-
+/* //esto? esopacios demas  */
 .categoriesButton {
   border: 1px solid var(--cWhiteV1) !important;
   color: var(--cWhiteV1) !important;
@@ -75,13 +74,13 @@
     align-items: flex-start;
   }
 
-  .graphButton, .categoriesButton {
+  .graphButton,
+  .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
     font-size: clamp(11px, 4vw, 13px);
   }
 }
-
 
 .statusBadge {
   font-weight: var(--bMedium);
