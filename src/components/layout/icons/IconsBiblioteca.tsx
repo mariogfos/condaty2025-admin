@@ -176,6 +176,20 @@ export const IconCheck = (props: IconType) => {
     </IconWrap>
   );
 };
+export const IconCheckV1 = (props: IconType) => {
+  return (
+    <IconWrap {...props}>
+      <path d="M18.8824 21H3V3H15.1765V4.8H4.58824V19.2H17.8235V12.6H19.4118V21H18.8824ZM5.96471 11.685L7.16051 10.3298L10.7486 14.3962L19.8015 4.13625L21 5.4885L10.7486 17.1068L5.96471 11.685Z" />
+    </IconWrap>
+  );
+};
+export const IconCheckV1Off = (props: IconType) => {
+  return (
+    <IconWrap {...props}>
+      <path d="M18.8824 21H3V3H15.1765V4.8H4.58824V19.2H17.8235V12.6H19.4118V21H18.8824Z" />
+    </IconWrap>
+  );
+};
 export const IconCheckSquare = (props: IconType) => {
   return (
     <IconWrap {...props}>
@@ -726,7 +740,7 @@ export const IconOptions = (props: IconType) => {
   return (
     <IconWrap {...props} reverse={true}>
       <path
-        d="M2 9H2.01V9.01H2V9ZM2 2H2.01V2.01H2V2ZM2 16H2.01V16.01H2V16Z"
+        d="M12 12H12.01V12.01H12V12ZM12 5H12.01V5.01H12V5ZM12 19H12.01V19.01H12V19Z"
         strokeWidth="3.75"
         strokeLinejoin="round"
       />

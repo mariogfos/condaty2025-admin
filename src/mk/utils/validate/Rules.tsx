@@ -117,7 +117,7 @@ export const validRule = (
         val2.length > 0 &&
         formState[_key] &&
         Object?.keys(formState[_key] ?? {}).filter((a: any) => {
-          console.log("map", formState[_key][a]);
+          // console.log("map", formState[_key][a]);
           if (formState[_key][a].file === "delete" && formState[_key][a].id > 0)
             return true;
         }).length >= val2.length &&
@@ -180,10 +180,12 @@ export const validRule = (
       !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
-    less: () =>
-      Number(value) > Number(param[0])
+    less: () => {
+      // console.log("rule less:", value, param);
+      return Number(value) > Number(param[0])
         ? `Debe ser menor o igual a ${param[0]}`
-        : "",
+        : "";
+    },
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(
         value
@@ -292,18 +294,21 @@ export const checkRules = ({
   data = {},
   execute,
 }: CheckRulesType): string | Record<string, string> | null => {
+  // console.error("check rule", rules, rules.length);
   if (!rules || rules.length === 0) return errors || "";
 
   for (const rule of rules) {
     if (!rule || (rule.indexOf("required") === -1 && !value)) continue;
-
+    // if (!rule) continue;
+    // console.log("rule:", value, rule, data, key);
     const error = validRule(value, rule, data, key, execute);
+    // console.log("erro result", error);
     if (error) {
-      return errors ? { ...errors, [key || "error"]: error } : error;
+      return errors ? { ...errors, [key ?? "error"]: error } : error;
     }
   }
 
-  return errors || "";
+  return errors ?? "";
 };
 
 export const getParamFields = (

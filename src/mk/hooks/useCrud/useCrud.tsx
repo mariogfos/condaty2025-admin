@@ -1261,7 +1261,6 @@ const useCrud = ({
                   extraData,
                   execute,
                   onEdit,
-
                   onAdd,
                   openList,
                   setOpenList,

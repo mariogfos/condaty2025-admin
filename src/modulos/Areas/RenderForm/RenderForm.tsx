@@ -48,10 +48,6 @@ const RenderForm = ({
 
   const validateLevel1 = () => {
     let errors: any = {};
-    // console.log("onsave level1", formState);
-    // if (!formState?.avatar && !formState.id) {
-    //   errors["avatar"] = "Debe seleccionar una imagen";
-    // }
 
     errors = checkRules({
       value: formState?.avatar,
@@ -96,21 +92,21 @@ const RenderForm = ({
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required", "max:5", "integer"],
+        rules: ["required", "integer", "less:20"],
         key: "max_reservations_per_day",
         errors,
       });
     }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
-      rules: ["required", "max:5", "integer"],
+      rules: ["required", "integer", "less:140"],
       key: "max_reservations_per_week",
       errors,
     });
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
-        rules: ["required", "max:10", "number", "integer"],
+        rules: ["required", "integer", "less:10000"],
         key: "price",
         errors,
       });
@@ -122,7 +118,7 @@ const RenderForm = ({
       });
       errors = checkRules({
         value: formState?.penalty_fee,
-        rules: ["required", "less:100", "integer"],
+        rules: ["required", "less:500", "integer"],
         key: "penalty_fee",
         errors,
       });
@@ -144,18 +140,6 @@ const RenderForm = ({
       key: "cancellation_policy",
       errors,
     });
-    // errors = checkRules({
-    //   value: formState?.approval_response_hours,
-    //   rules: ["required", "max:3"],
-    //   key: "approval_response_hours",
-    //   errors,
-    // });
-    // errors = checkRules({
-    //   value: formState?.penalty_or_debt_restriction,
-    //   rules: ["required"],
-    //   key: "penalty_or_debt_restriction",
-    //   errors,
-    // })
     setErrors(errors);
     return errors;
   };
@@ -163,10 +147,6 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      // if (!formState?.avatar && !formState.id) {
-      //   showToast("Debe seleccionar una imagen", "error");
-      //   return;
-      // }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;
@@ -174,10 +154,10 @@ const RenderForm = ({
         showToast("Seleccione el modo de reserva", "error");
         return;
       }
-      if (formState?.available_days.length <= 0) {
-        showToast("Seleccione los días y periodos disponibles", "error");
-        return;
-      }
+      // if (formState?.available_days.length <= 0) {
+      //   showToast("Seleccione los días y periodos disponibles", "error");
+      //   return;
+      // }
     }
     if (level === 3) {
       if (hasErrors(validateLevel3())) return;

@@ -306,7 +306,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     display: "flex",
                     flexDirection: "column",
                     gap: "12px",
-                    minWidth: "400px",
+                    minWidth: "300px",
                     position: "relative",
                     overflowWrap: "break-word",
                   }}
