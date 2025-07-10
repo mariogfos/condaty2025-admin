@@ -53,6 +53,7 @@ const Payments = () => {
     },
     filter: true,
     export: true,
+    
   };
 
   const getPeriodOptions = () => [
@@ -333,7 +334,6 @@ const Payments = () => {
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

@@ -142,6 +142,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   };
   const handleAnularClick = () => {
     if (item && onDel) {
+      // Asegura que se pase el item correcto para el flujo de eliminación
       onDel(item);
     }
   };
@@ -341,7 +342,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           className={styles.periodsTableCell}
                           data-label="Periodo"
                         >
-                          {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
+                          {
+                            MONTHS_ES[
+                              (periodo?.debt_dpto?.debt?.month ?? 1) - 1
+                            ]
+                          }{' '}
                           {periodo?.debt_dpto?.debt?.year}
                         </div>
                         <div
