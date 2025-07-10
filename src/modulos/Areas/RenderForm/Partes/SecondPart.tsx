@@ -257,7 +257,7 @@ const SecondPart = ({
     delete formState?.available_hours[day];
   };
   return (
-    <>
+    <div onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
       <div style={{ display: "flex", width: "100%", gap: 8 }}>
         <Radio
@@ -345,7 +345,9 @@ const SecondPart = ({
                 >
                   <p style={{ fontSize: 14 }}>{day}</p>
                   <IconOptions
-                    onClick={() => {
+                    color="var(--cWhiteV1)"
+                    onClick={(e: any) => {
+                      e.stopPropagation();
                       setOpenDrop(!openDrop);
                       setSelectedDays([day]);
                     }}
@@ -358,16 +360,17 @@ const SecondPart = ({
                         border: "1px solid var(--cWhiteV1)",
                         padding: 12,
                         borderRadius: 12,
-                        right: -118,
+                        bottom: 2,
+                        right: 6,
                         display: "flex",
                         flexDirection: "column",
                         color: "var(--cWhiteV1)",
                         gap: 4,
-                        zIndex: 99,
+                        zIndex: 1000,
                       }}
                     >
                       <p
-                        style={{ padding: 4 }}
+                        style={{ padding: 4, cursor: "pointer" }}
                         onClick={() => {
                           setOpenModal({ open: true, edit: true });
                           setOpenDrop(!openDrop);
@@ -377,7 +380,7 @@ const SecondPart = ({
                       </p>
 
                       <p
-                        style={{ padding: 4 }}
+                        style={{ padding: 4, cursor: "pointer" }}
                         onClick={() => {
                           onDel(day);
                           setOpenDrop(!openDrop);
@@ -396,7 +399,7 @@ const SecondPart = ({
                   }}
                 >
                   {formState?.booking_mode == "hour"
-                    ? "periodos de horas"
+                    ? "Periodos de horas"
                     : "Horario disponible"}
                 </p>
                 <div
@@ -421,7 +424,7 @@ const SecondPart = ({
                           backgroundColor: "transparent",
                         }}
                       >
-                        <p style={{ color: "var(--cWhite)", fontSize: 14 }}>
+                        <p style={{ color: "var(--cWhiteV1)", fontSize: 14 }}>
                           {period}
                         </p>
                       </div>
@@ -643,7 +646,7 @@ const SecondPart = ({
           )}
         </DataModal>
       )}
-    </>
+    </div>
   );
 };
 
