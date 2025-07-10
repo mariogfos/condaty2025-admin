@@ -325,7 +325,7 @@ const SecondPart = ({
               <div
                 key={index}
                 style={{
-                  minWidth: 216,
+                  maxWidth: 200,
                   border: "0.5px solid var(--cWhiteV1)",
                   borderRadius: 8,
                   padding: 12,

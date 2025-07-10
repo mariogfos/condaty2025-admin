@@ -48,10 +48,6 @@ const RenderForm = ({
 
   const validateLevel1 = () => {
     let errors: any = {};
-    // console.log("onsave level1", formState);
-    // if (!formState?.avatar && !formState.id) {
-    //   errors["avatar"] = "Debe seleccionar una imagen";
-    // }
 
     errors = checkRules({
       value: formState?.avatar,
@@ -144,18 +140,6 @@ const RenderForm = ({
       key: "cancellation_policy",
       errors,
     });
-    // errors = checkRules({
-    //   value: formState?.approval_response_hours,
-    //   rules: ["required", "max:3"],
-    //   key: "approval_response_hours",
-    //   errors,
-    // });
-    // errors = checkRules({
-    //   value: formState?.penalty_or_debt_restriction,
-    //   rules: ["required"],
-    //   key: "penalty_or_debt_restriction",
-    //   errors,
-    // })
     setErrors(errors);
     return errors;
   };
@@ -163,10 +147,6 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      // if (!formState?.avatar && !formState.id) {
-      //   showToast("Debe seleccionar una imagen", "error");
-      //   return;
-      // }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;
