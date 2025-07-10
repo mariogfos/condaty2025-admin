@@ -96,21 +96,21 @@ const RenderForm = ({
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required", "max:5", "integer"],
+        rules: ["required", "integer", "less:5"],
         key: "max_reservations_per_day",
         errors,
       });
     }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
-      rules: ["required", "max:5", "integer"],
+      rules: ["required", "integer", "less:5"],
       key: "max_reservations_per_week",
       errors,
     });
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
-        rules: ["required", "max:10", "number", "integer"],
+        rules: ["required", "integer", "less:10000"],
         key: "price",
         errors,
       });
@@ -122,7 +122,7 @@ const RenderForm = ({
       });
       errors = checkRules({
         value: formState?.penalty_fee,
-        rules: ["required", "less:100", "integer"],
+        rules: ["required", "less:500", "integer"],
         key: "penalty_fee",
         errors,
       });
@@ -174,10 +174,10 @@ const RenderForm = ({
         showToast("Seleccione el modo de reserva", "error");
         return;
       }
-      if (formState?.available_days.length <= 0) {
-        showToast("Seleccione los días y periodos disponibles", "error");
-        return;
-      }
+      // if (formState?.available_days.length <= 0) {
+      //   showToast("Seleccione los días y periodos disponibles", "error");
+      //   return;
+      // }
     }
     if (level === 3) {
       if (hasErrors(validateLevel3())) return;
