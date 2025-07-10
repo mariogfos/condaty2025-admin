@@ -96,14 +96,14 @@ const RenderForm = ({
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required", "integer", "less:5"],
+        rules: ["required", "integer", "less:20"],
         key: "max_reservations_per_day",
         errors,
       });
     }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
-      rules: ["required", "integer", "less:5"],
+      rules: ["required", "integer", "less:140"],
       key: "max_reservations_per_week",
       errors,
     });
