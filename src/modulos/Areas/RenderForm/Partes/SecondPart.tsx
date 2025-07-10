@@ -360,12 +360,13 @@ const SecondPart = ({
                         border: "1px solid var(--cWhiteV1)",
                         padding: 12,
                         borderRadius: 12,
-                        right: -118,
+                        bottom: 2,
+                        right: 6,
                         display: "flex",
                         flexDirection: "column",
                         color: "var(--cWhiteV1)",
                         gap: 4,
-                        zIndex: 99,
+                        zIndex: 1000,
                       }}
                     >
                       <p
