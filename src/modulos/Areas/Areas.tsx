@@ -35,6 +35,7 @@ const Areas = () => {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
+      reLoad: any;
       setOpenList: any;
       openList: boolean;
       extraData: any;
@@ -312,7 +313,7 @@ const Areas = () => {
         },
         filter: {
           options: () => [
-            { id: "ALL", name: "Todos"},
+            { id: "ALL", name: "Todos" },
             { id: "A", name: "Activa" },
             { id: "X", name: "Inactiva" },
           ],

@@ -8,21 +8,31 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconArrowUp,
+  IconCheck,
+  IconCheckSquare,
+  IconCheckV1,
+  IconCheckV1Off,
   IconExpand,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
+import Button from "@/mk/components/forms/Button/Button";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const status: any = {
   A: "Activa",
   X: "Inactiva",
 };
 
-const RenderView = ({ open, item, onClose }: any) => {
+const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [indexVisible, setIndexVisible] = useState(0);
   const [openDays, setOpenDays] = useState(false);
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
+
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const nextIndex = () => {
@@ -59,6 +69,19 @@ const RenderView = ({ open, item, onClose }: any) => {
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
+  const onSaveStatus = async (status: string) => {
+    const { data } = await execute("/areas/" + item.id, "PUT", {
+      status: status,
+    });
+    if (data?.success == true) {
+      onClose();
+      reLoad();
+      showToast(data.message, "success");
+    } else {
+      showToast(data.message, "error");
+    }
+  };
+
   return (
     <>
       <DataModal
@@ -261,6 +284,24 @@ const RenderView = ({ open, item, onClose }: any) => {
             </div>
           )}
         </Card>
+        <Button
+          variant="secondary"
+          onClick={() => onSaveStatus(item?.status == "A" ? "X" : "A")}
+          style={{
+            width: 150,
+            margin: "0 0 0 auto",
+            marginTop: 12,
+            gap: 10,
+            color: "var(--cWhite)",
+          }}
+        >
+          {item?.status == "A" ? (
+            <IconCheckV1 color="var(--cSuccess)" />
+          ) : (
+            <IconCheckV1Off />
+          )}
+          {item?.status == "A" ? "Desactivar" : "Activar"}
+        </Button>
       </DataModal>
       {openPolicy && (
         <DataModal
