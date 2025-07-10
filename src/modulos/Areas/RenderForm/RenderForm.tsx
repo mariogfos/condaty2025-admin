@@ -110,7 +110,7 @@ const RenderForm = ({
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
-        rules: ["required", "integer", "less:10000"],
+        rules: ["required", "number", "positive", "less:10000"],
         key: "price",
         errors,
       });
@@ -122,7 +122,7 @@ const RenderForm = ({
       });
       errors = checkRules({
         value: formState?.penalty_fee,
-        rules: ["required", "less:500", "integer"],
+        rules: ["required", "number", "positive", "less:500"],
         key: "penalty_fee",
         errors,
       });
