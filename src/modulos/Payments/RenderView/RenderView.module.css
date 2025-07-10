@@ -237,8 +237,8 @@
 
 .periodsTableHeader .periodsTableCell {
   color: var(--cWhite);
-  font-size: var(--sL); /* Tamaño 16px o equivalente */
-  font-weight: var(--bSemibold); /* Semibold */
+  font-size: var(--sL);
+  font-weight: var(--bSemibold); 
   background-color: var(--cBlackV2);
 }
 

@@ -21,21 +21,6 @@ interface DetailPaymentProps {
   onDel?: () => void;
 }
 
-const MONTHS_ES = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-];
-
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
@@ -130,21 +115,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     return statusMap[status] || status;
   };
 
-  // Busca la categoría en extraData
-  const getCategoryName = () => {
-    if (item?.category) return item.category.name;
-    if (!extraData || !extraData.categories)
-      return `Categoría ID: ${item?.category_id}`;
-    const category = extraData.categories.find(
-      (c: any) => c.id === item?.category_id
-    );
-    return category ? category.name : `Categoría ID: ${item?.category_id}`;
-  };
-
   // Busca la unidad en extraData
   const getDptoName = () => {
-    if (!extraData || !extraData.dptos)
-      return (item?.dptos || '-/-').replace(/,/g, '');
+    if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
 
     const dpto = extraData.dptos.find(
       (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
@@ -160,10 +133,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       return (item?.dptos || '-/-').replace(/,/g, '');
     }
   };
-
-  // Calcular monto total de los detalles
   const getTotalAmount = () => {
-    if (!item?.details || !item.details.length) return item?.amount || 0;
+    if (!item?.details?.length) return item?.amount || 0;
     return item.details.reduce(
       (sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0),
       0
@@ -171,7 +142,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   };
   const handleAnularClick = () => {
     if (item && onDel) {
-      // Verifica que item y onDel existan
       onDel(item);
     }
   };
@@ -188,12 +158,36 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     );
   }
 
+  let aprobadoLabel;
+  if (item.status === 'P') {
+    aprobadoLabel = 'Aprobado por';
+  } else if (item.status === 'X') {
+    aprobadoLabel = 'Anulado por';
+  } else if (item.status === 'R') {
+    aprobadoLabel = 'Rechazado por';
+  } else if (item.status === 'S') {
+    aprobadoLabel = 'Por confirmar por';
+  } else {
+    aprobadoLabel = 'Aprobado por';
+  }
+
+  let statusClass = '';
+  if (item.status === 'P') {
+    statusClass = styles.statusPaid;
+  } else if (item.status === 'S') {
+    statusClass = styles.statusPending;
+  } else if (item.status === 'R') {
+    statusClass = styles.statusRejected;
+  } else if (item.status === 'X') {
+    statusClass = styles.statusCanceled;
+  }
+
   return (
     <>
       <DataModal
         open={open}
         onClose={onClose}
-        title="Detalle del ingreso" // Mantén o quita el título del DataModal según tu preferencia global
+        title="Detalle del ingreso"
         buttonText=""
         buttonCancel=""
       >
@@ -201,9 +195,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           <div className={styles.headerActionContainer}>
             {/* REEMPLAZO DEL BOTÓN */}
             <button
-              type="button" // Es buena práctica especificar el type para botones fuera de forms
+              type="button"
               onClick={handleAnularClick}
-              className={styles.textButtonDanger} // Nueva clase para el text button rojo
+              className={styles.textButtonDanger}
             >
               Anular ingreso
             </button>
@@ -229,7 +223,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Propietario </span>
                 <span className={styles.infoValue}>
-                  {item.details && item.details[0]?.debt_dpto?.dpto?.homeowner
+                  {item.details?.[0]?.debt_dpto?.dpto?.homeowner
                     ? getFullName(item.details[0].debt_dpto.dpto.homeowner)
                     : '-/-'}
                 </span>
@@ -243,13 +237,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {/* Asumiendo que item.concept es un array o string formateado.
-                        La imagen muestra "-Expensas", "-Multas", "-Reservas".
-                        Si es un array, podrías hacer item.concept.map(c => <div>-{c}</div>)
-                        o si es un string formateado, usarlo directamente.
-                        Asegúrate que tus datos 'item.concept' o 'item.description'
-                        reflejen el formato de la imagen.
-                    */}
                   {item.concept?.map((c: string, i: number) => (
                     <div key={i}>-{c}</div>
                   )) ||
@@ -266,19 +253,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             <div className={styles.detailsColumn}>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Estado</span>
-                <span
-                  className={`${styles.infoValue} ${
-                    item.status === 'P'
-                      ? styles.statusPaid
-                      : item.status === 'S'
-                      ? styles.statusPending
-                      : item.status === 'R'
-                      ? styles.statusRejected
-                      : item.status === 'X'
-                      ? styles.statusCanceled
-                      : ''
-                  }`}
-                >
+                <span className={`${styles.infoValue} ${statusClass}`}>
                   {getStatus(item.status)}
                 </span>
               </div>
@@ -295,17 +270,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 </span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>
-                  {item.status === 'P'
-                    ? 'Aprobado por'
-                    : item.status === 'X'
-                    ? 'Anulado por'
-                    : item.status === 'R'
-                    ? 'Rechazado por'
-                    : item.status === 'S'
-                    ? 'Por confirmar por'
-                    : 'Aprobado por'}
-                </span>
+                <span className={styles.infoLabel}>{aprobadoLabel}</span>
                 <span className={styles.infoValue}>
                   {item.confirmed_by ? getFullName(item.confirmed_by) : '-/-'}
                 </span>

@@ -3,15 +3,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import useCrud from '@/mk/hooks/useCrud/useCrud';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
 import styles from './Payments.module.css';
-import { getDateStrMes, getDateDesdeHasta } from '@/mk/utils/date';
+import { getDateStrMes } from '@/mk/utils/date';
 import Button from '@/mk/components/forms/Button/Button';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { useRouter } from 'next/navigation';
-import WidgetGrafIngresos from '@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { formatBs } from '@/mk/utils/numbers';
@@ -25,8 +22,6 @@ interface FormStateFilter {
 
 const Payments = () => {
   const router = useRouter();
-  const [openGraph, setOpenGraph] = useState<boolean>(false);
-  const [dataGraph] = useState<any>({});
   const [formStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateRange, setCustomDateRange] = useState<{
@@ -309,31 +304,6 @@ const Payments = () => {
     return { filterBy: currentFilters };
   };
 
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = 'La fecha de inicio es obligatoria';
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = 'La fecha de fin es obligatoria';
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
-    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('paid_at', customDateFilterString);
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
   const extraButtons = [
     <Button
       key="categories-button"
@@ -344,73 +314,26 @@ const Payments = () => {
     </Button>,
   ];
 
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute,
-    params,
-    setParams,
-    extraData,
-    onFilter,
-    showToast,
-  } = useCrud({
+  const { userCan, List, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
     getFilter: handleGetFilter,
   });
-
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
-
   return (
     <div className={styles.container}>
-      {/* <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>
-        Administre, agregue y elimine todos los ingresos
-      </p> */}
-
       <List
         height={'calc(100vh - 330px)'}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
-
-      {openGraph && (
-        <DataModal
-          open={openGraph}
-          onClose={() => {
-            setOpenGraph(false);
-          }}
-          title=""
-          buttonText=""
-          buttonCancel=""
-        >
-          <>
-            <WidgetGrafIngresos
-              ingresos={dataGraph?.data?.ingresosHist || []}
-              chartTypes={['pie']}
-              h={360}
-              title={'Resumen de Ingresos por categorías'}
-              subtitle={
-                'Ingresos perteneciente en fecha ' +
-                getDateDesdeHasta(convertFilterDate())
-              }
-            />
-          </>
-        </DataModal>
-      )}
-
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-          setCustomDateRange({});
+
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

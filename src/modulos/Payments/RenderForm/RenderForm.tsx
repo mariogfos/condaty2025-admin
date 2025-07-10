@@ -781,7 +781,7 @@ const RenderForm = ({
               {/* Sección de subir comprobante */}
               <div
                 className={styles["upload-section"]}
-                // style={{ backgroundColor: "var(--cWhiteV2)" }}
+               
               >
                 <p className={styles["section-title"]}>Subir comprobante</p>
                 <UploadFile
