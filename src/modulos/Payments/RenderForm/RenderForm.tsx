@@ -1,4 +1,4 @@
-// @ts-nocheck
+//esto? // @ts-nocheck porque psuiste esto? eso evita que se rebisen erores e typescript
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -17,25 +17,25 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import {
-  IconArrowDown,
+  IconArrowDown, //esto?
   IconCheckOff,
   IconCheckSquare,
-  IconDocs,
-  IconPDF,
+  IconDocs, //esto?
+  IconPDF, //esto?
 } from "@/components/layout/icons/IconsBiblioteca";
 import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
-import { UnitsType } from "@/mk/utils/utils";
+import { UnitsType } from "@/mk/utils/utils"; //esto?
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderForm.module.css";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { formatBs } from '@/mk/utils/numbers';
+import { formatBs } from "@/mk/utils/numbers";
 
 const RenderForm = ({
   open,
   onClose,
   item,
-  onSave,
+  onSave, //esto?
   extraData,
   execute,
   showToast,
@@ -43,7 +43,6 @@ const RenderForm = ({
   user,
 }) => {
   const [_formState, _setFormState] = useState(() => {
-
     const today = new Date();
     const formattedDate = today.toISOString().split("T")[0];
 
@@ -166,12 +165,17 @@ const RenderForm = ({
           }
         }
       } catch (err) {
-
       } finally {
         setIsLoadingDeudas(false);
       }
     },
-    [execute, extraData?.dptos, _formState.subcategory_id, extraData?.client_config?.cat_expensas, extraData?.client_config?.cat_reservations]
+    [
+      execute,
+      extraData?.dptos,
+      _formState.subcategory_id,
+      extraData?.client_config?.cat_expensas,
+      extraData?.client_config?.cat_reservations,
+    ]
   );
 
   useEffect(() => {
@@ -194,10 +198,7 @@ const RenderForm = ({
     };
   }, [open]);
 
-
   useEffect(() => {
-
-
     const isExpensasSelected =
       _formState.subcategory_id === extraData?.client_config?.cat_expensas;
     const isReservationsSelected =
@@ -301,7 +302,6 @@ const RenderForm = ({
 
       let newSelectedPeriodos;
       if (exists) {
-
         newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
       } else {
         newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
@@ -344,9 +344,7 @@ const RenderForm = ({
           ext: fileExtension,
           file: droppedFile.name,
         }));
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
     [exten]
   );
@@ -390,7 +388,6 @@ const RenderForm = ({
     if (!_formState.voucher) {
       err.voucher = "Este campo es requerido";
     } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
-
       err.voucher = "Debe contener solo números (máximo 10 dígitos)";
     }
 
@@ -401,7 +398,6 @@ const RenderForm = ({
       if (!_formState.amount) {
         err.amount = "Este campo es requerido";
       }
-
     }
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
@@ -432,7 +428,6 @@ const RenderForm = ({
 
   const _onSavePago = useCallback(async () => {
     if (!validar()) {
-
       if (
         isExpensasWithoutDebt ||
         (_formState.subcategory_id === extraData?.client_config?.cat_expensas &&
@@ -472,16 +467,13 @@ const RenderForm = ({
         amount: selecPeriodoTotal,
       };
     } else {
-
       params = {
         ...params,
         amount: parseFloat(_formState.amount || "0"),
       };
     }
 
-
     try {
-
       const { data, error } = await execute("/payments", "POST", params);
 
       if (data?.success) {
@@ -504,7 +496,6 @@ const RenderForm = ({
       showToast("Error inesperado al guardar el pago", "error");
     }
   }, [
-
     _formState,
     extraData?.client_config?.cat_expensas,
     extraData?.dptos,
@@ -526,7 +517,9 @@ const RenderForm = ({
 
   let deudasContent;
   if (!_formState.dpto_id) {
-    deudasContent = <EmptyData message="Seleccione una unidad para ver deudas" h={200} />;
+    deudasContent = (
+      <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
+    );
   } else if (isLoadingDeudas) {
     deudasContent = <EmptyData message="Cargando deudas..." h={200} />;
   } else if (deudas?.length === 0) {
@@ -534,30 +527,35 @@ const RenderForm = ({
       <div className={styles["no-deudas-container"]}>
         <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
         <p className={styles["no-deudas-message"]}>
-          No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de {(_formState.subcategory_id === extraData?.client_config?.cat_expensas) ? 'expensas' : 'reservas'}.
+          No se encontraron deudas pendientes para esta unidad. No se puede
+          registrar un pago de{" "}
+          {_formState.subcategory_id === extraData?.client_config?.cat_expensas
+            ? "expensas"
+            : "reservas"}
+          .
         </p>
       </div>
     );
   } else {
     deudasContent = (
-      <div className={styles['deudas-container']}>
-        <div className={styles['deudas-title-row']}>
-          <p className={styles['deudas-title']}>
-            Seleccione las{' '}
+      <div className={styles["deudas-container"]}>
+        <div className={styles["deudas-title-row"]}>
+          <p className={styles["deudas-title"]}>
+            Seleccione las{" "}
             {_formState.subcategory_id ===
             extraData?.client_config?.cat_expensas
-              ? 'expensas'
-              : 'reservas'}{' '}
+              ? "expensas"
+              : "reservas"}{" "}
             a pagar:
           </p>
           <div
-            className={styles['select-all-container']}
+            className={styles["select-all-container"]}
             onClick={() => {
               if (selectedPeriodo.length === deudas.length) {
                 setSelectedPeriodo([]);
                 setSelectPeriodoTotal(0);
               } else {
-                const allPeriodos = deudas.map(periodo => ({
+                const allPeriodos = deudas.map((periodo) => ({
                   id: periodo.id,
                   amount:
                     Number(periodo.amount) + Number(periodo.penalty_amount),
@@ -573,73 +571,73 @@ const RenderForm = ({
               }
             }}
           >
-            <span className={styles['select-all-text']}>Pagar todo</span>
+            <span className={styles["select-all-text"]}>Pagar todo</span>
             {selectedPeriodo.length === deudas.length ? (
               <IconCheckSquare
-                className={`${styles['check-icon']} ${styles.selected}`}
+                className={`${styles["check-icon"]} ${styles.selected}`}
               />
             ) : (
-              <IconCheckOff className={styles['check-icon']} />
+              <IconCheckOff className={styles["check-icon"]} />
             )}
           </div>
         </div>
 
-        <div className={styles['deudas-table']}>
-          <div className={styles['deudas-header']}>
-            <span className={styles['header-item']}>Periodo</span>
-            <span className={styles['header-item']}>Monto</span>
-            <span className={styles['header-item']}>Multa</span>
-            <span className={styles['header-item']}>SubTotal</span>
-            <span className={styles['header-item']}>Seleccionar</span>
+        <div className={styles["deudas-table"]}>
+          <div className={styles["deudas-header"]}>
+            <span className={styles["header-item"]}>Periodo</span>
+            <span className={styles["header-item"]}>Monto</span>
+            <span className={styles["header-item"]}>Multa</span>
+            <span className={styles["header-item"]}>SubTotal</span>
+            <span className={styles["header-item"]}>Seleccionar</span>
           </div>
 
-          {deudas.map(periodo => (
+          {deudas.map((periodo) => (
             <div
               key={String(periodo.id)}
               onClick={() => handleSelectPeriodo(periodo)}
-              className={styles['deuda-item']}
+              className={styles["deuda-item"]}
             >
-              <div className={styles['deuda-row']}>
-                <div className={styles['deuda-cell']}>
+              <div className={styles["deuda-row"]}>
+                <div className={styles["deuda-cell"]}>
                   {periodo.debt &&
-                  typeof periodo.debt === 'object' &&
+                  typeof periodo.debt === "object" &&
                   periodo.debt.month &&
                   periodo.debt.year
-                    ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${
-                        periodo.debt.year ?? '?'
+                    ? `${MONTHS_S[periodo.debt.month] ?? "?"}/${
+                        periodo.debt.year ?? "?"
                       }`
-                    : 'N/A'}
+                    : "N/A"}
                 </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}{' '}
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " + Number(periodo.amount ?? 0).toFixed(2)}{" "}
                 </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " + Number(periodo.penalty_amount ?? 0).toFixed(2)}{" "}
                 </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' +
+                <div className={styles["deuda-cell"]}>
+                  {"Bs " +
                     (
                       Number(periodo.amount ?? 0) +
                       Number(periodo.penalty_amount ?? 0)
-                    ).toFixed(2)}{' '}
+                    ).toFixed(2)}{" "}
                 </div>
 
                 <div
-                  className={`${styles['deuda-cell']} ${styles['deuda-check']}`}
+                  className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
                 >
-                  {selectedPeriodo.some(item => item.id === periodo.id) ? (
+                  {selectedPeriodo.some((item) => item.id === periodo.id) ? (
                     <IconCheckSquare
-                      className={`${styles['check-icon']} ${styles.selected}`}
+                      className={`${styles["check-icon"]} ${styles.selected}`}
                     />
                   ) : (
-                    <IconCheckOff className={styles['check-icon']} />
+                    <IconCheckOff className={styles["check-icon"]} />
                   )}
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <div className={styles['total-container']}>
+        <div className={styles["total-container"]}>
           <p>Total a pagar: {formatBs(selecPeriodoTotal)}</p>
         </div>
       </div>
@@ -677,7 +675,11 @@ const RenderForm = ({
                 onChange={handleChangeInput}
                 error={_errors}
                 max={new Date().toISOString().split("T")[0]}
-                min={new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
+                min={
+                  new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0]
+                }
               />
             </div>
           </div>
@@ -698,7 +700,6 @@ const RenderForm = ({
           </div>
 
           <div className={styles.section}>
-
             <div className={styles["input-row"]}>
               <div className={styles["input-half"]}>
                 <Select
@@ -779,10 +780,7 @@ const RenderForm = ({
               </div>
 
               {/* Sección de subir comprobante */}
-              <div
-                className={styles["upload-section"]}
-               
-              >
+              <div className={styles["upload-section"]}>
                 <p className={styles["section-title"]}>Subir comprobante</p>
                 <UploadFile
                   name="file"
@@ -827,11 +825,11 @@ const RenderForm = ({
                   />
                 </div>
               </div>
-              {(_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-                _formState.subcategory_id === extraData?.client_config?.cat_reservations) && (
-                <div>
-                  {deudasContent}
-                </div>
+              {(_formState.subcategory_id ===
+                extraData?.client_config?.cat_expensas ||
+                _formState.subcategory_id ===
+                  extraData?.client_config?.cat_reservations) && (
+                <div>{deudasContent}</div>
               )}
               <div className={styles["obs-section"]}>
                 <div className={styles["obs-input"]}>
@@ -839,7 +837,6 @@ const RenderForm = ({
                     label="Descripción"
                     name="obs"
                     onChange={(e) => {
-
                       const value = e.target.value.substring(0, 250);
                       const newEvent = {
                         ...e,
