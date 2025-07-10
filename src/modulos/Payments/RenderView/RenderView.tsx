@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
@@ -341,11 +341,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           className={styles.periodsTableCell}
                           data-label="Periodo"
                         >
-                          {
-                            MONTHS_ES[
-                              (periodo?.debt_dpto?.debt?.month ?? 1) - 1
-                            ]
-                          }{' '}
+                          {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
                           {periodo?.debt_dpto?.debt?.year}
                         </div>
                         <div
