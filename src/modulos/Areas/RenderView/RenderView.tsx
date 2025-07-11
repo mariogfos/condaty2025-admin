@@ -302,12 +302,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             color: "var(--cWhite)",
           }}
         >
-          {item?.status == "A" ? (
-            <IconCheckV1 color="var(--cSuccess)" />
-          ) : (
-            <IconCheckV1Off />
-          )}
-          {item?.status == "A" ? "Desactivar" : "Activar"}
+          {item?.status == "A" ? "Desactivar área" : "Activar área"}
         </Button>
 
         {openConfirm && (
@@ -322,8 +317,8 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             }}
           >
             <p>
-              ¿Seguro que quieres desactivarla? Recuerda que, 
-              si realizas esta acción, los residentes no podrán reservar esta área social.
+              ¿Seguro que quieres desactivarla? Recuerda que, si realizas esta
+              acción, los residentes no podrán reservar esta área social.
             </p>
           </DataModal>
         )}
