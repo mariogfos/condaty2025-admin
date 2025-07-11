@@ -881,108 +881,148 @@ const useCrud = ({
   });
   Form.displayName = 'Form';
   const [filterSel, setFilterSel]: any = useState({});
-  const AddMenu = memo(
-    ({
-      filters,
-      onClick,
-      extraButtons,
-    }: {
-      filters?: any;
-      onClick?: (e?: any) => void;
-      extraButtons?: React.ReactNode[];
-    }) => {
-      if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
+const AddMenu = memo(
+  ({
+    filters,
+    onClick,
+    extraButtons,
+  }: {
+    filters?: any;
+    onClick?: (e?: any) => void;
+    extraButtons?: React.ReactNode[];
+  }) => {
+    if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
-      const onChange = (e: any) => {
-        const name = e.target.name.replace('_filter', '');
-        setFilterSel({ ...filterSel, [name]: e.target.value });
-        onFilter(name, e.target.value);
-      };
+    // ==================================================================
+    // == INICIO DE LA CORRECCIÓN: CÁLCULO DINÁMICO DEL ANCHO          ==
+    // ==================================================================
 
-      return (
-        <nav>
-          {mod.search && mod.search.hide ? null : (
-            <div>
-              {
-                <DataSearch
-                  // label="Buscar"
-                  value={searchs.searchBy || ''}
-                  name={mod.modulo + 'Search'}
-                  setSearch={onSearch || setSearchs}
-                  searchMsg={extraData?.searchMsg}
-                />
-              }
-            </div>
-          )}
-          {menuFilter || null}
-          {mod.filter && (
-            <>
-              {filters.map((f: any, i: number) => (
-                <Select
-                  key={f.key + i}
-                  label={f.label}
-                  name={f.key + '_filter'}
-                  onChange={onChange}
-                  options={f.options || []}
-                  value={filterSel[f.key] || ''}
-                  style={{ width: f.width }}
-                />
-              ))}
-            </>
-          )}
-          {mod.import && (
-            <div className={styles.iconsMenu} onClick={onImport}>
-              <IconImport />
-            </div>
-          )}
-          {mod.export && (
-            <div className={styles.iconsMenu} onClick={() => onExport('pdf')}>
-              <IconExport />
-            </div>
-          )}
-          {mod.listAndCard && (
-            <div className={styles.listAndCard}>
-              <div
-                className={!openCard ? styles.active : ''}
-                onClick={() => setOpenCard(false)}
-              >
-                <IconMenu />
-              </div>
-              <div
-                className={openCard ? styles.active : ''}
-                onClick={() => setOpenCard(true)}
-              >
-                <IconGrilla />
-              </div>
-            </div>
-          )}
+    // 1. Calcular el ancho máximo de los labels de los filtros
+    let maxLabelWidth = 0;
+    // Nos aseguramos de que el código solo se ejecute en el cliente (donde existe `document`)
+    if (filters && filters.length > 0 && typeof document !== 'undefined') {
+      // Creamos un elemento temporal e invisible para medir el texto
+      const span = document.createElement('span');
+      span.style.visibility = 'hidden';
+      span.style.position = 'absolute';
+      // Usamos los mismos estilos de fuente que el label para una medición precisa
+      span.style.fontSize = 'var(--sL, 16px)'; // Tamaño de fuente del label
+      span.style.fontWeight = 'var(--bMedium, 500)'; // Peso de fuente del label
+      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
+      span.style.whiteSpace = 'nowrap'; // Evita que el texto se divida en varias líneas
+      document.body.appendChild(span);
 
-          {/* Renderizar los botones extras */}
-          {extraButtons && extraButtons.length > 0 && (
-            <div className={styles.extraButtons}>
-              {extraButtons.map((button, index) => (
-                <div key={`extra-button-${index}`}>{button}</div>
-              ))}
-            </div>
-          )}
+      // Iteramos sobre cada filtro para encontrar el label más largo
+      filters.forEach((f: any) => {
+        span.innerText = f.label;
+        if (span.offsetWidth > maxLabelWidth) {
+          maxLabelWidth = span.offsetWidth;
+        }
+      });
 
-          {mod.hideActions?.add ? null : (
-            <div>
-              <Button
-                className={styles.addButton}
-                onClick={onClick || onAdd}
-                style={{ height: 48 }} // Asegurar la altura con estilo inline
-                variant="primary" // Asegurar que estamos usando el estilo correcto
-              >
-                {mod.titleAdd + ' ' + mod.singular}
-              </Button>
-            </div>
-          )}
-        </nav>
-      );
+      // Eliminamos el elemento temporal del DOM
+      document.body.removeChild(span);
     }
-  );
-  AddMenu.displayName = 'AddMenu';
+
+    // 2. Definir el ancho final del Select
+    // Sumamos un espacio extra para el padding, el icono de flecha y un pequeño margen de seguridad.
+    // Si no hay filtros, usamos un ancho por defecto de 180px.
+    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + 'px';
+
+    // ==================================================================
+    // == FIN DE LA CORRECCIÓN                                         ==
+    // ==================================================================
+
+    const onChange = (e: any) => {
+      const name = e.target.name.replace('_filter', '');
+      setFilterSel({ ...filterSel, [name]: e.target.value });
+      onFilter(name, e.target.value);
+    };
+
+    return (
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--spL)' }}>
+        {mod.search && mod.search.hide ? null : (
+          <div style={{ flex: 1, minWidth: 200, marginRight: 12 }}>
+            <DataSearch
+              value={searchs.searchBy || ''}
+              name={mod.modulo + 'Search'}
+              setSearch={onSearch || setSearchs}
+              searchMsg={extraData?.searchMsg}
+            />
+          </div>
+        )}
+        {menuFilter || null}
+        {mod.filter && (
+          <>
+            {filters.map((f: any, i: number) => (
+              <Select
+                key={f.key + i}
+                label={f.label}
+                name={f.key + '_filter'}
+                onChange={onChange}
+                options={f.options || []}
+                value={filterSel[f.key] || ''}
+                // 3. Aplicamos el ancho calculado a cada Select
+                style={{
+                  width: selectWidth,
+                  minWidth: selectWidth,
+                }}
+              />
+            ))}
+          </>
+        )}
+        {mod.import && (
+          <div className={styles.iconsMenu} onClick={onImport}>
+            <IconImport />
+          </div>
+        )}
+        {mod.export && (
+          <div className={styles.iconsMenu} onClick={() => onExport('pdf')}>
+            <IconExport />
+          </div>
+        )}
+        {mod.listAndCard && (
+          <div className={styles.listAndCard}>
+            <div
+              className={!openCard ? styles.active : ''}
+              onClick={() => setOpenCard(false)}
+            >
+              <IconMenu />
+            </div>
+            <div
+              className={openCard ? styles.active : ''}
+              onClick={() => setOpenCard(true)}
+            >
+              <IconGrilla />
+            </div>
+          </div>
+        )}
+
+        {extraButtons && extraButtons.length > 0 && (
+          <div className={styles.extraButtons}>
+            {extraButtons.map((button, index) => (
+              <div key={`extra-button-${index}`}>{button}</div>
+            ))}
+          </div>
+        )}
+
+        {mod.hideActions?.add ? null : (
+          <div>
+            <Button
+              className={styles.addButton}
+              onClick={onClick || onAdd}
+              style={{ height: 48 }}
+              variant="primary"
+            >
+              {mod.titleAdd + ' ' + mod.singular}
+            </Button>
+          </div>
+        )}
+      </nav>
+    );
+  }
+);
+AddMenu.displayName = 'AddMenu';
 
   const FormDelete = memo(
     ({ open, onClose, item, onConfirm, message = '' }: PropsDetail) => {

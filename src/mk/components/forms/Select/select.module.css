@@ -36,6 +36,12 @@
   } */
 }
 
+.select input[type='text'] {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+}
+
 .selectOptions {
   cursor: pointer;
   background-color: var(--cWhiteV2);
@@ -44,7 +50,7 @@
   position: fixed;
   top: 20px;
   width: calc(100% - var(--spS) * 2);
-  padding:  0;
+  padding: 0;
   color: var(--cWhiteV1);
 
   & > ul {
@@ -78,7 +84,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
 }
 
 /*
