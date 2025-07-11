@@ -158,9 +158,15 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   }, [tab]);
 
   const handleCancelMaintenance = async (id: any) => {
-    const { data } = await execute("/reservations/" + id, "DELETE", {
-      is_canceled: "Y",
-    });
+    const { data } = await execute(
+      "/reservations/" + id,
+      "DELETE",
+      {
+        is_canceled: "Y",
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
       getAreasM();
       showToast("Mantenimiento cancelado con éxito", "success");
@@ -289,7 +295,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             subtitle="Las siguientes áreas están en mantenimiento."
           />
           {loading ? (
-            <SkeletonAdapterComponent type="TableSkeleton" />
+            <SkeletonAdapterComponent type="MaintenanceSkeleton" />
           ) : (
             <div
               style={{
