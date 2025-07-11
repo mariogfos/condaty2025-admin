@@ -69,10 +69,10 @@ const RenderForm = ({
   });
   const { store } = useAuth();
 
-  const isExpensasWithoutDebt =
-    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-    extraData?.client_config?.cat_reservations;
-  deudas?.length === 0 && !isLoadingDeudas && _formState.dpto_id;
+const isExpensasWithoutDebt =
+  _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+  deudas?.length === 0 &&
+  !isLoadingDeudas;
 
   const lDptos = useMemo(
     () =>
@@ -352,89 +352,89 @@ const RenderForm = ({
     e.stopPropagation();
   }, []);
 
-const validar = useCallback(() => {
-  // 1. Inicia un objeto de errores vacío.
-  const err = {};
+  const validar = useCallback(() => {
+    // 1. Inicia un objeto de errores vacío.
+    const err = {};
 
-  // 2. Realiza todas las validaciones y acumula los errores.
+    // 2. Realiza todas las validaciones y acumula los errores.
 
-  // Validación general: No se puede pagar si no hay deuda.
-  if (isExpensasWithoutDebt) {
-    err.general =
-      'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
-  }
-
-  // Validación de período seleccionado (para expensas y reservas)
-  if (
-    (_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-      _formState.subcategory_id ===
-        extraData?.client_config?.cat_reservations) &&
-    deudas?.length > 0 &&
-    selectedPeriodo.length === 0
-  ) {
-    // Acumula el error sin detener la función.
-    err.selectedPeriodo = 'Debe seleccionar al menos una deuda para pagar';
-  }
-
-  // Validaciones de campos individuales
-  if (!_formState.dpto_id) {
-    err.dpto_id = 'Este campo es requerido';
-  }
-  if (!_formState.category_id) {
-    err.category_id = 'Este campo es requerido';
-  }
-  if (!_formState.subcategory_id) {
-    err.subcategory_id = 'Este campo es requerido';
-  }
-  if (!_formState.type) {
-    err.type = 'Este campo es requerido';
-  }
-  if (!_formState.voucher) {
-    err.voucher = 'Este campo es requerido';
-  } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
-    err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
-  }
-
-  // Validación del monto (solo si no es una expensa con deudas)
-  if (
-    _formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
-    deudas?.length === 0
-  ) {
-    if (!_formState.amount) {
-      err.amount = 'Este campo es requerido';
+    // Validación general: No se puede pagar si no hay deuda.
+    if (isExpensasWithoutDebt) {
+      err.general =
+        'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
     }
-  }
 
-  if (!_formState.file) {
-    err.file = 'El comprobante es requerido';
-  }
-
-  if (!_formState.paid_at) {
-    err.paid_at = 'Este campo es requerido';
-  } else {
-    const selectedDate = new Date(_formState.paid_at + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (selectedDate > today) {
-      err.paid_at = 'No se permiten fechas futuras';
+    // Validación de período seleccionado (para expensas y reservas)
+    if (
+      (_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+        _formState.subcategory_id ===
+          extraData?.client_config?.cat_reservations) &&
+      deudas?.length > 0 &&
+      selectedPeriodo.length === 0
+    ) {
+      // Acumula el error sin detener la función.
+      err.selectedPeriodo = 'Debe seleccionar al menos una deuda para pagar';
     }
-  }
 
-  // 3. Al final, actualiza el estado con TODOS los errores encontrados.
-  set_Errors(err);
+    // Validaciones de campos individuales
+    if (!_formState.dpto_id) {
+      err.dpto_id = 'Este campo es requerido';
+    }
+    if (!_formState.category_id) {
+      err.category_id = 'Este campo es requerido';
+    }
+    if (!_formState.subcategory_id) {
+      err.subcategory_id = 'Este campo es requerido';
+    }
+    if (!_formState.type) {
+      err.type = 'Este campo es requerido';
+    }
+    if (!_formState.voucher) {
+      err.voucher = 'Este campo es requerido';
+    } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
+      err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
+    }
 
-  // 4. Retorna true solo si el objeto de errores está vacío.
-  return Object.keys(err).length === 0;
-}, [
-  _formState,
-  deudas,
-  isExpensasWithoutDebt,
-  selectedPeriodo,
-  extraData?.client_config?.cat_expensas,
-  extraData?.client_config?.cat_reservations,
-  set_Errors,
-]);
+    // Validación del monto (solo si no es una expensa con deudas)
+    if (
+      _formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
+      deudas?.length === 0
+    ) {
+      if (!_formState.amount) {
+        err.amount = 'Este campo es requerido';
+      }
+    }
+
+    if (!_formState.file) {
+      err.file = 'El comprobante es requerido';
+    }
+
+    if (!_formState.paid_at) {
+      err.paid_at = 'Este campo es requerido';
+    } else {
+      const selectedDate = new Date(_formState.paid_at + 'T00:00:00');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate > today) {
+        err.paid_at = 'No se permiten fechas futuras';
+      }
+    }
+
+    // 3. Al final, actualiza el estado con TODOS los errores encontrados.
+    set_Errors(err);
+
+    // 4. Retorna true solo si el objeto de errores está vacío.
+    return Object.keys(err).length === 0;
+  }, [
+    _formState,
+    deudas,
+    isExpensasWithoutDebt,
+    selectedPeriodo,
+    extraData?.client_config?.cat_expensas,
+    extraData?.client_config?.cat_reservations,
+    set_Errors,
+  ]);
 
   const _onSavePago = useCallback(async () => {
     if (!validar()) {
