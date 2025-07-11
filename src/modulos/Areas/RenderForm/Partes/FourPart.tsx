@@ -50,7 +50,11 @@ const FourPart = ({ item }: { item: any }) => {
     // const backendImages = _backendImages.filter((img) => img.id != item?.avatar?.[key]?.id)
 
     const data = [...backendImages, ...localAvatars];
-    const r = Array.from(new Map(data.map((item) => [item.id, item])).values());
+    // const r=data.map((e,index)=>{{ id:e.id,type:e.type,src:e.file  }});
+
+    const r = Array.from(
+      new Map(data.map((item, index) => [index, item])).values()
+    );
 
     // console.log(
     //   "backend",
