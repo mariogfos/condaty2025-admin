@@ -563,7 +563,7 @@ export const getDateTimeAgo = (
 
 export const formatToDayDDMMYYYYHHMM = (
   dateStr: string | null = '',
-  utc: boolean = false,
+  utc: boolean = true,
 ): string => {
   if (!dateStr || dateStr === '') return '';
 
