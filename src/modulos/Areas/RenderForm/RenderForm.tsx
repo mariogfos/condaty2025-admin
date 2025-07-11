@@ -154,10 +154,10 @@ const RenderForm = ({
         showToast("Seleccione el modo de reserva", "error");
         return;
       }
-      // if (formState?.available_days.length <= 0) {
-      //   showToast("Seleccione los días y periodos disponibles", "error");
-      //   return;
-      // }
+      if (formState?.available_days.length <= 0) {
+        showToast("Seleccione los días y periodos disponibles", "error");
+        return;
+      }
     }
     if (level === 3) {
       if (hasErrors(validateLevel3())) return;
