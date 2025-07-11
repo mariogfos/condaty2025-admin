@@ -241,6 +241,8 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
                     padding: 12,
                     borderRadius: 8,
                     border: "0.5px solid var(--cWhiteV1)",
+                    maxWidth: 210,
+                    minWidth: 210,
                   }}
                 >
                   <p

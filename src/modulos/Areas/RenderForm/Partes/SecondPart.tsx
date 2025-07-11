@@ -258,7 +258,6 @@ const SecondPart = ({
     setSelectedDays(selectedDays.filter((d: string) => d !== day));
   };
 
-  console.log(selectedDays);
   return (
     <div onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
