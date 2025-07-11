@@ -35,17 +35,17 @@ const Payments = () => {
   }>({});
 
   const mod = {
-    modulo: "payments",
-    singular: "Ingreso",
-    plural: "Ingresos",
-    permiso: "",
+    modulo: 'payments',
+    singular: 'Ingreso',
+    plural: 'Ingresos',
+    permiso: '',
     extraData: true,
     renderForm: RenderForm,
     renderView: (props: any) => (
       <RenderView {...props} payment_id={props?.item?.id} />
     ),
     renderDel: RenderAnularModal,
-    loadView: { fullType: "DET" },
+    loadView: { fullType: 'DET' },
     hideActions: {
       view: false,
       add: false,
@@ -54,27 +54,29 @@ const Payments = () => {
     },
     filter: true,
     export: true,
-
+    //Properties for new title in useCrud
+    titleAdd:"Agregar",
   };
 
   const getPeriodOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "ld", name: "Ayer" },
-    { id: "w", name: "Esta semana" },
-    { id: "lw", name: "Semana pasada" },
-    { id: "m", name: "Este mes" },
-    { id: "lm", name: "Mes anterior" },
-    { id: "y", name: "Este año" },
-    { id: "ly", name: "Año anterior" },
-    { id: "custom", name: "Personalizado" },
+    { id: 'ALL', name: 'Todos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana pasada' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' },
   ];
 
   const getPaymentTypeOptions = () => [
     { id: "ALL", name: "Todos" },
-    { id: "T", name: "Transferencia" },
+    { id: "T", name: "Transferencia bancaria" },
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
-    { id: "Q", name: "QR" },
+    { id: "Q", name: "Pago QR" },
     { id: "O", name: "Pago en oficina" },
   ];
 
@@ -258,7 +260,7 @@ const Payments = () => {
           },
         },
         filter: {
-          label: "Estado del ingreso",
+          label: "Estado",
 
           options: getStatusOptions,
         },
