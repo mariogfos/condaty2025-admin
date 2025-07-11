@@ -136,30 +136,16 @@ const WidgetGrafIngresos = ({
 
   return (
     <div className={`${styles.container} ${className || ''}`}>
-      <p className={styles.subtitle}>
-        {subtitle ||
-          ' Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías'}
-      </p>
-      <p className={styles.title}>{title || 'Resumen de Ingresos'}</p>
       <p
-        style={{
-          color: 'var(--darkv1)',
-          fontWeight: 'var(--bSemibold)',
-          fontSize: 'var(--sM)',
-        }}
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
       >
         {subtitle ||
           ' Aquí veras un resumen de todos los ingresos distribuidos en las diferentes categorías'}
       </p>
-      <p
-        style={{
-          color: 'var(--darkv1)',
-          fontWeight: 'var(--bBold)',
-          fontSize: 'var(--sXl)',
-        }}
-      >
-        {title}
+      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
+        {title || 'Resumen de Ingresos'}
       </p>
+
       <GraphBase
         data={{
           labels: monthLabels, // Se usan los meses correctos
