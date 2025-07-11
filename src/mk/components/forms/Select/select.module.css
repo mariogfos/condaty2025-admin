@@ -38,8 +38,8 @@
 
 .select input[type='text'] {
   white-space: nowrap;
-  overflow: visible;
-  text-overflow: unset;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .selectOptions {
