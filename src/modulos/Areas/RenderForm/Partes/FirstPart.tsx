@@ -32,7 +32,6 @@ const FirstPart = ({
   return (
     <>
       {/* <p className={styles.title}>Fotografía del área social</p> */}
-      {JSON.stringify(formState.avatar)}
       <UploadFileMultiple
         name="avatar"
         value={formState?.avatar}
