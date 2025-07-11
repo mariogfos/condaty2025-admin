@@ -150,6 +150,7 @@ const BalanceGeneral: React.FC = () => {
       base64String = encodeURIComponent(base64String);
       fileObj = { ext: 'png', file: base64String };
     }
+    setExportando(false);
     reLoadFinanzas({
       ...formStateFilter,
       exportar: true,
@@ -428,7 +429,6 @@ const BalanceGeneral: React.FC = () => {
     return legend;
   };
 
-
   let ingresosContent;
   if (loadingLocal || !loaded) {
     ingresosContent = <LoadingScreen />;
@@ -456,10 +456,14 @@ const BalanceGeneral: React.FC = () => {
         <div
           style={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             marginBottom: '16px',
           }}
         >
+          <h2 className={styles.chartSectionTitle} style={{ margin: 0 }}>
+            {tituloBalance}
+          </h2>
           <Button
             onClick={exportar}
             variant="secondary"
@@ -478,7 +482,6 @@ const BalanceGeneral: React.FC = () => {
             Descargar PDF
           </Button>
         </div>
-        <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
           <div ref={chartRefIngresos} className={styles.chartContainer}>
             <WidgetGrafIngresos
@@ -499,6 +502,7 @@ const BalanceGeneral: React.FC = () => {
               )}`}
               subtitle={'Total de ingresos'}
               periodo={formStateFilter?.filter_date}
+              exportando={exportando}
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
@@ -512,7 +516,11 @@ const BalanceGeneral: React.FC = () => {
                     ></div>
                     <span>
                       <span>{cat.name}:</span>
-                      <span className={styles.legendAmount}>
+                      <span
+                        className={`${styles.legendAmount} ${
+                          exportando ? styles.exportando : ''
+                        }`}
+                      >
                         {' '}
                         Bs {formatNumber(cat.total)}
                       </span>
@@ -569,10 +577,14 @@ const BalanceGeneral: React.FC = () => {
         <div
           style={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             marginBottom: '16px',
           }}
         >
+          <h2 className={styles.chartSectionTitle} style={{ margin: 0 }}>
+            {tituloBalance}
+          </h2>
           <Button
             onClick={exportar}
             variant="secondary"
@@ -591,7 +603,6 @@ const BalanceGeneral: React.FC = () => {
             Descargar PDF
           </Button>
         </div>
-        <h2 className={styles.chartSectionTitle}>{tituloBalance}</h2>
         <div className={styles.chartContainer}>
           <div ref={chartRefEgresos} className={styles.chartContainer}>
             <WidgetGrafEgresos
@@ -612,6 +623,7 @@ const BalanceGeneral: React.FC = () => {
               )}`}
               subtitle={'Total de egresos'}
               periodo={formStateFilter?.filter_date}
+              exportando={exportando}
             />
             <div className={styles.legendAndExportWrapper}>
               <div className={styles.legendContainer}>
@@ -625,7 +637,11 @@ const BalanceGeneral: React.FC = () => {
                     ></div>
                     <span>
                       <span>{cat.name}:</span>
-                      <span className={styles.legendAmount}>
+                      <span
+                        className={`${styles.legendAmount} ${
+                          exportando ? styles.exportando : ''
+                        }`}
+                      >
                         {' '}
                         Bs {formatNumber(cat.total)}
                       </span>
@@ -814,10 +830,17 @@ const BalanceGeneral: React.FC = () => {
                     <div
                       style={{
                         display: 'flex',
-                        justifyContent: 'flex-end',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
                         marginBottom: '16px',
                       }}
                     >
+                      <h2
+                        className={styles.chartSectionTitle}
+                        style={{ margin: 0 }}
+                      >
+                        {tituloBalance}
+                      </h2>
                       <Button
                         onClick={exportar}
                         variant="secondary"
@@ -836,9 +859,6 @@ const BalanceGeneral: React.FC = () => {
                         Descargar PDF
                       </Button>
                     </div>
-                    <h2 className={styles.chartSectionTitle}>
-                      {tituloBalance}
-                    </h2>
                     <div className={styles.chartContainer}>
                       <div
                         ref={chartRefBalance}
@@ -855,6 +875,7 @@ const BalanceGeneral: React.FC = () => {
                           )}`}
                           periodo={formStateFilter?.filter_date}
                           className={styles.lightChart}
+                          exportando={exportando}
                         />
                         <div className={styles.legendAndExportWrapper}>
                           <div className={styles.legendContainer}>
@@ -866,7 +887,11 @@ const BalanceGeneral: React.FC = () => {
 
                               <span>
                                 Saldo Inicial:{' '}
-                                <span className={styles.legendAmount}>
+                                <span
+                                  className={`${styles.legendAmount} ${
+                                    exportando ? styles.exportando : ''
+                                  }`}
+                                >
                                   Bs{' '}
                                   {formatNumber(calculatedTotals.saldoInicial)}
                                 </span>
@@ -882,7 +907,11 @@ const BalanceGeneral: React.FC = () => {
                               <span>
                                 <span>Total de ingresos:</span>
 
-                                <span className={styles.legendAmount}>
+                                <span
+                                  className={`${styles.legendAmount} ${
+                                    exportando ? styles.exportando : ''
+                                  }`}
+                                >
                                   {' '}
                                   Bs{' '}
                                   {formatNumber(calculatedTotals.totalIngresos)}
@@ -898,7 +927,11 @@ const BalanceGeneral: React.FC = () => {
 
                               <span>
                                 Total de egresos:{' '}
-                                <span className={styles.legendAmount}>
+                                <span
+                                  className={`${styles.legendAmount} ${
+                                    exportando ? styles.exportando : ''
+                                  }`}
+                                >
                                   Bs{' '}
                                   {formatNumber(calculatedTotals.totalEgresos)}
                                 </span>
@@ -913,7 +946,11 @@ const BalanceGeneral: React.FC = () => {
 
                               <span>
                                 Total de saldo acumulado:{' '}
-                                <span className={styles.legendAmount}>
+                                <span
+                                  className={`${styles.legendAmount} ${
+                                    exportando ? styles.exportando : ''
+                                  }`}
+                                >
                                   Bs {formatNumber(calculatedTotals.saldoFinal)}
                                 </span>
                               </span>
