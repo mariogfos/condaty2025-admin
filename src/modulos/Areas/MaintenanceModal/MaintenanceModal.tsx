@@ -133,12 +133,18 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const getAreasM = async () => {
     setLoading(true);
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      filterBy: "status:M",
-      perPage: -1,
-      page: 1,
-    });
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        filterBy: "status:M",
+        perPage: -1,
+        page: 1,
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
       setDataM(data?.data);
     }

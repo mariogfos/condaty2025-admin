@@ -36,7 +36,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       const { data } = await execute(
         "/payments",
         "GET",
+        "/payments",
+        "GET",
         {
+          fullType: "DET",
           fullType: "DET",
           searchBy: payment_id,
           page: 1,
@@ -59,6 +62,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === "checkbox") {
       value = (e.target as HTMLInputElement).checked ? "P" : "N";
+    if ((e.target as HTMLInputElement).type === "checkbox") {
+      value = (e.target as HTMLInputElement).checked ? "P" : "N";
     }
     setFormState({ ...formState, [e.target.name]: value });
   };
@@ -67,25 +72,32 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
     setErrors({});
     if (!rechazado) {
       if (!formState.confirm_obs || formState.confirm_obs.trim() === "") {
+      if (!formState.confirm_obs || formState.confirm_obs.trim() === "") {
         setErrors({
+          confirm_obs: "La observación es obligatoria para rechazar un pago",
           confirm_obs: "La observación es obligatoria para rechazar un pago",
         });
         return;
       }
     }
     const { data: payment, error } = await execute("/payment-confirm", "POST", {
+    const { data: payment, error } = await execute("/payment-confirm", "POST", {
       id: item?.id,
+      confirm: rechazado ? "P" : "R",
       confirm: rechazado ? "P" : "R",
       confirm_obs: formState.confirm_obs,
     });
 
     if (payment?.success === true) {
       showToast(payment?.message, "success");
+      showToast(payment?.message, "success");
       if (reLoad) reLoad();
+      setFormState({ confirm_obs: "" });
       setFormState({ confirm_obs: "" });
       onClose();
       setOnRechazar(false);
     } else {
+      showToast(error?.data?.message || error?.message, "error");
       showToast(error?.data?.message || error?.message, "error");
     }
   };
@@ -98,6 +110,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       C: "Cheque",
       Q: "QR",
       O: "Pago en oficina",
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "QR",
+      O: "Pago en oficina",
     };
     return typeMap[type] || type;
   };
@@ -105,6 +122,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
   // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
+      P: "Cobrado",
+      S: "Por confirmar",
+      R: "Rechazado",
+      E: "Por subir comprobante",
+      A: "Por pagar",
+      M: "Moroso",
+      X: "Anulado",
       P: "Cobrado",
       S: "Por confirmar",
       R: "Rechazado",
@@ -126,11 +150,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
 
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
+      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, "") : "";
       const descSinComa = dpto.description
+        ? dpto.description.replace(/,/g, "")
+        : "";
         ? dpto.description.replace(/,/g, "")
         : "";
       return `${nroSinComa} - ${descSinComa}`;
     } else {
+      return (item?.dptos || "-/-").replace(/,/g, "");
       return (item?.dptos || "-/-").replace(/,/g, "");
     }
   };
@@ -194,6 +222,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
         buttonCancel=""
       >
         {item && onDel && item.status === "P" && (
+        {item && onDel && item.status === "P" && (
           <div className={styles.headerActionContainer}>
             {/* REEMPLAZO DEL BOTÓN */}
             <button
@@ -244,6 +273,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   )) ||
                     item?.category?.padre?.name ||
                     "-/-"}
+                    "-/-"}
                 </span>
               </div>
               <div className={styles.infoBlock}>
@@ -287,6 +317,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                 <span className={styles.infoLabel}>Número de comprobante</span>
                 <span className={styles.infoValue}>
                   {item.voucher || "-/-"}
+                  {item.voucher || "-/-"}
                 </span>
               </div>
             </div>
@@ -303,12 +334,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                   window.open(
                     getUrlImages(
                       "/PAYMENT-" +
+                      "/PAYMENT-" +
                         item.id +
+                        "." +
                         "." +
                         item.ext +
                         "?d=" +
+                        "?d=" +
                         item.updated_at
                     ),
+                    "_blank"
                     "_blank"
                   );
                 }}
@@ -351,6 +386,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
                           data-label="Concepto"
                         >
                           {item?.category?.padre?.name || "-/-"}
+                          {item?.category?.padre?.name || "-/-"}
                         </div>
                         <div
                           className={styles.periodsTableCell}
@@ -378,6 +414,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
                   Total pagado:{" "}
+                  Total pagado:{" "}
                   <span className={styles.totalAmountValue}>
                     {formatBs(getTotalAmount())}
                   </span>
@@ -386,6 +423,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
             </div>
           )}
 
+          {item?.status === "S" && (
           {item?.status === "S" && (
             <div className={styles.actionButtonsContainer}>
               <Button
@@ -424,10 +462,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
           name="confirm_obs"
           onChange={handleChangeInput}
           value={formState?.confirm_obs || ""}
+          value={formState?.confirm_obs || ""}
         />
       </DataModal>
     </>
   );
 });
+RenderView.displayName = "RenderViewPayment";
 
 export default RenderView;
