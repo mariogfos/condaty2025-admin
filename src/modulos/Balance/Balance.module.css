@@ -113,6 +113,8 @@
   width: 100%;
   background-color: var(--darkv1);
   border-radius: 0.75rem;
+  padding: 0.5rem;
+
   display: flex;
   flex-direction: column;
 }
