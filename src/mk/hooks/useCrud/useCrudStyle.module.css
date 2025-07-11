@@ -154,4 +154,5 @@
   border-radius: var(--bRadiusS);
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
