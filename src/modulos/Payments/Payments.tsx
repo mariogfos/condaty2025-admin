@@ -258,7 +258,7 @@ const Payments = () => {
           },
         },
         filter: {
-          label: "Estado del ingreso",
+          label: "Estado",
 
           options: getStatusOptions,
         },
