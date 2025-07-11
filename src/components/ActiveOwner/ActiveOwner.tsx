@@ -121,7 +121,7 @@ const ActiveOwner = ({
         <div className={styles.activeContainer}>
           <div>
             Selecciona la unidad para el residente
-            <span> {getFullName(data)}</span>
+            <span>{getFullName(data)}</span>
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
             El residente indicó que está en la unidad:{" "}

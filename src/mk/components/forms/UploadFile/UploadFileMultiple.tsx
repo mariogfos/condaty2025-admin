@@ -172,7 +172,6 @@ const UploadFileMultiple = ({
               position: "relative",
             }}
           >
-            {/* {JSON.stringify(it)}-{"img-" + i + it.id} */}
             <UploadFileM
               {...props}
               className="v2"
