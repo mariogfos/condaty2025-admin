@@ -305,7 +305,7 @@ const SecondPart = ({
           <p className={styles.title}>Duración de reserva</p>
           <p className={styles.subtitle}>
             Selecciona cuántas horas durará cada reserva. Los horarios de
-            disponibilidad se verán afectados por el periodo de duración
+            disponibilidad se verán afectados por el periodo de duración.
           </p>
           <WeekdayToggleGroup
             days={["1h", "2h", "3h", "4h"]}
@@ -328,8 +328,8 @@ const SecondPart = ({
           </p>
           <p className={styles.subtitle}>
             {formState?.booking_mode == "day"
-              ? "Selecciona los días en que esta área estará disponible para reservar"
-              : "Selecciona los días y crea los periodos de horas en que esta área estará disponible para reservar"}
+              ? "Selecciona los días en que esta área estará disponible para reservar."
+              : "Selecciona los días y crea los periodos de horas en que esta área estará disponible para reservar."}
           </p>
           <WeekdayToggleGroup
             days={days}
@@ -467,7 +467,7 @@ const SecondPart = ({
           <p className={styles.title}>Reservaciones por día</p>
           <p className={styles.subtitle}>
             Define la cantidad máxima de reservas que un residente puede
-            realizar en un solo día
+            realizar en un solo día.
           </p>
 
           <Input
@@ -485,7 +485,7 @@ const SecondPart = ({
       <p className={styles.title}>Reservaciones por semana</p>
       <p className={styles.subtitle}>
         Define la cantidad máxima de reservas que un residente puede realizar en
-        una semana
+        una semana.
       </p>
       <Input
         type="number"
@@ -504,7 +504,7 @@ const SecondPart = ({
           </p>
           <p className={styles.subtitle}>
             Si tiene un costo, activa el botón e ingresa el costo total del
-            periodo
+            periodo.
           </p>
         </div>
         <Switch
@@ -535,7 +535,7 @@ const SecondPart = ({
           <p className={styles.title}>Tiempo de cancelación sin multa</p>
           <p className={styles.subtitle}>
             Define el tiempo permitido que un residente puede cancelar la
-            reserva sin cobrarle multa
+            reserva sin cobrarle multa.
           </p>
           <Input
             type="number"
@@ -551,7 +551,7 @@ const SecondPart = ({
           <p className={styles.title}>Porcentaje de multa por cancelación</p>
           <p className={styles.subtitle}>
             Indica el porcentaje de multa que un residente tendrá si cancela la
-            reserva fuera del tiempo permitido
+            reserva fuera del tiempo permitido.
           </p>
           <Input
             type="number"
