@@ -55,7 +55,7 @@ const Payments = () => {
     filter: true,
     export: true,
     //Properties for new title in useCrud
-    titleAdd:"Agregar",
+    //titleAdd:"Agregar",
   };
 
   const getPeriodOptions = () => [

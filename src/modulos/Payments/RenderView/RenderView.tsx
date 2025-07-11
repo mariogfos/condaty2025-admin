@@ -450,4 +450,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   );
 });
 
+RenderView.displayName = "RenderViewPayment";
+
 export default RenderView;
