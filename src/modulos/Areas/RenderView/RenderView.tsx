@@ -30,6 +30,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [openDays, setOpenDays] = useState(false);
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
@@ -70,15 +71,17 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
     );
   };
   const onSaveStatus = async (status: string) => {
-    const { data } = await execute("/areas/" + item.id, "PUT", {
+    const { data } = await execute("/status-area", "POST", {
       status: status,
+      area_id: item?.id,
     });
-    if (data?.success == true) {
+    if (data?.status == true) {
       onClose();
       reLoad();
-      showToast(data.message, "success");
+      showToast(data.msg, "success");
+      setOpenConfirm(false);
     } else {
-      showToast(data.message, "error");
+      showToast(data.msg, "error");
     }
   };
 
@@ -288,7 +291,9 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
         </Card>
         <Button
           variant="secondary"
-          onClick={() => onSaveStatus(item?.status == "A" ? "X" : "A")}
+          onClick={() =>
+            item?.status == "A" ? setOpenConfirm(true) : onSaveStatus("A")
+          }
           style={{
             width: 150,
             margin: "0 0 0 auto",
@@ -304,6 +309,24 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
           )}
           {item?.status == "A" ? "Desactivar" : "Activar"}
         </Button>
+
+        {openConfirm && (
+          <DataModal
+            title="Desactivar área social"
+            open={openConfirm}
+            onClose={() => setOpenConfirm(false)}
+            buttonText="Desactivar"
+            buttonCancel="Cancelar"
+            onSave={async () => {
+              onSaveStatus("X");
+            }}
+          >
+            <p>
+              ¿Seguro que quieres desactivarla? Recuerda que si realizas esta
+              acción los residentes no podrán reservar esta área social
+            </p>
+          </DataModal>
+        )}
       </DataModal>
       {openPolicy && (
         <DataModal
