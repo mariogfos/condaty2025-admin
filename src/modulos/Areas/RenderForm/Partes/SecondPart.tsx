@@ -231,7 +231,9 @@ const SecondPart = ({
   };
 
   useEffect(() => {
-    setFormState({ ...formState, end_hour: "" });
+    if (!openModal.edit) {
+      setFormState({ ...formState, end_hour: "" });
+    }
   }, [formState?.start_hour]);
 
   const getDaysModal = () => {
@@ -257,6 +259,28 @@ const SecondPart = ({
     delete formState?.available_hours[day];
     setSelectedDays(selectedDays.filter((d: string) => d !== day));
   };
+
+  useEffect(() => {
+    if (openModal.edit) {
+      let day = selectedDays[0];
+      if (formState.booking_mode == "day") {
+        setFormState({
+          ...formState,
+          start_hour: formState?.available_hours[day][0].split("-")[0],
+          end_hour: formState?.available_hours[day][0].split("-")[1],
+        });
+      } else {
+        setFormState({
+          ...formState,
+          start_hour: formState?.available_hours[day][0].split("-")[0],
+          end_hour:
+            formState?.available_hours[day][
+              formState?.available_hours[day].length - 1
+            ].split("-")[1],
+        });
+      }
+    }
+  }, [openModal]);
 
   return (
     <div onClick={() => setOpenDrop(false)}>
