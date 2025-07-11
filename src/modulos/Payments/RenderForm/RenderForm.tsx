@@ -663,7 +663,7 @@ const isExpensasWithoutDebt =
         onSave={_onSavePago}
         buttonCancel={'Cancelar'}
         buttonText={'Registrar ingreso'}
-        title={'Registrar ingreso'}
+        title={'Agregar ingreso'}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}
