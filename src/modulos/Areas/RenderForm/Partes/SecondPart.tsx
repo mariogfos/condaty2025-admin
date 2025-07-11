@@ -32,9 +32,10 @@ const SecondPart = ({
   formState,
   setFormState,
 }: PropsType) => {
-  const [selectedDays, setSelectedDays]: any = useState(
-    formState?.available_days || []
-  );
+  // const [selectedDays, setSelectedDays]: any = useState(
+  //   formState?.available_days || []
+  // );
+  const [selectedDays, setSelectedDays]: any = useState([]);
   const prevBookingMode = useRef(null);
   const [periods, setPeriods]: any = useState([]);
   const [openModal, setOpenModal] = useState({ open: false, edit: false });
@@ -281,7 +282,7 @@ const SecondPart = ({
       }
     }
   }, [openModal]);
-
+  console.log(selectedDays);
   return (
     <div onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
