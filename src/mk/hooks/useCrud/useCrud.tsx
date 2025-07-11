@@ -987,8 +987,8 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={"Desvincular " + mod.singular}
-          buttonText="Desvincular"
+          title={"Eliminar " + mod.singular}
+          buttonText="Eliminar"
           buttonCancel="Cancelar"
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
@@ -998,12 +998,12 @@ const useCrud = ({
             message
           ) : (
             <>
-              ¿Estás seguro de desvincular esta información?
+              ¿Estás seguro de Eliminar esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que, al momento de desvincular, ya no podrás recuperarla.
+              Recuerda que, al momento de Eliminar, ya no podrás recuperarla.
             </>
           )}
         </DataModal>
