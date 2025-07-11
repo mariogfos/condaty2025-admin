@@ -180,7 +180,7 @@ const useCrud = ({
   const [openCard, setOpenCard] = useState(false);
 
   if (mod) {
-    mod.titleAdd = mod.titleAdd ?? 'Registrar';
+    mod.titleAdd = mod.titleAdd ?? 'Agregar';
     mod.titleEdit = mod.titleEdit ?? 'Editar';
   }
 
