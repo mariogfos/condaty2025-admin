@@ -322,8 +322,8 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             }}
           >
             <p>
-              ¿Seguro que quieres desactivarla? Recuerda que si realizas esta
-              acción los residentes no podrán reservar esta área social
+              ¿Seguro que quieres desactivarla? Recuerda que, 
+              si realizas esta acción, los residentes no podrán reservar esta área social.
             </p>
           </DataModal>
         )}
