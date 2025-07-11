@@ -124,7 +124,7 @@ const FourPart = ({ item }: { item: any }) => {
               />
               {/* )} */}
             </div>
-            {(item?.images?.length > 1 ||
+            {(item?.images?.length > 1 &&
               Object?.keys(item?.avatar || {}).length > 0) && (
               <div className={styles.containerButton}>
                 <div className={styles.button} onClick={prevIndex}>
