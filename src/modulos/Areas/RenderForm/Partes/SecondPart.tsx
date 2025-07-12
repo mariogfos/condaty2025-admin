@@ -282,7 +282,6 @@ const SecondPart = ({
       }
     }
   }, [openModal]);
-  console.log(selectedDays);
   return (
     <div onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
