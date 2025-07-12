@@ -1,17 +1,13 @@
 import { Card } from "@/mk/components/ui/Card/Card";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { getUrlImages } from "@/mk/utils/string";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatNumber } from "../../../mk/utils/numbers";
 import {
   IconArrowDown,
   IconArrowLeft,
   IconArrowRight,
   IconArrowUp,
-  IconCheck,
-  IconCheckSquare,
-  IconCheckV1,
-  IconCheckV1Off,
   IconExpand,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -33,6 +29,16 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  const descriptionRef = useRef(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el: any = descriptionRef.current;
+    if (el) {
+      const isOverflowing = el.scrollHeight > el.offsetHeight;
+      setIsTruncated(isOverflowing);
+    }
+  }, [item?.description]);
 
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
@@ -132,20 +138,25 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
             </div>
             <div className={styles.containerInfo}>
               <p className={styles.title}>{item?.title}</p>
-              <p className={isExpanded ? undefined : styles.truncatedText}>
+              <p
+                ref={descriptionRef}
+                className={isExpanded ? undefined : styles.truncatedText}
+              >
                 {item?.description}
               </p>
-              <p
-                style={{
-                  color: "var(--cAccent)",
-                  cursor: "pointer",
-                  width: 100,
-                  fontWeight: 600,
-                }}
-                onClick={toggleExpanded}
-              >
-                {isExpanded ? "Ver menos" : "Ver más"}
-              </p>
+              {isTruncated && (
+                <p
+                  style={{
+                    color: "var(--cAccent)",
+                    cursor: "pointer",
+                    width: 100,
+                    fontWeight: 600,
+                  }}
+                  onClick={toggleExpanded}
+                >
+                  {isExpanded ? "Ver menos" : "Ver más"}
+                </p>
+              )}
               <Br />
               <p className={styles.title}>Datos generales</p>
               <KeyValue
