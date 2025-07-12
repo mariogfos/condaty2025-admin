@@ -269,7 +269,7 @@ const Outlays = () => {
           },
         },
         filter: {
-          label: "Estado del egreso",
+          label: "Estado",
           width: "180px",
           options: getStatusOptions,
         },
