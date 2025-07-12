@@ -1203,7 +1203,7 @@ AddMenu.displayName = 'AddMenu';
           h={props?.height ?? undefined}
           icon={<IconEmptySearch size={60} />}
           message="No se encontraron coincidencias. Ajusta tus filtros o"
-          line2="prueba on una búsqueda diferente"
+          line2="prueba con una búsqueda diferente"
         />
       );
     } else {
