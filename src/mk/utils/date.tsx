@@ -13,6 +13,20 @@ export const MONTHS = [
   "Noviembre",
   "Diciembre",
 ];
+export const MONTHS_ES = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+];
 export const MONTHS_S = [
   "",
   "Ene",
@@ -123,7 +137,7 @@ const _getDateTimeStrMes = (
       .replace(/-/g, "-")
       .replace("T", " ");
   }
- 
+
 
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
@@ -537,7 +551,7 @@ export const getDateTimeAgo = (
   } else if (diffMinutes < 5) {
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-   
+
     return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
   } else if (diffDays > 0) {
 
@@ -549,7 +563,7 @@ export const getDateTimeAgo = (
 
 export const formatToDayDDMMYYYYHHMM = (
   dateStr: string | null = '',
-  utc: boolean = false,
+  utc: boolean = true,
 ): string => {
   if (!dateStr || dateStr === '') return '';
 
@@ -628,7 +642,7 @@ export const formatDateRange = (
 
     // Reutilizamos tu función para manejar fechas UTC y locales de forma consistente.
     const date = convertirFechaUTCaLocal(dateStr);
-    
+
     if (!date) return ''; // Si la fecha no es válida, retorna vacío.
 
     const diaSemana = DAYS_SHORT[date.getDay()]; // Ej: 'Lun'

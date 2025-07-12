@@ -1,7 +1,7 @@
 "use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-// import styles from "./Educations.module.css";
+// import styles from "./Educations.module.css"; // esto?
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ import {
   sumExpenses,
   sumPaidUnits,
   sumPenalty,
-  units,
+  units, //Esto?
   unitsPayable,
 } from "@/mk/utils/utils";
 import styles from "./Expenses.module.css";
@@ -115,6 +115,7 @@ const Expenses = () => {
         list: {
           width: "150px",
           onRender: (props: any) => {
+            //Esto? sacar afuerita
             return (
               <div>
                 {MONTHS_S[props?.item?.month]}/{props?.item?.year}
@@ -188,6 +189,7 @@ const Expenses = () => {
         label: "Monto total de expensas",
         list: {
           onRender: (props: any) => {
+            // esto? tambienn sacar adfuera
             return (
               <div>
                 {"Bs " + formatNumber(sumExpenses(props?.item?.asignados))}
@@ -213,6 +215,7 @@ const Expenses = () => {
         label: "Unidades por pagar",
         list: {
           onRender: (props: any) => {
+            //esto?sacar afuera crear funcion fuera
             return (
               <div
                 style={{
@@ -231,6 +234,7 @@ const Expenses = () => {
         label: "Monto total cobrado",
         list: {
           onRender: (props: any) => {
+            // esto? sacar funcion fuera
             return (
               <div>
                 {"Bs " + formatNumber(sumPaidUnits(props?.item?.asignados))}
@@ -246,6 +250,7 @@ const Expenses = () => {
         label: "Multa total de mora",
         list: {
           onRender: (props: any) => {
+            //esto? sacar fuera
             return (
               <div>
                 {"Bs " + formatNumber(sumPenalty(props?.item?.asignados))}
@@ -260,6 +265,7 @@ const Expenses = () => {
         label: "Estado",
         list: {
           onRender: (props: any) => {
+            //esto? sacar fuera
             const isInDefault = isUnitInDefault(props?.item);
             const statusClass = `${styles.statusBadge} ${
               isInDefault ? styles.statusMora : styles.statusDefault
@@ -285,6 +291,7 @@ const Expenses = () => {
         label: "Total a cobrar",
         list: {
           onRender: (props: any) => {
+            // esto? sacra fuera
             return (
               <div>
                 {"Bs. " +
@@ -334,9 +341,9 @@ const Expenses = () => {
     );
   };
   const onClickDetail = (row: any) => {
-    // const url = `/detailSurveys?id=${row.id}`;
+    // const url = `/detailSurveys?id=${row.id}`; //esto?
 
-    // window.location.href = url;
+    // window.location.href = url; //esto?
     setDetailItem(row);
     setOpenDetail(true);
   };

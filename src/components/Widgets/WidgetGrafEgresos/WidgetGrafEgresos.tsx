@@ -134,30 +134,16 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
 
   return (
     <div className={`${styles.container} ${className || ''}`}>
-      <p className={styles.subtitle}>
-        {subtitle ||
-          'Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías'}
-      </p>
-      <p className={styles.title}>{title || 'Resumen de Egresos'}</p>
       <p
-        style={{
-          color: 'var(--darkv1)',
-          fontWeight: 'var(--bSemibold)',
-          fontSize: 'var(--sM)',
-        }}
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
       >
         {subtitle ||
           'Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías'}
       </p>
-      <p
-        style={{
-          color: 'var(--darkv1)',
-          fontWeight: 'var(--bBold)',
-          fontSize: 'var(--sXl)',
-        }}
-      >
-        {title}
+      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
+        {title || 'Resumen de Egresos'}
       </p>
+
       <GraphBase
         data={{
           labels: monthLabels,

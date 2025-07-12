@@ -149,7 +149,7 @@ const Layout = ({ children }: any) => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1023) {
+      if (window.innerWidth < 1025) {
         setSideMenuOpen(true); // Colapsado
       } else {
         setSideMenuOpen(false); // Expandido
