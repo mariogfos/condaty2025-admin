@@ -282,7 +282,6 @@ const SecondPart = ({
       }
     }
   }, [openModal]);
-  console.log(selectedDays);
   return (
     <div onClick={() => setOpenDrop(false)}>
       <p className={styles.title}>Define el tipo de reserva</p>
@@ -498,7 +497,14 @@ const SecondPart = ({
         error={errors}
       />
       <Br />
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div>
           <p className={styles.title}>
             ¿El área social tiene un costo por uso?
