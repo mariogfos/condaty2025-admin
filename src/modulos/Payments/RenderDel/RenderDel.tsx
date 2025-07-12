@@ -25,7 +25,7 @@ export const RenderAnularModal = ({
           fontSize: 'var(--font-size-sm)',
         }}
       >
-        ¿Seguro que quieres anular este ingreso?, recuerda que si realizas esta
+        ¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta
         acción perderás los cambios y no se reflejará en tu balance
       </p>
     </DataModal>
