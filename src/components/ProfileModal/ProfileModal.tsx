@@ -162,7 +162,7 @@ const ProfileModal = ({
     });
     if (data?.success == true) {
       // getAreasM();
-      showToast(profileRole + " desvinculado con éxito", "success");
+      showToast(profileRole + " eliminar con éxito", "success");
       onClose();
       reLoad();
       reLoadDet();
@@ -389,10 +389,10 @@ const ProfileModal = ({
         )}
         {openDel && (
           <DataModal
-            title={`Desvincular ${profileRole}`}
+            title={`Eliminar ${profileRole}`}
             open={openDel}
             onClose={() => setOpenDel(false)}
-            buttonText="Desvincular"
+            buttonText="Eliminar"
             buttonCancel="Cancelar"
             onSave={onDel}
           >
