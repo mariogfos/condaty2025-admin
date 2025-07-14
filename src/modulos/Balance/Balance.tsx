@@ -482,7 +482,7 @@ const BalanceGeneral: React.FC = () => {
             Descargar PDF
           </Button>
         </div>
-        <div className={styles.chartContainer}>
+        <div className={styles.chartContainerOuter}>
           <div ref={chartRefIngresos} className={styles.chartContainer}>
             <WidgetGrafIngresos
               ingresos={filtrarHastaMesActual(
@@ -603,7 +603,7 @@ const BalanceGeneral: React.FC = () => {
             Descargar PDF
           </Button>
         </div>
-        <div className={styles.chartContainer}>
+        <div className={styles.chartContainerOuter}>©
           <div ref={chartRefEgresos} className={styles.chartContainer}>
             <WidgetGrafEgresos
               egresos={filtrarHastaMesActual(
@@ -859,7 +859,7 @@ const BalanceGeneral: React.FC = () => {
                         Descargar PDF
                       </Button>
                     </div>
-                    <div className={styles.chartContainer}>
+                    <div className={styles.chartContainerOuter}>
                       <div
                         ref={chartRefBalance}
                         className={styles.chartContainer}
