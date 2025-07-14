@@ -1029,8 +1029,8 @@ AddMenu.displayName = 'AddMenu';
       return (
         <DataModal
           id="Eliminar"
-          title={'Desvincular ' + mod.singular}
-          buttonText="Desvincular"
+          title={'Eliminar ' + mod.singular}
+          buttonText="Eliminar"
           buttonCancel="Cancelar"
           onSave={e => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
@@ -1040,12 +1040,12 @@ AddMenu.displayName = 'AddMenu';
             message
           ) : (
             <>
-              ¿Estás seguro de Eliminar esta información?
+              ¿Estás seguro de eliminar esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que, al momento de Eliminar, ya no podrás recuperarla.
+              Recuerda que, al momento de eliminar, ya no podrás recuperarla.
             </>
           )}
         </DataModal>
