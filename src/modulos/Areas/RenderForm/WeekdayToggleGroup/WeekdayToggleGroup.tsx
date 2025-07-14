@@ -44,6 +44,7 @@ export default function WeekdayToggleGroup({
             color: selectedDays?.includes(day)
               ? "var(--cWhite)"
               : "var(--cWhiteV1)",
+            cursor: selectedDays?.includes(day) ? "not-allowed" : "pointer",
           }}
           //   className={}
           //   className={`border rounded-lg px-4 py-2 text-white ${

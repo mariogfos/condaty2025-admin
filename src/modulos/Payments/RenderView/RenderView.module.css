@@ -218,8 +218,7 @@
   padding: var(--spM);
   text-align: left;
   font-size: var(--sS);
-  color: var(--cWhiteV1); /* Cambia a blanco atenuado por defecto */
-  border-right: 1px solid var(--cBlackV3);
+  color: var(--cWhiteV1); 
   line-height: 1.4;
   display: flex;
   align-items: center;
@@ -237,8 +236,8 @@
 
 .periodsTableHeader .periodsTableCell {
   color: var(--cWhite);
-  font-size: var(--sL); /* Tamaño 16px o equivalente */
-  font-weight: var(--bSemibold); /* Semibold */
+  font-size: var(--sL);
+  font-weight: var(--bSemibold);
   background-color: var(--cBlackV2);
 }
 

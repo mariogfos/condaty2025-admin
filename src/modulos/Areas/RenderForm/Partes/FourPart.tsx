@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "../../RenderView/RenderView.module.css";
 import {
   IconArrowDown,
@@ -22,8 +22,18 @@ const FourPart = ({ item }: { item: any }) => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpanded = () => setIsExpanded(!isExpanded);
+  const descriptionRef = useRef(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el: any = descriptionRef.current;
+    if (el) {
+      const isOverflowing = el.scrollHeight > el.offsetHeight;
+      setIsTruncated(isOverflowing);
+    }
+  }, [item?.description]);
   const allImages = React.useMemo(() => {
-    const backendImages =
+    let backendImages =
       item?.images?.map((img: any) => ({
         id: img?.id,
         type: "backend",
@@ -33,16 +43,30 @@ const FourPart = ({ item }: { item: any }) => {
       })) || [];
 
     const localAvatars = Object.keys(item?.avatar || {})
-      .filter((key) => item?.avatar?.[key]?.file)
+      .filter((key) => {
+        if (item?.avatar?.[key]?.file && item.avatar[key].file == "delete") {
+          backendImages = backendImages.filter(
+            (img: any) => img.id != item?.avatar?.[key]?.id
+          );
+        }
+        return item?.avatar?.[key]?.file && item.avatar[key].file != "delete";
+      })
       .map((key) => ({
         id: Number(item?.avatar?.[key]?.id),
         type: "local",
         src: `data:image/webp;base64,${item?.avatar?.[key]?.file}`,
       }));
 
-    const data = [...backendImages, ...localAvatars];
+    // const backendImages = _backendImages.filter((img) => img.id != item?.avatar?.[key]?.id)
 
-    return Array.from(new Map(data.map((item) => [item.id, item])).values());
+    const data = [...backendImages, ...localAvatars];
+    // const r=data.map((e,index)=>{{ id:e.id,type:e.type,src:e.file  }});
+
+    const r = Array.from(
+      new Map(data.map((item, index) => [index, item])).values()
+    );
+
+    return r;
   }, [item]);
 
   const totalImages = allImages.length;
@@ -97,8 +121,7 @@ const FourPart = ({ item }: { item: any }) => {
               />
               {/* )} */}
             </div>
-            {(item?.images?.length > 1 ||
-              Object?.keys(item?.avatar || {}).length > 0) && (
+            {allImages?.length > 1 && (
               <div className={styles.containerButton}>
                 <div className={styles.button} onClick={prevIndex}>
                   <IconArrowLeft size={18} color="var(--cWhite)" />
@@ -115,22 +138,24 @@ const FourPart = ({ item }: { item: any }) => {
           <div className={styles.containerInfo}>
             <p className={styles.title}>{item?.title}</p>
             <p
+              ref={descriptionRef}
               className={isExpanded ? undefined : styles.truncatedText}
-              style={{ color: "var(--cWhiteV1)" }}
             >
               {item?.description}
             </p>
-            <p
-              style={{
-                color: "var(--cAccent)",
-                cursor: "pointer",
-                width: 100,
-                fontWeight: 600,
-              }}
-              onClick={toggleExpanded}
-            >
-              {isExpanded ? "Ver menos" : "Ver más"}
-            </p>
+            {isTruncated && (
+              <p
+                style={{
+                  color: "var(--cAccent)",
+                  cursor: "pointer",
+                  width: 100,
+                  fontWeight: 600,
+                }}
+                onClick={toggleExpanded}
+              >
+                {isExpanded ? "Ver menos" : "Ver más"}
+              </p>
+            )}
             <Br />
             <p className={styles.title}>Datos generales</p>
             <KeyValue
@@ -229,6 +254,8 @@ const FourPart = ({ item }: { item: any }) => {
                   padding: 12,
                   borderRadius: 8,
                   border: "0.5px solid var(--cWhiteV1)",
+                  maxWidth: 210,
+                  minWidth: 210,
                 }}
               >
                 <p

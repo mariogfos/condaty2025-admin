@@ -1,7 +1,7 @@
 import { Card } from "@/mk/components/ui/Card/Card";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { getUrlImages } from "@/mk/utils/string";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatNumber } from "../../../mk/utils/numbers";
 import {
   IconArrowDown,
@@ -12,17 +12,34 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
+import Button from "@/mk/components/forms/Button/Button";
+import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const status: any = {
   A: "Activa",
   X: "Inactiva",
 };
 
-const RenderView = ({ open, item, onClose }: any) => {
+const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const [indexVisible, setIndexVisible] = useState(0);
   const [openDays, setOpenDays] = useState(false);
   const [openPolicy, setOpenPolicy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
+  const descriptionRef = useRef(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el: any = descriptionRef.current;
+    if (el) {
+      const isOverflowing = el.scrollHeight > el.offsetHeight;
+      setIsTruncated(isOverflowing);
+    }
+  }, [item?.description]);
+
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   const nextIndex = () => {
@@ -59,6 +76,21 @@ const RenderView = ({ open, item, onClose }: any) => {
       (a, b) => dayOrder[a] - dayOrder[b]
     );
   };
+  const onSaveStatus = async (status: string) => {
+    const { data } = await execute("/status-area", "POST", {
+      status: status,
+      area_id: item?.id,
+    });
+    if (data?.status == true) {
+      onClose();
+      reLoad();
+      showToast(data.msg, "success");
+      setOpenConfirm(false);
+    } else {
+      showToast(data.msg, "error");
+    }
+  };
+
   return (
     <>
       <DataModal
@@ -106,20 +138,25 @@ const RenderView = ({ open, item, onClose }: any) => {
             </div>
             <div className={styles.containerInfo}>
               <p className={styles.title}>{item?.title}</p>
-              <p className={isExpanded ? undefined : styles.truncatedText}>
+              <p
+                ref={descriptionRef}
+                className={isExpanded ? undefined : styles.truncatedText}
+              >
                 {item?.description}
               </p>
-              <p
-                style={{
-                  color: "var(--cAccent)",
-                  cursor: "pointer",
-                  width: 100,
-                  fontWeight: 600,
-                }}
-                onClick={toggleExpanded}
-              >
-                {isExpanded ? "Ver menos" : "Ver más"}
-              </p>
+              {isTruncated && (
+                <p
+                  style={{
+                    color: "var(--cAccent)",
+                    cursor: "pointer",
+                    width: 100,
+                    fontWeight: 600,
+                  }}
+                  onClick={toggleExpanded}
+                >
+                  {isExpanded ? "Ver menos" : "Ver más"}
+                </p>
+              )}
               <Br />
               <p className={styles.title}>Datos generales</p>
               <KeyValue
@@ -142,10 +179,6 @@ const RenderView = ({ open, item, onClose }: any) => {
                 title={"Cantidad máx. de personas"}
                 value={item?.max_capacity}
               />
-              {/* <KeyValue
-            title={"Máximo de reservas por semana"}
-            value={item?.max_reservations_per_week + " reservas"}
-          /> */}
               <KeyValue
                 title={"Restricción por mora"}
                 value={item?.penalty_or_debt_restriction == "A" ? "Sí" : "No"}
@@ -154,14 +187,22 @@ const RenderView = ({ open, item, onClose }: any) => {
                 title={"Aprobación de administración"}
                 value={item?.requires_approval == "A" ? "Sí" : "No"}
               />
+              {item?.booking_mode === "hour" && (
+                <KeyValue
+                  title={"Reservación por día"}
+                  value={item?.max_reservations_per_day}
+                />
+              )}
               <KeyValue
-                title={"Máximo de reservas por semana"}
+                title={"Reservación por semana"}
                 value={item?.max_reservations_per_week}
               />
-              <KeyValue
-                title={"Cancelación sin multa"}
-                value={item?.min_cancel_hours + "h"}
-              />
+              {item?.price > 0 && (
+                <KeyValue
+                  title={"Cancelación sin multa"}
+                  value={item?.min_cancel_hours + "h"}
+                />
+              )}
               <KeyValue
                 title={"Porcentaje por cancelación"}
                 value={formatNumber(item?.penalty_fee, 1) + "%"}
@@ -214,6 +255,8 @@ const RenderView = ({ open, item, onClose }: any) => {
                     padding: 12,
                     borderRadius: 8,
                     border: "0.5px solid var(--cWhiteV1)",
+                    maxWidth: 210,
+                    minWidth: 210,
                   }}
                 >
                   <p
@@ -257,6 +300,39 @@ const RenderView = ({ open, item, onClose }: any) => {
             </div>
           )}
         </Card>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            item?.status == "A" ? setOpenConfirm(true) : onSaveStatus("A")
+          }
+          style={{
+            width: 150,
+            margin: "0 0 0 auto",
+            marginTop: 12,
+            gap: 10,
+            color: "var(--cWhite)",
+          }}
+        >
+          {item?.status == "A" ? "Desactivar área" : "Activar área"}
+        </Button>
+
+        {openConfirm && (
+          <DataModal
+            title="Desactivar área social"
+            open={openConfirm}
+            onClose={() => setOpenConfirm(false)}
+            buttonText="Desactivar"
+            buttonCancel="Cancelar"
+            onSave={async () => {
+              onSaveStatus("X");
+            }}
+          >
+            <p>
+              ¿Seguro que quieres desactivarla? Recuerda que, si realizas esta
+              acción, los residentes no podrán reservar esta área social.
+            </p>
+          </DataModal>
+        )}
       </DataModal>
       {openPolicy && (
         <DataModal

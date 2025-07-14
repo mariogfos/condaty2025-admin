@@ -184,20 +184,19 @@ const AddContent = ({
     //   errors,
     // });
 
-    errors = checkRules({
-      value: formState?.avatar,
-      rules: ["requiredImageMultiple"],
-      key: "avatar",
-      errors,
-      data: formState,
-    });
-
     if (formState?.isType == "N") {
       errors = checkRules({
         value: formState?.title,
         rules: ["required"],
         key: "title",
         errors,
+      });
+      errors = checkRules({
+        value: formState?.avatar,
+        rules: ["requiredImageMultiple"],
+        key: "avatar",
+        errors,
+        data: formState,
       });
 
       errors = checkRules({

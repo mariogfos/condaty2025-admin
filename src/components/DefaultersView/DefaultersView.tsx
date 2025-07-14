@@ -138,7 +138,12 @@ const DefaultersView = () => {
 
   // Botones adicionales para la tabla
   const extraButtons = [
-    <div key="export-button" onClick={exportar} className={styles.exportButton}>
+    <div
+      key="export-button"
+      onClick={exportar}
+      className={styles.exportButton}
+      role="button"
+    >
       <IconExport size={32} />
     </div>,
   ];
@@ -241,7 +246,6 @@ const DefaultersView = () => {
               width: 350,
             }}
           />
-        
         </div>
 
         <div className={styles.listContainer}>

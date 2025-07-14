@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
-import Check from "@/mk/components/forms/Check/Check";
+import Check from "@/mk/components/forms/Check/Check"; //esto?
 import { MONTHS } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
@@ -31,8 +31,8 @@ const RenderForm = ({
   )[0];
   // Estado para el check "asignar"
 
-  console.log(extraData, "extradataatrata");
-  const [assignState, setAssignState] = useState(formState.asignar || "");
+  console.log(extraData, "extradataatrata"); //esto?
+  const [assignState, setAssignState] = useState(formState.asignar || ""); //esto?
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
@@ -41,6 +41,7 @@ const RenderForm = ({
   };
 
   const handleAssignChange = (e: any) => {
+    //esto? se usa o no
     setAssignState(e.target.name);
     setFormState((prev: any) => ({ ...prev, asignar: e.target.name }));
   };
@@ -154,7 +155,7 @@ const RenderForm = ({
       };
     });
     setLdpto(lista);
-  }, [extraData?.dptos]);
+  }, [extraData?.dptos]); //esto?
 
   return (
     <DataModal
@@ -206,13 +207,14 @@ const RenderForm = ({
         onChange={handleChange}
         maxLength={255}
         required={false}
-        // type="textarea"
+        // type="textarea" //esto?
         error={errors.description}
       />
-
+      {/* //esto? */}
       {/* <div style={{ marginTop: "1rem" }}> */}
       {/* <label>Asignar a</label> */}
       <div className="space-y-3">
+        {/* //esto? */}
         {/* <Check
             label="Todas las unidades"
             name="T"
@@ -276,6 +278,7 @@ const RenderForm = ({
         )}
       </div>
       {/* </div> */}
+      {/* //esto? */}
     </DataModal>
   );
 };

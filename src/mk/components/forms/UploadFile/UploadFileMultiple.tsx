@@ -35,20 +35,16 @@ const UploadFileMultiple = ({
   const [value, setValue]: any = useState(initialValue || {});
 
   useEffect(() => {
-    if (imgs[0]?.id != 0 && imgs?.length < maxFiles)
+    if (imgs[0]?.id != 0 && imgs?.length < maxFiles) {
       setImgs([...imgs, { id: 0 }]);
+    }
   }, []);
-  // useEffect(() => {
-  //   // Initialize or update images when formState changes
-  //   if (item?.[name]) {
-  //     const currentImages = Object.values(item[name]).filter(
-  //       (img: any) => img?.file !== "delete"
-  //     );
-  //     const hasEmptySlot = currentImages.length < maxFiles;
-  //     setImgs([...currentImages, ...(hasEmptySlot ? [{ id: 0 }] : [])]);
-  //     setValue(item[name]);
-  //   }
-  // }, [item, name, maxFiles]);
+
+  useEffect(() => {
+    if (imgs?.length < maxFiles && imgs?.length <= Object.keys(value).length) {
+      setImgs([...imgs, { id: 0 }]);
+    }
+  }, [imgs, maxFiles, value]);
 
   useEffect(() => {
     // Initialize or update images when formState changes
@@ -86,6 +82,7 @@ const UploadFileMultiple = ({
       }
     }
   }, [item, name, maxFiles]);
+
   const deleteImg = (img: string, del = true) => {
     const indice = img.replace(name, "").split("-")[0];
     const id = img.replace(name, "").split("-")[1] || 0;
@@ -117,44 +114,6 @@ const UploadFileMultiple = ({
     onChange && onChange({ target: { name, value: newE } });
   };
 
-  // const _onChange = (e: any) => {
-  //   if (
-  //     (e.target.value.file == "" || e.target.value.file == "delete") &&
-  //     imgs.length > 1
-  //   ) {
-  //     deleteImg(e.target.name, false);
-
-  //     return;
-  //   }
-
-  //   const indice = e.target.name.replace(name, "").split("-")[0];
-  //   const id = e.target.name.replace(name, "").split("-")[1] || 0;
-  //   const edit = value[name + indice]?.file || id > 0;
-  //   console.log("edit", edit, name + indice, value[name + indice]?.file);
-  //   const newE = { ...value, [name + indice]: { ...e.target.value, id } };
-  //   onChange && onChange({ target: { name, value: newE } });
-  //   setValue(newE);
-
-  //   let add = true;
-
-  //   add = imgs.length <= Object.keys(newE).length + (images.length - 1);
-
-  //   if (!add) {
-  //     add = true;
-  //     imgs.map((it: any, i: number) => {
-  //       if (
-  //         it.id == 0 &&
-  //         value &&
-  //         value[name + i] &&
-  //         value[name + i].file == ""
-  //       )
-  //         add = false;
-  //     });
-  //   }
-
-  //   if (imgs.length >= maxFiles || !add || edit) return;
-  //   setImgs((prev: any) => [...prev, { id: 0 }]);
-  // };
   const _onChange = (e: any) => {
     if (
       (e.target.value.file == "" || e.target.value.file == "delete") &&
@@ -174,6 +133,7 @@ const UploadFileMultiple = ({
 
     // Add new empty slot if needed
     if (!edit && imgs.length < maxFiles) {
+      // if (imgs.length < maxFiles) {
       setImgs((prev: any) => [...prev, { id: 0 }]);
     }
   };
@@ -197,33 +157,13 @@ const UploadFileMultiple = ({
       >
         <label>
           {props.label || "Puede subir hasta " + maxFiles + " imágenes"}
-          {/* {imgs.length > 1 ||
-            (value[name + "0"]?.file != "" && (
-              <IconAdd
-                style={{
-                  backgroundColor: "green",
-                  cursor: "pointer",
-                  padding: "4px",
-                  display: imgs.length >= maxFiles ? "none" : "inline",
-                  right: -16,
-                  top: 0,
-                  position: "absolute",
-                }}
-                size={16}
-                circle={true}
-                onClick={() => {
-                  if (imgs.length >= maxFiles) return;
-                  setImgs((prev: any) => [...prev, { id: 0 }]);
-                }}
-              />
-            ))} */}
         </label>
         {/* {JSON.stringify(imgs)}----
-      {JSON.stringify(Object.keys(value).length)}----
-      {images.length} */}
+        {JSON.stringify(Object.keys(value).length)}----
+        {images.length}---{maxFiles} */}
         {imgs.map((it: any, i: number) => (
           <div
-            key={"img-" + i}
+            key={"img-" + i + it.id}
             style={{
               display: "flex",
               flexDirection: "row",
@@ -232,7 +172,6 @@ const UploadFileMultiple = ({
               position: "relative",
             }}
           >
-            {/* {value[name + i]?.file.substr(0, 5)} */}
             <UploadFileM
               {...props}
               className="v2"
@@ -245,7 +184,7 @@ const UploadFileMultiple = ({
               label=""
               placeholder="Subir imagen"
               fileName={
-                it.id
+                it.id > 0
                   ? getUrlImages(
                       "/" +
                         prefix +
@@ -261,48 +200,8 @@ const UploadFileMultiple = ({
                   : null
               }
             />
-
-            {/* {i > 0 && !it.id && (
-              // (it.value?.file == "" || it.value?.file == "DELETE") &&
-              <IconX
-                size={16}
-                circle={true}
-                style={{
-                  cursor: "pointer",
-                  backgroundColor: "red",
-                  padding: "2px",
-                  position: "absolute",
-                  bottom: 4,
-                  right: -8,
-                }}
-                onClick={() => {
-                  deleteImg(name + i + "-" + it.id, false);
-                  setImgs(imgs.filter((_: any, j: number) => j !== i));
-                }}
-              />
-            )} */}
           </div>
         ))}
-        {/* {imgs.length <= maxFiles && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              fontSize: "10px",
-              color: "var(--cPrimary)",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onClick={() => {
-              if (imgs.length >= maxFiles) return;
-              setImgs((prev: any) => [...prev, { id: 0 }]);
-            }}
-          >
-            <IconImage size={40} color={"var(--cWhite)"} />
-            <span>{props.placeholder || "Subir imagen "}</span>
-            <span>{props.ext.join(", ") || "jpg,png,jpeg"}</span>
-          </div>
-        )} */}
       </div>
       {!props.error ? null : (
         <p className={styles.error}>{props.error[name] ?? null}</p>

@@ -27,7 +27,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
           <p className={styles.title}>¿Restringir reserva por mora?</p>
           <p className={styles.subtitle}>
             Activa el botón si quieres que los residentes morosos no puedan
-            reservar esta área
+            reservar esta área.
           </p>
         </div>
         <Switch
@@ -48,7 +48,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <p className={styles.title}>Políticas de uso</p>
       <p className={styles.subtitle}>
         Describe las reglas y restricciones de uso y proporciona directrices
-        para el uso adecuado del área social
+        para el uso adecuado del área social.
       </p>
       <TextArea
         label="Descripción"
@@ -62,7 +62,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
       <p className={styles.title}>Política de reembolso</p>
       <p className={styles.subtitle}>
         Describe las políticas de reembolso para reservas rechazadas (cómo,
-        cuándo y qué porcentaje se devuelve al residente)
+        cuándo y qué porcentaje se devuelve al residente).
       </p>
       <TextArea
         label="Descripción"
@@ -99,8 +99,7 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         <div>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
-            Si activas esta opción cada solicitud de reserva pasará por tu
-            gestión
+            Si activas esta opción, cada solicitud de reserva pasará por tu gestión.
           </p>
         </div>
         <Switch

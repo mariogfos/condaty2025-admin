@@ -133,12 +133,18 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
 
   const getAreasM = async () => {
     setLoading(true);
-    const { data } = await execute("/reservations", "GET", {
-      fullType: "L",
-      filterBy: "status:M",
-      perPage: -1,
-      page: 1,
-    });
+    const { data } = await execute(
+      "/reservations",
+      "GET",
+      {
+        fullType: "L",
+        filterBy: "status:M",
+        perPage: -1,
+        page: 1,
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
       setDataM(data?.data);
     }
@@ -152,9 +158,15 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   }, [tab]);
 
   const handleCancelMaintenance = async (id: any) => {
-    const { data } = await execute("/reservations/" + id, "DELETE", {
-      is_canceled: "Y",
-    });
+    const { data } = await execute(
+      "/reservations/" + id,
+      "DELETE",
+      {
+        is_canceled: "Y",
+      },
+      false,
+      true
+    );
     if (data?.success == true) {
       getAreasM();
       showToast("Mantenimiento cancelado con éxito", "success");
@@ -283,7 +295,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             subtitle="Las siguientes áreas están en mantenimiento."
           />
           {loading ? (
-            <SkeletonAdapterComponent type="TableSkeleton" />
+            <SkeletonAdapterComponent type="MaintenanceSkeleton" />
           ) : (
             <div
               style={{
@@ -306,7 +318,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
                     display: "flex",
                     flexDirection: "column",
                     gap: "12px",
-                    minWidth: "400px",
+                    minWidth: "300px",
                     position: "relative",
                     overflowWrap: "break-word",
                   }}

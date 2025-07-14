@@ -415,7 +415,7 @@ const HomeOwners = () => {
       unidades: {
         rules: [],
         api: "",
-        label: "Cantidad de Unidades",
+        label: "Unidades",
         list: {
           onRender: (props: any) => {
             const dptosArray = props?.item?.dptos;

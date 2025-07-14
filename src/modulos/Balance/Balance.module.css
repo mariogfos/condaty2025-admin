@@ -108,13 +108,20 @@
   width: 100%;
   position: relative;
 }
-.chartContainer {
-  margin-top: 1.5rem;
+.chartContainerOuter {
   width: 100%;
-  background-color: var(--darkv1);
+  border: 0.5px solid var(--cWhiteV1);
   border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  background-color: var(--cBlackV2);
+}
+
+.chartContainer {
+  width: 100%;
+  background-color: var(--cBlackV2);
+  /* Sin borde aquí para evitar doble borde */
+  border-radius: 0.75rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
 }
@@ -213,7 +220,6 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-
   min-width: auto;
   width: auto;
   color: var(--cWhiteV1, #a7a7a7);
@@ -255,8 +261,8 @@
 }
 .legendItem span {
   color: var(--cWhiteV1, #a7a7a7);
-  font-size: var(--sLg); /* 14px */
-  font-family: Roboto;
+  font-size: var(--sL); /* 14px */
+  font-family: Roboto, sans-serif;
 }
 .exportButtonCustom {
   background-color: transparent;
@@ -281,8 +287,22 @@
 .exportButtonCustom svg {
   fill: currentColor;
 }
-.legendItem .legendAmount {
-  color: var(--cWhite, #fff) !important;
-  font-family: Roboto;
+.legendItem {
+  font-family: Roboto, sans-serif;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.legendAmount {
+  font-weight: bold;
+  color: var(--cWhite) !important;
+}
+.legendAmountLight {
+  color: var(--cBlack, #000) !important;
+  font-family: Roboto, sans-serif;
   margin-left: 0.25em;
+}
+.legendAmount.exportando {
+  color: var(--blackv1) !important;
 }

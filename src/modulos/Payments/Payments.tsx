@@ -3,19 +3,17 @@ import React, { useState, useMemo, useEffect } from 'react';
 import useCrud from '@/mk/hooks/useCrud/useCrud';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
 import styles from './Payments.module.css';
-import { getDateStrMes, getDateDesdeHasta } from '@/mk/utils/date';
+import { getDateStrMes } from '@/mk/utils/date';
 import Button from '@/mk/components/forms/Button/Button';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { useRouter } from 'next/navigation';
-import WidgetGrafIngresos from '@/components/Widgets/WidgetGrafIngresos/WidgetGrafIngresos';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { formatBs } from '@/mk/utils/numbers';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 interface FormStateFilter {
   filter_date?: string;
   filter_category?: string | number;
@@ -25,10 +23,9 @@ interface FormStateFilter {
 
 const Payments = () => {
   const router = useRouter();
-  const [openGraph, setOpenGraph] = useState<boolean>(false);
-  const [dataGraph] = useState<any>({});
   const [formStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  //esto? se usa el estado para que? solo se usa el seter del estado pero el estado no se usa?
   const [customDateRange, setCustomDateRange] = useState<{
     startDate?: string;
     endDate?: string;
@@ -58,10 +55,13 @@ const Payments = () => {
     },
     filter: true,
     export: true,
+    //Properties for new title in useCrud
+    //titleAdd:"Agregar",
   };
 
   const getPeriodOptions = () => [
     { id: 'ALL', name: 'Todos' },
+    { id: 'd', name: 'Hoy' },
     { id: 'ld', name: 'Ayer' },
     { id: 'w', name: 'Esta semana' },
     { id: 'lw', name: 'Semana pasada' },
@@ -74,10 +74,10 @@ const Payments = () => {
 
   const getPaymentTypeOptions = () => [
     { id: 'ALL', name: 'Todos' },
-    { id: 'T', name: 'Transferencia' },
+    { id: 'T', name: 'Transferencia bancaria' },
     { id: 'E', name: 'Efectivo' },
     { id: 'C', name: 'Cheque' },
-    { id: 'Q', name: 'QR' },
+    { id: 'Q', name: 'Pago QR' },
     { id: 'O', name: 'Pago en oficina' },
   ];
 
@@ -100,6 +100,7 @@ const Payments = () => {
   };
 
   const convertFilterDate = () => {
+    //esto? se usa??
     let periodo = 'm';
     if (formStateFilter.filter_date === 'month') periodo = 'm';
     if (formStateFilter.filter_date === 'lmonth') periodo = 'lm';
@@ -119,6 +120,7 @@ const Payments = () => {
         label: 'Unidad',
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return <div>{removeCommas(props.item.dptos)}</div>;
           },
         },
@@ -126,12 +128,13 @@ const Payments = () => {
       paid_at: {
         rules: [],
         api: 'ae',
-        label: 'Fecha de Cobro',
+        label: 'Fecha de cobro',
         form: {
           type: 'date',
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return (
               <div>{getDateStrMes(props.item.paid_at) || 'No pagado'}</div>
             );
@@ -156,9 +159,11 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             return (
               <div>
                 {props.item.category?.padre?.name || 'Sin categoría padre'}
+                {/* //esto? */}
               </div>
             );
           },
@@ -166,7 +171,7 @@ const Payments = () => {
         filter: {
           label: 'Categoría',
           options: (extraData: any) => {
-            const categories = extraData?.categories || [];
+            const categories = extraData?.categories || []; //esto?
             const categoryOptions = categories.map((category: any) => ({
               id: category.id,
               name: category.name,
@@ -190,7 +195,7 @@ const Payments = () => {
               return `sin datos`;
             }
             if (category.padre && typeof category.padre === 'object') {
-              return category.name || `(Sin nombre)`;
+              return category.name || `(Sin nombre)`; //esto?
             } else {
               return '-/-';
             }
@@ -211,6 +216,7 @@ const Payments = () => {
         },
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             const typeMap: Record<string, string> = {
               T: 'Transferencia bancaria',
               E: 'Efectivo',
@@ -233,6 +239,7 @@ const Payments = () => {
         label: 'Estado',
         list: {
           onRender: (props: any) => {
+            //esto? mover fuera
             const statusMap: Record<string, string> = {
               P: 'Cobrado',
               S: 'Por confirmar',
@@ -254,7 +261,7 @@ const Payments = () => {
           },
         },
         filter: {
-          label: 'Estado del ingreso',
+          label: 'Estado',
 
           options: getStatusOptions,
         },
@@ -262,14 +269,19 @@ const Payments = () => {
       amount: {
         rules: ['required', 'number'],
         api: 'ae',
-        label: 'Monto Total',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto total
+          </span>
+        ),
         form: {
           type: 'number',
           placeholder: 'Ej: 100.00',
         },
         list: {
           onRender: (props: any) => {
-            return <div>{formatBs(props.item.amount)}</div>;
+            //esto? mover fuera
+            return <FormatBsAlign value={props.item.amount} alignRight />;
           },
         },
       },
@@ -288,10 +300,10 @@ const Payments = () => {
   const { setStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: 'Ingresos' });
-  }, []);
+  }, []); //esto? poner que ignore la linea
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
-    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) }; //esto?
 
     if (opt === 'paid_at' && value === 'custom') {
       setCustomDateRange({});
@@ -309,31 +321,6 @@ const Payments = () => {
     return { filterBy: currentFilters };
   };
 
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = 'La fecha de inicio es obligatoria';
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = 'La fecha de fin es obligatoria';
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
-    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('paid_at', customDateFilterString);
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
   const extraButtons = [
     <Button
       key="categories-button"
@@ -344,73 +331,25 @@ const Payments = () => {
     </Button>,
   ];
 
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute,
-    params,
-    setParams,
-    extraData,
-    onFilter,
-    showToast,
-  } = useCrud({
+  const { userCan, List, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
     getFilter: handleGetFilter,
   });
-
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
-
   return (
     <div className={styles.container}>
-      {/* <h1 className={styles.title}>Ingresos</h1>
-      <p className={styles.subtitle}>
-        Administre, agregue y elimine todos los ingresos
-      </p> */}
-
       <List
         height={'calc(100vh - 330px)'}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
-
-      {openGraph && (
-        <DataModal
-          open={openGraph}
-          onClose={() => {
-            setOpenGraph(false);
-          }}
-          title=""
-          buttonText=""
-          buttonCancel=""
-        >
-          <>
-            <WidgetGrafIngresos
-              ingresos={dataGraph?.data?.ingresosHist || []}
-              chartTypes={['pie']}
-              h={360}
-              title={'Resumen de Ingresos por categorías'}
-              subtitle={
-                'Ingresos perteneciente en fecha ' +
-                getDateDesdeHasta(convertFilterDate())
-              }
-            />
-          </>
-        </DataModal>
-      )}
-
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
-          setCustomDateRange({});
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

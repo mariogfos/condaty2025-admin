@@ -56,7 +56,6 @@
   min-width: 150px;
   flex-shrink: 0;
   justify-content: flex-end !important;
-
 }
 
 .dataRow {
@@ -460,6 +459,8 @@
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cWhiteV2, #444) transparent;
 
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
   border-radius: 0 0 1rem 1rem;
@@ -476,11 +477,6 @@
 }
 .tableResponsiveWrapper::-webkit-scrollbar-track {
   background: transparent;
-}
-
-.tableResponsiveWrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--cWhiteV2, #444) transparent;
 }
 
 .tableFinance {

@@ -1,9 +1,9 @@
-"use client";
-import React from "react";
-import { MONTHS_S_GRAPH } from "@/mk/utils/date";
-import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
-import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
-import styles from "./WidgetGrafEgresos.module.css";
+'use client';
+import React from 'react';
+import { MONTHS_S_GRAPH } from '@/mk/utils/date';
+import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
+import { ChartType } from '@/mk/components/ui/Graphs/GraphsTypes';
+import styles from './WidgetGrafEgresos.module.css';
 
 interface Transaction {
   mes: number;
@@ -34,8 +34,8 @@ type PropsType = {
 
 const WidgetGrafEgresos: React.FC<PropsType> = ({
   egresos,
-  chartTypes = ["bar", "pie"],
-  h = "auto",
+  chartTypes = ['bar', 'pie'],
+  h = 'auto',
   title,
   subtitle,
   className,
@@ -49,22 +49,22 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     if (!data || data.length === 0) return [];
 
     // Si el filtro es año anterior, mostrar SIEMPRE los 12 meses
-    if (currentPeriodo === "ly") {
+    if (currentPeriodo === 'ly') {
       return MONTHS_S_GRAPH.slice();
     }
     // Si el filtro es anual actual, mostrar desde el primer mes con datos hasta el último
-    if (currentPeriodo === "y") {
-      const mesesConDatos = data.map((t) => t.mes - 1);
+    if (currentPeriodo === 'y') {
+      const mesesConDatos = data.map(t => t.mes - 1);
       if (mesesConDatos.length === 0) return [];
       const minMes = Math.min(...mesesConDatos);
       const maxMes = Math.max(...mesesConDatos);
       return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
     }
     // Para otros filtros, deduce los meses a partir de los datos
-    const monthIndexes = Array.from(new Set(data.map((t) => t.mes - 1))).sort(
+    const monthIndexes = Array.from(new Set(data.map(t => t.mes - 1))).sort(
       (a, b) => a - b
     );
-    return monthIndexes.map((index) => MONTHS_S_GRAPH[index]);
+    return monthIndexes.map(index => MONTHS_S_GRAPH[index]);
   };
 
   const getValuesEgresos = (
@@ -74,16 +74,16 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
   ): FormattedValue[] | PieChartValue[] => {
     if (!egresosHist || egresosHist.length === 0) return [];
 
-    if (chartType === "pie" || chartType === "donut") {
+    if (chartType === 'pie' || chartType === 'donut') {
       const pieData: PieChartValue[] = [];
       const categoryTotals: { [key: string]: number } = {};
 
-      egresosHist.forEach((transaction) => {
+      egresosHist.forEach(transaction => {
         if (!categoryTotals[transaction.categoria]) {
           categoryTotals[transaction.categoria] = 0;
         }
         categoryTotals[transaction.categoria] += parseFloat(
-          transaction.egresos || "0"
+          transaction.egresos || '0'
         );
       });
 
@@ -100,7 +100,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     const values: FormattedValue[] = [];
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
-    egresosHist.forEach((transaction) => {
+    egresosHist.forEach(transaction => {
       if (!groupedTransactions[transaction.categoria]) {
         groupedTransactions[transaction.categoria] = [];
       }
@@ -111,14 +111,14 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
       const transactions = groupedTransactions[categoria];
       const formattedValues: number[] = [];
 
-      months.forEach((monthName) => {
+      months.forEach(monthName => {
         const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
-          (transaction) => transaction.mes === monthNumber
+          transaction => transaction.mes === monthNumber
         );
         formattedValues.push(
           matchingTransaction
-            ? parseFloat(matchingTransaction.egresos || "0")
+            ? parseFloat(matchingTransaction.egresos || '0')
             : 0
         );
       });
@@ -129,16 +129,21 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     return values;
   };
 
-  const primaryChartType = chartTypes[0] || "bar";
+  const primaryChartType = chartTypes[0] || 'bar';
   const monthLabels = getMonths(egresos, periodo);
 
   return (
-    <div className={`${styles.container} ${className || ""}`}>
-      <p className={styles.subtitle}>
+    <div className={`${styles.container} ${className || ''}`}>
+      <p
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
+      >
         {subtitle ||
-          "Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías"}
+          'Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías'}
       </p>
-      <p className={styles.title}>{title || "Resumen de Egresos"}</p>
+      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
+        {title || 'Resumen de Egresos'}
+      </p>
+
       <GraphBase
         data={{
           labels: monthLabels,
@@ -147,9 +152,9 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
         //downloadPdf
         chartTypes={chartTypes}
         options={{
-          title: "",
-          subtitle: "",
-          label: "",
+          title: '',
+          subtitle: '',
+          label: '',
           height: h,
         }}
         exportando={exportando}

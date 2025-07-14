@@ -61,7 +61,7 @@ const WidgetContentsResume = () => {
   return (
     <WidgetBase
       variant={"V1"}
-      title={"Contenidos"}
+      title={"Comunidad"}
       subtitle={"Publicaciones y anuncios del condominio"}
       className={styles.widgetContentsResume}
     >

@@ -66,4 +66,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--cWhiteV1);
+  margin-top: 8px;
 }

@@ -181,6 +181,7 @@ export const UploadFileM = ({
         fileUpload.click();
       }
     }
+    console.log("carga imagen", value, fileName);
     // if (value?.indexOf("data:") == 0) {
     //   setEditedImage(value);
     // }
@@ -282,14 +283,17 @@ export const UploadFileM = ({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={
-                      (value && value != "delete"
-                        ? "data:image/webp;base64," + value
-                        : editedImage) ||
-                      (selectedFiles?.name
-                        ? URL.createObjectURL(selectedFiles)
-                        : fileName || "")
+                      value === "delete" || fileName
+                        ? fileName
+                        : (value && value != "delete"
+                            ? "data:image/webp;base64," + value
+                            : editedImage) ||
+                          (selectedFiles?.name
+                            ? URL.createObjectURL(selectedFiles)
+                            : fileName || "")
                     }
                     alt={selectedFiles?.name}
+                    // title={fileName}
                     style={{
                       objectFit: "cover",
                     }}

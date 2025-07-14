@@ -1,17 +1,26 @@
 .container {
-    width: 100%;
-  }
-  
-  .title {
-    font-size: var(--sXl);
-    font-family: var(--fPrimary);
-    font-weight: var(--bBold);
-  }
-  
-  .subtitle {
-    color: var(--cWhiteV1);
-    font-size: var(--sLg);
-    font-family: var(--fPrimary);
-    font-weight: var(--bRegular);
-    margin-bottom: 8px;
-  }
+  width: 100%;
+}
+
+.title {
+  font-size: var(--sXl);
+  font-family: var(--fPrimary);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+}
+
+.title.exportando {
+  color: var(--blackv1) !important;
+}
+
+.subtitle {
+  color: var(--cWhite);
+  font-size: var(--sLg);
+  font-family: var(--fPrimary);
+  font-weight: var(--bRegular);
+  margin-bottom: 8px;
+}
+
+.subtitle.exportando {
+  color: var(--blackv1) !important;
+}

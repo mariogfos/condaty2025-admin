@@ -1,38 +1,39 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
-import ControlLabel, { PropsTypeInputBase } from "../ControlLabel";
-import styles from "./input.module.css";
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import ControlLabel, { PropsTypeInputBase } from '../ControlLabel';
+import styles from './input.module.css';
 
 interface PropsType extends PropsTypeInputBase {
   type?:
-    | "text"
-    | "email"
-    | "password"
-    | "datetime-local"
-    | "number"
-    | "date"
-    | "hidden"
-    | "file"
-    | "search"
-    | "checkbox"
-    | "currency";
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'datetime-local'
+    | 'number'
+    | 'date'
+    | 'hidden'
+    | 'file'
+    | 'search'
+    | 'checkbox'
+    | 'currency';
   min?: any;
   max?: any;
   prefix?: string;
   suffix?: string;
+  autoComplete?: string;
 }
 
 const Input = (props: PropsType) => {
   const {
-    type = "text",
+    type = 'text',
     name,
-    placeholder = "",
-    onChange = (e) => {},
+    placeholder = '',
+    onChange = e => {},
     value,
     disabled = false,
     required = true,
     readOnly = false,
-    className = "",
+    className = '',
     styleInput = {},
     onBlur = (e: any) => {},
     onFocus = (e: any) => {},
@@ -44,18 +45,19 @@ const Input = (props: PropsType) => {
     suffix,
     min,
     max,
+    autoComplete,
   } = props;
-  const [displayValue, setDisplayValue] = useState("");
+  const [displayValue, setDisplayValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef<number | null>(null);
 
   const formatForDisplayWhileTyping = (
     val: string | number | undefined
   ): string => {
-    if (val === undefined || val === null || String(val).trim() === "")
-      return "";
-    let [integerPart, decimalPart] = String(val).split(".");
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (val === undefined || val === null || String(val).trim() === '')
+      return '';
+    let [integerPart, decimalPart] = String(val).split('.');
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     if (decimalPart !== undefined) {
       return `${integerPart}.${decimalPart}`;
     }
@@ -63,26 +65,26 @@ const Input = (props: PropsType) => {
   };
 
   const formatForDisplayOnBlur = (val: string | number | undefined): string => {
-    if (val === undefined || val === null) return "";
-    const num = parseFloat(String(val).replace(/,/g, ""));
+    if (val === undefined || val === null) return '';
+    const num = parseFloat(String(val).replace(/,/g, ''));
     if (isNaN(num)) {
       // Si es solo un punto o inválido, no mostrar nada o "0.00"
-      if (String(val).trim() === ".") return formatForDisplayOnBlur("0"); // Formatea "0" como "0.00"
-      return ""; // Para otros inválidos, no mostrar nada en el display
+      if (String(val).trim() === '.') return formatForDisplayOnBlur('0'); // Formatea "0" como "0.00"
+      return ''; // Para otros inválidos, no mostrar nada en el display
     }
-    const parts = num.toFixed(2).split(".");
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const parts = num.toFixed(2).split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return `${integerPart}.${parts[1]}`;
   };
 
   useEffect(() => {
-    if (type === "currency") {
+    if (type === 'currency') {
       // console.log(`[Input Debug useEffect props.value] Triggered. props.value: "${value}" (type: ${typeof value}), current displayValue state: "${displayValue}", focused: ${document.activeElement === inputRef.current}`);
-      const rawPropValue = String(value || "").replace(/,/g, "");
+      const rawPropValue = String(value || '').replace(/,/g, '');
       const newFormattedDisplay = formatForDisplayWhileTyping(value);
 
       if (document.activeElement === inputRef.current) {
-        const currentRawDisplayValue = displayValue.replace(/,/g, "");
+        const currentRawDisplayValue = displayValue.replace(/,/g, '');
         if (rawPropValue !== currentRawDisplayValue) {
           // console.log(`[Input Debug useEffect props.value FOCUS] Raw prop value ("${rawPropValue}") differs from raw displayValue ("${currentRawDisplayValue}"). Setting displayValue to: "${newFormattedDisplay}" based on props.value: "${value}"`);
           setDisplayValue(newFormattedDisplay);
@@ -101,21 +103,21 @@ const Input = (props: PropsType) => {
     const handleWheel = (e: WheelEvent) => {
       if (
         currentInput &&
-        currentInput.type === "number" &&
+        currentInput.type === 'number' &&
         document.activeElement === currentInput
       ) {
         e.preventDefault();
       }
     };
-    currentInput?.addEventListener("wheel", handleWheel, { passive: false });
+    currentInput?.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      currentInput?.removeEventListener("wheel", handleWheel);
+      currentInput?.removeEventListener('wheel', handleWheel);
     };
   }, []);
 
   useEffect(() => {
     if (
-      type === "currency" &&
+      type === 'currency' &&
       inputRef.current &&
       cursorPositionRef.current !== null
     ) {
@@ -131,16 +133,16 @@ const Input = (props: PropsType) => {
     const inputValue = e.target.value;
     const originalCursorPos = e.target.selectionStart || 0;
 
-    let sanitizedValue = "";
+    let sanitizedValue = '';
     let hasDecimalPoint = false;
     let rawCursorPos = 0;
 
     for (let i = 0; i < inputValue.length; i++) {
       const char = inputValue[i];
-      if (char >= "0" && char <= "9") {
+      if (char >= '0' && char <= '9') {
         // Si ya hay un punto y estamos en la parte decimal, verificar longitud de decimales
         if (hasDecimalPoint) {
-          const decimalPart = sanitizedValue.split(".")[1] || "";
+          const decimalPart = sanitizedValue.split('.')[1] || '';
           if (decimalPart.length < 2) {
             // Solo añadir si tenemos menos de 2 decimales
             sanitizedValue += char;
@@ -154,7 +156,7 @@ const Input = (props: PropsType) => {
           sanitizedValue += char;
           if (i < originalCursorPos) rawCursorPos++;
         }
-      } else if (char === "." && !hasDecimalPoint) {
+      } else if (char === '.' && !hasDecimalPoint) {
         sanitizedValue += char;
         hasDecimalPoint = true;
         if (i < originalCursorPos) rawCursorPos++;
@@ -163,8 +165,8 @@ const Input = (props: PropsType) => {
 
     if (
       sanitizedValue.length > 1 &&
-      sanitizedValue.startsWith("0") &&
-      !sanitizedValue.startsWith("0.")
+      sanitizedValue.startsWith('0') &&
+      !sanitizedValue.startsWith('0.')
     ) {
       sanitizedValue = sanitizedValue.substring(1);
       if (originalCursorPos > 0 && rawCursorPos > 0)
@@ -194,7 +196,7 @@ const Input = (props: PropsType) => {
     } else if (sanitizedValue.length > 0) {
       // Asegurarse que sanitizedValue no está vacío
       for (let i = 0; i < newDisplayValue.length; i++) {
-        if (newDisplayValue[i] !== ",") {
+        if (newDisplayValue[i] !== ',') {
           currentRawChars++;
         }
         if (currentRawChars === rawCursorPos) {
@@ -208,7 +210,7 @@ const Input = (props: PropsType) => {
         }
       }
     }
-    if (sanitizedValue === "") newCursorActualPos = 0;
+    if (sanitizedValue === '') newCursorActualPos = 0;
 
     cursorPositionRef.current = newCursorActualPos;
 
@@ -224,20 +226,20 @@ const Input = (props: PropsType) => {
   };
 
   const handleCurrencyBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    let currentValue = String(value || "").replace(/,/g, "");
+    let currentValue = String(value || '').replace(/,/g, '');
 
     if (
-      currentValue === "." ||
+      currentValue === '.' ||
       (currentValue && isNaN(parseFloat(currentValue)))
     ) {
-      currentValue = ""; // Tratar un punto solo o no números como vacío para el valor lógico
+      currentValue = ''; // Tratar un punto solo o no números como vacío para el valor lógico
     }
 
     const finalDisplayValue = formatForDisplayOnBlur(currentValue);
     setDisplayValue(finalDisplayValue);
 
-    let valueToPropagate = "";
-    if (currentValue !== "" && !isNaN(parseFloat(currentValue))) {
+    let valueToPropagate = '';
+    if (currentValue !== '' && !isNaN(parseFloat(currentValue))) {
       valueToPropagate = parseFloat(currentValue).toFixed(2);
     }
 
@@ -253,10 +255,10 @@ const Input = (props: PropsType) => {
     onBlur(syntheticEvent);
   };
 
-  const currentDisplayValue = type === "currency" ? displayValue : value || "";
-  const inputType = type === "currency" ? "text" : type;
+  const currentDisplayValue = type === 'currency' ? displayValue : value || '';
+  const inputType = type === 'currency' ? 'text' : type;
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (type === "number" && (e.key === "e" || e.key === "E")) {
+    if (type === 'number' && (e.key === 'e' || e.key === 'E')) {
       e.preventDefault();
       return;
     }
@@ -277,7 +279,7 @@ const Input = (props: PropsType) => {
       style={props.style}
       styleInput={styleInput}
       className={`${styles.input} ${className} ${
-        disabled ? styles.disabled : ""
+        disabled ? styles.disabled : ''
       }`}
     >
       <input
@@ -285,9 +287,9 @@ const Input = (props: PropsType) => {
         type={inputType}
         ref={inputRef}
         placeholder={placeholder}
-        onChange={type === "currency" ? handleCurrencyChange : onChange}
+        onChange={type === 'currency' ? handleCurrencyChange : onChange}
         onFocus={onFocus}
-        onBlur={type === "currency" ? handleCurrencyBlur : onBlur}
+        onBlur={type === 'currency' ? handleCurrencyBlur : onBlur}
         name={name}
         value={currentDisplayValue}
         onKeyDown={handleKeyDown}
@@ -296,9 +298,9 @@ const Input = (props: PropsType) => {
         required={required}
         style={{ paddingTop: !label ? 0 : 8, ...styleInput }}
         aria-autocomplete="none"
-        autoComplete="new-password"
+        autoComplete={autoComplete || 'new-password'}
         checked={checked}
-        maxLength={maxLength || (type === "currency" ? 50 : 255)}
+        maxLength={maxLength || (type === 'currency' ? 50 : 255)}
         min={min}
         max={max}
       />
