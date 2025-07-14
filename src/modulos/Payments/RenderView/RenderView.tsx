@@ -193,7 +193,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         buttonText=""
         buttonCancel=""
       >
-        {item && onDel && item.status === 'P' && (
+        {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>
             {/* REEMPLAZO DEL BOTÓN */}
             <button
@@ -450,6 +450,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   );
 });
 
-RenderView.displayName = "RenderViewPayment";
+RenderView.displayName = 'RenderViewPayment';
 
 export default RenderView;
