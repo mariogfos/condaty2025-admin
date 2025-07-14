@@ -782,12 +782,28 @@ const isExpensasWithoutDebt =
                 </div>
               </div>
 
+              {(_formState.subcategory_id ===
+                extraData?.client_config?.cat_expensas ||
+                _formState.subcategory_id ===
+                  extraData?.client_config?.cat_reservations) && (
+                <div>
+                  {deudasContent}
+                  {_errors.selectedPeriodo && (
+                    <div
+                      className={styles['error-message']}
+                      style={{ color: 'red', marginTop: 8 }}
+                    >
+                      {_errors.selectedPeriodo}
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Sección de subir comprobante */}
               <div
                 className={styles['upload-section']}
                 // style={{ backgroundColor: "var(--cWhiteV2)" }}
               >
-                <p className={styles['section-title']}>Subir comprobante</p>
+             
                 <UploadFile
                   name="file"
                   ext={exten}
@@ -831,22 +847,7 @@ const isExpensasWithoutDebt =
                   />
                 </div>
               </div>
-              {(_formState.subcategory_id ===
-                extraData?.client_config?.cat_expensas ||
-                _formState.subcategory_id ===
-                  extraData?.client_config?.cat_reservations) && (
-                <div>
-                  {deudasContent}
-                  {_errors.selectedPeriodo && (
-                    <div
-                      className={styles['error-message']}
-                      style={{ color: 'red', marginTop: 8 }}
-                    >
-                      {_errors.selectedPeriodo}
-                    </div>
-                  )}
-                </div>
-              )}
+
               <div className={styles['obs-section']}>
                 <div className={styles['obs-input']}>
                   <TextArea
