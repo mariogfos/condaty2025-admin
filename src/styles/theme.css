@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wdth,wght@75..100,100..900&display=swap");
 
 :root {
   --accent: #00e38c;
@@ -64,6 +64,7 @@
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
+  --cHoverTable: #7979791A;
   --cHoverBigSidebar: #1f2d27;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
@@ -90,6 +91,32 @@
 
   --cBigSidebar: #246950;
 
+  --cCompl1: #ffdd7f;
+  --cCompl2: #a2faa3;
+  --cCompl3: #b382d9;
+  --cCompl4: #e9b01e;
+  --cCompl5: #f7b267;
+  --cCompl6: #ff7f51;
+  --cCompl7: #6cd16d;
+  --cCompl8: #de6a60;
+  --cCompl9: #5ab0e9;
+
+  /*Paleta de Hover*/
+  --cHoverCompl1: #FAFAFA1A;
+  --cHoverCompl2: #00AF9033;
+  --cHoverCompl3: #39ACEC33;
+  --cHoverCompl4: #E1C15133;
+  --cHoverCompl5: #F37F3D33;
+  --cHoverCompl6: #B382D933;
+  --cHoverCompl7: #A9CCE333;
+  --cHoverCompl8: #F7B26733;
+  --cHoverCompl9: #FF7F5133;
+  --cHoverCompl10: #00E38C0D;
+  --cHoverBlack: #212121CC;
+  --cHoverBlackv2: #33353633;
+  --cHoverUnread: #18F6620F;
+
+
   /* Paleta de colores Random */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;
@@ -110,24 +137,9 @@
   --cRandom17: #fdf0d5;
   --cRandom18: #f7b267;
   --cRandom19: #b8c0ff;
-  --cHightAlert: '#FF5B4D';
+  --cHightAlert: "#FF5B4D";
   --cMediumAlert: #f37f3d;
-  --cLowAlert: '#FDD671';
-
-  --cCompl1: #ffdd7f;
-  --cCompl2: #a2faa3;
-  --cCompl3: #b382d9;
-  --cCompl4: #e9b01e;
-  --cCompl5: #f7b267;
-  --cCompl6: #ff7f51;
-  --cCompl7: #6cd16d;
-  --cCompl8: #de6a60;
-  --cCompl9: #5ab0e9;
-  --cHoveTablePdf: #7979791a;
-  --cHoverCompl1: #fafafa1a;
-  --cHoverCompl2: #00af9033;
-  --cHoverCompl5: #f7b26733;
-  --cHoverCompl6: #f7b26733;
+  --cLowAlert: "#FDD671";
 
   /* Tamaños de los textos fluido */
   --sXxl: 24px;
@@ -145,8 +157,8 @@
   --spXl: 24px;
   --spXxl: 32px;
   /* Fuentes */
-  --fPrimary: 'Roboto', sans-serif;
-  --fSecondary: 'Roboto', sans-serif;
+  --fPrimary: "Roboto", sans-serif;
+  --fSecondary: "Roboto", sans-serif;
   /* Border */
   --bRadiusS: 8px;
   --bRadius: 12px;
@@ -387,7 +399,7 @@ select:-webkit-autofill:focus {
   background: transparent !important;
 }
 
-input[type='date']::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   margin-right: 4px;
 }
