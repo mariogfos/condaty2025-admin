@@ -207,21 +207,42 @@ const Outlays = () => {
       amount: {
         rules: ['required'],
         api: 'ae',
-        label: 'Monto total',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto total
+          </span>
+        ),
         form: { type: 'number' },
         list: {
-          onRender: (props: any) => {
-            return 'Bs ' + formatNumber(props.item.amount);
-          },
+          onRender: (props: any) => (
+            <div style={{ width: '100%', textAlign: 'right' }}>
+              {'Bs ' + formatNumber(props.item.amount)}
+            </div>
+          ),
+          align: 'right',
         },
       },
       status: {
         rules: [''],
         api: 'ae',
-        label: 'Estado',
+        label: (
+          <span
+            style={{ display: 'block', textAlign: 'center', width: '100%' }}
+          >
+            Estado
+          </span>
+        ),
         list: {
-          onRender: (props: any) => {
-            return (
+          onRender: (props: any) => (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                height: '100%',
+              }}
+            >
               <div
                 className={`${styles.statusBadge} ${
                   styles[`status${props.item.status}`]
@@ -229,8 +250,9 @@ const Outlays = () => {
               >
                 {props.item.status === 'A' ? 'Pagado' : 'Anulado'}
               </div>
-            );
-          },
+            </div>
+          ),
+          align: 'center',
         },
         filter: {
           label: 'Estado',
@@ -338,7 +360,7 @@ const Outlays = () => {
       />
 
       {/* Modal para ejecutar presupuesto */}
-{/*       {openModal && (
+      {/*       {openModal && (
         <PerformBudget
           reLoad={reLoad}
           open={openModal}
