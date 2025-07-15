@@ -145,7 +145,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo((props) => {
             <span className={styles.infoValue}>{subCategoryName}</span>
           </div>
           <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}>Descripción</span>
+            <span className={styles.infoLabel}>Concepto</span>
             <span className={styles.infoValue}>{item.description || "-/-"}</span>
           </div>
         </div>
