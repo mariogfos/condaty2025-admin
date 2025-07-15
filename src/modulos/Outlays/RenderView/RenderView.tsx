@@ -5,7 +5,6 @@ import { getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
 import {
   formatToDayDDMMYYYYHHMM,
-  getDateTimeStrMesShort,
 } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';

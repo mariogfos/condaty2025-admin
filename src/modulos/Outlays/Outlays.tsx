@@ -15,6 +15,7 @@ import RenderView from './RenderView/RenderView';
 import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
+import { getFullName } from '@/mk/utils/string';
 
 const Outlays = () => {
   const router = useRouter();
@@ -124,6 +125,16 @@ const Outlays = () => {
           label: 'Periodo',
           options: getPeriodOptions,
         },
+      },
+      user: {
+        api: '',
+        label: 'Responsable',
+        list: {
+          onRender: (props: any) => {
+            return getFullName(props.item.user);
+          },
+        },
+
       },
       category_id: {
         rules: ['required'],
