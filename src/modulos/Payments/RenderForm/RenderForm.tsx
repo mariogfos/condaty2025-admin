@@ -1,7 +1,5 @@
-// @ts-nocheck
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-
 import React, {
   useState,
   useEffect,
@@ -17,38 +15,127 @@ import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import Input from '@/mk/components/forms/Input/Input';
 import {
-  IconArrowDown,
   IconCheckOff,
   IconCheckSquare,
-  IconDocs,
-  IconPDF,
 } from '@/components/layout/icons/IconsBiblioteca';
-import { ToastType } from '@/mk/hooks/useToast';
 import Toast from '@/mk/components/ui/Toast/Toast';
-import { UnitsType } from '@/mk/utils/utils';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
 import { formatBs } from '@/mk/utils/numbers';
 
-const RenderForm = ({
+interface Dpto {
+  id: string | number;
+  nro: string;
+  description: string;
+  titular?: {
+    owner?: {
+      id?: string | number;
+      name?: string;
+      [key: string]: unknown;
+    };
+  };
+}
+
+interface Category {
+  id: string | number;
+  name: string;
+  hijos?: Subcategory[];
+}
+
+interface Subcategory {
+  id: string | number;
+  name: string;
+}
+
+interface ClientConfig {
+  cat_expensas: string | number;
+  cat_reservations: string | number;
+}
+
+interface ExtraData {
+  dptos: Dpto[];
+  categories: Category[];
+  client_config: ClientConfig;
+}
+
+interface Deuda {
+  id: string | number;
+  amount?: number;
+  penalty_amount?: number;
+  debt?: {
+    month?: number;
+    year?: number;
+  };
+}
+
+interface SelectedPeriodo {
+  id: string | number;
+  amount: number;
+}
+
+
+
+interface FormState {
+  paid_at?: string;
+  payment_method?: string;
+  file?: string | null;
+  filename?: string | null;
+  ext?: string | null;
+  dpto_id?: string | number;
+  category_id?: string | number;
+  subcategory_id?: string | number;
+  subcategories?: Subcategory[];
+  isSubcategoryLocked?: boolean;
+  type?: string;
+  voucher?: string;
+  obs?: string;
+  amount?: number | string;
+}
+
+interface Errors {
+  general?: string;
+  selectedPeriodo?: string;
+  dpto_id?: string;
+  category_id?: string;
+  subcategory_id?: string;
+  type?: string;
+  voucher?: string;
+  amount?: string;
+  file?: string;
+  paid_at?: string;
+  [key: string]: string | undefined;
+}
+
+interface RenderFormProps {
+  open: boolean;
+  onClose: () => void;
+  item?: FormState;
+  onSave?: () => void;
+  extraData: ExtraData;
+  execute: (...args: any[]) => Promise<any>;
+  showToast: (
+    msg: string,
+    type: 'info' | 'success' | 'error' | 'warning'
+  ) => void;
+  reLoad: () => void;
+}
+
+const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
   item,
-  onSave,
   extraData,
   execute,
   showToast,
   reLoad,
-  user,
 }) => {
-  const [_formState, _setFormState] = useState(() => {
+  const [_formState, _setFormState] = useState<FormState>(() => {
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
 
     return {
       ...(item || {}),
-
       paid_at: (item && item.paid_at) || formattedDate,
       payment_method: (item && item.payment_method) || '',
       file: (item && item.file) || null,
@@ -56,27 +143,30 @@ const RenderForm = ({
       ext: (item && item.ext) || null,
     };
   });
-  const [_errors, set_Errors] = useState({});
+  const [_errors, set_Errors] = useState<Errors>({});
 
-  const [deudas, setDeudas] = useState([]);
-  const [selectedPeriodo, setSelectedPeriodo] = useState([]);
+  const [deudas, setDeudas] = useState<Deuda[]>([]);
+  const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
   const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: ToastType }>({
+  const [toast] = useState<{
+    msg: string;
+    type: 'info' | 'success' | 'error' | 'warning';
+  }>({
     msg: '',
     type: 'info',
   });
   const { store } = useAuth();
 
-const isExpensasWithoutDebt =
-  _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-  deudas?.length === 0 &&
-  !isLoadingDeudas;
+  const isExpensasWithoutDebt =
+    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+    deudas.length === 0 &&
+    !isLoadingDeudas;
 
   const lDptos = useMemo(
     () =>
-      extraData?.dptos.map(dpto => {
+      extraData?.dptos.map((dpto: Dpto) => {
         return {
           id: dpto.nro,
           name:
@@ -86,39 +176,18 @@ const isExpensasWithoutDebt =
             ' - ' +
             dpto.description +
             ' - ' +
-            getFullName(dpto.titular?.owner),
+            getFullName(dpto.titular?.owner ?? {}),
           dpto_id: dpto.id,
         };
       }),
-    [extraData?.dptos]
+    [extraData?.dptos, store.UnitsType]
   );
 
-  const lastLoadedDeudas = useRef('');
-
-  const client = useMemo(() => {
-    return (
-      user.clients?.find(item => item.id === user.client_id) || {
-        id: 0,
-        type_dpto: 'D',
-      }
-    );
-  }, [user]);
-
+  const lastLoadedDeudas = useRef<string>('');
   const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx'];
 
-  const tipo = {
-    D: 'Departamento',
-    C: 'Casa',
-    L: 'Lote',
-    O: 'Oficina',
-    _D: 'Piso',
-    _C: 'Calle',
-    _L: 'Calle/Mz',
-    _O: 'Piso',
-  };
-
   const getDeudas = useCallback(
-    async nroDpto => {
+    async (nroDpto: string | number) => {
       if (!nroDpto) return;
 
       const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === nroDpto);
@@ -151,11 +220,13 @@ const isExpensasWithoutDebt =
         );
 
         if (data?.success) {
-          const deudasArray = data?.data?.deudas || [];
+          const deudasArray: Deuda[] = data?.data?.deudas || [];
 
-          const deudasArrayOrdenado = deudasArray.sort((a, b) => {
-            return a.debt?.year - b.debt?.year || a.debt?.month - b.debt?.month;
-          });
+          const deudasArrayOrdenado = deudasArray.toSorted(
+            (a, b) =>
+              (a.debt?.year ?? 0) - (b.debt?.year ?? 0) ||
+              (a.debt?.month ?? 0) - (b.debt?.month ?? 0)
+          );
           setDeudas(deudasArrayOrdenado);
           if (deudasArrayOrdenado.length === 0) {
             setSelectedPeriodo([]);
@@ -163,6 +234,7 @@ const isExpensasWithoutDebt =
           }
         }
       } catch (err) {
+        console.error(err);
       } finally {
         setIsLoadingDeudas(false);
       }
@@ -228,24 +300,26 @@ const isExpensasWithoutDebt =
   ]);
 
   useEffect(() => {
-    let newSubcategories = [];
-    let newSubcategoryId = '';
+    let newSubcategories: Subcategory[] = [];
+    let newSubcategoryId: string | number = '';
     let lockSubcategory = false;
 
     if (_formState.category_id && extraData?.categories) {
       const selectedCategory = extraData.categories.find(
-        category => category.id === _formState.category_id
+        (category: Category) => category.id === _formState.category_id
       );
 
-      if (selectedCategory && selectedCategory.hijos) {
+      if (selectedCategory?.hijos) {
         newSubcategories = selectedCategory.hijos || [];
 
         // Buscar si la subcategoría es cat_expensas o cat_reservations
         const catExpensasChild = newSubcategories.find(
-          hijo => hijo.id === extraData?.client_config?.cat_expensas
+          (hijo: Subcategory) =>
+            hijo.id === extraData?.client_config?.cat_expensas
         );
         const catReservationsChild = newSubcategories.find(
-          hijo => hijo.id === extraData?.client_config?.cat_reservations
+          (hijo: Subcategory) =>
+            hijo.id === extraData?.client_config?.cat_reservations
         );
         if (catExpensasChild) {
           newSubcategoryId = extraData.client_config.cat_expensas;
@@ -257,7 +331,7 @@ const isExpensasWithoutDebt =
       }
     }
 
-    _setFormState(prev => {
+    _setFormState((prev: FormState) => {
       if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
         setDeudas([]);
         setSelectedPeriodo([]);
@@ -280,19 +354,22 @@ const isExpensasWithoutDebt =
     extraData?.client_config?.cat_expensas,
   ]);
 
-  const handleChangeInput = useCallback(e => {
-    const { name, value, type } = e.target;
+  const handleChangeInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value, type } = e.target;
+      let newValue: string | number | boolean = value;
+      if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
+        newValue = e.target.checked ? 'Y' : 'N';
+      }
+      _setFormState((prev: FormState) => ({
+        ...prev,
+        [name]: newValue,
+      }));
+    },
+    []
+  );
 
-    const newValue =
-      type === 'checkbox' ? (e.target.checked ? 'Y' : 'N') : value;
-
-    _setFormState(prev => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  }, []);
-
-  const handleSelectPeriodo = useCallback(periodo => {
+  const handleSelectPeriodo = useCallback((periodo: Deuda) => {
     const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
 
     setSelectedPeriodo(prev => {
@@ -315,55 +392,15 @@ const isExpensasWithoutDebt =
     });
   }, []);
 
-  const handleDragOver = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    e => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      try {
-        if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
-
-        const droppedFile = e.dataTransfer.files[0];
-        const fileExtension =
-          droppedFile.name.split('.').pop()?.toLowerCase() || '';
-
-        if (!exten.includes(fileExtension)) {
-          alert('Solo se permiten archivos ' + exten.join(', '));
-          return;
-        }
-
-        _setFormState(prev => ({
-          ...prev,
-          ext: fileExtension,
-          file: droppedFile.name,
-        }));
-      } catch (error) {}
-    },
-    [exten]
-  );
-
-  const handleDragLeave = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
   const validar = useCallback(() => {
     // 1. Inicia un objeto de errores vacío.
-    const err = {};
-
-    // 2. Realiza todas las validaciones y acumula los errores.
+    const err: Errors = {};
 
     // Validación general: No se puede pagar si no hay deuda.
     if (isExpensasWithoutDebt) {
       err.general =
         'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
     }
-
     // Validación de período seleccionado (para expensas y reservas)
     if (
       (_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
@@ -441,10 +478,10 @@ const isExpensasWithoutDebt =
       if (
         isExpensasWithoutDebt ||
         (_formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-          deudas?.length > 0 &&
+          deudas.length > 0 &&
           selectedPeriodo.length === 0)
       ) {
-        showToast(_errors.general || 'Por favor revise los errores', 'error');
+        showToast('Por favor revise los errores', 'error');
       } else {
         showToast('Por favor revise los campos marcados', 'warning');
       }
@@ -452,7 +489,7 @@ const isExpensasWithoutDebt =
     }
 
     const selectedDpto = extraData?.dptos.find(
-      dpto => dpto.nro === _formState.dpto_id
+      (dpto: Dpto) => String(dpto.nro) === String(_formState.dpto_id)
     );
     const owner_id = selectedDpto?.titular?.owner?.id;
 
@@ -479,7 +516,7 @@ const isExpensasWithoutDebt =
     } else {
       params = {
         ...params,
-        amount: parseFloat(_formState.amount || '0'),
+        amount: parseFloat(String(_formState.amount || '0')),
       };
     }
 
@@ -502,8 +539,8 @@ const isExpensasWithoutDebt =
           set_Errors(data.errors);
         }
       }
-    } catch (err) {
-      showToast('Error inesperado al guardar el pago', 'error');
+    } catch (error) {
+      console.error(error);
     }
   }, [
     _formState,
@@ -525,138 +562,160 @@ const isExpensasWithoutDebt =
     onClose();
   }, [onClose]);
 
-  let deudasContent;
-  if (!_formState.dpto_id) {
-    deudasContent = (
-      <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
-    );
-  } else if (isLoadingDeudas) {
-    deudasContent = <EmptyData message="Cargando deudas..." h={200} />;
-  } else if (deudas?.length === 0) {
-    deudasContent = (
-      <div className={styles['no-deudas-container']}>
-        <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
-        <p className={styles['no-deudas-message']}>
-          No se encontraron deudas pendientes para esta unidad. No se puede
-          registrar un pago de{' '}
-          {_formState.subcategory_id === extraData?.client_config?.cat_expensas
-            ? 'expensas'
-            : 'reservas'}
-          .
-        </p>
-      </div>
-    );
-  } else {
-    deudasContent = (
-      <div className={styles['deudas-container']}>
-        <div className={styles['deudas-title-row']}>
-          <p className={styles['deudas-title']}>
-            Seleccione las{' '}
+  const deudasContent = useMemo(() => {
+    if (!_formState.dpto_id) {
+      return (
+        <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
+      );
+    } else if (isLoadingDeudas) {
+      return <EmptyData message="Cargando deudas..." h={200} />;
+    } else if (deudas.length === 0) {
+      return (
+        <div className={styles['no-deudas-container']}>
+          <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
+          <p className={styles['no-deudas-message']}>
+            No se encontraron deudas pendientes para esta unidad. No se puede
+            registrar un pago de{' '}
             {_formState.subcategory_id ===
             extraData?.client_config?.cat_expensas
               ? 'expensas'
-              : 'reservas'}{' '}
-            a pagar:
+              : 'reservas'}
+            .
           </p>
-          <div
-            className={styles['select-all-container']}
-            onClick={() => {
-              if (selectedPeriodo.length === deudas.length) {
-                setSelectedPeriodo([]);
-                setSelectPeriodoTotal(0);
-              } else {
-                const allPeriodos = deudas.map(periodo => ({
-                  id: periodo.id,
-                  amount:
-                    Number(periodo.amount) + Number(periodo.penalty_amount),
-                }));
-
-                const totalAmount = allPeriodos.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                );
-
-                setSelectedPeriodo(allPeriodos);
-                setSelectPeriodoTotal(totalAmount);
-              }
-            }}
-          >
-            <span className={styles['select-all-text']}>Pagar todo</span>
-            {selectedPeriodo.length === deudas.length ? (
-              <IconCheckSquare
-                className={`${styles['check-icon']} ${styles.selected}`}
-              />
-            ) : (
-              <IconCheckOff className={styles['check-icon']} />
-            )}
-          </div>
         </div>
+      );
+    } else {
+      return (
+        <div className={styles['deudas-container']}>
+          <div className={styles['deudas-title-row']}>
+            <p className={styles['deudas-title']}>
+              Seleccione las{' '}
+              {_formState.subcategory_id ===
+              extraData?.client_config?.cat_expensas
+                ? 'expensas'
+                : 'reservas'}{' '}
+              a pagar:
+            </p>
+            <button
+              type="button"
+              className={styles['select-all-container']}
+              onClick={() => {
+                if (selectedPeriodo.length === deudas.length) {
+                  setSelectedPeriodo([]);
+                  setSelectPeriodoTotal(0);
+                } else {
+                  const allPeriodos: SelectedPeriodo[] = deudas.map(
+                    periodo => ({
+                      id: periodo.id,
+                      amount:
+                        Number(periodo.amount) + Number(periodo.penalty_amount),
+                    })
+                  );
 
-        <div className={styles['deudas-table']}>
-          <div className={styles['deudas-header']}>
-            <span className={styles['header-item']}>Periodo</span>
-            <span className={styles['header-item']}>Monto</span>
-            <span className={styles['header-item']}>Multa</span>
-            <span className={styles['header-item']}>SubTotal</span>
-            <span className={styles['header-item']}>Seleccionar</span>
-          </div>
+                  const totalAmount = allPeriodos.reduce(
+                    (sum, item) => sum + item.amount,
+                    0
+                  );
 
-          {deudas.map(periodo => (
-            <div
-              key={String(periodo.id)}
-              onClick={() => handleSelectPeriodo(periodo)}
-              className={styles['deuda-item']}
+                  setSelectedPeriodo(allPeriodos);
+                  setSelectPeriodoTotal(totalAmount);
+                }
+              }}
             >
-              <div className={styles['deuda-row']}>
-                <div className={styles['deuda-cell']}>
-                  {periodo.debt &&
-                  typeof periodo.debt === 'object' &&
-                  periodo.debt.month &&
-                  periodo.debt.year
-                    ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${
-                        periodo.debt.year ?? '?'
-                      }`
-                    : 'N/A'}
-                </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}{' '}
-                </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
-                </div>
-                <div className={styles['deuda-cell']}>
-                  {'Bs ' +
-                    (
-                      Number(periodo.amount ?? 0) +
-                      Number(periodo.penalty_amount ?? 0)
-                    ).toFixed(2)}{' '}
-                </div>
+              <span className={styles['select-all-text']}>Pagar todo</span>
+              {selectedPeriodo.length === deudas.length ? (
+                <IconCheckSquare
+                  className={`${styles['check-icon']} ${styles.selected}`}
+                />
+              ) : (
+                <IconCheckOff className={styles['check-icon']} />
+              )}
+            </button>
+          </div>
 
-                <div
-                  className={`${styles['deuda-cell']} ${styles['deuda-check']}`}
-                >
-                  {selectedPeriodo.some(item => item.id === periodo.id) ? (
-                    <IconCheckSquare
-                      className={`${styles['check-icon']} ${styles.selected}`}
-                    />
-                  ) : (
-                    <IconCheckOff className={styles['check-icon']} />
-                  )}
-                </div>
-              </div>
+          <div className={styles['deudas-table']}>
+            <div className={styles['deudas-header']}>
+              <span className={styles['header-item']}>Periodo</span>
+              <span className={styles['header-item']}>Monto</span>
+              <span className={styles['header-item']}>Multa</span>
+              <span className={styles['header-item']}>SubTotal</span>
+              <span className={styles['header-item']}>Seleccionar</span>
             </div>
-          ))}
+
+            {deudas.map(periodo => (
+              <button
+                type="button"
+                key={String(periodo.id)}
+                onClick={() => handleSelectPeriodo(periodo)}
+                className={styles['deuda-item']}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  width: '100%',
+                  textAlign: 'inherit',
+                }}
+              >
+                <div className={styles['deuda-row']}>
+                  <div className={styles['deuda-cell']}>
+                    {periodo.debt &&
+                    typeof periodo.debt === 'object' &&
+                    periodo.debt.month !== undefined &&
+                    periodo.debt.year !== undefined
+                      ? `${MONTHS_S[periodo.debt.month] ?? '?'}/$${
+                          periodo.debt.year ?? '?'
+                        }`
+                      : 'N/A'}
+                  </div>
+                  <div className={styles['deuda-cell']}>
+                    {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}{' '}
+                  </div>
+                  <div className={styles['deuda-cell']}>
+                    {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
+                  </div>
+                  <div className={styles['deuda-cell']}>
+                    {'Bs ' +
+                      (
+                        Number(periodo.amount ?? 0) +
+                        Number(periodo.penalty_amount ?? 0)
+                      ).toFixed(2)}{' '}
+                  </div>
+
+                  <div
+                    className={`${styles['deuda-cell']} ${styles['deuda-check']}`}
+                  >
+                    {selectedPeriodo.some(item => item.id === periodo.id) ? (
+                      <IconCheckSquare
+                        className={`${styles['check-icon']} ${styles.selected}`}
+                      />
+                    ) : (
+                      <IconCheckOff className={styles['check-icon']} />
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className={styles['total-container']}>
+            <p>Total a pagar: {formatBs(selecPeriodoTotal)}</p>
+          </div>
         </div>
-        <div className={styles['total-container']}>
-          <p>Total a pagar: {formatBs(selecPeriodoTotal)}</p>
-        </div>
-      </div>
-    );
-  }
+      );
+    }
+  }, [
+    _formState.dpto_id,
+    isLoadingDeudas,
+    deudas,
+    selectedPeriodo.length,
+    selecPeriodoTotal,
+    extraData?.client_config?.cat_expensas,
+    _formState.subcategory_id,
+    handleSelectPeriodo,
+  ]);
 
   return (
     <>
-      <Toast toast={toast} showToast={showToast} />
+      <Toast toast={toast as any} showToast={showToast} />
       <DataModal
         open={open}
         onClose={onCloseModal}
@@ -803,7 +862,6 @@ const isExpensasWithoutDebt =
                 className={styles['upload-section']}
                 // style={{ backgroundColor: "var(--cWhiteV2)" }}
               >
-             
                 <UploadFile
                   name="file"
                   ext={exten}
