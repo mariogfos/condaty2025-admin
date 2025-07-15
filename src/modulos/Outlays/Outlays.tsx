@@ -90,6 +90,7 @@ const Outlays = () => {
   };
   const getPeriodOptions = () => [
     { id: 'ALL', name: 'Todos' },
+    { id: 'd', name: 'Hoy' },
     { id: 'ld', name: 'Ayer' },
     { id: 'w', name: 'Esta semana' },
     { id: 'lw', name: 'Semana pasada' },
