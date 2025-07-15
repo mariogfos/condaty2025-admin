@@ -146,7 +146,7 @@ const Outlays = () => {
       date_at: {
         rules: ["required"],
         api: "ae",
-        label: "Fecha",
+        label: "Fecha de pago",
         form: { type: "date" },
         list: {
           onRender: (props: any) => {
@@ -163,7 +163,7 @@ const Outlays = () => {
         // <--- Columna "Categoría"
         rules: ["required"],
         api: "ae",
-        label: "Categoria",
+        label: "Categoría",
         form: {
           type: "select",
           options: (items: any) => {
@@ -220,7 +220,7 @@ const Outlays = () => {
         // <--- Columna "Subcategoría"
         rules: ["required"], // Considera si realmente es requerido
         api: "ae",
-        label: "Subcategoria",
+        label: "Subcategoría",
         form: {
           type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
@@ -248,7 +248,7 @@ const Outlays = () => {
       description: {
         rules: ["required"],
         api: "ae",
-        label: "Descripción",
+        label: "Concepto",
         form: { type: "text" },
       },
       status: {
@@ -277,7 +277,7 @@ const Outlays = () => {
       amount: {
         rules: ["required"],
         api: "ae",
-        label: "Monto",
+        label: "Monto total",
         form: { type: "number" },
         list: {
           onRender: (props: any) => {

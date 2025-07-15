@@ -267,7 +267,7 @@ const RenderForm = ({
       const { data, error } = await execute("/expenses", "POST", params);
 
       if (data?.success) {
-        showToast("Egreso agregado con éxito", "success");
+        showToast("Egreso registrado con éxito", "success");
         reLoad();
         onClose();
       } else if (error) {
