@@ -832,10 +832,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {formState.subcategory_id ===
+              {(formState.subcategory_id ===
                 extraData?.client_config?.cat_expensas ||
-              formState.subcategory_id ===
-                extraData?.client_config?.cat_reservations ? (
+                formState.subcategory_id ===
+                  extraData?.client_config?.cat_reservations) && (
                 <div>
                   {deudasContent}
                   {errors.selectedPeriodo && (
@@ -847,56 +847,52 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     </div>
                   )}
                 </div>
-              ) : (
-                <div>
-                  {/* Sección de subir comprobante */}
-                  <div
-                    className={styles['upload-section']}
-                    // style={{ backgroundColor: "var(--cWhiteV2)" }}
-                  >
-                    <UploadFile
-                      name="file"
-                      ext={exten}
-                      value={formState.file ? { file: formState.file } : ''}
-                      onChange={handleChangeInput}
-                      img={true}
-                      sizePreview={{ width: '40%', height: 'auto' }}
-                      error={errors}
-                      setError={setErrors}
-                      required={true}
-                      placeholder="Cargar un archivo o arrastrar y soltar"
-                    />
-                  </div>
+              )}
+              {/* Sección de subir comprobante */}
+              <div className={styles['upload-section']}>
+                <UploadFile
+                  name="file"
+                  ext={exten}
+                  value={formState.file ? { file: formState.file } : ''}
+                  onChange={handleChangeInput}
+                  img={true}
+                  sizePreview={{ width: '40%', height: 'auto' }}
+                  error={errors}
+                  setError={setErrors}
+                  required={true}
+                  placeholder="Cargar un archivo o arrastrar y soltar"
+                />
+              </div>
 
-                  <div className={styles['voucher-section']}>
-                    <div className={styles['voucher-input']}>
-                      <Input
-                        type="text"
-                        label="Ingresar el número del comprobante"
-                        name="voucher"
-                        onChange={e => {
-                          const value = e.target.value
-                            .replace(/\D/g, '')
-                            .substring(0, 10);
-                          const newEvent = {
-                            ...e,
-                            target: { ...e.target, name: 'voucher', value },
-                          };
-                          handleChangeInput(newEvent);
-                          if (e.target.value !== value) {
-                            showToast(
-                              'El número de comprobante solo puede contener números (máximo 10 dígitos)',
-                              'warning'
-                            );
-                          }
-                        }}
-                        value={formState.voucher || ''}
-                        error={errors}
-                        maxLength={10}
-                        required
-                      />
-                    </div>
-                  </div>
+              <div className={styles['voucher-section']}>
+                <div className={styles['voucher-input']}>
+                  <Input
+                    type="text"
+                    label="Ingresar el número del comprobante"
+                    name="voucher"
+                    onChange={e => {
+                      const value = e.target.value
+                        .replace(/\D/g, '')
+                        .substring(0, 10);
+                      const newEvent = {
+                        ...e,
+                        target: { ...e.target, name: 'voucher', value },
+                      };
+                      handleChangeInput(newEvent);
+                      if (e.target.value !== value) {
+                        showToast(
+                          'El número de comprobante solo puede contener números (máximo 10 dígitos)',
+                          'warning'
+                        );
+                      }
+                    }}
+                    value={formState.voucher || ''}
+                    error={errors}
+                    maxLength={10}
+                    required
+                  />
+                </div>
+              </div>
 
               <div className={styles['obs-section']}>
                 <div className={styles['obs-input']}>
@@ -911,10 +907,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       };
                       handleChangeInput(newEvent);
                     }}
-                    value={_formState.obs}
+                    value={formState.obs}
                     required={false}
                     maxLength={250}
-                    error={_errors}
+                    error={errors}
                   />
                 </div>
               </div>
