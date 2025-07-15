@@ -22,6 +22,7 @@ export const RenderAnularModal = ({
       buttonText="Sí, Anular" // Texto del botón de confirmación personalizado
       buttonCancel="Cancelar"
       onSave={() => onSave(item)} // Llama a onConfirm cuando se guarda/confirma
+      variant="mini"
     >
       <p>
         ¿Seguro que quieres anular este egreso? Recuerda que si realizas esta
