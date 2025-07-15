@@ -44,8 +44,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--accent);
   border-radius: 8px;
   cursor: pointer;
@@ -82,6 +82,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   gap: 8px;
+  height: 40px;
 }
 .nextButton:hover:not(:disabled) {
   opacity: 0.9;
@@ -116,7 +117,7 @@
 }
 .pageInput {
   width: 79px;
-  height: 42px;
+  height: 40px;
   background-color: var(--cBlack);
   border: 1px solid var(--cWhite);
   border-radius: 8px;
@@ -131,7 +132,7 @@
 }
 .goButton {
   position: absolute;
-  top: 10px;
+  top: 9px;
   right: 6px;
   width: 29px;
   height: 22px;
