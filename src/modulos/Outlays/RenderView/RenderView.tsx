@@ -3,7 +3,10 @@ import React, { memo } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, getDateTimeStrMesShort } from '@/mk/utils/date';
+import {
+  formatToDayDDMMYYYYHHMM,
+  getDateTimeStrMesShort,
+} from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
@@ -162,9 +165,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       )}
       <div className={styles.container}>
         <div className={styles.headerSection}>
-          <div className={styles.amountDisplay}>
-            {formatBs(item.amount)}
-          </div>
+          <div className={styles.amountDisplay}>{formatBs(item.amount)}</div>
           <div className={styles.dateDisplay}>
             {formatToDayDDMMYYYYHHMM(item.date_at)}
           </div>
