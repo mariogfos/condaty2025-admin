@@ -277,7 +277,7 @@ const Outlays = () => {
       amount: {
         rules: ["required"],
         api: "ae",
-        label: "Monto",
+        label: "Monto total",
         form: { type: "number" },
         list: {
           onRender: (props: any) => {
