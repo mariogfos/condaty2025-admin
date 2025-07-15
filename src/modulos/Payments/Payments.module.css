@@ -68,7 +68,7 @@
   }
 }
 .statusBadge {
-  font-weight: var(--bMedium);
+  font-weight: 400;
   padding: 6px var(--spM);
   border-radius: 4px;
   display: inline-flex;
@@ -80,11 +80,11 @@
   white-space: nowrap;
 }
 .statusP {
-  background-color: var(--accentBg);
-  color: var(--cPrimary);
+  background-color: var(--cHoverCompl2);
+  color: var(--cSuccess);
 }
 .statusS {
-  background-color: var(--cHoverWarning);
+  background-color: var(--cHoverCompl4);
   color: var(--cWarning);
 }
 .statusR {

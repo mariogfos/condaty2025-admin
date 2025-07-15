@@ -100,12 +100,20 @@
   --cCompl8: #de6a60;
   --cCompl9: #5ab0e9;
 
+  /*Paleta de Hover*/
   --cHoverCompl1: #FAFAFA1A;
   --cHoverCompl2: #00AF9033;
-  --cHoverCompl5: #f7b26733;
-
-
-  --cHoverCompl6: #f7b26733;
+  --cHoverCompl3: #39ACEC33;
+  --cHoverCompl4: #E1C15133;
+  --cHoverCompl5: #F37F3D33;
+  --cHoverCompl6: #B382D933;
+  --cHoverCompl7: #A9CCE333;
+  --cHoverCompl8: #F7B26733;
+  --cHoverCompl9: #FF7F5133;
+  --cHoverCompl10: #00E38C0D;
+  --cHoverBlack: #212121CC;
+  --cHoverBlackv2: #33353633;
+  --cHoverUnread: #18F6620F;
 
 
   /* Paleta de colores Random */
