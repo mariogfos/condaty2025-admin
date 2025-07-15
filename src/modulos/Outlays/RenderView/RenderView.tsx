@@ -3,9 +3,9 @@ import React, { memo } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { getDateTimeStrMesShort } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, getDateTimeStrMesShort } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
-import { formatNumber } from '@/mk/utils/numbers';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 // Definir tipos estrictos para las props y los datos
 interface Category {
@@ -163,10 +163,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       <div className={styles.container}>
         <div className={styles.headerSection}>
           <div className={styles.amountDisplay}>
-            Bs {formatNumber(item.amount)}
+            {formatBs(item.amount)}
           </div>
           <div className={styles.dateDisplay}>
-            {getDateTimeStrMesShort(item.date_at)}
+            {formatToDayDDMMYYYYHHMM(item.date_at)}
           </div>
         </div>
 

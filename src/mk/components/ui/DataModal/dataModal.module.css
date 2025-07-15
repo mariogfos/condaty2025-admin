@@ -44,7 +44,7 @@
       padding-left:20%;
       padding-right:20%;
     }
- 
+
     & > .head-title > span {
       cursor: pointer;
       color: var(--cWhite);
@@ -55,17 +55,17 @@
     .headerDivider {
          height: 0.5px; /* Grosor de la línea, similar a borderWidth */
          background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
-         width: 100%; 
-        
+         width: 100%;
+
           width: calc(100% - (var(--spM) * 2));
-          margin-left: var(--spM); 
-          margin-right: var(--spM); 
+          margin-left: var(--spM);
+          margin-right: var(--spM);
       }
     & > section {
       overflow-y: auto;
       flex-grow: 1;
       color: var(--cWhiteV1);
-      padding: var(--spM);
+      padding: var(--spL);
       padding-top: var(--spL);
     }
     & > footer {
@@ -74,29 +74,29 @@
       gap: 8px; /* Espacio entre botones si están en columna o si hay más de dos */
       padding: var(--spM);
       padding-top: 0;
-    
+
       /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
       & > button { /* Estilo general para los botones en el footer si es necesario */
         width: 100%; /* Hacemos que ocupen todo el ancho en vista de columna */
       }
-    
+
       @media (width > 768px) {
         flex-direction: row-reverse; /* Botones en fila, Cancelar a la izquierda, Guardar a la derecha */
         justify-content: space-between; /* Mantenemos esto si solo hay dos botones y quieres que el espacio sobrante se distribuya */
-    
+
         /* Seleccionamos los botones por su orden o props.
            Dado que usas row-reverse, el primer hijo en el DOM (buttonText)
            será el último visualmente (a la derecha).
            Y el segundo hijo en el DOM (buttonCancel) será el primero visualmente (a la izquierda).
         */
-    
+
         & > button:nth-child(1) { /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
           flex-basis: calc(65% - 4px); /* 70% menos la mitad del gap para el espaciado */
           /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
           flex-grow: 1;
           flex-shrink: 1;
         }
-    
+
         & > button:nth-child(2) { /* Este será el botón "Cancelar" (buttonCancel) */
           flex-basis: calc(35% - 4px); /* 30% menos la mitad del gap para el espaciado */
           /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
