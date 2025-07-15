@@ -2,34 +2,22 @@
 'use client';
 import styles from './Outlays.module.css';
 import useCrudUtils from '../shared/useCrudUtils';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import NotAccess from '@/components/layout/NotAccess/NotAccess';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import { formatNumber } from '@/mk/utils/numbers';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
-import { getDateDesdeHasta, getDateStrMes } from '@/mk/utils/date';
-import WidgetGrafEgresos from '@/components/Widgets/WidgetGrafEgresos/WidgetGrafEgresos';
+import { getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
-import PerformBudget from './PerformBudget/PerformBudget';
 import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 
-interface FormStateFilter {
-  filter_date?: string;
-  filter_category?: string | number;
-  filter_mov?: string;
-}
-
 const Outlays = () => {
   const router = useRouter();
-  const [openGraph, setOpenGraph] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [dataGraph, setDataGraph] = useState<any>({});
-  const [formStateFilter, setFormStateFilter] = useState<FormStateFilter>({});
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateRange, setCustomDateRange] = useState<{
     startDate?: string;
@@ -67,12 +55,12 @@ const Outlays = () => {
     export: true,
     permiso: '',
     extraData: true,
-    renderForm: RenderForm, // Usar nuestro componente de formulario personalizado
+    renderForm: RenderForm,
     renderView: (props: any) => (
-      <RenderView // Usa el nuevo componente
+      <RenderView
         {...props}
-        outlay_id={props?.item?.id} // Pasa el ID del egreso
-        extraData={extraData} // Pasa extraData para las categorías
+        outlay_id={props?.item?.id}
+        extraData={extraData}
       />
     ),
     renderDel: RenderAnularModal,
@@ -93,20 +81,6 @@ const Outlays = () => {
     fullType: 'L',
     searchBy: '',
   };
-
-  const convertFilterDate = () => {
-    let periodo = 'm';
-    if (formStateFilter.filter_date === 'ld') periodo = 'ld';
-    if (formStateFilter.filter_date === 'w') periodo = 'w';
-    if (formStateFilter.filter_date === 'lw') periodo = 'lw';
-    if (formStateFilter.filter_date === 'm') periodo = 'm';
-    if (formStateFilter.filter_date === 'lm') periodo = 'lm';
-    if (formStateFilter.filter_date === 'y') periodo = 'y';
-    if (formStateFilter.filter_date === 'ly') periodo = 'ly';
-    return periodo;
-  };
-
-  // Función para navegar a la página de categorías
   const goToCategories = (type = '') => {
     if (type) {
       router.push(`/categories?type=${type}`);
@@ -114,8 +88,6 @@ const Outlays = () => {
       router.push('/categories');
     }
   };
-
-  // Opciones para los filtros
   const getPeriodOptions = () => [
     { id: 'ALL', name: 'Todos' },
     { id: 'ld', name: 'Ayer' },
@@ -125,7 +97,7 @@ const Outlays = () => {
     { id: 'lm', name: 'Mes anterior' },
     { id: 'y', name: 'Este año' },
     { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' }, // Opción añadida
+    { id: 'custom', name: 'Personalizado' },
   ];
 
   const getStatusOptions = () => [
@@ -154,7 +126,6 @@ const Outlays = () => {
         },
       },
       category_id: {
-        // <--- Columna "Categoría"
         rules: ['required'],
         api: 'ae',
         label: 'Categoría',
@@ -162,7 +133,6 @@ const Outlays = () => {
           type: 'select',
           options: (items: any) => {
             let data: any = [];
-            // Filtrar por los que no tienen objeto padre (o category_id es null)
             items?.extraData?.categories
               ?.filter(
                 (c: { padre: any; category_id: any }) =>
@@ -180,7 +150,6 @@ const Outlays = () => {
         filter: {
           label: 'Categoría',
           width: '150px',
-          // extraData: "categories",
           options: (extraData: any) => {
             const categories = extraData?.categories || [];
             const categoryOptions = categories.map((category: any) => ({
@@ -191,19 +160,14 @@ const Outlays = () => {
           },
         },
         list: {
-          // <--- Lógica de renderizado para la columna "Categoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
               return `sin datos`;
             }
-            // *** CORRECCIÓN LÓGICA ***
-            // Verificar si el objeto 'padre' existe y NO es null
             if (category.padre && typeof category.padre === 'object') {
-              // Si existe el objeto padre, esta es una subcategoría. Mostramos el nombre del padre.
               return category.padre.name || `(Padre sin nombre)`;
             } else {
-              // Si NO existe el objeto padre (es null o no está), esta es la categoría principal. Mostramos su nombre.
               return category.name || `(Sin nombre)`;
             }
           },
@@ -211,8 +175,7 @@ const Outlays = () => {
       },
 
       subcategory_id: {
-        // <--- Columna "Subcategoría"
-        rules: ['required'], // Considera si realmente es requerido
+        rules: ['required'],
         api: 'ae',
         label: 'Subcategoría',
         form: {
@@ -221,19 +184,14 @@ const Outlays = () => {
           options: () => [], // Se maneja en RenderForm
         },
         list: {
-          // <--- Lógica de renderizado para la columna "Subcategoría"
           onRender: (props: any) => {
             const category = props.item.category;
             if (!category) {
               return `sin datos`;
             }
-            // *** CORRECCIÓN LÓGICA ***
-            // Verificar si el objeto 'padre' existe y NO es null
             if (category.padre && typeof category.padre === 'object') {
-              // Si existe el objeto padre, la categoría actual es la subcategoría. Mostramos su nombre.
               return category.name || `(Sin nombre)`;
             } else {
-              // Si NO existe el objeto padre, no hay subcategoría aplicable.
               return '-/-';
             }
           },
@@ -244,6 +202,18 @@ const Outlays = () => {
         api: 'ae',
         label: 'Concepto',
         form: { type: 'text' },
+      },
+
+      amount: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Monto total',
+        form: { type: 'number' },
+        list: {
+          onRender: (props: any) => {
+            return 'Bs ' + formatNumber(props.item.amount);
+          },
+        },
       },
       status: {
         rules: [''],
@@ -266,17 +236,6 @@ const Outlays = () => {
           label: 'Estado',
           width: '180px',
           options: getStatusOptions,
-        },
-      },
-      amount: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Monto total',
-        form: { type: 'number' },
-        list: {
-          onRender: (props: any) => {
-            return 'Bs ' + formatNumber(props.item.amount);
-          },
         },
       },
       client_id: {
@@ -352,14 +311,12 @@ const Outlays = () => {
       setCustomDateErrors(err);
       return;
     }
-
     const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
     onFilter('date_at', customDateFilterString);
 
     setOpenCustomFilter(false);
     setCustomDateErrors({});
   };
-  // Eliminada destructuración vacía innecesaria de useCrudUtils
   useCrudUtils({
     onSearch,
     searchs,
