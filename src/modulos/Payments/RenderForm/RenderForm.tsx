@@ -36,7 +36,6 @@ interface Dpto {
     };
   };
 }
-
 interface Category {
   id: string | number;
   name: string;
@@ -58,7 +57,6 @@ interface ExtraData {
   categories: Category[];
   client_config: ClientConfig;
 }
-
 interface Deuda {
   id: string | number;
   amount?: number;
@@ -73,8 +71,6 @@ interface SelectedPeriodo {
   id: string | number;
   amount: number;
 }
-
-
 
 interface FormState {
   paid_at?: string;
@@ -130,24 +126,24 @@ const RenderForm: React.FC<RenderFormProps> = ({
   showToast,
   reLoad,
 }) => {
-  const [_formState, _setFormState] = useState<FormState>(() => {
+  const [formState, setFormState] = useState<FormState>(() => {
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
 
     return {
       ...(item || {}),
-      paid_at: (item && item.paid_at) || formattedDate,
-      payment_method: (item && item.payment_method) || '',
-      file: (item && item.file) || null,
-      filename: (item && item.filename) || null,
-      ext: (item && item.ext) || null,
+      paid_at: item?.paid_at || formattedDate,
+      payment_method: item?.payment_method || '',
+      file: item?.file || null,
+      filename: item?.filename || null,
+      ext: item?.ext || null,
     };
   });
-  const [_errors, set_Errors] = useState<Errors>({});
+  const [errors, setErrors] = useState<Errors>({});
 
   const [deudas, setDeudas] = useState<Deuda[]>([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
-  const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
+  const [periodoTotal, setPeriodoTotal] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
@@ -160,7 +156,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const { store } = useAuth();
 
   const isExpensasWithoutDebt =
-    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+    formState.subcategory_id === extraData?.client_config?.cat_expensas &&
     deudas.length === 0 &&
     !isLoadingDeudas;
 
@@ -189,14 +185,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const getDeudas = useCallback(
     async (nroDpto: string | number) => {
       if (!nroDpto) return;
-
       const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === nroDpto);
       const realDptoId = selectedDpto?.id;
-      const subcatId = _formState.subcategory_id;
-
+      const subcatId = formState.subcategory_id;
       if (!realDptoId || !subcatId) return;
-
-      // Determinar el fullType según la subcategoría
       let fullType = 'PDD';
       if (subcatId === extraData?.client_config?.cat_expensas) {
         fullType = 'ED';
@@ -230,7 +222,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           setDeudas(deudasArrayOrdenado);
           if (deudasArrayOrdenado.length === 0) {
             setSelectedPeriodo([]);
-            setSelectPeriodoTotal(0);
+            setPeriodoTotal(0);
           }
         }
       } catch (err) {
@@ -242,7 +234,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     [
       execute,
       extraData?.dptos,
-      _formState.subcategory_id,
+      formState.subcategory_id,
       extraData?.client_config?.cat_expensas,
       extraData?.client_config?.cat_reservations,
     ]
@@ -261,39 +253,39 @@ const RenderForm: React.FC<RenderFormProps> = ({
     return () => {
       if (!open) {
         setDeudas([]);
-        _setFormState({});
+        setFormState({});
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
+        setPeriodoTotal(0);
       }
     };
   }, [open]);
 
   useEffect(() => {
     const isExpensasSelected =
-      _formState.subcategory_id === extraData?.client_config?.cat_expensas;
+      formState.subcategory_id === extraData?.client_config?.cat_expensas;
     const isReservationsSelected =
-      _formState.subcategory_id === extraData?.client_config?.cat_reservations;
+      formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
     // Consultar deudas si se selecciona expensas o reservas
-    if (_formState.dpto_id && (isExpensasSelected || isReservationsSelected)) {
-      const deudasKey = `${_formState.dpto_id}_${_formState.subcategory_id}`;
+    if (formState.dpto_id && (isExpensasSelected || isReservationsSelected)) {
+      const deudasKey = `${formState.dpto_id}_${formState.subcategory_id}`;
       if (deudasKey !== lastLoadedDeudas.current) {
         lastLoadedDeudas.current = deudasKey;
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
-        getDeudas(_formState.dpto_id);
+        setPeriodoTotal(0);
+        getDeudas(formState.dpto_id);
       }
     } else {
       if (deudas.length > 0 || isLoadingDeudas) {
         setDeudas([]);
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
+        setPeriodoTotal(0);
         lastLoadedDeudas.current = '';
       }
     }
   }, [
-    _formState.dpto_id,
-    _formState.subcategory_id,
+    formState.dpto_id,
+    formState.subcategory_id,
     extraData?.client_config?.cat_expensas,
     extraData?.client_config?.cat_reservations,
     getDeudas,
@@ -304,9 +296,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
     let newSubcategoryId: string | number = '';
     let lockSubcategory = false;
 
-    if (_formState.category_id && extraData?.categories) {
+    if (formState.category_id && extraData?.categories) {
       const selectedCategory = extraData.categories.find(
-        (category: Category) => category.id === _formState.category_id
+        (category: Category) => category.id === formState.category_id
       );
 
       if (selectedCategory?.hijos) {
@@ -331,25 +323,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    _setFormState((prev: FormState) => {
-      if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
+    setFormState((prev: FormState) => {
+      if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
         setDeudas([]);
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
+        setPeriodoTotal(0);
         lastLoadedDeudas.current = '';
       }
       return {
         ...prev,
         subcategories: newSubcategories,
         subcategory_id:
-          prev.subcategory_id !== newSubcategoryId || !_formState.category_id
+          prev.subcategory_id !== newSubcategoryId || !prev.category_id
             ? newSubcategoryId
             : prev.subcategory_id,
         isSubcategoryLocked: lockSubcategory,
       };
     });
   }, [
-    _formState.category_id,
+    formState.category_id,
     extraData?.categories,
     extraData?.client_config?.cat_expensas,
   ]);
@@ -361,7 +353,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
         newValue = e.target.checked ? 'Y' : 'N';
       }
-      _setFormState((prev: FormState) => ({
+      setFormState((prev: FormState) => ({
         ...prev,
         [name]: newValue,
       }));
@@ -386,7 +378,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         (sum, item) => sum + item.amount,
         0
       );
-      setSelectPeriodoTotal(newTotal);
+      setPeriodoTotal(newTotal);
 
       return newSelectedPeriodos;
     });
@@ -403,8 +395,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
     // Validación de período seleccionado (para expensas y reservas)
     if (
-      (_formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-        _formState.subcategory_id ===
+      (formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+        formState.subcategory_id ===
           extraData?.client_config?.cat_reservations) &&
       deudas?.length > 0 &&
       selectedPeriodo.length === 0
@@ -414,42 +406,42 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     // Validaciones de campos individuales
-    if (!_formState.dpto_id) {
+    if (!formState.dpto_id) {
       err.dpto_id = 'Este campo es requerido';
     }
-    if (!_formState.category_id) {
+    if (!formState.category_id) {
       err.category_id = 'Este campo es requerido';
     }
-    if (!_formState.subcategory_id) {
+    if (!formState.subcategory_id) {
       err.subcategory_id = 'Este campo es requerido';
     }
-    if (!_formState.type) {
+    if (!formState.type) {
       err.type = 'Este campo es requerido';
     }
-    if (!_formState.voucher) {
+    if (!formState.voucher) {
       err.voucher = 'Este campo es requerido';
-    } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
+    } else if (!/^\d{1,10}$/.test(formState.voucher)) {
       err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
     }
 
     // Validación del monto (solo si no es una expensa con deudas)
     if (
-      _formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
+      formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
       deudas?.length === 0
     ) {
-      if (!_formState.amount) {
+      if (!formState.amount) {
         err.amount = 'Este campo es requerido';
       }
     }
 
-    if (!_formState.file) {
+    if (!formState.file) {
       err.file = 'El comprobante es requerido';
     }
 
-    if (!_formState.paid_at) {
+    if (!formState.paid_at) {
       err.paid_at = 'Este campo es requerido';
     } else {
-      const selectedDate = new Date(_formState.paid_at + 'T00:00:00');
+      const selectedDate = new Date(formState.paid_at + 'T00:00:00');
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -459,25 +451,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     // 3. Al final, actualiza el estado con TODOS los errores encontrados.
-    set_Errors(err);
+    setErrors(err);
 
     // 4. Retorna true solo si el objeto de errores está vacío.
     return Object.keys(err).length === 0;
   }, [
-    _formState,
+    formState,
     deudas,
     isExpensasWithoutDebt,
     selectedPeriodo,
     extraData?.client_config?.cat_expensas,
     extraData?.client_config?.cat_reservations,
-    set_Errors,
+    setErrors,
   ]);
 
   const _onSavePago = useCallback(async () => {
     if (!validar()) {
       if (
         isExpensasWithoutDebt ||
-        (_formState.subcategory_id === extraData?.client_config?.cat_expensas &&
+        (formState.subcategory_id === extraData?.client_config?.cat_expensas &&
           deudas.length > 0 &&
           selectedPeriodo.length === 0)
       ) {
@@ -489,34 +481,34 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
 
     const selectedDpto = extraData?.dptos.find(
-      (dpto: Dpto) => String(dpto.nro) === String(_formState.dpto_id)
+      (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
     );
     const owner_id = selectedDpto?.titular?.owner?.id;
 
     let params: any = {
-      paid_at: _formState.paid_at,
-      type: _formState.type,
-      file: _formState.file,
-      voucher: _formState.voucher,
-      obs: _formState.obs,
-      category_id: _formState.subcategory_id,
-      nro_id: _formState.dpto_id,
+      paid_at: formState.paid_at,
+      type: formState.type,
+      file: formState.file,
+      voucher: formState.voucher,
+      obs: formState.obs,
+      category_id: formState.subcategory_id,
+      nro_id: formState.dpto_id,
       owner_id: owner_id,
     };
 
     if (
-      extraData?.client_config?.cat_expensas === _formState.subcategory_id &&
+      extraData?.client_config?.cat_expensas === formState.subcategory_id &&
       selectedPeriodo.length > 0
     ) {
       params = {
         ...params,
         asignados: selectedPeriodo,
-        amount: selecPeriodoTotal,
+        amount: periodoTotal,
       };
     } else {
       params = {
         ...params,
-        amount: parseFloat(String(_formState.amount || '0')),
+        amount: parseFloat(String(formState.amount || '0')),
       };
     }
 
@@ -534,25 +526,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
         );
 
         if (error?.data?.errors) {
-          set_Errors(error.data.errors);
+          setErrors(error.data.errors);
         } else if (data?.errors) {
-          set_Errors(data.errors);
+          setErrors(data.errors);
         }
       }
     } catch (error) {
       console.error(error);
     }
   }, [
-    _formState,
+    formState,
     extraData?.client_config?.cat_expensas,
     extraData?.dptos,
     selectedPeriodo,
-    selecPeriodoTotal,
+    periodoTotal,
     validar,
     execute,
     reLoad,
     onClose,
-    set_Errors,
+    setErrors,
     showToast,
     isExpensasWithoutDebt,
     deudas,
@@ -563,7 +555,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [onClose]);
 
   const deudasContent = useMemo(() => {
-    if (!_formState.dpto_id) {
+    if (!formState.dpto_id) {
       return (
         <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
       );
@@ -576,8 +568,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <p className={styles['no-deudas-message']}>
             No se encontraron deudas pendientes para esta unidad. No se puede
             registrar un pago de{' '}
-            {_formState.subcategory_id ===
-            extraData?.client_config?.cat_expensas
+            {formState.subcategory_id === extraData?.client_config?.cat_expensas
               ? 'expensas'
               : 'reservas'}
             .
@@ -590,7 +581,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles['deudas-title-row']}>
             <p className={styles['deudas-title']}>
               Seleccione las{' '}
-              {_formState.subcategory_id ===
+              {formState.subcategory_id ===
               extraData?.client_config?.cat_expensas
                 ? 'expensas'
                 : 'reservas'}{' '}
@@ -602,7 +593,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               onClick={() => {
                 if (selectedPeriodo.length === deudas.length) {
                   setSelectedPeriodo([]);
-                  setSelectPeriodoTotal(0);
+                  setPeriodoTotal(0);
                 } else {
                   const allPeriodos: SelectedPeriodo[] = deudas.map(
                     periodo => ({
@@ -618,7 +609,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   );
 
                   setSelectedPeriodo(allPeriodos);
-                  setSelectPeriodoTotal(totalAmount);
+                  setPeriodoTotal(totalAmount);
                 }
               }}
             >
@@ -697,19 +688,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
             ))}
           </div>
           <div className={styles['total-container']}>
-            <p>Total a pagar: {formatBs(selecPeriodoTotal)}</p>
+            <p>Total a pagar: {formatBs(periodoTotal)}</p>
           </div>
         </div>
       );
     }
   }, [
-    _formState.dpto_id,
+    formState.dpto_id,
     isLoadingDeudas,
     deudas,
     selectedPeriodo.length,
-    selecPeriodoTotal,
+    periodoTotal,
     extraData?.client_config?.cat_expensas,
-    _formState.subcategory_id,
+    formState.subcategory_id,
     handleSelectPeriodo,
   ]);
 
@@ -733,9 +724,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 name="paid_at"
                 label="Seleccionar fecha"
                 required={true}
-                value={_formState.paid_at || ''}
+                value={formState.paid_at || ''}
                 onChange={handleChangeInput}
-                error={_errors}
+                error={errors}
                 max={new Date().toISOString().split('T')[0]}
                 min={
                   new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
@@ -752,10 +743,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 name="dpto_id"
                 label="Seleccionar Unidad"
                 required={true}
-                value={_formState.dpto_id}
+                value={formState.dpto_id}
                 onChange={handleChangeInput}
                 options={lDptos}
-                error={_errors}
+                error={errors}
                 filter={true}
               />
             </div>
@@ -767,10 +758,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <Select
                   name="category_id"
                   label="Categoría"
-                  value={_formState.category_id}
+                  value={formState.category_id}
                   onChange={handleChangeInput}
                   options={extraData?.categories || []}
-                  error={_errors}
+                  error={errors}
                   required
                   optionLabel="name"
                   optionValue="id"
@@ -780,14 +771,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <Select
                   name="subcategory_id"
                   label="Subcategoría"
-                  value={_formState.subcategory_id}
+                  value={formState.subcategory_id}
                   onChange={handleChangeInput}
-                  options={_formState.subcategories || []}
-                  error={_errors}
+                  options={formState.subcategories || []}
+                  error={errors}
                   required
                   optionLabel="name"
                   optionValue="id"
-                  disabled={_formState.isSubcategoryLocked}
+                  disabled={formState.isSubcategoryLocked}
                 />
               </div>
             </div>
@@ -803,16 +794,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         handleChangeInput(e);
                       }}
                       value={
-                        _formState.subcategory_id ===
+                        formState.subcategory_id ===
                           extraData?.client_config?.cat_expensas &&
                         deudas?.length > 0
-                          ? selecPeriodoTotal
-                          : _formState.amount
+                          ? periodoTotal
+                          : formState.amount
                       }
                       required={true}
-                      error={_errors}
+                      error={errors}
                       disabled={
-                        _formState.subcategory_id ===
+                        formState.subcategory_id ===
                           extraData?.client_config?.cat_expensas &&
                         deudas?.length > 0
                       }
@@ -823,7 +814,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     <Select
                       name="type"
                       label="Forma de pago"
-                      value={_formState.type}
+                      value={formState.type}
                       onChange={handleChangeInput}
                       options={[
                         { id: 'Q', name: 'Pago QR' },
@@ -832,7 +823,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         { id: 'C', name: 'Cheque' },
                         { id: 'O', name: 'Pago en oficina' },
                       ]}
-                      error={_errors}
+                      error={errors}
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -841,91 +832,94 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {(_formState.subcategory_id ===
+              {formState.subcategory_id ===
                 extraData?.client_config?.cat_expensas ||
-                _formState.subcategory_id ===
-                  extraData?.client_config?.cat_reservations) && (
+              formState.subcategory_id ===
+                extraData?.client_config?.cat_reservations ? (
                 <div>
                   {deudasContent}
-                  {_errors.selectedPeriodo && (
+                  {errors.selectedPeriodo && (
                     <div
                       className={styles['error-message']}
                       style={{ color: 'red', marginTop: 8 }}
                     >
-                      {_errors.selectedPeriodo}
+                      {errors.selectedPeriodo}
                     </div>
                   )}
                 </div>
+              ) : (
+                <div>
+                  {/* Sección de subir comprobante */}
+                  <div
+                    className={styles['upload-section']}
+                    // style={{ backgroundColor: "var(--cWhiteV2)" }}
+                  >
+                    <UploadFile
+                      name="file"
+                      ext={exten}
+                      value={formState.file ? { file: formState.file } : ''}
+                      onChange={handleChangeInput}
+                      img={true}
+                      sizePreview={{ width: '40%', height: 'auto' }}
+                      error={errors}
+                      setError={setErrors}
+                      required={true}
+                      placeholder="Cargar un archivo o arrastrar y soltar"
+                    />
+                  </div>
+
+                  <div className={styles['voucher-section']}>
+                    <div className={styles['voucher-input']}>
+                      <Input
+                        type="text"
+                        label="Ingresar el número del comprobante"
+                        name="voucher"
+                        onChange={e => {
+                          const value = e.target.value
+                            .replace(/\D/g, '')
+                            .substring(0, 10);
+                          const newEvent = {
+                            ...e,
+                            target: { ...e.target, name: 'voucher', value },
+                          };
+                          handleChangeInput(newEvent);
+                          if (e.target.value !== value) {
+                            showToast(
+                              'El número de comprobante solo puede contener números (máximo 10 dígitos)',
+                              'warning'
+                            );
+                          }
+                        }}
+                        value={formState.voucher || ''}
+                        error={errors}
+                        maxLength={10}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles['obs-section']}>
+                    <div className={styles['obs-input']}>
+                      <TextArea
+                        label="Descripción"
+                        name="obs"
+                        onChange={e => {
+                          const value = e.target.value.substring(0, 250);
+                          const newEvent = {
+                            ...e,
+                            target: { ...e.target, name: 'obs', value },
+                          };
+                          handleChangeInput(newEvent);
+                        }}
+                        value={formState.obs}
+                        required={false}
+                        maxLength={250}
+                        error={errors}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
-              {/* Sección de subir comprobante */}
-              <div
-                className={styles['upload-section']}
-                // style={{ backgroundColor: "var(--cWhiteV2)" }}
-              >
-                <UploadFile
-                  name="file"
-                  ext={exten}
-                  value={_formState.file ? { file: _formState.file } : ''}
-                  onChange={handleChangeInput}
-                  img={true}
-                  sizePreview={{ width: '40%', height: 'auto' }}
-                  error={_errors}
-                  setError={set_Errors}
-                  required={true}
-                  placeholder="Cargar un archivo o arrastrar y soltar"
-                />
-              </div>
-
-              <div className={styles['voucher-section']}>
-                <div className={styles['voucher-input']}>
-                  <Input
-                    type="text"
-                    label="Ingresar el número del comprobante"
-                    name="voucher"
-                    onChange={e => {
-                      const value = e.target.value
-                        .replace(/\D/g, '')
-                        .substring(0, 10);
-                      const newEvent = {
-                        ...e,
-                        target: { ...e.target, name: 'voucher', value },
-                      };
-                      handleChangeInput(newEvent);
-                      if (e.target.value !== value) {
-                        showToast(
-                          'El número de comprobante solo puede contener números (máximo 10 dígitos)',
-                          'warning'
-                        );
-                      }
-                    }}
-                    value={_formState.voucher || ''}
-                    error={_errors}
-                    maxLength={10}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles['obs-section']}>
-                <div className={styles['obs-input']}>
-                  <TextArea
-                    label="Descripción"
-                    name="obs"
-                    onChange={e => {
-                      const value = e.target.value.substring(0, 250);
-                      const newEvent = {
-                        ...e,
-                        target: { ...e.target, name: 'obs', value },
-                      };
-                      handleChangeInput(newEvent);
-                    }}
-                    value={_formState.obs}
-                    required={false}
-                    maxLength={250}
-                    error={_errors}
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>

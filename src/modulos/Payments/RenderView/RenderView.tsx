@@ -67,29 +67,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 
   useEffect(() => {
     fetchPaymentData();
-    // eslint-disable-next-line
   }, [payment_id]);
 
   const handleGenerateReceipt = async () => {
-    // Muestra un toast de carga si lo deseas
+
     showToast('Generando recibo...', 'info');
 
     const { data: file, error } = await execute(
-      '/payment-recibo', // El mismo endpoint de tu app móvil
-      'POST', // El mismo método
-      { id: item?.id }, // Enviamos el ID del pago, disponible en 'item'
+      '/payment-recibo',
+      'POST',
+      { id: item?.id },
       false,
       true
     );
 
     if (file?.success === true && file?.data?.path) {
       const receiptUrl = getUrlImages('/' + file.data.path);
-
-      // Abrimos la URL en una nueva pestaña del navegador
       window.open(receiptUrl, '_blank');
       showToast('Recibo generado con éxito.', 'success');
     } else {
-      // Manejo de errores
       showToast(
         error?.data?.message || 'No se pudo generar el recibo.',
         'error'
@@ -146,7 +142,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     return typeMap[type] || type;
   };
 
-  // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
       P: 'Cobrado',
@@ -283,7 +278,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       >
         {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>
-            {/* REEMPLAZO DEL BOTÓN */}
             <button
               type="button"
               onClick={handleAnularClick}
@@ -375,13 +369,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           </section>
           {/* Divisor después de la sección de info y botón */}
           <hr className={styles.sectionDivider} />
-
           <div className={styles.voucherButtonContainer}>
             {item.status === 'P' && (
               <Button
                 variant="secondary"
                 className={styles.voucherButton}
-                style={item.ext ? { marginRight: 8 } : {}} // Espacio si hay dos botones
+                style={item.ext ? { marginRight: 8 } : {}}
                 onClick={handleGenerateReceipt}
               >
                 Ver Recibo
