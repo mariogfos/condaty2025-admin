@@ -58,12 +58,14 @@ const renderStatusCell = (props: any) => {
     X: 'Anulado',
   };
   return (
-    <div
-      className={`${styles.statusBadge} ${
-        styles[`status${props.item.status}`]
-      }`}
-    >
-      {statusMap[props.item.status] || props.item.status}
+    <div className={styles.statusCellCenter}>
+      <div
+        className={`${styles.statusBadge} ${
+          styles[`status${props.item.status}`]
+        }`}
+      >
+        {statusMap[props.item.status] || props.item.status}
+      </div>
     </div>
   );
 };
@@ -224,19 +226,6 @@ const Payments = () => {
           options: getPaymentTypeOptions,
         },
       },
-      status: {
-        rules: [],
-        api: 'ae',
-        label: 'Estado',
-        list: {
-          onRender: renderStatusCell,
-        },
-        filter: {
-          label: 'Estado',
-
-          options: getStatusOptions,
-        },
-      },
       amount: {
         rules: ['required', 'number'],
         api: 'ae',
@@ -251,6 +240,26 @@ const Payments = () => {
         },
         list: {
           onRender: renderAmountCell,
+        },
+      },
+      status: {
+        rules: [],
+        api: 'ae',
+
+        label: (
+          <span
+            style={{ display: 'block', textAlign: 'center', width: '100%' }}
+          >
+            Estado
+          </span>
+        ),
+        list: {
+          onRender: renderStatusCell,
+        },
+        filter: {
+          label: 'Estado',
+
+          options: getStatusOptions,
         },
       },
     }),
@@ -273,7 +282,7 @@ const Payments = () => {
   // This function updates the filter state for the payments list, handling custom date logic and removing empty filters. (EN)
   // Esta función actualiza el estado de los filtros para la lista de pagos, gestionando la lógica de fechas personalizadas y eliminando filtros vacíos. (ES)
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
-    const currentFilters = { ...(oldFilterState?.filterBy || {}) }; 
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
     if (opt === 'paid_at' && value === 'custom') {
       setCustomDateErrors({});

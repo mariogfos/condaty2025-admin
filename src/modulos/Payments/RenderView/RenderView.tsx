@@ -70,6 +70,33 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     // eslint-disable-next-line
   }, [payment_id]);
 
+  const handleGenerateReceipt = async () => {
+    // Muestra un toast de carga si lo deseas
+    showToast('Generando recibo...', 'info');
+
+    const { data: file, error } = await execute(
+      '/payment-recibo', // El mismo endpoint de tu app móvil
+      'POST', // El mismo método
+      { id: item?.id }, // Enviamos el ID del pago, disponible en 'item'
+      false,
+      true
+    );
+
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages('/' + file.data.path);
+
+      // Abrimos la URL en una nueva pestaña del navegador
+      window.open(receiptUrl, '_blank');
+      showToast('Recibo generado con éxito.', 'success');
+    } else {
+      // Manejo de errores
+      showToast(
+        error?.data?.message || 'No se pudo generar el recibo.',
+        'error'
+      );
+    }
+  };
+
   const handleChangeInput = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -349,8 +376,18 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           {/* Divisor después de la sección de info y botón */}
           <hr className={styles.sectionDivider} />
 
-          {item.ext && (
-            <div className={styles.voucherButtonContainer}>
+          <div className={styles.voucherButtonContainer}>
+            {item.status === 'P' && (
+              <Button
+                variant="secondary"
+                className={styles.voucherButton}
+                style={item.ext ? { marginRight: 8 } : {}} // Espacio si hay dos botones
+                onClick={handleGenerateReceipt}
+              >
+                Ver Recibo
+              </Button>
+            )}
+            {item.ext && (
               <Button
                 variant="secondary"
                 className={styles.voucherButton}
@@ -370,8 +407,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               >
                 Ver comprobante
               </Button>
-            </div>
-          )}
+            )}
+          </div>
 
           {Array.isArray(item.details) && item.details.length > 0 && (
             <div className={styles.periodsDetailsSection}>

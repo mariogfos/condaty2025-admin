@@ -107,3 +107,11 @@
   background-color: var(--cHoverError);
   color: var(--cError);
 }
+.statusCellCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}

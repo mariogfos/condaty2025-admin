@@ -117,6 +117,7 @@
   justify-content: center;
   width: 100%;
   position: relative;
+  row-gap: 1rem;
 }
 .voucherButton {
   background-color: transparent;
