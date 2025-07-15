@@ -972,6 +972,13 @@ const useCrud = ({
                   style={{
                     width: selectWidth,
                     minWidth: selectWidth,
+                    ...(filterSel[f.key] &&
+                      filterSel[f.key] != "" &&
+                      filterSel[f.key] != "T" &&
+                      filterSel[f.key] != "ALL" && {
+                        border: "1px solid var(--cPrimary)",
+                        borderRadius: 8,
+                      }),
                   }}
                 />
               ))}
