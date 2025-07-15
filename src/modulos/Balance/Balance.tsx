@@ -479,7 +479,7 @@ const BalanceGeneral: React.FC = () => {
             }}
           >
             <IconExport size={22} />
-            Descargar PDF
+            Descargar reporte
           </Button>
         </div>
         <div className={styles.chartContainerOuter} ref={chartRefIngresos}>
@@ -600,7 +600,7 @@ const BalanceGeneral: React.FC = () => {
             }}
           >
             <IconExport size={22} />
-            Descargar PDF
+            Descargar reporte
           </Button>
         </div>
         <div ref={chartRefEgresos} className={styles.chartContainerOuter}>
@@ -856,7 +856,7 @@ const BalanceGeneral: React.FC = () => {
                         }}
                       >
                         <IconExport size={22} />
-                        Descargar PDF
+                        Descargar reporte
                       </Button>
                     </div>
                     <div
