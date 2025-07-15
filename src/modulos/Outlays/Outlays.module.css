@@ -2,6 +2,15 @@
   /* padding: 20px; */
   width: 100%;
 }
+.statusA {
+  background-color: var(--cHoverCompl2);
+  color: var(--cSuccess);
+}
+
+.statusX {
+  background-color: var(--cHoverCompl1); /* Rojo semitransparente */
+  color: var(--cWhite);
+}
 
 .title {
   font-size: 24px;
@@ -37,7 +46,6 @@
   opacity: 0.9;
 }
 
-
 .categoriesButton:hover {
   background-color: rgba(160, 160, 160, 0.1) !important;
 }
@@ -57,17 +65,18 @@
   .outlays {
     padding: 10px;
   }
-  
+
   .title {
     font-size: 20px;
   }
-  
+
   .buttonsContainer {
     flex-direction: column;
     align-items: flex-start;
   }
-  
-  .graphButton, .categoriesButton {
+
+  .graphButton,
+  .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
   }
@@ -77,13 +86,11 @@
   .graphButton {
     width: 32%;
   }
-  
+
   .categoriesButton {
     width: 32%;
   }
 }
-
-
 
 .statusBadge {
   font-weight: 500;
@@ -96,16 +103,4 @@
   width: fit-content;
   min-width: 110px;
   white-space: nowrap;
-}
-
-/* Estilos para cada estado con fondos semitransparentes y texto coloreado
-   Exactamente como en el componente Payments */
-.statusA {
-  background-color: var(--cHoverCompl2); /* Verde semitransparente */
-  color: var(--cSuccess); /* Verde brillante */
-}
-
-.statusX {
-  background-color: var(--cHoverCompl1); /* Rojo semitransparente */
-  color: var(--cWhite); /* Rojo brillante */
 }
