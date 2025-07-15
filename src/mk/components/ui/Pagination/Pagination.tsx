@@ -144,6 +144,9 @@ const Pagination = ({
               Página siguiente{" "}
               <IconArrowNext size={18} color="var(--cWhiteV1)" />
             </button>
+            <span className={styles.totalPages}>
+              {currentPage}/{safeTotal}
+            </span>
           </div>
         </>
       ) : (
@@ -153,13 +156,13 @@ const Pagination = ({
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
           <span className={styles.pageInfo}>
-            <span className={styles.currentPageLabel}>Página</span>
-            <span className={styles.totalPages}>
+            <span className={styles.currentPageLabel}>ir a la página</span>
+            {/* <span className={styles.totalPages}>
               {currentPage}/{safeTotal}
-            </span>
+            </span> */}
           </span>
           {totalPages > 1 && (
-            <>
+            <div style={{ position: "relative" }}>
               <input
                 type="text"
                 value={pageInput}
@@ -170,9 +173,9 @@ const Pagination = ({
               />
 
               <button type="submit" className={styles.goButton}>
-                Ir <IconArrowNext size={16} color="var(--accent)" />
+                Ir
               </button>
-            </>
+            </div>
           )}
         </form>
       </div>
