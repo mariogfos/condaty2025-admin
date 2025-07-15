@@ -851,7 +851,7 @@ const isExpensasWithoutDebt =
               <div className={styles['obs-section']}>
                 <div className={styles['obs-input']}>
                   <TextArea
-                    label="Descripción"
+                    label="Observaciones"
                     name="obs"
                     onChange={e => {
                       const value = e.target.value.substring(0, 250);

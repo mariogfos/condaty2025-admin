@@ -248,7 +248,7 @@ const Outlays = () => {
       description: {
         rules: ["required"],
         api: "ae",
-        label: "Descripción",
+        label: "Concepto",
         form: { type: "text" },
       },
       status: {
