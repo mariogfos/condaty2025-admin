@@ -155,7 +155,7 @@ const Pagination = ({
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
           <span className={styles.pageInfo}>
-            <span className={styles.currentPageLabel}>ir a la página</span>
+            <span className={styles.currentPageLabel}>Ir a la página</span>
             {/* <span className={styles.totalPages}>
               {currentPage}/{safeTotal}
             </span> */}
