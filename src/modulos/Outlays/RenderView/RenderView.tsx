@@ -18,6 +18,15 @@ interface Category {
   category_id?: number | string | null;
 }
 
+interface User {
+  id: string;
+  name: string;
+  last_name?: string | null;
+  middle_name?: string | null;
+  mother_last_name?: string | null;
+  has_image?: string;
+}
+
 interface OutlayItem {
   id: number | string;
   amount: number;
@@ -29,6 +38,7 @@ interface OutlayItem {
   type?: string;
   ext?: string;
   updated_at?: string;
+  user?: User | null;
 }
 
 interface ExtraData {
@@ -121,6 +131,20 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     }
   };
 
+  // Función para obtener el nombre completo del usuario
+  const getFullName = (user?: User | null) => {
+    if (!user) return '-/-';
+    const names = [
+      user.name,
+      user.middle_name,
+      user.last_name,
+      user.mother_last_name,
+    ]
+      .filter(Boolean)
+      .join(' ');
+    return names || user.name || '-/-';
+  };
+
   if (!item) {
     return (
       <DataModal
@@ -186,10 +210,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               <span className={styles.infoValue}>{subCategoryName}</span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Concepto</span>
-              <span className={styles.infoValue}>
-                {item.description || '-/-'}
+              <span className={styles.infoLabel}>
+                {item.status === 'X' ? 'Anulado por' : 'Registrado por'}
               </span>
+              <span className={styles.infoValue}>{getFullName(item.user)}</span>
             </div>
           </div>
 
@@ -211,6 +235,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
                 </span>
               </div>
             )}
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Observación</span>
+              <span className={styles.infoValue}>
+                {item.description || '-/-'}
+              </span>
+            </div>
           </div>
         </section>
 
