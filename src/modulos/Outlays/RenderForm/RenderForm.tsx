@@ -6,7 +6,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useMemo,
   useRef,
 } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
@@ -14,26 +13,9 @@ import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Input from "@/mk/components/forms/Input/Input";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { formatNumber } from "@/mk/utils/numbers";
 import styles from "./RenderForm.module.css";
-import {
-  IconDocs,
-  IconPDF,
-  // --- IMPORTA TUS ICONOS DE EDITAR Y ELIMINAR ---
-  // Ejemplo: import { IconEdit, IconDelete } from "@/components/layout/icons/IconsAcciones";
-} from "@/components/layout/icons/IconsBiblioteca";
-import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
-
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-// --- COMPONENTES DE ICONOS (Placeholder si no los tienes) ---
-// Si no tienes los componentes IconEdit/IconDelete, puedes usar esto temporalmente:
-const IconEdit = ({ size = 20 }) => (
-  <span style={{ fontSize: `${size}px`, cursor: "pointer" }}>✏️</span>
-); // O usa '📝' o texto '[Editar]'
-const IconDelete = ({ size = 20 }) => (
-  <span style={{ fontSize: `${size}px`, cursor: "pointer" }}>🗑️</span>
-);
 
 const RenderForm = ({
   open,
@@ -60,12 +42,11 @@ const RenderForm = ({
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
-  // selectedFiles ahora guardará el objeto File o un objeto vacío
   const [selectedFiles, setSelectedFiles] = useState({});
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [toast, setToast] = useState({ msg: "", type: "info" });
-  const fileInputRef = useRef(null); // Referencia para el input de archivo
+  const fileInputRef = useRef(null);
   const [_errors, set_Errors] = useState({});
   const { store } = useAuth();
 
@@ -74,44 +55,40 @@ const RenderForm = ({
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
-      // Limpia el estado al cerrar si no está inicializado
       _setFormState((prev) => ({
-        ...prev, // Conserva otros campos si es necesario reabrir con datos previos
+        ...prev,
         file: null,
         filename: null,
         ext: null,
       }));
       setSelectedFiles({});
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Limpia el input de archivo
+        fileInputRef.current.value = "";
       }
       return;
     }
 
     if (!isInitialized && open) {
-      // Al abrir, configura el estado inicial (incluyendo el archivo si 'item' lo tiene)
       const today = new Date();
       const formattedDate = today.toISOString().split("T")[0];
       _setFormState({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
         type: (item && item.type) || "",
-        file: (item && item.file) || null, // Asegúrate de manejar la estructura de 'item.file' si viene del backend
+        file: (item && item.file) || null,
         filename: (item && item.filename) || null,
         ext: (item && item.ext) || null,
       });
 
       setIsInitialized(true);
     }
-  }, [open, item, isInitialized]); // Depende de item también por si cambia
+  }, [open, item, isInitialized]);
 
   const handleChangeInput = useCallback(
     (e) => {
       const { name, value, type } = e.target;
-
       const newValue =
         type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
-
       if (name === "category_id") {
         _setFormState((prev) => ({
           ...prev,
@@ -132,19 +109,16 @@ const RenderForm = ({
     },
     [extraData?.subcategories]
   );
-
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingFile(true);
   }, []);
-
   const handleDragLeave = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingFile(false);
   }, []);
-
   const validar = useCallback(() => {
     let err = {};
     if (!_formState.date_at) err.date_at = "Este campo es requerido";
@@ -157,7 +131,6 @@ const RenderForm = ({
       err.description = "El concepto no puede exceder los 500 caracteres";
     if (!_formState.amount) err.amount = "Este campo es requerido";
     if (!_formState.type) err.type = "Este campo es requerido";
-    // Valida que _formState.file (el base64) no esté vacío
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
@@ -315,7 +288,6 @@ const RenderForm = ({
                   <Select
                     name="subcategory_id"
                     value={_formState.subcategory_id || ""}
-                    // placeholder={"Seleccionar subcategoría"}
                     label="Subcategoría"
                     onChange={handleChangeInput}
                     options={filteredSubcategories}
@@ -347,18 +319,6 @@ const RenderForm = ({
                     maxLength={20}
                     className={_errors.amount ? styles.error : ""}
                   />
-                  {/* <Input
-                      type="currency"
-                      name="amount"
-                      label="Monto del pago"
-                      
-                      value={_formState.amount || ""}
-                      onChange={handleChangeInput}
-                      error={_errors}
-                      required
-                      maxLength={20}
-                      className={_errors.amount ? styles.error : ""}
-                    /> */}
                 </div>
               </div>
             </div>

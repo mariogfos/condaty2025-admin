@@ -1,7 +1,7 @@
 /* === Estilos Originales y Generales === */
 .outlays-form-container {
   width: 100%;
- 
+
   margin: 0 auto;
   padding: 0;
 }
@@ -16,8 +16,6 @@
 
 .section {
   border-radius: 8px;
-  /* Considera añadir un margin-bottom si es necesario separar secciones */
-  /* margin-bottom: 1rem; */
 }
 
 .section-title {
