@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       {/* <ReactScan /> */}
-      <body>
+      <body cz-shortcut-listen="true">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>
             <NotifInstantDb />

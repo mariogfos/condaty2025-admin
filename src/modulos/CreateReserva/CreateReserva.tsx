@@ -737,8 +737,6 @@ const CreateReserva = () => {
       }
     }
 
-    console.log(`[HQC END] Determined finalValue: "${finalValue}"`); // DEBUG
-
     setFormState((prev) => ({
       ...prev,
       cantidad_personas: finalValue,
@@ -1228,10 +1226,10 @@ const CreateReserva = () => {
                         min={1} // Atributo HTML5 para mínimo
                         max={selectedAreaDetails?.max_capacity || undefined} // Atributo HTML5 para máximo
                         aria-label="Cantidad de personas"
-                        styleInput={{ 
+                        styleInput={{
                           textAlign: "center",
                           paddingLeft: "0",
-                          paddingRight: "0"
+                          paddingRight: "0",
                         }}
                       />
                       <button
