@@ -1,8 +1,5 @@
-/* RenderView.module.css (PARA EGRESOS) */
-
 .container {
   background-color: var(--cBlackV2);
-
   display: flex;
   flex-direction: column;
   padding: var(--spL);
@@ -21,7 +18,6 @@
   justify-content: flex-end;
   box-sizing: border-box;
 }
-
 .textButtonDanger {
   background-color: transparent;
   border: none;
@@ -36,21 +32,17 @@
   transition: color 0.2s ease, background-color 0.2s ease;
   text-decoration: underline;
 }
-
 .textButtonDanger:hover,
 .textButtonDanger:focus {
   text-decoration: underline;
   background-color: rgba(255, 0, 0, 0.05);
   outline: none;
 }
-
 .headerSection {
-  /* Para Monto y Fecha */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spXs);
-
   text-align: center;
 }
 
@@ -60,13 +52,11 @@
   font-weight: var(--bBold);
   line-height: 1.1;
 }
-
 .dateDisplay {
   color: var(--cWhiteV1);
   font-size: var(--sM);
   line-height: 1.5;
 }
-
 .sectionDivider {
   width: 100%;
   border: none;
@@ -74,45 +64,33 @@
   border-top: 0.5px solid var(--cWhiteV1);
   margin: var(--spM) 0;
 }
-
-/* NUEVA LÓGICA DE CENTRADO (inspirada en Accesos) */
 .detailsSection {
-  /* Reemplaza a .mainInfoGridContainer y .mainInfoGrid */
-  display: flex; /* Usa Flexbox para los hijos (las columnas) */
-  flex-direction: row; /* Columnas una al lado de la otra */
-  justify-content: center; /* CENTRA el conjunto de columnas si no ocupan todo el ancho */
-  align-items: flex-start; /* Alinea las columnas en la parte superior si tienen alturas diferentes */
-  gap: var(
-    --spXl,
-    48px
-  ); /* Espacio ENTRE las columnas. AJUSTA ESTE VALOR. (Accesos usa 32px) */
-  width: 100%; /* La sección ocupa el ancho disponible */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spXl, 48px);
+  width: 100%;
   box-sizing: border-box;
 }
-
 .detailsColumn {
-  /* Cada una de las dos columnas (los divs hijos de .detailsSection) */
   display: flex;
   flex-direction: column;
   gap: var(--spXl);
 }
-
 .infoBlock {
-  /* Cada par label/value */
   display: flex;
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
   max-width: 280px;
 }
-
 .infoLabel {
   color: var(--cWhiteV1);
   font-size: var(--sL);
   font-weight: var(--bRegular);
   line-height: 1;
 }
-
 .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
@@ -121,24 +99,20 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
-
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
 }
-
 .statusCancelled {
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
 }
-
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
   width: 100%;
   padding-bottom: var(--spS);
 }
-
 .voucherButton {
   background-color: var(--cHoverTable);
   color: var(--cWhite);
@@ -148,18 +122,15 @@
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bMedium);
-  transition: background-color 0.2s ease, color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
   max-width: 40%;
 }
-
 .voucherButton:hover {
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
-
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
@@ -181,9 +152,7 @@
   color: var(--cWhiteV1);
 }
 
-/* Media Query para responsividad */
 @media (max-width: 768px) {
-  /* O 600px como en Accesos */
   .container {
     padding: var(--spM);
     gap: var(--spS);
@@ -203,26 +172,22 @@
   .sectionDivider {
     margin: var(--spM) 0;
   }
-
   .detailsSection {
-    flex-direction: column; /* Apila las columnas */
-    align-items: center; /* Centra las columnas (ahora filas) */
-    gap: var(--spL); /* Espacio entre las columnas apiladas */
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spL);
     padding: var(--spM) 0;
   }
-
   .detailsColumn {
-    width: 100%; /* Cada columna (ahora una fila) ocupa el ancho */
-    align-items: center; /* Centra los infoBlock dentro de la columna/fila */
+    width: 100%;
+    align-items: center;
     gap: var(--spM);
   }
-
   .infoBlock {
-    max-width: 90%; /* Permite que el infoBlock ocupe más ancho en móviles */
-    align-items: center; /* Centra el label y el value si quieres que estén centrados en móvil */
-    text-align: center; /* Opcional: centrar el texto de label/value en móviles */
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
   }
-
   .voucherButtonContainer {
     padding-top: var(--spM);
   }

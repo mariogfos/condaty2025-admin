@@ -1,22 +1,17 @@
 'use client';
 import React, { memo } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { getUrlImages } from '@/mk/utils/string';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import {
-  formatToDayDDMMYYYYHHMM,
-} from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
-import { formatBs, formatNumber } from '@/mk/utils/numbers';
-
-// Definir tipos estrictos para las props y los datos
+import { formatBs } from '@/mk/utils/numbers';
 interface Category {
   id: number | string;
   name: string;
   padre?: Category | null;
   category_id?: number | string | null;
 }
-
 interface User {
   id: string;
   name: string;
@@ -25,7 +20,6 @@ interface User {
   mother_last_name?: string | null;
   has_image?: string;
 }
-
 interface OutlayItem {
   id: number | string;
   amount: number;
@@ -39,11 +33,9 @@ interface OutlayItem {
   updated_at?: string;
   user?: User | null;
 }
-
 interface ExtraData {
   categories?: Category[];
 }
-
 interface DetailOutlayProps {
   open: boolean;
   onClose: () => void;
@@ -51,8 +43,6 @@ interface DetailOutlayProps {
   extraData?: ExtraData;
   onDel?: (item: OutlayItem) => void;
 }
-
-// eslint-disable-next-line react/display-name
 const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   const { open, onClose, extraData, item, onDel } = props;
 
@@ -113,12 +103,10 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     };
     return statusMap[status] || status;
   };
-
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: '', subCategoryName: '' };
 
-  // Determinar clase de estilo para el estado
   const getStatusStyle = (status: string) => {
     if (status === 'A') return styles.statusPaid;
     if (status === 'X') return styles.statusCancelled;
@@ -128,20 +116,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     if (item && onDel) {
       onDel(item);
     }
-  };
-
-  // Función para obtener el nombre completo del usuario
-  const getFullName = (user?: User | null) => {
-    if (!user) return '-/-';
-    const names = [
-      user.name,
-      user.middle_name,
-      user.last_name,
-      user.mother_last_name,
-    ]
-      .filter(Boolean)
-      .join(' ');
-    return names || user.name || '-/-';
   };
 
   if (!item) {
@@ -212,7 +186,16 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               <span className={styles.infoLabel}>
                 {item.status === 'X' ? 'Anulado por' : 'Registrado por'}
               </span>
-              <span className={styles.infoValue}>{getFullName(item.user)}</span>
+              <span className={styles.infoValue}>
+                {item.user
+                  ? getFullName({
+                      ...item.user,
+                      middle_name: item.user.middle_name || undefined,
+                      last_name: item.user.last_name || undefined,
+                      mother_last_name: item.user.mother_last_name || undefined,
+                    })
+                  : '-/-'}
+              </span>
             </div>
           </div>
 

@@ -1,7 +1,4 @@
-// @ts-nocheck
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Select from '@/mk/components/forms/Select/Select';
@@ -12,39 +9,101 @@ import styles from './RenderForm.module.css';
 import Toast from '@/mk/components/ui/Toast/Toast';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
 
-const RenderForm = ({
+interface Category {
+  id: number | string;
+  name: string;
+  padre?: Category | null;
+  category_id?: number | string | null;
+}
+
+interface Subcategory {
+  id: number | string;
+  name: string;
+  category_id: number | string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  last_name?: string | null;
+  middle_name?: string | null;
+  mother_last_name?: string | null;
+  has_image?: string;
+}
+
+interface OutlayFormState {
+  date_at: string;
+  category_id?: number | string;
+  subcategory_id?: number | string;
+  description?: string;
+  amount?: string | number;
+  type?: string;
+  file?: File | string | null;
+  filename?: string | null;
+  ext?: string | null;
+}
+
+interface ExtraData {
+  categories?: Category[];
+  subcategories?: Subcategory[];
+}
+
+interface Errors {
+  [key: string]: string | undefined;
+}
+
+interface RenderFormProps {
+  open: boolean;
+  onClose: () => void;
+  item?: Partial<OutlayFormState>;
+  onSave?: () => void;
+  extraData?: ExtraData;
+  execute: (url: string, method: string, params: any) => Promise<any>;
+  showToast: (
+    msg: string,
+    type?: 'info' | 'success' | 'error' | 'warning'
+  ) => void;
+  reLoad: () => void;
+  user?: User;
+}
+
+const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
   item,
-  onSave,
+
   extraData,
   execute,
   showToast,
   reLoad,
-  user,
+
 }) => {
-  const [_formState, _setFormState] = useState(() => {
+  const [_formState, _setFormState] = useState<OutlayFormState>(() => {
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     return {
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || '',
-      // Inicializa los campos de archivo como nulos o vacíos
       file: (item && item.file) || null,
       filename: (item && item.filename) || null,
       ext: (item && item.ext) || null,
     };
   });
-  const [filteredSubcategories, setFilteredSubcategories] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState({});
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [toast, setToast] = useState({ msg: '', type: 'info' });
-  const fileInputRef = useRef(null);
-  const [_errors, set_Errors] = useState({});
-  const { store } = useAuth();
+  const [filteredSubcategories, setFilteredSubcategories] = useState<
+    Subcategory[]
+  >([]);
+  const [selectedFiles, setSelectedFiles] = useState<
+    Record<string, File | string>
+  >({});
 
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [toast, setToast] = useState<{
+    msg: string;
+    type: 'info' | 'success' | 'error' | 'warning';
+  }>({ msg: '', type: 'info' });
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [_errors, set_Errors] = useState<Errors>({});
   const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx'];
 
   useEffect(() => {
@@ -80,10 +139,23 @@ const RenderForm = ({
   }, [open, item, isInitialized]);
 
   const handleChangeInput = useCallback(
-    e => {
+    (
+      e:
+        | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        | {
+            target: {
+              name: string;
+              value: any;
+              type?: string;
+              checked?: boolean;
+            };
+          }
+    ) => {
       const { name, value, type } = e.target;
-      const newValue =
-        type === 'checkbox' ? (e.target.checked ? 'Y' : 'N') : value;
+      let newValue = value;
+      if (type === 'checkbox' && 'checked' in e.target) {
+        newValue = (e.target as HTMLInputElement).checked ? 'Y' : 'N';
+      }
       if (name === 'category_id') {
         _setFormState(prev => ({
           ...prev,
@@ -92,7 +164,7 @@ const RenderForm = ({
         }));
         if (newValue && extraData?.subcategories) {
           const filtered = extraData.subcategories.filter(
-            subcat => subcat.category_id === parseInt(newValue)
+            subcat => subcat.category_id === Number(String(newValue))
           );
           setFilteredSubcategories(filtered || []);
         } else {
@@ -105,7 +177,7 @@ const RenderForm = ({
     [extraData?.subcategories]
   );
   const validar = useCallback(() => {
-    let err = {};
+    const err: Errors = {};
     if (!_formState.date_at) err.date_at = 'Este campo es requerido';
     if (!_formState.category_id) err.category_id = 'Este campo es requerido';
     if (_formState.category_id && !_formState.subcategory_id) {
@@ -128,13 +200,13 @@ const RenderForm = ({
           document.querySelector(`.${styles.error}`) ||
           document.querySelector('.error');
         if (firstErrorElement) {
-          firstErrorElement.scrollIntoView({
+          (firstErrorElement as HTMLElement).scrollIntoView({
             behavior: 'smooth',
             block: 'center',
           });
         } else {
           const modalBody = document.querySelector('.data-modal-body');
-          if (modalBody) modalBody.scrollTop = 0;
+          if (modalBody) (modalBody as HTMLElement).scrollTop = 0;
         }
       }, 100);
     }
@@ -153,7 +225,7 @@ const RenderForm = ({
       category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id || null,
       description: _formState.description,
-      amount: parseFloat(_formState.amount || '0'),
+      amount: parseFloat(String(_formState.amount || '0')),
       type: _formState.type,
       file: _formState.file,
     };
@@ -332,7 +404,7 @@ const RenderForm = ({
             </div>
           </div>
 
-          {/* --- SECCIÓN COMPROBANTE MODIFICADA --- */}
+          {/* --- SECCIÓN COMPROBANTE --- */}
           <div className={styles.section}>
             <div className={styles['input-container']}>
               <UploadFile
@@ -363,7 +435,7 @@ const RenderForm = ({
                 className={_errors.description ? styles.error : ''}
               />
               {_formState.description &&
-                _formState.description.length > 0 && ( // Solo mostrar si hay descripción
+                _formState.description.length > 0 && (
                   <p className={styles['char-count']}>
                     {_formState.description.length}/500 caracteres
                   </p>

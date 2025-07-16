@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import styles from './Outlays.module.css';
 import useCrudUtils from '../shared/useCrudUtils';
@@ -28,10 +27,8 @@ const Outlays = () => {
     startDate?: string;
     endDate?: string;
   }>({});
-
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
-
     if (opt === 'date_at' && value === 'custom') {
       setCustomDateRange({});
       setCustomDateErrors({});
@@ -39,7 +36,6 @@ const Outlays = () => {
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
-
     if (value === '' || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
@@ -134,7 +130,6 @@ const Outlays = () => {
             return getFullName(props.item.user);
           },
         },
-
       },
       category_id: {
         rules: ['required'],
@@ -192,7 +187,7 @@ const Outlays = () => {
         form: {
           type: 'select',
           disabled: (formState: { category_id: any }) => !formState.category_id,
-          options: () => [], // Se maneja en RenderForm
+          options: () => [],
         },
         list: {
           onRender: (props: any) => {
@@ -307,7 +302,6 @@ const Outlays = () => {
       Categorías
     </Button>,
   ];
-
   const {
     userCan,
     List,
@@ -370,7 +364,7 @@ const Outlays = () => {
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
       />
 
-      {/* Modal para ejecutar presupuesto */}
+      {/* Modal para ejecutar presupuesto omentado para cuando se implmente la funcionalidad*/}
       {/*       {openModal && (
         <PerformBudget
           reLoad={reLoad}

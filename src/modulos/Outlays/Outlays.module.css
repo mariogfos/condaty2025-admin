@@ -1,5 +1,4 @@
 .outlays {
-  /* padding: 20px; */
   width: 100%;
 }
 .statusA {
@@ -8,7 +7,7 @@
 }
 
 .statusX {
-  background-color: var(--cHoverCompl1); /* Rojo semitransparente */
+  background-color: var(--cHoverCompl1);
   color: var(--cWhite);
 }
 
@@ -35,8 +34,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px; /* Más adecuado para el texto "Categorías" */
-  height: 48px !important; /* Corregido a 48px */
+  width: 120px;
+  height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
   margin: 0 !important;
@@ -60,7 +59,6 @@
   opacity: 0.8;
 }
 
-/* Estilos para responsive */
 @media (max-width: 768px) {
   .outlays {
     padding: 10px;
