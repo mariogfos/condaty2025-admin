@@ -251,4 +251,6 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   );
 });
 
+RenderView.displayName = 'RenderViewOutlays';
+
 export default RenderView;
