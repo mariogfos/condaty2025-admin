@@ -225,7 +225,7 @@ const RenderForm = ({
   const paymentMethods = [
     { id: 'T', name: 'Transferencia' },
     { id: 'O', name: 'Pago en oficina' },
-    { id: 'Q', name: 'Qr' },
+    { id: 'Q', name: 'QR' },
     { id: 'E', name: 'Efectivo' },
     { id: 'C', name: 'Cheque' },
   ];
@@ -364,7 +364,7 @@ const RenderForm = ({
             <div className={styles['input-container']}>
               <TextArea
                 name="description"
-                label="Observacion del egreso"
+                label="Concepto del egreso"
                 value={_formState.description || ''}
                 onChange={handleChangeInput}
                 error={_errors}
