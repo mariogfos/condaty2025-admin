@@ -19,7 +19,7 @@ export const RenderAnularModal = ({
       open={open}
       onClose={onClose}
       title="Anular Egreso" // Título personalizado
-      buttonText="Sí, Anular" // Texto del botón de confirmación personalizado
+      buttonText="Anular" // Texto del botón de confirmación personalizado
       buttonCancel="Cancelar"
       onSave={() => onSave(item)} // Llama a onConfirm cuando se guarda/confirma
       variant="mini"

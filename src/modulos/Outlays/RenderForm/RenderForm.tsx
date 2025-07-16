@@ -104,16 +104,6 @@ const RenderForm = ({
     },
     [extraData?.subcategories]
   );
-  const handleDragOver = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingFile(true);
-  }, []);
-  const handleDragLeave = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingFile(false);
-  }, []);
   const validar = useCallback(() => {
     let err = {};
     if (!_formState.date_at) err.date_at = 'Este campo es requerido';

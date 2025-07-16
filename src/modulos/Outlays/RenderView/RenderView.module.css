@@ -94,10 +94,7 @@
   /* Cada una de las dos columnas (los divs hijos de .detailsSection) */
   display: flex;
   flex-direction: column;
-  gap: var(--spXl); /* Espacio entre los infoBlock dentro de una columna */
-  /* El ancho de la columna será determinado por el max-width de sus .infoBlock hijos.
-     Opcionalmente, puedes dar un flex-basis o width aquí a .detailsColumn si lo prefieres.
-     Ej: flex-basis: 280px; o max-width: 280px; */
+  gap: var(--spXl);
 }
 
 .infoBlock {
@@ -106,10 +103,7 @@
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  max-width: 280px; /* IMPORTANTE: Esto limita el ancho de cada bloque de información.
-                       AJUSTA ESTE VALOR. (Accesos usa 250px para textsDiv)
-                       Si los .infoBlock son angostos, y el .detailsSection los centra,
-                       se crearán los márgenes laterales que buscas. */
+  max-width: 280px;
 }
 
 .infoLabel {
@@ -146,7 +140,7 @@
 }
 
 .voucherButton {
-  background-color: var(--cHoveTablePdf);
+  background-color: var(--cHoverTable);
   color: var(--cWhite);
   border: 1px solid var(--cWhiteV1);
   font-size: var(--sM);
@@ -166,12 +160,6 @@
   border-color: var(--cWhite);
 }
 
-.messageContainer,
-.messageText,
-.messageSuggestion {
-  /* Estilos de mensaje que ya tenías */
-  /* ... (mantenlos como estaban) ... */
-}
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
@@ -231,7 +219,6 @@
 
   .infoBlock {
     max-width: 90%; /* Permite que el infoBlock ocupe más ancho en móviles */
-    /* O podrías usar width: 100%; y controlar el padding del padre */
     align-items: center; /* Centra el label y el value si quieres que estén centrados en móvil */
     text-align: center; /* Opcional: centrar el texto de label/value en móviles */
   }
@@ -240,6 +227,7 @@
     padding-top: var(--spM);
   }
   .voucherButton {
+    background-color: var(--cHoverTable);
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;
