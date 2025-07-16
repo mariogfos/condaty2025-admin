@@ -45,7 +45,6 @@
       padding-right: 20%;
     }
 
-
     &.mini {
       @media (width>768px) {
         width: 30%;
@@ -59,14 +58,6 @@
       }
     }
     .headerDivider {
-         height: 0.5px; /* Grosor de la línea, similar a borderWidth */
-         background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
-         width: 100%;
-
-          width: calc(100% - (var(--spM) * 2));
-          margin-left: var(--spM);
-          margin-right: var(--spM);
-      }
       height: 0.5px; /* Grosor de la línea, similar a borderWidth */
       background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
       width: 100%;
@@ -79,7 +70,7 @@
       overflow-y: auto;
       flex-grow: 1;
       color: var(--cWhiteV1);
-      padding: var(--spL);
+      padding: var(--spM);
       padding-top: var(--spL);
     }
     & > footer {
@@ -105,9 +96,6 @@
            Y el segundo hijo en el DOM (buttonCancel) será el primero visualmente (a la izquierda).
         */
 
-        & > button:nth-child(1) { /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
-          flex-basis: calc(65% - 4px); /* 70% menos la mitad del gap para el espaciado */
-
         & > button:nth-child(1) {
           /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
           flex-basis: calc(
@@ -117,9 +105,6 @@
           flex-grow: 1;
           flex-shrink: 1;
         }
-
-        & > button:nth-child(2) { /* Este será el botón "Cancelar" (buttonCancel) */
-          flex-basis: calc(35% - 4px); /* 30% menos la mitad del gap para el espaciado */
 
         & > button:nth-child(2) {
           /* Este será el botón "Cancelar" (buttonCancel) */

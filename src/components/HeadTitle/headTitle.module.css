@@ -2,7 +2,9 @@
   display: flex;
   color: var(--cWhite);
   width: 100%;
-  padding: var(--spM);
+  padding-top: var(--spM);
+  padding-left: var(--spM);
+  padding-right: var(--spM);
   align-items: center;
   /* position: fixed; */
   top: 0;
