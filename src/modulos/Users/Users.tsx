@@ -7,19 +7,12 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import RenderView from "./RenderView/RenderView";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import RenderForm from "./RenderForm/RenderForm";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
-  IconAccess,
-  IconAdd,
   IconAdmin,
-  IconHomePerson2,
   IconPersonElegant,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Input from "@/mk/components/forms/Input/Input";
-
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
@@ -40,7 +33,8 @@ const Users = () => {
     filter: true,
     permiso: "",
     export: true,
-    import: true,
+    // import: true,
+    // search: { hide: true },
     hideActions: {
       edit: true,
       del: true,

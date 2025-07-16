@@ -39,12 +39,18 @@
       border-radius: 0;
       max-height: 100%;
     }
-    &.V2{
+    &.V2 {
       /* background-color: aquamarine; */
-      padding-left:20%;
-      padding-right:20%;
+      padding-left: 20%;
+      padding-right: 20%;
     }
 
+
+    &.mini {
+      @media (width>768px) {
+        width: 30%;
+      }
+    }
     & > .head-title > span {
       cursor: pointer;
       color: var(--cWhite);
@@ -61,6 +67,14 @@
           margin-left: var(--spM);
           margin-right: var(--spM);
       }
+      height: 0.5px; /* Grosor de la línea, similar a borderWidth */
+      background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
+      width: 100%;
+
+      width: calc(100% - (var(--spM) * 2));
+      margin-left: var(--spM);
+      margin-right: var(--spM);
+    }
     & > section {
       overflow-y: auto;
       flex-grow: 1;
@@ -76,7 +90,8 @@
       padding-top: 0;
 
       /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
-      & > button { /* Estilo general para los botones en el footer si es necesario */
+      & > button {
+        /* Estilo general para los botones en el footer si es necesario */
         width: 100%; /* Hacemos que ocupen todo el ancho en vista de columna */
       }
 
@@ -92,6 +107,12 @@
 
         & > button:nth-child(1) { /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
           flex-basis: calc(65% - 4px); /* 70% menos la mitad del gap para el espaciado */
+
+        & > button:nth-child(1) {
+          /* Este será el botón "Guardar" (buttonText) debido al row-reverse */
+          flex-basis: calc(
+            65% - 4px
+          ); /* 70% menos la mitad del gap para el espaciado */
           /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
           flex-grow: 1;
           flex-shrink: 1;
@@ -99,11 +120,16 @@
 
         & > button:nth-child(2) { /* Este será el botón "Cancelar" (buttonCancel) */
           flex-basis: calc(35% - 4px); /* 30% menos la mitad del gap para el espaciado */
+
+        & > button:nth-child(2) {
+          /* Este será el botón "Cancelar" (buttonCancel) */
+          flex-basis: calc(
+            35% - 4px
+          ); /* 30% menos la mitad del gap para el espaciado */
           /* Opcional: para asegurar que pueda crecer/encogerse si es necesario */
           flex-grow: 1;
           flex-shrink: 1;
         }
-
       }
     }
   }

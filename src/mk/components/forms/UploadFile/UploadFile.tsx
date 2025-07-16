@@ -300,18 +300,14 @@ export const UploadFile = ({
               ) : selectedFiles.type === "application/pdf" ? (
                 <>
                   <IconPDF size={80} color={"var(--cWhite)"} />
-                  <p>
-                    Archivo seleccionado: <br />
-                    <span>{selectedFiles.name}</span>
-                  </p>
+                  {/* Archivo seleccionado: <br /> */}
+                  <span>{selectedFiles.name}</span>
                 </>
               ) : (
                 <>
                   <IconDocs size={80} color={"var(--cWhite)"} />
-                  <p>
-                    Archivo seleccionado: <br />
-                    <span>{selectedFiles.name}</span>
-                  </p>
+                  {/* Archivo seleccionado: <br /> */}
+                  <span>{selectedFiles.name}</span>
                 </>
               )}
               {/* <p>
