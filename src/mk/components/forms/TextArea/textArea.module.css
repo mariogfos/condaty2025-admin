@@ -10,13 +10,12 @@
   border-radius: var(--bRadius);
   padding-left: var(--spM);
   padding-right: var(--spM);
-  padding-bottom: var(--spS);
+
   padding-top: var(--spL);
   border: var(--bWidth) solid var(--cBlackV2);
   font-size: var(--sM);
   resize: none;
-  /* margin-bottom: calc(var(--spS) * 3); */
-  margin-bottom: calc(var(--spL));
+  margin-top: calc(var(--spM));
   position: relative;
   & > div > textarea::placeholder {
     color: var(--cWhiteV1);
