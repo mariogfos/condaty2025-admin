@@ -285,9 +285,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [onClose, set_Errors]);
 
   const paymentMethods = [
-    { id: 'T', name: 'Transferencia' },
+    { id: 'T', name: 'Transferencia bancaria' },
     { id: 'O', name: 'Pago en oficina' },
-    { id: 'Q', name: 'QR' },
+    { id: 'Q', name: 'Pago QR' },
     { id: 'E', name: 'Efectivo' },
     { id: 'C', name: 'Cheque' },
   ];
