@@ -1,11 +1,11 @@
-/* === Estilos Originales y Generales === */
+
 .outlays-form-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
- 
   margin: 0 auto;
   padding: 0;
 }
-
 .form-title {
   font-size: 1.2rem;
   font-weight: 500;
@@ -13,192 +13,42 @@
   text-align: center;
   margin-bottom: 1.5rem;
 }
-
 .section {
   border-radius: 8px;
-  /* Considera añadir un margin-bottom si es necesario separar secciones */
-  /* margin-bottom: 1rem; */
 }
-
 .section-title {
   font-size: 1rem;
   font-weight: 500;
   color: var(--cBlack);
   margin-bottom: 12px;
 }
-
-.input-container {
-  margin-bottom: 12px;
-  margin-top: 12px;
-}
-
 .input-container:last-child {
   margin-bottom: 0;
 }
-
 .char-count {
   font-size: 0.75rem;
   color: #888;
   text-align: right;
   margin-top: 4px;
 }
-
 .two-column-container {
   display: flex;
   gap: 12px;
   margin-bottom: 0;
 }
-
 .column {
   flex: 1;
   min-width: 0;
 }
-
 .divider {
   height: 1px;
   background-color: var(--cWhiteV1);
   width: 100%;
   margin: 8px 0;
 }
-
-/* === Estilos Carga de Archivos === */
-.upload-section {
-  margin-top: 12px;
-}
-
-.file-upload-area {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Centra verticalmente también */
-  border-radius: 8px;
-  border: 1px dashed rgba(255, 255, 255, 0.25);
-  padding: 24px;
-  min-height: 100px; /* Dale una altura mínima */
-}
-
-.file-upload-area.dragging {
-  border-color: #3498db;
-}
-
-/* Asegura que use la variable de error */
-.file-upload-area.error {
-  border-color: var(--cError) !important; /* Usa variable y !important si es necesario */
-}
-
 .hidden-input {
   display: none;
 }
-
-/* --- Instrucciones de Carga --- */
-.upload-instructions {
-  text-align: center;
-}
-
-.upload-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.upload-link {
-  color: var(--cPrimary);
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-  text-decoration: underline;
-}
-
-.upload-alternative {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.file-types {
-  color: var(--cWhite);
-  font-size: 0.85rem;
-}
-
-/* --- Previsualización de Archivo (MODIFICADO) --- */
-.file-preview {
-  width: 100%;
-  /* Alinea el contenido interno */
-  display: flex;
-  justify-content: center;
-}
-
-.file-preview-content {
-  display: flex;
-  align-items: center;
-  gap: 1rem; /* Espacio entre icono/thumb y la info */
-  width: 100%; /* Ocupa el ancho disponible dentro del preview */
-  padding: 5px; /* Un pequeño padding interno opcional */
-}
-
-.file-thumbnail {
-  width: 50px; /* Tamaño ajustado para thumbnail */
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
-  flex-shrink: 0; /* Evita que el thumbnail se encoja */
-}
-
-/* Iconos PDF/DOCS como thumbnail */
-.file-preview-content svg {
-    width: 40px; /* Ajusta el tamaño de los iconos SVG */
-    height: 40px;
-    flex-shrink: 0;
-}
-
-
-.file-info {
-  flex: 1; /* Ocupa el espacio restante */
-  min-width: 0; /* Importante para que flex funcione bien con overflow */
-  /* --- MODIFICADO: Ahora es flex para alinear nombre y acciones --- */
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Nombre a la izq, acciones a la der */
-  gap: 10px; /* Espacio entre nombre y grupo de acciones */
-}
-
-.file-name {
-  /* --- MODIFICADO: Quitado margin-bottom, añadido overflow --- */
-  font-size: 0.9rem;
-  color: #666;
-  /* Para manejar nombres largos */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* Opcional: Define un ancho máximo si es necesario */
-  /* max-width: 250px; */
-}
-
-.file-name span {
-  font-weight: 500;
-  color: var(--cBlack); /* Hereda el color del padre o define uno */
-}
-
-/* --- ELIMINADO: .edit-file-button ya no se usa --- */
-/*
-.edit-file-button {
-  background-color: transparent;
-  border: none;
-  color: var(--cPrimary);
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-*/
-
-/* --- NUEVO: Estilos para el contenedor de acciones y botones de icono --- */
-.file-actions {
-  display: flex;
-  gap: 8px; /* Espacio entre iconos */
-  flex-shrink: 0; /* Evita que las acciones se encojan */
-}
-
 .icon-button {
   background: none;
   border: none;
@@ -211,57 +61,46 @@
   border-radius: 4px; /* Opcional: bordes redondeados */
   transition: background-color 0.2s, color 0.2s; /* Transición suave */
 }
-
 .icon-button:hover {
-  color: var(--cPrimary); /* Color al pasar el ratón (o el color que prefieras) */
-  background-color: rgba(0, 0, 0, 0.05); /* Fondo sutil al pasar el ratón */
+  color: var(--cPrimary);
+  background-color: rgba(0, 0, 0, 0.05);
 }
-/* --- FIN NUEVO --- */
-
-
-/* === Estilos de Error === */
 .error-message {
   color: var(--cError);
   margin-top: 0.5rem;
   font-size: 0.85rem;
   font-weight: 500;
 }
-
-/* Estilos para inputs/textarea/select con error */
 .outlays-form-container input.error,
 .outlays-form-container textarea.error,
 .outlays-form-container select.error,
-.outlays-form-container .select-error { /* Asegúrate que tus selects usen la clase 'error' o 'select-error' */
+.outlays-form-container .select-error {
   border-color: var(--cError) !important;
-  background-color: rgba(231, 76, 60, 0.05) !important; /* Fondo rojo muy sutil */
+  background-color: rgba(
+    231,
+    76,
+    60,
+    0.05
+  ) !important;
 }
-
-/* Mensaje de error debajo del input (si tu componente Input lo renderiza) */
 .input-error-message {
   color: var(--cError);
   font-size: 0.75rem;
   margin-top: 4px;
   display: block;
 }
-
-/* --- NUEVO: Estilo para errores generales --- */
 .error-general {
-   margin-top: 15px;
-   padding: 10px 15px;
-   border: 1px solid var(--cError);
-   border-radius: 4px;
-   background-color: rgba(231, 76, 60, 0.05);
-   color: var(--cError);
+  margin-top: 15px;
+  padding: 10px 15px;
+  border: 1px solid var(--cError);
+  border-radius: 4px;
+  background-color: rgba(231, 76, 60, 0.05);
+  color: var(--cError);
 }
-/* Si el error general contiene un <p class="error-message"> */
 .error-general > .error-message {
-   margin-top: 0; /* Quita el margen superior extra */
-   font-weight: normal; /* Quizás un peso normal aquí */
+  margin-top: 0;
+  font-weight: normal;
 }
-/* --- FIN NUEVO --- */
-
-
-/* === Placeholders === */
 .outlays-form-container input::placeholder,
 .outlays-form-container textarea::placeholder,
 .outlays-form-container .select-placeholder {
@@ -272,77 +111,52 @@
 .outlays-form-container .react-select__placeholder {
   color: #999 !important;
 }
-
-.outlays-form-container input,
-.outlays-form-container textarea,
-.outlays-form-container .react-select__single-value {
-  /* No necesita color específico aquí si quieres el default */
-}
-
-/* === Responsive adjustments === */
 @media (max-width: 768px) {
   .two-column-container {
     flex-direction: column;
-    gap: 0; /* Quita el gap horizontal al apilar */
+    gap: 0;
   }
-
   .column {
-      /* Asegúrate que los inputs/selects dentro de columnas apiladas tengan margen */
-      margin-bottom: 12px;
+    margin-bottom: 12px;
   }
   .column:last-child {
-      margin-bottom: 0;
+    margin-bottom: 0;
   }
-
-
-  /* Ajuste para la previsualización en móvil */
   .file-preview-content {
-     /* Puedes mantener flex-direction: row o cambiar a column si prefieres */
-     /* flex-direction: column; */
-     /* text-align: center; */
-     gap: 0.5rem; /* Reduce el gap en móvil */
+    gap: 0.5rem;
   }
-
-   .file-thumbnail {
-     width: 40px; /* Más pequeño en móvil */
-     height: 40px;
-   }
-   .file-preview-content svg {
-     width: 35px;
-     height: 35px;
-   }
-
+  .file-thumbnail {
+    width: 40px;
+    height: 40px;
+  }
+  .file-preview-content svg {
+    width: 35px;
+    height: 35px;
+  }
   .file-info {
-    /* Si usas flex-direction: column arriba, ajusta esto */
-    /* margin-top: 0.5rem; */
-    gap: 5px; /* Reduce gap entre nombre y acciones */
+    gap: 5px;
   }
-
   .file-name {
-      font-size: 0.8rem; /* Nombre un poco más pequeño */
-      /* max-width: 150px; /* Ajusta max-width si es necesario */
-  }
+    font-size: 0.8rem;
 
+  }
   .icon-button {
-      padding: 2px; /* Padding más pequeño para iconos */
+    padding: 2px;
   }
 }
-
 .mainInfoGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Siempre dos columnas de igual tamaño */
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   width: 100%;
   margin: 1rem 0;
 }
-
 .infoColumn {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-width: 0; /* Evita que el contenido desborde */
+  min-width: 0;
 }
-
 .infoBlock {
   display: flex;
   flex-direction: column;
@@ -351,41 +165,32 @@
   background-color: #f8f9fa;
   border-radius: 4px;
 }
-
 .infoLabel {
   font-size: 0.875rem;
   color: #6c757d;
   font-weight: 500;
 }
-
 .infoValue {
   font-size: 1rem;
   color: #212529;
-  word-break: break-word; /* Permite que el texto largo se rompa */
+  word-break: break-word;
 }
-
-/* Asegura que el contenedor principal tenga un ancho mínimo */
 .container {
-  min-width: 600px; /* Ajusta este valor según tus necesidades */
+  min-width: 600px;
   width: 100%;
   padding: 1rem;
 }
-
-/* Media query para pantallas muy pequeñas */
 @media (max-width: 640px) {
   .mainInfoGrid {
-    grid-template-columns: 1fr 1fr; /* Mantiene dos columnas incluso en móvil */
-    gap: 0.5rem; /* Reduce el espacio entre columnas en móvil */
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
   }
-
   .infoBlock {
-    padding: 0.25rem; /* Reduce el padding en móvil */
+    padding: 0.25rem;
   }
-
   .infoLabel {
     font-size: 0.75rem;
   }
-
   .infoValue {
     font-size: 0.875rem;
   }

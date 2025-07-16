@@ -161,22 +161,22 @@ const WidgetGraphResume = ({
             />
             <div className={styles.legendContainer}>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: '#FFD700' }}></div>
+                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl1)" }}></div>
                 <span className={styles.legendLabel}>Saldo Inicial</span>
                 <span className={styles.legendValue}>Bs {formatNumber(saldoInicial || 0)}</span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: '#00E38C' }}></div>
+                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl7)" }}></div>
                 <span className={styles.legendLabel}>Ingresos</span>
                 <span className={styles.legendValue}>Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}</span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: '#FF5B4D' }}></div>
+                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl8)" }}></div>
                 <span className={styles.legendLabel}>Egresos</span>
                 <span className={styles.legendValue}>Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}</span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: '#4C98DF' }}></div>
+                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl9)" }}></div>
                 <span className={styles.legendLabel}>Saldo Acumulado</span>
                 <span className={styles.legendValue}>Bs {formatNumber(balance.saldos.filter(val => val !== 0).pop() || 0)}</span>
               </div>

@@ -108,13 +108,20 @@
   width: 100%;
   position: relative;
 }
-.chartContainer {
-
+.chartContainerOuter {
   width: 100%;
-  background-color: var(--darkv1);
+  border: 0.5px solid var(--cWhiteV1);
   border-radius: 0.75rem;
   padding: 1rem;
+  background-color: var(--cBlackV2);
+}
 
+.chartContainer {
+  width: 100%;
+  background-color: var(--cBlackV2);
+  /* Sin borde aquí para evitar doble borde */
+  border-radius: 0.75rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
 }
@@ -213,7 +220,6 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-
   min-width: auto;
   width: auto;
   color: var(--cWhiteV1, #a7a7a7);

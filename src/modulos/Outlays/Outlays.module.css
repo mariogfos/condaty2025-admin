@@ -1,6 +1,14 @@
 .outlays {
-  /* padding: 20px; */
   width: 100%;
+}
+.statusA {
+  background-color: var(--cHoverCompl2);
+  color: var(--cSuccess);
+}
+
+.statusX {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhite);
 }
 
 .title {
@@ -26,8 +34,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px; /* Más adecuado para el texto "Categorías" */
-  height: 48px !important; /* Corregido a 48px */
+  width: 120px;
+  height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
   margin: 0 !important;
@@ -36,7 +44,6 @@
 .graphButton:hover {
   opacity: 0.9;
 }
-
 
 .categoriesButton:hover {
   background-color: rgba(160, 160, 160, 0.1) !important;
@@ -52,22 +59,22 @@
   opacity: 0.8;
 }
 
-/* Estilos para responsive */
 @media (max-width: 768px) {
   .outlays {
     padding: 10px;
   }
-  
+
   .title {
     font-size: 20px;
   }
-  
+
   .buttonsContainer {
     flex-direction: column;
     align-items: flex-start;
   }
-  
-  .graphButton, .categoriesButton {
+
+  .graphButton,
+  .categoriesButton {
     width: 100%;
     margin-bottom: 10px;
   }
@@ -77,16 +84,14 @@
   .graphButton {
     width: 32%;
   }
-  
+
   .categoriesButton {
     width: 32%;
   }
 }
 
-
-
 .statusBadge {
-  font-weight: 500;
+  font-weight: 400;
   padding: 6px 12px;
   border-radius: 4px;
   display: inline-flex;
@@ -96,16 +101,4 @@
   width: fit-content;
   min-width: 110px;
   white-space: nowrap;
-}
-
-/* Estilos para cada estado con fondos semitransparentes y texto coloreado
-   Exactamente como en el componente Payments */
-.statusA {
-  background-color: rgba(0, 227, 140, 0.2); /* Verde semitransparente */
-  color: #00e38c; /* Verde brillante */
-}
-
-.statusX {
-  background-color: rgba(218, 93, 93, 0.2); /* Rojo semitransparente */
-  color: #e46055; /* Rojo brillante */
 }

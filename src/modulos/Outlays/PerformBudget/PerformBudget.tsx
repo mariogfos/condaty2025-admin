@@ -4,11 +4,6 @@ import useAxios from "@/mk/hooks/useAxios";
 import React, { useEffect, useState } from "react";
 import { formatNumber } from "../../../mk/utils/numbers";
 import Check from "@/mk/components/forms/Check/Check";
-import Input from "@/mk/components/forms/Input/Input";
-import Select from "@/mk/components/forms/Select/Select";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { getUrlImages } from "@/mk/utils/string";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import RenderForm from "./RenderForm/RenderForm";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconEdit } from "@/components/layout/icons/IconsBiblioteca";
@@ -157,12 +152,6 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   ];
   const calculateTotalPagado = () => {
     return formState.reduce(
-      (acc: number, curr: any) => acc + (Number(curr?.amount) || 0),
-      0
-    );
-  };
-  const calculateTotal = () => {
-    return approvedBudgets?.reduce(
       (acc: number, curr: any) => acc + (Number(curr?.amount) || 0),
       0
     );

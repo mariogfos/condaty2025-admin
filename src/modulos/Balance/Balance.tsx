@@ -145,7 +145,7 @@ const BalanceGeneral: React.FC = () => {
     }
     if (refToCapture.current) {
       const canvas = await html2canvas(refToCapture.current);
-      const base64 = canvas.toDataURL('image/png', 0.8);
+      const base64 = canvas.toDataURL('image/png');
       let base64String = base64.replace('data:image/png;base64,', '');
       base64String = encodeURIComponent(base64String);
       fileObj = { ext: 'png', file: base64String };
@@ -479,11 +479,11 @@ const BalanceGeneral: React.FC = () => {
             }}
           >
             <IconExport size={22} />
-            Descargar PDF
+            Descargar reporte
           </Button>
         </div>
-        <div className={styles.chartContainer}>
-          <div ref={chartRefIngresos} className={styles.chartContainer}>
+        <div className={styles.chartContainerOuter} ref={chartRefIngresos}>
+          <div className={styles.chartContainer}>
             <WidgetGrafIngresos
               ingresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
@@ -600,11 +600,11 @@ const BalanceGeneral: React.FC = () => {
             }}
           >
             <IconExport size={22} />
-            Descargar PDF
+            Descargar reporte
           </Button>
         </div>
-        <div className={styles.chartContainer}>
-          <div ref={chartRefEgresos} className={styles.chartContainer}>
+        <div ref={chartRefEgresos} className={styles.chartContainerOuter}>
+          <div className={styles.chartContainer}>
             <WidgetGrafEgresos
               egresos={filtrarHastaMesActual(
                 filtrarPorCategorias(
@@ -856,12 +856,15 @@ const BalanceGeneral: React.FC = () => {
                         }}
                       >
                         <IconExport size={22} />
-                        Descargar PDF
+                        Descargar reporte
                       </Button>
                     </div>
-                    <div className={styles.chartContainer}>
+                    <div
+                      ref={chartRefBalance}
+                      className={styles.chartContainerOuter}
+                    >
                       <div
-                        ref={chartRefBalance}
+
                         className={styles.chartContainer}
                       >
                         <WidgetGrafBalance
