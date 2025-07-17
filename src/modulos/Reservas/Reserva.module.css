@@ -68,6 +68,10 @@
   color: var(--cLightDark, rgb(108, 117, 125)); /* Texto gris oscuro */
   border: 1px solid var(--cLightDark, rgb(200, 200, 200)); /* Borde opcional */
 }
+.statusF {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhite);
+}
 
 /* A: Disponible (Azul) */
 .statusA {

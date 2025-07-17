@@ -53,15 +53,13 @@ const Reserva = () => {
     start: "",
     end: "",
   });
-
-  // --- MODIFICACIÓN AQUÍ: Actualizar opciones del filtro ---
-  // Define los nuevos estados para el filtro, incluyendo "Todos" con valor vacío
   const getReservaStatusOptions = () => [
-    { id: "ALL", name: "Todos" }, // Opción para mostrar todos (envía vacío)
-    { id: "W", name: "En espera" },
-    { id: "A", name: "Aprobado" },
-    { id: "X", name: "Rechazado" },
-    { id: "C", name: "Cancelado" },
+    { id: "ALL", name: "Todos" },
+    { id: "W", name: "Por confirmar" },
+    { id: "A", name: "Reservada" },
+    { id: "X", name: "Rechazada" },
+    { id: "C", name: "Cancelada" },
+    { id: "F", name: "Completada" },
   ];
   // --- FIN MODIFICACIÓN ---
 
@@ -216,17 +214,33 @@ const Reserva = () => {
         list: {
           width: 180,
           onRender: (props: any) => {
-            const status = props?.item?.status as
+            let status = props?.item?.status as
               | "W"
               | "A"
               | "X"
               | "C"
+              | "F"
               | undefined;
+            let dateEnd = new Date(
+              props?.item?.date_end + "T" + props?.item?.end_time
+            )
+              .toISOString()
+              .split(".")[0];
+            console.log(dateEnd, new Date().toISOString().split(".")[0]);
+
+            if (
+              status === "A" &&
+              dateEnd < new Date().toISOString().split(".")[0]
+            ) {
+              status = "F";
+            }
+
             const statusMap = {
               W: { label: "Por confirmar", class: styles.statusW },
               A: { label: "Reservada", class: styles.statusA },
-              X: { label: "Rechazado", class: styles.statusX },
-              C: { label: "Cancelado", class: styles.statusC },
+              X: { label: "Rechazada", class: styles.statusX },
+              C: { label: "Cancelada", class: styles.statusC },
+              F: { label: "Completada", class: styles.statusF },
             };
             const currentStatus = status ? statusMap[status] : null;
 
@@ -242,7 +256,7 @@ const Reserva = () => {
           },
         },
         filter: {
-          label: "Estado Reserva",
+          label: "Estado reserva",
           width: "180px",
           options: getReservaStatusOptions,
         },
