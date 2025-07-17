@@ -67,6 +67,7 @@ const Section = ({
           onChange={onChangeSearch}
           name={`search${name}`}
           placeholder={"Buscar..."}
+          error={false}
         />
       </div>
       <ul>
