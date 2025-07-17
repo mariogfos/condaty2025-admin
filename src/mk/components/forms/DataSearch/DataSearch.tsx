@@ -76,11 +76,9 @@ const DataSearch = ({
               style={{ marginRight: "var(--spS)" }}
             />
           ) : (
-            <IconX
-              onClick={() => onSearch("")}
-              color={"var(--cWhiteV1)"}
-              className="error"
-            />
+            <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
+              <IconX color={"var(--cWhiteV1)"} className="error" />
+            </div>
           )
         }
         iconRight={
@@ -92,13 +90,23 @@ const DataSearch = ({
               onClick={() => onSearch()}
               style={{
                 backgroundColor: "var(--cPrimary)",
-                padding: 4,
+                padding: "4px",
                 borderRadius: "100%",
                 display: "flex",
-                marginRight: 8,
+                marginRight: "8px",
+                width: "26px",
+                height: "26px",
+                alignItems: "center",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                cursor: "pointer",
               }}
             >
-              <IconSearch color="var(--cBlack)" size={16} />
+              <IconSearch
+                color="var(--cBlack)"
+                // size={16}
+                // style={{ boxSizing: "content-box }}
+              />
             </div>
           )
         }

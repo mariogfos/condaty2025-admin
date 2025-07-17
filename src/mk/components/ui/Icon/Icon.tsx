@@ -1,3 +1,4 @@
+"use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
 
@@ -11,6 +12,7 @@ export interface IconType {
   circle?: boolean;
   reverse?: boolean;
   square?: boolean;
+  title?: string;
 }
 
 interface IconWrapType extends IconType {
@@ -32,6 +34,7 @@ export const IconWrap = ({
   circle = false,
   responsive = false,
   square = false,
+  title = "",
 }: IconWrapType) => {
   return (
     <svg
@@ -42,9 +45,10 @@ export const IconWrap = ({
         className +
         (circle ? " " + styles["circle"] : "") +
         (responsive ? " " + styles["responsive"] : "") +
-        (square ? " " + styles["square"] : "")
+        (square ? " " + styles["square"] : "") +
+        (onClick ? " " + styles["button"] : "")
       }
-      style={{ ...style, ...(onClick ? { cursor: "pointer" } : {}) }}
+      style={style}
       fill={reverse ? fillStroke : color}
       stroke={reverse ? color : fillStroke}
       onClick={onClick}
@@ -52,6 +56,7 @@ export const IconWrap = ({
       height={size}
     >
       {children}
+      <title>{title}</title>
     </svg>
   );
 };

@@ -4023,4 +4023,3 @@ export const IconEmptySearch = (props: IconType) => {
     </IconWrap>
   );
 };
-

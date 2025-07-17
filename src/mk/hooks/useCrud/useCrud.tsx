@@ -1024,13 +1024,13 @@ const useCrud = ({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "var(--spL)",
+            gap: "var(--spS)",
           }}
         >
           {mod.search && mod.search.hide === true ? (
             <div></div>
           ) : (
-            <div style={{ flex: 1, minWidth: 200, marginRight: 12 }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
               <DataSearch
                 value={searchs.searchBy || ""}
                 name={mod.modulo + "Search"}
@@ -1049,26 +1049,18 @@ const useCrud = ({
             />
           )}
           {mod.import && (
-            <div
-              className={
-                styles.iconsMenu +
-                (data?.length == 0 ? " " + styles.disabled : null)
-              }
+            <IconImport
+              title="Importar"
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? onImport : () => {}}
-            >
-              <IconImport />
-            </div>
+            />
           )}
           {mod.export && (
-            <div
-              className={
-                styles.iconsMenu +
-                (data?.length == 0 ? " " + styles.disabled : null)
-              }
+            <IconExport
+              title="Exportar"
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
-            >
-              <IconExport />
-            </div>
+            />
           )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>

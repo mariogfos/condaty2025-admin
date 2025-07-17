@@ -35,6 +35,7 @@
     flex-grow: 1;
     margin: 0;
     position: relative;
+    align-self: center;
 
     & > label {
       /* Label en estado inicial (dentro del input) */
@@ -86,6 +87,7 @@
       width: 100%;
       background-color: transparent;
       border: none;
+
       outline: none;
       padding: 0;
       /* padding-top: 8px; */

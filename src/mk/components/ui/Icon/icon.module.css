@@ -2,6 +2,15 @@
 .icon {
   transition-property: transform;
   transition-duration: 300ms;
+  box-sizing: content-box;
+  &.button {
+    cursor: pointer;
+    padding: var(--spS);
+    border-radius: var(--bRadiusS);
+    &:hover {
+      background-color: var(--cBlackV3);
+    }
+  }
   &.circle {
     border-radius: 100%;
     background-color: var(--cWhite);
