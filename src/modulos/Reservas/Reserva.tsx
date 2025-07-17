@@ -5,7 +5,11 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getDateStrMes } from "@/mk/utils/date";
+import {
+  getDateStrMes,
+  getDateTimeStrMes,
+  getDateTimeStrMesShort,
+} from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
@@ -49,25 +53,6 @@ const Reserva = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
-      date_at: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha del evento",
-        form: { type: "date" },
-        list: {
-          onRender: (props: any) => {
-            return (
-              <div>
-                {getDateStrMes(props?.item?.date_at)}{" "}
-                {format(
-                  parse(props?.item?.start_time, "HH:mm:ss", new Date()),
-                  "H:mm"
-                )}
-              </div>
-            );
-          },
-        },
-      },
       area: {
         rules: ["required"],
         api: "ae",
@@ -79,16 +64,23 @@ const Reserva = () => {
             const areaName = area?.title;
             const imageUrl = area?.images?.[0]
               ? getUrlImages(
-                  `/AREA-${area.images[0].entity_id}-${area.images[0].id}.webp?d=${area.updated_at}`
+                  `/AREA-${area.images[0].entity_id}-${
+                    area.images[0].id
+                  }.webp?d=${new Date().toISOString()}`
                 )
               : undefined;
-
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar src={imageUrl} hasImage={1} />
-                <div>
-                  <p>{areaName || "Área no disponible"}</p>
-                </div>
+                <Avatar src={imageUrl} hasImage={2} name={areaName} />
+                <p
+                  style={{
+                    color: "var(--cWhite)",
+                    fontWeight: 500,
+                    fontSize: 14,
+                  }}
+                >
+                  {areaName || "Área no disponible"}
+                </p>
               </div>
             );
           },
@@ -100,14 +92,14 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
+          width: 470,
           onRender: (props: any) => {
             const owner = props?.item?.owner;
             const dpto = props?.item?.dpto;
-
             const ownerName = owner
               ? getFullName(owner)
               : "Residente no disponible";
-            const dptoNro = dpto?.nro ? `Dpto: ${dpto.nro}` : "Sin Dpto.";
+            const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
             const imageUrl = owner
               ? getUrlImages(
@@ -120,17 +112,23 @@ const Reserva = () => {
                 <Avatar
                   src={imageUrl}
                   name={ownerName}
-                  hasImage={owner.has_image}
+                  // hasImage={owner.has_image}
                 />
                 <div>
-                  <p style={{ margin: 0, lineHeight: "1.3" }}>{ownerName}</p>
+                  <p
+                    style={{
+                      color: "var(--cWhite)",
+                      fontWeight: 500,
+                      fontSize: 14,
+                    }}
+                  >
+                    {ownerName}
+                  </p>
                   {dpto && (
                     <p
                       style={{
-                        margin: 0,
-                        fontSize: "0.85em",
-                        color: "#666",
-                        lineHeight: "1.3",
+                        fontSize: 14,
+                        color: "var(--cWhiteV1)",
                       }}
                     >
                       {dptoNro}
@@ -139,16 +137,44 @@ const Reserva = () => {
                   {!owner && dpto && (
                     <p
                       style={{
-                        margin: 0,
-                        fontSize: "0.85em",
-                        color: "#666",
-                        lineHeight: "1.3",
+                        fontSize: 14,
+                        color: "var(--cWhiteV1)",
                       }}
                     >
                       {dptoNro}
                     </p>
                   )}
                 </div>
+              </div>
+            );
+          },
+        },
+      },
+      created_at: {
+        label: "Fecha de solicitud",
+        form: false,
+        list: {
+          width: 246,
+          onRender: (props: any) => {
+            return getDateTimeStrMes(props?.value);
+          },
+        },
+      },
+      date_at: {
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha del evento",
+        form: { type: "date" },
+        list: {
+          width: 246,
+          onRender: (props: any) => {
+            return (
+              <div>
+                {getDateStrMes(props?.item?.date_at)}{" "}
+                {format(
+                  parse(props?.item?.start_time, "HH:mm:ss", new Date()),
+                  "H:mm"
+                )}
               </div>
             );
           },
@@ -170,6 +196,7 @@ const Reserva = () => {
           ],
         },
         list: {
+          width: 180,
           onRender: (props: any) => {
             const status = props?.item?.status as
               | "W"
@@ -180,8 +207,8 @@ const Reserva = () => {
 
             // Mapeo actualizado con los nuevos estados, textos y clases CSS
             const statusMap = {
-              W: { label: "En espera", class: styles.statusW }, // En espera
-              A: { label: "Aprobado", class: styles.statusA }, // Aprobado
+              W: { label: "Por confirmar", class: styles.statusW }, // En espera
+              A: { label: "Reservada", class: styles.statusA }, // Aprobado
               X: { label: "Rechazado", class: styles.statusX }, // Rechazado
               C: { label: "Cancelado", class: styles.statusC }, // Cancelado (Asegúrate de tener styles.statusC)
               // Quitamos N y A (si no aplica a reservas listadas)
@@ -222,23 +249,13 @@ const Reserva = () => {
     </Button>
   );
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    extraData,
-    findOptions,
-    reLoad,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons: [customAddButton],
-  });
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, data } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons: [customAddButton],
+    });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
