@@ -11,7 +11,7 @@
 }
 
 .section {
-  margin-top: var(--spM);
+  /* margin-top: var(--spM); */
 }
 
 .section-title {
@@ -151,7 +151,6 @@
   display: flex;
   gap: var(--spM);
   width: 100%;
-
 }
 
 .input-half {
@@ -259,8 +258,6 @@
   text-align: left;
 }
 
-
-
 .header-item:last-child {
   justify-content: center;
   text-align: center;
@@ -305,8 +302,6 @@
   color: var(--cWhiteV1, #fbfbfb);
 }
 
-
-
 .deuda-cell:nth-child(4) {
   font-weight: 500;
 }
@@ -316,7 +311,6 @@
 .deuda-item:nth-child(even) .deuda-cell:nth-child(4) {
   color: var(--cWhiteV1, #fbfbfb);
 }
-
 
 .deuda-check {
   justify-content: center;
