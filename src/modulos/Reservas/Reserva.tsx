@@ -61,7 +61,82 @@ const Reserva = () => {
     { id: "C", name: "Cancelada" },
     { id: "F", name: "Completada" },
   ];
-  // --- FIN MODIFICACIÓN ---
+
+  const onRenderAreaList = ({ item }: any) => {
+    const area = item?.area;
+    const areaName = area?.title;
+    const imageUrl = area?.images?.[0]
+      ? getUrlImages(
+          `/AREA-${area.images[0].entity_id}-${
+            area.images[0].id
+          }.webp?d=${new Date().toISOString()}`
+        )
+      : undefined;
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Avatar src={imageUrl} hasImage={2} name={areaName} />
+        <p
+          style={{
+            color: "var(--cWhite)",
+            fontWeight: 500,
+            fontSize: 14,
+          }}
+        >
+          {areaName || "Área no disponible"}
+        </p>
+      </div>
+    );
+  };
+
+  const onRenderOwnerList = ({ item }: any) => {
+    const owner = item?.owner;
+    const dpto = item?.dpto;
+    const ownerName = owner ? getFullName(owner) : "Residente no disponible";
+    const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
+
+    const imageUrl = owner
+      ? getUrlImages(
+          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+        )
+      : undefined;
+
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Avatar src={imageUrl} name={ownerName} />
+        <div>
+          <p
+            style={{
+              color: "var(--cWhite)",
+              fontWeight: 500,
+              fontSize: 14,
+            }}
+          >
+            {ownerName}
+          </p>
+          {dpto && (
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--cWhiteV1)",
+              }}
+            >
+              {dptoNro}
+            </p>
+          )}
+          {!owner && dpto && (
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--cWhiteV1)",
+              }}
+            >
+              {dptoNro}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const fields = useMemo(
     () => ({
@@ -72,31 +147,7 @@ const Reserva = () => {
         label: "Área Social",
         form: { type: "text" },
         list: {
-          onRender: (props: any) => {
-            const area = props?.item?.area;
-            const areaName = area?.title;
-            const imageUrl = area?.images?.[0]
-              ? getUrlImages(
-                  `/AREA-${area.images[0].entity_id}-${
-                    area.images[0].id
-                  }.webp?d=${new Date().toISOString()}`
-                )
-              : undefined;
-            return (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar src={imageUrl} hasImage={2} name={areaName} />
-                <p
-                  style={{
-                    color: "var(--cWhite)",
-                    fontWeight: 500,
-                    fontSize: 14,
-                  }}
-                >
-                  {areaName || "Área no disponible"}
-                </p>
-              </div>
-            );
-          },
+          onRender: onRenderAreaList,
         },
       },
       owner: {
@@ -106,61 +157,7 @@ const Reserva = () => {
         form: { type: "text" },
         list: {
           width: 470,
-          onRender: (props: any) => {
-            const owner = props?.item?.owner;
-            const dpto = props?.item?.dpto;
-            const ownerName = owner
-              ? getFullName(owner)
-              : "Residente no disponible";
-            const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
-
-            const imageUrl = owner
-              ? getUrlImages(
-                  `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
-                )
-              : undefined;
-
-            return (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar
-                  src={imageUrl}
-                  name={ownerName}
-                  // hasImage={owner.has_image}
-                />
-                <div>
-                  <p
-                    style={{
-                      color: "var(--cWhite)",
-                      fontWeight: 500,
-                      fontSize: 14,
-                    }}
-                  >
-                    {ownerName}
-                  </p>
-                  {dpto && (
-                    <p
-                      style={{
-                        fontSize: 14,
-                        color: "var(--cWhiteV1)",
-                      }}
-                    >
-                      {dptoNro}
-                    </p>
-                  )}
-                  {!owner && dpto && (
-                    <p
-                      style={{
-                        fontSize: 14,
-                        color: "var(--cWhiteV1)",
-                      }}
-                    >
-                      {dptoNro}
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          },
+          onRender: onRenderOwnerList,
         },
       },
       created_at: {
@@ -291,6 +288,28 @@ const Reserva = () => {
     }
     return { filterBy: currentFilters };
   };
+
+  const onSaveFilterModal = ({ startDate, endDate }: any) => {
+    let err: { startDate?: string; endDate?: string } = {};
+    if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+    if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+    if (startDate && endDate && startDate > endDate)
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+    if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+      err.startDate =
+        "El periodo personalizado debe estar dentro del mismo año";
+      err.endDate = "El periodo personalizado debe estar dentro del mismo año";
+    }
+    if (Object.keys(err).length > 0) {
+      setCustomDateErrors(err);
+      return;
+    }
+    const customDateFilterString = `${startDate},${endDate}`;
+    onFilter("date_at", customDateFilterString);
+    setOpenCustomFilter(false);
+    setCustomDateErrors({});
+  };
+
   const {
     userCan,
     List,
@@ -326,31 +345,7 @@ const Reserva = () => {
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
-        onSave={({ startDate, endDate }) => {
-          let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
-          if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-          }
-          if (Object.keys(err).length > 0) {
-            setCustomDateErrors(err);
-            return;
-          }
-          const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("date_at", customDateFilterString);
-          setOpenCustomFilter(false);
-          setCustomDateErrors({});
-        }}
+        onSave={onSaveFilterModal}
         errorStart={customDateErrors.startDate}
         errorEnd={customDateErrors.endDate}
       />
