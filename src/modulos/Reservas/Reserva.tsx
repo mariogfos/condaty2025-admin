@@ -156,7 +156,6 @@ const Reserva = () => {
         list: {
           width: 246,
           onRender: (props: any) => {
-            console.log(props);
             return getDateTimeStrMes(props?.value);
           },
         },

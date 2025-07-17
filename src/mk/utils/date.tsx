@@ -159,7 +159,6 @@ const _getDateTimeStrMes = (
   )}:${String(timeDate.getMinutes()).padStart(2, "0")}`;
 
   date.push(adjustedTime);
-  console.log(date);
   return date;
 };
 
