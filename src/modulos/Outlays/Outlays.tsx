@@ -110,7 +110,7 @@ const Outlays = () => {
       date_at: {
         rules: ['required'],
         api: 'ae',
-        label: 'Fecha de operación',
+        label: 'Fecha de pago',
         form: { type: 'date' },
         list: {
           onRender: (props: any) => {
