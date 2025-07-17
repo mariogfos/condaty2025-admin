@@ -29,7 +29,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         ...itemEdit,
       });
     }
-  }, []);
+  }, []); //Esto??
   const validate = () => {
     let errors: any = {};
 

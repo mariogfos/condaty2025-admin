@@ -114,7 +114,7 @@
   padding-bottom: var(--spS);
 }
 .voucherButton {
-  background-color: var(--cHoverTable);
+  background-color: var(--cHoveTablePdf);
   color: var(--cWhite);
   border: 1px solid var(--cWhiteV1);
   font-size: var(--sM);
@@ -192,7 +192,7 @@
     padding-top: var(--spM);
   }
   .voucherButton {
-    background-color: var(--cHoverTable);
+    background-color: var(--cHoveTablePdf);
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;
