@@ -904,7 +904,17 @@ const useCrud = ({
       const [open, setOpen] = useState(false);
       return (
         <>
-          <IconFilter onClick={() => setOpen(true)} />
+          <IconFilter
+            onClick={() => setOpen(true)}
+            style={
+              Object.values(filterSel).filter(
+                (e) => e !== "ALL" && e !== "" && e !== "T"
+              )?.length > 0
+                ? { color: "var(--cPrimary)" }
+                : undefined
+            }
+          />
+
           <DataModal
             open={open}
             onClose={() => setOpen(false)}
