@@ -36,6 +36,7 @@
     margin: 0;
     position: relative;
     align-self: center;
+    /* border: 1px solid red; */
 
     & > label {
       /* Label en estado inicial (dentro del input) */
@@ -93,6 +94,7 @@
       /* padding-top: 8px; */
       margin: 0;
       color: var(--cWhite);
+      min-height: 28px;
     }
   }
 

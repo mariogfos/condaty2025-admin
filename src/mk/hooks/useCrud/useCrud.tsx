@@ -1053,6 +1053,7 @@ const useCrud = ({
               title="Importar"
               className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? onImport : () => {}}
+              square
             />
           )}
           {mod.export && (
@@ -1060,6 +1061,7 @@ const useCrud = ({
               title="Exportar"
               className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
+              square
             />
           )}
           {mod.listAndCard && (

@@ -13,13 +13,13 @@
   }
   &.circle {
     border-radius: 100%;
-    background-color: var(--cWhite);
-    color: var(--cBlack);
+    /* background-color: var(--cWhite); */
+    /* color: var(--cBlack); */
     padding: var(--spS);
   }
   &.square {
-    background-color: var(--cWhite);
-    color: var(--cBlack);
+    /* background-color: var(--cWhite); */
+    /* color: var(--cBlack); */
     padding: var(--spS);
     border-radius: var(--bRadiusS);
   }
