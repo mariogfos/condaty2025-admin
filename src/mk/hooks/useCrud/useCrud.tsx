@@ -891,14 +891,27 @@ const useCrud = ({
   Form.displayName = "Form";
   const [filterSel, setFilterSel]: any = useState({});
 
-  const FilterResponsive = ({
-    filters,
-    // containerRef,
-    onChange,
-    selectWidth,
-    breakPoint,
-  }: any) => {
+  const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
+    let maxLabelWidth = 0;
+    if (filters && filters.length > 0 && typeof document !== "undefined") {
+      const span = document.createElement("span");
+      span.style.visibility = "hidden";
+      span.style.position = "absolute";
+      span.style.fontSize = "var(--sL, 16px)";
+      span.style.fontWeight = "var(--bMedium, 500)";
+      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
+      span.style.whiteSpace = "nowrap";
+      document.body.appendChild(span);
+      filters.forEach((f: any) => {
+        span.innerText = f.label;
+        if (span.offsetWidth > maxLabelWidth) {
+          maxLabelWidth = span.offsetWidth;
+        }
+      });
+      document.body.removeChild(span);
+    }
+    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -914,7 +927,6 @@ const useCrud = ({
                 : undefined
             }
           />
-
           <DataModal
             open={open}
             onClose={() => setOpen(false)}
@@ -936,8 +948,6 @@ const useCrud = ({
                   value={filterSel[f.key] || ""}
                   error={false}
                   style={{
-                    // width: selectWidth,
-                    // minWidth: selectWidth,
                     ...(filterSel[f.key] &&
                       filterSel[f.key] != "" &&
                       filterSel[f.key] != "T" &&
@@ -968,7 +978,6 @@ const useCrud = ({
                 onChange={onChange}
                 options={f.options || []}
                 value={filterSel[f.key] || ""}
-                // 3. Aplicamos el ancho calculado a cada Select
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
@@ -994,7 +1003,7 @@ const useCrud = ({
       onClick,
       extraButtons,
       data,
-      breakPoint = 10000,
+      breakPoint = 1,
     }: {
       filters?: any;
       onClick?: (e?: any) => void;
@@ -1004,56 +1013,12 @@ const useCrud = ({
     }) => {
       // if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
-      // ==================================================================
-      // == INICIO DE LA CORRECCIÓN: CÁLCULO DINÁMICO DEL ANCHO          ==
-      // ==================================================================
-
-      // 1. Calcular el ancho máximo de los labels de los filtros
-      let maxLabelWidth = 0;
-      // Nos aseguramos de que el código solo se ejecute en el cliente (donde existe `document`)
-      if (filters && filters.length > 0 && typeof document !== "undefined") {
-        // Creamos un elemento temporal e invisible para medir el texto
-        const span = document.createElement("span");
-        span.style.visibility = "hidden";
-        span.style.position = "absolute";
-        // Usamos los mismos estilos de fuente que el label para una medición precisa
-        span.style.fontSize = "var(--sL, 16px)"; // Tamaño de fuente del label
-        span.style.fontWeight = "var(--bMedium, 500)"; // Peso de fuente del label
-        span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
-        span.style.whiteSpace = "nowrap"; // Evita que el texto se divida en varias líneas
-        document.body.appendChild(span);
-
-        // Iteramos sobre cada filtro para encontrar el label más largo
-        filters.forEach((f: any) => {
-          span.innerText = f.label;
-          if (span.offsetWidth > maxLabelWidth) {
-            maxLabelWidth = span.offsetWidth;
-          }
-        });
-
-        // Eliminamos el elemento temporal del DOM
-        document.body.removeChild(span);
-      }
-
-      // 2. Definir el ancho final del Select
-      // Sumamos un espacio extra para el padding, el icono de flecha y un pequeño margen de seguridad.
-      // Si no hay filtros, usamos un ancho por defecto de 180px.
-      const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
-      // const isBreakFilter = useMediaQuery("(max-width: "+selectWidth+")");
-      // const isTablet = useMediaQuery(
-      //   "(min-width: 768px) and (max-width: 1024px)"
-      // );
-
-      // ==================================================================
-      // == FIN DE LA CORRECCIÓN                                         ==
-      // ==================================================================
-
       const onChange = (e: any) => {
         const name = e.target.name.replace("_filter", "");
         setFilterSel({ ...filterSel, [name]: e.target.value });
         onFilter(name, e.target.value);
       };
-      // const containerRef = useRef(null);
+
       return (
         <nav
           style={{
@@ -1077,37 +1042,11 @@ const useCrud = ({
           {menuFilter || null}
 
           {mod.filter && (
-            <>
-              <FilterResponsive
-                filters={filters}
-                breakPoint={breakPoint}
-                // containerRef={containerRef}
-                onChange={onChange}
-                selectWidth={selectWidth}
-              />
-              {/* {filters.map((f: any, i: number) => (
-                <Select
-                  key={f.key + i}
-                  label={f.label}
-                  name={f.key + "_filter"}
-                  onChange={onChange}
-                  options={f.options || []}
-                  value={filterSel[f.key] || ""}
-                  // 3. Aplicamos el ancho calculado a cada Select
-                  style={{
-                    width: selectWidth,
-                    minWidth: selectWidth,
-                    ...(filterSel[f.key] &&
-                      filterSel[f.key] != "" &&
-                      filterSel[f.key] != "T" &&
-                      filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
-                      }),
-                  }}
-                />
-              ))} */}
-            </>
+            <FilterResponsive
+              filters={filters}
+              breakPoint={breakPoint}
+              onChange={onChange}
+            />
           )}
           {mod.import && (
             <div
