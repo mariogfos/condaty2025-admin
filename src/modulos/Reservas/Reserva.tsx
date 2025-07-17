@@ -2,19 +2,16 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import {
-  getDateStrMes,
-  getDateTimeStrMes,
-  getDateTimeStrMesShort,
-} from "@/mk/utils/date";
+import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 const mod = {
   modulo: "reservations",
@@ -26,8 +23,21 @@ const mod = {
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
   filter: true,
-  // Esto cargará los detalles completos al hacer clic
+  export: true,
 };
+
+const periodOptions = [
+  { id: "ALL", name: "Todos" },
+  { id: "d", name: "Hoy" },
+  { id: "ld", name: "Ayer" },
+  { id: "w", name: "Esta semana" },
+  { id: "lw", name: "Semana pasada" },
+  { id: "m", name: "Este mes" },
+  { id: "lm", name: "Mes anterior" },
+  { id: "y", name: "Este año" },
+  { id: "ly", name: "Año anterior" },
+  { id: "custom", name: "Personalizado" },
+];
 
 const paramsInitial = {
   perPage: 20,
@@ -38,6 +48,11 @@ const paramsInitial = {
 
 const Reserva = () => {
   const router = useRouter();
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors]: any = useState({
+    start: "",
+    end: "",
+  });
 
   // --- MODIFICACIÓN AQUÍ: Actualizar opciones del filtro ---
   // Define los nuevos estados para el filtro, incluyendo "Todos" con valor vacío
@@ -179,14 +194,17 @@ const Reserva = () => {
             );
           },
         },
+        filter: {
+          label: "Fecha del evento",
+          width: "246px",
+          options: () => periodOptions,
+        },
       },
 
       status: {
         rules: ["required"],
         api: "ae",
         label: "Estado",
-        // NOTA: Las opciones del 'form' no se pidieron cambiar,
-        // pero podrían necesitar ajuste si este campo se edita en algún formulario.
         form: {
           type: "select",
           options: [
@@ -203,18 +221,13 @@ const Reserva = () => {
               | "A"
               | "X"
               | "C"
-              | undefined; // Quitamos N y A (si no aplica a reservas listadas)
-
-            // Mapeo actualizado con los nuevos estados, textos y clases CSS
+              | undefined;
             const statusMap = {
-              W: { label: "Por confirmar", class: styles.statusW }, // En espera
-              A: { label: "Reservada", class: styles.statusA }, // Aprobado
-              X: { label: "Rechazado", class: styles.statusX }, // Rechazado
-              C: { label: "Cancelado", class: styles.statusC }, // Cancelado (Asegúrate de tener styles.statusC)
-              // Quitamos N y A (si no aplica a reservas listadas)
+              W: { label: "Por confirmar", class: styles.statusW },
+              A: { label: "Reservada", class: styles.statusA },
+              X: { label: "Rechazado", class: styles.statusX },
+              C: { label: "Cancelado", class: styles.statusC },
             };
-            // --- FIN MODIFICACIÓN ---
-
             const currentStatus = status ? statusMap[status] : null;
 
             return (
@@ -231,7 +244,6 @@ const Reserva = () => {
         filter: {
           label: "Estado Reserva",
           width: "180px",
-          // Usa la función actualizada para las opciones del filtro
           options: getReservaStatusOptions,
         },
       },
@@ -248,14 +260,39 @@ const Reserva = () => {
       Crear Reserva
     </Button>
   );
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, data } =
-    useCrud({
-      paramsInitial,
-      mod,
-      fields,
-      extraButtons: [customAddButton],
-    });
+    if (opt === "date_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    onFilter,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    extraButtons: [customAddButton],
+    getFilter: handleGetFilter,
+  });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
@@ -269,7 +306,40 @@ const Reserva = () => {
   return (
     <div>
       <List height={"calc(100vh - 330px)"} />
-      {/* Asegúrate de que ReservaModal/RenderView también manejen los nuevos estados si es necesario */}
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("date_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
     </div>
   );
 };
