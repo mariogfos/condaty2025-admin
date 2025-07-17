@@ -5,7 +5,11 @@ import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo } from "react";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getDateStrMes } from "@/mk/utils/date";
+import {
+  getDateStrMes,
+  getDateTimeStrMes,
+  getDateTimeStrMesShort,
+} from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
@@ -55,7 +59,6 @@ const Reserva = () => {
         label: "Área Social",
         form: { type: "text" },
         list: {
-          width: 340,
           onRender: (props: any) => {
             const area = props?.item?.area;
             const areaName = area?.title;
@@ -89,10 +92,10 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
+          width: 470,
           onRender: (props: any) => {
             const owner = props?.item?.owner;
             const dpto = props?.item?.dpto;
-
             const ownerName = owner
               ? getFullName(owner)
               : "Residente no disponible";
@@ -147,12 +150,24 @@ const Reserva = () => {
           },
         },
       },
+      created_at: {
+        label: "Fecha de solicitud",
+        form: false,
+        list: {
+          width: 246,
+          onRender: (props: any) => {
+            console.log(props);
+            return getDateTimeStrMes(props?.value);
+          },
+        },
+      },
       date_at: {
         rules: ["required"],
         api: "ae",
         label: "Fecha del evento",
         form: { type: "date" },
         list: {
+          width: 246,
           onRender: (props: any) => {
             return (
               <div>
@@ -193,7 +208,7 @@ const Reserva = () => {
 
             // Mapeo actualizado con los nuevos estados, textos y clases CSS
             const statusMap = {
-              W: { label: "En espera", class: styles.statusW }, // En espera
+              W: { label: "Por confirmar", class: styles.statusW }, // En espera
               A: { label: "Reservada", class: styles.statusA }, // Aprobado
               X: { label: "Rechazado", class: styles.statusX }, // Rechazado
               C: { label: "Cancelado", class: styles.statusC }, // Cancelado (Asegúrate de tener styles.statusC)
@@ -235,23 +250,13 @@ const Reserva = () => {
     </Button>
   );
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    extraData,
-    findOptions,
-    reLoad,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons: [customAddButton],
-  });
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, data } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons: [customAddButton],
+    });
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
     searchs,
