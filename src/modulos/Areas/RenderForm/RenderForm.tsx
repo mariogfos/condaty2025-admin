@@ -16,14 +16,8 @@ const RenderForm = ({
   onClose,
   open,
   item,
-  setItem,
-  // errors,
-  extraData,
-  user,
   execute,
-  openList,
   setOpenList,
-  // setErrors,
   reLoad,
   action,
 }: any) => {
@@ -35,6 +29,7 @@ const RenderForm = ({
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
+
   useEffect(() => {
     setOpenList(false);
   }, []);
@@ -277,93 +272,6 @@ const RenderForm = ({
               Continuar
             </Button>
           </div>
-          {/* <Input
-            label="Días disponibles"
-            name="available_days"
-            value={formState?.available_days}
-            onChange={handleChange}
-            error={errors}
-          />  
-          <Input
-            label="Es gratis"
-            name="is_free"
-            value={formState?.is_free}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Duración máxima de reserva"
-            name="max_booking_duration"
-            value={formState?.max_booking_duration}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Restricciones especiales"
-            name="special_restrictions"
-            value={formState?.special_restrictions}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Reglas de uso"
-            name="usage_rules"
-            value={formState?.usage_rules}
-            onChange={handleChange}
-            error={errors}
-          />
-     
-          <Input
-            label="Aprobación automática disponible"
-            name="auto_approval_available"
-            value={formState?.auto_approval_available}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Cancelable"
-            name="cancellable"
-            value={formState?.cancellable}
-            onChange={handleChange}
-            error={errors}
-          />
-   
-          <Input
-            label="Penalización por cancelación tardía"
-            name="late_cancellation_penalty"
-            value={formState?.late_cancellation_penalty}
-            onChange={handleChange}
-            error={errors}
-          />
-
-          <Input
-            label="Habilitar encuesta"
-            name="enable_survey"
-            value={formState?.enable_survey}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Plantilla de encuesta"
-            name="survey_template"
-            value={formState?.survey_template}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar en el calendario"
-            name="show_in_calendar"
-            value={formState?.show_in_calendar}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar disponibilidad en tiempo real"
-            name="show_real_time_availability"
-            value={formState?.show_real_time_availability}
-            onChange={handleChange}
-            error={errors}
-          /> */}
         </Card>
       </div>
     </div>
