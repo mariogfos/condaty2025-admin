@@ -1,6 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { useState, useEffect, Fragment, memo, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  Fragment,
+  memo,
+  useCallback,
+  useRef,
+} from "react";
 import useAxios from "../useAxios";
 import { getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
@@ -29,6 +36,7 @@ import {
   IconTableEmpty,
   IconTrash,
   IconExport,
+  IconFilter,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import FormElement from "./FormElement";
@@ -36,6 +44,7 @@ import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import EmptyData from "@/components/NoData/EmptyData";
 import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
+import useMediaQuery from "../useMediaQuery";
 
 export type ModCrudType = {
   modulo: string;
@@ -193,7 +202,7 @@ const useCrud = ({
   );
   // setParams({ ...paramsInitial });
   // const { isMobile } = useScreenSize();
-  const isMobile = false;
+  // const isMobile = false;
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -881,59 +890,128 @@ const useCrud = ({
   });
   Form.displayName = "Form";
   const [filterSel, setFilterSel]: any = useState({});
+
+  const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
+    const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
+    let maxLabelWidth = 0;
+    if (filters && filters.length > 0 && typeof document !== "undefined") {
+      const span = document.createElement("span");
+      span.style.visibility = "hidden";
+      span.style.position = "absolute";
+      span.style.fontSize = "var(--sL, 16px)";
+      span.style.fontWeight = "var(--bMedium, 500)";
+      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
+      span.style.whiteSpace = "nowrap";
+      document.body.appendChild(span);
+      filters.forEach((f: any) => {
+        span.innerText = f.label;
+        if (span.offsetWidth > maxLabelWidth) {
+          maxLabelWidth = span.offsetWidth;
+        }
+      });
+      document.body.removeChild(span);
+    }
+    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
+
+    const BreakFilter = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <IconFilter
+            onClick={() => setOpen(true)}
+            style={
+              Object.values(filterSel).filter(
+                (e) => e !== "ALL" && e !== "" && e !== "T"
+              )?.length > 0
+                ? { color: "var(--cPrimary)" }
+                : undefined
+            }
+          />
+          <DataModal
+            open={open}
+            onClose={() => setOpen(false)}
+            title="Filtros"
+            buttonText=""
+            buttonCancel=""
+            variant="mini"
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
+              {filters.map((f: any, i: number) => (
+                <Select
+                  key={f.key + i}
+                  label={f.label}
+                  name={f.key + "_filter"}
+                  onChange={onChange}
+                  options={f.options || []}
+                  value={filterSel[f.key] || ""}
+                  error={false}
+                  style={{
+                    ...(filterSel[f.key] &&
+                      filterSel[f.key] != "" &&
+                      filterSel[f.key] != "T" &&
+                      filterSel[f.key] != "ALL" && {
+                        border: "1px solid var(--cPrimary)",
+                        borderRadius: 8,
+                      }),
+                  }}
+                />
+              ))}
+            </div>
+          </DataModal>
+        </>
+      );
+    };
+
+    return (
+      <>
+        {isBreak ? (
+          <BreakFilter />
+        ) : (
+          <>
+            {filters.map((f: any, i: number) => (
+              <Select
+                key={f.key + i}
+                label={f.label}
+                name={f.key + "_filter"}
+                onChange={onChange}
+                options={f.options || []}
+                value={filterSel[f.key] || ""}
+                style={{
+                  width: selectWidth,
+                  minWidth: selectWidth,
+                  ...(filterSel[f.key] &&
+                    filterSel[f.key] != "" &&
+                    filterSel[f.key] != "T" &&
+                    filterSel[f.key] != "ALL" && {
+                      border: "1px solid var(--cPrimary)",
+                      borderRadius: 8,
+                    }),
+                }}
+              />
+            ))}
+          </>
+        )}
+      </>
+    );
+  };
+
   const AddMenu = memo(
     ({
       filters,
       onClick,
       extraButtons,
       data,
+      breakPoint = 1,
     }: {
       filters?: any;
       onClick?: (e?: any) => void;
       extraButtons?: React.ReactNode[];
       data: any[];
+      breakPoint?: number;
     }) => {
-      if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
-
-      // ==================================================================
-      // == INICIO DE LA CORRECCIÓN: CÁLCULO DINÁMICO DEL ANCHO          ==
-      // ==================================================================
-
-      // 1. Calcular el ancho máximo de los labels de los filtros
-      let maxLabelWidth = 0;
-      // Nos aseguramos de que el código solo se ejecute en el cliente (donde existe `document`)
-      if (filters && filters.length > 0 && typeof document !== "undefined") {
-        // Creamos un elemento temporal e invisible para medir el texto
-        const span = document.createElement("span");
-        span.style.visibility = "hidden";
-        span.style.position = "absolute";
-        // Usamos los mismos estilos de fuente que el label para una medición precisa
-        span.style.fontSize = "var(--sL, 16px)"; // Tamaño de fuente del label
-        span.style.fontWeight = "var(--bMedium, 500)"; // Peso de fuente del label
-        span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
-        span.style.whiteSpace = "nowrap"; // Evita que el texto se divida en varias líneas
-        document.body.appendChild(span);
-
-        // Iteramos sobre cada filtro para encontrar el label más largo
-        filters.forEach((f: any) => {
-          span.innerText = f.label;
-          if (span.offsetWidth > maxLabelWidth) {
-            maxLabelWidth = span.offsetWidth;
-          }
-        });
-
-        // Eliminamos el elemento temporal del DOM
-        document.body.removeChild(span);
-      }
-
-      // 2. Definir el ancho final del Select
-      // Sumamos un espacio extra para el padding, el icono de flecha y un pequeño margen de seguridad.
-      // Si no hay filtros, usamos un ancho por defecto de 180px.
-      const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
-
-      // ==================================================================
-      // == FIN DE LA CORRECCIÓN                                         ==
-      // ==================================================================
+      // if (isMobile) return <FloatButton onClick={onClick || onAdd} />;
 
       const onChange = (e: any) => {
         const name = e.target.name.replace("_filter", "");
@@ -943,7 +1021,11 @@ const useCrud = ({
 
       return (
         <nav
-          style={{ display: "flex", alignItems: "center", gap: "var(--spL)" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--spL)",
+          }}
         >
           {mod.search && mod.search.hide === true ? (
             <div></div>
@@ -958,31 +1040,13 @@ const useCrud = ({
             </div>
           )}
           {menuFilter || null}
+
           {mod.filter && (
-            <>
-              {filters.map((f: any, i: number) => (
-                <Select
-                  key={f.key + i}
-                  label={f.label}
-                  name={f.key + "_filter"}
-                  onChange={onChange}
-                  options={f.options || []}
-                  value={filterSel[f.key] || ""}
-                  // 3. Aplicamos el ancho calculado a cada Select
-                  style={{
-                    width: selectWidth,
-                    minWidth: selectWidth,
-                    ...(filterSel[f.key] &&
-                      filterSel[f.key] != "" &&
-                      filterSel[f.key] != "T" &&
-                      filterSel[f.key] != "ALL" && {
-                        border: "1px solid var(--cPrimary)",
-                        borderRadius: 8,
-                      }),
-                  }}
-                />
-              ))}
-            </>
+            <FilterResponsive
+              filters={filters}
+              breakPoint={breakPoint}
+              onChange={onChange}
+            />
           )}
           {mod.import && (
             <div
@@ -1255,6 +1319,7 @@ const useCrud = ({
             filters={lFilter}
             extraButtons={extraButtons}
             data={data?.data}
+            breakPoint={props.filterBreakPoint}
           />
         )}
         <LoadingScreen type="TableSkeleton">
