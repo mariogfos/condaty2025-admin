@@ -5,7 +5,7 @@
   box-sizing: content-box;
   &.button {
     cursor: pointer;
-    padding: var(--spS);
+    padding: 4px;
     border-radius: var(--bRadiusS);
     &:hover {
       background-color: var(--cBlackV3);

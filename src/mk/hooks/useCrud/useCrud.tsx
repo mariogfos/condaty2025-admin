@@ -918,14 +918,16 @@ const useCrud = ({
       return (
         <>
           <IconFilter
-            onClick={() => setOpen(true)}
-            style={
-              Object.values(filterSel).filter(
+            title="Filtros"
+            style={{
+              minWidth: "24px",
+              ...(Object.values(filterSel).filter(
                 (e) => e !== "ALL" && e !== "" && e !== "T"
-              )?.length > 0
-                ? { color: "var(--cPrimary)" }
-                : undefined
-            }
+              )?.length > 0 && { color: "var(--cPrimary)", minWidth: "24px" }),
+            }}
+            className={data?.length == 0 ? " " + styles.disabled : undefined}
+            onClick={() => setOpen(true)}
+            square
           />
           <DataModal
             open={open}
@@ -1052,6 +1054,7 @@ const useCrud = ({
             <IconImport
               title="Importar"
               className={data?.length == 0 ? " " + styles.disabled : undefined}
+              style={{ minWidth: "24px" }}
               onClick={data?.length > 0 ? onImport : () => {}}
               square
             />
@@ -1059,6 +1062,7 @@ const useCrud = ({
           {mod.export && (
             <IconExport
               title="Exportar"
+              style={{ minWidth: "24px" }}
               className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
               square
