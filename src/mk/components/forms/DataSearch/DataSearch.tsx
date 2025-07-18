@@ -118,13 +118,13 @@ const DataSearch = ({
           position="bottom"
           visible={true}
           style={{
-            left: '50%',
+            left: '60%',
             transform: 'translateX(-50%)',
             minWidth: 250,
             fontSize: 14,
             marginTop: 4,
             zIndex: 9999,
-            textAlign: 'start',
+            textAlign: 'end',
           }}
         >
           <span />
