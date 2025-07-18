@@ -18,6 +18,7 @@ const Tooltip = ({
   className,
   visible,
 }: PropsType) => {
+  if (!title || title == "") return children;
   return (
     <div className={`${styles.container} ${className}`} style={style}>
       <span
