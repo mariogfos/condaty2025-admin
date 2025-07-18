@@ -204,7 +204,8 @@ const Head = memo(function Head({
     );
   };
   return (
-    <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
+    // <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
+    <header style={{ paddingRight: (scrollbarWidth || 0) + "px" }}>
       {header.map(
         (item: any, index: number) =>
           !item.onHide?.() && (
