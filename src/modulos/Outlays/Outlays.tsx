@@ -5,13 +5,11 @@ import { useMemo, useState } from 'react';
 import NotAccess from '@/components/layout/NotAccess/NotAccess';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import { formatNumber } from '@/mk/utils/numbers';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import { getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
-import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
@@ -210,25 +208,6 @@ const Outlays = () => {
         label: 'Concepto',
         form: { type: 'text' },
       },
-
-      amount: {
-        rules: ['required'],
-        api: 'ae',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total
-          </span>
-        ),
-        form: { type: 'number' },
-        list: {
-          onRender: (props: any) => (
-            <div style={{ width: '100%', textAlign: 'right' }}>
-              {'Bs ' + formatNumber(props.item.amount)}
-            </div>
-          ),
-          align: 'right',
-        },
-      },
       status: {
         rules: [''],
         api: 'ae',
@@ -339,31 +318,6 @@ const Outlays = () => {
     extraButtons,
     getFilter: handleGetFilter,
   });
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = 'La fecha de inicio es obligatoria';
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = 'La fecha de fin es obligatoria';
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = 'La fecha de inicio no puede ser mayor a la fecha fin';
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
-    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('date_at', customDateFilterString);
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
   useCrudUtils({
     onSearch,
     searchs,
