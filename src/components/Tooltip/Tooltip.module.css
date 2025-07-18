@@ -19,6 +19,11 @@
   word-wrap: break-word;
 }
 
+/* Forzar visibilidad del tooltip */
+.visible {
+  visibility: visible !important;
+}
+
 .container:hover .tooltip {
   visibility: visible;
 }
