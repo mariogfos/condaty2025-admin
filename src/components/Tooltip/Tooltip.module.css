@@ -7,6 +7,7 @@
 .tooltip {
   visibility: hidden;
   width: auto;
+
   background-color: var(--cWhite);
   color: var(--cWhiteV1);
   text-align: start;
@@ -15,8 +16,8 @@
   z-index: 9999;
   position: absolute;
   font-size: 14px;
-  white-space: normal;
-  word-wrap: break-word;
+  white-space: nowrap;
+  /* word-break: keep-all; */
 }
 
 .container:hover .tooltip {

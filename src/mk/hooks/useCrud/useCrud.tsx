@@ -1062,7 +1062,7 @@ const useCrud = ({
           )}
           {mod.export && (
             <IconExport
-              title="Exportar"
+              title="Exportar reporte"
               style={{ minWidth: "24px", height: "32px" }}
               className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
