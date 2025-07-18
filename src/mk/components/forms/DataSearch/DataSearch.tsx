@@ -71,34 +71,39 @@ const DataSearch = ({
         iconLeft={
           !value && !searchBy ? (
             <IconSearch
-              size={24}
+              // size={24}
               color={"var(--cWhiteV1)"}
               style={{ marginRight: "var(--spS)" }}
             />
           ) : (
-            <IconX
-              onClick={() => onSearch("")}
-              color={"var(--cWhiteV1)"}
-              className="error"
-            />
+            <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
+              <IconX color={"var(--cWhiteV1)"} className="error" />
+            </div>
           )
         }
         iconRight={
           searchBy && (
-            // <Button variant="primary" onClick={() => onSearch()}>
-            //   {textButton}
-            // </Button>
             <div
               onClick={() => onSearch()}
               style={{
                 backgroundColor: "var(--cPrimary)",
-                padding: 4,
+                padding: "4px",
                 borderRadius: "100%",
                 display: "flex",
-                marginRight: 8,
+                marginRight: "8px",
+                // width: "22px",
+                // height: "22px",
+                alignItems: "center",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                cursor: "pointer",
               }}
             >
-              <IconSearch color="var(--cBlack)" size={16} />
+              <IconSearch
+                color="var(--cBlack)"
+                size={16}
+                // style={{ boxSizing: "content-box }}
+              />
             </div>
           )
         }
