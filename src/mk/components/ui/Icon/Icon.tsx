@@ -1,6 +1,7 @@
 "use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
+import Tooltip from "@/components/Tooltip/Tooltip";
 
 export interface IconType {
   className?: string | undefined;
@@ -37,26 +38,27 @@ export const IconWrap = ({
   title = "",
 }: IconWrapType) => {
   return (
-    <svg
-      viewBox={viewBox}
-      className={
-        styles.icon +
-        " " +
-        className +
-        (circle ? " " + styles["circle"] : "") +
-        (responsive ? " " + styles["responsive"] : "") +
-        (square ? " " + styles["square"] : "") +
-        (onClick ? " " + styles["button"] : "")
-      }
-      style={style}
-      fill={reverse ? fillStroke : color}
-      stroke={reverse ? color : fillStroke}
-      onClick={onClick}
-      width={size}
-      height={size}
-    >
-      {children}
-      <title>{title}</title>
-    </svg>
+    <Tooltip title={title}>
+      <svg
+        viewBox={viewBox}
+        className={
+          styles.icon +
+          " " +
+          className +
+          (circle ? " " + styles["circle"] : "") +
+          (responsive ? " " + styles["responsive"] : "") +
+          (square ? " " + styles["square"] : "") +
+          (onClick ? " " + styles["button"] : "")
+        }
+        style={style}
+        fill={reverse ? fillStroke : color}
+        stroke={reverse ? color : fillStroke}
+        onClick={onClick}
+        width={size}
+        height={size}
+      >
+        {children}
+      </svg>
+    </Tooltip>
   );
 };

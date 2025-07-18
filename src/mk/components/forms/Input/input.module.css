@@ -7,7 +7,7 @@
   font-size: var(--sL);
   /* align-items: center; */
   position: relative;
-  padding: var(--spM);
+  padding: 9px;
   /* padding-right: var(--spM);
   padding-top: var(--spM); */
   display: flex;

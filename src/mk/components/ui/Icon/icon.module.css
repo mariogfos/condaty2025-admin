@@ -7,8 +7,9 @@
     cursor: pointer;
     padding: 4px;
     border-radius: var(--bRadiusS);
+    background-color: var(--cWhiteV2);
     &:hover {
-      background-color: var(--cBlackV3);
+      background-color: var(--cHoverTable);
     }
   }
   &.circle {

@@ -6,7 +6,7 @@
 
 .tooltip {
   visibility: hidden;
-  width: 501px;
+  width: auto;
   background-color: var(--cWhite);
   color: var(--cWhiteV1);
   text-align: start;
