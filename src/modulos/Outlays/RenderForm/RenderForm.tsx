@@ -215,7 +215,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required'],
+        rules: ['required', 'max:10'],
         key: 'amount',
         errors: errs,
       }),
@@ -400,7 +400,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     onChange={handleChangeInput}
                     error={_errors}
                     required
-                    maxLength={20}
+                    maxLength={10}
                     className={_errors.amount ? styles.error : ''}
                   />
                 </div>
