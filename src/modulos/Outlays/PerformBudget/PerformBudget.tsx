@@ -32,9 +32,10 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   };
   useEffect(() => {
     getApprovedBudgets();
-  }, []); //Esto??
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
-    //Esto?? deberias dejar una linea en blanco por claridad del codigo antes de un useeffect
     const newData = approvedBudgets.map((budget: any) => {
       const relatedPayment = formState.find(
         (f: any) => f.budget_id === budget.id
@@ -45,7 +46,8 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
       };
     });
     setApprovedBudgets(newData);
-  }, [formState]); //Esto??
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState]);
 
   const onSave = async () => {
     const { data } = await execute("/execute-budget", "POST", formState);
