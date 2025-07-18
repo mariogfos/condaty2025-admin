@@ -15,6 +15,7 @@ import Input from '@/mk/components/forms/Input/Input';
 import { RenderAnularModal } from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 
 const Outlays = () => {
   const router = useRouter();
@@ -209,21 +210,23 @@ const Outlays = () => {
         label: 'Concepto',
         form: { type: 'text' },
       },
-      type: {
+
+      amount: {
         rules: ['required'],
         api: 'ae',
-        label: 'Forma de pago',
-        form: {
-          type: 'select',
-          options: [
-            { id: 'T', name: 'Transferencia bancaria' },
-            { id: 'O', name: 'Pago en oficina' },
-            { id: 'Q', name: 'Pago QR' },
-            { id: 'E', name: 'Efectivo' },
-            { id: 'C', name: 'Cheque' },
-          ],
-          optionLabel: 'name',
-          optionValue: 'id',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto total
+          </span>
+        ),
+        form: { type: 'number' },
+        list: {
+          onRender: (props: any) => (
+            <div style={{ width: '100%', textAlign: 'right' }}>
+              {'Bs ' + formatNumber(props.item.amount)}
+            </div>
+          ),
+          align: 'right',
         },
       },
       status: {
@@ -393,54 +396,35 @@ const Outlays = () => {
         />
       )} */}
 
-      <DataModal
+      <DateRangeFilterModal
         open={openCustomFilter}
-        title="Seleccionar Rango de Fechas"
-        onSave={onSaveCustomFilter}
         onClose={() => {
           setCustomDateRange({});
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
-        buttonText="Aplicar Filtro"
-        buttonCancel="Cancelar"
-      >
-        <Input
-          type="date"
-          label="Fecha de inicio"
-          name="startDate"
-          error={customDateErrors.startDate}
-          value={customDateRange.startDate || ''}
-          onChange={e => {
-            setCustomDateRange({
-              ...customDateRange,
-              startDate: e.target.value,
-            });
-            if (customDateErrors.startDate)
-              setCustomDateErrors(prev => ({
-                ...prev,
-                startDate: undefined,
-              }));
-          }}
-          required
-        />
-        <Input
-          type="date"
-          label="Fecha de fin"
-          name="endDate"
-          error={customDateErrors.endDate}
-          value={customDateRange.endDate || ''}
-          onChange={e => {
-            setCustomDateRange({
-              ...customDateRange,
-              endDate: e.target.value,
-            });
-            if (customDateErrors.endDate)
-              setCustomDateErrors(prev => ({ ...prev, endDate: undefined }));
-          }}
-          required
-        />
-      </DataModal>
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (startDate && endDate && startDate > endDate) {
+            err.startDate =
+              'La fecha de inicio no puede ser mayor a la fecha fin';
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter('date_at', customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        initialStartDate={customDateRange.startDate || ''}
+        initialEndDate={customDateRange.endDate || ''}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
     </div>
   );
 };
