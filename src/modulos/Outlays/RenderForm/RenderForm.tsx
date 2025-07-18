@@ -1,13 +1,13 @@
-"use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Select from "@/mk/components/forms/Select/Select";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import Input from "@/mk/components/forms/Input/Input";
-import { useAuth } from "@/mk/contexts/AuthProvider"; //Esto??
-import styles from "./RenderForm.module.css";
-import Toast from "@/mk/components/ui/Toast/Toast";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
+'use client';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import Select from '@/mk/components/forms/Select/Select';
+import TextArea from '@/mk/components/forms/TextArea/TextArea';
+import Input from '@/mk/components/forms/Input/Input';
+import styles from './RenderForm.module.css';
+import Toast from '@/mk/components/ui/Toast/Toast';
+import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import { checkRules } from '@/mk/utils/validate/Rules';
 
 interface Category {
   id: number | string;
@@ -49,19 +49,19 @@ interface ExtraData {
 }
 
 interface Errors {
-  [key: string]: string | undefined;
+  [key: string]: string;
 }
 
 interface RenderFormProps {
   open: boolean;
   onClose: () => void;
   item?: Partial<OutlayFormState>;
-  onSave?: () => void;
+  onSave?: (params: any) => void;
   extraData?: ExtraData;
   execute: (url: string, method: string, params: any) => Promise<any>;
   showToast: (
     msg: string,
-    type?: "info" | "success" | "error" | "warning"
+    type?: 'info' | 'success' | 'error' | 'warning'
   ) => void;
   reLoad: () => void;
   user?: User;
@@ -71,22 +71,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
   item,
-
   extraData,
-  execute,
   showToast,
-  reLoad,
+  onSave,
 }) => {
   const [_formState, _setFormState] = useState<OutlayFormState>(() => {
     const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
+    const formattedDate = today.toISOString().split('T')[0];
     return {
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
-      type: (item && item.type) || "",
+      type: (item && item.type) || '',
       file: (item && item.file) || null,
-      filename: (item && item.filename) || null,
-      ext: (item && item.ext) || null,
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState<
@@ -95,44 +91,35 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<
     Record<string, File | string>
   >({});
-
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [toast, setToast] = useState<{
     msg: string;
-    type: "info" | "success" | "error" | "warning";
-  }>({ msg: "", type: "info" });
+    type: 'info' | 'success' | 'error' | 'warning';
+  }>({ msg: '', type: 'info' });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [_errors, set_Errors] = useState<Errors>({});
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
+  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx'];
 
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
-      _setFormState((prev) => ({
+      _setFormState(prev => ({
         ...prev,
         file: null,
-        filename: null,
-        ext: null,
       }));
       setSelectedFiles({});
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
-
     if (!isInitialized && open) {
       const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
+      const formattedDate = today.toISOString().split('T')[0];
       _setFormState({
         ...(item || {}),
         date_at: (item && item.date_at) || formattedDate,
-        type: (item && item.type) || "",
+        type: (item && item.type) || '',
         file: (item && item.file) || null,
-        filename: (item && item.filename) || null,
-        ext: (item && item.ext) || null,
       });
-
       setIsInitialized(true);
     }
   }, [open, item, isInitialized]);
@@ -152,144 +139,185 @@ const RenderForm: React.FC<RenderFormProps> = ({
     ) => {
       const { name, value, type } = e.target;
       let newValue = value;
-      if (type === "checkbox" && "checked" in e.target) {
-        newValue = (e.target as HTMLInputElement).checked ? "Y" : "N";
+      if (type === 'checkbox' && 'checked' in e.target) {
+        newValue = (e.target as HTMLInputElement).checked ? 'Y' : 'N';
       }
-      if (name === "category_id") {
-        _setFormState((prev) => ({
+      if (name === 'category_id') {
+        _setFormState(prev => ({
           ...prev,
           [name]: newValue,
-          subcategory_id: "",
+          subcategory_id: '',
         }));
         if (newValue && extraData?.subcategories) {
           const filtered = extraData.subcategories.filter(
-            (subcat) => subcat.category_id === Number(String(newValue))
+            subcat => subcat.category_id === Number(String(newValue))
           );
           setFilteredSubcategories(filtered || []);
         } else {
           setFilteredSubcategories([]);
         }
       } else {
-        _setFormState((prev) => ({ ...prev, [name]: newValue }));
+        _setFormState(prev => ({ ...prev, [name]: newValue }));
       }
     },
     [extraData?.subcategories]
   );
   const validar = useCallback(() => {
-    const err: Errors = {};
-    if (!_formState.date_at) err.date_at = "Este campo es requerido";
-    if (!_formState.category_id) err.category_id = "Este campo es requerido";
-    if (_formState.category_id && !_formState.subcategory_id) {
-      err.subcategory_id = "Este campo es requerido";
-    }
-    if (!_formState.description) err.description = "Este campo es requerido";
-    else if (_formState.description.length > 500)
-      err.description = "El concepto no puede exceder los 500 caracteres";
-    if (!_formState.amount) err.amount = "Este campo es requerido";
-    if (!_formState.type) err.type = "Este campo es requerido";
-    if (!_formState.file) {
-      err.file = "El comprobante es requerido";
-    }
+    let errs: Errors = {};
 
-    set_Errors({ ...err });
+    const addError = (
+      result: string | Record<string, string> | null,
+      key: string
+    ) => {
+      if (typeof result === 'string' && result) {
+        errs[key] = result;
+      } else if (result && typeof result === 'object') {
+        Object.entries(result).forEach(([k, v]) => {
+          if (v) errs[k] = v;
+        });
+      }
+    };
 
-    if (Object.keys(err).length > 0) {
+    addError(
+      checkRules({
+        value: _formState.date_at,
+        rules: ['required'],
+        key: 'date_at',
+        errors: errs,
+      }),
+      'date_at'
+    );
+    addError(
+      checkRules({
+        value: _formState.category_id,
+        rules: ['required'],
+        key: 'category_id',
+        errors: errs,
+      }),
+      'category_id'
+    );
+    addError(
+      checkRules({
+        value: _formState.subcategory_id,
+        rules: ['required'],
+        key: 'subcategory_id',
+        errors: errs,
+      }),
+      'subcategory_id'
+    );
+    addError(
+      checkRules({
+        value: _formState.description,
+        rules: ['required', 'max:500'],
+        key: 'description',
+        errors: errs,
+      }),
+      'description'
+    );
+    addError(
+      checkRules({
+        value: _formState.amount,
+        rules: ['required'],
+        key: 'amount',
+        errors: errs,
+      }),
+      'amount'
+    );
+    addError(
+      checkRules({
+        value: _formState.type,
+        rules: ['required'],
+        key: 'type',
+        errors: errs,
+      }),
+      'type'
+    );
+    addError(
+      checkRules({
+        value: _formState.file,
+        rules: ['required'],
+        key: 'file',
+        errors: errs,
+      }),
+      'file'
+    );
+
+    const filteredErrs = Object.fromEntries(
+      Object.entries(errs).filter(
+        ([_, v]) => typeof v === 'string' && v !== undefined
+      )
+    );
+    set_Errors(filteredErrs);
+
+    if (Object.keys(errs).length > 0) {
       setTimeout(() => {
         const firstErrorElement =
           document.querySelector(`.${styles.error}`) ||
-          document.querySelector(".error");
+          document.querySelector('.error');
         if (firstErrorElement) {
           (firstErrorElement as HTMLElement).scrollIntoView({
-            behavior: "smooth",
-            block: "center",
+            behavior: 'smooth',
+            block: 'center',
           });
         } else {
-          const modalBody = document.querySelector(".data-modal-body");
+          const modalBody = document.querySelector('.data-modal-body');
           if (modalBody) (modalBody as HTMLElement).scrollTop = 0;
         }
       }, 100);
     }
-
-    return Object.keys(err).length === 0;
-  }, [_formState, filteredSubcategories, set_Errors]); //Esto??
-
-  const _onSaveEgreso = useCallback(async () => {
-    if (!validar()) {
-      showToast("Por favor complete todos los campos requeridos", "error");
-      return;
-    }
-
-    let params = {
-      date_at: _formState.date_at,
-      category_id: _formState.category_id,
-      subcategory_id: _formState.subcategory_id || null,
-      description: _formState.description,
-      amount: parseFloat(String(_formState.amount || "0")),
-      type: _formState.type,
-      file: _formState.file,
-    };
-
-    try {
-      const { data, error } = await execute("/expenses", "POST", params);
-
-      if (data?.success) {
-        showToast("Egreso registrado con éxito", "success");
-        reLoad();
-        onCloseModal();
-      } else if (error) {
-        console.error("Error al guardar el egreso:", error);
-        showToast(
-          error?.data?.message || "Error al guardar el egreso",
-          "error"
-        );
-        const errorMsg = error?.data?.message || "Error al guardar el egreso";
-        showToast(errorMsg, "error");
-        if (error.data && error.data.errors) {
-          showToast(error.data.errors, "error");
-          set_Errors(error.data.errors);
-        } else {
-          showToast(errorMsg, "error");
-          set_Errors((prev) => ({ ...prev, general: errorMsg }));
-        }
-      }
-    } catch (err) {
-      showToast("Error inesperado al guardar el egreso", "error");
-      set_Errors((prev) => ({
-        ...prev,
-        general: "Error inesperado al guardar el egreso",
-      }));
-    }
-  }, [_formState, validar, execute, reLoad, onClose, set_Errors]); //Esto??
+    return Object.keys(errs).length === 0;
+  }, [_formState]);
 
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
-    _setFormState((prev) => ({
-      date_at: new Date().toISOString().split("T")[0],
-      type: "",
-      category_id: "",
-      subcategory_id: "",
-      description: "",
-      amount: "",
+    _setFormState(prev => ({
+      date_at: new Date().toISOString().split('T')[0],
+      type: '',
+      category_id: '',
+      subcategory_id: '',
+      description: '',
+      amount: '',
       file: null,
-      filename: null,
-      ext: null,
     }));
     setFilteredSubcategories([]);
     setSelectedFiles({});
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
     set_Errors({});
     onClose();
   }, [onClose, set_Errors]);
 
   const paymentMethods = [
-    { id: "T", name: "Transferencia bancaria" },
-    { id: "O", name: "Pago en oficina" },
-    { id: "Q", name: "Pago QR" },
-    { id: "E", name: "Efectivo" },
-    { id: "C", name: "Cheque" },
+    { id: 'T', name: 'Transferencia bancaria' },
+    { id: 'O', name: 'Pago en oficina' },
+    { id: 'Q', name: 'Pago QR' },
+    { id: 'E', name: 'Efectivo' },
+    { id: 'C', name: 'Cheque' },
   ];
+
+  const handleSave = useCallback(() => {
+    if (!validar()) return;
+
+    const {
+      date_at,
+      category_id,
+      subcategory_id,
+      description,
+      amount,
+      type,
+      file,
+    } = _formState;
+    const params = {
+      date_at,
+      category_id,
+      subcategory_id: subcategory_id || null,
+      description,
+      amount: parseFloat(String(amount || '0')),
+      type,
+      file,
+    };
+
+    onSave?.(params);
+  }, [_formState, validar, onSave]);
 
   return (
     <>
@@ -297,42 +325,41 @@ const RenderForm: React.FC<RenderFormProps> = ({
       <DataModal
         open={open}
         onClose={onCloseModal}
-        onSave={_onSaveEgreso}
+        onSave={handleSave}
         buttonCancel="Cancelar"
-        buttonText={"Registrar egreso"}
-        title={"Nuevo egreso"}
+        buttonText={'Registrar egreso'}
+        title={'Nuevo egreso'}
       >
-        <div className={styles["outlays-form-container"]}>
+        <div className={styles['outlays-form-container']}>
           {/* Fecha de pago */}
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
+            <div className={styles['input-container']}>
               <Input
                 type="date"
                 name="date_at"
                 label="Fecha de pago"
                 required={true}
-                value={_formState.date_at || ""}
+                value={_formState.date_at || ''}
                 onChange={handleChangeInput}
                 error={_errors}
-                className={_errors.date_at ? styles.error : ""}
-                max={new Date().toISOString().split("T")[0]}
+                className={_errors.date_at ? styles.error : ''}
+                max={new Date().toISOString().split('T')[0]}
                 min={
                   new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
                     .toISOString()
-                    .split("T")[0]
+                    .split('T')[0]
                 }
               />
             </div>
           </div>
-
-          {/* Categoría y Subcategoría (en dos columnas) */}
+          {/* Categoría y Subcategoría */}
           <div className={styles.section}>
-            <div className={styles["two-column-container"]}>
+            <div className={styles['two-column-container']}>
               <div className={styles.column}>
-                <div className={styles["input-container"]}>
+                <div className={styles['input-container']}>
                   <Select
                     name="category_id"
-                    value={_formState.category_id || ""}
+                    value={_formState.category_id || ''}
                     label="Categoría"
                     onChange={handleChangeInput}
                     options={extraData?.categories || []}
@@ -340,15 +367,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     required
                     optionLabel="name"
                     optionValue="id"
-                    className={_errors.category_id ? styles.error : ""}
+                    className={_errors.category_id ? styles.error : ''}
                   />
                 </div>
               </div>
               <div className={styles.column}>
-                <div className={styles["input-container"]}>
+                <div className={styles['input-container']}>
                   <Select
                     name="subcategory_id"
-                    value={_formState.subcategory_id || ""}
+                    value={_formState.subcategory_id || ''}
                     label="Subcategoría"
                     onChange={handleChangeInput}
                     options={filteredSubcategories}
@@ -357,38 +384,37 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     optionLabel="name"
                     optionValue="id"
                     disabled={!_formState.category_id}
-                    className={_errors.subcategory_id ? styles.error : ""}
+                    className={_errors.subcategory_id ? styles.error : ''}
                   />
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Monto y Método de pago (en dos columnas) */}
-          <div className={styles["two-column-container"]}>
+          {/* Monto y Método de pago */}
+          <div className={styles['two-column-container']}>
             <div className={styles.column}>
               <div className={styles.section}>
-                <div className={styles["input-container"]}>
+                <div className={styles['input-container']}>
                   <Input
                     type="currency"
                     name="amount"
                     label="Monto del pago"
-                    value={_formState.amount || ""}
+                    value={_formState.amount || ''}
                     onChange={handleChangeInput}
                     error={_errors}
                     required
                     maxLength={20}
-                    className={_errors.amount ? styles.error : ""}
+                    className={_errors.amount ? styles.error : ''}
                   />
                 </div>
               </div>
             </div>
             <div className={styles.column}>
               <div className={styles.section}>
-                <div className={styles["input-container"]}>
+                <div className={styles['input-container']}>
                   <Select
                     name="type"
-                    value={_formState.type || ""}
+                    value={_formState.type || ''}
                     label="Forma de pago"
                     onChange={handleChangeInput}
                     options={paymentMethods}
@@ -396,23 +422,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     required
                     optionLabel="name"
                     optionValue="id"
-                    className={_errors.type ? styles.error : ""}
+                    className={_errors.type ? styles.error : ''}
                   />
                 </div>
               </div>
             </div>
           </div>
-
-          {/* --- SECCIÓN COMPROBANTE --- */}
+          {/* Comprobante */}
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
+            <div className={styles['input-container']}>
               <UploadFile
                 name="file"
                 ext={exten}
-                value={_formState.file ? { file: _formState.file } : ""}
+                value={_formState.file ? { file: _formState.file } : ''}
                 onChange={handleChangeInput}
                 img={true}
-                sizePreview={{ width: "40%", height: "auto" }}
+                sizePreview={{ width: '40%', height: 'auto' }}
                 error={_errors}
                 setError={set_Errors}
                 required={true}
@@ -422,28 +447,28 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
           {/* Concepto del pago */}
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
+            <div className={styles['input-container']}>
               <TextArea
                 name="description"
                 label="Concepto del egreso"
-                value={_formState.description || ""}
+                value={_formState.description || ''}
                 onChange={handleChangeInput}
                 error={_errors}
                 required
                 maxLength={500}
-                className={_errors.description ? styles.error : ""}
+                className={_errors.description ? styles.error : ''}
               />
               {_formState.description && _formState.description.length > 0 && (
-                <p className={styles["char-count"]}>
+                <p className={styles['char-count']}>
                   {_formState.description.length}/500 caracteres
                 </p>
               )}
             </div>
           </div>
-          {/* Mostrar errores generales si existen //Esto??  Comentario superfluo ya se entiendo claro lo que es */}
+          {/* Mostrar errores generales si existen */}
           {_errors.general && (
-            <div className={`${styles.section} ${styles["error-general"]}`}>
-              <p className={styles["error-message"]}>{_errors.general}</p>
+            <div className={`${styles.section} ${styles['error-general']}`}>
+              <p className={styles['error-message']}>{_errors.general}</p>
             </div>
           )}
         </div>

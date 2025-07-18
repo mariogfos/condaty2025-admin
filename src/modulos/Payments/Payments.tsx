@@ -143,61 +143,61 @@ const Payments = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       dptos: {
-        api: "ae",
-        label: "Unidad",
+        api: 'ae',
+        label: 'Unidad',
         list: {
           onRender: renderDptosCell,
         },
       },
       paid_at: {
         rules: [],
-        api: "ae",
-        label: "Fecha de cobro",
+        api: 'ae',
+        label: 'Fecha de cobro',
         form: {
-          type: "date",
+          type: 'date',
         },
         list: {
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: "paid_at",
-          label: "Periodo",
+          key: 'paid_at',
+          label: 'Periodo',
 
           options: getPeriodOptions,
         },
       },
 
       category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Categoría',
         form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione una categoría",
+          type: 'select',
+          optionsExtra: 'categories',
+          placeholder: 'Seleccione una categoría',
         },
         list: {
           onRender: renderCategoryCell,
         },
         filter: {
-          label: "Categoría",
+          label: 'Categoría',
           options: (extraData: any) => {
             const categories = extraData?.categories || []; //esto?
             const categoryOptions = categories.map((category: any) => ({
               id: category.id,
               name: category.name,
             }));
-            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
+            return [{ id: 'ALL', name: 'Todos' }, ...categoryOptions];
           },
         },
       },
       subcategory_id: {
-        rules: ["required"],
-        label: "Subcategoría",
+        rules: ['required'],
+        label: 'Subcategoría',
         form: {
-          type: "select",
+          type: 'select',
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [],
         },
@@ -206,49 +206,34 @@ const Payments = () => {
         },
       },
       type: {
-        rules: ["required"],
-        api: "ae",
-        label: "Forma de pago",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Forma de pago',
         form: {
-          type: "select",
+          type: 'select',
           options: [
-            { id: "T", name: "Transferencia" },
-            { id: "E", name: "Efectivo" },
-            { id: "C", name: "Cheque" },
+            { id: 'T', name: 'Transferencia' },
+            { id: 'E', name: 'Efectivo' },
+            { id: 'C', name: 'Cheque' },
           ],
         },
         list: {
           onRender: renderTypeCell,
         },
         filter: {
-          label: "Forma de pago",
+          label: 'Forma de pago',
 
           options: getPaymentTypeOptions,
         },
       },
-      amount: {
-        rules: ["required", "number"],
-        api: "ae",
-        label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Monto total
-          </span>
-        ),
-        form: {
-          type: "number",
-          placeholder: "Ej: 100.00",
-        },
-        list: {
-          onRender: renderAmountCell,
-        },
-      },
+
       status: {
         rules: [],
-        api: "ae",
+        api: 'ae',
 
         label: (
           <span
-            style={{ display: "block", textAlign: "center", width: "100%" }}
+            style={{ display: 'block', textAlign: 'center', width: '100%' }}
           >
             Estado
           </span>
@@ -257,9 +242,25 @@ const Payments = () => {
           onRender: renderStatusCell,
         },
         filter: {
-          label: "Estado",
+          label: 'Estado',
 
           options: getStatusOptions,
+        },
+      },
+      amount: {
+        rules: ['required', 'number'],
+        api: 'ae',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto total
+          </span>
+        ),
+        form: {
+          type: 'number',
+          placeholder: 'Ej: 100.00',
+        },
+        list: {
+          onRender: renderAmountCell,
         },
       },
     }),
