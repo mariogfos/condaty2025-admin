@@ -77,8 +77,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
 }) => {
   const [_formState, _setFormState] = useState<OutlayFormState>(() => {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = today.toISOString().split("T")[0];
     return {
+      ...(item || {}),
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || '',
@@ -475,3 +476,4 @@ const RenderForm: React.FC<RenderFormProps> = ({
 };
 
 export default RenderForm;
+
