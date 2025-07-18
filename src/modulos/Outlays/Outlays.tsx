@@ -210,6 +210,11 @@ const Outlays = () => {
         label: 'Concepto',
         form: { type: 'text' },
       },
+      type: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Tipo de pago',
+      },
       status: {
         rules: [''],
         api: 'ae',
