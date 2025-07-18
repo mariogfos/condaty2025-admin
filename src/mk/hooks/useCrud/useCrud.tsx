@@ -918,14 +918,16 @@ const useCrud = ({
       return (
         <>
           <IconFilter
-            onClick={() => setOpen(true)}
-            style={
-              Object.values(filterSel).filter(
+            title="Filtros"
+            style={{
+              minWidth: "24px",
+              ...(Object.values(filterSel).filter(
                 (e) => e !== "ALL" && e !== "" && e !== "T"
-              )?.length > 0
-                ? { color: "var(--cPrimary)" }
-                : undefined
-            }
+              )?.length > 0 && { color: "var(--cPrimary)", minWidth: "24px" }),
+            }}
+            className={data?.length == 0 ? " " + styles.disabled : undefined}
+            onClick={() => setOpen(true)}
+            square
           />
           <DataModal
             open={open}
@@ -1024,13 +1026,13 @@ const useCrud = ({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "var(--spL)",
+            gap: "var(--spS)",
           }}
         >
           {mod.search && mod.search.hide === true ? (
             <div></div>
           ) : (
-            <div style={{ flex: 1, minWidth: 200, marginRight: 12 }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
               <DataSearch
                 value={searchs.searchBy || ""}
                 name={mod.modulo + "Search"}
@@ -1049,26 +1051,22 @@ const useCrud = ({
             />
           )}
           {mod.import && (
-            <div
-              className={
-                styles.iconsMenu +
-                (data?.length == 0 ? " " + styles.disabled : null)
-              }
+            <IconImport
+              title="Importar"
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
+              style={{ minWidth: "24px" }}
               onClick={data?.length > 0 ? onImport : () => {}}
-            >
-              <IconImport />
-            </div>
+              square
+            />
           )}
           {mod.export && (
-            <div
-              className={
-                styles.iconsMenu +
-                (data?.length == 0 ? " " + styles.disabled : null)
-              }
+            <IconExport
+              title="Exportar"
+              style={{ minWidth: "24px" }}
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
-            >
-              <IconExport />
-            </div>
+              square
+            />
           )}
           {mod.listAndCard && (
             <div className={styles.listAndCard}>
