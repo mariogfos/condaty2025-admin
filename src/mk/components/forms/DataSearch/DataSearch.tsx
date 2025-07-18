@@ -1,14 +1,14 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Input from '../Input/Input';
+"use client";
+import { useEffect, useState } from "react";
+import Input from "../Input/Input";
 import {
   IconSearch,
   IconX,
-} from '../../../../components/layout/icons/IconsBiblioteca';
+} from "../../../../components/layout/icons/IconsBiblioteca";
 // import Button from "../Button/Button";
-import styles from './dataSearch.module.css';
-import { PropsTypeInputBase } from '../ControlLabel';
-import idioma from '@/mk/utils/traductor/es';
+import styles from "./dataSearch.module.css";
+import { PropsTypeInputBase } from "../ControlLabel";
+import idioma from "@/mk/utils/traductor/es";
 
 interface PropsType extends PropsTypeInputBase {
   setSearch: Function;
@@ -20,13 +20,13 @@ const DataSearch = ({
   setSearch,
   name,
   value,
-  label = '',
+  label = "",
   textButton = idioma.search,
-  className = '',
-  searchMsg = '', // Nuevo prop
+  className = "",
+  searchMsg = "", // Nuevo prop
 }: PropsType) => {
-  const [searchBy, setSearchBy] = useState('');
-  const [oldSearch, setOldSearch] = useState('');
+  const [searchBy, setSearchBy] = useState("");
+  const [oldSearch, setOldSearch] = useState("");
   const [focused, setFocused] = useState(false); // Nuevo estado
 
   const onSearch = (v: any = false) => {
@@ -52,53 +52,58 @@ const DataSearch = ({
   }, [value]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       onSearch();
     }
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: "relative" }}>
       <Input
         name={name}
-        className={styles.dataSearch + ' ' + className}
+        className={styles.dataSearch + " " + className}
         required={false}
         label={label}
-        placeholder={textButton + '...'}
+        placeholder={textButton + "..."}
         onKeyDown={handleKeyDown}
         value={searchBy}
         onChange={onChange}
         iconLeft={
           !value && !searchBy ? (
             <IconSearch
-              size={24}
-              color={'var(--cWhiteV1)'}
-              style={{ marginRight: 'var(--spS)' }}
+              // size={24}
+              color={"var(--cWhiteV1)"}
+              style={{ marginRight: "var(--spS)" }}
             />
           ) : (
-            <IconX
-              onClick={() => onSearch('')}
-              color={'var(--cWhiteV1)'}
-              className="error"
-            />
+            <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
+              <IconX color={"var(--cWhiteV1)"} className="error" />
+            </div>
           )
         }
         iconRight={
           searchBy && (
-            // <Button variant="primary" onClick={() => onSearch()}>
-            //   {textButton}
-            // </Button>
             <div
               onClick={() => onSearch()}
               style={{
-                backgroundColor: 'var(--cPrimary)',
-                padding: 4,
-                borderRadius: '100%',
-                display: 'flex',
-                marginRight: 8,
+                backgroundColor: "var(--cPrimary)",
+                padding: "4px",
+                borderRadius: "100%",
+                display: "flex",
+                marginRight: "8px",
+                // width: "22px",
+                // height: "22px",
+                alignItems: "center",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                cursor: "pointer",
               }}
             >
-              <IconSearch color="var(--cBlack)" />
+              <IconSearch
+                color="var(--cBlack)"
+                size={16}
+                // style={{ boxSizing: "content-box }}
+              />
             </div>
           )
         }
@@ -109,14 +114,14 @@ const DataSearch = ({
       {focused && searchMsg && (
         <div
           style={{
-            position: 'absolute',
-            top: '100%',
+            position: "absolute",
+            top: "100%",
             left: 40,
-            background: 'rgba(0,0,0,0.85)',
-            color: 'var(--cWhite)',
+            background: "rgba(0,0,0,0.85)",
+            color: "var(--cWhite)",
             padding: 8,
             borderRadius: 8,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
             zIndex: 10,
             minWidth: 250,
             fontSize: 13,
