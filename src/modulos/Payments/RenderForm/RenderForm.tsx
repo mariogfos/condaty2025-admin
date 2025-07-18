@@ -124,7 +124,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
   extraData,
   execute,
   showToast,
-  showToast,
   reLoad,
 }) => {
   const [formState, setFormState] = useState<FormState>(() => {
@@ -788,7 +787,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div className={styles['input-row']}>
                   <div className={styles['input-half']}>
                     <Input
-                      type="currency"
                       type="currency"
                       name="amount"
                       label="Monto del ingreso"
