@@ -444,7 +444,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
           {/* Concepto del pago */}
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+
               <TextArea
                 name="description"
                 label="Concepto del egreso"
@@ -460,7 +460,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   {_formState.description.length}/500 caracteres
                 </p>
               )}
-            </div>
+
           </div>
           {/* Mostrar errores generales si existen */}
           {_errors.general && (
