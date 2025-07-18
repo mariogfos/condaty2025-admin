@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
-import { RenderAnularModal } from './RenderDel/RenderDel';
+
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
@@ -59,7 +59,7 @@ const Outlays = () => {
         extraData={extraData}
       />
     ),
-    renderDel: RenderAnularModal,
+    // Usar el renderDel por defecto de useCrud
     hideActions: {
       edit: true,
       del: true,
@@ -70,6 +70,8 @@ const Outlays = () => {
       edit: 'Egreso actualizado con éxito',
       del: 'Egreso anulado con éxito',
     },
+    messageDel:
+      '¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu balance.',
   };
   const paramsInitial = {
     perPage: 20,

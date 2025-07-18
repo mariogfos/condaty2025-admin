@@ -88,11 +88,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [filteredSubcategories, setFilteredSubcategories] = useState<
     Subcategory[]
   >([]);
-  const [selectedFiles, setSelectedFiles] = useState<
-    Record<string, File | string>
-  >({});
+
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  const [toast, setToast] = useState<{
+  const [toast] = useState<{
     msg: string;
     type: 'info' | 'success' | 'error' | 'warning';
   }>({ msg: '', type: 'info' });
@@ -107,7 +105,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         ...prev,
         file: null,
       }));
-      setSelectedFiles({});
+
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -280,7 +278,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       file: null,
     }));
     setFilteredSubcategories([]);
-    setSelectedFiles({});
     if (fileInputRef.current) fileInputRef.current.value = '';
     set_Errors({});
     onClose();
