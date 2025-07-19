@@ -1,6 +1,6 @@
 .container {
   position: relative;
-  display: inline-block;
+  display: flex;
   cursor: pointer;
 }
 
@@ -17,7 +17,6 @@
   position: absolute;
   font-size: 14px;
   white-space: nowrap;
-  /* word-break: keep-all; */
 }
 
 .container:hover .tooltip {
