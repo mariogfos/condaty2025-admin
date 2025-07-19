@@ -20,24 +20,19 @@ import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { useRouter } from "next/navigation";
-// Importa TODAS las interfaces necesarias desde Type.ts
 import {
   ApiUnidad,
   ApiArea,
-  ApiDptosResponse,
-  ApiAreasResponse,
-  ApiReservationsCalendarResponse,
-  Option, // Importa Option también
+  Option,
   FormState,
   ApiCalendarAvailabilityData,
-} from "./Type"; // Asegúrate que la ruta sea correcta
+} from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";
+import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import { getDateStrMes } from "../../mk/utils/date1";
 
-// --- Interfaces del Formulario (Definidas localmente) ---
-
-// Estado inicial para resetear el formulario
 const initialState: FormState = {
   unidad: "",
   area_social: "",
@@ -48,8 +43,6 @@ const initialState: FormState = {
   telefono_responsable: "",
   email_responsable: "",
 };
-
-// Interfaz de Errores (MODIFICADO)
 interface FormErrors {
   unidad?: string;
   area_social?: string;
@@ -61,30 +54,17 @@ interface FormErrors {
   telefono_responsable?: string;
   email_responsable?: string;
 }
-
-// --- Interfaz para la respuesta de disponibilidad horaria ---
-interface ApiAvailabilityResponse {
-  data?: {
-    reserved?: string[];
-    available?: string[]; // ["HH:mm-HH:mm", ...]
-    unavailable?: string[]; // ["HH:mm-HH:mm", ...]
-  };
-  success?: boolean;
-  message?: string;
-}
-
-// --- Interfaz para la respuesta de creación de reserva ---
-interface ApiCreateReservationResponse {
-  success: boolean;
-  data?: any; // O una interfaz más específica si la tienes
-  message?: string;
-}
-
-// --- Componente Principal ---
+const weekDay = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
 const CreateReserva = () => {
-  // --- Estados ---
   const [currentStep, setCurrentStep] = useState<number>(1);
-  // Usa el estado inicial definido arriba
   const [formState, setFormState] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [busyDays, setBusyDays] = useState<string[]>([]);
@@ -101,16 +81,12 @@ const CreateReserva = () => {
   const router = useRouter();
   const [canMakeReservationForDate, setCanMakeReservationForDate] = useState<
     boolean | null
-  >(null); // null = no data yet, true = puede, false = no puede
+  >(null);
   const [reservationBlockMessage, setReservationBlockMessage] =
     useState<string>("");
-  const [imageLoadError, setImageLoadError] = useState(false);
 
-  // --- Hooks ---
   const { showToast } = useAuth();
 
-  // --- Peticiones API ---
-  // Hook para obtener Unidades
   const {
     data: unidadesResponse,
     loaded: unidadesLoaded,
@@ -118,10 +94,9 @@ const CreateReserva = () => {
   } = useAxios("/dptos", "GET", {
     perPage: -1,
     page: 1,
-    fullType: "L", // Asegúrate que esto traiga la info del titular
+    fullType: "L",
   });
 
-  // Hook para obtener Áreas
   const { data: areasResponse, loaded: areasLoaded } = useAxios(
     "/areas",
     "GET",
@@ -130,7 +105,6 @@ const CreateReserva = () => {
     }
   );
 
-  // Hook para obtener DÍAS OCUPADOS y HORAS DISPONIBLES
   const {
     data: reservaCalendarResponse,
     loaded: reservaCalendarLoaded,
@@ -142,11 +116,6 @@ const CreateReserva = () => {
     !formState.area_social
   );
 
-  // NUEVO: Hook para ENVIAR la reserva (configurado para no ejecutar al inicio)
-  // Usamos 'execute' directamente, no necesitamos el estado 'data' aquí
-  // En CreateReserva.tsx, donde defines los hooks
-
-  // Hook para ENVIAR la reserva (MODIFICADO: URL inicial es null)
   const { execute: executeCreateReservation } = useAxios(
     null, // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
     "POST", // Método (se usará como default si no se pasa a execute)
@@ -156,16 +125,6 @@ const CreateReserva = () => {
 
   // --- Efecto para actualizar busyDays ---
   useEffect(() => {
-    // <---- AÑADE UN CONSOLE.LOG AQUÍ para ver qué llega
-    console.log(
-      "useEffect [busyDays] - Response:",
-      JSON.stringify(reservaCalendarResponse),
-      "Loaded:",
-      reservaCalendarLoaded,
-      "Area:",
-      formState.area_social
-    );
-
     if (
       reservaCalendarLoaded &&
       formState.area_social &&
@@ -268,8 +227,6 @@ const CreateReserva = () => {
       let message: string = "";
       let availableSlots: string[] | undefined = undefined;
       let processed = false; // Flag para saber si encontramos un objeto de datos válido
-
-      // CASO 1: La respuesta directa de la API es un array vacío []
       if (Array.isArray(response) && response.length === 0) {
         apiData = null; // No hay objeto de datos
       }
@@ -414,9 +371,6 @@ const CreateReserva = () => {
     }
   };
   //PARA ERROR EN IMAGEN
-  useEffect(() => {
-    setImageLoadError(false);
-  }, [currentImageIndex, selectedAreaDetails?.id]);
 
   const handlePeriodToggle = (period: string) => {
     setSelectedPeriods((prevSelected) => {
@@ -793,6 +747,7 @@ const CreateReserva = () => {
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
+  console.log(formState.fecha);
 
   return (
     <div className={styles.pageWrapper}>
@@ -804,7 +759,9 @@ const CreateReserva = () => {
         {/* --- Header --- */}
         <div className={styles.header}>
           {/* Botón para volver atrás */}
-
+          <p style={{ fontSize: "24px", fontWeight: 600 }}>
+            Reservar un área social
+          </p>
           {/* Indicador de Paso */}
           <div className={styles.progressContainer}>
             <span className={styles.stepIndicatorText}>
@@ -813,7 +770,7 @@ const CreateReserva = () => {
             <div className={styles.progressBar}>
               <div
                 className={styles.progressFill}
-                style={{ width: `${((currentStep - 1) / 2) * 100}%` }} // Asume 3 pasos totales (0%, 50%, 100%)
+                style={{ width: `${(currentStep / 3) * 100}%` }} // Asume 3 pasos totales (0%, 50%, 100%)
               ></div>
             </div>
           </div>
@@ -868,93 +825,95 @@ const CreateReserva = () => {
 
                 {/* Previsualización del Área Seleccionada */}
                 {selectedAreaDetails && (
-                  <div className={styles.areaPreview}>
-                    {/* Columna Imagen */}
-                    {selectedAreaDetails.images &&
-                      selectedAreaDetails.images.length > 0 && (
+                  <>
+                    <div className={styles.areaPreview}>
+                      {/* Columna Imagen */}
+                      {selectedAreaDetails.images &&
+                        selectedAreaDetails.images.length > 0 && (
+                          <div className={styles.imageContainer}>
+                            <img
+                              key={
+                                selectedAreaDetails.images[currentImageIndex].id
+                              } // Add key for re-render on change
+                              className={styles.previewImage}
+                              src={getUrlImages(
+                                `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
+                              )}
+                              alt={`Imagen ${currentImageIndex + 1} de ${
+                                selectedAreaDetails.title
+                              }`}
+                            />
+                            {/* Paginación de Imagen */}
+                            <div className={styles.imagePagination}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCurrentImageIndex((prev) =>
+                                    prev > 0
+                                      ? prev - 1
+                                      : (selectedAreaDetails?.images?.length ||
+                                          1) - 1
+                                  )
+                                }
+                                disabled={
+                                  selectedAreaDetails?.images?.length <= 1
+                                }
+                                aria-label="Imagen anterior"
+                              >
+                                {/* Añade la className aquí */}
+                                <IconBackAround
+                                  className={styles.paginationIcon}
+                                />
+                              </button>
+
+                              <span>
+                                {currentImageIndex + 1} /{" "}
+                                {selectedAreaDetails?.images?.length || 1}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCurrentImageIndex((prev) =>
+                                    prev <
+                                    (selectedAreaDetails?.images?.length || 1) -
+                                      1
+                                      ? prev + 1
+                                      : 0
+                                  )
+                                }
+                                disabled={
+                                  selectedAreaDetails?.images?.length <= 1
+                                }
+                                aria-label="Siguiente imagen"
+                              >
+                                {/* Añade la className aquí */}
+                                <IconNextAround
+                                  className={styles.paginationIcon}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      {/* Si no hay imágenes */}
+                      {(!selectedAreaDetails.images ||
+                        selectedAreaDetails.images.length === 0) && (
                         <div className={styles.imageContainer}>
                           <img
-                            key={
-                              selectedAreaDetails.images[currentImageIndex].id
-                            } // Add key for re-render on change
+                            src="/assets/no-image.png"
+                            alt="Sin imagen"
                             className={styles.previewImage}
-                            src={getUrlImages(
-                              `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
-                            )}
-                            alt={`Imagen ${currentImageIndex + 1} de ${
-                              selectedAreaDetails.title
-                            }`}
                           />
-                          {/* Paginación de Imagen */}
-                          <div className={styles.imagePagination}>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCurrentImageIndex((prev) =>
-                                  prev > 0
-                                    ? prev - 1
-                                    : (selectedAreaDetails?.images?.length ||
-                                        1) - 1
-                                )
-                              }
-                              disabled={
-                                selectedAreaDetails?.images?.length <= 1
-                              }
-                              aria-label="Imagen anterior"
-                            >
-                              {/* Añade la className aquí */}
-                              <IconBackAround
-                                className={styles.paginationIcon}
-                              />
-                            </button>
-
-                            <span>
-                              {currentImageIndex + 1} /{" "}
-                              {selectedAreaDetails?.images?.length || 1}
-                            </span>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCurrentImageIndex((prev) =>
-                                  prev <
-                                  (selectedAreaDetails?.images?.length || 1) - 1
-                                    ? prev + 1
-                                    : 0
-                                )
-                              }
-                              disabled={
-                                selectedAreaDetails?.images?.length <= 1
-                              }
-                              aria-label="Siguiente imagen"
-                            >
-                              {/* Añade la className aquí */}
-                              <IconNextAround
-                                className={styles.paginationIcon}
-                              />
-                            </button>
-                          </div>
                         </div>
                       )}
-                    {/* Si no hay imágenes */}
-                    {(!selectedAreaDetails.images ||
-                      selectedAreaDetails.images.length === 0) && (
-                      <div className={styles.imageContainer}>
-                        <img
-                          src="/assets/no-image.png"
-                          alt="Sin imagen"
-                          className={styles.previewImage}
-                        />
-                      </div>
-                    )}
-                    {/* Columna Detalles */}
-                    <div className={styles.areaInfo}>
-                      {/* Título y Estado */}
-                      <div className={styles.areaHeader}>
-                        <h4 className={styles.areaTitle}>
-                          {selectedAreaDetails.title}
-                        </h4>
-                        {selectedAreaDetails.status === "A" ? (
+                      {/* Columna Detalles */}
+                      <div className={styles.areaInfo}>
+                        {/* Título y Estado */}
+                        <div className={styles.areaHeader}>
+                          <h4 className={styles.areaTitle}>
+                            {selectedAreaDetails.title}
+                          </h4>
+                          {/* {selectedAreaDetails.status === "A" ? (
                           <span
                             className={`${styles.statusBadge} ${styles.statusDisponible}`}
                           >
@@ -966,69 +925,111 @@ const CreateReserva = () => {
                           >
                             No Disponible
                           </span>
+                        )} */}
+                        </div>
+                        {/* Descripción */}
+                        <p className={styles.areaDescription}>
+                          {selectedAreaDetails.description ||
+                            "Sin descripción."}
+                        </p>
+                        <hr className={styles.areaSeparator} />
+                        <KeyValue
+                          title={"Estado"}
+                          value={
+                            selectedAreaDetails.status === "A"
+                              ? "Disponible"
+                              : "No Disponible"
+                          }
+                          colorValue={
+                            selectedAreaDetails.status === "A"
+                              ? "var(--cSuccess)"
+                              : "var(--cError)"
+                          }
+                        />
+                        <KeyValue
+                          title={"Cantidad máx. de personas"}
+                          value={selectedAreaDetails.max_capacity ?? "-/-"}
+                        />
+                        <KeyValue
+                          title={"Restricción por mora"}
+                          value={
+                            selectedAreaDetails?.penalty_or_debt_restriction ===
+                            "A"
+                              ? "Si"
+                              : "No"
+                          }
+                        />
+                        <KeyValue
+                          title={"Aprobación de administración"}
+                          value={
+                            selectedAreaDetails?.requires_approval === "A"
+                              ? "Si"
+                              : "No"
+                          }
+                        />
+                        {selectedAreaDetails.booking_mode == "hour" && (
+                          <KeyValue
+                            title={"Reservación por día"}
+                            value={
+                              selectedAreaDetails?.max_reservations_per_day ??
+                              "-/-"
+                            }
+                          />
                         )}
-                      </div>
-                      {/* Descripción */}
-                      <p className={styles.areaDescription}>
-                        {selectedAreaDetails.description || "Sin descripción."}
-                      </p>
-                      <hr className={styles.areaSeparator} />
-                      {/* Capacidad */}
-                      <div className={styles.detailBlock}>
-                        <span className={styles.detailLabel}>
-                          Capacidad máxima
-                        </span>
-                        <span className={styles.detailValue}>
-                          {selectedAreaDetails.max_capacity ??
-                            "No especificada"}{" "}
-                          personas
-                        </span>
-                      </div>
-                      <hr className={styles.areaSeparator} />
-                      {/* Disponibilidad */}
-                      <div className={styles.detailBlock}>
-                        <span className={styles.detailLabel}>
-                          Disponibilidad
-                        </span>
-                        <span className={styles.detailValue}>
-                          Días:{" "}
-                          {selectedAreaDetails.available_days?.length
-                            ? selectedAreaDetails.available_days.join(", ")
-                            : "No especificados"}
-                        </span>
-                        {/* Aquí podrías añadir las horas si available_hours tuviera un formato usable */}
-                        {selectedAreaDetails.max_booking_duration && (
-                          <span className={styles.detailValue}>
-                            Máximo {selectedAreaDetails.max_booking_duration}h
-                            por reserva
-                          </span>
+                        <KeyValue
+                          title={"Reservación por semana"}
+                          value={
+                            selectedAreaDetails?.max_reservations_per_week ??
+                            "-/-"
+                          }
+                        />
+                        {selectedAreaDetails.price && (
+                          <>
+                            <KeyValue
+                              title={"Cancelación sin multa"}
+                              value={
+                                selectedAreaDetails?.min_cancel_hours + "h" ||
+                                "-/-"
+                              }
+                            />
+                            <KeyValue
+                              title={"Porcentaje por cancelación"}
+                              value={
+                                selectedAreaDetails?.penalty_fee + "%" || "-/-"
+                              }
+                            />
+                          </>
                         )}
-                        <span className={styles.detailValue}>
-                          Modo:{" "}
-                          {selectedAreaDetails.booking_mode === "day"
-                            ? "Por día"
-                            : "Por hora"}
-                        </span>
-                      </div>
-                      <hr className={styles.areaSeparator} />
-                      {/* Reglas */}
-                      <div className={styles.detailBlock}>
+
+                        {/* <hr className={styles.areaSeparator} /> */}
+                        {/* Reglas */}
+                        {/* <div className={styles.detailBlock}>
                         <span className={styles.detailLabel}>
                           Reglas y restricciones
                         </span>
-                        {/* Botón ahora contiene solo el icono */}
+
                         <button
                           type="button"
                           className={styles.rulesButton} // Mantenemos la clase para aplicar estilos CSS
                           onClick={() => setIsRulesModalVisible(true)}
                           aria-label="Ver reglas de uso" // IMPORTANTE para accesibilidad
                         >
-                          <IconZoomDetail /> {/* <-- Icono en lugar de texto */}
+                          <IconZoomDetail />
                         </button>
+                      </div> */}
                       </div>
-                    </div>{" "}
-                    {/* Fin areaInfo */}
-                  </div> // Fin areaPreview
+                      {/* Fin areaInfo */}
+                    </div>
+                    <hr className={styles.areaSeparator} />
+                    <div className={styles.detailBlock}>
+                      <span className={styles.detailLabel}>Políticas</span>
+
+                      <IconZoomDetail
+                        onClick={() => setIsRulesModalVisible(true)}
+                      />
+                    </div>
+                    <hr className={styles.areaSeparator} />
+                  </>
                 )}
               </div> // Fin Step 1
             )}
@@ -1051,6 +1052,7 @@ const CreateReserva = () => {
                     selectedDate={formState.fecha}
                     onDateChange={handleDateChange}
                     busyDays={busyDays}
+                    available_days={selectedAreaDetails?.available_days}
                   />
                   {/* Error de fecha */}
                   {errors.fecha && (
@@ -1061,14 +1063,33 @@ const CreateReserva = () => {
                 {/* Sección Hora (Condicional si hay fecha) */}
                 {formState.fecha && (
                   <>
-                    {/* Mostrar solo si hay fecha seleccionada */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        color: "var(--cWhiteV1)",
+                      }}
+                    >
+                      <IconCalendar />
+                      <p>
+                        {weekDay[new Date(formState.fecha).getDay()] +
+                          ", " +
+                          getDateStrMes(formState.fecha)}
+                      </p>
+                    </div>
+                    <hr
+                      className={styles.areaSeparator}
+                      style={{ margin: "12px 0px" }}
+                    />
                     {formState.fecha && (
-                      <div className={styles.durationSection}>
-                        <label className={styles.sectionLabel}>
-                          {selectedAreaDetails?.booking_mode === "day"
-                            ? "Periodo disponible (Día completo)"
-                            : "Selecciona los periodos disponibles"}
-                        </label>
+                      <div>
+                        <p className={styles.sectionLabel}>
+                          Duración de reserva
+                        </p>
+                        <p style={{ color: "var(--cWhiteV1)" }}>
+                          Sólo se permite 1 periodo por reserva
+                        </p>
 
                         {/* 1. Muestra el mensaje de bloqueo si aplica */}
                         {canMakeReservationForDate === false &&
@@ -1085,7 +1106,6 @@ const CreateReserva = () => {
                               background: "rgba(228, 96, 85, 0.1)",
                             }}
                           >
-                            {" "}
                             {/* Estilo inline o clase CSS */}
                             <IconX color="var(--cWarning)" size={16} />{" "}
                             {/* Icono X o similar */}
@@ -1218,13 +1238,10 @@ const CreateReserva = () => {
                           console.log(
                             `[CreateReserva Input onBlur] Value: "${currentValue}", Max capacity: ${selectedAreaDetails?.max_capacity}`
                           );
-                          // Simplemente llama a handleQuantityChange.
-                          // Si el campo está vacío, HQC lo dejará vacío.
-                          // Si tiene un valor, HQC lo validará (min, max, NaN).
                           handleQuantityChange(currentValue);
                         }}
-                        min={1} // Atributo HTML5 para mínimo
-                        max={selectedAreaDetails?.max_capacity || undefined} // Atributo HTML5 para máximo
+                        min={1}
+                        max={selectedAreaDetails?.max_capacity || undefined}
                         aria-label="Cantidad de personas"
                         styleInput={{
                           textAlign: "center",
@@ -1491,26 +1508,30 @@ const CreateReserva = () => {
                   )}
                 </div>
                 {/* ----- FIN DE TU CÓDIGO ORIGINAL DEL RESUMEN ----- */}
-              </div> // Fin Step 3
+              </div>
             )}
 
             {/* === Acciones (Botones) y Precio Condicional === */}
             <div className={styles.formActions}>
-              {" "}
-              {/* CSS: justify-content: space-between; align-items: center; */}
-              {/* --- Contenedor para Info de Precio (SOLO EN PASO 1) --- */}
-              {currentStep === 1 &&
-                selectedAreaDetails && ( // <-- **CONDICIÓN AÑADIDA AQUÍ**
-                  <div className={styles.priceInfoBottom}>
-                    <span className={styles.priceValueBottom}>
-                      {selectedAreaDetails.is_free === "A"
-                        ? "Gratis"
-                        : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(
-                            2
-                          )}`}
-                    </span>
-                  </div>
-                )}
+              {currentStep === 1 && selectedAreaDetails && (
+                <div>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: 16,
+                    }}
+                  >
+                    Reserva por periodo
+                  </p>
+                  <span className={styles.priceInfoBottom}>
+                    {selectedAreaDetails.is_free === "A"
+                      ? "Gratis"
+                      : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(
+                          2
+                        )}`}
+                  </span>
+                </div>
+              )}
               {/* Si no es paso 1 o no hay area, no muestra nada aquí (a la izquierda) */}
               {/* Opcional: podrías poner un div vacío o un spacer si necesitas mantener el espacio */}
               {currentStep !== 1 && <div style={{ flexGrow: 1 }}></div>}{" "}
@@ -1572,19 +1593,23 @@ const CreateReserva = () => {
           <DataModal
             open={isRulesModalVisible}
             onClose={() => setIsRulesModalVisible(false)} // Función para cerrar
-            title={`Reglas de Uso - ${selectedAreaDetails.title}`} // Título del modal
+            title={"Políticas"} // Título del modal
             buttonText="" // Oculta el botón de "Guardar"
             buttonCancel="" // Texto del botón para cerrar
-            iconClose={true} // Muestra el icono 'X' para cerrar si no es fullscreen
-            // fullScreen={false} // Puedes ajustar si lo necesitas a pantalla completa
           >
-            {/* Contenido del modal (los hijos) */}
             <div className={styles.rulesModalContent}>
-              {" "}
-              {/* Puedes añadir un estilo específico si quieres */}
-              <p>
-                {selectedAreaDetails.usage_rules ||
+              <p className={styles.title}>Políticas de uso</p>
+              <p className={styles.subtitle}>
+                {selectedAreaDetails?.usage_rules ||
                   "No hay reglas de uso especificadas para esta área."}
+              </p>
+              <hr
+                className={styles.areaSeparator}
+                style={{ margin: "12px 0px" }}
+              />
+              <p className={styles.title}>Políticas de reembolso</p>
+              <p className={styles.subtitle}>
+                {selectedAreaDetails?.cancellation_policy}
               </p>
             </div>
           </DataModal>
