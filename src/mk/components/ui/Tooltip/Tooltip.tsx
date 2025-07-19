@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import styles from "./Tooltip.module.css";
+import styles from "./tooltip.module.css";
 
 type PropsType = {
   title: string;
