@@ -102,18 +102,20 @@
   background-color: var(--cBlackV2); /* Color para pares */
 }
 .cardEven:hover {
-   background-color: var(--cBlackV2); /* O un color de hover ligeramente diferente para pares */
+  background-color: var(
+    --cBlackV2
+  ); /* O un color de hover ligeramente diferente para pares */
 }
-
 
 /* Estilos para filas/tarjetas impares */
 .cardOdd {
   background-color: var(--cWhiteV2); /* Color para impares */
 }
 .cardOdd:hover {
-    background-color: var(--cBlackV2); /* O un color de hover ligeramente diferente para impares */
+  background-color: var(
+    --cBlackV2
+  ); /* O un color de hover ligeramente diferente para impares */
 }
-
 
 .categoryHeader {
   padding: 16px;
@@ -223,7 +225,7 @@
 .subcategoriesList {
   display: flex;
   flex-direction: column;
- 
+
   width: 100%;
 }
 
@@ -241,7 +243,6 @@
   border-bottom: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
   border-top: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
   gap: 16px; /* Añadir espacio entre nombre, descripción y acciones */
-  
 }
 
 .subcategoryItem:hover {
@@ -254,7 +255,6 @@
   gap: 2px;
   flex: 1;
   min-width: 0;
-  
 }
 
 .subcategoryName {
@@ -338,6 +338,7 @@
 
 .backLink:hover {
   text-decoration: underline;
+  color: var(--cDarkv2);
 }
 
 .backLink svg {
@@ -373,21 +374,24 @@
 .addSubcategoryContainer {
   padding: 8px 0;
   margin-top: 8px;
-  border-top: 1px dashed var(--cDarkv3, #333333);
+
   width: 100%;
 }
 
 .addSubcategoryButton {
   background-color: transparent;
   font-size: 12px;
+  font-family: Roboto, sans-serif;
+  font-weight: var(--bRegular);
   border: none;
   display: flex;
   align-items: left;
   gap: 8px;
-  color: var(--cAccent, #4caf50);
+  color: var(--cAccent);
   font-size: 14px;
   cursor: pointer;
   padding: 8px;
+  margin-left: 48px;
   border-radius: 4px;
   transition: background-color 0.2s;
   width: 100%;
@@ -395,7 +399,7 @@
 }
 
 .addSubcategoryButton:hover {
-  background-color: var(--cDarkv2, #252525);
+  color: var(--cDarkv2);
 }
 
 /* Estilos para el formulario modal */
@@ -413,8 +417,6 @@
   width: 100%;
   padding: 16px;
 }
-
-
 
 .fieldContent {
   display: flex;
@@ -501,13 +503,11 @@
   height: 24px !important;
 }
 
-
 /* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
-    
   }
 
   .addButton {
@@ -529,16 +529,14 @@
     width: 100%;
     padding: 0;
   }
-  
+
   .headerTitle {
     font-size: 24px;
   }
-  
+
   .headerDescription {
     font-size: 14px;
   }
-  
-
 }
 /* Estilos para toggle switch */
 .toggleSwitch {
@@ -565,21 +563,21 @@
   right: 0;
   bottom: 0;
   background-color: #a7a7a7;
-  -webkit-transition: .3s;
-  transition: .3s;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
   border-radius: 24px;
 }
 
 .toggleSlider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 20px;
   width: 20px;
   left: 2px;
   bottom: 2px;
   background-color: #212121;
-  -webkit-transition: .3s;
-  transition: .3s;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
   border-radius: 50%;
 }
 
@@ -645,7 +643,7 @@
 }
 
 .selectedParentLabel:before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 10px;
   height: 10px;

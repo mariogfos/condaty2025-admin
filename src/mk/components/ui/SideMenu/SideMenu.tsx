@@ -40,7 +40,7 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
               }}
               color={'var(--cAccent)'}
               circle
-              size={20}
+              size={15}
             />
           ) : (
             <IconArrowLeft
@@ -52,7 +52,7 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
               }}
               color={'var(--cAccent)'}
               circle
-              size={20}
+              size={15}
             />
           ))}
         <section>{children}</section>
