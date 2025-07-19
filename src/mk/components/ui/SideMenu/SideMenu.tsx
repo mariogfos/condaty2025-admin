@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import styles from "./sidemenu.module.css";
+import { useEffect, useState } from 'react';
+import styles from './sidemenu.module.css';
 import {
   IconArrowLeft,
   IconArrowRight,
-} from "@/components/layout/icons/IconsBiblioteca";
+} from '@/components/layout/icons/IconsBiblioteca';
 
 interface PropsType {
   children: any;
@@ -34,15 +34,25 @@ const SideMenu = ({ children, collapsed, setCollapsed }: PropsType) => {
             <IconArrowRight
               onClick={toggleSidebar}
               className={styles.toggleIcon}
-              style={{background:'var(--cBlackV2)',border:'0.5px solid var(--cAccent)'}}
+              style={{
+                background: 'var(--cBlackV2)',
+                border: '0.5px solid var(--cAccent)',
+              }}
               color={'var(--cAccent)'}
+              circle
+              size={20}
             />
           ) : (
             <IconArrowLeft
               onClick={toggleSidebar}
               className={styles.toggleIcon}
-              style={{background:'var(--cBlackV2)',border:'0.5px solid var(--cAccent)'}}
+              style={{
+                background: 'var(--cBlackV2)',
+                border: '0.5px solid var(--cAccent)',
+              }}
               color={'var(--cAccent)'}
+              circle
+              size={20}
             />
           ))}
         <section>{children}</section>

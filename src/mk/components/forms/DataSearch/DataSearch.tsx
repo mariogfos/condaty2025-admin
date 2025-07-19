@@ -115,16 +115,18 @@ const DataSearch = ({
       {focused && searchMsg && (
         <Tooltip
           title={searchMsg}
-          position="bottom"
+          position="top"
           visible={true}
+          noWrap
           style={{
-            left: '60%',
-            transform: 'translateX(-50%)',
-            minWidth: 250,
+            position: 'absolute',
+            left: '50%',
+            top: '-8px',
+            transform: 'translate(-50%, -100%)',
             fontSize: 14,
-            marginTop: 4,
             zIndex: 9999,
             textAlign: 'end',
+            marginTop: 0,
           }}
         >
           <span />

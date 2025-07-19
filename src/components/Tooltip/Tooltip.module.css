@@ -6,8 +6,7 @@
 
 .tooltip {
   visibility: hidden;
-  width: auto;
-
+  /* width: auto; */
   background-color: var(--cWhite);
   color: var(--cWhiteV1);
   text-align: start;
@@ -16,7 +15,8 @@
   z-index: 9999;
   position: absolute;
   font-size: 14px;
-  white-space: nowrap;
+  white-space: normal;
+  min-width: 256px;
   /* word-break: keep-all; */
 }
 
@@ -52,4 +52,8 @@
   top: 20;
   left: 100%; /* Posiciona el tooltip a la derecha del elemento */
   transform: translateY(-50%);
+}
+
+.nowrap {
+  white-space: nowrap;
 }
