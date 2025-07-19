@@ -56,10 +56,10 @@ const Reserva = () => {
   const getReservaStatusOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "W", name: "Por confirmar" },
-    { id: "A", name: "Reservada" },
-    { id: "X", name: "Rechazada" },
-    { id: "C", name: "Cancelada" },
-    { id: "F", name: "Completada" },
+    { id: "A", name: "Reservado" },
+    { id: "X", name: "Rechazado" },
+    { id: "C", name: "Cancelado" },
+    { id: "F", name: "Completado" },
   ];
 
   const onRenderAreaList = ({ item }: any) => {
@@ -196,7 +196,7 @@ const Reserva = () => {
         },
       },
 
-      status: {
+      status_reservation: {
         rules: ["required"],
         api: "ae",
         label: "Estado",
@@ -234,10 +234,10 @@ const Reserva = () => {
 
             const statusMap = {
               W: { label: "Por confirmar", class: styles.statusW },
-              A: { label: "Reservada", class: styles.statusA },
-              X: { label: "Rechazada", class: styles.statusX },
-              C: { label: "Cancelada", class: styles.statusC },
-              F: { label: "Completada", class: styles.statusF },
+              A: { label: "Reservado", class: styles.statusA },
+              X: { label: "Rechazado", class: styles.statusX },
+              C: { label: "Cancelado", class: styles.statusC },
+              F: { label: "Completado", class: styles.statusF },
             };
             const currentStatus = status ? statusMap[status] : null;
 
