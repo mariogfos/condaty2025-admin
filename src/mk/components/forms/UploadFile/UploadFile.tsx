@@ -278,9 +278,11 @@ export const UploadFile = ({
                     height: "100px",
                   }}
                 /> */}
+              {/* {JSON.stringify(value)} */}
               {(editedImage ||
                 selectedFiles?.type?.startsWith("image/") ||
-                (value && value.ext == "webp")) &&
+                (value &&
+                  (value.ext == "webp" || value.indexOf(".webp") > -1))) &&
               img ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

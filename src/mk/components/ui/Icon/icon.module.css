@@ -2,15 +2,25 @@
 .icon {
   transition-property: transform;
   transition-duration: 300ms;
+  box-sizing: content-box;
+  &.button {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--bRadiusS);
+    background-color: var(--cWhiteV2);
+    &:hover {
+      background-color: var(--cHoverTable);
+    }
+  }
   &.circle {
     border-radius: 100%;
-    background-color: var(--cWhite);
-    color: var(--cBlack);
+    /* background-color: var(--cWhite); */
+    /* color: var(--cBlack); */
     padding: var(--spS);
   }
   &.square {
-    background-color: var(--cWhite);
-    color: var(--cBlack);
+    /* background-color: var(--cWhite); */
+    /* color: var(--cBlack); */
     padding: var(--spS);
     border-radius: var(--bRadiusS);
   }

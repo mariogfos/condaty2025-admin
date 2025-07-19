@@ -1,5 +1,7 @@
+"use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
+import Tooltip from "@/components/Tooltip/Tooltip";
 
 export interface IconType {
   className?: string | undefined;
@@ -11,6 +13,7 @@ export interface IconType {
   circle?: boolean;
   reverse?: boolean;
   square?: boolean;
+  title?: string;
 }
 
 interface IconWrapType extends IconType {
@@ -32,26 +35,30 @@ export const IconWrap = ({
   circle = false,
   responsive = false,
   square = false,
+  title = "",
 }: IconWrapType) => {
   return (
-    <svg
-      viewBox={viewBox}
-      className={
-        styles.icon +
-        " " +
-        className +
-        (circle ? " " + styles["circle"] : "") +
-        (responsive ? " " + styles["responsive"] : "") +
-        (square ? " " + styles["square"] : "")
-      }
-      style={{ ...style, ...(onClick ? { cursor: "pointer" } : {}) }}
-      fill={reverse ? fillStroke : color}
-      stroke={reverse ? color : fillStroke}
-      onClick={onClick}
-      width={size}
-      height={size}
-    >
-      {children}
-    </svg>
+    <Tooltip title={title}>
+      <svg
+        viewBox={viewBox}
+        className={
+          styles.icon +
+          " " +
+          className +
+          (circle ? " " + styles["circle"] : "") +
+          (responsive ? " " + styles["responsive"] : "") +
+          (square ? " " + styles["square"] : "") +
+          (onClick ? " " + styles["button"] : "")
+        }
+        style={style}
+        fill={reverse ? fillStroke : color}
+        stroke={reverse ? color : fillStroke}
+        onClick={onClick}
+        width={size}
+        height={size}
+      >
+        {children}
+      </svg>
+    </Tooltip>
   );
 };
