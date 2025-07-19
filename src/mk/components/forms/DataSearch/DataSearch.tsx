@@ -9,6 +9,7 @@ import {
 import styles from "./dataSearch.module.css";
 import { PropsTypeInputBase } from "../ControlLabel";
 import idioma from "@/mk/utils/traductor/es";
+import Tooltip from "../../ui/Tooltip/Tooltip";
 
 interface PropsType extends PropsTypeInputBase {
   setSearch: Function;
@@ -59,59 +60,61 @@ const DataSearch = ({
 
   return (
     <div style={{ position: "relative" }}>
-      <Input
-        name={name}
-        className={styles.dataSearch + " " + className}
-        required={false}
-        label={label}
-        placeholder={textButton + "..."}
-        onKeyDown={handleKeyDown}
-        value={searchBy}
-        onChange={onChange}
-        iconLeft={
-          !value && !searchBy ? (
-            <IconSearch
-              // size={24}
-              color={"var(--cWhiteV1)"}
-              style={{ marginRight: "var(--spS)" }}
-            />
-          ) : (
-            <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
-              <IconX color={"var(--cWhiteV1)"} className="error" />
-            </div>
-          )
-        }
-        iconRight={
-          searchBy && (
-            <div
-              onClick={() => onSearch()}
-              style={{
-                backgroundColor: "var(--cPrimary)",
-                padding: "4px",
-                borderRadius: "100%",
-                display: "flex",
-                marginRight: "8px",
-                // width: "22px",
-                // height: "22px",
-                alignItems: "center",
-                justifyContent: "center",
-                boxSizing: "border-box",
-                cursor: "pointer",
-              }}
-            >
+      <Tooltip title={searchMsg}>
+        <Input
+          name={name}
+          className={styles.dataSearch + " " + className}
+          required={false}
+          label={label}
+          placeholder={textButton + "..."}
+          onKeyDown={handleKeyDown}
+          value={searchBy}
+          onChange={onChange}
+          iconLeft={
+            !value && !searchBy ? (
               <IconSearch
-                color="var(--cBlack)"
-                size={16}
-                // style={{ boxSizing: "content-box }}
+                // size={24}
+                color={"var(--cWhiteV1)"}
+                style={{ marginRight: "var(--spS)" }}
               />
-            </div>
-          )
-        }
-        onFocus={() => setFocused(true)}
-        onBlur={() => setTimeout(() => setFocused(false), 200)}
-        autoComplete="off"
-      />
-      {focused && searchMsg && (
+            ) : (
+              <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
+                <IconX color={"var(--cWhiteV1)"} className="error" />
+              </div>
+            )
+          }
+          iconRight={
+            searchBy && (
+              <div
+                onClick={() => onSearch()}
+                style={{
+                  backgroundColor: "var(--cPrimary)",
+                  padding: "4px",
+                  borderRadius: "100%",
+                  display: "flex",
+                  marginRight: "8px",
+                  // width: "22px",
+                  // height: "22px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                }}
+              >
+                <IconSearch
+                  color="var(--cBlack)"
+                  size={16}
+                  // style={{ boxSizing: "content-box }}
+                />
+              </div>
+            )
+          }
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 200)}
+          autoComplete="off"
+        />
+      </Tooltip>
+      {/* {focused && searchMsg && (
         <div
           style={{
             position: "absolute",
@@ -130,7 +133,7 @@ const DataSearch = ({
         >
           {searchMsg}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

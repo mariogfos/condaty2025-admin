@@ -1,7 +1,7 @@
 import Input from "@/mk/components/forms/Input/Input";
 import React, { useState, useEffect } from "react";
 import styles from "./DefaulterConfig.module.css";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import { IconQuestion } from "@/components/layout/icons/IconsBiblioteca";
 
 interface DefaulterConfigProps {
