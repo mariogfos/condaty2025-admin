@@ -12,10 +12,11 @@ type PropsType = {
 const Tooltip = ({
   title,
   children,
-  position = "left",
+  position = "top",
   style,
   className,
 }: PropsType) => {
+  if (!title || title == "") return children;
   return (
     <div className={`${styles.container} ${className}`} style={style}>
       <span className={`${styles.tooltip} ${styles[position]}`}>{title}</span>
