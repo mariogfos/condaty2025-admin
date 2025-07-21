@@ -38,7 +38,13 @@ const ControlLabel = (props: PropsType) => {
   }, [props.label, props.required]);
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
+    >
       <div
         className={
           props.className +
@@ -49,7 +55,6 @@ const ControlLabel = (props: PropsType) => {
         }
         style={props.style}
       >
-        {/* {JSON.stringify(props.error)} */}
         {props.iconLeft && <span>{props.iconLeft}</span>}
         {props.prefix && <span>{props.prefix}</span>}
         <div>
@@ -62,7 +67,7 @@ const ControlLabel = (props: PropsType) => {
       {!props.error ? null : (
         <p className={stylesInput.error}>{props.error[props.name] || " "}</p>
       )}
-    </>
+    </div>
   );
 };
 
