@@ -82,3 +82,12 @@
   display: inline-block;
   margin-left: 0.5rem;
 }
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: var(--sL);
+  font-weight: 600;
+  color: var(--cWhite);
+  gap: 6px;
+}

@@ -3,8 +3,8 @@ import styles from './WidgetDashCard.module.css';
 import {
   IconAccess,
   IconInterrogation,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
+} from '@/components/layout/icons/IconsBiblioteca';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 
 interface ItemProps {
   title: string;
@@ -45,19 +45,24 @@ export const WidgetDashCard = ({
     >
       <div>
         <div className={styles.title}>
-          {title}{" "}
+          {title}{' '}
           {tooltip && (
-            <Tooltip title={tooltipTitle} position={tooltipPosition}>
+            <Tooltip
+              title={tooltipTitle}
+              position={tooltipPosition}
+              singleLine={false}
+              minWidth={563}
+            >
               <span
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  cursor: "pointer",
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
                   marginLeft: 5,
                 }}
               >
                 <IconInterrogation
-                  color={tooltipColor || "var(--cWhiteV2)"}
+                  color={tooltipColor || 'var(--cWhiteV2)'}
                   size={18}
                 />
               </span>
