@@ -14,6 +14,9 @@
   }
   &.circle {
     border-radius: 100%;
+    padding: 8px;
+    width: 40px; /* Tamaño del círculo */
+    height: 40px;
     /* background-color: var(--cWhite); */
     /* color: var(--cBlack); */
     /* padding: var(--spS); */
@@ -21,7 +24,7 @@
   &.square {
     /* background-color: var(--cWhite); */
     /* color: var(--cBlack); */
-    /* padding: var(--spS); */
+    padding: 9px;
     border-radius: var(--bRadiusS);
   }
   &.responsive {

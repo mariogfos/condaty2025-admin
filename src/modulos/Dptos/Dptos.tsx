@@ -416,7 +416,7 @@ const Dptos = () => {
                 backgroundColor:
                   !data?.message?.total || data?.message?.total === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
             >
               <IconDepartments2

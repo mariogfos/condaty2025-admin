@@ -62,7 +62,7 @@ export const WidgetDashCard = ({
                 }}
               >
                 <IconInterrogation
-                  color={tooltipColor || 'var(--cWhiteV2)'}
+                  color={tooltipColor || 'var(--cWhiteV1)'}
                   size={18}
                 />
               </span>

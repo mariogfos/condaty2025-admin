@@ -385,17 +385,17 @@ const HomePage = () => {
                         !dashboard?.data?.TotalIngresos ||
                         dashboard?.data?.TotalIngresos === 0
                           ? "var(--cWhiteV1)"
-                          : "var(--cAccent)"
+                          : "var(--cSuccess)"
                       }
                       style={{
                         backgroundColor:
                           !dashboard?.data?.TotalIngresos ||
                           dashboard?.data?.TotalIngresos === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverSuccess)",
+                            : "var(--cHoverCompl2)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
@@ -423,7 +423,7 @@ const HomePage = () => {
                             : "var(--cHoverError)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
@@ -452,10 +452,10 @@ const HomePage = () => {
                         backgroundColor:
                           !balance || balance === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverInfo)",
+                            : "var(--cHoverCompl3)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
@@ -473,17 +473,17 @@ const HomePage = () => {
                         !dashboard?.data?.morosos ||
                         dashboard?.data?.morosos === 0
                           ? "var(--cWhiteV1)"
-                          : "var(--cAlert)"
+                          : "var(--cMediumAlert)"
                       }
                       style={{
                         backgroundColor:
                           !dashboard?.data?.morosos ||
                           dashboard?.data?.morosos === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverAlert)",
+                            : "var(--cHoverCompl5)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
