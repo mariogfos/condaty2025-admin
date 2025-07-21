@@ -1,22 +1,25 @@
 // src/components/Categories/Categories.js (o la ruta que corresponda)
-"use client";
-import { useMemo, useCallback, useState } from "react"; // *** Añadido useState ***
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Categories.module.css";
-import { IconArrowLeft, IconCategories } from "@/components/layout/icons/IconsBiblioteca";
-import Link from "next/link";
-import { CategoryItem } from "./Type/CategoryType";
-import Button from "@/mk/components/forms/Button/Button";
-import CategoryForm from "./RenderForm/RenderForm";
-import CategoryCard from "./CategoryCard/CategoryCard";
+'use client';
+import { useMemo, useCallback, useState } from 'react';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import styles from './Categories.module.css';
+import {
+  IconArrowLeft,
+  IconCategories,
+} from '@/components/layout/icons/IconsBiblioteca';
+import Link from 'next/link';
+import { CategoryItem } from './Type/CategoryType';
+import Button from '@/mk/components/forms/Button/Button';
+import CategoryForm from './RenderForm/RenderForm';
+import CategoryCard from './CategoryCard/CategoryCard';
+import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
 
-const BackNavigation = ({ type }: { type: "I" | "E" }) => {
-  const isIncome = type === "I";
-  const routePath = isIncome ? "/payments" : "/outlays";
+const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
+  const isIncome = type === 'I';
+  const routePath = isIncome ? '/payments' : '/outlays';
   const linkText = isIncome
-    ? "Volver a sección ingresos"
-    : "Volver a sección egresos";
+    ? 'Volver a sección ingresos'
+    : 'Volver a sección egresos';
 
   return (
     <Link href={routePath} className={styles.backLink}>
@@ -26,32 +29,39 @@ const BackNavigation = ({ type }: { type: "I" | "E" }) => {
   );
 };
 
-const Categories = ({ type = "" }) => {
-  const isIncome = type === "I";
-  const categoryTypeText = isIncome ? "ingresos" : "egresos";
-  const typeToUse = isIncome ? "I" : "E";
-
-  // *** PASO 1: Añadir Estado Local ***
+const Categories = ({ type = '' }) => {
+  const isIncome = type === 'I';
+  const categoryTypeText = isIncome ? 'ingresos' : 'egresos';
+  const typeToUse = isIncome ? 'I' : 'E';
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
 
-  const { userCan, List, onEdit, onDel, onAdd, getExtraData } = useCrud({
+  const {
+    userCan,
+    List,
+    onEdit,
+    onDel,
+    onAdd,
+    getExtraData,
+    onSearch,
+    searchs,
+  } = useCrud({
     paramsInitial: useMemo(
       () => ({
         perPage: 20,
         page: 1,
-        fullType: "L",
-        searchBy: "",
+        fullType: 'L',
+        searchBy: '',
         type: typeToUse,
       }),
       [typeToUse]
     ),
     mod: useMemo<ModCrudType>(
       () => ({
-        modulo: "categories",
-        singular: "Categoría",
-        plural: "Categorías",
-        permiso: "", // Dejado como en tu código
+        modulo: 'categories',
+        singular: 'Categoría',
+        plural: 'Categorías',
+        permiso: '', // Dejado como en tu código
         search: { hide: true },
         extraData: { params: { type: typeToUse } } as any,
         hideActions: {
@@ -89,52 +99,45 @@ const Categories = ({ type = "" }) => {
         },
       }),
       [typeToUse, categoryTypeText, initialFormDataOverride]
-    ), // *** Dependencia añadida ***
+    ),
     fields: useMemo(
       () => ({
-        // Mantenido exactamente como lo tenías
-        id: { rules: [], api: "e" },
+        id: { rules: [], api: 'e' },
         name: {
-          rules: ["required"],
-          api: "ae",
-          label: "Categoría",
-          form: { type: "text" },
-          list: {
-            /* ... */
-          },
+          rules: ['required'],
+          api: 'ae',
+          label: 'Categoría',
+          form: { type: 'text' },
+          list: {},
         },
         description: {
           rules: [],
-          api: "ae",
-          label: "Descripción",
-          form: { type: "textarea" },
-          list: {
-            /* ... */
-          },
+          api: 'ae',
+          label: 'Descripción',
+          form: { type: 'textarea' },
+          list: {},
         },
         category_id: {
           rules: [],
-          api: "ae",
-          label: "Categoría Padre",
+          api: 'ae',
+          label: 'Categoría Padre',
           form: {
-            type: "select",
-            optionsExtra: "categories",
-            placeholder: "Seleccione una categoría",
+            type: 'select',
+            optionsExtra: 'categories',
+            placeholder: 'Seleccione una categoría',
           },
         },
-        hijos: { rules: [], api: "", label: "Subcategorías" },
+        hijos: { rules: [], api: '', label: 'Subcategorías' },
         type: {
-          rules: ["required"],
-          api: "ae",
-          label: "Tipo",
-          form: { type: "hidden", precarga: typeToUse },
+          rules: ['required'],
+          api: 'ae',
+          label: 'Tipo',
+          form: { type: 'hidden', precarga: typeToUse },
         },
       }),
       [typeToUse]
     ),
   });
-
-  // Mantenido como lo tenías
   const handleEdit = useCallback(
     (itemToEdit: CategoryItem): void => {
       const editableItem = { ...itemToEdit };
@@ -147,7 +150,6 @@ const Categories = ({ type = "" }) => {
     [onEdit, typeToUse]
   );
 
-  // Mantenido como lo tenías
   const handleDelete = useCallback(
     (itemToDelete: CategoryItem): void => {
       onDel(itemToDelete);
@@ -155,7 +157,6 @@ const Categories = ({ type = "" }) => {
     [onDel]
   );
 
-  // *** PASO 3: Modificar handleAddSubcategory ***
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
       const initialData: Partial<CategoryItem> = {
@@ -164,9 +165,9 @@ const Categories = ({ type = "" }) => {
         _isAddingSubcategoryFlow: true,
       };
       setInitialFormDataOverride(initialData);
-      onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal
+      onAdd({ type: typeToUse });
     },
-    [onAdd, typeToUse] // Dependencias originales
+    [onAdd, typeToUse]
   );
 
   // *** PASO 4: Modificar handleAddPrincipalCategory ***
@@ -195,7 +196,7 @@ const Categories = ({ type = "" }) => {
           key={item.id ?? `category-${index}`}
           item={item}
           className={cardClassName}
-          onClick={(subCategoryItem) => {
+          onClick={subCategoryItem => {
             baseOnRowClick(subCategoryItem);
           }}
           onEdit={handleEdit}
@@ -215,30 +216,40 @@ const Categories = ({ type = "" }) => {
         <div className={styles.headerLeft}>
           <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
           <p className={styles.headerDescription}>
-            Administre, agregue y elimine las categorías y subcategorías de los{" "}
+            Administre, agregue y elimine las categorías y subcategorías{' '}
             {categoryTypeText}
           </p>
+          <p className={styles.headerDescription}>de los {categoryTypeText}</p>
         </div>
-        <Button
-          onClick={handleAddPrincipalCategory} // Llama a la función modificada
-          style={{
-            padding: "8px 16px",
-            width: "auto",
-          }}
-        >
-          Nueva categoría
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <DataSearch
+            value={searchs.searchBy || ''}
+            name="categoriesSearch"
+            setSearch={onSearch}
+            textButton="Buscar"
+          />
+          <Button
+            onClick={handleAddPrincipalCategory} // Llama a la función modificada
+            style={{
+              padding: '8px 16px',
+              width: 'auto',
+            }}
+          >
+            Nueva categoría
+          </Button>
+        </div>
       </div>
 
       <List
-        onRenderBody={renderCardFunction} // Mantenido como lo tenías
+        onRenderBody={renderCardFunction}
+        height={'calc(100vh - 430px)'}
         onRowClick={(itemClicked: CategoryItem) => {
           /* Mantenido como lo tenías */
         }}
-        emptyMsg="Sin categorías registradas. Necesitas crear categorías"
-        emptyLine2="para organizar tus ingresos."
-        emptyIcon={<IconCategories size={80}color="var(--cWhiteV1)" />}
-        // cardGap="0px" // Mantenido comentado como lo tenías
+        emptyMsg="Sin categorías."
+        emptyLine2="Crea categorías para organizar tus movimientos financieros."
+        emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        hideTitle // <-- Prop para ocultar el título
       />
     </div>
   );

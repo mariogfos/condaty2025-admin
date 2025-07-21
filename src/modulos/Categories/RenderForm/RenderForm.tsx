@@ -166,18 +166,18 @@ const CategoryForm = memo(
     let dynamicButtonText = '';
     if (action === 'add') {
       if (isAddSubcategoryFlow) {
-        dynamicModalTitle = `Registrar nueva subcategoría de ${categoryTypeText}`;
-        dynamicButtonText = 'Registrar Subcategoría';
+        dynamicModalTitle = `Registrar subcategoría `;
+        dynamicButtonText = 'Guardar';
       } else {
-        dynamicModalTitle = `Registrar nueva categoría de ${categoryTypeText}`;
-        dynamicButtonText = 'Registrar Categoría';
+        dynamicModalTitle = `Registrar categoría`;
+        dynamicButtonText = 'Guardar';
       }
     } else if (action === 'edit' && isSubcategoryMode) {
-      dynamicModalTitle = `Editar subcategoría de ${categoryTypeText}`;
-      dynamicButtonText = 'Guardar Cambios';
+      dynamicModalTitle = `Editar subcategoría`;
+      dynamicButtonText = 'Guardar';
     } else {
-      dynamicModalTitle = `Editar categoría de ${categoryTypeText}`;
-      dynamicButtonText = 'Guardar Cambios';
+      dynamicModalTitle = `Editar categoría`;
+      dynamicButtonText = 'Guardar';
     }
 
     if (!open) return null;
@@ -196,12 +196,24 @@ const CategoryForm = memo(
         <div className={styles.formContainer2}>
           {/* Si es flujo de subcategoría, mostrar el select bloqueado arriba */}
           {isAddSubcategoryFlow && (
-            <Select
+            <Input
               name="category_id"
-              label="Categoría Padre"
-              options={formattedCategories}
+              label="Categoría padre"
               value={_Item.category_id || ''}
               onChange={() => {}} // No editable
+              error={errors?.category_id}
+              required
+              className={styles.customSelect}
+              disabled
+            />
+          )}
+          {/* Si es edición o creación de subcategoría desde otro flujo, mostrar el select editable (como antes) */}
+          {!isAddSubcategoryFlow && isSubcategoryMode && action !== 'add' && (
+            <Input
+              name="category_id"
+              label="Categoría padre"
+              value={_Item.category_id || ''}
+              onChange={handleChange}
               error={errors?.category_id}
               required
               className={styles.customSelect}
@@ -224,19 +236,7 @@ const CategoryForm = memo(
             label="Descripción de la nueva categoría"
             error={errors?.description}
           />
-          {/* Si es edición o creación de subcategoría desde otro flujo, mostrar el select editable (como antes) */}
-          {!isAddSubcategoryFlow && isSubcategoryMode && action !== 'add' && (
-            <Select
-              name="category_id"
-              label="Categoría Padre"
-              options={formattedCategories}
-              value={_Item.category_id || ''}
-              onChange={handleChange}
-              error={errors?.category_id}
-              required
-              className={styles.customSelect}
-            />
-          )}
+
           <input
             type="hidden"
             name="type"

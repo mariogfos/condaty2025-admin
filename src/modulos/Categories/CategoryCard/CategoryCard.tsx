@@ -58,12 +58,22 @@ const CategoryCard = memo(
       [item, onDel]
     );
 
+    // Determinar el color de fondo según la clase
+    let parentBgColor = '';
+    if (className.includes(styles.cardEven)) {
+      parentBgColor = 'var(--cBlackV2)';
+    } else if (className.includes(styles.cardOdd)) {
+      parentBgColor = 'var(--cWhiteV2)';
+    }
     const cardClasses = `${styles.categoryCard} ${className} ${
       isSelected ? styles.selectedCard : ''
-    }`;
+    }${showSubcategories ? ' ' + styles.accordionOpen : ''}`;
 
     return (
-      <div className={cardClasses}>
+      <div
+        className={cardClasses}
+        style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
+      >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
             {/* El acordeón siempre visible y funcional */}
@@ -74,7 +84,12 @@ const CategoryCard = memo(
               onClick={toggleSubcategories}
               size={20}
             />
-            <span className={styles.categoryNameText}>
+            <span
+              className={
+                styles.categoryNameText +
+                (showSubcategories ? ' ' + styles.categoryNameTextOpen : '')
+              }
+            >
               {item.name || 'Sin nombre'}
             </span>
           </div>
@@ -87,21 +102,24 @@ const CategoryCard = memo(
               onClick={handleEditClick}
               aria-label={`Editar ${item.name}`}
             >
-              <IconEdit size={18} />
+              <IconEdit size={24} />
             </button>
             <button
               className={`${styles.actionButton} ${styles.deleteButton}`}
               onClick={handleDeleteClick}
               aria-label={`Eliminar ${item.name}`}
             >
-              <IconTrash size={18} />
+              <IconTrash size={24} />
             </button>
           </div>
         </div>
 
         {/* Contenido del acordeón: subcategorías y/o botón agregar */}
         {showSubcategories && (
-          <div className={styles.subcategoriesContainer}>
+          <div
+            className={styles.subcategoriesContainer}
+            style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
+          >
             <div className={styles.subcategoriesList}>
               {hasSubcategories &&
                 item.hijos?.map((subcat: CategoryItem) => {
@@ -123,7 +141,10 @@ const CategoryCard = memo(
                   return (
                     <div
                       key={subcat.id || `subcat-${Math.random()}`}
-                      className={styles.subcategoryItem}
+                      className={`${styles.subcategoryItem}`}
+                      style={
+                        parentBgColor ? { backgroundColor: parentBgColor } : {}
+                      }
                       onClick={handleSubcatClick}
                       role="button"
                       tabIndex={0}

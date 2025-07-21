@@ -15,9 +15,9 @@
 .headerTitle {
   flex: 0 0 auto;
   margin-right: 16px;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--cWhite, white);
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  color: var(--cWhite);
   margin: 0 0 8px 0;
 }
 
@@ -152,12 +152,13 @@
 
 .categoryDescription {
   flex: 1;
-  color: var(--cLightv3, #aaaaaa);
-  font-size: 14px;
+  color: var(--cWhiteV1, #aaaaaa);
+  font-size: var(--spL);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 16px;
+  font-weight: var(--bRegular);
 }
 
 .categoryActions {
@@ -649,4 +650,38 @@
   height: 10px;
   background-color: #00e38c;
   border-radius: 50%;
+}
+
+.categoryCard.accordionOpen {
+  border-bottom: none;
+  border: 1px solid var(--cWhite);
+}
+
+.categoryCard.accordionOpen {
+  /* El borde debe envolver todo el bloque padre+subcategorías */
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--cWhite);
+}
+
+.subcategoriesContainer {
+  /* El color de fondo será igual al del padre */
+  background-color: inherit;
+}
+
+.subcategoryItem {
+  /* Hereda el color de fondo del padre */
+  background-color: inherit;
+}
+
+.subcategoriesList .subcategoryItem {
+  border-top: none;
+}
+
+.subcategoryItem:hover {
+  background-color: var(--cDarkv3, #333333);
+}
+
+.categoryNameTextOpen {
+  font-weight: var(--bBold, 700);
+  color: var(--cWhite);
 }
