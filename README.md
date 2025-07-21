@@ -8,7 +8,7 @@ First, run the development server:
 npm run devssaa equpo a
 # or
 yarn dev11sas
-# ors
+# orsa
 pnpm devaaaaaa
 # ors
 bun devaa
