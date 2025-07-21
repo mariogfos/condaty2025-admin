@@ -1,6 +1,4 @@
-// src/components/Categories/CategoryCard.tsx (o la ruta que corresponda)
 'use client';
-
 import { memo, useState, useCallback } from 'react';
 import styles from '../Categories.module.css';
 import {
@@ -10,7 +8,6 @@ import {
   IconSimpleAdd,
 } from '@/components/layout/icons/IconsBiblioteca';
 import { CategoryCardProps, CategoryItem } from '../Type/CategoryType';
-
 const CategoryCard = memo(
   ({
     item,

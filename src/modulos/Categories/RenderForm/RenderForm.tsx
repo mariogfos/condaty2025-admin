@@ -1,6 +1,5 @@
-// src/components/Categories/CategoryForm.tsx (o la ruta que corresponda)
-'use client';
 
+'use client';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';

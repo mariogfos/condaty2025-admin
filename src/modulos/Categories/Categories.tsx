@@ -1,4 +1,3 @@
-// src/components/Categories/Categories.js (o la ruta que corresponda)
 'use client';
 import { useMemo, useCallback, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
