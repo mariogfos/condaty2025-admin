@@ -83,7 +83,12 @@ const DataModal = ({
           right={
             iconClose &&
             !fullScreen && (
-              <IconX className="" size={24} onClick={() => _close(false)} />
+              <IconX
+                className=""
+                size={24}
+                onClick={() => _close(false)}
+                circle
+              />
             )
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
