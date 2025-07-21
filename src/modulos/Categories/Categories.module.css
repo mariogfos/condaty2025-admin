@@ -685,3 +685,12 @@
   font-weight: var(--bBold, 700);
   color: var(--cWhite);
 }
+
+.dataSearchCustom input {
+
+  min-width: 320px;
+  font-size: var(--spL);
+  border-radius: 8px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}

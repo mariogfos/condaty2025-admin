@@ -221,18 +221,31 @@ const Categories = ({ type = '' }) => {
           </p>
           <p className={styles.headerDescription}>de los {categoryTypeText}</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <DataSearch
-            value={searchs.searchBy || ''}
-            name="categoriesSearch"
-            setSearch={onSearch}
-            textButton="Buscar"
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div
+            style={{
+              minWidth: 320,
+
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <DataSearch
+              value={searchs.searchBy || ''}
+              name="categoriesSearch"
+              setSearch={onSearch}
+              textButton="Buscar"
+              className={styles.dataSearchCustom}
+            />
+          </div>
           <Button
-            onClick={handleAddPrincipalCategory} // Llama a la función modificada
+            onClick={handleAddPrincipalCategory}
             style={{
               padding: '8px 16px',
               width: 'auto',
+
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             Nueva categoría
