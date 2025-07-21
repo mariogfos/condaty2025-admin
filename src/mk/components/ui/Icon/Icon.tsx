@@ -50,7 +50,7 @@ export const IconWrap = ({
           (square ? " " + styles["square"] : "") +
           (onClick ? " " + styles["button"] : "")
         }
-        style={style}
+        style={{ ...style, ...(circle ? { minWidth: size + "px" } : {}) }}
         fill={reverse ? fillStroke : color}
         stroke={reverse ? color : fillStroke}
         onClick={onClick}
