@@ -74,6 +74,8 @@ const Categories = ({ type = '' }) => {
           edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
           del: `Categoría de ${categoryTypeText} eliminada con éxito`,
         },
+        messageDel:
+          '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla',
         // *** PASO 2: Modificar renderForm ***
         renderForm: (propsFromCrud: any) => {
           const itemParaForm = initialFormDataOverride
@@ -262,7 +264,6 @@ const Categories = ({ type = '' }) => {
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         hideTitle // <-- Prop para ocultar el título
-        messageDel = "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla"
       />
     </div>
   );
