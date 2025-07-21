@@ -1,4 +1,3 @@
-
 'use client';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
@@ -224,7 +223,11 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ''}
             onChange={handleChange}
-            label="Nombre de la categoría"
+            label={
+              isSubcategoryMode
+                ? 'Nombre de la subcategoría'
+                : 'Nombre de la categoría'
+            }
             error={errors?.name}
             required
           />
@@ -232,7 +235,11 @@ const CategoryForm = memo(
             name="description"
             value={_Item.description || ''}
             onChange={handleChange}
-            label="Descripción de la nueva categoría"
+            label={
+              isSubcategoryMode
+                ? 'Descripción de la nueva subcategoría'
+                : 'Descripción de la nueva categoría'
+            }
             error={errors?.description}
           />
 

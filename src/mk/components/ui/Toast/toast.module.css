@@ -29,8 +29,10 @@
     /* background-color: var(--cBlack);
     border-radius: 100%;
     padding: 4px; */
-    top: 8px;
+
     right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -40,4 +42,13 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+.toast > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 40px;
+  min-height: 40px;
 }
