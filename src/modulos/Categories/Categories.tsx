@@ -2,24 +2,17 @@
 import { useMemo, useCallback, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import styles from './Categories.module.css';
-import {
-  IconArrowLeft,
-  IconCategories,
-} from '@/components/layout/icons/IconsBiblioteca';
+import { IconArrowLeft, IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import Link from 'next/link';
 import { CategoryItem } from './Type/CategoryType';
 import Button from '@/mk/components/forms/Button/Button';
 import CategoryForm from './RenderForm/RenderForm';
 import CategoryCard from './CategoryCard/CategoryCard';
 import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
-
 const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
   const isIncome = type === 'I';
   const routePath = isIncome ? '/payments' : '/outlays';
-  const linkText = isIncome
-    ? 'Volver a sección ingresos'
-    : 'Volver a sección egresos';
-
+  const linkText = isIncome ? 'Volver a sección ingresos' : 'Volver a sección egresos';
   return (
     <Link href={routePath} className={styles.backLink}>
       <IconArrowLeft />
@@ -27,7 +20,6 @@ const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
     </Link>
   );
 };
-
 const Categories = ({ type = '' }) => {
   const isIncome = type === 'I';
   const categoryTypeText = isIncome ? 'ingresos' : 'egresos';
@@ -35,16 +27,7 @@ const Categories = ({ type = '' }) => {
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
 
-  const {
-    userCan,
-    List,
-    onEdit,
-    onDel,
-    onAdd,
-    getExtraData,
-    onSearch,
-    searchs,
-  } = useCrud({
+  const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs } = useCrud({
     paramsInitial: useMemo(
       () => ({
         perPage: 20,
@@ -60,11 +43,11 @@ const Categories = ({ type = '' }) => {
         modulo: 'categories',
         singular: 'Categoría',
         plural: 'Categorías',
-        permiso: '', // Dejado como en tu código
+        permiso: '',
         search: { hide: true },
         extraData: { params: { type: typeToUse } } as any,
         hideActions: {
-          view: false, // Dejado como en tu código
+          view: false,
           add: true,
           edit: false,
           del: false,
@@ -76,7 +59,6 @@ const Categories = ({ type = '' }) => {
         },
         messageDel:
           '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla',
-        // *** PASO 2: Modificar renderForm ***
         renderForm: (propsFromCrud: any) => {
           const itemParaForm = initialFormDataOverride
             ? { ...propsFromCrud.item, ...initialFormDataOverride }
@@ -86,7 +68,6 @@ const Categories = ({ type = '' }) => {
             setInitialFormDataOverride(null);
             propsFromCrud.onClose();
           };
-
           return (
             <CategoryForm
               {...propsFromCrud}
@@ -94,7 +75,7 @@ const Categories = ({ type = '' }) => {
               setItem={propsFromCrud.setItem}
               onClose={handleCloseWrapper}
               categoryType={typeToUse}
-              getExtraData={getExtraData} // Mantenido como lo tenías
+              getExtraData={getExtraData}
             />
           );
         },
@@ -150,14 +131,12 @@ const Categories = ({ type = '' }) => {
     },
     [onEdit, typeToUse]
   );
-
   const handleDelete = useCallback(
     (itemToDelete: CategoryItem): void => {
       onDel(itemToDelete);
     },
     [onDel]
   );
-
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
       const initialData: Partial<CategoryItem> = {
@@ -170,26 +149,18 @@ const Categories = ({ type = '' }) => {
     },
     [onAdd, typeToUse]
   );
-
-  // *** PASO 4: Modificar handleAddPrincipalCategory ***
   const handleAddPrincipalCategory = useCallback(
     () => {
       const initialData: Partial<CategoryItem> = {
         type: typeToUse,
       };
-      setInitialFormDataOverride(initialData); // Guardar datos mínimos o null si prefieres
-      onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal
+      setInitialFormDataOverride(initialData);
+      onAdd({ type: typeToUse });
     },
-    [onAdd, typeToUse] // Dependencias originales
+    [onAdd, typeToUse]
   );
-
-  // Mantenido como lo tenías
   const renderCardFunction = useCallback(
-    (
-      item: CategoryItem,
-      index: number,
-      baseOnRowClick: (item: CategoryItem) => void
-    ) => {
+    (item: CategoryItem, index: number, baseOnRowClick: (item: CategoryItem) => void) => {
       const cardClassName = index % 2 === 0 ? styles.cardEven : styles.cardOdd;
 
       return (
@@ -203,13 +174,12 @@ const Categories = ({ type = '' }) => {
           onEdit={handleEdit}
           onDel={handleDelete}
           categoryType={typeToUse}
-          onAddSubcategory={handleAddSubcategory} // Pasa la función modificada
+          onAddSubcategory={handleAddSubcategory}
         />
       );
     },
-    [handleEdit, handleDelete, typeToUse, handleAddSubcategory] // handleAddSubcategory añadida como dependencia
+    [handleEdit, handleDelete, typeToUse, handleAddSubcategory]
   );
-
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
@@ -225,7 +195,6 @@ const Categories = ({ type = '' }) => {
           <div
             style={{
               minWidth: 320,
-
               display: 'flex',
               alignItems: 'center',
             }}
@@ -256,13 +225,12 @@ const Categories = ({ type = '' }) => {
       <List
         onRenderBody={renderCardFunction}
         height={'calc(100vh - 330px)'}
-        onRowClick={(itemClicked: CategoryItem) => {
-          /* Mantenido como lo tenías */
+        onRowClick={() => {
         }}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
-        hideTitle // <-- Prop para ocultar el título
+        hideTitle
       />
     </div>
   );

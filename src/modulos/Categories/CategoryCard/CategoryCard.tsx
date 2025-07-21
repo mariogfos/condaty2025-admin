@@ -33,7 +33,6 @@ const CategoryCard = memo(
         onSelectCard();
       }
     }, [onSelectCard]);
-
     const handleEditClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -46,7 +45,6 @@ const CategoryCard = memo(
       },
       [item, onEdit, categoryType]
     );
-
     const handleDeleteClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -54,8 +52,6 @@ const CategoryCard = memo(
       },
       [item, onDel]
     );
-
-    // Determinar el color de fondo según la clase
     let parentBgColor = '';
     if (className.includes(styles.cardEven)) {
       parentBgColor = 'var(--cBlackV2)';
@@ -65,7 +61,6 @@ const CategoryCard = memo(
     const cardClasses = `${styles.categoryCard} ${className} ${
       isSelected ? styles.selectedCard : ''
     }${showSubcategories ? ' ' + styles.accordionOpen : ''}`;
-
     return (
       <div
         className={cardClasses}
@@ -73,7 +68,6 @@ const CategoryCard = memo(
       >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
-            {/* El acordeón siempre visible y funcional */}
             <IconArrowDown
               className={`${styles.arrowIcon} ${
                 showSubcategories ? styles.expanded : ''
@@ -110,8 +104,6 @@ const CategoryCard = memo(
             </button>
           </div>
         </div>
-
-        {/* Contenido del acordeón: subcategorías y/o botón agregar */}
         {showSubcategories && (
           <div
             className={styles.subcategoriesContainer}
@@ -175,7 +167,6 @@ const CategoryCard = memo(
                     </div>
                   );
                 })}
-              {/* Botón para agregar subcategoría solo cuando el acordeón está abierto */}
               <div className={styles.addSubcategoryContainer}>
                 <button
                   className={styles.addSubcategoryButton}

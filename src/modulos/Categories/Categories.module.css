@@ -3,7 +3,6 @@
   padding: 20px;
   max-width: 100%;
 }
-
 .header {
   display: flex;
   align-items: center;
@@ -11,7 +10,6 @@
 
   width: 100%;
 }
-
 .headerTitle {
   flex: 0 0 auto;
   margin-right: 16px;
@@ -20,23 +18,19 @@
   color: var(--cWhite);
   margin: 0 0 8px 0;
 }
-
 .headerContent {
   flex: 1;
 }
-
 .headerContent h1 {
   font-size: 24px;
   font-weight: 600;
   color: var(--cWhite, white);
   margin-bottom: 8px;
 }
-
 .headerContent p {
   font-size: 14px;
   color: var(--cLightv3, #aaaaaa);
 }
-
 .addButton {
   display: flex;
   align-items: center;
@@ -49,74 +43,59 @@
   border: none;
   cursor: pointer;
 }
-
-/* Estilos para el formulario */
 .subtitle {
   color: var(--cLightv3, #aaaaaa);
   font-size: 14px;
   margin-bottom: 20px;
 }
-
 .optionsContainer {
   display: flex;
   flex-direction: column;
-
   margin-bottom: 24px;
 }
-
 .optionRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .optionLabel {
   font-weight: 500;
   color: var(--cWhite, white);
 }
-
 .formGroup {
   margin-bottom: 16px;
   width: 100%;
 }
-
 .fieldLabel {
   font-size: 14px;
   color: var(--cWhite, white);
   margin-bottom: 8px;
 }
-
 .categoryCard {
-  /* background-color: var(--cWhiteV2); */ /* <-- Comenta o elimina esto si existía */
   overflow: hidden;
   width: 100% !important;
   display: block;
   box-sizing: border-box;
   border-bottom: 0.5px solid var(--cWhiteV1);
   border-top: 0.5px solid var(--cWhiteV1);
-  transition: background-color 0.2s; /* Añadir transición si se desea */
+  transition: background-color 0.2s;
 }
-
-/* Estilos para filas/tarjetas pares */
 .cardEven {
-  background-color: var(--cBlackV2); /* Color para pares */
+  background-color: var(--cBlackV2);
 }
 .cardEven:hover {
   background-color: var(
     --cBlackV2
-  ); /* O un color de hover ligeramente diferente para pares */
+  );
 }
-
-/* Estilos para filas/tarjetas impares */
 .cardOdd {
-  background-color: var(--cWhiteV2); /* Color para impares */
+  background-color: var(--cWhiteV2);
 }
 .cardOdd:hover {
   background-color: var(
     --cBlackV2
-  ); /* O un color de hover ligeramente diferente para impares */
+  );
 }
-
 .categoryHeader {
   padding: 16px;
   display: flex;
@@ -127,11 +106,9 @@
   width: 100%;
   box-sizing: border-box;
 }
-
 .categoryHeader:hover {
   background-color: var(--cBlackV2);
 }
-
 .categoryTitle {
   display: flex;
   align-items: center;
@@ -139,7 +116,6 @@
   flex: 1;
   min-width: 0;
 }
-
 .categoryTitle h3 {
   margin: 0;
   font-size: 16px;
@@ -149,7 +125,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .categoryDescription {
   flex: 1;
   color: var(--cWhiteV1, #aaaaaa);
@@ -160,14 +135,12 @@
   padding: 0 16px;
   font-weight: var(--bRegular);
 }
-
 .categoryActions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
   margin-left: auto;
 }
-
 .categoryActions button {
   background-color: transparent;
   border: none;
@@ -181,19 +154,15 @@
   border-radius: 50%;
   transition: background-color 0.2s;
 }
-
 .categoryActions button:hover {
   background-color: var(--cDarkv1, #1e1e1e);
 }
-
 .editButton:hover {
   color: var(--cAccent, #4caf50);
 }
-
 .deleteButton:hover {
   color: var(--cError, #ff5252);
 }
-
 .arrowIcon {
   transform: rotate(0);
   transition: transform 0.3s ease;
@@ -202,18 +171,14 @@
   cursor: pointer;
   min-width: 24px;
 }
-
 .arrowIcon.expanded {
   transform: rotate(180deg);
 }
-
-/* Subcategorías - ajustes para mejor visualización */
 .subcategoriesContainer {
   background-color: var(--cWhiteV2);
   width: 100%;
   box-sizing: border-box;
 }
-
 .subcategoriesTitle {
   font-size: 14px;
   font-weight: 600;
@@ -222,14 +187,11 @@
   padding-bottom: 8px;
   border-bottom: 1px solid var(--cDarkv3, #333333);
 }
-
 .subcategoriesList {
   display: flex;
   flex-direction: column;
-
   width: 100%;
 }
-
 .subcategoryItem {
   display: flex; /* Ya estaba, mantiene los elementos en línea */
   justify-content: space-between; /* Separa los grupos (nombre+descripción y acciones) */
@@ -245,11 +207,9 @@
   border-top: 0.5px solid var(--cWhiteV1); /* Mantenido de tu código */
   gap: 16px; /* Añadir espacio entre nombre, descripción y acciones */
 }
-
 .subcategoryItem:hover {
   background-color: var(--cDarkv3, #333333);
 }
-
 .subcategoryContent {
   display: flex;
   flex-direction: column;
@@ -257,7 +217,6 @@
   flex: 1;
   min-width: 0;
 }
-
 .subcategoryName {
   font-size: 14px;
   font-weight: 500; /* Quizás un poco más de énfasis */
@@ -266,30 +225,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-left: 35px;
-  flex-shrink: 0; /* Para que no se encoja si la descripción es larga */
-  /* Opcional: darle un flex-basis o width si quieres un tamaño más fijo */
-  /* flex-basis: 150px; */
+  flex-shrink: 0;
 }
-
-/* Estilo para la descripción de la subcategoría */
 .subcategoryDesc {
-  font-size: 14px; /* Mismo tamaño que la descripción principal */
-  color: var(--cLightv3, #aaaaaa);
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-grow: 1; /* Para que ocupe el espacio restante entre nombre y acciones */
-  text-align: center; /* Asegurar alineación */
-  padding: 0 16px; /* Similar al padding de categoryDescription */
+  flex-grow: 1;
+  text-align: center;
+  padding: 0 16px;
 }
-
 .subcategoryActions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* Para que no se encojan los botones */
-  /* margin-left: auto; */ /* No es necesario si justify-content: space-between en el item */
+  flex-shrink: 0;
 }
-
 .subcategoryActions button {
   background-color: transparent;
   border: none;
@@ -303,18 +254,14 @@
   border-radius: 50%;
   transition: background-color 0.2s;
 }
-
 .subcategoryActions button:hover {
   background-color: var(--cDarkv1, #1e1e1e);
 }
-
 .mainCategory {
   font-weight: 500;
   color: var(--cLightv2, #cccccc);
   font-style: italic;
 }
-
-/* Ajuste para asegurar que todos los textos se acorten con puntos suspensivos */
 .categoryName,
 .categoryDescription,
 .subcategoryName,
@@ -323,7 +270,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .backLink {
   display: flex;
   align-items: center;
@@ -336,49 +282,40 @@
   cursor: pointer;
   width: fit-content;
 }
-
 .backLink:hover {
   text-decoration: underline;
   color: var(--cDarkv2);
 }
-
 .backLink svg {
   width: 20px;
   height: 20px;
 }
-
 .title {
   font-size: 24px;
   font-weight: 600;
   color: var(--cWhite, white);
   margin: 0;
 }
-
 .headerWrapper {
   width: 100%;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--cDarkv3, #333333);
   padding-bottom: 16px;
 }
-
 .headerDescription {
   font-size: 16px;
   color: var(--cLightv2, #cccccc);
   margin: 0;
 }
-
 .headerLeft {
   display: flex;
   flex-direction: column;
 }
-
 .addSubcategoryContainer {
   padding: 8px 0;
   margin-top: 8px;
-
   width: 100%;
 }
-
 .addSubcategoryButton {
   background-color: transparent;
   font-size: 12px;
@@ -398,19 +335,15 @@
   width: 100%;
   justify-content: left;
 }
-
 .addSubcategoryButton:hover {
   color: var(--cDarkv2);
 }
-
-/* Estilos para el formulario modal */
 .formModalContent {
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -418,41 +351,33 @@
   width: 100%;
   padding: 16px;
 }
-
 .fieldContent {
   display: flex;
   flex-direction: column;
 }
-
 .fieldLabel {
   font-size: 12px;
   color: #a7a7a7;
   margin-bottom: 4px;
 }
-
 .subcategoryOption {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
-
 .subcategoryText {
   display: flex;
   flex-direction: column;
 }
-
 .subcategoryTitle {
   font-size: 16px;
   color: #ffffff;
 }
-
 .subcategoryDescription {
   font-size: 14px;
   color: #a7a7a7;
 }
-
-/* Estilos para los componentes de formulario */
 .customInput {
   background-color: transparent !important;
   border: none !important;
@@ -461,12 +386,10 @@
   padding: 4px 0 !important;
   width: 100% !important;
 }
-
 .customInput:focus {
   outline: none !important;
   box-shadow: none !important;
 }
-
 .customTextarea {
   background-color: transparent !important;
   border: none !important;
@@ -477,12 +400,10 @@
   resize: none !important;
   width: 100% !important;
 }
-
 .customTextarea:focus {
   outline: none !important;
   box-shadow: none !important;
 }
-
 .customSelect {
   background-color: transparent !important;
   border: none !important;
@@ -491,55 +412,44 @@
   width: 100% !important;
   cursor: pointer;
 }
-
 .customSelect:focus {
   outline: none !important;
   box-shadow: none !important;
 }
-
 .customCheck {
   background-color: #a7a7a7 !important;
   border-radius: 16px !important;
   width: 46px !important;
   height: 24px !important;
 }
-
-/* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .addButton {
     width: 100%;
     justify-content: center;
   }
-
   .categoryHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-
   .categoryActions {
     align-self: flex-end;
   }
-
   .categoryDescription {
     width: 100%;
     padding: 0;
   }
-
   .headerTitle {
     font-size: 24px;
   }
-
   .headerDescription {
     font-size: 14px;
   }
 }
-/* Estilos para toggle switch */
 .toggleSwitch {
   position: relative;
   display: inline-block;
@@ -547,7 +457,6 @@
   height: 24px;
   flex-shrink: 0;
 }
-
 .toggleSwitch input {
   opacity: 0;
   width: 0;
@@ -591,14 +500,12 @@
   -ms-transform: translateX(22px);
   transform: translateX(22px);
 }
-/* Estilos adicionales para la información de categoría padre */
 .parentCategoryInfo {
   background-color: #333333;
   border-radius: 4px;
   padding: 12px;
   margin-top: 4px;
 }
-
 .parentCategoryName {
   display: block;
   font-size: 16px;
@@ -606,43 +513,33 @@
   color: #ffffff;
   margin-bottom: 4px;
 }
-
 .parentCategoryDescription {
   display: block;
   font-size: 14px;
   color: #a7a7a7;
 }
-
-/* Estilo para separar visualmente las secciones */
 .subcategorySeparator {
   width: 100%;
   height: 1px;
   background-color: #333333;
   margin: 16px 0;
 }
-
-/* Modificar el ancho del formField para que se ajuste mejor al contenido */
 .formField {
   background-color: #4a4a4a;
   border-radius: 8px;
-  padding: 12px; /* Incrementado de 8px a 12px */
+  padding: 12px;
   width: 100%;
-  margin-bottom: 12px; /* Añadir espacio entre campos */
+  margin-bottom: 12px;
 }
-
-/* Mejorar los estilos para campos de solo lectura */
 .formField.readOnly {
   background-color: #3a3a3a;
 }
-
-/* Estilo para mostrar que la categoría padre está seleccionada */
 .selectedParentLabel {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
 }
-
 .selectedParentLabel:before {
   content: '';
   display: inline-block;
@@ -651,41 +548,30 @@
   background-color: #00e38c;
   border-radius: 50%;
 }
-
 .categoryCard.accordionOpen {
   border-bottom: none;
   border: 1px solid var(--cWhite);
 }
-
 .categoryCard.accordionOpen {
-  /* El borde debe envolver todo el bloque padre+subcategorías */
   border-radius: 1px;
   box-shadow: 0 0 0 1px var(--cWhite);
 }
-
 .subcategoriesContainer {
-  /* El color de fondo será igual al del padre */
   background-color: inherit;
 }
-
 .subcategoryItem {
-  /* Hereda el color de fondo del padre */
   background-color: inherit;
 }
-
 .subcategoriesList .subcategoryItem {
   border-top: none;
 }
-
 .subcategoryItem:hover {
   background-color: var(--cDarkv3, #333333);
 }
-
 .categoryNameTextOpen {
   font-weight: var(--bBold, 700);
   color: var(--cWhite);
 }
-
 .dataSearchCustom input {
   min-width: 320px;
   font-size: var(--spL);
