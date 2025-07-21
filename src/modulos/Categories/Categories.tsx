@@ -218,7 +218,7 @@ const Categories = ({ type = '' }) => {
           <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
           <p className={styles.headerDescription}>
             Administre, agregue y elimine las categorías y subcategorías{' '}
-            {categoryTypeText}
+        
           </p>
           <p className={styles.headerDescription}>de los {categoryTypeText}</p>
         </div>
