@@ -101,7 +101,7 @@ const Toast = ({
           <div>{toast?.msg}</div>
         </div>
         <div className={styles.close} onClick={() => _close()}>
-          <IconX size={24} />
+          <IconX size={28} />
         </div>
       </div>
     </>
