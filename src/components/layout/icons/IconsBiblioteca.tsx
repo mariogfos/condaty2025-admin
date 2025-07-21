@@ -3890,17 +3890,17 @@ export const IconExitHome = (props: IconType) => {
       <path
         d="M13.834 60V70H67.1673V23.3333L40.5007 10L13.834 23.3333V33.3333M13.834 46.6667H43.834"
         stroke="#A7A7A7"
-        stroke-width="6.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="6.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
       />
       <path
         d="M33.834 36.668L43.834 46.668L33.834 56.668"
         stroke="#A7A7A7"
-        stroke-width="6.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="6.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
       />
     </IconWrap>
@@ -3974,9 +3974,9 @@ export const IconDepartments2 = (props: IconType) => {
       <path
         d="M7.16797 66.6654H13.8346M13.8346 66.6654H30.5013M13.8346 66.6654V23.9987C13.8346 20.2654 13.8346 18.3987 14.5613 16.972C15.2013 15.7154 16.218 14.6987 17.4746 14.0587C18.9013 13.332 20.768 13.332 24.5013 13.332H29.8346C33.568 13.332 35.4346 13.332 36.858 14.0587C38.1146 14.6987 39.138 15.7154 39.7746 16.972C40.5013 18.3954 40.5013 20.262 40.5013 23.9887V33.332M30.5013 66.6654H67.168M30.5013 66.6654V47.892C30.5013 46.142 30.5013 45.2654 30.7113 44.4487C30.898 43.7254 31.2046 43.0387 31.618 42.4154C32.0846 41.7154 32.738 41.1254 34.038 39.9587L41.7113 33.0654C44.228 30.8054 45.488 29.6754 46.9113 29.2454C48.1657 28.8674 49.5036 28.8674 50.758 29.2454C52.1846 29.6754 53.4446 30.8054 55.9646 33.0687L63.6313 39.9587C64.9313 41.1254 65.5813 41.7154 66.0513 42.4154C66.4646 43.0387 66.7713 43.7254 66.9546 44.4487C67.168 45.2654 67.168 46.142 67.168 47.892V66.6654M67.168 66.6654H73.8346"
         stroke="#A7A7A7"
-        stroke-width="3.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
       />
     </IconWrap>

@@ -1,7 +1,7 @@
 "use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 
 export interface IconType {
   className?: string | undefined;
@@ -50,7 +50,7 @@ export const IconWrap = ({
           (square ? " " + styles["square"] : "") +
           (onClick ? " " + styles["button"] : "")
         }
-        style={style}
+        style={{ ...style, ...(circle ? { minWidth: size + "px" } : {}) }}
         fill={reverse ? fillStroke : color}
         stroke={reverse ? color : fillStroke}
         onClick={onClick}

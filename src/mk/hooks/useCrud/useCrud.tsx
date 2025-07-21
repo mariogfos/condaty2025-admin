@@ -920,8 +920,8 @@ const useCrud = ({
           <IconFilter
             title="Filtros"
             style={{
-              height: '32px',
-              minWidth: '24px',
+              height: "48px",
+              minWidth: "32px",
               ...(Object.values(filterSel).filter(
                 e => e !== 'ALL' && e !== '' && e !== 'T'
               )?.length > 0 && { color: 'var(--cPrimary)', minWidth: '24px' }),
@@ -1054,8 +1054,8 @@ const useCrud = ({
           {mod.import && (
             <IconImport
               title="Importar"
-              className={data?.length == 0 ? ' ' + styles.disabled : undefined}
-              style={{ minWidth: '24px', height: '32px' }}
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
+              style={{ minWidth: "32px", height: "48px" }}
               onClick={data?.length > 0 ? onImport : () => {}}
               square
             />
@@ -1063,9 +1063,9 @@ const useCrud = ({
           {mod.export && (
             <IconExport
               title="Exportar reporte"
-              style={{ minWidth: '24px', height: '32px' }}
-              className={data?.length == 0 ? ' ' + styles.disabled : undefined}
-              onClick={data?.length > 0 ? () => onExport('pdf') : () => {}}
+              style={{ minWidth: "32px", height: "48px" }}
+              className={data?.length == 0 ? " " + styles.disabled : undefined}
+              onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
               square
             />
           )}
@@ -1075,13 +1075,16 @@ const useCrud = ({
                 className={!openCard ? styles.active : ''}
                 onClick={() => setOpenCard(false)}
               >
-                <IconMenu />
+                <IconMenu style={{ minWidth: "32px", height: "48px" }} square />
               </div>
               <div
                 className={openCard ? styles.active : ''}
                 onClick={() => setOpenCard(true)}
               >
-                <IconGrilla />
+                <IconGrilla
+                  style={{ minWidth: "32px", height: "48px" }}
+                  square
+                />
               </div>
             </div>
           )}
@@ -1123,6 +1126,7 @@ const useCrud = ({
           onSave={e => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
+          variant="mini"
         >
           {message ? (
             message
@@ -1159,7 +1163,8 @@ const useCrud = ({
                 e.stopPropagation();
                 onEdit(item);
               }}
-              size={24}
+              size={28}
+              circle
             />
           </div>
         )}
@@ -1170,7 +1175,8 @@ const useCrud = ({
                 e.stopPropagation();
                 onDel(item);
               }}
-              size={24}
+              size={28}
+              circle
             />
           </div>
         )}

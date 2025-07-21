@@ -29,7 +29,7 @@ import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import Table from "@/mk/components/ui/Table/Table";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import Switch from "@/mk/components/forms/Switch/Switch";
