@@ -218,7 +218,6 @@ const Categories = ({ type = '' }) => {
           <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
           <p className={styles.headerDescription}>
             Administre, agregue y elimine las categorías y subcategorías{' '}
-        
           </p>
           <p className={styles.headerDescription}>de los {categoryTypeText}</p>
         </div>
@@ -256,7 +255,7 @@ const Categories = ({ type = '' }) => {
 
       <List
         onRenderBody={renderCardFunction}
-        height={'calc(100vh - 430px)'}
+        height={'calc(100vh - 330px)'}
         onRowClick={(itemClicked: CategoryItem) => {
           /* Mantenido como lo tenías */
         }}
