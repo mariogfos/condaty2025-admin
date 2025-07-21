@@ -1123,6 +1123,7 @@ const useCrud = ({
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
           open={open}
+          variant="mini"
         >
           {message ? (
             message
