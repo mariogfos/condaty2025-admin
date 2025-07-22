@@ -27,6 +27,7 @@ export interface CategoryFormProps {
   getExtraData?: () => void;
   action: 'add' | 'edit' | string;
   categoryType: 'I' | 'E';
+  data?: any[];
 }export interface CategoryCardProps {
   item: CategoryItem;
   onClick?: (item: CategoryItem) => void;

@@ -73,7 +73,9 @@
   flex-shrink: 0;
   cursor: pointer;
   min-width: 24px;
+
 }
+
 .arrowIcon.expanded {
   transform: rotate(180deg);
 }

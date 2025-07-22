@@ -81,6 +81,7 @@ const Categories = ({ type = '' }) => {
           );
         },
       }),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [typeToUse, categoryTypeText, initialFormDataOverride]
     ),
     fields: useMemo(
@@ -178,6 +179,7 @@ const Categories = ({ type = '' }) => {
           categoryType={typeToUse}
           onAddSubcategory={handleAddSubcategory}
           forceOpen={forceOpen}
+
         />
       );
     },
@@ -214,7 +216,6 @@ const Categories = ({ type = '' }) => {
       <List
         onRenderBody={renderCardFunction}
         height={'calc(100vh - 330px)'}
-        onRowClick={() => { }}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

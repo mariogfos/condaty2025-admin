@@ -21,7 +21,9 @@ const CategoryForm = memo(
     getExtraData,
     action,
     categoryType,
+    data,
   }: CategoryFormProps) => {
+
     const [_Item, set_Item] = useState<Partial<CategoryItem>>(() => {
       const initialData = { ...item };
       if (action === 'add' && initialData._isAddingSubcategoryFlow) {
@@ -116,6 +118,7 @@ const CategoryForm = memo(
       action,
       categoryType,
       getExtraData,
+      isCateg,
     ]);
     const isSubcategoryMode =
       isCateg === 'S' || (isCateg === 'C' && wantSubcategories);
@@ -151,28 +154,44 @@ const CategoryForm = memo(
       >
         <div className={styles.formContainer2}>
           {isAddSubcategoryFlow && (
-            <Input
-              name="category_id"
-              label="Categoría padre"
-              value={_Item.category_id || ''}
-              onChange={() => { }}
-              error={errors?.category_id}
-              required
-              className={styles.customSelect}
-              disabled
-            />
+            <>
+              <Input
+                name="category_id_name"
+                label="Categoría padre"
+                value={
+                  extraData?.categories?.find((cat: any) => String(cat.id) === String(_Item.category_id))?.name || ''
+                }
+                onChange={() => { }}
+                required
+                className={styles.customSelect}
+                disabled
+              />
+              <input
+                type="hidden"
+                name="category_id"
+                value={_Item.category_id || ''}
+              />
+            </>
           )}
           {!isAddSubcategoryFlow && isSubcategoryMode && action !== 'add' && (
-            <Input
-              name="category_id"
-              label="Categoría padre"
-              value={_Item.category_id || ''}
-              onChange={handleChange}
-              error={errors?.category_id}
-              required
-              className={styles.customSelect}
-              disabled
-            />
+            <>
+              <Input
+                name="category_id_name"
+                label="Categoría padre"
+                value={
+                  extraData?.categories?.find((cat: any) => String(cat.id) === String(_Item.category_id))?.name || ''
+                }
+                onChange={() => { }}
+                required
+                className={styles.customSelect}
+                disabled
+              />
+              <input
+                type="hidden"
+                name="category_id"
+                value={_Item.category_id || ''}
+              />
+            </>
           )}
           <Input
             type="text"

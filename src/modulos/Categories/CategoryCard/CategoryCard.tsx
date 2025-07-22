@@ -11,7 +11,6 @@ import { CategoryCardProps, CategoryItem } from '../Type/CategoryType';
 const CategoryCard = memo(
   ({
     item,
-    onClick,
     onEdit,
     onDel,
     categoryType,
@@ -129,10 +128,6 @@ const CategoryCard = memo(
                     e.stopPropagation();
                     onDel(subcat);
                   };
-                  const handleSubcatClick = (e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    if (onClick) onClick(subcat);
-                  };
 
                   return (
                     <div
@@ -141,15 +136,9 @@ const CategoryCard = memo(
                       style={
                         parentBgColor ? { backgroundColor: parentBgColor } : {}
                       }
-                      onClick={handleSubcatClick}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ')
-                          handleSubcatClick(e as any);
-                      }}
                     >
-
                       <div className={styles.subcategoryRow}>
                         <div className={styles.subcategoryNameContainer}>
                           <span className={styles.subcategoryName}>
