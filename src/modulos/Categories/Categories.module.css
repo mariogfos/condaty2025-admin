@@ -108,8 +108,15 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 35px;
+  padding-left: 30px;
   flex-shrink: 0;
+}
+.subcategoryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 .subcategoryDesc {
   font-size: 14px;
@@ -117,8 +124,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
-  text-align: center;
-  padding: 0 16px;
+  text-align: left;
+
 }
 .subcategoryActions {
   display: flex;
@@ -217,4 +224,37 @@
   border: 1px solid var(--cWhite);
   border-radius: 1px;
   box-shadow: 0 0 0 1px var(--cWhite);
+}
+.subcategoryRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.subcategoryNameContainer,
+.subcategoryDescContainer {
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+}
+
+.subcategoryName,
+.subcategoryDesc {
+  width: 50%;
+  text-align: left;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subcategoryActions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-left: auto;
 }
