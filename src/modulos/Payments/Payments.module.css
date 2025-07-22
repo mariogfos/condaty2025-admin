@@ -92,7 +92,7 @@
   color: var(--cMediumAlert);
 }
 .statusE {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
 .statusA {
