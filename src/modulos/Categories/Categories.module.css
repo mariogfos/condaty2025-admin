@@ -97,8 +97,8 @@
   transition: background-color 0.2s;
   width: 100%;
   box-sizing: border-box;
+  border-top: none;
   border-bottom: 0.5px solid var(--cWhiteV1);
-  border-top: 0.5px solid var(--cWhiteV1);
   gap: 16px;
 }
 .subcategoryName {
@@ -212,4 +212,9 @@
 .backLink:hover {
   text-decoration: underline;
   color: var(--cDarkv2);
+}
+.categoryCard.accordionOpen {
+  border: 1px solid var(--cWhite);
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--cWhite);
 }
