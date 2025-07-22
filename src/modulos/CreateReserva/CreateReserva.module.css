@@ -134,11 +134,6 @@
 
 /* Contenedor para la info del owner con margen inferior y borde opcional */
 .summaryOwnerInfoContainer {
-  margin-bottom: var(
-    --spM
-  ); /* Espacio antes del título "Resumen de la reserva" */
-  padding-bottom: var(--spM); /* Espacio antes del borde */
-  border-bottom: 1px solid var(--cBlackV3); /* Línea separadora */
   width: 100%; /* Asegura que ocupe el ancho */
 }
 
@@ -235,13 +230,12 @@
 /* Estilo para los BOTONES de paginación */
 .imagePagination button {
   background: transparent; /* <-- ESENCIAL: Botón sin fondo */
-  border: none; /* Sin borde */
+  border: 0.5px solid var(--cWhite); /* Sin borde */
   color: var(--cWhite); /* Color base para el icono (currentColor) */
-  padding: 0; /* Sin padding interno */
+  padding: 9px; /* Sin padding interno */
   margin: 0; /* Sin margen extra */
   cursor: pointer;
-  width: 36px; /* Tamaño del área clickeable (ajusta) */
-  height: 36px; /* Tamaño del área clickeable (ajusta) */
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,30 +246,11 @@
 .imagePagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  color: var(--cWhiteV1); /* Color más tenue para icono deshabilitado */
 }
 
 /* Estilo base y tamaño para el SVG DENTRO del botón */
-.imagePagination button svg.paginationIcon {
-  width: 36px; /* Tamaño visual del icono (ajusta) */
-  height: 36px; /* Tamaño visual del icono (ajusta) */
-  display: block; /* Ayuda a prevenir espacios extra */
-  /* <-- Grosor de línea deseado (ej: 1px) */
-  /* Puedes ajustar 0.75px si lo prefieres */
-  /* No definas fill/stroke aquí si quieres controlarlo por elemento */
-}
 
 /* ESTILO ESPECÍFICO para el CÍRCULO DENTRO de estos iconos */
-.imagePagination button svg.paginationIcon circle {
-  fill: none; /* SIN relleno */
-  stroke: currentColor; /* CON borde (hereda color blanco del botón) */
-}
-
-/* ESTILO ESPECÍFICO para el PATH (flecha) DENTRO de estos iconos */
-.imagePagination button svg.paginationIcon path {
-  fill: none; /* <-- CORREGIDO: SIN relleno */
-  stroke: currentColor; /* <-- CORREGIDO: CON borde (hereda color blanco) */
-}
 /* Contenedor Info */
 .areaInfo {
   flex-grow: 1; /* Ocupa el espacio restante */
@@ -490,8 +465,6 @@
 .summaryContainer {
   background-color: var(--cBlackV2);
   border-radius: var(--bRadius); /* 0.75rem -> 12px */
-  /* Añade padding aquí si summaryContent no lo tiene */
-  padding: var(--spL); /* Mueve el padding aquí */
 }
 
 .summaryContent {
@@ -504,8 +477,8 @@
 }
 
 .summaryImageContainer {
-  flex: 1;
-  width: 218px; /* <-- AÑADE/ASEGURA este ancho */
+  /* flex: 1; */
+  width: 350px; /* <-- AÑADE/ASEGURA este ancho */
 }
 .summaryImage {
   /* (Sin cambios, ya estaba bien) */
@@ -862,15 +835,6 @@
   background-color: transparent; /* Sin hover */
 }
 
-/* --- Estilos Secciones debajo del calendario --- */
-.durationSection,
-.peopleSection {
-  margin-top: var(--spXl); /* 1.5rem -> 24px */
-  padding-top: var(--spXl); /* 1.5rem -> 24px */
-  border-top: var(--bWidth) solid var(--cBlackV3); /* #414141 */
-}
-
-/* Ajustes menores si son necesarios */
 .errorText {
   position: absolute; /* <-- Posicionamiento absoluto */
   top: 100%; /* <-- Posiciona el borde superior del error justo debajo del contenedor relativo */

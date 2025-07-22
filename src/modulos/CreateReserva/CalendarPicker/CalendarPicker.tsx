@@ -50,7 +50,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   available_days = [],
 }) => {
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
-
+  console.log(busyDays);
   const getInitialDate = () => {
     const parsed = selectedDate
       ? parse(selectedDate, "yyyy-MM-dd", new Date())
@@ -169,6 +169,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
   const handleDateSelect = (day: CalendarDay) => {
     if (!day.isCurrentView || day.isPast) return;
+    if (day.isPartiallyBusy) return;
 
     setSelectedDateInternal(day.date);
     onDateChange(format(day.date, "yyyy-MM-dd"));

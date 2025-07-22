@@ -21,16 +21,15 @@ import {
 // Eliminado import de TextArea si no se usa directamente en ReservationDetailModal
 import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 
-// --- INICIO: Nuevo Componente Memoizado ---
-
-// 1. Define las props que este componente necesita
 interface ReservationDetailsViewProps {
   details: any; // El objeto displayedData
   isActionLoading: boolean;
   actionError: string | null;
   onAcceptClick: () => void; // Función para manejar el clic en Aceptar
   onRejectClick: () => void; // Función para manejar el clic en Rechazar
+  onCancel: () => void;
   // Funciones auxiliares pasadas como props
   getFormattedRequestTime: (isoDate: string) => string;
   getFormattedReservationDate: (dateStr: string) => string;
@@ -40,6 +39,13 @@ interface ReservationDetailsViewProps {
     totalAmount: string
   ) => string;
 }
+const statusMap: any = {
+  W: { label: "Por confirmar", class: styles.statusW },
+  A: { label: "Reservado", class: styles.statusA },
+  X: { label: "Rechazado", class: styles.statusX },
+  C: { label: "Cancelado", class: styles.statusC },
+  F: { label: "Completado", class: styles.statusF },
+};
 
 // 2. El componente funcional que contiene la vista de detalles
 const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
@@ -52,10 +58,37 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
   getFormattedReservationDate,
   getFormattedReservationTime,
   getPriceDetails,
+  onCancel,
 }) => {
-  // El JSX es el mismo que tenías dentro de renderContent()
+  // const { data } = useAxios("/reservations/" + details?.id, "PUT", {
+  //   status: "C",
+  // });
+  // reservations/9ed1fe1a-511e-4b0a-9368-14e48a33e55f
+  if (!details) return;
+  let status = details?.status as "W" | "A" | "X" | "C" | "F" | undefined;
+  let dateEnd = new Date(details?.date_end + "T" + details?.end_time)
+    .toISOString()
+    .split(".")[0];
+
+  if (status === "A" && dateEnd < new Date().toISOString().split(".")[0]) {
+    status = "F";
+  }
+  const currentStatus = status ? statusMap[status] : null;
   return (
     <>
+      {status == "A" && (
+        <p
+          onClick={onCancel}
+          style={{
+            color: "var(--cError)",
+            textAlign: "right",
+            textDecorationLine: "underline",
+            cursor: "pointer",
+          }}
+        >
+          Cancelar reserva
+        </p>
+      )}
       <div className={styles.reservationBlock}>
         <div className={styles.requesterSection}>
           <div className={styles.requesterInfoContainer}>
@@ -86,13 +119,13 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
               : ""}
           </span>
         </div>
-        <div className={styles.divider}></div>
+        <hr className={styles.areaSeparator} />
 
         <div className={styles.mainDetailsContainer}>
           <div className={styles.imageWrapper}>
             {details.area?.images?.length > 0 ? (
               <img
-                // Asegúrate de tener getUrlImages disponible (ya está importado globalmente)
+                // Consider using next/image for better performance and optimization
                 src={getUrlImages(
                   `/AREA-${details.area.id}-${details.area.images[0].id}.${
                     details.area.images[0].ext
@@ -110,6 +143,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
               </div>
             )}
           </div>
+
           <div className={styles.detailsColumn}>
             <div className={styles.areaTextInfo}>
               <span className={styles.areaTitle}>
@@ -119,6 +153,8 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
                 {details.area?.description ?? "Sin descripción"}
               </span>
             </div>
+
+            <hr className={styles.areaSeparator} />
             <div className={styles.specificDetails}>
               <span className={styles.detailsHeader}>
                 Detalles de la Reserva
@@ -149,23 +185,20 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
                 </div>
                 <div className={styles.detailItem}>
                   <IconCash size={18} className={styles.detailIcon} />
-                  {/* Usa la función pasada por props */}
                   <span className={styles.priceDetailText}>
                     {getPriceDetails(details.area, details.amount)}
                   </span>
                 </div>
-                {details.obs && (
-                  <div className={styles.detailItem}>
-                    {/* Podrías usar un ícono aquí también si tienes uno para notas/observaciones */}
-                    <span className={styles.detailIcon}>📝</span>
-                    <span className={styles.detailText}>
-                      Obs: {details.obs}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
+        </div>
+        <div
+          className={`${styles.statusBadge} ${
+            currentStatus ? currentStatus.class : styles.statusUnknown
+          }`}
+        >
+          {currentStatus ? currentStatus.label : "Estado desconocido"}
         </div>
       </div>
 
@@ -232,6 +265,9 @@ const ReservationDetailModal = ({
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
+  const [openModalCancel, setOpenModalCancel] = useState(false);
+  const [formState, setFormState]: any = useState({});
+  const [errors, setErrors] = useState({});
   const {
     execute: fetchDetails,
     data: fetchedData,
@@ -364,8 +400,6 @@ const ReservationDetailModal = ({
         return "Gratis";
       }
     } else {
-      // Si tiene precio > 0
-      const mode = area.booking_mode === "hour" ? "/h" : "/día"; // O '/reserva' si no es por hora/día
       return `Bs ${price.toFixed(2)}`;
     }
   };
@@ -391,9 +425,8 @@ const ReservationDetailModal = ({
         false
       );
       if (reLoad) reLoad();
-      onClose(); // Cierra el modal principal al tener éxito
+      onClose();
     } catch (error: any) {
-      console.error("Error al aprobar reserva:", error);
       setActionError(
         error?.response?.data?.message ||
           error?.message ||
@@ -434,26 +467,54 @@ const ReservationDetailModal = ({
         false,
         false
       );
-      // Éxito: cerrar ambos modales y recargar
+
       setIsRejectModalOpen(false);
       onClose(); // Cierra el modal principal
       if (reLoad) reLoad();
     } catch (error: any) {
-      console.error("Error al confirmar rechazo:", error);
-      // Mostrar error en el modal principal después de cerrar el de rechazo
       setActionError(
         error?.response?.data?.message ||
           error?.message ||
           "Ocurrió un error al rechazar."
       );
-      setIsRejectModalOpen(false); // Asegurarse de cerrar el modal de rechazo incluso si hay error
+      setIsRejectModalOpen(false);
     } finally {
       setIsActionLoading(false);
     }
   };
+  const handleChangeInput = (e: any) => {
+    let value = e.target.value;
 
-  const isLoadingDetails = !item && !detailsLoaded && !detailsError;
+    setFormState({ ...formState, [e.target.name]: value });
+  };
+  const validateReason = () => {
+    let errs: any = {};
+    errs = checkRules({
+      value: formState.reason,
+      rules: ["required"],
+      key: "reason",
+      errors: errs,
+    });
 
+    setErrors(errs);
+    return errs;
+  };
+  const onSaveCancel = async () => {
+    if (hasErrors(validateReason())) return;
+    const { data } = await executeAction(
+      "/reservations/" + displayedData?.id,
+      "PUT",
+      {
+        status: "C",
+        reason: formState?.reason,
+      }
+    );
+    if (data?.success == true) {
+      setOpenModalCancel(false);
+      onClose();
+      if (reLoad) reLoad();
+    }
+  };
   return (
     <>
       <DataModal
@@ -464,46 +525,49 @@ const ReservationDetailModal = ({
         buttonCancel=""
         style={{ width: "739px", maxWidth: "80%" }}
       >
-        <div className={styles.divider}></div>
         <div className={styles.modalContent}>
-          {/* Renderizado condicional principal */}
-          {isLoadingDetails ? (
-            <div className={styles.loadingContainer}>Cargando detalles...</div>
-          ) : !displayedData ? (
-            // Esto cubre tanto el error de carga como el caso de no encontrar datos
-            <div className={styles.loadingContainer}>
-              {detailsError
-                ? `Error al cargar: ${
-                    detailsError.message || "Error desconocido"
-                  }`
-                : "No hay datos de reserva para mostrar."}
-            </div>
-          ) : (
-            <MemoizedReservationDetailsView
-              details={displayedData}
-              isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
-              actionError={actionError} // Error de las *acciones*
-              onAcceptClick={handleAcceptClick}
-              onRejectClick={handleRejectClick}
-              // Pasa las funciones auxiliares
-              getFormattedRequestTime={getFormattedRequestTime}
-              getFormattedReservationDate={getFormattedReservationDate}
-              getFormattedReservationTime={getFormattedReservationTime}
-              getPriceDetails={getPriceDetails}
-            />
-          )}
+          <MemoizedReservationDetailsView
+            details={displayedData}
+            isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
+            actionError={actionError} // Error de las *acciones*
+            onAcceptClick={handleAcceptClick}
+            onRejectClick={handleRejectClick}
+            getFormattedRequestTime={getFormattedRequestTime}
+            getFormattedReservationDate={getFormattedReservationDate}
+            getFormattedReservationTime={getFormattedReservationTime}
+            onCancel={() => setOpenModalCancel(true)}
+            getPriceDetails={getPriceDetails}
+          />
         </div>
       </DataModal>
-
-      {/* --- SEGUNDO MODAL (RECHAZO) --- */}
-      {/* Este modal solo se renderiza si isRejectModalOpen es true */}
+      {openModalCancel && (
+        <DataModal
+          title="Cancelar reserva"
+          open={openModalCancel}
+          buttonText="Cancelar reserva"
+          buttonCancel="Salir"
+          onClose={() => setOpenModalCancel(false)}
+          style={{ width: "686px" }}
+          onSave={onSaveCancel}
+        >
+          <p style={{ marginBottom: 16 }}>
+            Por favor indica el motivo por el cual quieres cancelar esta reserva
+          </p>
+          <Input
+            label="Motivo"
+            name="reason"
+            value={formState?.reason}
+            onChange={handleChangeInput}
+            required
+            error={errors}
+          />
+        </DataModal>
+      )}
       {isRejectModalOpen && (
         <DataModal
           open={isRejectModalOpen}
           onClose={() => {
-            // Solo cierra el modal de rechazo, no el principal
             setIsRejectModalOpen(false);
-            // Opcional: limpiar errores si el usuario cierra sin confirmar
             setRejectErrors({});
           }}
           title="Cancelar solicitud"
@@ -513,7 +577,6 @@ const ReservationDetailModal = ({
         >
           <div className={styles.divider}></div>
           <div className={styles.modalContentContainer}>
-            {" "}
             {/* Contenedor para padding/gap interno */}
             <p>
               Por favor indica el motivo para que el residente pueda comprender
@@ -558,9 +621,6 @@ const ReservationDetailModal = ({
             className={styles.actionButtonsContainer}
             style={{ marginTop: "var(--spL, 16px)" }}
           >
-            {" "}
-            {/* Añadir margen superior si es necesario */}
-            {/* Botón secundario (Salir/Cancelar) */}
             <Button
               className={styles.secondaryActionButton} // Clase para estilo (flex-grow: 1)
               onClick={() => setIsRejectModalOpen(false)} // Solo cierra este modal

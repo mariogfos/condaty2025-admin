@@ -4,11 +4,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spM, 12px); /* Usa variable o valor */
-  background-color: var(--cBlack, #212121); /* Variable de tema */
-  padding: var(--spL, 16px);
-  border-radius: var(--bRadius, 12px);
-  color: var(--cWhite, #fafafa);
-  font-family: var(--fPrimary, "Inter", sans-serif);
 }
 
 .modalHeader {
@@ -39,7 +34,6 @@
 .closeButton:hover {
   background-color: var(--cHover, #ffffff0d);
 }
-
 
 .reservationBlock {
   display: flex;
@@ -95,11 +89,11 @@
 }
 
 .imageWrapper {
-   width: 218px;
-   height: 218px;
-   flex-shrink: 0;
-   border-radius: var(--bRadiusS, 8px); /* Variable */
-   overflow: hidden;
+  width: 218px;
+  height: 218px;
+  flex-shrink: 0;
+  border-radius: var(--bRadiusS, 8px); /* Variable */
+  overflow: hidden;
 }
 
 .areaImage {
@@ -116,8 +110,8 @@
   justify-content: center;
 }
 .imagePlaceholderText {
-    color: var(--cWhiteV1, #a7a7a7);
-    font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7);
+  font-size: var(--sM, 14px);
 }
 
 .detailsColumn {
@@ -190,13 +184,12 @@
   color: var(--cWhiteV1, #a7a7a7);
 }
 .priceDetailText {
-    font-weight: var(--bRegular, 400);
-    font-size: var(--sM, 14px);
-    color: var(--cWhiteV1, #a7a7a7);
+  font-weight: var(--bRegular, 400);
+  font-size: var(--sM, 14px);
+  color: var(--cWhiteV1, #a7a7a7);
 }
 /* Puedes añadir un estilo específico para el total si usas un <strong> o <span> */
 /* .totalPrice { color: var(--cWhite, #fafafa); font-weight: var(--bMedium, 500); margin-left: var(--spXs); } */
-
 
 /* ReservationDetailModal.module.css */
 
@@ -219,50 +212,45 @@
   flex-grow: 5; /* Define la proporción de crecimiento */
   flex-basis: 0; /* Inicia el cálculo del tamaño desde 0 */
   min-width: 0; /* Permite que el botón se encoja */
-
 }
 
-
-
-.secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
+.secondaryActionButton {
+  /* Botón 'Volver' o 'No cancelar' */
   flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
   flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
   /* Puedes añadir otros estilos si son necesarios */
 }
 
-.primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
+.primaryActionButton {
+  /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
   flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
   flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
 }
 
-
 .rejectButton {
-
   flex-grow: 1; /* Ocupa espacio */
 }
 .acceptButton {
-
-   flex-grow: 1; /* Ocupa espacio */
+  flex-grow: 1; /* Ocupa espacio */
 }
 
-
 .errorText {
-    color: var(--cError, #e46055); /* Variable de error */
-    text-align: center;
-    padding: var(--spXl, 24px);
+  color: var(--cError, #e46055); /* Variable de error */
+  text-align: center;
+  padding: var(--spXl, 24px);
 }
 
 .loadingContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px; /* Altura mínima mientras carga */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px; /* Altura mínima mientras carga */
 }
 /* En TuComponentePadre.module.css */
 
 .confirmCancelButton {
   /* Estilos para replicar el botón verde de tu imagen */
-  background-color: #00E38C; /* Verde brillante */
+  background-color: #00e38c; /* Verde brillante */
   color: #212121; /* Texto oscuro */
   border: none; /* Sin borde */
   padding: var(--spM) var(--spXl); /* Ajusta el padding si es necesario */
@@ -270,8 +258,6 @@
   font-weight: var(--bSemibold); /* Peso de fuente */
   flex-grow: 1; /* Intenta que ocupe más espacio si hay dos botones */
 }
-
-
 
 /* Ajustes al contenido del modal si es necesario */
 .modalContentContainer {
@@ -285,9 +271,53 @@
   font-size: var(--sM);
   line-height: 1.4;
 }
-.divider {
-  height: 0.5px;
-  width: 100%;
-  background-color: var(--cWhiteV1);
-  margin-bottom: var(--spM, 12px);
+.statusBadge {
+  padding: 6px 0px;
+  text-align: center;
+  border-radius: 4px;
+}
+.statusW {
+  background-color: var(--cHoverWarning); /* Fondo amarillo suave */
+  color: var(--cWarning); /* Texto amarillo */
+}
+
+/* N: Rechazado (Rojo) */
+.statusN {
+  /* Asume que tienes variables para error/danger */
+  background-color: var(--cHoverError); /* Fondo rojo suave */
+  color: var(--cError); /* Texto rojo */
+}
+
+/* X: Cancelado (Gris Oscuro o Rojo suave) */
+.statusX {
+  background-color: var(--cHoverCompl5);
+  color: var(--cMediumAlert);
+}
+.statusC {
+  background-color: var(--cHoverError);
+  color: var(--cError);
+}
+.statusUnknown {
+  background-color: var(
+    --cHoverLight,
+    rgba(248, 249, 250, 0.5)
+  ); /* Fondo gris muy suave */
+  color: var(--cLightDark, rgb(108, 117, 125)); /* Texto gris oscuro */
+  border: 1px solid var(--cLightDark, rgb(200, 200, 200)); /* Borde opcional */
+}
+.statusF {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhite);
+}
+
+/* A: Disponible (Azul) */
+.statusA {
+  background-color: var(--cHoverSuccess); /* Fondo azul suave */
+  color: var(--cSuccess); /* Texto azul */
+}
+
+.areaSeparator {
+  /* Línea separadora */
+  border: none;
+  border-top: 0.5px solid var(--cWhiteV1); /* Línea sutil */
 }

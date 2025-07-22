@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import CreateReserva from "../CreateReserva/CreateReserva";
 
 const mod = {
   modulo: "reservations",
@@ -19,7 +20,8 @@ const mod = {
   plural: "Reservas",
   permiso: "",
   extraData: true,
-  hideActions: { edit: true, del: true, add: true },
+  hideActions: { edit: true, del: true },
+  renderForm: (props: any) => <CreateReserva {...props} />,
   renderView: (props: any) => <ReservationDetailModal {...props} />,
   loadView: { fullType: "DET" },
   filter: true,
@@ -261,16 +263,16 @@ const Reserva = () => {
     }),
     []
   );
-  const customAddButton = (
-    <Button
-      key="custom-add-reserva"
-      onClick={() => router.push("/create-reservas")}
-      variant="primary"
-      style={{ height: 48 }}
-    >
-      Crear Reserva
-    </Button>
-  );
+  // const customAddButton = (
+  //   <Button
+  //     key="custom-add-reserva"
+  //     onClick={() => router.push("/create-reservas")}
+  //     variant="primary"
+  //     style={{ height: 48 }}
+  //   >
+  //     Crear Reserva
+  //   </Button>
+  // );
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -323,7 +325,7 @@ const Reserva = () => {
     paramsInitial,
     mod,
     fields,
-    extraButtons: [customAddButton],
+    // extraButtons: [customAddButton],
     getFilter: handleGetFilter,
   });
   const { onLongPress, selItem } = useCrudUtils({

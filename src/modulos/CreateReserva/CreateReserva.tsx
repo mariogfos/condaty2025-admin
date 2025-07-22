@@ -7,6 +7,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
 import {
   IconArrowLeft,
+  IconArrowRight,
   IconBackAround,
   IconCalendar,
   IconClock,
@@ -63,7 +64,7 @@ const weekDay = [
   "Sábado",
   "Domingo",
 ];
-const CreateReserva = () => {
+const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formState, setFormState] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -76,9 +77,12 @@ const CreateReserva = () => {
   const [loadingTimes, setLoadingTimes] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
+  const [reservaCalendarResponse, setReservaCalendarResponse]: any = useState(
+    []
+  );
   const [isRulesModalVisible, setIsRulesModalVisible] =
     useState<boolean>(false);
-  const router = useRouter();
+  const { execute } = useAxios();
   const [canMakeReservationForDate, setCanMakeReservationForDate] = useState<
     boolean | null
   >(null);
@@ -86,47 +90,40 @@ const CreateReserva = () => {
     useState<string>("");
 
   const { showToast } = useAuth();
+  useEffect(() => {
+    setOpenList(false);
+  }, []);
 
-  const {
-    data: unidadesResponse,
-    loaded: unidadesLoaded,
-    execute: executeUnidadesApi,
-  } = useAxios("/dptos", "GET", {
-    perPage: -1,
-    page: 1,
-    fullType: "L",
-  });
-
-  const { data: areasResponse, loaded: areasLoaded } = useAxios(
-    "/areas",
-    "GET",
-    {
-      fullType: "L",
+  useEffect(() => {
+    if (formState?.area_social) {
+      getCalendar();
     }
-  );
+  }, [formState?.area_social]);
 
-  const {
-    data: reservaCalendarResponse,
-    loaded: reservaCalendarLoaded,
-    execute: executeCalendarApi,
-  } = useAxios(
-    "/reservations-calendar",
-    "GET",
-    { area_id: formState.area_social || "none" },
-    !formState.area_social
-  );
+  const getCalendar = async () => {
+    const { data } = await execute(
+      "/reservations-calendar",
+      "GET",
+      { area_id: formState?.area_social || "none" },
+      false,
+      true
+    );
+    if (data?.success == true) {
+      setReservaCalendarResponse(data);
+    }
+  };
 
-  const { execute: executeCreateReservation } = useAxios(
-    null, // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
-    "POST", // Método (se usará como default si no se pasa a execute)
-    {}, // Payload inicial (no se usa si la URL es null)
-    true // Este flag ahora es menos relevante, pero mantenlo por consistencia
-  );
+  // const { execute: executeCreateReservation } = useAxios(
+  //   null, // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
+  //   "POST", // Método (se usará como default si no se pasa a execute)
+  //   {}, // Payload inicial (no se usa si la URL es null)
+  //   true // Este flag ahora es menos relevante, pero mantenlo por consistencia
+  // );
 
   // --- Efecto para actualizar busyDays ---
   useEffect(() => {
     if (
-      reservaCalendarLoaded &&
+      // reservaCalendarLoaded &&
       formState.area_social &&
       reservaCalendarResponse?.data &&
       "reserved" in reservaCalendarResponse.data
@@ -139,12 +136,7 @@ const CreateReserva = () => {
     } else if (!formState.area_social) {
       console.log("useEffect [busyDays] - Resetting busyDays (no area)");
       setBusyDays([]);
-    } else if (reservaCalendarLoaded && formState.area_social) {
-      // Si loaded es true y hay area, pero la condición principal falló, loguea por qué
-      console.log(
-        "useEffect [busyDays] - Condition failed. Response data:",
-        reservaCalendarResponse?.data
-      );
+    } else if (formState.area_social) {
       if (!reservaCalendarResponse?.data) {
         console.log(
           "useEffect [busyDays] - Reason: reservaCalendarResponse.data is falsy"
@@ -157,39 +149,40 @@ const CreateReserva = () => {
       }
       setBusyDays([]);
     }
-  }, [reservaCalendarResponse, reservaCalendarLoaded, formState.area_social]);
+  }, [reservaCalendarResponse, formState.area_social]);
 
   // --- Transformación de datos para Selects (Unidades, Areas) ---
-  const unidadesOptions: Option[] = useMemo(() => {
-    if (!unidadesLoaded || !unidadesResponse?.data) return [];
-    // Convierte ID numérico a string para el Select si es necesario, o ajusta el tipo de Option
-    return unidadesResponse.data.map(
+  const unidadesOptions = useMemo(() => {
+    return extraData?.dptos?.map(
       (unidad: ApiUnidad): Option => ({
-        id: String(unidad.id), // Asegura que ID sea string si <Select> lo espera así
-        name: `Unidad ${unidad.nro}`,
+        id: String(unidad.id),
+        name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
       })
     );
-  }, [unidadesResponse, unidadesLoaded]);
+  }, [extraData]);
 
-  const areasSocialesOptions: Option[] = useMemo(() => {
-    if (!areasLoaded || !areasResponse?.data) return [];
-    return areasResponse.data.map(
-      (area: ApiArea): Option => ({
-        id: area.id, // ID de área es string
-        name: area.title,
-      })
-    );
-  }, [areasResponse, areasLoaded]);
+  // const areasSocialesOptions: Option[] = useMemo(() => {
+  //   if (!areasLoaded || !areasResponse?.data) return [];
+  //   return areasResponse.data.map(
+  //     (area: ApiArea): Option => ({
+  //       id: area.id, // ID de área es string
+  //       name: area.title,
+  //     })
+  //   );
+  // }, [areasResponse, areasLoaded]);
 
   // --- Obtener detalles del área seleccionada ---
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
-    if (!areasLoaded || !areasResponse?.data || !formState.area_social) {
-      return undefined;
+    // if (!areasLoaded || !areasResponse?.data || !formState.area_social) {
+    //   return undefined;
+    // }
+    if (!formState.area_social) {
+      return;
     }
-    return areasResponse.data.find(
+    return extraData?.areas.find(
       (area: ApiArea) => area.id === formState.area_social
     );
-  }, [formState.area_social, areasResponse, areasLoaded]);
+  }, [formState.area_social]);
 
   // --- Función para obtener horas disponibles ---
   // --- Función para obtener horas disponibles (MODIFICADA PARA owner_id y reservations/message) ---
@@ -208,7 +201,7 @@ const CreateReserva = () => {
 
     try {
       // Llamada a la API con todos los parámetros necesarios
-      const response: any = await executeCalendarApi(
+      const response: any = await execute(
         "/reservations-calendar",
         "GET",
         {
@@ -217,12 +210,12 @@ const CreateReserva = () => {
           owner_id: ownerId, // Incluye owner_id
         },
         false, // skipAbort
-        false // skipLoading
+        true // skipLoading
       );
 
       // Declaraciones de variables para guardar los datos procesados
       // Usa el tipo importado ApiCalendarAvailabilityData para apiData
-      let apiData: ApiCalendarAvailabilityData | null = null;
+      let apiData: ApiCalendarAvailabilityData | any = null;
       let canReserve: boolean | undefined | null = null;
       let message: string = "";
       let availableSlots: string[] | undefined = undefined;
@@ -267,16 +260,24 @@ const CreateReserva = () => {
       // Extrae la información si encontramos un objeto de datos válido (apiData no es null)
       if (apiData) {
         // Solo necesitamos chequear si apiData no es null aquí
+        let daysAvailable = [];
+        let unavailableSlots = [];
+
+        if (dateString == new Date().toISOString().split("T")?.[0]) {
+          daysAvailable = apiData?.available.filter(
+            (d: any) => parseInt(d.split("-")[1]) > new Date().getHours()
+          );
+
+          unavailableSlots = apiData?.available.filter(
+            (d: any) => parseInt(d.split("-")[1]) < new Date().getHours()
+          );
+        } else {
+          daysAvailable = apiData?.available;
+        }
         canReserve = apiData.reservations; // Accede a las propiedades (TS usará el tipo ApiCalendarAvailabilityData)
         message = apiData.message ?? "";
-        availableSlots = apiData.available;
-        const unavailableSlots = apiData.unavailable;
-        if (Array.isArray(unavailableSlots)) {
-          setUnavailableTimeSlots(unavailableSlots);
-          console.log(">>> Setting unavailableTimeSlots:", unavailableSlots);
-        } else {
-          setUnavailableTimeSlots([]);
-        }
+        availableSlots = daysAvailable;
+        setUnavailableTimeSlots(unavailableSlots.concat(apiData.unavailable));
       }
       // Si apiData es null (porque la respuesta fue [] o inválida),
       // las variables canReserve, message, availableSlots mantendrán sus valores (null, '', undefined)
@@ -353,12 +354,12 @@ const CreateReserva = () => {
       if (value) {
         console.log(`Área cambiada a ${value}. Obteniendo días ocupados...`);
         // Ejecuta la llamada a la API para obtener los días ocupados (SIN date_at)
-        executeCalendarApi(
+        execute(
           "/reservations-calendar", // URL (ya definida en el hook, pero podemos pasarla)
           "GET", // Método
           { area_id: value }, // Parámetros: SOLO el area_id
-          true, // skipAbort (normalmente false)
-          false // skipLoading (ajusta si usas el estado 'loading' del hook)
+          false, // skipAbort (normalmente false)
+          true // skipLoading (ajusta si usas el estado 'loading' del hook)
         );
         // El useEffect que depende de reservaCalendarResponse se encargará
         // de actualizar busyDays cuando esta llamada termine.
@@ -397,9 +398,9 @@ const CreateReserva = () => {
 
   const handleDateChange = (dateString: string | undefined) => {
     const newDate = dateString || "";
-
+    console.log(newDate, "new");
     // Actualiza fecha y resetea periodos seleccionados
-    setFormState((prev) => ({ ...prev, fecha: newDate }));
+    setFormState({ ...formState, fecha: newDate });
     setSelectedPeriods([]);
 
     // Resetea estados de disponibilidad y errores relacionados
@@ -416,7 +417,7 @@ const CreateReserva = () => {
     // Solo procede si tenemos área, fecha Y unidad seleccionadas
     if (formState.area_social && newDate && formState.unidad) {
       // Encuentra la unidad seleccionada para obtener el owner_id
-      const selectedUnit = unidadesResponse?.data?.find(
+      const selectedUnit = extraData?.dptos?.find(
         (u: ApiUnidad) => String(u.id) === formState.unidad
       );
       const ownerId = selectedUnit?.titular?.owner_id;
@@ -451,99 +452,43 @@ const CreateReserva = () => {
   };
 
   // --- Funciones de Validación ---
-  const validateStep1 = (): boolean => {
-    const errs: FormErrors = {};
-    // El ID de la unidad ahora se compara como string si viene de un Select
-    if (!formState.unidad) errs.unidad = "Selecciona tu unidad";
-    if (!formState.area_social) errs.area_social = "Selecciona el área social";
-    setErrors(errs); // Actualiza el estado de errores
-    return Object.keys(errs).length === 0; // Devuelve true si no hay errores
-  };
+  // const validateStep1 = (): boolean => {
+  //   const errs: FormErrors = {};
+  //   // El ID de la unidad ahora se compara como string si viene de un Select
+  //   if (!formState.unidad) errs.unidad = "Selecciona tu unidad";
+  //   if (!formState.area_social) errs.area_social = "Selecciona el área social";
+  //   setErrors(errs); // Actualiza el estado de errores
+  //   return Object.keys(errs).length === 0; // Devuelve true si no hay errores
+  // };
 
-  const validateStep2 = (): boolean => {
-    const errs: FormErrors = {}; // Inicia objeto de errores vacío
-
-    // Validación de Fecha (sin cambios)
-    if (!formState.fecha) errs.fecha = "Selecciona una fecha";
-
-    // Validación de Periodos Seleccionados (sin cambios)
-    if (selectedAreaDetails?.booking_mode !== "day") {
-      if (selectedPeriods.length === 0) {
-        // Usa la nueva clave de error
-        errs.selectedPeriods =
-          "Debes seleccionar al menos un periodo disponible";
-      }
+  const validateStep2 = () => {
+    if (!formState.fecha) {
+      showToast("Selecciona una fecha", "error");
+      return;
     }
 
-    // --- VALIDACIÓN DE CANTIDAD DE PERSONAS (CORREGIDA Y COMPLETA) ---
-    const maxCapacity = selectedAreaDetails?.max_capacity; // Obtiene la capacidad máxima del área seleccionada
-
+    if (selectedPeriods.length === 0) {
+      // Usa la nueva clave de error
+      showToast("Debes seleccionar al menos un periodo disponible", "error");
+      return;
+    }
     if (!formState.cantidad_personas) {
-      // 1. Verifica si el campo está vacío
-      errs.cantidad_personas = "Ingresa la cantidad de personas";
-    } else {
-      // 2. Si no está vacío, convierte el valor a número
-      const numPeople = Number(formState.cantidad_personas);
-
-      if (isNaN(numPeople)) {
-        // 3. Verifica si la conversión a número fue exitosa
-        errs.cantidad_personas = "Ingresa un número válido";
-      } else if (numPeople < 1) {
-        // 4. Verifica si el número es menor que el mínimo permitido (1)
-        errs.cantidad_personas = "La cantidad debe ser al menos 1";
-      } else if (
-        maxCapacity !== undefined &&
-        maxCapacity !== null &&
-        numPeople > maxCapacity
-      ) {
-        // 5. Verifica si se definió una capacidad máxima Y si el número ingresado la excede
-        errs.cantidad_personas = `La cantidad máxima de personas permitida para esta área es ${maxCapacity}.`; // Mensaje de error específico
-      }
-      // Si ninguna de las condiciones anteriores se cumple, el valor es válido respecto a la capacidad.
+      return showToast("Ingresa la cantidad de personas", "error");
     }
-    // --- FIN VALIDACIÓN PERSONAS ---
-
-    setErrors(errs); // Actualiza el estado de errores con los encontrados
-    return Object.keys(errs).length === 0; // Devuelve true solo si NO hubo errores
+    setCurrentStep((prev) => prev + 1);
   };
-
-  const validateStep3 = (): boolean => {
-    const errs: FormErrors = {};
-
-    // Validación de motivo/observaciones si es requerida
-    // if (!formState.motivo.trim()) errs.motivo = "El motivo es requerido";
-
-    setErrors(errs); // Actualiza el estado de errores
-    return Object.keys(errs).length === 0; // Devuelve true si no hay errores
-  };
-
-  // --- Funciones de Navegación ---
   const nextStep = (): void => {
-    let isValid = false;
-    // Valida el paso actual antes de intentar avanzar
     if (currentStep === 1) {
-      isValid = validateStep1();
+      // validateStep1();
+      setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 2) {
-      isValid = validateStep2();
-    } else {
-      // Si hubiera más pasos, la validación iría aquí
-      isValid = true; // No hay validación explícita necesaria para pasar del 3 (ya se valida en submit)
+      validateStep2();
+      // setCurrentStep((prev) => prev + 1);
     }
-
-    // Si el paso actual es válido, avanza al siguiente
-    if (isValid) {
-      // Limpia los errores antes de cambiar de paso para evitar mostrar errores viejos
-      setErrors({});
-      // Incrementa el paso si no estamos en el último
-      if (currentStep < 3) {
-        // Asumiendo 3 pasos totales
-        setCurrentStep((prev) => prev + 1);
-      }
-    } else {
-      // Si no es válido, muestra un mensaje general o confía en que los errores individuales se muestren
-      showToast("Por favor, corrige los errores marcados.", "warning");
-      console.log("Errores de validación en nextStep:", errors); // Ayuda a depurar
-    }
+    // if (currentStep < 3) {
+    //   // Asumiendo 3 pasos totales
+    //   setCurrentStep((prev) => prev + 1);
+    // }
   };
 
   const prevStep = (): void => {
@@ -560,10 +505,7 @@ const CreateReserva = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     e.preventDefault();
-    // VALIDACIÓN IMPORTANTE: Re-validar paso 2 y paso 3 antes de enviar
-    const isStep2Valid = validateStep2(); // Revalida por si acaso
-    const isStep3Valid = validateStep3();
-    if (!isStep2Valid || !isStep3Valid || isSubmitting) {
+    if (isSubmitting) {
       if (!isSubmitting) {
         showToast("Por favor, revisa los campos requeridos.", "warning");
         // Los errores específicos ya se setearon en las funciones de validación
@@ -574,7 +516,7 @@ const CreateReserva = () => {
     setIsSubmitting(true);
 
     // 1. Obtener owner_id (sin cambios)
-    const selectedUnit = unidadesResponse?.data?.find(
+    const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad
     );
     const ownerId = selectedUnit?.titular?.owner_id;
@@ -606,19 +548,15 @@ const CreateReserva = () => {
       // MODIFICADO: Envía SIEMPRE los periodos seleccionados
       Periods: sortedSelectedPeriods,
     };
-
-    console.log("Payload a enviar:", payload);
-
     try {
       // Llama a execute pasando la URL y el Método explícitamente
-      const response = await executeCreateReservation(
+      const response = await execute(
         "/reservations", // <-- Argumento 1: URL real
         "POST", // <-- Argumento 2: Método real
         payload, // Argumento 3: Payload (tu objeto con los datos)
         false, // Argumento 4: 'Act' (generalmente false si no necesitas que este hook actualice su propio estado 'data')
         false // Argumento 5: 'notWaiting' (generalmente false para indicar que sí quieres manejar el estado de carga global si existe)
       );
-      console.log("Respuesta API Reserva:", JSON.stringify(response));
 
       // El resto del manejo de la respuesta sigue igual...
       if (response?.data?.success) {
@@ -627,7 +565,9 @@ const CreateReserva = () => {
           "success"
         );
         // ... resetear estado ...
-        router.push("/reservas");
+        // router.push("/reservas");
+        if (reLoad) reLoad();
+        if (onClose) onClose();
       } else {
         showToast(
           response?.data?.message || "Error al crear la reserva.",
@@ -644,11 +584,6 @@ const CreateReserva = () => {
   // Dentro del componente CreateReserva, antes del return
 
   const handleQuantityChange = (newValue: number | string) => {
-    console.log(
-      `[HQC Start] newValue: "${newValue}", typeof: ${typeof newValue}, max_capacity: ${
-        selectedAreaDetails?.max_capacity
-      }`
-    ); // DEBUG
     let finalValue: string;
 
     // CASO 1: El usuario borró el contenido o es un string vacío.
@@ -747,12 +682,11 @@ const CreateReserva = () => {
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
-  console.log(formState.fecha);
 
   return (
     <div className={styles.pageWrapper}>
       {/* === Botón Volver (Ahora dentro del wrapper, posicionado absolutamente respecto a él) === */}
-      <button onClick={() => router.back()} className={styles.backButton}>
+      <button onClick={onClose} className={styles.backButton}>
         <IconArrowLeft /> Volver a lista de reservas {/* O solo "Volver" */}
       </button>
       <div className={styles.createReservaContainer}>
@@ -778,7 +712,6 @@ const CreateReserva = () => {
         {/* --- Form Card --- */}
         <div className={styles.formContainer}>
           <div className={styles.formCard}>
-            {/* === PASO 1: Selección de Unidad y Área === */}
             {currentStep === 1 && (
               <div className={`${styles.stepContent} ${styles.step1Content}`}>
                 {/* Sección Datos Generales (Unidad) */}
@@ -792,16 +725,13 @@ const CreateReserva = () => {
                       options={unidadesOptions}
                       onChange={handleChange}
                       error={errors}
-                      disabled={!unidadesLoaded}
-                      placeholder={
-                        !unidadesLoaded
-                          ? "Cargando unidades..."
-                          : "Selecciona tu unidad"
-                      }
                     />
                   </div>
                 </div>
-
+                <hr
+                  className={styles.areaSeparator}
+                  style={{ marginBottom: 12 }}
+                />
                 {/* Sección Datos Reserva (Área Social) */}
                 <div className={styles.formSection}>
                   <h3 className={styles.sectionTitle}>Datos de la reserva</h3>
@@ -810,15 +740,11 @@ const CreateReserva = () => {
                       label="Área social"
                       name="area_social"
                       value={formState.area_social}
-                      options={areasSocialesOptions}
+                      options={extraData?.areas}
+                      optionLabel="title"
+                      optionValue="id"
                       onChange={handleChange}
                       error={errors}
-                      disabled={!areasLoaded}
-                      placeholder={
-                        !areasLoaded
-                          ? "Cargando áreas..."
-                          : "Selecciona el área"
-                      }
                     />
                   </div>
                 </div>
@@ -861,9 +787,7 @@ const CreateReserva = () => {
                                 aria-label="Imagen anterior"
                               >
                                 {/* Añade la className aquí */}
-                                <IconBackAround
-                                  className={styles.paginationIcon}
-                                />
+                                <IconArrowLeft color="var(--cWhite)" />
                               </button>
 
                               <span>
@@ -888,9 +812,7 @@ const CreateReserva = () => {
                                 aria-label="Siguiente imagen"
                               >
                                 {/* Añade la className aquí */}
-                                <IconNextAround
-                                  className={styles.paginationIcon}
-                                />
+                                <IconArrowRight color="var(--cWhite)" />
                               </button>
                             </div>
                           </div>
@@ -913,19 +835,6 @@ const CreateReserva = () => {
                           <h4 className={styles.areaTitle}>
                             {selectedAreaDetails.title}
                           </h4>
-                          {/* {selectedAreaDetails.status === "A" ? (
-                          <span
-                            className={`${styles.statusBadge} ${styles.statusDisponible}`}
-                          >
-                            Disponible
-                          </span>
-                        ) : (
-                          <span
-                            className={`${styles.statusBadge} ${styles.statusNoDisponible}`}
-                          >
-                            No Disponible
-                          </span>
-                        )} */}
                         </div>
                         {/* Descripción */}
                         <p className={styles.areaDescription}>
@@ -1000,25 +909,7 @@ const CreateReserva = () => {
                             />
                           </>
                         )}
-
-                        {/* <hr className={styles.areaSeparator} /> */}
-                        {/* Reglas */}
-                        {/* <div className={styles.detailBlock}>
-                        <span className={styles.detailLabel}>
-                          Reglas y restricciones
-                        </span>
-
-                        <button
-                          type="button"
-                          className={styles.rulesButton} // Mantenemos la clase para aplicar estilos CSS
-                          onClick={() => setIsRulesModalVisible(true)}
-                          aria-label="Ver reglas de uso" // IMPORTANTE para accesibilidad
-                        >
-                          <IconZoomDetail />
-                        </button>
-                      </div> */}
                       </div>
-                      {/* Fin areaInfo */}
                     </div>
                     <hr className={styles.areaSeparator} />
                     <div className={styles.detailBlock}>
@@ -1043,11 +934,6 @@ const CreateReserva = () => {
                     Selecciona la fecha del evento
                   </label>
                   {/* Indicador carga días ocupados */}
-                  {formState.area_social && !reservaCalendarLoaded && (
-                    <span className={styles.loadingText}>
-                      Cargando disponibilidad de días...
-                    </span>
-                  )}
                   <CalendarPicker
                     selectedDate={formState.fecha}
                     onDateChange={handleDateChange}
@@ -1118,9 +1004,6 @@ const CreateReserva = () => {
                           <div
                             style={{ padding: "20px 0", textAlign: "center" }}
                           >
-                            {" "}
-                            {/* Contenedor para loader */}
-                            {/* Puedes usar un componente Spinner si tienes uno */}
                             <span className={styles.loadingText}>
                               Cargando periodos...
                             </span>
@@ -1202,7 +1085,12 @@ const CreateReserva = () => {
                 )}
 
                 {/* Sección Cantidad Personas */}
-                <div className={styles.peopleSection}>
+
+                <hr
+                  className={styles.areaSeparator}
+                  style={{ margin: "12px 0px" }}
+                />
+                <div style={{ display: "flex" }}>
                   <div className={styles.peopleLabelContainer}>
                     <label className={styles.sectionLabel}>
                       Cantidad de personas
@@ -1275,26 +1163,6 @@ const CreateReserva = () => {
                     </div>
                   )}
                 </div>
-                {/* --- FIN REEMPLAZO --- */}
-
-                {/* Opcional: Campo Motivo/Observaciones */}
-                <div
-                  className={styles.formSection}
-                  style={{ marginTop: "var(--spL)" }}
-                >
-                  <h3 className={styles.sectionTitle}>Motivo</h3>
-                  <div className={styles.formField}>
-                    <TextArea
-                      label="Describe brevemente el motivo de tu reserva"
-                      name="motivo"
-                      value={formState.motivo}
-                      onChange={handleChange}
-                      error={errors.motivo}
-                      placeholder="Ej: Cumpleaños, reunión familiar..."
-                      // Ajusta las filas según necesites
-                    />
-                  </div>
-                </div>
               </div> // Fin Step 2
             )}
 
@@ -1304,7 +1172,7 @@ const CreateReserva = () => {
                 <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
                 {(() => {
                   // Encuentra los detalles de la unidad seleccionada
-                  const selectedUnitDetails = unidadesResponse?.data?.find(
+                  const selectedUnitDetails = extraData?.dptos?.find(
                     (u: ApiUnidad) => String(u.id) === formState.unidad
                   );
 
@@ -1358,6 +1226,7 @@ const CreateReserva = () => {
                     </div>
                   );
                 })()}
+                <hr className={styles.areaSeparator} />
                 {/* --- FIN BLOQUE INFO DEL OWNER --- */}
 
                 <div className={styles.summaryContainer}>
@@ -1367,19 +1236,68 @@ const CreateReserva = () => {
                       <div className={styles.summaryImageContainer}>
                         {selectedAreaDetails.images &&
                         selectedAreaDetails.images.length > 0 ? (
-                          <img
-                            className={styles.previewImage} // Reutiliza estilo
-                            src={getUrlImages(
-                              `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[0].id}.webp?d=${selectedAreaDetails.updated_at}`
-                            )} // Muestra siempre la primera imagen o la actual si tienes carrusel aquí
-                            alt={selectedAreaDetails.title}
-                            onError={(
-                              e: React.SyntheticEvent<HTMLImageElement, Event>
-                            ) => {
-                              (e.target as HTMLImageElement).src =
-                                "/api/placeholder/150/120"; // Placeholder más pequeño
-                            }}
-                          />
+                          <>
+                            <img
+                              key={
+                                selectedAreaDetails.images[currentImageIndex].id
+                              } // Add key for re-render on change
+                              className={styles.previewImage}
+                              src={getUrlImages(
+                                `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
+                              )}
+                              alt={`Imagen ${currentImageIndex + 1} de ${
+                                selectedAreaDetails.title
+                              }`}
+                            />
+                            <div
+                              className={styles.imagePagination}
+                              style={{ marginTop: 16 }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCurrentImageIndex((prev) =>
+                                    prev > 0
+                                      ? prev - 1
+                                      : (selectedAreaDetails?.images?.length ||
+                                          1) - 1
+                                  )
+                                }
+                                disabled={
+                                  selectedAreaDetails?.images?.length <= 1
+                                }
+                                aria-label="Imagen anterior"
+                              >
+                                {/* Añade la className aquí */}
+                                <IconArrowLeft color="var(--cWhite)" />
+                              </button>
+
+                              <span>
+                                {currentImageIndex + 1} /{" "}
+                                {selectedAreaDetails?.images?.length || 1}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCurrentImageIndex((prev) =>
+                                    prev <
+                                    (selectedAreaDetails?.images?.length || 1) -
+                                      1
+                                      ? prev + 1
+                                      : 0
+                                  )
+                                }
+                                disabled={
+                                  selectedAreaDetails?.images?.length <= 1
+                                }
+                                aria-label="Siguiente imagen"
+                              >
+                                {/* Añade la className aquí */}
+                                <IconArrowRight color="var(--cWhite)" />
+                              </button>
+                            </div>
+                          </>
                         ) : (
                           <img
                             src="/api/placeholder/150/120"
@@ -1394,11 +1312,14 @@ const CreateReserva = () => {
                           <span className={styles.summaryAreaName}>
                             {selectedAreaDetails.title}
                           </span>
-                          {/* <p className={styles.summaryAreaDescription}> ... </p> */}
+                          <p className={styles.summaryAreaDescription}>
+                            {selectedAreaDetails?.description}{" "}
+                          </p>
                         </div>
+                        <hr className={styles.areaSeparator} />
                         <div className={styles.summaryBookingDetails}>
                           <span className={styles.summaryDetailsTitle}>
-                            Detalles de tu reserva
+                            Detalles
                           </span>
                           {/* Fecha */}
                           <div className={styles.summaryDetailItem}>
@@ -1453,47 +1374,12 @@ const CreateReserva = () => {
                                 Gratis
                               </span>
                             ) : selectedAreaDetails.price != null ? (
-                              // Si tiene precio
-                              <>
-                                {/* Precio por Unidad (Hora/Día/Periodo) */}
-                                <span className={styles.summaryPricePerUnit}>
-                                  Bs{" "}
-                                  {Number(selectedAreaDetails.price).toFixed(2)}
-                                  {selectedAreaDetails.booking_mode === "day"
-                                    ? "/día"
-                                    : "/h"}{" "}
-                                  {/* Muestra /h o /día */}
-                                </span>
-
-                                {/* Costo Total (Calculado) */}
-                                <span className={styles.summaryTotalCost}>
-                                  {(() => {
-                                    // Calcula el total
-                                    let total = Number(
-                                      selectedAreaDetails.price
-                                    );
-                                    let quantityLabel = "";
-                                    // Si no es por día, multiplica por número de periodos
-                                    if (
-                                      selectedAreaDetails.booking_mode !== "day"
-                                    ) {
-                                      const numPeriods =
-                                        selectedPeriods.length || 1; // Asume 1 si no hay seleccionados (aunque debería haber validación)
-                                      // Intenta calcular la duración total en horas si es posible (esto es un extra opcional)
-                                      // Por defecto, 1 periodo = 1 hora (simplificación)
-                                      // Podrías intentar parsear HH:mm para calcular duración real si lo necesitas
-                                      // Etiqueta para el total
-                                    } else {
-                                      quantityLabel = `Total: `; // Etiqueta simple para reserva por día
-                                    }
-                                    return `${quantityLabel}Bs ${total.toFixed(
-                                      2
-                                    )}`;
-                                  })()}
-                                </span>
-                              </>
+                              <span className={styles.summaryPricePerUnit}>
+                                Bs{" "}
+                                {Number(selectedAreaDetails.price).toFixed(2)}
+                                /periodo
+                              </span>
                             ) : (
-                              // Si no es gratis y no hay precio
                               <span className={styles.summaryPricePerUnit}>
                                 Precio no disponible
                               </span>
