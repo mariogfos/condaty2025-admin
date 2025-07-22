@@ -149,27 +149,34 @@ const CategoryCard = memo(
                           handleSubcatClick(e as any);
                       }}
                     >
-                      <span className={styles.subcategoryName}>
-                        {subcat.name || 'Sin nombre'}
-                      </span>
-                      <span className={styles.subcategoryDesc}>
-                        {subcat.description || 'Sin descripción'}
-                      </span>
-                      <div className={styles.subcategoryActions}>
-                        <button
-                          className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
-                          onClick={handleSubcatEdit}
-                          aria-label={`Editar subcategoría ${subcat.name}`}
-                        >
-                          <IconEdit size={20} />
-                        </button>
-                        <button
-                          className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
-                          onClick={handleSubcatDelete}
-                          aria-label={`Eliminar subcategoría ${subcat.name}`}
-                        >
-                          <IconTrash size={20} />
-                        </button>
+
+                      <div className={styles.subcategoryRow}>
+                        <div className={styles.subcategoryNameContainer}>
+                          <span className={styles.subcategoryName}>
+                            {subcat.name || 'Sin nombre'}
+                          </span>
+                        </div>
+                        <div className={styles.subcategoryDescContainer}>
+                          <span className={styles.subcategoryDesc}>
+                            {subcat.description || 'Sin descripción'}
+                          </span>
+                        </div>
+                        <div className={styles.subcategoryActions}>
+                          <button
+                            className={`${styles.actionButtonSub} ${styles.editButtonSub}`}
+                            onClick={handleSubcatEdit}
+                            aria-label={`Editar subcategoría ${subcat.name}`}
+                          >
+                            <IconEdit size={20} />
+                          </button>
+                          <button
+                            className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
+                            onClick={handleSubcatDelete}
+                            aria-label={`Eliminar subcategoría ${subcat.name}`}
+                          >
+                            <IconTrash size={20} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
