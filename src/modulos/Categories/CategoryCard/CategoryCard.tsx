@@ -1,5 +1,5 @@
 'use client';
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, useEffect } from 'react';
 import styles from '../Categories.module.css';
 import {
   IconArrowDown,
@@ -19,14 +19,24 @@ const CategoryCard = memo(
     className = '',
     isSelected = false,
     onSelectCard,
-  }: CategoryCardProps) => {
+    forceOpen = false, 
+  }: CategoryCardProps & { forceOpen?: boolean }) => {
     const hasSubcategories = item.hijos && item.hijos.length > 0;
-    const [showSubcategories, setShowSubcategories] = useState<boolean>(false);
+    const [showSubcategories, setShowSubcategories] = useState<boolean>(forceOpen);
+
+    useEffect(() => {
+      if (forceOpen) setShowSubcategories(true);
+    }, [forceOpen]);
+    useEffect(() => {
+      if (forceOpen && !showSubcategories) setShowSubcategories(true);
+    }, [forceOpen, showSubcategories]);
 
     const toggleSubcategories = useCallback((e: React.MouseEvent) => {
       e.stopPropagation();
-      setShowSubcategories(prev => !prev);
-    }, []);
+      if (!forceOpen) {
+        setShowSubcategories(prev => !prev);
+      }
+    }, [forceOpen]);
 
     const handleMainCardClick = useCallback(() => {
       if (onSelectCard) {
@@ -58,9 +68,8 @@ const CategoryCard = memo(
     } else if (className.includes(styles.cardOdd)) {
       parentBgColor = 'var(--cWhiteV2)';
     }
-    const cardClasses = `${styles.categoryCard} ${className} ${
-      isSelected ? styles.selectedCard : ''
-    }${showSubcategories ? ' ' + styles.accordionOpen : ''}`;
+    const isAccordionOpen = forceOpen ? true : showSubcategories;
+    const cardClasses = `${styles.categoryCard} ${className} ${isSelected ? styles.selectedCard : ''}${isAccordionOpen ? ' ' + styles.accordionOpen : ''}`;
     return (
       <div
         className={cardClasses}
@@ -69,16 +78,14 @@ const CategoryCard = memo(
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
             <IconArrowDown
-              className={`${styles.arrowIcon} ${
-                showSubcategories ? styles.expanded : ''
-              }`}
+              className={`${styles.arrowIcon} ${isAccordionOpen ? styles.expanded : ''}`}
               onClick={toggleSubcategories}
               size={20}
             />
             <span
               className={
                 styles.categoryNameText +
-                (showSubcategories ? ' ' + styles.categoryNameTextOpen : '')
+                (isAccordionOpen ? ' ' + styles.categoryNameTextOpen : '')
               }
             >
               {item.name || 'Sin nombre'}
@@ -104,7 +111,7 @@ const CategoryCard = memo(
             </button>
           </div>
         </div>
-        {showSubcategories && (
+        {isAccordionOpen && (
           <div
             className={styles.subcategoriesContainer}
             style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
