@@ -46,7 +46,7 @@
 .categoryDescription {
   flex: 1;
   color: var(--cWhiteV1, #aaaaaa);
-  font-size: var(--spM);
+  font-size: var(--sM);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
