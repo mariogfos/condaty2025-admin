@@ -42,6 +42,8 @@
   gap: 8px;
   flex: 1;
   min-width: 0;
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
 }
 .categoryDescription {
   flex: 1;
@@ -51,7 +53,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 16px;
-  font-weight: var(--bMedium);
+  font-weight: var(--bRegular);
 }
 .categoryActions {
   display: flex;
@@ -102,8 +104,8 @@
   gap: 16px;
 }
 .subcategoryName {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
   color: var(--cWhiteV1);
   white-space: nowrap;
   overflow: hidden;
@@ -119,7 +121,8 @@
   min-width: 0;
 }
 .subcategoryDesc {
-  font-size: 14px;
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
