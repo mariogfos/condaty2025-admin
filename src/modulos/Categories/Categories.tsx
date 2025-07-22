@@ -165,7 +165,6 @@ const Categories = ({ type = '' }) => {
       const cardClassName = index % 2 === 0 ? styles.cardEven : styles.cardOdd;
 
       const forceOpen = forceOpenAccordions;
-      console.log('CategoryCard:', { searchBy: searchs.searchBy, forceOpen, item: item.name });
       return (
         <CategoryCard
           key={item.id ?? `category-${index}`}

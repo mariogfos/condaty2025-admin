@@ -29,7 +29,7 @@ const CategoryForm = memo(
       }
       return initialData;
     });
-    const [setFormErrors] = useState<any>({});
+    const [formErrors, setFormErrors] = useState<any>({});
     const [isCateg, setIsCateg] = useState<string>(() => {
       return item?.category_id ? 'S' : 'C';
     });
@@ -155,7 +155,7 @@ const CategoryForm = memo(
               name="category_id"
               label="Categoría padre"
               value={_Item.category_id || ''}
-              onChange={() => {}}
+              onChange={() => { }}
               error={errors?.category_id}
               required
               className={styles.customSelect}
