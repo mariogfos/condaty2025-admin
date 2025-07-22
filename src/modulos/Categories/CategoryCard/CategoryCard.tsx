@@ -19,7 +19,7 @@ const CategoryCard = memo(
     className = '',
     isSelected = false,
     onSelectCard,
-    forceOpen = false, 
+    forceOpen = false,
   }: CategoryCardProps & { forceOpen?: boolean }) => {
     const hasSubcategories = item.hijos && item.hijos.length > 0;
     const [showSubcategories, setShowSubcategories] = useState<boolean>(forceOpen);
@@ -161,14 +161,14 @@ const CategoryCard = memo(
                           onClick={handleSubcatEdit}
                           aria-label={`Editar subcategoría ${subcat.name}`}
                         >
-                          <IconEdit size={16} />
+                          <IconEdit size={20} />
                         </button>
                         <button
                           className={`${styles.actionButtonSub} ${styles.deleteButtonSub}`}
                           onClick={handleSubcatDelete}
                           aria-label={`Eliminar subcategoría ${subcat.name}`}
                         >
-                          <IconTrash size={16} />
+                          <IconTrash size={20} />
                         </button>
                       </div>
                     </div>
