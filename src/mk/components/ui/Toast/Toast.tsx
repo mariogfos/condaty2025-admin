@@ -92,7 +92,7 @@ const Toast = ({
                 color: 'var(--cWhite)',
                 fontFamily: 'Roboto, sans-serif',
                 fontWeight: 600,
-                marginBottom: 2,
+
               }}
             >
               ¡Excelente!
@@ -101,7 +101,7 @@ const Toast = ({
           <div>{toast?.msg}</div>
         </div>
         <div className={styles.close} onClick={() => _close()}>
-          <IconX size={28} />
+          <IconX size={24} />
         </div>
       </div>
     </>
