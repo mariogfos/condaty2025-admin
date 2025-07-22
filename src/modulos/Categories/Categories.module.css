@@ -87,7 +87,7 @@
 }
 
 .categoryCard {
-  /* background-color: var(--cWhiteV2); */ /* <-- Comenta o elimina esto si existía */
+  /* background-color: var(--cWhiteV2); */ /* <-- Comenta o elimina esto si existía //esto?? */
   overflow: hidden;
   width: 100% !important;
   display: block;
@@ -104,12 +104,12 @@
 .cardEven:hover {
   background-color: var(
     --cBlackV2
-  ); /* O un color de hover ligeramente diferente para pares */
+  ); /* O un color de hover ligeramente diferente para pares  //esto??*/
 }
 
 /* Estilos para filas/tarjetas impares */
 .cardOdd {
-  background-color: var(--cWhiteV2); /* Color para impares */
+  background-color: var(--cWhiteV2); /* Color para impares //esto??*/
 }
 .cardOdd:hover {
   background-color: var(
@@ -571,7 +571,7 @@
 
 .toggleSlider:before {
   position: absolute;
-  content: '';
+  content: "";
   height: 20px;
   width: 20px;
   left: 2px;
@@ -644,7 +644,7 @@
 }
 
 .selectedParentLabel:before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 10px;
   height: 10px;

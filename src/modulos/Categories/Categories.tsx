@@ -1,24 +1,25 @@
-'use client';
-import { useMemo, useCallback, useState } from 'react';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import styles from './Categories.module.css';
+"use client";
+//esto??  eliminar todos los comentarios superfluos que no son necesarios que puso la IA
+import { useMemo, useCallback, useState } from "react";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import styles from "./Categories.module.css";
 import {
   IconArrowLeft,
   IconCategories,
-} from '@/components/layout/icons/IconsBiblioteca';
-import Link from 'next/link';
-import { CategoryItem } from './Type/CategoryType';
-import Button from '@/mk/components/forms/Button/Button';
-import CategoryForm from './RenderForm/RenderForm';
-import CategoryCard from './CategoryCard/CategoryCard';
-import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
+} from "@/components/layout/icons/IconsBiblioteca";
+import Link from "next/link";
+import { CategoryItem } from "./Type/CategoryType";
+import Button from "@/mk/components/forms/Button/Button";
+import CategoryForm from "./RenderForm/RenderForm";
+import CategoryCard from "./CategoryCard/CategoryCard";
+import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 
-const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
-  const isIncome = type === 'I';
-  const routePath = isIncome ? '/payments' : '/outlays';
+const BackNavigation = ({ type }: { type: "I" | "E" }) => {
+  const isIncome = type === "I";
+  const routePath = isIncome ? "/payments" : "/outlays";
   const linkText = isIncome
-    ? 'Volver a sección ingresos'
-    : 'Volver a sección egresos';
+    ? "Volver a sección ingresos"
+    : "Volver a sección egresos";
 
   return (
     <Link href={routePath} className={styles.backLink}>
@@ -28,10 +29,10 @@ const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
   );
 };
 
-const Categories = ({ type = '' }) => {
-  const isIncome = type === 'I';
-  const categoryTypeText = isIncome ? 'ingresos' : 'egresos';
-  const typeToUse = isIncome ? 'I' : 'E';
+const Categories = ({ type = "" }) => {
+  const isIncome = type === "I";
+  const categoryTypeText = isIncome ? "ingresos" : "egresos";
+  const typeToUse = isIncome ? "I" : "E";
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
 
@@ -49,22 +50,22 @@ const Categories = ({ type = '' }) => {
       () => ({
         perPage: 20,
         page: 1,
-        fullType: 'L',
-        searchBy: '',
+        fullType: "L",
+        searchBy: "",
         type: typeToUse,
       }),
       [typeToUse]
     ),
     mod: useMemo<ModCrudType>(
       () => ({
-        modulo: 'categories',
-        singular: 'Categoría',
-        plural: 'Categorías',
-        permiso: '', // Dejado como en tu código
+        modulo: "categories",
+        singular: "Categoría",
+        plural: "Categorías",
+        permiso: "", // Dejado como en tu código //esto?? //comentarios superfluos
         search: { hide: true },
         extraData: { params: { type: typeToUse } } as any,
         hideActions: {
-          view: false, // Dejado como en tu código
+          view: false, // Dejado como en tu código //esto?? comentarios superfluos
           add: true,
           edit: false,
           del: false,
@@ -75,8 +76,8 @@ const Categories = ({ type = '' }) => {
           del: `Categoría de ${categoryTypeText} eliminada con éxito`,
         },
         messageDel:
-          '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla',
-        // *** PASO 2: Modificar renderForm ***
+          "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla",
+        // *** PASO 2: Modificar renderForm *** //esto?? comenatrio duperfluo
         renderForm: (propsFromCrud: any) => {
           const itemParaForm = initialFormDataOverride
             ? { ...propsFromCrud.item, ...initialFormDataOverride }
@@ -94,46 +95,46 @@ const Categories = ({ type = '' }) => {
               setItem={propsFromCrud.setItem}
               onClose={handleCloseWrapper}
               categoryType={typeToUse}
-              getExtraData={getExtraData} // Mantenido como lo tenías
+              getExtraData={getExtraData} // Mantenido como lo tenías //esto??
             />
           );
         },
       }),
-      [typeToUse, categoryTypeText, initialFormDataOverride]
+      [typeToUse, categoryTypeText, initialFormDataOverride] //esto??
     ),
     fields: useMemo(
       () => ({
-        id: { rules: [], api: 'e' },
+        id: { rules: [], api: "e" },
         name: {
-          rules: ['required'],
-          api: 'ae',
-          label: 'Categoría',
-          form: { type: 'text' },
+          rules: ["required"],
+          api: "ae",
+          label: "Categoría",
+          form: { type: "text" },
           list: {},
         },
         description: {
           rules: [],
-          api: 'ae',
-          label: 'Descripción',
-          form: { type: 'textarea' },
+          api: "ae",
+          label: "Descripción",
+          form: { type: "textarea" },
           list: {},
         },
         category_id: {
           rules: [],
-          api: 'ae',
-          label: 'Categoría Padre',
+          api: "ae",
+          label: "Categoría Padre",
           form: {
-            type: 'select',
-            optionsExtra: 'categories',
-            placeholder: 'Seleccione una categoría',
+            type: "select",
+            optionsExtra: "categories",
+            placeholder: "Seleccione una categoría",
           },
         },
-        hijos: { rules: [], api: '', label: 'Subcategorías' },
+        hijos: { rules: [], api: "", label: "Subcategorías" },
         type: {
-          rules: ['required'],
-          api: 'ae',
-          label: 'Tipo',
-          form: { type: 'hidden', precarga: typeToUse },
+          rules: ["required"],
+          api: "ae",
+          label: "Tipo",
+          form: { type: "hidden", precarga: typeToUse },
         },
       }),
       [typeToUse]
@@ -171,14 +172,14 @@ const Categories = ({ type = '' }) => {
     [onAdd, typeToUse]
   );
 
-  // *** PASO 4: Modificar handleAddPrincipalCategory ***
+  // *** PASO 4: Modificar handleAddPrincipalCategory *** //esto??
   const handleAddPrincipalCategory = useCallback(
     () => {
       const initialData: Partial<CategoryItem> = {
         type: typeToUse,
       };
-      setInitialFormDataOverride(initialData); // Guardar datos mínimos o null si prefieres
-      onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal
+      setInitialFormDataOverride(initialData); // Guardar datos mínimos o null si prefieres //esto??
+      onAdd({ type: typeToUse }); // Llamar a onAdd solo para abrir el modal //esto??
     },
     [onAdd, typeToUse] // Dependencias originales
   );
@@ -197,7 +198,7 @@ const Categories = ({ type = '' }) => {
           key={item.id ?? `category-${index}`}
           item={item}
           className={cardClassName}
-          onClick={subCategoryItem => {
+          onClick={(subCategoryItem) => {
             baseOnRowClick(subCategoryItem);
           }}
           onEdit={handleEdit}
@@ -217,22 +218,21 @@ const Categories = ({ type = '' }) => {
         <div className={styles.headerLeft}>
           <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
           <p className={styles.headerDescription}>
-            Administre, agregue y elimine las categorías y subcategorías{' '}
-        
+            Administre, agregue y elimine las categorías y subcategorías{" "}
           </p>
           <p className={styles.headerDescription}>de los {categoryTypeText}</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           <div
             style={{
               minWidth: 320,
 
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <DataSearch
-              value={searchs.searchBy || ''}
+              value={searchs.searchBy || ""}
               name="categoriesSearch"
               setSearch={onSearch}
               textButton="Buscar"
@@ -242,11 +242,11 @@ const Categories = ({ type = '' }) => {
           <Button
             onClick={handleAddPrincipalCategory}
             style={{
-              padding: '8px 16px',
-              width: 'auto',
+              padding: "8px 16px",
+              width: "auto",
 
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
             }}
           >
             Nueva categoría
@@ -256,10 +256,10 @@ const Categories = ({ type = '' }) => {
 
       <List
         onRenderBody={renderCardFunction}
-        height={'calc(100vh - 430px)'}
+        height={"calc(100vh - 430px)"}
         onRowClick={(itemClicked: CategoryItem) => {
           /* Mantenido como lo tenías */
-        }}
+        }} //esto?? para que usas esta funcion, porque esta vacia??
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

@@ -1,15 +1,15 @@
-'use client';
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Input from '@/mk/components/forms/Input/Input';
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import Select from '@/mk/components/forms/Select/Select';
-import styles from './RenderForm.module.css';
+"use client";
+import { memo, useState, useEffect, useCallback, useMemo } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Input from "@/mk/components/forms/Input/Input";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import Select from "@/mk/components/forms/Select/Select"; //esto??
+import styles from "./RenderForm.module.css";
 import {
   CategoryFormProps,
   InputEvent,
   CategoryItem,
-} from '../Type/CategoryType';
+} from "../Type/CategoryType";
 
 const CategoryForm = memo(
   ({
@@ -26,7 +26,7 @@ const CategoryForm = memo(
   }: CategoryFormProps) => {
     const [_Item, set_Item] = useState<Partial<CategoryItem>>(() => {
       const initialData = { ...item };
-      if (action === 'add' && initialData._isAddingSubcategoryFlow) {
+      if (action === "add" && initialData._isAddingSubcategoryFlow) {
         delete initialData._isAddingSubcategoryFlow;
       }
       return initialData;
@@ -37,12 +37,12 @@ const CategoryForm = memo(
     }, [errors, formErrors]);
 
     const [isCateg, setIsCateg] = useState<string>(() => {
-      return item?.category_id ? 'S' : 'C';
+      return item?.category_id ? "S" : "C";
     });
 
     const [wantSubcategories, setWantSubcategories] = useState<boolean>(() => {
       return !!(
-        action === 'add' &&
+        action === "add" &&
         item?._isAddingSubcategoryFlow &&
         item?.category_id
       );
@@ -51,18 +51,18 @@ const CategoryForm = memo(
     useEffect(() => {
       const initialData = { ...item };
       let wantsSub = false;
-      let newIsCateg = 'C';
+      let newIsCateg = "C";
 
       if (
-        action === 'add' &&
+        action === "add" &&
         initialData._isAddingSubcategoryFlow &&
         initialData.category_id
       ) {
         wantsSub = true;
-        newIsCateg = 'S';
+        newIsCateg = "S";
         delete initialData._isAddingSubcategoryFlow;
       } else if (initialData.category_id) {
-        newIsCateg = 'S';
+        newIsCateg = "S";
       }
 
       set_Item(initialData);
@@ -80,9 +80,9 @@ const CategoryForm = memo(
         return newErrors;
       });
 
-      set_Item(prevItem => ({
+      set_Item((prevItem) => ({
         ...prevItem,
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: type === "checkbox" ? checked : value,
       }));
     }, []); // El array de dependencias vacío es correcto aquí
 
@@ -90,11 +90,11 @@ const CategoryForm = memo(
       const newErrors: any = {};
 
       // 1. Lógica de validación
-      if (!_Item.name || _Item.name.trim() === '') {
-        newErrors.name = 'El nombre de la categoría es obligatorio.';
+      if (!_Item.name || _Item.name.trim() === "") {
+        newErrors.name = "El nombre de la categoría es obligatorio.";
       }
-      if ((isCateg === 'S' || wantSubcategories) && !_Item.category_id) {
-        newErrors.category_id = 'Debe seleccionar una Categoría Padre.';
+      if ((isCateg === "S" || wantSubcategories) && !_Item.category_id) {
+        newErrors.category_id = "Debe seleccionar una Categoría Padre.";
       }
 
       // 2. Si se encontraron errores, se actualiza el estado y se detiene
@@ -116,13 +116,13 @@ const CategoryForm = memo(
         cleanItem.category_id = null;
       }
 
-      if ('_initItem' in cleanItem) delete cleanItem._initItem;
-      if ('category' in cleanItem) delete cleanItem.category;
-      if (action === 'edit' && 'fixed' in cleanItem) delete cleanItem.fixed;
+      if ("_initItem" in cleanItem) delete cleanItem._initItem;
+      if ("category" in cleanItem) delete cleanItem.category;
+      if (action === "edit" && "fixed" in cleanItem) delete cleanItem.fixed;
 
-      cleanItem.type = categoryType === 'I' ? 'I' : 'E';
+      cleanItem.type = categoryType === "I" ? "I" : "E";
 
-      console.log('Guardando desde CategoryForm:', cleanItem);
+      console.log("Guardando desde CategoryForm:", cleanItem);
 
       if (setItem) {
         setItem(cleanItem);
@@ -145,37 +145,37 @@ const CategoryForm = memo(
       const cats = extraData?.categories || [];
       if (!Array.isArray(cats)) return [];
       return cats.map((cat: any) => ({
-        id: cat.id || '',
-        name: cat.name || 'Sin nombre',
+        id: cat.id || "",
+        name: cat.name || "Sin nombre",
       }));
     }, [extraData?.categories]);
 
-    const categoryTypeText = categoryType === 'I' ? 'ingresos' : 'egresos';
+    const categoryTypeText = categoryType === "I" ? "ingresos" : "egresos";
 
     // Determinar si es subcategoría (tanto en add como en edit)
     const isSubcategoryMode =
-      isCateg === 'S' || (isCateg === 'C' && wantSubcategories);
+      isCateg === "S" || (isCateg === "C" && wantSubcategories);
 
     // Nuevo: detectar si es flujo de agregar subcategoría
-    const isAddSubcategoryFlow = action === 'add' && !!item?.category_id;
+    const isAddSubcategoryFlow = action === "add" && !!item?.category_id;
 
     // Corregir el título y botón según el flujo
-    let dynamicModalTitle = '';
-    let dynamicButtonText = '';
-    if (action === 'add') {
+    let dynamicModalTitle = "";
+    let dynamicButtonText = "";
+    if (action === "add") {
       if (isAddSubcategoryFlow) {
         dynamicModalTitle = `Registrar subcategoría `;
-        dynamicButtonText = 'Guardar';
+        dynamicButtonText = "Guardar";
       } else {
         dynamicModalTitle = `Registrar categoría`;
-        dynamicButtonText = 'Guardar';
+        dynamicButtonText = "Guardar";
       }
-    } else if (action === 'edit' && isSubcategoryMode) {
+    } else if (action === "edit" && isSubcategoryMode) {
       dynamicModalTitle = `Editar subcategoría`;
-      dynamicButtonText = 'Guardar';
+      dynamicButtonText = "Guardar";
     } else {
       dynamicModalTitle = `Editar categoría`;
-      dynamicButtonText = 'Guardar';
+      dynamicButtonText = "Guardar";
     }
 
     if (!open) return null;
@@ -197,7 +197,7 @@ const CategoryForm = memo(
             <Input
               name="category_id"
               label="Categoría padre"
-              value={_Item.category_id || ''}
+              value={_Item.category_id || ""}
               onChange={() => {}} // No editable
               error={errors?.category_id}
               required
@@ -206,11 +206,11 @@ const CategoryForm = memo(
             />
           )}
           {/* Si es edición o creación de subcategoría desde otro flujo, mostrar el select editable (como antes) */}
-          {!isAddSubcategoryFlow && isSubcategoryMode && action !== 'add' && (
+          {!isAddSubcategoryFlow && isSubcategoryMode && action !== "add" && (
             <Input
               name="category_id"
               label="Categoría padre"
-              value={_Item.category_id || ''}
+              value={_Item.category_id || ""}
               onChange={handleChange}
               error={errors?.category_id}
               required
@@ -221,24 +221,24 @@ const CategoryForm = memo(
           <Input
             type="text"
             name="name"
-            value={_Item.name || ''}
+            value={_Item.name || ""}
             onChange={handleChange}
             label={
               isSubcategoryMode
-                ? 'Nombre de la subcategoría'
-                : 'Nombre de la categoría'
+                ? "Nombre de la subcategoría"
+                : "Nombre de la categoría"
             }
             error={errors?.name}
             required
           />
           <TextArea
             name="description"
-            value={_Item.description || ''}
+            value={_Item.description || ""}
             onChange={handleChange}
             label={
               isSubcategoryMode
-                ? 'Descripción de la nueva subcategoría'
-                : 'Descripción de la nueva categoría'
+                ? "Descripción de la nueva subcategoría"
+                : "Descripción de la nueva categoría"
             }
             error={errors?.description}
           />
@@ -246,7 +246,7 @@ const CategoryForm = memo(
           <input
             type="hidden"
             name="type"
-            value={categoryType === 'I' ? 'I' : 'E'}
+            value={categoryType === "I" ? "I" : "E"}
           />
         </div>
       </DataModal>
@@ -254,5 +254,5 @@ const CategoryForm = memo(
   }
 );
 
-CategoryForm.displayName = 'CategoryForm';
+CategoryForm.displayName = "CategoryForm";
 export default CategoryForm;
