@@ -67,8 +67,10 @@ const Switch = ({
                   value === optionValue[0]
                     ? "var(--cAccent)"
                     : "var(--cWhiteV1)",
-                height: height ? `${height}px` : "24px",
-                width: width ? `${width}px` : "44px",
+                // height: height ? `${height}px` : "24px",
+                // width: width ? `${width}px` : "84px",
+                height: "24px",
+                width: "84px",
               }}
               className={`${styles["bg-position"]} ${styles["rounded-full"]} ${styles["transition-background"]}`}
             >
