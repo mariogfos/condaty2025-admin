@@ -15,7 +15,7 @@
   border: var(--bWidth) solid var(--cBlackV2);
   font-size: var(--sM);
   resize: none;
-  margin-top: calc(var(--spM));
+  /* margin-top: calc(var(--spM)); */
   position: relative;
   & > div > textarea::placeholder {
     color: var(--cWhiteV1);

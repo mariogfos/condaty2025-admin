@@ -1,13 +1,49 @@
+.container {
+  position: relative;
+  display: flex;
+  cursor: pointer;
+}
+
 .tooltip {
-    position: absolute;
-    background-color: var(--cWhiteV1);
-    color: var(--cBlackV2);
-    padding: 5px 10px;
-    border-radius: 4px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-    white-space: nowrap;
-    z-index: 1000; /* Asegura que el tooltip esté por encima de otros elementos */
-    pointer-events: none; /* Evita que el tooltip interfiera con eventos del mouse */
-    transition: opacity 0.3s ease;
-  }
-  
+  visibility: hidden;
+  width: auto;
+
+  background-color: var(--cWhite);
+  color: var(--cWhiteV1);
+  text-align: start;
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 9999;
+  position: absolute;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.container:hover .tooltip {
+  visibility: visible;
+}
+
+/* Posicionamiento del tooltip para cada dirección */
+.top {
+  bottom: 100%; /* Posiciona el tooltip arriba del elemento */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom {
+  top: 100%; /* Posiciona el tooltip abajo del elemento */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.left {
+  top: 20;
+  right: 100%; /* Posiciona el tooltip a la izquierda del elemento */
+  transform: translateY(-50%);
+}
+
+.right {
+  top: 20;
+  left: 100%; /* Posiciona el tooltip a la derecha del elemento */
+  transform: translateY(-50%);
+}

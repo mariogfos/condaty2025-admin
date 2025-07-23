@@ -4,7 +4,7 @@ import {
   IconAccess,
   IconInterrogation,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 
 interface ItemProps {
   title: string;
@@ -44,16 +44,26 @@ export const WidgetDashCard = ({
       style={style}
     >
       <div>
-      <div className={styles.title}>
-        {title}{" "}
-        {tooltip && (
-          <Tooltip title={tooltipTitle} position={tooltipPosition}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', marginLeft:5 }}>
-              <IconInterrogation color={tooltipColor || 'var(--cWhiteV2)'} size={18} />
-            </span>
-          </Tooltip>
-        )}
-      </div>
+        <div className={styles.title}>
+          {title}{" "}
+          {tooltip && (
+            <Tooltip title={tooltipTitle} position={tooltipPosition}>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  marginLeft: 5,
+                }}
+              >
+                <IconInterrogation
+                  color={tooltipColor || "var(--cWhiteV2)"}
+                  size={18}
+                />
+              </span>
+            </Tooltip>
+          )}
+        </div>
         <p>{subtitle}</p>
         <p className={styles.data} style={color ? { color: color } : undefined}>
           {data}

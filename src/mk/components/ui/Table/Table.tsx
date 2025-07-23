@@ -4,6 +4,7 @@ import {
   Fragment,
   memo,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -363,13 +364,13 @@ const Body = ({
   //   };
   // }, [id, store["scrollTop" + id]]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      // console.log("Body se crea");
-      const scrollTop = store["scrollTop" + id];
-      // console.log("scrollTo Set0", id, scrollTop);
-      if (scrollTop) divRef.current.scrollTop = scrollTop;
-    }, 10);
+  useLayoutEffect(() => {
+    // setTimeout(() => {
+    // console.log("Body se crea");
+    const scrollTop = store["scrollTop" + id];
+    // console.log("scrollTo Set0", id, scrollTop);
+    if (scrollTop) divRef.current.scrollTop = scrollTop;
+    // }, 10);
   }, []);
 
   const _onRowClick = (e: any) => {

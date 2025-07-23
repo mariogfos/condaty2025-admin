@@ -36,7 +36,7 @@
     align-items: center;
     gap: var(--spL);
     overflow: visible;
-    margin-bottom: var(--spL);
+    margin-bottom: var(--spM);
     & > div > div > div {
       margin-bottom: 0px;
     }
@@ -124,7 +124,7 @@
 }
 .extraButtons > div > button,
 .extraButtons > button {
-  height: 56px;
+  height: 48px;
   padding: 0 24px;
   font-size: 16px;
   border-radius: var(--bRadiusS);
