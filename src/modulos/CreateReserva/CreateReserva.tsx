@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styles from "./CreateReserva.module.css";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
@@ -22,6 +22,8 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { getDateStrMes } from "../../mk/utils/date1";
+import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
+import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 
 const initialState: FormState = {
   unidad: "",
@@ -63,46 +65,60 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>(
     []
   );
-  console.log(formState);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [dataReserv, setDataReserv]: any = useState([]);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
+  const [monthChangeTimer, setMonthChangeTimer] = useState(null);
+  const [selectedUnit, setSelectedUnit]: any = useState(null);
   const { execute } = useAxios();
 
   const { showToast } = useAuth();
 
   useEffect(() => {
     setOpenList(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (formState?.area_social) {
       getCalendar();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social]);
 
-  const getCalendar = async (date?: any) => {
-    const selectedUnit = extraData?.dptos?.find(
-      (u: any) => String(u.id) === formState.unidad
-    );
-    const ownerId = selectedUnit?.titular?.owner_id;
-    const { data } = await execute(
-      "/reservations-calendar",
-      "GET",
-      {
-        area_id: formState?.area_social || "none",
-        date_at: date || new Date().toISOString()?.split("T")[0],
-        owner_id: ownerId,
-      },
-      false,
-      true
-    );
-    if (data?.success) {
-      setDataReserv(data?.data);
-      setBusyDays(data.data.reserved || []);
+  useEffect(() => {
+    if (formState?.unidad) {
+      const selectedUnit = extraData?.dptos?.find(
+        (u: any) => String(u.id) === formState.unidad
+      );
+      setSelectedUnit(selectedUnit);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState?.unidad]);
+
+  const getCalendar = useCallback(
+    async (date?: any) => {
+      const ownerId = selectedUnit?.titular?.owner_id;
+      const { data } = await execute(
+        "/reservations-calendar",
+        "GET",
+        {
+          area_id: formState?.area_social || "none",
+          date_at: date || new Date().toISOString()?.split("T")[0],
+          owner_id: ownerId,
+        },
+        false,
+        true
+      );
+      if (data?.success) {
+        setDataReserv(data?.data);
+        setBusyDays(data.data.reserved || []);
+      }
+    },
+    [formState.area_social, execute, setDataReserv, setBusyDays, selectedUnit]
+  );
+
   const unidadesOptions = useMemo(() => {
     return extraData?.dptos?.map(
       (unidad: ApiUnidad): Option => ({
@@ -119,25 +135,18 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     return extraData?.areas.find(
       (area: ApiArea) => area.id === formState.area_social
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState.area_social]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     const isAreaChange = name === "area_social";
-
-    // Actualiza el estado del formulario
     setFormState((prev) => ({
       ...prev,
       [name]: value,
-      // Si cambia el área, OBLIGATORIAMENTE resetea la fecha
       ...(isAreaChange && { fecha: "" }),
     }));
 
-    // Limpia el error del campo que cambió
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -145,48 +154,42 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
   const handlePeriodToggle = (period: string) => {
     setSelectedPeriods((prevSelected) => {
-      // Verifica si el periodo clickeado ya era el único seleccionado
       const isCurrentlySelected =
         prevSelected.length === 1 && prevSelected[0] === period;
 
       if (isCurrentlySelected) {
         return [];
       } else {
-        // Si se hace clic en uno nuevo (o no había selección), se selecciona SOLO ese
         return [period];
       }
     });
-
-    // Limpia el error de selección de periodo si el usuario interactúa
     if (errors.selectedPeriods) {
       setErrors((prev) => ({ ...prev, selectedPeriods: undefined }));
     }
   };
 
-  // --- FIN Modificación handlePeriodToggle ---]
-  const onMonth = (dateString: any) => {
-    if (formState.area_social && dateString && formState.unidad) {
-      const selectedUnit = extraData?.dptos?.find(
-        (u: ApiUnidad) => String(u.id) === formState.unidad
-      );
-      const ownerId = selectedUnit?.titular?.owner_id;
-
-      if (ownerId) {
-        // Llama a fetchAvailableTimes PASANDO el ownerId
-        getCalendar(dateString);
-      } else {
-        showToast(
-          "No se pudo verificar la disponibilidad (error propietario).",
-          "error"
-        );
-        // Asegura que los estados reflejen que no se pudo cargar
-        setAvailableTimeSlots([]);
+  const onMonth = useCallback(
+    (dateString: any) => {
+      if (monthChangeTimer) {
+        clearTimeout(monthChangeTimer);
       }
-    } else {
-      // Si falta área, fecha o unidad, simplemente limpia los slots
-      setAvailableTimeSlots([]);
-    }
-  };
+      const timer: any = setTimeout(() => {
+        if (formState.area_social && dateString && formState.unidad) {
+          getCalendar(dateString);
+        } else {
+          setAvailableTimeSlots([]);
+        }
+      }, 500);
+
+      setMonthChangeTimer(timer);
+      return () => {
+        if (monthChangeTimer) {
+          clearTimeout(monthChangeTimer);
+        }
+      };
+    },
+    [formState.area_social, formState.unidad, getCalendar, monthChangeTimer]
+  );
 
   const handleDateChange = (dateString?: string | undefined) => {
     setFormState({ ...formState, fecha: dateString || "" });
@@ -223,7 +226,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
 
     if (selectedPeriods.length === 0) {
-      // Usa la nueva clave de error
       showToast("Debes seleccionar al menos un periodo disponible", "error");
       return;
     }
@@ -247,21 +249,17 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
   };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (isSubmitting) {
       if (!isSubmitting) {
         showToast("Por favor, revisa los campos requeridos.", "warning");
-        // Los errores específicos ya se setearon en las funciones de validación
       }
       return;
     }
 
     setIsSubmitting(true);
 
-    // 1. Obtener owner_id (sin cambios)
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad
     );
@@ -271,13 +269,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       return;
     }
     let startTime = "";
-    // Asegura que los periodos estén ordenados antes de tomar el primero
     const sortedSelectedPeriods = [...selectedPeriods].sort();
     if (sortedSelectedPeriods.length > 0) {
       startTime = sortedSelectedPeriods[0].split("-")[0];
     }
-
-    // 3. Construir Payload (MODIFICADO: usa selectedPeriods)
 
     const payload = {
       area_id: formState.area_social,
@@ -288,7 +283,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       obs:
         formState.motivo ||
         `Reserva de ${selectedAreaDetails?.title || "área"}`,
-      start_time: startTime, // Usa el startTime calculado
+      start_time: startTime,
       Periods: sortedSelectedPeriods,
     };
     try {
@@ -304,8 +299,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
           response?.data?.message || "Reserva creada exitosamente",
           "success"
         );
-        // ... resetear estado ...
-        // router.push("/reservas");
         if (reLoad) reLoad();
         if (onClose) onClose();
       } else {
@@ -348,8 +341,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
     if (errors.cantidad_personas) {
       if (finalValue.trim() === "") {
-        // Si el campo está vacío, la validación del paso (validateStep2) lo marcará como error al intentar continuar.
-        // No necesariamente limpiamos el error aquí si "vacío" es un estado inválido para la sumisión.
       } else {
         const numValCheck = Number(finalValue);
         const maxCap = selectedAreaDetails?.max_capacity;
@@ -388,33 +379,17 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
-
+  console.log("selectedUnit", selectedUnit);
   return (
     <div className={styles.pageWrapper}>
-      <button onClick={onClose} className={styles.backButton}>
-        <IconArrowLeft /> Volver a lista de reservas
-      </button>
+      <HeaderBack label="Volver a lista de reservas" onClick={onClose} />
       <div className={styles.createReservaContainer}>
-        {/* --- Header --- */}
         <div className={styles.header}>
-          {/* Botón para volver atrás */}
           <p style={{ fontSize: "24px", fontWeight: 600 }}>
             Reservar un área social
           </p>
-          {/* Indicador de Paso */}
-          <div className={styles.progressContainer}>
-            <span className={styles.stepIndicatorText}>
-              {currentStep} de 3 pasos
-            </span>
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${(currentStep / 3) * 100}%` }} // Asume 3 pasos totales (0%, 50%, 100%)
-              ></div>
-            </div>
-          </div>
+          <StepProgressBar currentStep={currentStep} totalSteps={3} />
         </div>
-        {/* --- Form Card --- */}
         <div className={styles.formContainer}>
           <div className={styles.formCard}>
             {currentStep === 1 && (
@@ -462,10 +437,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       {selectedAreaDetails.images &&
                         selectedAreaDetails.images.length > 0 && (
                           <div className={styles.imageContainer}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               key={
                                 selectedAreaDetails.images[currentImageIndex].id
-                              } // Add key for re-render on change
+                              }
                               className={styles.previewImage}
                               src={getUrlImages(
                                 `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
@@ -474,7 +450,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 selectedAreaDetails.title
                               }`}
                             />
-                            {/* Paginación de Imagen */}
                             <div className={styles.imagePagination}>
                               <button
                                 type="button"
@@ -491,7 +466,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 }
                                 aria-label="Imagen anterior"
                               >
-                                {/* Añade la className aquí */}
                                 <IconArrowLeft color="var(--cWhite)" />
                               </button>
 
@@ -516,7 +490,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 }
                                 aria-label="Siguiente imagen"
                               >
-                                {/* Añade la className aquí */}
                                 <IconArrowRight color="var(--cWhite)" />
                               </button>
                             </div>
@@ -761,9 +734,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         }}
                         onBlur={(e) => {
                           const currentValue = e.target.value;
-                          console.log(
-                            `[CreateReserva Input onBlur] Value: "${currentValue}", Max capacity: ${selectedAreaDetails?.max_capacity}`
-                          );
                           handleQuantityChange(currentValue);
                         }}
                         min={1}
@@ -772,6 +742,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         styleInput={{
                           textAlign: "center",
                           paddingLeft: "0",
+                          width: "30px",
                           paddingRight: "0",
                         }}
                       />
@@ -808,61 +779,34 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
             {currentStep === 3 && (
               <div className={`${styles.stepContent} ${styles.step3Content}`}>
                 <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
-                {(() => {
-                  // Encuentra los detalles de la unidad seleccionada
-                  const selectedUnitDetails = extraData?.dptos?.find(
-                    (u: ApiUnidad) => String(u.id) === formState.unidad
-                  );
 
-                  // Accede a titular y LUEGO a owner
-                  const ownerData = selectedUnitDetails?.titular?.owner;
-                  const unitNumber = selectedUnitDetails?.nro;
-
-                  // Solo renderiza si tenemos los datos del owner
-                  if (!ownerData || !unitNumber) {
-                    return (
-                      <div
-                        style={{
-                          minHeight: "56px",
-                          display: "flex",
-                          alignItems: "center",
-                          color: "var(--cWhiteV1)",
-                        }}
-                      >
-                        Cargando datos del propietario...
-                      </div>
-                    ); // Placeholder
-                  }
-
-                  return (
-                    <div className={styles.summaryOwnerInfoContainer}>
-                      <div className={styles.summaryOwnerInfo}>
-                        <div className={styles.ownerIdentifier}>
-                          <Avatar
-                            hasImage={ownerData.has_image}
-                            src={getUrlImages(
-                              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
-                            )}
-                            name={getFullName(ownerData)}
-                            w={40}
-                            h={40}
-                          />
-                          <div className={styles.ownerText}>
-                            <span className={styles.ownerName}>
-                              {getFullName(ownerData)}
-                            </span>
-                            <span className={styles.ownerUnit}>
-                              Unidad {unitNumber}
-                            </span>
-                          </div>
-                        </div>
-                        <span className={styles.reservationStatus}>
-                          Reservación: En proceso
+                <div className={styles.summaryOwnerInfoContainer}>
+                  <div className={styles.summaryOwnerInfo}>
+                    <div className={styles.ownerIdentifier}>
+                      <Avatar
+                        src={getUrlImages(
+                          `/OWNER-${
+                            selectedUnit?.titular?.owner_id
+                          }.webp?d=${Date.now().toString()}`
+                        )}
+                        name={getFullName(selectedUnit?.titular)}
+                        w={40}
+                        h={40}
+                      />
+                      <div className={styles.ownerText}>
+                        <span className={styles.ownerName}>
+                          {getFullName(selectedUnit?.titular?.owner)}
+                        </span>
+                        <span className={styles.ownerUnit}>
+                          Unidad {selectedUnit?.nro}
                         </span>
                       </div>
                     </div>
-                  );
-                })()}
+                    <span className={styles.reservationStatus}>
+                      Reservación: En proceso
+                    </span>
+                  </div>
+                </div>
                 <hr className={styles.areaSeparator} />
 
                 <div className={styles.summaryContainer}>
@@ -873,6 +817,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         {selectedAreaDetails.images &&
                         selectedAreaDetails.images.length > 0 ? (
                           <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               key={
                                 selectedAreaDetails.images[currentImageIndex]
@@ -936,11 +881,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             </div>
                           </>
                         ) : (
-                          <img
-                            src="/api/placeholder/150/120"
-                            alt="Sin imagen"
-                            className={styles.previewImage}
-                          />
+                          <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src="/api/placeholder/150/120"
+                              alt="Sin imagen"
+                              className={styles.previewImage}
+                            />
+                          </>
                         )}
                       </div>
                       {/* Detalles del Resumen */}
@@ -1049,14 +997,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   </span>
                 </div>
               )}
-              {/* Si no es paso 1 o no hay area, no muestra nada aquí (a la izquierda) */}
-              {/* Opcional: podrías poner un div vacío o un spacer si necesitas mantener el espacio */}
               {currentStep !== 1 && <div style={{ flexGrow: 1 }}></div>}{" "}
-              {/* Placeholder para empujar botones a la derecha en otros pasos */}
-              {/* --- FIN Contenedor Precio --- */}
-              {/* --- Contenedor para los Botones (siempre a la derecha) --- */}
               <div className={styles.actionButtonsContainer}>
-                {/* Botón Atrás (visible desde paso 2 en adelante) */}
                 {currentStep > 1 && (
                   <button
                     type="button"
@@ -1067,7 +1009,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Atras
                   </button>
                 )}
-                {/* Botón Siguiente (visible solo en Paso 1) */}
                 {currentStep === 1 && (
                   <Button
                     className={`${styles.button} ${styles.nextBtn}`}
@@ -1077,7 +1018,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Reservar
                   </Button>
                 )}
-                {/* Botón Continuar (visible solo en Paso 2) */}
                 {currentStep === 2 && (
                   <button
                     type="button"
@@ -1088,7 +1028,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     Continuar
                   </button>
                 )}
-                {/* Botón Reservar (visible solo en el último paso - Paso 3) */}
                 {currentStep === 3 && (
                   <button
                     type="button"
@@ -1100,12 +1039,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   </button>
                 )}
               </div>
-              {/* --- FIN Contenedor Botones --- */}
             </div>
-          </div>{" "}
-          {/* Fin formCard */}
-        </div>{" "}
-        {/* Fin formContainer */}
+          </div>
+        </div>
         {selectedAreaDetails && ( // Renderiza el modal solo si hay detalles del área
           <DataModal
             open={isRulesModalVisible}

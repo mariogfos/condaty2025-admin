@@ -210,26 +210,29 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
       </div> */}
 
       <div className={styles.calendarGridContainer}>
-        <div className={styles.calendarNavigation}>
-          <button
-            type="button"
-            onClick={goToPrev}
-            className={styles.calendarNavButton}
-            aria-label="Anterior"
-          >
-            <IconArrowLeft size={18} />
-          </button>
-          <span className={styles.calendarMonthYear}>
+        <div>
+          <div className={styles.calendarNavigation}>
+            <button
+              type="button"
+              onClick={goToPrev}
+              className={styles.calendarNavButton}
+              aria-label="Anterior"
+            >
+              <IconArrowLeft size={18} />
+            </button>
+
+            <button
+              type="button"
+              onClick={goToNext}
+              className={styles.calendarNavButton}
+              aria-label="Siguiente"
+            >
+              <IconArrowRight size={18} />
+            </button>
+          </div>
+          <p className={styles.calendarMonthYear}>
             {format(currentDateForView, "MMMM yyyy", { locale: es })}
-          </span>
-          <button
-            type="button"
-            onClick={goToNext}
-            className={styles.calendarNavButton}
-            aria-label="Siguiente"
-          >
-            <IconArrowRight size={18} />
-          </button>
+          </p>
         </div>
 
         <div className={styles.calendarWeekdays}>

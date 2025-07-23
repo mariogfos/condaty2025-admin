@@ -59,10 +59,6 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
   getPriceDetails,
   onCancel,
 }) => {
-  // const { data } = useAxios("/reservations/" + details?.id, "PUT", {
-  //   status: "C",
-  // });
-  // reservations/9ed1fe1a-511e-4b0a-9368-14e48a33e55f
   if (!details) return;
   let status = details?.status as "W" | "A" | "X" | "C" | "F" | undefined;
   let dateEnd = new Date(details?.date_end + "T" + details?.end_time)

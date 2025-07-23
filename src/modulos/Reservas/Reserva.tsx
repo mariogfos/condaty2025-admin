@@ -262,16 +262,6 @@ const Reserva = () => {
     }),
     []
   );
-  // const customAddButton = (
-  //   <Button
-  //     key="custom-add-reserva"
-  //     onClick={() => router.push("/create-reservas")}
-  //     variant="primary"
-  //     style={{ height: 48 }}
-  //   >
-  //     Crear Reserva
-  //   </Button>
-  // );
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -324,7 +314,6 @@ const Reserva = () => {
     paramsInitial,
     mod,
     fields,
-    // extraButtons: [customAddButton],
     getFilter: handleGetFilter,
   });
   const { onLongPress, selItem } = useCrudUtils({

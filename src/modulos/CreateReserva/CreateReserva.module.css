@@ -2,7 +2,6 @@
   width: 100%; /* Ocupa todo el ancho de la ventana */
   min-height: 100vh; /* Opcional: asegura altura mínima */
   position: relative; /* Contexto para el botón absoluto */
-  padding-top: 50px; /* Espacio reservado arriba para el botón. Ajusta '50px' si es necesario */
   box-sizing: border-box; /* Incluye padding en el tamaño total */
 }
 
@@ -24,54 +23,10 @@
   gap: var(--spM); /* 0.75rem -> 12px */
 }
 
-.backButton {
-  position: absolute; /* Posición absoluta */
-  top: var(--spL); /* Distancia desde arriba del pageWrapper */
-  left: var(
-    --spL
-  ); /* Distancia desde la IZQUIERDA del pageWrapper (borde de PÁGINA) */
-  /* Estilos visuales */
-  display: flex;
-  align-items: center;
-  gap: var(--spS);
-  cursor: pointer;
-  color: var(--cAccent); /* O el color que prefieras */
-  font-size: var(--sM);
-  background: none;
-  border: none;
-  padding: 0;
-  width: fit-content;
-  z-index: 10; /* Asegura que esté visible */
-}
-.backButton:hover {
-  color: var(--cWhiteV2); /* O el color hover que prefieras */
-}
-
 .header h1 {
   font-size: var(--sXxl); /* 24px */
   font-weight: var(--bSemibold); /* 600 */
   color: var(--cWhite); /* Asegura color blanco */
-}
-
-.progressContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS); /* 0.5rem -> 8px */
-  margin-top: var(--spS); /* Añade espacio si es necesario */
-}
-
-.progressBar {
-  height: 7px;
-  background-color: var(--cBlackV1); /* #292929 */
-  border-radius: var(--bRadiusM); /* 1rem -> 16px */
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  /* Color inicial verde oscuro, podría cambiar con JS/clases */
-  background-color: var(--cBigSidebar); /* #246950 */
-  transition: width 0.3s ease-in-out;
 }
 .formCard {
   display: flex;
@@ -83,58 +38,20 @@
   border: var(--bWidth) solid var(--cWhiteV1); /* 0.5px solid #a7a7a7 -> usamos 1px y variable */
 }
 
-.stepIndicator {
-  font-size: var(--sM); /* 14px */
-  color: var(--cWhite); /* #f0f0f0 */
-  align-self: flex-start;
-  margin-bottom: calc(-1 * var(--spL)); /* -1rem (ajusta según diseño exacto) */
-  padding-left: var(
-    --spS
-  ); /* Añade un poco de padding para que no pegue al borde */
-}
-.stepIndicatorText {
-  /* Estilo para el texto del paso */
-  font-size: var(--sM); /* 14px */
-  color: var(--cWhite); /* #f0f0f0 */
-  margin-bottom: var(--spXs); /* Espacio antes de la barra */
-  /* align-self: flex-start; Opcional */
-}
-
-.stepContent {
-  display: flex;
-  flex-direction: column;
-  /* Ajusta según el contenido de cada paso (1.5rem -> 24px) */
-}
-
-/* --- Estilos Títulos dentro de Pasos --- */
-.stepTitle, /* Título del paso */
-.step1Content h2,
-.step3Content h2, /* Título "Datos del responsable" */
 .summaryTitle {
-  /* Título "Resumen de la reserva" */
   font-size: var(--sXl); /* 20px (o var(--sL) si prefieres 16px) */
   font-weight: var(--bSemibold); /* 600 */
   color: var(--cWhite); /* Asegura color blanco */
-  margin-top: var(--spS); /* 0.5rem */
-  margin-bottom: calc(
-    -1 * var(--spM)
-  ); /* -0.75rem (reduce espacio antes del campo/contenido) */
 }
 /* Ajuste específico para el primer h2 de paso 1 si es necesario */
 .step1Content h2:first-of-type {
   margin-top: 0;
 }
-/* Ajuste específico para el título del resumen */
-.summaryTitle {
-  margin-top: var(--spL); /* 1rem */
-  margin-bottom: calc(-1 * var(--spS)); /* -0.5rem */
-}
-
-/* En CreateReserva.module.css */
 
 /* Contenedor para la info del owner con margen inferior y borde opcional */
 .summaryOwnerInfoContainer {
-  width: 100%; /* Asegura que ocupe el ancho */
+  width: 100%;
+  margin: var(--spM) 0;
 }
 
 /* Contenedor flex principal para la info del owner (avatar/nombre vs estado) */
@@ -465,12 +382,12 @@
 .summaryContainer {
   background-color: var(--cBlackV2);
   border-radius: var(--bRadius); /* 0.75rem -> 12px */
+  margin: var(--spM) 0;
 }
 
 .summaryContent {
   display: flex;
   gap: var(--spL); /* 1rem -> 16px */
-  /* padding: var(--spL); <-- Quita el padding de aquí si lo pusiste en summaryContainer */
   width: 100%; /* Asegura que ocupe el ancho */
   flex-direction: row; /* Asegura la dirección horizontal (aunque es default) */
   /* Alinea los items al inicio si tienen alturas diferentes */

@@ -6,7 +6,6 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
-import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
