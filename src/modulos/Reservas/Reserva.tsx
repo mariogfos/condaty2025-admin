@@ -7,7 +7,6 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
-import Button from "@/mk/components/forms/Button/Button";
 import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";

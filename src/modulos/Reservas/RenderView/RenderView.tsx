@@ -30,7 +30,6 @@ interface ReservationDetailsViewProps {
   onAcceptClick: () => void; // Función para manejar el clic en Aceptar
   onRejectClick: () => void; // Función para manejar el clic en Rechazar
   onCancel: () => void;
-  // Funciones auxiliares pasadas como props
   getFormattedRequestTime: (isoDate: string) => string;
   getFormattedReservationDate: (dateStr: string) => string;
   getFormattedReservationTime: (periods: any[] | undefined | null) => string;

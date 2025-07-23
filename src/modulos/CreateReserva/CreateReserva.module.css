@@ -203,8 +203,9 @@
 
 /* Contenedor Imagen */
 .imageContainer {
-  width: 350px; /* Ancho deseado */
-  flex-shrink: 0; /* Evita que se encoja */
+  /* width: 350px; */
+  flex-grow: 1;
+  flex-basis: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -212,8 +213,7 @@
 }
 
 .previewImage {
-  /* Clase específica para la imagen de previsualización */
-  width: 100%; /* Ocupa el ancho del contenedor (350px) */
+  width: 350px;
   height: 280px; /* Alto deseado */
   object-fit: cover; /* Cubre el espacio sin deformar */
   border-radius: var(--bRadiusS); /* Bordes redondeados */
@@ -479,6 +479,8 @@
 .summaryImageContainer {
   /* flex: 1; */
   width: 350px; /* <-- AÑADE/ASEGURA este ancho */
+  flex-grow: 1;
+  flex-basis: 0;
 }
 .summaryImage {
   /* (Sin cambios, ya estaba bien) */

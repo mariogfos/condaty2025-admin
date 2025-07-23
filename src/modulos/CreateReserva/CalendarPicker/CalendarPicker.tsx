@@ -39,6 +39,7 @@ interface CalendarDay {
 interface CalendarPickerProps {
   selectedDate?: string;
   onDateChange: (dateString: string | undefined) => void;
+  onMonthSelect?: (dateString: string | undefined) => void;
   busyDays?: string[];
   available_days?: string[];
 }
@@ -48,9 +49,9 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   onDateChange,
   busyDays = [],
   available_days = [],
+  onMonthSelect,
 }) => {
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
-  console.log(busyDays);
   const getInitialDate = () => {
     const parsed = selectedDate
       ? parse(selectedDate, "yyyy-MM-dd", new Date())
@@ -157,15 +158,31 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
     generateCalendarDays();
   }, [generateCalendarDays]);
 
-  const goToPrev = () =>
-    setCurrentDateForView((prev) =>
-      viewMode === "month" ? subMonths(prev, 1) : subWeeks(prev, 1)
-    );
+  const goToPrev = () => {
+    const newDate =
+      viewMode === "month"
+        ? subMonths(currentDateForView, 1)
+        : subWeeks(currentDateForView, 1);
 
-  const goToNext = () =>
-    setCurrentDateForView((prev) =>
-      viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1)
-    );
+    if (viewMode === "month") {
+      onMonthSelect?.(format(startOfMonth(newDate), "yyyy-MM-dd"));
+    }
+
+    setCurrentDateForView(newDate);
+  };
+
+  const goToNext = () => {
+    const newDate =
+      viewMode === "month"
+        ? addMonths(currentDateForView, 1)
+        : addWeeks(currentDateForView, 1);
+
+    if (viewMode === "month") {
+      onMonthSelect?.(format(startOfMonth(newDate), "yyyy-MM-dd"));
+    }
+
+    setCurrentDateForView(newDate);
+  };
 
   const handleDateSelect = (day: CalendarDay) => {
     if (!day.isCurrentView || day.isPast) return;
@@ -177,7 +194,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
   return (
     <div className={styles.calendarContainer}>
-      <div className={styles.calendarViewControls}>
+      {/* <div className={styles.calendarViewControls}>
         {["month", "week"].map((mode) => (
           <button
             key={mode}
@@ -190,7 +207,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
             {mode === "month" ? "Mes" : "Semanas"}
           </button>
         ))}
-      </div>
+      </div> */}
 
       <div className={styles.calendarGridContainer}>
         <div className={styles.calendarNavigation}>

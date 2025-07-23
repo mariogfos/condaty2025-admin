@@ -4,30 +4,19 @@ import styles from "./CreateReserva.module.css";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import TextArea from "@/mk/components/forms/TextArea/TextArea"; // Asegúrate si lo usas
 import {
   IconArrowLeft,
   IconArrowRight,
-  IconBackAround,
   IconCalendar,
   IconClock,
   IconGroup,
   IconMonedas,
-  IconNextAround,
-  IconX,
   IconZoomDetail,
 } from "@/components/layout/icons/IconsBiblioteca";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useRouter } from "next/navigation";
-import {
-  ApiUnidad,
-  ApiArea,
-  Option,
-  FormState,
-  ApiCalendarAvailabilityData,
-} from "./Type";
+import { ApiUnidad, ApiArea, Option, FormState } from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";
@@ -37,7 +26,7 @@ import { getDateStrMes } from "../../mk/utils/date1";
 const initialState: FormState = {
   unidad: "",
   area_social: "",
-  fecha: "",
+  fecha: new Date().toISOString().split("T")?.[0],
   cantidad_personas: "",
   motivo: "",
   nombre_responsable: "",
@@ -74,22 +63,15 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>(
     []
   );
-  const [loadingTimes, setLoadingTimes] = useState<boolean>(false);
+  console.log(formState);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
-  const [reservaCalendarResponse, setReservaCalendarResponse]: any = useState(
-    []
-  );
-  const [isRulesModalVisible, setIsRulesModalVisible] =
-    useState<boolean>(false);
+  const [dataReserv, setDataReserv]: any = useState([]);
+  const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const { execute } = useAxios();
-  const [canMakeReservationForDate, setCanMakeReservationForDate] = useState<
-    boolean | null
-  >(null);
-  const [reservationBlockMessage, setReservationBlockMessage] =
-    useState<string>("");
 
   const { showToast } = useAuth();
+
   useEffect(() => {
     setOpenList(false);
   }, []);
@@ -100,58 +82,27 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
   }, [formState?.area_social]);
 
-  const getCalendar = async () => {
+  const getCalendar = async (date?: any) => {
+    const selectedUnit = extraData?.dptos?.find(
+      (u: any) => String(u.id) === formState.unidad
+    );
+    const ownerId = selectedUnit?.titular?.owner_id;
     const { data } = await execute(
       "/reservations-calendar",
       "GET",
-      { area_id: formState?.area_social || "none" },
+      {
+        area_id: formState?.area_social || "none",
+        date_at: date || new Date().toISOString()?.split("T")[0],
+        owner_id: ownerId,
+      },
       false,
       true
     );
-    if (data?.success == true) {
-      setReservaCalendarResponse(data);
+    if (data?.success) {
+      setDataReserv(data?.data);
+      setBusyDays(data.data.reserved || []);
     }
   };
-
-  // const { execute: executeCreateReservation } = useAxios(
-  //   null, // <-- CAMBIO AQUÍ: Pasa null en lugar de la URL
-  //   "POST", // Método (se usará como default si no se pasa a execute)
-  //   {}, // Payload inicial (no se usa si la URL es null)
-  //   true // Este flag ahora es menos relevante, pero mantenlo por consistencia
-  // );
-
-  // --- Efecto para actualizar busyDays ---
-  useEffect(() => {
-    if (
-      // reservaCalendarLoaded &&
-      formState.area_social &&
-      reservaCalendarResponse?.data &&
-      "reserved" in reservaCalendarResponse.data
-    ) {
-      console.log(
-        "useEffect [busyDays] - Setting busyDays:",
-        reservaCalendarResponse.data.reserved
-      ); // Verifica qué se va a setear
-      setBusyDays(reservaCalendarResponse.data.reserved || []);
-    } else if (!formState.area_social) {
-      console.log("useEffect [busyDays] - Resetting busyDays (no area)");
-      setBusyDays([]);
-    } else if (formState.area_social) {
-      if (!reservaCalendarResponse?.data) {
-        console.log(
-          "useEffect [busyDays] - Reason: reservaCalendarResponse.data is falsy"
-        );
-      } else if (!("reserved" in reservaCalendarResponse.data)) {
-        console.log(
-          "useEffect [busyDays] - Reason: 'reserved' key NOT found in reservaCalendarResponse.data. Keys:",
-          Object.keys(reservaCalendarResponse.data)
-        );
-      }
-      setBusyDays([]);
-    }
-  }, [reservaCalendarResponse, formState.area_social]);
-
-  // --- Transformación de datos para Selects (Unidades, Areas) ---
   const unidadesOptions = useMemo(() => {
     return extraData?.dptos?.map(
       (unidad: ApiUnidad): Option => ({
@@ -161,21 +112,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     );
   }, [extraData]);
 
-  // const areasSocialesOptions: Option[] = useMemo(() => {
-  //   if (!areasLoaded || !areasResponse?.data) return [];
-  //   return areasResponse.data.map(
-  //     (area: ApiArea): Option => ({
-  //       id: area.id, // ID de área es string
-  //       name: area.title,
-  //     })
-  //   );
-  // }, [areasResponse, areasLoaded]);
-
-  // --- Obtener detalles del área seleccionada ---
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
-    // if (!areasLoaded || !areasResponse?.data || !formState.area_social) {
-    //   return undefined;
-    // }
     if (!formState.area_social) {
       return;
     }
@@ -184,135 +121,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     );
   }, [formState.area_social]);
 
-  // --- Función para obtener horas disponibles ---
-  // --- Función para obtener horas disponibles (MODIFICADA PARA owner_id y reservations/message) ---
-  const fetchAvailableTimes = async (
-    areaId: string,
-    dateString: string,
-    ownerId: string
-  ) => {
-    // Estado inicial de la carga y reseteo de datos previos
-    setLoadingTimes(true);
-    setAvailableTimeSlots([]); // Limpia siempre al iniciar
-    setUnavailableTimeSlots([]); // Limpia también los no disponibles
-    setSelectedPeriods([]); // Limpia selección previa de periodos
-    setCanMakeReservationForDate(null); // Resetea permiso
-    setReservationBlockMessage(""); // Resetea mensaje
-
-    try {
-      // Llamada a la API con todos los parámetros necesarios
-      const response: any = await execute(
-        "/reservations-calendar",
-        "GET",
-        {
-          area_id: areaId,
-          date_at: dateString,
-          owner_id: ownerId, // Incluye owner_id
-        },
-        false, // skipAbort
-        true // skipLoading
-      );
-
-      // Declaraciones de variables para guardar los datos procesados
-      // Usa el tipo importado ApiCalendarAvailabilityData para apiData
-      let apiData: ApiCalendarAvailabilityData | any = null;
-      let canReserve: boolean | undefined | null = null;
-      let message: string = "";
-      let availableSlots: string[] | undefined = undefined;
-      let processed = false; // Flag para saber si encontramos un objeto de datos válido
-      if (Array.isArray(response) && response.length === 0) {
-        apiData = null; // No hay objeto de datos
-      }
-      // CASO 2: Busca datos en response.data.data (estructura anidada)
-      else if (
-        typeof response?.data?.data === "object" &&
-        response.data.data !== null &&
-        !Array.isArray(response.data.data)
-      ) {
-        // Asigna el objeto encontrado. TypeScript debería reconocer el tipo si la importación es correcta.
-        apiData = response.data.data;
-        console.log("Datos leídos desde response.data.data");
-        processed = true;
-      }
-      // CASO 3: Busca datos en response.data (estructura menos anidada, fallback)
-      // Verifica también que tenga una propiedad esperada como 'reservations'
-      else if (
-        typeof response?.data === "object" &&
-        response.data !== null &&
-        !Array.isArray(response.data) &&
-        "reservations" in response.data
-      ) {
-        // Asigna el objeto encontrado.
-        apiData = response.data;
-        console.warn("Usando datos de fallback response.data");
-        processed = true;
-      }
-      // CASO 4: La respuesta no es [] ni un objeto válido en las ubicaciones esperadas
-      else {
-        console.error(
-          "Respuesta inválida o estructura no reconocida:",
-          response
-        );
-        apiData = null; // No se encontraron datos válidos
-      }
-      // FIN: Lógica para encontrar los datos
-
-      // Extrae la información si encontramos un objeto de datos válido (apiData no es null)
-      if (apiData) {
-        // Solo necesitamos chequear si apiData no es null aquí
-        let daysAvailable = [];
-        let unavailableSlots = [];
-
-        if (dateString == new Date().toISOString().split("T")?.[0]) {
-          daysAvailable = apiData?.available.filter(
-            (d: any) => parseInt(d.split("-")[1]) > new Date().getHours()
-          );
-
-          unavailableSlots = apiData?.available.filter(
-            (d: any) => parseInt(d.split("-")[1]) < new Date().getHours()
-          );
-        } else {
-          daysAvailable = apiData?.available;
-        }
-        canReserve = apiData.reservations; // Accede a las propiedades (TS usará el tipo ApiCalendarAvailabilityData)
-        message = apiData.message ?? "";
-        availableSlots = daysAvailable;
-        setUnavailableTimeSlots(unavailableSlots.concat(apiData.unavailable));
-      }
-      // Si apiData es null (porque la respuesta fue [] o inválida),
-      // las variables canReserve, message, availableSlots mantendrán sus valores (null, '', undefined)
-
-      // Establece el estado del componente basado en los datos procesados
-      // Si canReserve no se pudo leer (es null o undefined), se tratará como 'false'
-      setCanMakeReservationForDate(canReserve === true);
-      // El mensaje solo se muestra si explícitamente 'reservations' es false
-      setReservationBlockMessage(canReserve === false ? message : "");
-
-      // Establece los slots disponibles solo si 'availableSlots' es realmente un array
-      if (Array.isArray(availableSlots)) {
-        setAvailableTimeSlots(availableSlots);
-        console.log(">>> Setting availableTimeSlots:", availableSlots);
-      } else {
-        // Si no es un array (undefined, null, etc.), asegura que el estado sea un array vacío
-        setAvailableTimeSlots([]);
-        console.log(
-          ">>> Setting availableTimeSlots: [] (Input not a valid array)"
-        );
-      }
-    } catch (error) {
-      // Captura errores de red o fallos inesperados durante el proceso
-      console.error("Error en fetchAvailableTimes:", error);
-      setAvailableTimeSlots([]);
-      setUnavailableTimeSlots([]);
-      setCanMakeReservationForDate(false); // Asume no disponible si hay error
-      setReservationBlockMessage("Error al cargar horarios. Intenta de nuevo.");
-    } finally {
-      // Siempre quita el indicador de carga al finalizar (éxito o error)
-      console.log(">>> Setting loadingTimes: false");
-      setLoadingTimes(false);
-    }
-  };
-  // --- Funciones Handler ---
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -333,45 +141,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
-
-    // Lógica específica cuando cambia el ÁREA SOCIAL
-    if (isAreaChange) {
-      // 1. Resetea estados dependientes del área y fecha
-      setBusyDays([]); // Resetea días ocupados inmediatamente para feedback visual
-      setAvailableTimeSlots([]); // Resetea horarios disponibles
-      setSelectedPeriods([]); // Resetea periodos seleccionados
-      // Limpia errores relacionados con fecha y periodos
-      setErrors((prev) => ({
-        ...prev,
-        fecha: undefined,
-        selectedPeriods: undefined,
-      }));
-      // Asegura que el estado de la fecha se limpie (aunque ya se hizo en setFormState)
-      // setFormState(prev => ({...prev, fecha: ''})); // Redundante si ya se hizo arriba
-
-      // 2. === LA CORRECCIÓN ES AQUÍ ===
-      // Si se seleccionó un área válida (no se deseleccionó a vacío)
-      if (value) {
-        console.log(`Área cambiada a ${value}. Obteniendo días ocupados...`);
-        // Ejecuta la llamada a la API para obtener los días ocupados (SIN date_at)
-        execute(
-          "/reservations-calendar", // URL (ya definida en el hook, pero podemos pasarla)
-          "GET", // Método
-          { area_id: value }, // Parámetros: SOLO el area_id
-          false, // skipAbort (normalmente false)
-          true // skipLoading (ajusta si usas el estado 'loading' del hook)
-        );
-        // El useEffect que depende de reservaCalendarResponse se encargará
-        // de actualizar busyDays cuando esta llamada termine.
-      } else {
-        // Si se deseleccionó el área, asegura que busyDays esté vacío
-        setBusyDays([]);
-      }
-      // 3. Resetea el índice de la imagen del carrusel si cambias de área
-      setCurrentImageIndex(0);
-    }
   };
-  //PARA ERROR EN IMAGEN
 
   const handlePeriodToggle = (period: string) => {
     setSelectedPeriods((prevSelected) => {
@@ -380,7 +150,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         prevSelected.length === 1 && prevSelected[0] === period;
 
       if (isCurrentlySelected) {
-        // Si se hace clic en el ya seleccionado, se deselecciona (queda vacío)
         return [];
       } else {
         // Si se hace clic en uno nuevo (o no había selección), se selecciona SOLO ese
@@ -394,29 +163,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
   };
 
-  // --- FIN Modificación handlePeriodToggle ---
-
-  const handleDateChange = (dateString: string | undefined) => {
-    const newDate = dateString || "";
-    console.log(newDate, "new");
-    // Actualiza fecha y resetea periodos seleccionados
-    setFormState({ ...formState, fecha: newDate });
-    setSelectedPeriods([]);
-
-    // Resetea estados de disponibilidad y errores relacionados
-    setAvailableTimeSlots([]); // Limpia slots anteriores
-    setCanMakeReservationForDate(null);
-    setReservationBlockMessage("");
-    setErrors((prev) => ({
-      ...prev,
-      fecha: newDate ? undefined : prev.fecha, // Limpia error fecha si hay nueva fecha
-      selectedPeriods: undefined, // Limpia error de periodo
-    }));
-
-    // --- 👇 LÓGICA MEJORADA PARA OBTENER owner_id Y LLAMAR fetch 👇 ---
-    // Solo procede si tenemos área, fecha Y unidad seleccionadas
-    if (formState.area_social && newDate && formState.unidad) {
-      // Encuentra la unidad seleccionada para obtener el owner_id
+  // --- FIN Modificación handlePeriodToggle ---]
+  const onMonth = (dateString: any) => {
+    if (formState.area_social && dateString && formState.unidad) {
       const selectedUnit = extraData?.dptos?.find(
         (u: ApiUnidad) => String(u.id) === formState.unidad
       );
@@ -424,42 +173,48 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
       if (ownerId) {
         // Llama a fetchAvailableTimes PASANDO el ownerId
-        fetchAvailableTimes(formState.area_social, newDate, ownerId);
+        getCalendar(dateString);
       } else {
-        // Manejo de error si no se encuentra el owner_id
-        console.error(
-          "Error: No se pudo encontrar owner_id para la unidad seleccionada:",
-          formState.unidad
-        );
         showToast(
           "No se pudo verificar la disponibilidad (error propietario).",
           "error"
         );
         // Asegura que los estados reflejen que no se pudo cargar
         setAvailableTimeSlots([]);
-        setCanMakeReservationForDate(false); // Asume no disponible
-        setReservationBlockMessage(
-          "No se encontró información del propietario para validar límites."
-        );
       }
     } else {
       // Si falta área, fecha o unidad, simplemente limpia los slots
       setAvailableTimeSlots([]);
-      setCanMakeReservationForDate(null); // Resetea
-      setReservationBlockMessage(""); // Resetea
     }
-    // --- 👆 FIN LÓGICA MEJORADA 👆 ---
   };
 
-  // --- Funciones de Validación ---
-  // const validateStep1 = (): boolean => {
-  //   const errs: FormErrors = {};
-  //   // El ID de la unidad ahora se compara como string si viene de un Select
-  //   if (!formState.unidad) errs.unidad = "Selecciona tu unidad";
-  //   if (!formState.area_social) errs.area_social = "Selecciona el área social";
-  //   setErrors(errs); // Actualiza el estado de errores
-  //   return Object.keys(errs).length === 0; // Devuelve true si no hay errores
-  // };
+  const handleDateChange = (dateString?: string | undefined) => {
+    setFormState({ ...formState, fecha: dateString || "" });
+    setSelectedPeriods([]);
+    const day: any = parseFloat(dateString?.split("-")[2] || "");
+    let dataDay = dataReserv.days[day];
+    let daysAvailable = [];
+    let unavailableSlots = [];
+
+    if (dateString == new Date().toISOString().split("T")?.[0]) {
+      daysAvailable = dataDay?.available.filter(
+        (d: any) => parseInt(d.split("-")[1]) > new Date().getHours()
+      );
+
+      unavailableSlots = dataDay?.available.filter(
+        (d: any) => parseInt(d.split("-")[1]) < new Date().getHours()
+      );
+    } else {
+      daysAvailable = dataDay?.available;
+    }
+
+    setUnavailableTimeSlots(unavailableSlots.concat(dataDay?.unavailable));
+    if (Array.isArray(daysAvailable)) {
+      setAvailableTimeSlots(daysAvailable);
+    } else {
+      setAvailableTimeSlots([]);
+    }
+  };
 
   const validateStep2 = () => {
     if (!formState.fecha) {
@@ -479,28 +234,19 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   };
   const nextStep = (): void => {
     if (currentStep === 1) {
-      // validateStep1();
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 2) {
       validateStep2();
-      // setCurrentStep((prev) => prev + 1);
     }
-    // if (currentStep < 3) {
-    //   // Asumiendo 3 pasos totales
-    //   setCurrentStep((prev) => prev + 1);
-    // }
   };
 
   const prevStep = (): void => {
-    // Solo permite retroceder si no estamos en el primer paso
     if (currentStep > 1) {
-      // Limpia los errores al retroceder
       setErrors({});
       setCurrentStep((prev) => prev - 1);
     }
   };
 
-  // --- MODIFICADO: `handleSubmit` con lógica de API POST ---
   const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
@@ -521,11 +267,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     );
     const ownerId = selectedUnit?.titular?.owner_id;
     if (!ownerId) {
-      /* ... manejo de error ... */ setIsSubmitting(false);
+      setIsSubmitting(false);
       return;
     }
-
-    // 2. MODIFICADO: Obtener start_time del primer periodo seleccionado (si existe)
     let startTime = "";
     // Asegura que los periodos estén ordenados antes de tomar el primero
     const sortedSelectedPeriods = [...selectedPeriods].sort();
@@ -545,20 +289,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         formState.motivo ||
         `Reserva de ${selectedAreaDetails?.title || "área"}`,
       start_time: startTime, // Usa el startTime calculado
-      // MODIFICADO: Envía SIEMPRE los periodos seleccionados
       Periods: sortedSelectedPeriods,
     };
     try {
-      // Llama a execute pasando la URL y el Método explícitamente
       const response = await execute(
-        "/reservations", // <-- Argumento 1: URL real
-        "POST", // <-- Argumento 2: Método real
-        payload, // Argumento 3: Payload (tu objeto con los datos)
-        false, // Argumento 4: 'Act' (generalmente false si no necesitas que este hook actualice su propio estado 'data')
-        false // Argumento 5: 'notWaiting' (generalmente false para indicar que sí quieres manejar el estado de carga global si existe)
+        "/reservations",
+        "POST",
+        payload,
+        false,
+        false
       );
-
-      // El resto del manejo de la respuesta sigue igual...
       if (response?.data?.success) {
         showToast(
           response?.data?.message || "Reserva creada exitosamente",
@@ -581,48 +321,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       setIsSubmitting(false);
     }
   };
-  // Dentro del componente CreateReserva, antes del return
 
   const handleQuantityChange = (newValue: number | string) => {
     let finalValue: string;
-
-    // CASO 1: El usuario borró el contenido o es un string vacío.
     if (String(newValue).trim() === "") {
       finalValue = ""; // Permitir que el campo se quede vacío
-      console.log("[HQC Logic] Path: empty string input by user"); // DEBUG
     } else {
-      // CASO 2: El input no está vacío, procesar como número.
       const numValue = Number(newValue);
       const min = 1; // El mínimo lógico para la cantidad sigue siendo 1
       const max = selectedAreaDetails?.max_capacity;
-      console.log(
-        `[HQC Logic] numValue: ${numValue}, min: ${min}, max: ${max}`
-      ); // DEBUG
-
       if (isNaN(numValue)) {
-        // Si se tecleó algo no numérico (ej. "abc")
         finalValue = ""; // Dejar vacío para que el usuario corrija, o podrías usar el valor anterior: formState.cantidad_personas
-        console.log(
-          "[HQC Logic] Path: isNaN after attempting to parse non-empty string"
-        ); // DEBUG
       } else if (max !== undefined && max !== null && numValue > max) {
         finalValue = String(max);
-        console.log(
-          `[HQC Logic] Path: numValue > max. Corrected to max: ${finalValue}`
-        ); // DEBUG
       } else if (numValue < min) {
-        // Si el número es explícitamente < 1 (ej. el usuario tipeó "0" o "-5")
         finalValue = String(min);
-        console.log(
-          `[HQC Logic] Path: numValue < min (but not an initially empty input). Corrected to min: ${finalValue}`
-        ); // DEBUG
       } else {
-        // Es un número válido dentro de los rangos
         finalValue = String(newValue); // Usar newValue directamente si ya es un string numérico válido
-        console.log(
-          "[HQC Logic] Path: else (valid number). Set to input newValue:",
-          finalValue
-        ); // DEBUG
       }
     }
 
@@ -631,7 +346,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       cantidad_personas: finalValue,
     }));
 
-    // Limpiar error si el campo ahora es válido o si se está manejando de otra forma
     if (errors.cantidad_personas) {
       if (finalValue.trim() === "") {
         // Si el campo está vacío, la validación del paso (validateStep2) lo marcará como error al intentar continuar.
@@ -651,20 +365,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   };
 
   const incrementPeople = () => {
-    const currentValue = Number(formState.cantidad_personas || 0); // Si está vacío, empieza desde 0
-    const max = selectedAreaDetails?.max_capacity;
+    const currentValue = Number(formState.cantidad_personas || 0);
     const newValue = currentValue + 1;
-
-    // Aplicar la nueva lógica de manejo de cambio que respeta límites
     handleQuantityChange(newValue);
   };
 
   const decrementPeople = () => {
-    const currentValue = Number(formState.cantidad_personas || 1); // Si está vacío, empieza desde 1
-    const min = 1;
+    const currentValue = Number(formState.cantidad_personas || 1);
     const newValue = currentValue - 1;
-
-    // Aplicar la nueva lógica de manejo de cambio que respeta límites
     handleQuantityChange(newValue);
   };
   const allTimeSlots = useMemo(() => {
@@ -676,8 +384,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       period,
       isAvailable: false,
     }));
-
-    // Combina y ordena los periodos cronológicamente
     return [...available, ...unavailable].sort((a, b) =>
       a.period.localeCompare(b.period)
     );
@@ -685,9 +391,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* === Botón Volver (Ahora dentro del wrapper, posicionado absolutamente respecto a él) === */}
       <button onClick={onClose} className={styles.backButton}>
-        <IconArrowLeft /> Volver a lista de reservas {/* O solo "Volver" */}
+        <IconArrowLeft /> Volver a lista de reservas
       </button>
       <div className={styles.createReservaContainer}>
         {/* --- Header --- */}
@@ -732,7 +437,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   className={styles.areaSeparator}
                   style={{ marginBottom: 12 }}
                 />
-                {/* Sección Datos Reserva (Área Social) */}
+
                 <div className={styles.formSection}>
                   <h3 className={styles.sectionTitle}>Datos de la reserva</h3>
                   <div className={styles.formField}>
@@ -817,18 +522,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             </div>
                           </div>
                         )}
-                      {/* Si no hay imágenes */}
-                      {(!selectedAreaDetails.images ||
-                        selectedAreaDetails.images.length === 0) && (
-                        <div className={styles.imageContainer}>
-                          <img
-                            src="/assets/no-image.png"
-                            alt="Sin imagen"
-                            className={styles.previewImage}
-                          />
-                        </div>
-                      )}
-                      {/* Columna Detalles */}
                       <div className={styles.areaInfo}>
                         {/* Título y Estado */}
                         <div className={styles.areaHeader}>
@@ -937,6 +630,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <CalendarPicker
                     selectedDate={formState.fecha}
                     onDateChange={handleDateChange}
+                    onMonthSelect={onMonth}
                     busyDays={busyDays}
                     available_days={selectedAreaDetails?.available_days}
                   />
@@ -977,114 +671,58 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           Sólo se permite 1 periodo por reserva
                         </p>
 
-                        {/* 1. Muestra el mensaje de bloqueo si aplica */}
-                        {canMakeReservationForDate === false &&
-                        reservationBlockMessage ? (
-                          <div
-                            className={styles.warningText}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              border: "1px solid var(--cWarning)",
-                              padding: "8px",
-                              borderRadius: "var(--brStandard)",
-                              background: "rgba(228, 96, 85, 0.1)",
-                            }}
-                          >
-                            {/* Estilo inline o clase CSS */}
-                            <IconX color="var(--cWarning)" size={16} />{" "}
-                            {/* Icono X o similar */}
-                            <span>{reservationBlockMessage}</span>
+                        {allTimeSlots.length > 0 && (
+                          <div className={styles.periodSelectionContainer}>
+                            {allTimeSlots.map((slot) => {
+                              const isSelected = selectedPeriods.includes(
+                                slot.period
+                              );
+                              const isDisabled = !slot.isAvailable;
+
+                              return (
+                                <button
+                                  type="button"
+                                  key={slot.period}
+                                  className={`${styles.periodButton} ${
+                                    isSelected && slot.isAvailable
+                                      ? styles.selectedPeriod
+                                      : ""
+                                  } ${
+                                    // Usa una clase específica para los no disponibles para darles un estilo diferente
+                                    !slot.isAvailable
+                                      ? styles.unavailablePeriod
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    if (slot.isAvailable) {
+                                      handlePeriodToggle(slot.period);
+                                    }
+                                  }}
+                                  // Deshabilita el botón si no está disponible o por bloqueo general
+                                  disabled={isDisabled}
+                                  // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
+                                  title={
+                                    !slot.isAvailable
+                                      ? "Este período ya fue reservado"
+                                      : ""
+                                  }
+                                >
+                                  {slot?.period?.replace("-", " a ")}
+                                </button>
+                              );
+                            })}
                           </div>
-                        ) : null}
+                        )}
 
-                        {/* 2. Muestra el Loader O el Contenido */}
-                        {loadingTimes ? (
-                          <div
-                            style={{ padding: "20px 0", textAlign: "center" }}
-                          >
-                            <span className={styles.loadingText}>
-                              Cargando periodos...
-                            </span>
-                          </div>
-                        ) : (
-                          // Si NO está cargando:
-                          <>
-                            {/* 3. Muestra los slots SI existen en el estado */}
-
-                            {allTimeSlots.length > 0 ? (
-                              <div className={styles.periodSelectionContainer}>
-                                {allTimeSlots.map((slot) => {
-                                  // `slot` ahora es un objeto: { period: string, isAvailable: boolean }
-
-                                  const isSelected = selectedPeriods.includes(
-                                    slot.period
-                                  );
-
-                                  // El botón está deshabilitado si el slot NO está disponible O si hay un bloqueo general.
-                                  const isDisabled =
-                                    !slot.isAvailable ||
-                                    canMakeReservationForDate === false;
-
-                                  return (
-                                    <button
-                                      type="button"
-                                      key={slot.period}
-                                      className={`${styles.periodButton} ${
-                                        isSelected && slot.isAvailable
-                                          ? styles.selectedPeriod
-                                          : ""
-                                      } ${
-                                        // Usa una clase específica para los no disponibles para darles un estilo diferente
-                                        !slot.isAvailable
-                                          ? styles.unavailablePeriod
-                                          : ""
-                                      }`}
-                                      onClick={() => {
-                                        // Solo permite seleccionar si está disponible
-                                        if (slot.isAvailable) {
-                                          handlePeriodToggle(slot.period);
-                                        }
-                                      }}
-                                      // Deshabilita el botón si no está disponible o por bloqueo general
-                                      disabled={isDisabled}
-                                      // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
-                                      title={
-                                        !slot.isAvailable
-                                          ? "Este período ya fue reservado"
-                                          : ""
-                                      }
-                                    >
-                                      {slot.period.replace("-", " a ")}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            ) : (
-                              // La lógica para cuando no hay NINGÚN periodo (ni disponible ni ocupado)
-                              canMakeReservationForDate === true && (
-                                <span className={styles.warningText}>
-                                  No hay periodos definidos para esta área en
-                                  esta fecha.
-                                </span>
-                              )
-                            )}
-
-                            {/* 5. Muestra error de validación si el usuario intentó continuar sin seleccionar */}
-                            {errors.selectedPeriods && (
-                              <span className={styles.errorText}>
-                                {errors.selectedPeriods}
-                              </span>
-                            )}
-                          </>
+                        {errors.selectedPeriods && (
+                          <span className={styles.errorText}>
+                            {errors.selectedPeriods}
+                          </span>
                         )}
                       </div>
                     )}
                   </>
                 )}
-
-                {/* Sección Cantidad Personas */}
 
                 <hr
                   className={styles.areaSeparator}
@@ -1196,7 +834,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     ); // Placeholder
                   }
 
-                  // Renderiza la información del propietario
                   return (
                     <div className={styles.summaryOwnerInfoContainer}>
                       <div className={styles.summaryOwnerInfo}>
@@ -1227,7 +864,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   );
                 })()}
                 <hr className={styles.areaSeparator} />
-                {/* --- FIN BLOQUE INFO DEL OWNER --- */}
 
                 <div className={styles.summaryContainer}>
                   {selectedAreaDetails ? (
@@ -1239,8 +875,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           <>
                             <img
                               key={
-                                selectedAreaDetails.images[currentImageIndex].id
-                              } // Add key for re-render on change
+                                selectedAreaDetails.images[currentImageIndex]
+                                  ?.id
+                              }
                               className={styles.previewImage}
                               src={getUrlImages(
                                 `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
@@ -1368,12 +1005,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                               <IconMonedas />
                             </span>{" "}
                             {/* Icono */}
-                            {selectedAreaDetails.is_free === "A" ? (
-                              // Si es Gratis
-                              <span className={styles.summaryPricePerUnit}>
-                                Gratis
-                              </span>
-                            ) : selectedAreaDetails.price != null ? (
+                            {selectedAreaDetails.price != null ? (
                               <span className={styles.summaryPricePerUnit}>
                                 Bs{" "}
                                 {Number(selectedAreaDetails.price).toFixed(2)}
@@ -1381,11 +1013,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                               </span>
                             ) : (
                               <span className={styles.summaryPricePerUnit}>
-                                Precio no disponible
+                                Gratis
                               </span>
                             )}
                           </div>
-                          {/* --- Fin Costo (MODIFICADO) --- */}
                         </div>
                       </div>
                     </div>
