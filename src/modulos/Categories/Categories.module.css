@@ -1,14 +1,12 @@
 .container {
   width: 100%;
-  max-width: 100%;
 }
+
 .headerTitle {
-  flex: 0 0 auto;
-  margin-right: 16px;
   font-size: var(--sXxl);
   font-weight: var(--bSemibold);
   color: var(--cWhite);
-  margin: 0 0 8px 0;
+  margin: 0 0 16px 0;
 }
 .cardEven {
   background-color: var(--cBlackV2);
@@ -44,9 +42,10 @@
   font-size: var(--sM);
   font-weight: var(--bMedium);
 }
+
 .categoryDescription {
   flex: 1;
-  color: var(--cWhiteV1, #aaaaaa);
+  color: var(--cWhiteV1);
   font-size: var(--sM);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,20 +59,22 @@
   flex-shrink: 0;
   margin-left: auto;
 }
-.editButton:hover {
-  color: var(--cAccent, #4caf50);
+.editButton:hover,
+.editButtonSub:hover {
+  color: var(--cAccent);
 }
-.deleteButton:hover {
-  color: var(--cError, #ff5252);
+
+.deleteButton:hover,
+.deleteButtonSub:hover {
+  color: var(--cError);
 }
 .arrowIcon {
   transform: rotate(0);
   transition: transform 0.3s ease;
-  color: var(--cLightv2, #cccccc);
+  color: var(--cLightv2);
   flex-shrink: 0;
   cursor: pointer;
   min-width: 24px;
-
 }
 
 .arrowIcon.expanded {
@@ -104,23 +105,7 @@
   border-bottom: 0.5px solid var(--cWhiteV1);
   gap: 16px;
 }
-.subcategoryName {
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
-  color: var(--cWhiteV1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-left: 30px;
-  flex-shrink: 0;
-}
-.subcategoryContent {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
+
 .subcategoryDesc {
   font-size: var(--sM);
   font-weight: var(--bRegular);
@@ -129,30 +114,18 @@
   text-overflow: ellipsis;
   flex-grow: 1;
   text-align: left;
-
+  width: 50%;
 }
 .subcategoryActions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
-.actionButton {
-  background-color: transparent;
-  border: none;
-  color: var(--cLightv2, #cccccc);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
+.actionButton,
 .actionButtonSub {
   background-color: transparent;
   border: none;
-  color: var(--cLightv2, #cccccc);
+  color: var(--cLightv2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -161,12 +134,6 @@
   height: 32px;
   border-radius: 50%;
   transition: background-color 0.2s;
-}
-.editButtonSub:hover {
-  color: var(--cAccent, #4caf50);
-}
-.deleteButtonSub:hover {
-  color: var(--cError, #ff5252);
 }
 .addSubcategoryContainer {
   padding: 8px 0;
@@ -175,23 +142,23 @@
 }
 .addSubcategoryButton {
   background-color: transparent;
-  font-size: 12px;
+  font-size: 14px;
   font-family: Roboto, sans-serif;
   font-weight: var(--bRegular);
   border: none;
   display: flex;
-  align-items: left;
+  align-items: center;
   gap: 8px;
   color: var(--cAccent);
-  font-size: 14px;
   cursor: pointer;
   padding: 8px;
   margin-left: 48px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: color 0.2s;
   width: 100%;
-  justify-content: left;
+  justify-content: flex-start;
 }
+
 .addSubcategoryButton:hover {
   color: var(--cDarkv2);
 }
@@ -201,6 +168,18 @@
   flex-direction: column;
   gap: 12px;
 }
+.searchContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dataSearchCustom {
+  flex: 1;
+}
+
 .dataSearchCustom input {
   min-width: 320px;
   font-size: var(--spL);
@@ -208,11 +187,20 @@
   padding: 0 16px;
   box-sizing: border-box;
 }
+
+.addButton {
+  padding: 8px 16px;
+  width: auto;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
 .backLink {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--cAccent, #4caf50);
+  color: var(--cAccent);
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
@@ -220,6 +208,7 @@
   cursor: pointer;
   width: fit-content;
 }
+
 .backLink:hover {
   text-decoration: underline;
   color: var(--cDarkv2);
@@ -246,14 +235,17 @@
   align-items: center;
 }
 
-.subcategoryName,
-.subcategoryDesc {
-  width: 50%;
-  text-align: left;
-  font-size: 14px;
+.subcategoryName {
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  color: var(--cWhiteV1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 30px;
+  flex-shrink: 0;
+  width: 50%;
+  text-align: left;
 }
 
 .subcategoryActions {

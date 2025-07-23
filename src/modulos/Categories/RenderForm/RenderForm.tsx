@@ -4,11 +4,8 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import styles from './RenderForm.module.css';
-import {
-  CategoryFormProps,
-  InputEvent,
-  CategoryItem,
-} from '../Type/CategoryType';
+import { CategoryFormProps, InputEvent, CategoryItem } from '../Type/CategoryType';
+
 const CategoryForm = memo(
   ({
     open,
@@ -21,176 +18,86 @@ const CategoryForm = memo(
     getExtraData,
     action,
     categoryType,
-    data,
   }: CategoryFormProps) => {
+    const [_Item, set_Item] = useState<Partial<CategoryItem>>({});
 
-    const [_Item, set_Item] = useState<Partial<CategoryItem>>(() => {
-      const initialData = { ...item };
-      if (action === 'add' && initialData._isAddingSubcategoryFlow) {
-        delete initialData._isAddingSubcategoryFlow;
-      }
-      return initialData;
-    });
-    const [formErrors, setFormErrors] = useState<any>({});
-    const [isCateg, setIsCateg] = useState<string>(() => {
-      return item?.category_id ? 'S' : 'C';
-    });
+    const isSubcategoryMode = !!_Item.category_id;
 
-    const [wantSubcategories, setWantSubcategories] = useState<boolean>(() => {
-      return !!(
-        action === 'add' &&
-        item?._isAddingSubcategoryFlow &&
-        item?.category_id
-      );
-    });
     useEffect(() => {
-      const initialData = { ...item };
-      let wantsSub = false;
-      let newIsCateg = 'C';
-
-      if (
-        action === 'add' &&
-        initialData._isAddingSubcategoryFlow &&
-        initialData.category_id
-      ) {
-        wantsSub = true;
-        newIsCateg = 'S';
-        delete initialData._isAddingSubcategoryFlow;
-      } else if (initialData.category_id) {
-        newIsCateg = 'S';
-      }
-      set_Item(initialData);
-      setWantSubcategories(wantsSub);
-      setIsCateg(newIsCateg);
-    }, [item, action]);
+      const { _isAddingSubcategoryFlow, ...cleanItem } = item || {};
+      set_Item(cleanItem);
+    }, [item]);
 
     const handleChange = useCallback((e: InputEvent) => {
       const { name, value, type, checked } = e.target;
-      setFormErrors((prev: any) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-
-      set_Item(prevItem => ({
-        ...prevItem,
+      set_Item(prev => ({
+        ...prev,
         [name]: type === 'checkbox' ? checked : value,
       }));
     }, []);
 
     const handleSave = useCallback(() => {
-      const newErrors: any = {};
-      if (!_Item.name || _Item.name.trim() === '') {
-        newErrors.name = 'El nombre de la categoría es obligatorio.';
-      }
-      if ((isCateg === 'S' || wantSubcategories) && !_Item.category_id) {
-        newErrors.category_id = 'Debe seleccionar una Categoría Padre.';
-      }
-      if (Object.keys(newErrors).length > 0) {
-        setFormErrors(newErrors);
-        return;
-      }
-      setFormErrors({});
-      const cleanItem: Partial<CategoryItem> & { type?: string } = { ..._Item };
-      if (cleanItem.hijos) {
-        delete cleanItem.hijos;
-      }
-      if (wantSubcategories && cleanItem.category_id) {
-      } else {
-        cleanItem.category_id = null;
-      }
-      if ('_initItem' in cleanItem) delete cleanItem._initItem;
-      if ('category' in cleanItem) delete cleanItem.category;
-      if (action === 'edit' && 'fixed' in cleanItem) delete cleanItem.fixed;
-      cleanItem.type = categoryType === 'I' ? 'I' : 'E';
-      if (setItem) {
-        setItem(cleanItem);
-      }
+      if (!_Item.name?.trim()) return;
+
+      const cleanItem = {
+        ..._Item,
+        type: categoryType === 'I' ? 'I' : 'E',
+        category_id: isSubcategoryMode ? _Item.category_id : null,
+      };
+
+      // Remove unnecessary properties
+      const propsToDelete = [
+        'hijos',
+        '_initItem',
+        'category',
+        ...(action === 'edit' ? ['fixed'] : []),
+      ];
+      propsToDelete.forEach(prop => delete cleanItem[prop as keyof typeof cleanItem]);
+
+      setItem?.(cleanItem);
       onSave(cleanItem);
-      if (getExtraData) {
-        getExtraData();
-      }
-    }, [
-      _Item,
-      onSave,
-      setItem,
-      wantSubcategories,
-      action,
-      categoryType,
-      getExtraData,
-      isCateg,
-    ]);
-    const isSubcategoryMode =
-      isCateg === 'S' || (isCateg === 'C' && wantSubcategories);
-    const isAddSubcategoryFlow = action === 'add' && !!item?.category_id;
-    let dynamicModalTitle = '';
-    let dynamicButtonText = '';
-    if (action === 'add') {
-      if (isAddSubcategoryFlow) {
-        dynamicModalTitle = `Registrar subcategoría `;
-        dynamicButtonText = 'Guardar';
-      } else {
-        dynamicModalTitle = `Registrar categoría`;
-        dynamicButtonText = 'Guardar';
-      }
-    } else if (action === 'edit' && isSubcategoryMode) {
-      dynamicModalTitle = `Editar subcategoría`;
-      dynamicButtonText = 'Guardar';
-    } else {
-      dynamicModalTitle = `Editar categoría`;
-      dynamicButtonText = 'Guardar';
-    }
+      getExtraData?.();
+    }, [_Item, onSave, setItem, action, categoryType, getExtraData, isSubcategoryMode]);
+    const { modalTitle, buttonText } = useMemo(() => {
+      const itemType = isSubcategoryMode ? 'subcategoría' : 'categoría';
+      const actionText = action === 'edit' ? 'Editar' : 'Registrar';
+
+      return {
+        modalTitle: `${actionText} ${itemType}`,
+        buttonText: 'Guardar',
+      };
+    }, [action, isSubcategoryMode]);
+    const parentCategory = useMemo(
+      () => extraData?.categories?.find((cat : any) => String(cat.id) === String(_Item.category_id)),
+      [extraData?.categories, _Item.category_id]
+    );
+
     if (!open) return null;
+
     return (
       <DataModal
         id="CategoriaFormModal"
-        title={dynamicModalTitle}
+        title={modalTitle}
         open={open}
         onClose={onClose}
-        buttonText={dynamicButtonText}
+        buttonText={buttonText}
         buttonCancel="Cancelar"
         onSave={handleSave}
         className={styles.formModalContent}
       >
         <div className={styles.formContainer2}>
-          {isAddSubcategoryFlow && (
+          {isSubcategoryMode && (
             <>
               <Input
                 name="category_id_name"
                 label="Categoría padre"
-                value={
-                  extraData?.categories?.find((cat: any) => String(cat.id) === String(_Item.category_id))?.name || ''
-                }
-                onChange={() => { }}
+                value={parentCategory?.name || ''}
+                onChange={() => {}}
                 required
                 className={styles.customSelect}
                 disabled
               />
-              <input
-                type="hidden"
-                name="category_id"
-                value={_Item.category_id || ''}
-              />
-            </>
-          )}
-          {!isAddSubcategoryFlow && isSubcategoryMode && action !== 'add' && (
-            <>
-              <Input
-                name="category_id_name"
-                label="Categoría padre"
-                value={
-                  extraData?.categories?.find((cat: any) => String(cat.id) === String(_Item.category_id))?.name || ''
-                }
-                onChange={() => { }}
-                required
-                className={styles.customSelect}
-                disabled
-              />
-              <input
-                type="hidden"
-                name="category_id"
-                value={_Item.category_id || ''}
-              />
+              <input type="hidden" name="category_id" value={_Item.category_id || ''} />
             </>
           )}
           <Input
@@ -198,11 +105,7 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ''}
             onChange={handleChange}
-            label={
-              isSubcategoryMode
-                ? 'Nombre de la subcategoría'
-                : 'Nombre de la categoría'
-            }
+            label={`Nombre de la ${isSubcategoryMode ? 'subcategoría' : 'categoría'}`}
             error={errors?.name}
             required
           />
@@ -210,18 +113,10 @@ const CategoryForm = memo(
             name="description"
             value={_Item.description || ''}
             onChange={handleChange}
-            label={
-              isSubcategoryMode
-                ? 'Descripción de la nueva subcategoría'
-                : 'Descripción de la nueva categoría'
-            }
+            label={`Descripción de la nueva ${isSubcategoryMode ? 'subcategoría' : 'categoría'}`}
             error={errors?.description}
           />
-          <input
-            type="hidden"
-            name="type"
-            value={categoryType === 'I' ? 'I' : 'E'}
-          />
+          <input type="hidden" name="type" value={categoryType === 'I' ? 'I' : 'E'} />
         </div>
       </DataModal>
     );

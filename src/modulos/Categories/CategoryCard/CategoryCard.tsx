@@ -8,6 +8,7 @@ import {
   IconSimpleAdd,
 } from '@/components/layout/icons/IconsBiblioteca';
 import { CategoryCardProps, CategoryItem } from '../Type/CategoryType';
+
 const CategoryCard = memo(
   ({
     item,
@@ -24,11 +25,8 @@ const CategoryCard = memo(
     const [showSubcategories, setShowSubcategories] = useState<boolean>(forceOpen);
 
     useEffect(() => {
-      if (forceOpen) setShowSubcategories(true);
+      setShowSubcategories(forceOpen);
     }, [forceOpen]);
-    useEffect(() => {
-      if (forceOpen && !showSubcategories) setShowSubcategories(true);
-    }, [forceOpen, showSubcategories]);
 
     const toggleSubcategories = useCallback((e: React.MouseEvent) => {
       e.stopPropagation();
@@ -45,15 +43,11 @@ const CategoryCard = memo(
     const handleEditClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
-        const editableItem = { ...item };
-        if (!editableItem.category_id) {
-          editableItem.category_id = null;
-        }
-        editableItem.type = categoryType;
-        onEdit(editableItem);
+        onEdit({ ...item, type: categoryType });
       },
       [item, onEdit, categoryType]
     );
+
     const handleDeleteClick = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -61,18 +55,20 @@ const CategoryCard = memo(
       },
       [item, onDel]
     );
-    let parentBgColor = '';
-    if (className.includes(styles.cardEven)) {
-      parentBgColor = 'var(--cBlackV2)';
-    } else if (className.includes(styles.cardOdd)) {
-      parentBgColor = 'var(--cWhiteV2)';
-    }
-    const isAccordionOpen = forceOpen ? true : showSubcategories;
-    const cardClasses = `${styles.categoryCard} ${className} ${isSelected ? styles.selectedCard : ''}${isAccordionOpen ? ' ' + styles.accordionOpen : ''}`;
+    const parentBgColor = className.includes(styles.cardEven) 
+      ? 'var(--cBlackV2)' 
+      : className.includes(styles.cardOdd) 
+      ? 'var(--cWhiteV2)' 
+      : '';
+
+    const isAccordionOpen = forceOpen || showSubcategories;
+    const cardClasses = `${styles.categoryCard} ${className} ${
+      isSelected ? styles.selectedCard : ''
+    }${isAccordionOpen ? ` ${styles.accordionOpen}` : ''}`;
     return (
       <div
         className={cardClasses}
-        style={parentBgColor ? { backgroundColor: parentBgColor } : {}}
+        style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
       >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
@@ -82,10 +78,9 @@ const CategoryCard = memo(
               size={20}
             />
             <span
-              className={
-                styles.categoryNameText +
-                (isAccordionOpen ? ' ' + styles.categoryNameTextOpen : '')
-              }
+              className={`${styles.categoryNameText} ${
+                isAccordionOpen ? styles.categoryNameTextOpen : ''
+              }`}
             >
               {item.name || 'Sin nombre'}
             </span>
@@ -120,9 +115,7 @@ const CategoryCard = memo(
                 item.hijos?.map((subcat: CategoryItem) => {
                   const handleSubcatEdit = (e: React.MouseEvent) => {
                     e.stopPropagation();
-                    const editableSubcat = { ...subcat };
-                    editableSubcat.type = categoryType;
-                    onEdit(editableSubcat);
+                    onEdit({ ...subcat, type: categoryType });
                   };
                   const handleSubcatDelete = (e: React.MouseEvent) => {
                     e.stopPropagation();
@@ -133,9 +126,7 @@ const CategoryCard = memo(
                     <div
                       key={subcat.id || `subcat-${Math.random()}`}
                       className={`${styles.subcategoryItem}`}
-                      style={
-                        parentBgColor ? { backgroundColor: parentBgColor } : {}
-                      }
+                      style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
                       role="button"
                       tabIndex={0}
                     >
@@ -175,10 +166,8 @@ const CategoryCard = memo(
                   className={styles.addSubcategoryButton}
                   onClick={e => {
                     e.stopPropagation();
-                    if (item.id !== undefined) {
+                    if (item.id) {
                       onAddSubcategory(item.id.toString());
-                    } else {
-                      console.error('Error: La categoría padre no tiene ID.');
                     }
                   }}
                 >

@@ -9,21 +9,17 @@ import Button from '@/mk/components/forms/Button/Button';
 import CategoryForm from './RenderForm/RenderForm';
 import CategoryCard from './CategoryCard/CategoryCard';
 import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
-const BackNavigation = ({ type }: { type: 'I' | 'E' }) => {
-  const isIncome = type === 'I';
-  const routePath = isIncome ? '/payments' : '/outlays';
-  const linkText = isIncome ? 'Volver a sección ingresos' : 'Volver a sección egresos';
-  return (
-    <Link href={routePath} className={styles.backLink}>
-      <IconArrowLeft />
-      <span>{linkText}</span>
-    </Link>
-  );
-};
+
+const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
+  <Link href={type === 'I' ? '/payments' : '/outlays'} className={styles.backLink}>
+    <IconArrowLeft />
+    <span>Volver a sección {type === 'I' ? 'ingresos' : 'egresos'}</span>
+  </Link>
+);
 const Categories = ({ type = '' }) => {
-  const isIncome = type === 'I';
-  const categoryTypeText = isIncome ? 'ingresos' : 'egresos';
-  const typeToUse = isIncome ? 'I' : 'E';
+  const typeToUse = type === 'I' ? 'I' : 'E';
+  const categoryTypeText = typeToUse === 'I' ? 'ingresos' : 'egresos';
+
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
   const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
@@ -48,10 +44,7 @@ const Categories = ({ type = '' }) => {
         search: { hide: true },
         extraData: { params: { type: typeToUse } } as any,
         hideActions: {
-          view: false,
           add: true,
-          edit: false,
-          del: false,
         },
         saveMsg: {
           add: `Categoría de ${categoryTypeText} creada con éxito`,
@@ -60,28 +53,23 @@ const Categories = ({ type = '' }) => {
         },
         messageDel:
           '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla',
-        renderForm: (propsFromCrud: any) => {
-          const itemParaForm = initialFormDataOverride
-            ? { ...propsFromCrud.item, ...initialFormDataOverride }
-            : propsFromCrud.item;
-
-          const handleCloseWrapper = () => {
-            setInitialFormDataOverride(null);
-            propsFromCrud.onClose();
-          };
-          return (
-            <CategoryForm
-              {...propsFromCrud}
-              item={itemParaForm}
-              setItem={propsFromCrud.setItem}
-              onClose={handleCloseWrapper}
-              categoryType={typeToUse}
-              getExtraData={getExtraData}
-            />
-          );
-        },
+        renderForm: (propsFromCrud: any) => (
+          <CategoryForm
+            {...propsFromCrud}
+            item={
+              initialFormDataOverride
+                ? { ...propsFromCrud.item, ...initialFormDataOverride }
+                : propsFromCrud.item
+            }
+            onClose={() => {
+              setInitialFormDataOverride(null);
+              propsFromCrud.onClose();
+            }}
+            categoryType={typeToUse}
+            getExtraData={getExtraData}
+          />
+        ),
       }),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       [typeToUse, categoryTypeText, initialFormDataOverride]
     ),
     fields: useMemo(
@@ -123,93 +111,67 @@ const Categories = ({ type = '' }) => {
     ),
   });
   const handleEdit = useCallback(
-    (itemToEdit: CategoryItem): void => {
-      const editableItem = { ...itemToEdit };
-      if (!editableItem.category_id) {
-        editableItem.category_id = null;
-      }
-      editableItem.type = typeToUse;
-      onEdit(editableItem);
+    (itemToEdit: CategoryItem) => {
+      onEdit({ ...itemToEdit, type: typeToUse, category_id: itemToEdit.category_id || null });
     },
     [onEdit, typeToUse]
   );
-  const handleDelete = useCallback(
-    (itemToDelete: CategoryItem): void => {
-      onDel(itemToDelete);
-    },
-    [onDel]
-  );
+
+  const handleDelete = useCallback((itemToDelete: CategoryItem) => onDel(itemToDelete), [onDel]);
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
-      const initialData: Partial<CategoryItem> = {
+      setInitialFormDataOverride({
         category_id: parentCategoryId,
         type: typeToUse,
         _isAddingSubcategoryFlow: true,
-      };
-      setInitialFormDataOverride(initialData);
+      });
       onAdd({ type: typeToUse });
     },
     [onAdd, typeToUse]
   );
-  const handleAddPrincipalCategory = useCallback(
-    () => {
-      const initialData: Partial<CategoryItem> = {
-        type: typeToUse,
-      };
-      setInitialFormDataOverride(initialData);
-      onAdd({ type: typeToUse });
-    },
-    [onAdd, typeToUse]
-  );
+
+  const handleAddPrincipalCategory = useCallback(() => {
+    setInitialFormDataOverride({ type: typeToUse });
+    onAdd({ type: typeToUse });
+  }, [onAdd, typeToUse]);
   const renderCardFunction = useCallback(
-    (item: CategoryItem, index: number, baseOnRowClick: (item: CategoryItem) => void) => {
-      const cardClassName = index % 2 === 0 ? styles.cardEven : styles.cardOdd;
-
-      const forceOpen = forceOpenAccordions;
-      return (
-        <CategoryCard
-          key={item.id ?? `category-${index}`}
-          item={item}
-          className={cardClassName}
-          onClick={subCategoryItem => {
-            baseOnRowClick(subCategoryItem);
-          }}
-          onEdit={handleEdit}
-          onDel={handleDelete}
-          categoryType={typeToUse}
-          onAddSubcategory={handleAddSubcategory}
-          forceOpen={forceOpen}
-
-        />
-      );
-    },
+    (item: CategoryItem, index: number, baseOnRowClick: (item: CategoryItem) => void) => (
+      <CategoryCard
+        key={item.id ?? `category-${index}`}
+        item={item}
+        className={index % 2 === 0 ? styles.cardEven : styles.cardOdd}
+        onClick={baseOnRowClick}
+        onEdit={handleEdit}
+        onDel={handleDelete}
+        categoryType={typeToUse}
+        onAddSubcategory={handleAddSubcategory}
+        forceOpen={forceOpenAccordions}
+      />
+    ),
     [handleEdit, handleDelete, typeToUse, handleAddSubcategory, forceOpenAccordions]
   );
-  const handleSearch = (value: string) => {
-    onSearch(value);
-    setForceOpenAccordions(Boolean(value && value.trim()));
-  };
+  const handleSearch = useCallback(
+    (value: string) => {
+      onSearch(value);
+      setForceOpenAccordions(!!value?.trim());
+    },
+    [onSearch]
+  );
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
       <p className={styles.headerTitle} style={{ marginBottom: 16 }}>
         Categorías de {categoryTypeText}
       </p>
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <div style={{ flex: 1 }}>
-          <DataSearch
-            value={searchs.searchBy || ''}
-            name="categoriesSearch"
-            setSearch={handleSearch}
-            textButton="Buscar"
-            className={styles.dataSearchCustom}
-            style={{ width: '100%' }}
-          />
-        </div>
-        <Button
-          onClick={handleAddPrincipalCategory}
-          style={{ padding: '8px 16px', width: 'auto', height: 48, display: 'flex', alignItems: 'center' }}
-        >
+      <div className={styles.searchContainer}>
+        <DataSearch
+          value={searchs.searchBy || ''}
+          name="categoriesSearch"
+          setSearch={handleSearch}
+          textButton="Buscar"
+          className={styles.dataSearchCustom}
+        />
+        <Button onClick={handleAddPrincipalCategory} className={styles.addButton}>
           Nueva categoría
         </Button>
       </div>
