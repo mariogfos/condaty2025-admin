@@ -19,9 +19,8 @@ const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
 const Categories = ({ type = '' }) => {
   const typeToUse = type === 'I' ? 'I' : 'E';
   const categoryTypeText = typeToUse === 'I' ? 'ingresos' : 'egresos';
-
-  const [initialFormDataOverride, setInitialFormDataOverride] =
-    useState<Partial<CategoryItem> | null>(null);
+  
+  const [initialFormDataOverride, setInitialFormDataOverride] = useState<Partial<CategoryItem> | null>(null);
   const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
 
   const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs } = useCrud({
@@ -56,11 +55,7 @@ const Categories = ({ type = '' }) => {
         renderForm: (propsFromCrud: any) => (
           <CategoryForm
             {...propsFromCrud}
-            item={
-              initialFormDataOverride
-                ? { ...propsFromCrud.item, ...initialFormDataOverride }
-                : propsFromCrud.item
-            }
+            item={initialFormDataOverride ? { ...propsFromCrud.item, ...initialFormDataOverride } : propsFromCrud.item}
             onClose={() => {
               setInitialFormDataOverride(null);
               propsFromCrud.onClose();
@@ -150,34 +145,37 @@ const Categories = ({ type = '' }) => {
     ),
     [handleEdit, handleDelete, typeToUse, handleAddSubcategory, forceOpenAccordions]
   );
-  const handleSearch = useCallback(
-    (value: string) => {
-      onSearch(value);
-      setForceOpenAccordions(!!value?.trim());
-    },
-    [onSearch]
-  );
+  const handleSearch = useCallback((value: string) => {
+    onSearch(value);
+    setForceOpenAccordions(!!value?.trim());
+  }, [onSearch]);
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
-      <p className={styles.headerTitle} style={{ marginBottom: 16 }}>
+      <p className={styles.headerTitle} >
         Categorías de {categoryTypeText}
       </p>
       <div className={styles.searchContainer}>
-        <DataSearch
-          value={searchs.searchBy || ''}
-          name="categoriesSearch"
-          setSearch={handleSearch}
-          textButton="Buscar"
-          className={styles.dataSearchCustom}
-        />
-        <Button onClick={handleAddPrincipalCategory} className={styles.addButton}>
+        <div style={{ flex: 1 }}>
+          <DataSearch
+            value={searchs.searchBy || ''}
+            name="categoriesSearch"
+            setSearch={handleSearch}
+            textButton="Buscar"
+            className={styles.dataSearchCustom}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <Button
+          onClick={handleAddPrincipalCategory}
+          style={{ padding: '8px 16px', width: 'auto', height: 48, display: 'flex', alignItems: 'center' }}
+        >
           Nueva categoría
         </Button>
       </div>
       <List
         onRenderBody={renderCardFunction}
-        height={'calc(100vh - 330px)'}
+        height={'calc(100vh - 400px)'}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

@@ -75,6 +75,23 @@
   flex-shrink: 0;
   cursor: pointer;
   min-width: 24px;
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.arrowIcon:hover,
+.arrowIcon:focus,
+.arrowIcon:active {
+  background: none !important;
+  background-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .arrowIcon.expanded {
@@ -189,11 +206,10 @@
 }
 
 .addButton {
-  padding: 8px 16px;
-  width: auto;
-  height: 48px;
-  display: flex;
-  align-items: center;
+  padding: '8px 16px'; 
+  width: 'auto';
+  height: 48;
+  display: 'flex'; 
 }
 
 .backLink {

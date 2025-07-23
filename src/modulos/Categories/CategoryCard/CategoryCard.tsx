@@ -28,12 +28,15 @@ const CategoryCard = memo(
       setShowSubcategories(forceOpen);
     }, [forceOpen]);
 
-    const toggleSubcategories = useCallback((e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (!forceOpen) {
-        setShowSubcategories(prev => !prev);
-      }
-    }, [forceOpen]);
+    const toggleSubcategories = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!forceOpen) {
+          setShowSubcategories(prev => !prev);
+        }
+      },
+      [forceOpen]
+    );
 
     const handleMainCardClick = useCallback(() => {
       if (onSelectCard) {
@@ -55,10 +58,10 @@ const CategoryCard = memo(
       },
       [item, onDel]
     );
-    const parentBgColor = className.includes(styles.cardEven) 
-      ? 'var(--cBlackV2)' 
-      : className.includes(styles.cardOdd) 
-      ? 'var(--cWhiteV2)' 
+    const parentBgColor = className.includes(styles.cardEven)
+      ? 'var(--cBlackV2)'
+      : className.includes(styles.cardOdd)
+      ? 'var(--cWhiteV2)'
       : '';
 
     const isAccordionOpen = forceOpen || showSubcategories;
@@ -85,9 +88,7 @@ const CategoryCard = memo(
               {item.name || 'Sin nombre'}
             </span>
           </div>
-          <div className={styles.categoryDescription}>
-            {item.description || 'Sin descripción'}
-          </div>
+          <div className={styles.categoryDescription}>{item.description || 'Sin descripción'}</div>
           <div className={styles.categoryActions}>
             <button
               className={`${styles.actionButton} ${styles.editButton}`}
