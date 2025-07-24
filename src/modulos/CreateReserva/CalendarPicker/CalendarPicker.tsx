@@ -34,6 +34,7 @@ interface CalendarDay {
   isSelected: boolean;
   isPast: boolean;
   isToday: boolean;
+  isSelectedBusy: boolean | null;
 }
 
 interface CalendarPickerProps {
@@ -141,6 +142,10 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
           : false,
         isPast: isBefore(date, today) || !isAllowed,
         isToday: isSameDay(date, today),
+        isSelectedBusy:
+          selectedDateInternal &&
+          isSameDay(date, selectedDateInternal) &&
+          busySet.has(formatted),
       };
     });
 
@@ -186,7 +191,6 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
   const handleDateSelect = (day: CalendarDay) => {
     if (!day.isCurrentView || day.isPast) return;
-    if (day.isPartiallyBusy) return;
 
     setSelectedDateInternal(day.date);
     onDateChange(format(day.date, "yyyy-MM-dd"));
@@ -252,8 +256,9 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
               !day.isCurrentView && styles.outsideDay,
               isDisabled && styles.disabledDay,
               day.isToday && styles.today,
-              day.isSelected && styles.selectedDay,
               day.isPartiallyBusy && !isDisabled && styles.partiallyBusyDay,
+              day.isSelected && styles.selectedDay,
+              day.isSelectedBusy && !isDisabled && styles.selectedBusyDay,
             ]
               .filter(Boolean)
               .join(" ");

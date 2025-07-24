@@ -72,6 +72,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [monthChangeTimer, setMonthChangeTimer] = useState(null);
   const [selectedUnit, setSelectedUnit]: any = useState(null);
+  const [showMessage, setShowMessage] = useState(false);
   const { execute } = useAxios();
 
   const { showToast } = useAuth();
@@ -114,7 +115,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       );
       if (data?.success) {
         setDataReserv(data?.data);
-        setBusyDays(data.data.reserved || []);
+        setBusyDays(data?.data?.reserved.concat(data?.data?.maintenance) || []);
       }
     },
     [formState.area_social, execute, setDataReserv, setBusyDays, selectedUnit]
@@ -211,8 +212,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     } else {
       daysAvailable = dataDay?.available;
     }
-
-    setUnavailableTimeSlots(unavailableSlots.concat(dataDay?.unavailable));
+    if (dataReserv?.reserved?.includes(dateString)) {
+      setShowMessage(true);
+    } else {
+      setShowMessage(false);
+    }
+    setUnavailableTimeSlots(
+      unavailableSlots.concat(dataDay?.unavailable, dataDay.maintenance)
+    );
     if (Array.isArray(daysAvailable)) {
       setAvailableTimeSlots(daysAvailable);
     } else {
@@ -380,7 +387,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
-  console.log("selectedUnit", selectedUnit);
   return (
     <div className={styles.pageWrapper}>
       <HeaderBack label="Volver a lista de reservas" onClick={onClose} />
@@ -413,7 +419,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   className={styles.areaSeparator}
                   style={{ marginBottom: 12 }}
                 />
-
                 <div className={styles.formSection}>
                   <h3 className={styles.sectionTitle}>Datos de la reserva</h3>
                   <div className={styles.formField}>
@@ -605,9 +610,9 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
               <div className={`${styles.stepContent} ${styles.step2Content}`}>
                 {/* Sección Fecha */}
                 <div className={styles.dateSection}>
-                  <label className={styles.sectionLabel}>
+                  <p className={styles.sectionLabel}>
                     Selecciona la fecha del evento
-                  </label>
+                  </p>
                   {/* Indicador carga días ocupados */}
                   <CalendarPicker
                     selectedDate={formState.fecha}
@@ -622,7 +627,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   )}
                 </div>
 
-                {/* Sección Hora (Condicional si hay fecha) */}
                 {formState.fecha && (
                   <>
                     <div
@@ -649,8 +653,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                         <p className={styles.sectionLabel}>
                           Duración de reserva
                         </p>
-                        <p style={{ color: "var(--cWhiteV1)" }}>
-                          Sólo se permite 1 periodo por reserva
+                        <p
+                          style={{
+                            color: !showMessage
+                              ? "var(--cWhiteV1)"
+                              : "var(--cError)",
+                          }}
+                        >
+                          {!showMessage
+                            ? "Sólo se permite 1 periodo por reserva"
+                            : "Todos los periodos reservados"}
                         </p>
 
                         {allTimeSlots.length > 0 && (
@@ -670,7 +682,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                       ? styles.selectedPeriod
                                       : ""
                                   } ${
-                                    // Usa una clase específica para los no disponibles para darles un estilo diferente
                                     !slot.isAvailable
                                       ? styles.unavailablePeriod
                                       : ""
@@ -680,9 +691,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                       handlePeriodToggle(slot.period);
                                     }
                                   }}
-                                  // Deshabilita el botón si no está disponible o por bloqueo general
                                   disabled={isDisabled}
-                                  // ¡AQUÍ ESTÁ LA MAGIA! Añade el title si no está disponible
                                   title={
                                     !slot.isAvailable
                                       ? "Este período ya fue reservado"

@@ -154,10 +154,19 @@
   border: var(--bWidth, 1px) solid var(--cAccent);
   font-weight: var(--bBold);
 }
-
 .calendarDayButton.selectedDay:hover:not(:disabled) {
   background-color: var(--cFillSidebar);
   border-color: var(--cAccent);
+}
+.calendarDayButton.selectedBusyDay {
+  background-color: var(--cHoverCompl1);
+  color: var(--cError);
+  border: var(--bWidth, 1px) solid var(--cWhiteV1);
+  font-weight: var(--bBold);
+}
+.calendarDayButton.selectedBusyDay:hover:not(:disabled) {
+  background-color: var(--cHoverCompl1);
+  border-color: var(--cWhiteV1);
 }
 
 .calendarDayButton.today {
