@@ -295,7 +295,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         formState.motivo ||
         `Reserva de ${selectedAreaDetails?.title || "área"}`,
       start_time: startTime,
-      Periods: sortedSelectedPeriods,
+      periods: sortedSelectedPeriods,
     };
     try {
       const response = await execute(
@@ -319,7 +319,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         );
       }
     } catch (error) {
-      console.error("Error en handleSubmit:", error);
       showToast("Ocurrió un error inesperado al crear la reserva.", "error");
     } finally {
       setIsSubmitting(false);
