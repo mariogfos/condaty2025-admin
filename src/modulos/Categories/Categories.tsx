@@ -12,6 +12,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import CategoryForm from "./RenderForm/RenderForm";
 import CategoryCard from "./CategoryCard/CategoryCard";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
 const BackNavigation = ({ type }: { type: "I" | "E" }) => (
   <Link
@@ -29,94 +30,105 @@ const Categories = ({ type = "" }) => {
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
   const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
+  const mod = useMemo<ModCrudType>(
+    () => ({
+      modulo: "categories",
+      singular: "Categoría",
+      plural: "Categorías",
+      permiso: "categories",
+      search: { hide: true },
+      extraData: { params: { type: typeToUse } } as any,
+      hideActions: {
+        add: true,
+      },
+      saveMsg: {
+        add: `Categoría de ${categoryTypeText} creada con éxito`,
+        edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
+        del: `Categoría de ${categoryTypeText} eliminada con éxito`,
+      },
+      messageDel:
+        "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla",
+      renderForm: (propsFromCrud: any) => (
+        <CategoryForm
+          {...propsFromCrud}
+          item={
+            initialFormDataOverride
+              ? { ...propsFromCrud.item, ...initialFormDataOverride }
+              : propsFromCrud.item
+          }
+          onClose={() => {
+            setInitialFormDataOverride(null);
+            propsFromCrud.onClose();
+          }}
+          categoryType={typeToUse}
+          getExtraData={getExtraData}
+        />
+      ),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [typeToUse, categoryTypeText, initialFormDataOverride]
+  );
 
-  const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs } =
-    useCrud({
-      paramsInitial: useMemo(
-        () => ({
-          perPage: 20,
-          page: 1,
-          fullType: "L",
-          searchBy: "",
-          type: typeToUse,
-        }),
-        [typeToUse]
-      ),
-      mod: useMemo<ModCrudType>(
-        () => ({
-          modulo: "categories",
-          singular: "Categoría",
-          plural: "Categorías",
-          permiso: "",
-          search: { hide: true },
-          extraData: { params: { type: typeToUse } } as any,
-          hideActions: {
-            add: true,
+  const {
+    List,
+    onEdit,
+    onDel,
+    onAdd,
+    getExtraData,
+    onSearch,
+    searchs,
+    userCan,
+  } = useCrud({
+    paramsInitial: useMemo(
+      () => ({
+        perPage: 20,
+        page: 1,
+        fullType: "L",
+        searchBy: "",
+        type: typeToUse,
+      }),
+      [typeToUse]
+    ),
+    mod: mod,
+
+    fields: useMemo(
+      () => ({
+        id: { rules: [], api: "e" },
+        name: {
+          rules: ["required"],
+          api: "ae",
+          label: "Categoría",
+          form: { type: "text" },
+          list: {},
+        },
+        description: {
+          rules: [],
+          api: "ae",
+          label: "Descripción",
+          form: { type: "textarea" },
+          list: {},
+        },
+        category_id: {
+          rules: [],
+          api: "ae",
+          label: "Categoría Padre",
+          form: {
+            type: "select",
+            optionsExtra: "categories",
+            placeholder: "Seleccione una categoría",
           },
-          saveMsg: {
-            add: `Categoría de ${categoryTypeText} creada con éxito`,
-            edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
-            del: `Categoría de ${categoryTypeText} eliminada con éxito`,
-          },
-          messageDel:
-            "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla",
-          renderForm: (propsFromCrud: any) => (
-            <CategoryForm
-              {...propsFromCrud}
-              item={
-                initialFormDataOverride
-                  ? { ...propsFromCrud.item, ...initialFormDataOverride }
-                  : propsFromCrud.item
-              }
-              onClose={() => {
-                setInitialFormDataOverride(null);
-                propsFromCrud.onClose();
-              }}
-              categoryType={typeToUse}
-              getExtraData={getExtraData}
-            />
-          ),
-        }),
-        [typeToUse, categoryTypeText, initialFormDataOverride] //esto??
-      ),
-      fields: useMemo(
-        () => ({
-          id: { rules: [], api: "e" },
-          name: {
-            rules: ["required"],
-            api: "ae",
-            label: "Categoría",
-            form: { type: "text" },
-            list: {},
-          },
-          description: {
-            rules: [],
-            api: "ae",
-            label: "Descripción",
-            form: { type: "textarea" },
-            list: {},
-          },
-          category_id: {
-            rules: [],
-            api: "ae",
-            label: "Categoría Padre",
-            form: {
-              type: "select",
-              optionsExtra: "categories",
-              placeholder: "Seleccione una categoría",
-            },
-          },
-          hijos: { rules: [], api: "", label: "Subcategorías" },
-          type: {
-            rules: ["required"],
-            api: "ae",
-            label: "Tipo",
-            form: { type: "hidden", precarga: typeToUse },
-          },
-        }),
-        [typeToUse]
-      ),
-    });
+        },
+        hijos: { rules: [], api: "", label: "Subcategorías" },
+        type: {
+          rules: ["required"],
+          api: "ae",
+          label: "Tipo",
+          form: { type: "hidden", precarga: typeToUse },
+        },
+      }),
+      [typeToUse]
+    ),
+  });
   const handleEdit = useCallback(
     (itemToEdit: CategoryItem) => {
       onEdit({
@@ -181,6 +193,7 @@ const Categories = ({ type = "" }) => {
     },
     [onSearch]
   );
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
