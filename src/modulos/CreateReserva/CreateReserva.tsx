@@ -24,7 +24,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
-import { formatNumber } from "@/mk/utils/numbers";
+import { formatBs, formatNumber } from "@/mk/utils/numbers";
 
 const initialState: FormState = {
   unidad: "",
@@ -221,7 +221,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       setShowMessage(false);
     }
     setUnavailableTimeSlots(
-      unavailableSlots.concat(dataDay?.unavailable, dataDay.maintenance)
+      unavailableSlots.concat(dataDay?.unavailable, dataDay?.maintenance)
     );
     if (Array.isArray(daysAvailable)) {
       setAvailableTimeSlots(daysAvailable);
@@ -439,7 +439,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                 {selectedAreaDetails && (
                   <>
                     <div className={styles.areaPreview}>
-                      {/* Columna Imagen */}
                       {selectedAreaDetails.images &&
                         selectedAreaDetails.images.length > 0 && (
                           <div className={styles.imageContainer}>
@@ -512,7 +511,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           {selectedAreaDetails.description ||
                             "Sin descripción."}
                         </p>
-                        <hr className={styles.areaSeparator} />
+                        <hr
+                          className={styles.areaSeparator}
+                          style={{ margin: "12px 0px" }}
+                        />
                         <h4 className={styles.areaTitle}>Datos Generales</h4>
                         <KeyValue
                           title={"Estado"}
@@ -597,15 +599,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
               </div>
             )}
 
-            {/* === PASO 2: Selección de Fecha, Hora y Personas === */}
             {currentStep === 2 && (
               <div className={`${styles.stepContent} ${styles.step2Content}`}>
-                {/* Sección Fecha */}
                 <div className={styles.dateSection}>
                   <p className={styles.sectionLabel}>
                     Selecciona la fecha del evento
                   </p>
-                  {/* Indicador carga días ocupados */}
                   <CalendarPicker
                     selectedDate={formState.fecha}
                     onDateChange={handleDateChange}
@@ -613,7 +612,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     busyDays={busyDays}
                     available_days={selectedAreaDetails?.available_days}
                   />
-                  {/* Error de fecha */}
                   {errors.fecha && (
                     <span className={styles.errorText}>{errors.fecha}</span>
                   )}
@@ -782,10 +780,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     </div>
                   )}
                 </div>
-              </div> // Fin Step 2
+                <hr className={styles.areaSeparator} />
+              </div>
             )}
 
-            {/* === PASO 3: Resumen === */}
             {currentStep === 3 && (
               <div className={`${styles.stepContent} ${styles.step3Content}`}>
                 <h2 className={styles.summaryTitle}>Resumen de la reserva</h2>
@@ -859,7 +857,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 }
                                 aria-label="Imagen anterior"
                               >
-                                {/* Añade la className aquí */}
                                 <IconArrowLeft color="var(--cWhite)" />
                               </button>
 
@@ -884,7 +881,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 }
                                 aria-label="Siguiente imagen"
                               >
-                                {/* Añade la className aquí */}
                                 <IconArrowRight color="var(--cWhite)" />
                               </button>
                             </div>
@@ -921,33 +917,24 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                               <IconCalendar />
                             </span>
                             <span>
-                              {formState.fecha || "Fecha no seleccionada"}
+                              {getDateStrMes(formState.fecha) ||
+                                "Fecha no seleccionada"}
                             </span>
                           </div>
-                          {/* Hora/Periodos */}
-                          {selectedAreaDetails.booking_mode !== "day" && (
-                            <div className={styles.summaryDetailItem}>
-                              <span className={styles.detailIcon}>
-                                <IconClock />
-                              </span>
-                              <span>
-                                {selectedPeriods.length > 0
-                                  ? selectedPeriods
-                                      .map((p) => p.replace("-", " a "))
-                                      .join(", ")
-                                  : "Ningún periodo seleccionado"}
-                              </span>
-                            </div>
-                          )}
-                          {selectedAreaDetails.booking_mode === "day" && (
-                            <div className={styles.summaryDetailItem}>
-                              <span className={styles.detailIcon}>
-                                <IconClock />
-                              </span>
-                              <span>Día completo</span>
-                            </div>
-                          )}
-                          {/* Personas */}
+
+                          <div className={styles.summaryDetailItem}>
+                            <span className={styles.detailIcon}>
+                              <IconClock />
+                            </span>
+                            <span>
+                              {selectedPeriods.length > 0
+                                ? selectedPeriods
+                                    .map((p) => p.replace("-", " a "))
+                                    .join(", ")
+                                : "Ningún periodo seleccionado"}
+                            </span>
+                          </div>
+
                           <div className={styles.summaryDetailItem}>
                             <span className={styles.detailIcon}>
                               <IconGroup />
@@ -962,8 +949,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             </span>
                             {selectedAreaDetails.price != null ? (
                               <span className={styles.summaryPricePerUnit}>
-                                Bs{" "}
-                                {Number(selectedAreaDetails.price).toFixed(2)}
+                                {formatBs(selectedAreaDetails.price)}
                                 /periodo
                               </span>
                             ) : (
@@ -979,6 +965,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     <p>No se pudo cargar el resumen.</p>
                   )}
                 </div>
+                <hr className={styles.areaSeparator} />
               </div>
             )}
             <div className={styles.formActions}>
