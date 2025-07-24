@@ -321,7 +321,7 @@ const Payments = () => {
   return (
     <div className={styles.container}>
       <List
-        height={"calc(100vh - 330px)"}
+        height={"calc(100vh - 350px)"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}

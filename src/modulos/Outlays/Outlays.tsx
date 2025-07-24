@@ -339,7 +339,7 @@ const Outlays = () => {
   return (
     <div className={styles.outlays}>
       <List
-        height={'calc(100vh - 330px)'}
+        height={'calc(100vh - 350px)'}
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}

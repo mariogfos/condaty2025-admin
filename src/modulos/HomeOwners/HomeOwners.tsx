@@ -498,7 +498,7 @@ const HomeOwners = () => {
       />
 
       <List
-        height={"calc(100vh - 430px)"}
+        height={"calc(100vh - 465px)"}
         emptyMsg="Lista de propietarios vacía. Aquí verás a todos los propietarios"
         emptyLine2="de cada unidad una vez los registres."
         emptyIcon={<IconHomePerson3 size={80} color="var(--cWhiteV1)" />}

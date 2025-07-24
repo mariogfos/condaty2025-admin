@@ -475,7 +475,7 @@ const Dptos = () => {
 
       <List
         onTabletRow={renderItem}
-        height={"calc(100vh - 420px)"}
+        height={"calc(100vh - 450px)"}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
         emptyLine2="del condominio las verás aquí."
