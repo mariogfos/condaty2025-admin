@@ -24,6 +24,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
+import { formatNumber } from "@/mk/utils/numbers";
 
 const initialState: FormState = {
   unidad: "",
@@ -508,6 +509,14 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             "Sin descripción."}
                         </p>
                         <hr className={styles.areaSeparator} />
+                        {/* <div className={styles.areaHeader}>
+                          <h4 className={styles.areaTitle}>
+                            {selectedAreaDetails.title}
+                          </h4>
+                        </div> */}
+                        <h4 className={styles.areaTitle}>
+                            Datos Generales
+                        </h4>
                         <KeyValue
                           title={"Estado"}
                           value={
@@ -991,9 +1000,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <span className={styles.priceInfoBottom}>
                     {selectedAreaDetails.is_free === "A"
                       ? "Gratis"
-                      : `Bs ${Number(selectedAreaDetails.price || 0).toFixed(
-                          2
-                        )}`}
+                      : `Bs ${formatNumber(selectedAreaDetails.price || 0)}`}
                   </span>
                 </div>
               )}

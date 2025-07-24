@@ -173,7 +173,7 @@
   flex-grow: 1; /* Ocupa el espacio restante */
   display: flex;
   flex-direction: column;
-  gap: var(--spM); /* Espacio entre bloques de info */
+  gap: var(--spS); /* Espacio entre bloques de info */
 }
 
 .areaHeader {
