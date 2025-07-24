@@ -175,7 +175,7 @@ const Categories = ({ type = '' }) => {
       </div>
       <List
         onRenderBody={renderCardFunction}
-        height={'calc(100vh - 400px)'}
+        height={'calc(100vh - 383px)'}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
