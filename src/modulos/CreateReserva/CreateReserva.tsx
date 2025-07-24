@@ -436,8 +436,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     />
                   </div>
                 </div>
-
-                {/* Previsualización del Área Seleccionada */}
                 {selectedAreaDetails && (
                   <>
                     <div className={styles.areaPreview}>
@@ -510,17 +508,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             {selectedAreaDetails.title}
                           </h4>
                         </div>
-                        {/* Descripción */}
                         <p className={styles.areaDescription}>
                           {selectedAreaDetails.description ||
                             "Sin descripción."}
                         </p>
                         <hr className={styles.areaSeparator} />
-                        {/* <div className={styles.areaHeader}>
-                          <h4 className={styles.areaTitle}>
-                            {selectedAreaDetails.title}
-                          </h4>
-                        </div> */}
                         <h4 className={styles.areaTitle}>Datos Generales</h4>
                         <KeyValue
                           title={"Estado"}
@@ -602,7 +594,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     <hr className={styles.areaSeparator} />
                   </>
                 )}
-              </div> // Fin Step 1
+              </div>
             )}
 
             {/* === PASO 2: Selección de Fecha, Hora y Personas === */}
@@ -830,7 +822,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                 <div className={styles.summaryContainer}>
                   {selectedAreaDetails ? (
                     <div className={styles.summaryContent}>
-                      {/* Imagen del Resumen */}
                       <div className={styles.summaryImageContainer}>
                         {selectedAreaDetails.images &&
                         selectedAreaDetails.images.length > 0 ? (
@@ -965,12 +956,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                               {formState.cantidad_personas || 0} personas
                             </span>
                           </div>
-                          {/* --- Costo (MODIFICADO) --- */}
                           <div className={styles.summaryDetailItem}>
                             <span className={styles.detailIcon}>
                               <IconMonedas />
-                            </span>{" "}
-                            {/* Icono */}
+                            </span>
                             {selectedAreaDetails.price != null ? (
                               <span className={styles.summaryPricePerUnit}>
                                 Bs{" "}
@@ -990,11 +979,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     <p>No se pudo cargar el resumen.</p>
                   )}
                 </div>
-                {/* ----- FIN DE TU CÓDIGO ORIGINAL DEL RESUMEN ----- */}
               </div>
             )}
-
-            {/* === Acciones (Botones) y Precio Condicional === */}
             <div className={styles.formActions}>
               {currentStep === 1 && selectedAreaDetails && (
                 <div>
@@ -1058,13 +1044,13 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
             </div>
           </div>
         </div>
-        {selectedAreaDetails && ( // Renderiza el modal solo si hay detalles del área
+        {selectedAreaDetails && (
           <DataModal
             open={isRulesModalVisible}
-            onClose={() => setIsRulesModalVisible(false)} // Función para cerrar
-            title={"Políticas"} // Título del modal
-            buttonText="" // Oculta el botón de "Guardar"
-            buttonCancel="" // Texto del botón para cerrar
+            onClose={() => setIsRulesModalVisible(false)}
+            title={"Políticas"}
+            buttonText=""
+            buttonCancel=""
           >
             <div className={styles.rulesModalContent}>
               <p className={styles.title}>Políticas de uso</p>
