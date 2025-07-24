@@ -212,7 +212,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     } else {
       daysAvailable = dataDay?.available;
     }
-    if (dataReserv?.reserved?.includes(dateString)) {
+    if (
+      dataReserv?.reserved?.includes(dateString) ||
+      dataDay?.available.length === 0
+    ) {
       setShowMessage(true);
     } else {
       setShowMessage(false);
@@ -519,9 +522,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             {selectedAreaDetails.title}
                           </h4>
                         </div> */}
-                        <h4 className={styles.areaTitle}>
-                            Datos Generales
-                        </h4>
+                        <h4 className={styles.areaTitle}>Datos Generales</h4>
                         <KeyValue
                           title={"Estado"}
                           value={
