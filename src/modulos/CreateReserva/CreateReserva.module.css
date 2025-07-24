@@ -131,7 +131,7 @@
 
 .previewImage {
   width: 350px;
-  height: 280px; /* Alto deseado */
+  height: 300px; /* Alto deseado */
   object-fit: cover; /* Cubre el espacio sin deformar */
   border-radius: var(--bRadiusS); /* Bordes redondeados */
   background-color: var(--cBlackV1); /* Fondo mientras carga */
