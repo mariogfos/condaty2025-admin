@@ -223,8 +223,8 @@ const Reserva = () => {
             let dateEnd = new Date(
               props?.item?.date_end + "T" + props?.item?.end_time
             )
-              .toISOString()
-              .split(".")[0];
+              ?.toISOString()
+              ?.split(".")[0];
 
             if (
               status === "A" &&
