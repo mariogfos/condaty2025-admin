@@ -43,6 +43,7 @@ interface CalendarPickerProps {
   onMonthSelect?: (dateString: string | undefined) => void;
   busyDays?: string[];
   available_days?: string[];
+  loading?: boolean;
 }
 
 const CalendarPicker: React.FC<CalendarPickerProps> = ({
@@ -51,6 +52,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   busyDays = [],
   available_days = [],
   onMonthSelect,
+  loading,
 }) => {
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
   const getInitialDate = () => {
@@ -213,7 +215,10 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
         ))}
       </div> */}
 
-      <div className={styles.calendarGridContainer}>
+      <div
+        className={styles.calendarGridContainer}
+        style={{ filter: loading ? "blur(4px)" : "none" }}
+      >
         <div>
           <div className={styles.calendarNavigation}>
             <button

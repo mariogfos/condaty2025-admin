@@ -73,7 +73,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [monthChangeTimer, setMonthChangeTimer] = useState(null);
   const [selectedUnit, setSelectedUnit]: any = useState(null);
   const [showMessage, setShowMessage] = useState(false);
-  const { execute } = useAxios();
+  const { execute, waiting } = useAxios();
+  const [loadingCalendar, setLoadingCalendar] = useState(false);
 
   const { showToast } = useAuth();
 
@@ -101,6 +102,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
 
   const getCalendar = useCallback(
     async (date?: any) => {
+      setLoadingCalendar(true);
       const ownerId = selectedUnit?.titular?.owner_id;
       const { data } = await execute(
         "/reservations-calendar",
@@ -116,9 +118,20 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       if (data?.success) {
         setDataReserv(data?.data);
         setBusyDays(data?.data?.reserved.concat(data?.data?.maintenance) || []);
+        setLoadingCalendar(false);
+      } else {
+        showToast("Ocurrió un error", "errror");
       }
     },
-    [formState.area_social, execute, setDataReserv, setBusyDays, selectedUnit]
+    [
+      formState.area_social,
+      execute,
+      setDataReserv,
+      setBusyDays,
+      selectedUnit,
+      setLoadingCalendar,
+      showToast,
+    ]
   );
 
   const unidadesOptions = useMemo(() => {
@@ -609,6 +622,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     selectedDate={formState.fecha}
                     onDateChange={handleDateChange}
                     onMonthSelect={onMonth}
+                    loading={loadingCalendar}
                     busyDays={busyDays}
                     available_days={selectedAreaDetails?.available_days}
                   />
