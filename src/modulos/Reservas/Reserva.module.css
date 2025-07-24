@@ -12,7 +12,7 @@
   width: fit-content; /* Ancho se ajusta al contenido */
   min-width: 90px; /* Un mínimo para mantener consistencia, ajusta si prefieres */
   white-space: nowrap; /* Evita que el texto corto se parta */
-  font-size: var(--sS); /* Puedes ajustar el tamaño de fuente */
+  font-size: var(--sM); /* Puedes ajustar el tamaño de fuente */
   line-height: 1.2;
   box-sizing: border-box;
 }
