@@ -144,13 +144,6 @@ const Payments = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
-      dptos: {
-        api: 'ae',
-        label: 'Unidad',
-        list: {
-          onRender: renderDptosCell,
-        },
-      },
       paid_at: {
         rules: [],
         api: 'ae',
@@ -169,6 +162,13 @@ const Payments = () => {
         },
       },
 
+      dptos: {
+        api: 'ae',
+        label: 'Unidad',
+        list: {
+          onRender: renderDptosCell,
+        },
+      },
       category_id: {
         rules: ['required'],
         api: 'ae',

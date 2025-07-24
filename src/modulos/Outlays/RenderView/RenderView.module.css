@@ -99,6 +99,9 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+.infoValue span {
+  display: block;
+}
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
@@ -131,6 +134,7 @@
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
+
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;

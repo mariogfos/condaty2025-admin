@@ -921,7 +921,7 @@ const useCrud = ({
             title="Filtros"
             style={{
               height: "48px",
-              minWidth: "32px",
+              minWidth: "48px",
               ...(Object.values(filterSel).filter(
                 e => e !== 'ALL' && e !== '' && e !== 'T'
               )?.length > 0 && { color: 'var(--cPrimary)', minWidth: '24px' }),
@@ -1063,7 +1063,7 @@ const useCrud = ({
           {mod.export && (
             <IconExport
               title="Exportar reporte"
-              style={{ minWidth: "32px", height: "48px" }}
+              style={{ minWidth: "48px", height: "48px" }}
               className={data?.length == 0 ? " " + styles.disabled : undefined}
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
               square

@@ -30,7 +30,7 @@
 
     /* Estilos para el dato principal */
     .data {
-      font-size: var(--sXl) !important;
+      font-size: var(--sXxl) !important;
       font-weight: 600;
       color: var(--cWhite);
 
@@ -87,7 +87,7 @@
   display: flex;
   align-items: center;
   font-size: var(--sL);
-  font-weight: 600;
-  color: var(--cWhite);
+  font-weight: 400;
+  color: var(--cWhiteV1);
   gap: 6px;
 }

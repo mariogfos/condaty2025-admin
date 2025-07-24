@@ -88,6 +88,7 @@ const DataModal = ({
                 size={44}
                 onClick={() => _close(false)}
                 circle
+                style={{ backgroundColor: "transparent" }}
               />
             )
           }
