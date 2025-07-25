@@ -448,7 +448,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
               <TextArea
                 name="description"
-                label="Descripción"
+                label="Concepto"
                 value={_formState.description || ''}
                 onChange={handleChangeInput}
                 error={_errors}
