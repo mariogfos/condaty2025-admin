@@ -7,6 +7,7 @@ interface AppEvent<PayloadType = unknown> extends Event {
 export interface CustomWindowEventMap extends WindowEventMap {
   /* Custom Event */
   onNotif: AppEvent<string>;
+  onResetNotif: AppEvent<string>;
   onChatNewMsg: AppEvent<string>;
   onChatSendMsg: AppEvent<string>;
   onChatNewRoom: AppEvent<string>;
