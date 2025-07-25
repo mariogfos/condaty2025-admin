@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: var(--spL);
-  gap: var(--spM);
+  gap: var(--spL);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
@@ -62,7 +62,7 @@
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spM) 0;
+
 }
 .detailsSection {
   display: flex;
