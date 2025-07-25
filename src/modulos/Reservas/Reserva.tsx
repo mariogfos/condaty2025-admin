@@ -15,8 +15,8 @@ import CreateReserva from "../CreateReserva/CreateReserva";
 
 const mod = {
   modulo: "reservations",
-  singular: "Reserva",
-  plural: "Reservas",
+  singular: "reserva",
+  plural: "reservas",
   permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true },

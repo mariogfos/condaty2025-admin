@@ -520,7 +520,7 @@ const ReservationDetailModal = ({
       <DataModal
         open={open}
         onClose={onClose}
-        title="Detalle de la Reserva"
+        title="Detalle de la reserva"
         buttonText=""
         buttonCancel=""
         style={{ width: "739px", maxWidth: "80%" }}

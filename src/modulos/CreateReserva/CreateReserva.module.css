@@ -1,6 +1,5 @@
 .pageWrapper {
   width: 100%; /* Ocupa todo el ancho de la ventana */
-  min-height: 100vh; /* Opcional: asegura altura mínima */
   position: relative; /* Contexto para el botón absoluto */
   box-sizing: border-box; /* Incluye padding en el tamaño total */
 }
