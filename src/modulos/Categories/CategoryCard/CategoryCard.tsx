@@ -86,10 +86,10 @@ const CategoryCard = memo(
                 isAccordionOpen ? styles.categoryNameTextOpen : ''
               }`}
             >
-              {item.name || 'Sin nombre'}
+              {item.name || '-/-'}
             </span>
           </div>
-          <div className={styles.categoryDescription}>{item.description || 'Sin descripción'}</div>
+          <div className={styles.categoryDescription}>{item.description || '-/-'}</div>
           <div className={styles.categoryActions}>
             <button
               className={`${styles.actionButton} ${styles.editButton}`}

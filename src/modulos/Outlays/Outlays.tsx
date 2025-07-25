@@ -73,7 +73,7 @@ const Outlays = () => {
       del: 'Egreso anulado con éxito',
     },
     messageDel:
-      '¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu balance.',
+      '¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu flujo de efectivo.',
   };
   const paramsInitial = {
     perPage: 20,

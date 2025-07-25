@@ -47,7 +47,7 @@ const Categories = ({ type = "" }) => {
         del: `Categoría de ${categoryTypeText} eliminada con éxito`,
       },
       messageDel:
-        "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla",
+        "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu flujo de efectivo y no podrás recuperarla",
       renderForm: (propsFromCrud: any) => (
         <CategoryForm
           {...propsFromCrud}

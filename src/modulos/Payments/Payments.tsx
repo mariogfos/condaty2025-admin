@@ -100,7 +100,7 @@ const Payments = () => {
       del: 'Ingreso anulado con éxito',
     },
     messageDel:
-      '¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu balance.',
+      '¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu flujo de efectivo.',
   };
 
   const getPeriodOptions = () => [
