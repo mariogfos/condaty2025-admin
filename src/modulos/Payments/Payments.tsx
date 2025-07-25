@@ -316,7 +316,7 @@ const Payments = () => {
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
-        filterBreakPoint={1800}
+        filterBreakPoint={1700}
       />
       <DateRangeFilterModal
         open={openCustomFilter}
