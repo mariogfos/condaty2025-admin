@@ -136,7 +136,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       T: 'Transferencia bancaria',
       E: 'Efectivo',
       C: 'Cheque',
-      Q: 'QR',
+      Q: 'Pago QR',
       O: 'Pago en oficina',
     };
     return typeMap[type] || type;

@@ -47,9 +47,9 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   const { open, onClose, extraData, item, onDel } = props;
 
   const paymentMethodMap: Record<string, string> = {
-    T: 'Transferencia',
+    T: 'Transferencia bancaria',
     O: 'Pago en oficina',
-    Q: 'QR',
+    Q: 'Pago QR',
     E: 'Efectivo',
     C: 'Cheque',
   };
