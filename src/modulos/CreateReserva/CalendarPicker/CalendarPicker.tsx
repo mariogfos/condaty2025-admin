@@ -217,7 +217,10 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
       <div
         className={styles.calendarGridContainer}
-        style={{ filter: loading ? "blur(4px)" : "none" }}
+        style={{
+          filter: loading ? "blur(4px)" : "none",
+          pointerEvents: loading ? "none" : "visible",
+        }}
       >
         <div>
           <div className={styles.calendarNavigation}>

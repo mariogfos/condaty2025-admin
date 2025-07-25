@@ -194,7 +194,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         } else {
           setAvailableTimeSlots([]);
         }
-      }, 500);
+      }, 300);
 
       setMonthChangeTimer(timer);
       return () => {
@@ -531,7 +531,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           className={styles.areaSeparator}
                           style={{ margin: "12px 0px" }}
                         />
-                        <h4 className={styles.areaTitle}>Datos Generales</h4>
+                        <h4 className={styles.areaTitle}>Datos generales</h4>
                         <KeyValue
                           title={"Estado"}
                           value={
@@ -919,11 +919,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       {/* Detalles del Resumen */}
                       <div className={styles.summaryDetailsContainer}>
                         <div className={styles.summaryAreaInfo}>
-                          <span className={styles.summaryAreaName}>
+                          <p className={styles.summaryAreaName}>
                             {selectedAreaDetails.title}
-                          </span>
+                          </p>
                           <p className={styles.summaryAreaDescription}>
-                            {selectedAreaDetails?.description}{" "}
+                            {selectedAreaDetails?.description}
                           </p>
                         </div>
                         <hr className={styles.areaSeparator} />
@@ -931,7 +931,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                           <span className={styles.summaryDetailsTitle}>
                             Detalles
                           </span>
-                          {/* Fecha */}
                           <div className={styles.summaryDetailItem}>
                             <span className={styles.detailIcon}>
                               <IconCalendar />
