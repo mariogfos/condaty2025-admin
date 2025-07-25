@@ -105,7 +105,7 @@ const CategoryForm = memo(
             name="name"
             value={_Item.name || ''}
             onChange={handleChange}
-            label={`Nombre de la ${isSubcategoryMode ? 'subcategoría' : 'categoría'}`}
+            label={`Nombre`}
             error={errors?.name}
             required
           />
@@ -113,7 +113,7 @@ const CategoryForm = memo(
             name="description"
             value={_Item.description || ''}
             onChange={handleChange}
-            label={`Descripción de la nueva ${isSubcategoryMode ? 'subcategoría' : 'categoría'}`}
+            label={`Descripción`}
             error={errors?.description}
           />
           <input type="hidden" name="type" value={categoryType === 'I' ? 'I' : 'E'} />

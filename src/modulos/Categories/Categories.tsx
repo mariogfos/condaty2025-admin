@@ -45,6 +45,7 @@ const Categories = ({ type = '' }) => {
         hideActions: {
           add: true,
         },
+        titleAdd: "Crear",
         saveMsg: {
           add: `Categoría de ${categoryTypeText} creada con éxito`,
           edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
