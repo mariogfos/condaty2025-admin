@@ -462,7 +462,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                               }
                               className={styles.previewImage}
                               src={getUrlImages(
-                                `/AREA-${selectedAreaDetails.id}-${selectedAreaDetails.images[currentImageIndex].id}.webp?d=${selectedAreaDetails.updated_at}`
+                                `/AREA-${selectedAreaDetails?.id}-${selectedAreaDetails?.images[currentImageIndex]?.id}.webp?d=${selectedAreaDetails?.updated_at}`
                               )}
                               alt={`Imagen ${currentImageIndex + 1} de ${
                                 selectedAreaDetails.title
