@@ -1018,7 +1018,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     onClick={nextStep}
                     disabled={isSubmitting || !selectedAreaDetails}
                   >
-                    Reservar
+                    Continuar
                   </Button>
                 )}
                 {currentStep === 2 && (
