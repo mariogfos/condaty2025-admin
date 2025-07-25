@@ -22,6 +22,7 @@ import {
 import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface ReservationDetailsViewProps {
   details: any; // El objeto displayedData
@@ -262,6 +263,7 @@ const ReservationDetailModal = ({
   const [rejectErrors, setRejectErrors] = useState<any>({});
   const [openModalCancel, setOpenModalCancel] = useState(false);
   const [formState, setFormState]: any = useState({});
+  const { showToast } = useAuth();
   const [errors, setErrors] = useState({});
   const {
     execute: fetchDetails,
@@ -504,10 +506,13 @@ const ReservationDetailModal = ({
         reason: formState?.reason,
       }
     );
-    if (data?.success == true) {
+    if (data?.success) {
       setOpenModalCancel(false);
+      showToast("Reserva cancelada", "success");
       onClose();
       if (reLoad) reLoad();
+    } else {
+      showToast("Ocurrió un error", "error");
     }
   };
   return (
@@ -546,7 +551,8 @@ const ReservationDetailModal = ({
           onSave={onSaveCancel}
         >
           <p style={{ marginBottom: 16 }}>
-            Por favor indica el motivo por el cual quieres cancelar esta reserva
+            Por favor, indica el motivo por el cual quieres cancelar esta
+            reserva.
           </p>
           <Input
             label="Motivo"
