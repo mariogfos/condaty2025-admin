@@ -5,11 +5,10 @@
   box-sizing: border-box;
   &.button {
     cursor: pointer;
-    padding: 4px;
-    /* border-radius: var(--bRadiusS); */
-    background-color: var(--cWhiteV2);
+    /* padding: 4px; */
+    /* background-color: var(--cWhiteV2); */
     &:hover {
-      background-color: var(--cHoverTable);
+      /* background-color: var(--cHoverTable); */
     }
   }
   &.circle {

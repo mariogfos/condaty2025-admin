@@ -922,15 +922,14 @@ const useCrud = ({
           <IconFilter
             title="Filtros"
             style={{
-              height: "48px",
-              minWidth: "32px",
               ...(Object.values(filterSel).filter(
                 (e) => e !== "ALL" && e !== "" && e !== "T"
-              )?.length > 0 && { color: "var(--cPrimary)", minWidth: "24px" }),
+              )?.length > 0 && { color: "var(--cPrimary)" }),
             }}
-            className={data?.length == 0 ? " " + styles.disabled : undefined}
+            className={
+              styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+            }
             onClick={() => setOpen(true)}
-            square
           />
           <DataModal
             open={open}
@@ -1056,19 +1055,19 @@ const useCrud = ({
           {mod.import && (
             <IconImport
               title="Importar"
-              className={data?.length == 0 ? " " + styles.disabled : undefined}
-              style={{ minWidth: "32px", height: "48px" }}
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
               onClick={data?.length > 0 ? onImport : () => {}}
-              square
             />
           )}
           {mod.export && (
             <IconExport
               title="Exportar reporte"
-              style={{ minWidth: "32px", height: "48px" }}
-              className={data?.length == 0 ? " " + styles.disabled : undefined}
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
-              square
             />
           )}
           {mod.listAndCard && (
@@ -1077,15 +1076,24 @@ const useCrud = ({
                 className={!openCard ? styles.active : ""}
                 onClick={() => setOpenCard(false)}
               >
-                <IconMenu style={{ minWidth: "32px", height: "48px" }} square />
+                <IconMenu
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
+                />
               </div>
               <div
                 className={openCard ? styles.active : ""}
                 onClick={() => setOpenCard(true)}
               >
                 <IconGrilla
-                  style={{ minWidth: "32px", height: "48px" }}
-                  square
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
                 />
               </div>
             </div>
