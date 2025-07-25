@@ -752,7 +752,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       }
                       required={true}
                       error={errors}
-                      disabled={isDebtBasedCategory && deudas?.length > 0}
+                      disabled={isDebtBasedCategory}
                       maxLength={20}
                     />
                   </div>
