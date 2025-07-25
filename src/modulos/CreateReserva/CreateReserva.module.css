@@ -216,7 +216,6 @@
   font-size: var(--sM); /* 14px */
   color: var(--cWhiteV1); /* #a7a7a7 */
   line-height: 1.4;
-
   word-break: break-all;
   /* --- Añade estas 4 líneas para truncar --- */
   display: -webkit-box; /* Necesario para line-clamp */

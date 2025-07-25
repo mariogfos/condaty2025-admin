@@ -129,6 +129,7 @@
 }
 
 .areaTitle {
+  word-break: break-all;
   font-weight: var(--bMedium, 500);
   font-size: var(--sL, 16px); /* Variable */
   color: var(--cWhite, #fafafa);
@@ -139,6 +140,7 @@
   font-size: var(--sM, 14px);
   color: var(--cWhiteV1, #a7a7a7);
   -webkit-line-clamp: 4;
+  word-break: break-all;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
