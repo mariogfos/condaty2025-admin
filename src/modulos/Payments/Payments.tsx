@@ -93,6 +93,7 @@ const Payments = () => {
     filter: true,
     export: true,
     titleAdd: 'Nuevo',
+    titleDel: 'Anular',
     saveMsg: {
       add: 'Ingreso creado con éxito',
       edit: 'Ingreso actualizado con éxito',

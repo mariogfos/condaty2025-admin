@@ -53,6 +53,7 @@ const Outlays = () => {
     extraData: true,
     renderForm: RenderForm,
     titleAdd: 'Nuevo',
+    titleDel: 'Anular',
     renderView: (props: any) => (
       <RenderView
         {...props}
