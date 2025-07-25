@@ -9,7 +9,7 @@ import {
   useRef,
 } from "react";
 import useAxios from "../useAxios";
-import { getUrlImages } from "../../utils/string";
+import { capitalize, getUrlImages } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthProvider";
 import {
   ActionType,
@@ -74,6 +74,7 @@ export type ModCrudType = {
   search?: boolean | object;
   titleAdd?: string;
   titleEdit?: string;
+  titleDel?: string;
 };
 
 export type TypeRenderForm = {
@@ -191,6 +192,7 @@ const useCrud = ({
   if (mod) {
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";
+    mod.titleDel = mod.titleDel ?? "Eliminar";
   }
 
   // console.log("Etradata", params, mod.extraData);
@@ -247,19 +249,19 @@ const useCrud = ({
 
   const onAdd = useCallback(() => {
     if (!userCan(mod.permiso, "C"))
-      return showToast("No tiene permisos para crear", "error");
+      return showToast("No tiene permisos para " + mod.titleAdd, "error");
     initOpen(setOpen);
   }, []);
 
   const onDel = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "D"))
-      return showToast("No tiene permisos para eliminar", "error");
+      return showToast("No tiene permisos para " + mod.titleDel, "error");
     initOpen(setOpenDel, item, "del");
   }, []);
 
   const onEdit = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "U"))
-      return showToast("No tiene permisos para editar", "error");
+      return showToast("No tiene permisos para " + mod.titleEdit, "error");
     initOpen(setOpen, item, "edit");
   }, []);
 
@@ -1120,8 +1122,8 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={"Eliminar " + mod.singular}
-          buttonText="Eliminar"
+          title={capitalize(mod.titleDel) + " " + mod.singular}
+          buttonText={capitalize(mod.titleDel)}
           buttonCancel="Cancelar"
           onSave={(e) => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
@@ -1132,12 +1134,13 @@ const useCrud = ({
             message
           ) : (
             <>
-              ¿Estás seguro de eliminar esta información?
+              ¿Estás seguro de {mod.titleDel} esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que, al momento de eliminar, ya no podrás recuperarla.
+              Recuerda que, al momento de {mod.titleDel}, ya no podrás
+              recuperarla.
             </>
           )}
         </DataModal>
