@@ -670,8 +670,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={onCloseModal}
         onSave={_onSavePago}
         buttonCancel={'Cancelar'}
-        buttonText={'Registrar ingreso'}
-        title={'Agregar ingreso'}
+        buttonText={'Crear ingreso'}
+        title={'Crear ingreso'}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}

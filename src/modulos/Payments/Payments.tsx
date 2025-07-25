@@ -1,78 +1,70 @@
-"use client";
-import React, { useState, useMemo, useEffect } from "react";
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./Payments.module.css";
-import { getDateStrMes } from "@/mk/utils/date";
-import Button from "@/mk/components/forms/Button/Button";
-import { useRouter } from "next/navigation";
-import RenderForm from "./RenderForm/RenderForm";
-import RenderView from "./RenderView/RenderView";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import { RenderAnularModal } from "./RenderDel/RenderDel";
-import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
-import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+'use client';
+import React, { useState, useMemo, useEffect } from 'react';
+import useCrud from '@/mk/hooks/useCrud/useCrud';
+import NotAccess from '@/components/auth/NotAccess/NotAccess';
+import styles from './Payments.module.css';
+import { getDateStrMes } from '@/mk/utils/date';
+import Button from '@/mk/components/forms/Button/Button';
+import { useRouter } from 'next/navigation';
+import RenderForm from './RenderForm/RenderForm';
+import RenderView from './RenderView/RenderView';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
-const renderDptosCell = (props: any) => (
-  <div>{String(props.item.dptos).replace(/[,]/g, "")}</div>
-);
+import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+
+const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/[,]/g, '')}</div>;
 
 const renderPaidAtCell = (props: any) => (
-  <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
+  <div>{getDateStrMes(props.item.paid_at) || 'No pagado'}</div>
 );
 
 const renderCategoryCell = (props: any) => (
-  <div>{props.item.category?.padre?.name || "Sin categoría padre"}</div>
+  <div>{props.item.category?.padre?.name || 'Sin categoría padre'}</div>
 );
 
 const renderSubcategoryCell = (props: any) => {
   const category = props.item.category;
-  if (!category) return "-/-";
-  if (category.padre && typeof category.padre === "object") {
-    return category.name || "-/-";
+  if (!category) return '-/-';
+  if (category.padre && typeof category.padre === 'object') {
+    return category.name || '-/-';
   } else {
-    return "-/-";
+    return '-/-';
   }
 };
 
 const renderTypeCell = (props: any) => {
   const typeMap: Record<string, string> = {
-    T: "Transferencia bancaria",
-    E: "Efectivo",
-    C: "Cheque",
-    Q: "Pago QR",
-    O: "Pago en oficina",
+    T: 'Transferencia bancaria',
+    E: 'Efectivo',
+    C: 'Cheque',
+    Q: 'Pago QR',
+    O: 'Pago en oficina',
   };
   return <div>{typeMap[props.item.type] || props.item.type}</div>;
 };
 
 const renderStatusCell = (props: any) => {
   const statusMap: Record<string, string> = {
-    P: "Cobrado",
-    S: "Por confirmar",
-    R: "Rechazado",
-    E: "Por subir comprobante",
-    A: "Por pagar",
-    M: "Moroso",
-    X: "Anulado",
+    P: 'Cobrado',
+    S: 'Por confirmar',
+    R: 'Rechazado',
+    E: 'Por subir comprobante',
+    A: 'Por pagar',
+    M: 'Moroso',
+    X: 'Anulado',
   };
   return (
     <div className={styles.statusCellCenter}>
-      <div
-        className={`${styles.statusBadge} ${
-          styles[`status${props.item.status}`]
-        }`}
-      >
+      <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
         {statusMap[props.item.status] || props.item.status}
       </div>
     </div>
   );
 };
 
-const renderAmountCell = (props: any) => (
-  <FormatBsAlign value={props.item.amount} alignRight />
-);
+const renderAmountCell = (props: any) => <FormatBsAlign value={props.item.amount} alignRight />;
 
 const Payments = () => {
   const router = useRouter();
@@ -83,17 +75,15 @@ const Payments = () => {
   }>({});
 
   const mod = {
-    modulo: "payments",
-    singular: "Ingreso",
-    plural: "Ingresos",
-    permiso: "",
+    modulo: 'payments',
+    singular: 'Ingreso',
+    plural: 'Ingresos',
+    permiso: '',
     extraData: true,
     renderForm: RenderForm,
-    renderView: (props: any) => (
-      <RenderView {...props} payment_id={props?.item?.id} />
-    ),
-    renderDel: RenderAnularModal,
-    loadView: { fullType: "DET" },
+    renderView: (props: any) => <RenderView {...props} payment_id={props?.item?.id} />,
+    // Usar el renderDel por defecto de useCrud
+    loadView: { fullType: 'DET' },
     hideActions: {
       view: false,
       add: false,
@@ -102,43 +92,51 @@ const Payments = () => {
     },
     filter: true,
     export: true,
+    titleAdd: 'Nuevo',
+    saveMsg: {
+      add: 'Ingreso creado con éxito',
+      edit: 'Ingreso actualizado con éxito',
+      del: 'Ingreso anulado con éxito',
+    },
+    messageDel:
+      '¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu balance.',
   };
 
   const getPeriodOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "d", name: "Hoy" },
-    { id: "ld", name: "Ayer" },
-    { id: "w", name: "Esta semana" },
-    { id: "lw", name: "Semana pasada" },
-    { id: "m", name: "Este mes" },
-    { id: "lm", name: "Mes anterior" },
-    { id: "y", name: "Este año" },
-    { id: "ly", name: "Año anterior" },
-    { id: "custom", name: "Personalizado" },
+    { id: 'ALL', name: 'Todos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana pasada' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' },
   ];
 
   const getPaymentTypeOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "T", name: "Transferencia bancaria" },
-    { id: "E", name: "Efectivo" },
-    { id: "C", name: "Cheque" },
-    { id: "Q", name: "Pago QR" },
-    { id: "O", name: "Pago en oficina" },
+    { id: 'ALL', name: 'Todos' },
+    { id: 'T', name: 'Transferencia bancaria' },
+    { id: 'E', name: 'Efectivo' },
+    { id: 'C', name: 'Cheque' },
+    { id: 'Q', name: 'Pago QR' },
+    { id: 'O', name: 'Pago en oficina' },
   ];
 
   const getStatusOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "P", name: "Cobrado" },
-    { id: "S", name: "Por confirmar" },
-    { id: "R", name: "Rechazado" },
-    { id: "X", name: "Anulado" },
+    { id: 'ALL', name: 'Todos' },
+    { id: 'P', name: 'Cobrado' },
+    { id: 'S', name: 'Por confirmar' },
+    { id: 'R', name: 'Rechazado' },
+    { id: 'X', name: 'Anulado' },
   ];
 
   const paramsInitial = {
     perPage: 20,
     page: 1,
-    fullType: "L",
-    searchBy: "",
+    fullType: 'L',
+    searchBy: '',
   };
 
   const fields = useMemo(
@@ -231,13 +229,7 @@ const Payments = () => {
         rules: [],
         api: 'ae',
 
-        label: (
-          <span
-            style={{ display: 'block', textAlign: 'center', width: '100%' }}
-          >
-            Estado
-          </span>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
         },
@@ -251,9 +243,7 @@ const Payments = () => {
         rules: ['required', 'number'],
         api: 'ae',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total
-          </span>
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
         ),
         form: {
           type: 'number',
@@ -267,17 +257,17 @@ const Payments = () => {
     []
   );
 
-  const goToCategories = (type = "") => {
+  const goToCategories = (type = '') => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push("/categories");
+      router.push('/categories');
     }
   };
 
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: "Ingresos" });
+    setStore({ ...store, title: 'Ingresos' });
   }, []);
   //
   // This function updates the filter state for the payments list, handling custom date logic and removing empty filters. (EN)
@@ -285,14 +275,14 @@ const Payments = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "paid_at" && value === "custom") {
+    if (opt === 'paid_at' && value === 'custom') {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined) {
+    if (value === '' || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -303,7 +293,7 @@ const Payments = () => {
   const extraButtons = [
     <Button
       key="categories-button"
-      onClick={() => goToCategories("I")}
+      onClick={() => goToCategories('I')}
       className={styles.categoriesButton}
     >
       Categorías
@@ -317,11 +307,11 @@ const Payments = () => {
     extraButtons,
     getFilter: handleGetFilter,
   });
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div className={styles.container}>
       <List
-        height={"calc(100vh - 350px)"}
+        height={'calc(100vh - 350px)'}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
@@ -335,26 +325,20 @@ const Payments = () => {
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
           if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
+            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("paid_at", customDateFilterString);
+          onFilter('paid_at', customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

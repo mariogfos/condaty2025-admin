@@ -325,8 +325,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={onCloseModal}
         onSave={handleSave}
         buttonCancel="Cancelar"
-        buttonText={'Registrar egreso'}
-        title={'Nuevo egreso'}
+        buttonText={'Crear egreso'}
+        title={'Crear egreso'}
       >
         <div className={styles['outlays-form-container']}>
           {/* Fecha de pago */}
@@ -448,7 +448,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
               <TextArea
                 name="description"
-                label="Concepto del egreso"
+                label="Descripción"
                 value={_formState.description || ''}
                 onChange={handleChangeInput}
                 error={_errors}
