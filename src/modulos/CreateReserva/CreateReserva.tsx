@@ -86,6 +86,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   useEffect(() => {
     if (formState?.area_social) {
       getCalendar();
+      setCurrentImageIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social]);
@@ -458,7 +459,8 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               key={
-                                selectedAreaDetails.images[currentImageIndex].id
+                                selectedAreaDetails?.images[currentImageIndex]
+                                  ?.id
                               }
                               className={styles.previewImage}
                               src={getUrlImages(
