@@ -74,7 +74,7 @@ const CategoryForm = memo(
     ]);
     const { modalTitle, buttonText } = useMemo(() => {
       const itemType = isSubcategoryMode ? "subcategoría" : "categoría";
-      const actionText = action === "edit" ? "Editar" : "Registrar";
+      const actionText = action === "edit" ? "Editar" : "Crear";
 
       return {
         modalTitle: `${actionText} ${itemType}`,
