@@ -12,6 +12,7 @@ import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CreateReserva from "../CreateReserva/CreateReserva";
+import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
 
 const mod = {
   modulo: "reservations",
@@ -328,7 +329,12 @@ const Reserva = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 330px)"} />
+      <List
+        height={"calc(100vh - 330px)"}
+        emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
+        emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
+        emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
+      />
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
