@@ -71,13 +71,14 @@ const CategoryCard = memo(
     return (
       <div
         className={cardClasses}
+        onClick={toggleSubcategories}
         style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
       >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
             <IconArrowDown
               className={`${styles.arrowIcon} ${isAccordionOpen ? styles.expanded : ''}`}
-              onClick={toggleSubcategories}
+              
               size={20}
             />
             <span
