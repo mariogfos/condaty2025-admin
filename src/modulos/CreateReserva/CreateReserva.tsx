@@ -468,49 +468,52 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 selectedAreaDetails.title
                               }`}
                             />
-                            <div className={styles.imagePagination}>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setCurrentImageIndex((prev) =>
-                                    prev > 0
-                                      ? prev - 1
-                                      : (selectedAreaDetails?.images?.length ||
-                                          1) - 1
-                                  )
-                                }
-                                disabled={
-                                  selectedAreaDetails?.images?.length <= 1
-                                }
-                                aria-label="Imagen anterior"
-                              >
-                                <IconArrowLeft color="var(--cWhite)" />
-                              </button>
+                            {selectedAreaDetails?.images?.length > 1 && (
+                              <div className={styles.imagePagination}>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCurrentImageIndex((prev) =>
+                                      prev > 0
+                                        ? prev - 1
+                                        : (selectedAreaDetails?.images
+                                            ?.length || 1) - 1
+                                    )
+                                  }
+                                  disabled={
+                                    selectedAreaDetails?.images?.length <= 1
+                                  }
+                                  aria-label="Imagen anterior"
+                                >
+                                  <IconArrowLeft color="var(--cWhite)" />
+                                </button>
 
-                              <span>
-                                {currentImageIndex + 1} /{" "}
-                                {selectedAreaDetails?.images?.length || 1}
-                              </span>
+                                <span>
+                                  {currentImageIndex + 1} /{" "}
+                                  {selectedAreaDetails?.images?.length || 1}
+                                </span>
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setCurrentImageIndex((prev) =>
-                                    prev <
-                                    (selectedAreaDetails?.images?.length || 1) -
-                                      1
-                                      ? prev + 1
-                                      : 0
-                                  )
-                                }
-                                disabled={
-                                  selectedAreaDetails?.images?.length <= 1
-                                }
-                                aria-label="Siguiente imagen"
-                              >
-                                <IconArrowRight color="var(--cWhite)" />
-                              </button>
-                            </div>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCurrentImageIndex((prev) =>
+                                      prev <
+                                      (selectedAreaDetails?.images?.length ||
+                                        1) -
+                                        1
+                                        ? prev + 1
+                                        : 0
+                                    )
+                                  }
+                                  disabled={
+                                    selectedAreaDetails?.images?.length <= 1
+                                  }
+                                  aria-label="Siguiente imagen"
+                                >
+                                  <IconArrowRight color="var(--cWhite)" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       <div className={styles.areaInfo}>
@@ -852,52 +855,55 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                 selectedAreaDetails.title
                               }`}
                             />
-                            <div
-                              className={styles.imagePagination}
-                              style={{ marginTop: 16 }}
-                            >
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setCurrentImageIndex((prev) =>
-                                    prev > 0
-                                      ? prev - 1
-                                      : (selectedAreaDetails?.images?.length ||
-                                          1) - 1
-                                  )
-                                }
-                                disabled={
-                                  selectedAreaDetails?.images?.length <= 1
-                                }
-                                aria-label="Imagen anterior"
+                            {selectedAreaDetails?.images?.length > 1 && (
+                              <div
+                                className={styles.imagePagination}
+                                style={{ marginTop: 16 }}
                               >
-                                <IconArrowLeft color="var(--cWhite)" />
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCurrentImageIndex((prev) =>
+                                      prev > 0
+                                        ? prev - 1
+                                        : (selectedAreaDetails?.images
+                                            ?.length || 1) - 1
+                                    )
+                                  }
+                                  disabled={
+                                    selectedAreaDetails?.images?.length <= 1
+                                  }
+                                  aria-label="Imagen anterior"
+                                >
+                                  <IconArrowLeft color="var(--cWhite)" />
+                                </button>
 
-                              <span>
-                                {currentImageIndex + 1} /{" "}
-                                {selectedAreaDetails?.images?.length || 1}
-                              </span>
+                                <span>
+                                  {currentImageIndex + 1} /{" "}
+                                  {selectedAreaDetails?.images?.length || 1}
+                                </span>
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setCurrentImageIndex((prev) =>
-                                    prev <
-                                    (selectedAreaDetails?.images?.length || 1) -
-                                      1
-                                      ? prev + 1
-                                      : 0
-                                  )
-                                }
-                                disabled={
-                                  selectedAreaDetails?.images?.length <= 1
-                                }
-                                aria-label="Siguiente imagen"
-                              >
-                                <IconArrowRight color="var(--cWhite)" />
-                              </button>
-                            </div>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCurrentImageIndex((prev) =>
+                                      prev <
+                                      (selectedAreaDetails?.images?.length ||
+                                        1) -
+                                        1
+                                        ? prev + 1
+                                        : 0
+                                    )
+                                  }
+                                  disabled={
+                                    selectedAreaDetails?.images?.length <= 1
+                                  }
+                                  aria-label="Siguiente imagen"
+                                >
+                                  <IconArrowRight color="var(--cWhite)" />
+                                </button>
+                              </div>
+                            )}
                           </>
                         ) : (
                           <>
