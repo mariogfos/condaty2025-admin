@@ -331,7 +331,7 @@ const Reserva = () => {
   return (
     <div>
       <List
-        height={"calc(100vh - 330px)"}
+        height={"calc(100vh - 360px)"}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
