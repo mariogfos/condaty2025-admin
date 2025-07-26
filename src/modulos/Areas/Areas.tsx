@@ -15,6 +15,7 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 const statusColor: any = {
   A: { color: "var(--cSuccess)", background: "var(--cHoverSuccess)" },
@@ -331,7 +332,7 @@ const Areas = () => {
       Poner en mantenimiento
     </Button>,
   ];
-  const { userCan, List, reLoad, data } = useCrud({
+  const { userCan, List, reLoad, data, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -356,7 +357,7 @@ const Areas = () => {
         <MaintenanceModal
           open={openMaintenance}
           onClose={() => setOpenMaintenance(false)}
-          areas={data?.data}
+          areas={extraData?.areas}
         />
       )}
     </div>
