@@ -26,7 +26,7 @@ const mod = {
   loadView: { fullType: "DET" },
   filter: true,
   export: true,
-  titleAdd: 'Nueva',
+  titleAdd: "Nueva",
 };
 
 const periodOptions = [
@@ -159,7 +159,7 @@ const Reserva = () => {
         label: "Residente",
         form: { type: "text" },
         list: {
-          width: 470,
+          // width: 470,
           onRender: onRenderOwnerList,
         },
       },
@@ -167,7 +167,7 @@ const Reserva = () => {
         label: "Fecha de solicitud",
         form: false,
         list: {
-          width: 246,
+          // width: 246,
           onRender: (props: any) => {
             return getDateTimeStrMes(props?.value);
           },
@@ -179,7 +179,7 @@ const Reserva = () => {
         label: "Fecha del evento",
         form: { type: "date" },
         list: {
-          width: 246,
+          // width: 246,
           onRender: (props: any) => {
             return (
               <div>
@@ -212,7 +212,7 @@ const Reserva = () => {
           ],
         },
         list: {
-          width: 180,
+          // width: 180,
           onRender: (props: any) => {
             let status = props?.item?.status as
               | "W"
