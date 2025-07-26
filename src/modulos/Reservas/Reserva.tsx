@@ -26,6 +26,7 @@ const mod = {
   loadView: { fullType: "DET" },
   filter: true,
   export: true,
+  titleAdd: 'Nueva',
 };
 
 const periodOptions = [
@@ -255,7 +256,7 @@ const Reserva = () => {
           },
         },
         filter: {
-          label: "Estado reserva",
+          label: "Estado",
           width: "180px",
           options: getReservaStatusOptions,
         },

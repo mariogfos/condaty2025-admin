@@ -224,7 +224,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             // --- USA ESTA NUEVA CLASE ---
             className={styles.rejectButtonProportional} // Para 3 partes
           >
-            Cancelar solicitud
+            Rechazar solicitud
           </Button>
           <Button
             onClick={onAcceptClick}
@@ -233,7 +233,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             // --- USA ESTA NUEVA CLASE ---
             className={styles.approveButtonProportional} // Para 5 partes
           >
-            Aprobar Solicitud
+            Aprobar solicitud
           </Button>
         </div>
       )}
@@ -571,7 +571,7 @@ const ReservationDetailModal = ({
             setIsRejectModalOpen(false);
             setRejectErrors({});
           }}
-          title="Cancelar solicitud"
+          title="Rechazar solicitud"
           buttonText="" // Sin botones por defecto
           buttonCancel="" // Sin botones por defecto
           style={{ width: "486px", maxWidth: "80%" }}
@@ -637,7 +637,7 @@ const ReservationDetailModal = ({
               variant="primary" // O el variant que corresponda al botón de confirmación
               disabled={isActionLoading} // Deshabilitar durante la acción
             >
-              Confirmar cancelación
+              Confirmar Rechazo
             </Button>
           </div>
         </DataModal>

@@ -95,7 +95,6 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   padding-bottom: var(--spS, 8px);
-  border-bottom: var(--bWidth, 1px) solid var(--cBlackV3, #393c3f);
   gap: var(--spXs, 4px);
 }
 
