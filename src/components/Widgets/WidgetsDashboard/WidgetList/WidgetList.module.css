@@ -8,7 +8,7 @@
                    puedes añadirlo aquí o mediante la prop className desde el padre. */
     min-height: 177px; /* Altura mínima como en h-[177px]. Permite crecer si el contenido es mayor. */
     background-color: #333536;
-    padding: 1rem; /* Equivalente a p-4 (16px) */
+    padding: 16px; /* Equivalente a p-4 (16px) */
     border-radius: 1rem; /* Equivalente a rounded-2xl (16px) */
     border: 0.5px solid #a7a7a7;
     color: #fafafa; /* Color de texto por defecto, similar a text-neutral-50 */

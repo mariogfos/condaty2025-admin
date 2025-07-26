@@ -1,12 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName } from '@/mk/utils/string';
 import { MONTHS_S } from '@/mk/utils/date';
@@ -14,10 +8,7 @@ import EmptyData from '@/components/NoData/EmptyData';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import Input from '@/mk/components/forms/Input/Input';
-import {
-  IconCheckOff,
-  IconCheckSquare,
-} from '@/components/layout/icons/IconsBiblioteca';
+import { IconCheckOff, IconCheckSquare } from '@/components/layout/icons/IconsBiblioteca';
 import Toast from '@/mk/components/ui/Toast/Toast';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
@@ -110,10 +101,7 @@ interface RenderFormProps {
   onSave?: () => void;
   extraData: ExtraData;
   execute: (...args: any[]) => Promise<any>;
-  showToast: (
-    msg: string,
-    type: 'info' | 'success' | 'error' | 'warning'
-  ) => void;
+  showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
 }
 
@@ -159,6 +147,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
     formState.subcategory_id === extraData?.client_config?.cat_expensas &&
     deudas.length === 0 &&
     !isLoadingDeudas;
+
+  const isReservationsWithoutDebt =
+    formState.subcategory_id === extraData?.client_config?.cat_reservations &&
+    deudas.length === 0 &&
+    !isLoadingDeudas;
+
+  const isDebtBasedCategory =
+    formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+    formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
   const lDptos = useMemo(
     () =>
@@ -261,8 +258,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   }, [open]);
 
   useEffect(() => {
-    const isExpensasSelected =
-      formState.subcategory_id === extraData?.client_config?.cat_expensas;
+    const isExpensasSelected = formState.subcategory_id === extraData?.client_config?.cat_expensas;
     const isReservationsSelected =
       formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
@@ -306,12 +302,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
         // Buscar si la subcategoría es cat_expensas o cat_reservations
         const catExpensasChild = newSubcategories.find(
-          (hijo: Subcategory) =>
-            hijo.id === extraData?.client_config?.cat_expensas
+          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_expensas
         );
         const catReservationsChild = newSubcategories.find(
-          (hijo: Subcategory) =>
-            hijo.id === extraData?.client_config?.cat_reservations
+          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_reservations
         );
         if (catExpensasChild) {
           newSubcategoryId = extraData.client_config.cat_expensas;
@@ -340,11 +334,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         isSubcategoryLocked: lockSubcategory,
       };
     });
-  }, [
-    formState.category_id,
-    extraData?.categories,
-    extraData?.client_config?.cat_expensas,
-  ]);
+  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas]);
 
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -374,10 +364,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
       }
 
-      const newTotal = newSelectedPeriodos.reduce(
-        (sum, item) => sum + item.amount,
-        0
-      );
+      const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
       setPeriodoTotal(newTotal);
 
       return newSelectedPeriodos;
@@ -390,18 +377,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     // Validación general: No se puede pagar si no hay deuda.
     if (isExpensasWithoutDebt) {
-      err.general =
-        'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
+      err.general = 'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
     }
+    if (isReservationsWithoutDebt) {
+      err.general = 'No se puede registrar un pago de reservas cuando no hay deudas pendientes';
+    }
+
     // Validación de período seleccionado (para expensas y reservas)
-    if (
-      (formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-        formState.subcategory_id ===
-          extraData?.client_config?.cat_reservations) &&
-      deudas?.length > 0 &&
-      selectedPeriodo.length === 0
-    ) {
-      // Acumula el error sin detener la función.
+    if (isDebtBasedCategory && deudas?.length > 0 && selectedPeriodo.length === 0) {
       err.selectedPeriodo = 'Debe seleccionar al menos una deuda para pagar';
     }
 
@@ -424,11 +407,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
       err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
     }
 
-    // Validación del monto (solo si no es una expensa con deudas)
-    if (
-      formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
-      deudas?.length === 0
-    ) {
+    // Validación del monto (solo si no es una categoría basada en deudas con deudas)
+    if (!isDebtBasedCategory || deudas?.length === 0) {
       if (!formState.amount) {
         err.amount = 'Este campo es requerido';
       }
@@ -459,6 +439,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     formState,
     deudas,
     isExpensasWithoutDebt,
+    isReservationsWithoutDebt,
+    isDebtBasedCategory,
     selectedPeriodo,
     extraData?.client_config?.cat_expensas,
     extraData?.client_config?.cat_reservations,
@@ -469,9 +451,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (!validar()) {
       if (
         isExpensasWithoutDebt ||
-        (formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-          deudas.length > 0 &&
-          selectedPeriodo.length === 0)
+        isReservationsWithoutDebt ||
+        (isDebtBasedCategory && deudas.length > 0 && selectedPeriodo.length === 0)
       ) {
         showToast('Por favor revise los errores', 'error');
       } else {
@@ -496,10 +477,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       owner_id: owner_id,
     };
 
-    if (
-      extraData?.client_config?.cat_expensas === formState.subcategory_id &&
-      selectedPeriodo.length > 0
-    ) {
+    if (isDebtBasedCategory && selectedPeriodo.length > 0) {
       params = {
         ...params,
         asignados: selectedPeriodo,
@@ -520,10 +498,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         reLoad();
         onClose();
       } else {
-        showToast(
-          error?.message || data?.message || 'Error al guardar el pago',
-          'error'
-        );
+        showToast(error?.message || data?.message || 'Error al guardar el pago', 'error');
 
         if (error?.data?.errors) {
           setErrors(error.data.errors);
@@ -547,6 +522,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     setErrors,
     showToast,
     isExpensasWithoutDebt,
+    isReservationsWithoutDebt,
+    isDebtBasedCategory,
     deudas,
   ]);
 
@@ -556,9 +533,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
   const deudasContent = useMemo(() => {
     if (!formState.dpto_id) {
-      return (
-        <EmptyData message="Seleccione una unidad para ver deudas" h={200} />
-      );
+      return <EmptyData message="Seleccione una unidad para ver deudas" h={200} />;
     } else if (isLoadingDeudas) {
       return <EmptyData message="Cargando deudas..." h={200} />;
     } else if (deudas.length === 0) {
@@ -566,8 +541,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         <div className={styles['no-deudas-container']}>
           <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
           <p className={styles['no-deudas-message']}>
-            No se encontraron deudas pendientes para esta unidad. No se puede
-            registrar un pago de{' '}
+            No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de{' '}
             {formState.subcategory_id === extraData?.client_config?.cat_expensas
               ? 'expensas'
               : 'reservas'}
@@ -581,8 +555,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles['deudas-title-row']}>
             <p className={styles['deudas-title']}>
               Seleccione las{' '}
-              {formState.subcategory_id ===
-              extraData?.client_config?.cat_expensas
+              {formState.subcategory_id === extraData?.client_config?.cat_expensas
                 ? 'expensas'
                 : 'reservas'}{' '}
               a pagar:
@@ -595,18 +568,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   setSelectedPeriodo([]);
                   setPeriodoTotal(0);
                 } else {
-                  const allPeriodos: SelectedPeriodo[] = deudas.map(
-                    periodo => ({
-                      id: periodo.id,
-                      amount:
-                        Number(periodo.amount) + Number(periodo.penalty_amount),
-                    })
-                  );
+                  const allPeriodos: SelectedPeriodo[] = deudas.map(periodo => ({
+                    id: periodo.id,
+                    amount: Number(periodo.amount) + Number(periodo.penalty_amount),
+                  }));
 
-                  const totalAmount = allPeriodos.reduce(
-                    (sum, item) => sum + item.amount,
-                    0
-                  );
+                  const totalAmount = allPeriodos.reduce((sum, item) => sum + item.amount, 0);
 
                   setSelectedPeriodo(allPeriodos);
                   setPeriodoTotal(totalAmount);
@@ -615,9 +582,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
             >
               <span className={styles['select-all-text']}>Pagar todo</span>
               {selectedPeriodo.length === deudas.length ? (
-                <IconCheckSquare
-                  className={`${styles['check-icon']} ${styles.selected}`}
-                />
+                <IconCheckSquare className={`${styles['check-icon']} ${styles.selected}`} />
               ) : (
                 <IconCheckOff className={styles['check-icon']} />
               )}
@@ -653,9 +618,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     typeof periodo.debt === 'object' &&
                     periodo.debt.month !== undefined &&
                     periodo.debt.year !== undefined
-                      ? `${MONTHS_S[periodo.debt.month] ?? '?'}/$${
-                          periodo.debt.year ?? '?'
-                        }`
+                      ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
                       : 'N/A'}
                   </div>
                   <div className={styles['deuda-cell']}>
@@ -666,19 +629,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   </div>
                   <div className={styles['deuda-cell']}>
                     {'Bs ' +
-                      (
-                        Number(periodo.amount ?? 0) +
-                        Number(periodo.penalty_amount ?? 0)
-                      ).toFixed(2)}{' '}
+                      (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)).toFixed(
+                        2
+                      )}{' '}
                   </div>
 
-                  <div
-                    className={`${styles['deuda-cell']} ${styles['deuda-check']}`}
-                  >
+                  <div className={`${styles['deuda-cell']} ${styles['deuda-check']}`}>
                     {selectedPeriodo.some(item => item.id === periodo.id) ? (
-                      <IconCheckSquare
-                        className={`${styles['check-icon']} ${styles.selected}`}
-                      />
+                      <IconCheckSquare className={`${styles['check-icon']} ${styles.selected}`} />
                     ) : (
                       <IconCheckOff className={styles['check-icon']} />
                     )}
@@ -712,8 +670,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
         onClose={onCloseModal}
         onSave={_onSavePago}
         buttonCancel={'Cancelar'}
-        buttonText={'Registrar ingreso'}
-        title={'Agregar ingreso'}
+        buttonText={'Crear ingreso'}
+        title={'Crear ingreso'}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}
@@ -728,11 +686,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 onChange={handleChangeInput}
                 error={errors}
                 max={new Date().toISOString().split('T')[0]}
-                min={
-                  new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split('T')[0]
-                }
+                min={new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
               />
             </div>
           </div>
@@ -794,19 +748,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         handleChangeInput(e);
                       }}
                       value={
-                        formState.subcategory_id ===
-                          extraData?.client_config?.cat_expensas &&
-                        deudas?.length > 0
-                          ? periodoTotal
-                          : formState.amount
+                        isDebtBasedCategory && deudas?.length > 0 ? periodoTotal : formState.amount
                       }
                       required={true}
                       error={errors}
-                      disabled={
-                        formState.subcategory_id ===
-                          extraData?.client_config?.cat_expensas &&
-                        deudas?.length > 0
-                      }
+                      disabled={isDebtBasedCategory}
                       maxLength={20}
                     />
                   </div>
@@ -832,17 +778,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {(formState.subcategory_id ===
-                extraData?.client_config?.cat_expensas ||
-                formState.subcategory_id ===
-                  extraData?.client_config?.cat_reservations) && (
+              {(formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+                formState.subcategory_id === extraData?.client_config?.cat_reservations) && (
                 <div>
                   {deudasContent}
                   {errors.selectedPeriodo && (
-                    <div
-                      className={styles['error-message']}
-                      style={{ color: 'red', marginTop: 8 }}
-                    >
+                    <div className={styles['error-message']} style={{ color: 'red', marginTop: 8 }}>
                       {errors.selectedPeriodo}
                     </div>
                   )}
@@ -871,9 +812,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     label="Ingresar el número del comprobante"
                     name="voucher"
                     onChange={e => {
-                      const value = e.target.value
-                        .replace(/\D/g, '')
-                        .substring(0, 10);
+                      const value = e.target.value.replace(/\D/g, '').substring(0, 10);
                       const newEvent = {
                         ...e,
                         target: { ...e.target, name: 'voucher', value },

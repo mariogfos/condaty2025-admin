@@ -32,7 +32,9 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   };
   useEffect(() => {
     getApprovedBudgets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
     const newData = approvedBudgets.map((budget: any) => {
       const relatedPayment = formState.find(
@@ -44,6 +46,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
       };
     });
     setApprovedBudgets(newData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState]);
 
   const onSave = async () => {

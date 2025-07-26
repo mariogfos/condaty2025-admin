@@ -111,8 +111,8 @@
   display: flex;
   flex-direction: row; /* Lado a lado */
   gap: var(--spL); /* 1rem */
-  margin-top: 12px;
-  padding: var(--spL);
+  margin-bottom: 16px;
+  /* padding: var(--spL); */
   border-radius: var(--bRadiusS);
   background-color: var(--cBlackV2); /* Fondo ligeramente diferente opcional */
 }

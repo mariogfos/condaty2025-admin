@@ -47,9 +47,9 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   const { open, onClose, extraData, item, onDel } = props;
 
   const paymentMethodMap: Record<string, string> = {
-    T: 'Transferencia',
+    T: 'Transferencia bancaria',
     O: 'Pago en oficina',
-    Q: 'QR',
+    Q: 'Pago QR',
     E: 'Efectivo',
     C: 'Cheque',
   };
@@ -189,11 +189,11 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               <span className={styles.infoValue}>
                 {item.user
                   ? getFullName({
-                      ...item.user,
-                      middle_name: item.user.middle_name || undefined,
-                      last_name: item.user.last_name || undefined,
-                      mother_last_name: item.user.mother_last_name || undefined,
-                    })
+                    ...item.user,
+                    middle_name: item.user.middle_name || undefined,
+                    last_name: item.user.last_name || undefined,
+                    mother_last_name: item.user.mother_last_name || undefined,
+                  })
                   : '-/-'}
               </span>
             </div>
@@ -218,9 +218,11 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               </div>
             )}
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Observación</span>
+              <span className={styles.infoLabel}>Concepto</span>
               <span className={styles.infoValue}>
-                {item.description || '-/-'}
+                {((item.description || '-/-').match(/.{1,20}/g) || []).map((line, idx) => (
+                  <span key={idx}>{line}</span>
+                ))}
               </span>
             </div>
           </div>
@@ -235,8 +237,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               className={styles.voucherButton}
               onClick={() => {
                 const imageUrl = getUrlImages(
-                  `/EXPENSE-${item.id}.${item.ext}?d=${
-                    item.updated_at || Date.now()
+                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()
                   }`
                 );
                 window.open(imageUrl, '_blank');

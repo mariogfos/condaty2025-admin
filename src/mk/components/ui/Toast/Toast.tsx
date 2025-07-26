@@ -92,10 +92,21 @@ const Toast = ({
                 color: 'var(--cWhite)',
                 fontFamily: 'Roboto, sans-serif',
                 fontWeight: 600,
-                marginBottom: 2,
               }}
             >
               ¡Excelente!
+            </div>
+          )}
+          {toast?.type === 'error' && (
+            <div
+              style={{
+                fontSize: 16,
+                color: 'var(--cWhite)',
+                fontFamily: 'Roboto, sans-serif',
+                fontWeight: 600,
+              }}
+            >
+            ¡Lo sentimos!
             </div>
           )}
           <div>{toast?.msg}</div>
@@ -107,5 +118,4 @@ const Toast = ({
     </>
   );
 };
-
 export default Toast;

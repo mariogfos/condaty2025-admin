@@ -1,10 +1,10 @@
 import {
   IconArrowBack,
   IconArrowNext,
-} from "@/components/layout/icons/IconsBiblioteca";
-import { useEffect, useMemo, useState } from "react";
-import styles from "./pagination.module.css";
-import Select from "../../forms/Select/Select";
+} from '@/components/layout/icons/IconsBiblioteca';
+import { useEffect, useMemo, useState } from 'react';
+import styles from './pagination.module.css';
+import Select from '../../forms/Select/Select';
 
 type PropsType = {
   className?: string;
@@ -19,11 +19,11 @@ type PropsType = {
 };
 
 const Pagination = ({
-  className = "",
+  className = '',
   currentPage = 1,
-  nextLabel = "Siguiente",
+  nextLabel = 'Siguiente',
   onPageChange = (page: number) => {},
-  previousLabel = "Anterior",
+  previousLabel = 'Anterior',
   totalPages,
   setParams,
   params,
@@ -96,7 +96,7 @@ const Pagination = ({
 
   // Manejar pulsación de tecla en el input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       const pageNumber = parseInt(pageInput);
       if (!isNaN(pageNumber)) {
@@ -105,9 +105,9 @@ const Pagination = ({
     }
   };
 
-  // if (safeTotal === 1) {
-  //   return null;
-  // }
+  if (safeTotal <= 1) {
+    return null;
+  }
   if (total == 0) {
     return null;
   }
@@ -161,7 +161,7 @@ const Pagination = ({
             </span> */}
           </span>
           {totalPages > 1 && (
-            <div style={{ position: "relative" }}>
+            <div style={{ position: 'relative' }}>
               <input
                 type="text"
                 value={pageInput}

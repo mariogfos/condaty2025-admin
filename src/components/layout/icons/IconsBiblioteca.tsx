@@ -11,7 +11,7 @@ export const IconSearch = (props: IconType) => {
 export const IconArrowLeft = (props: IconType) => {
   return (
     <IconWrap {...props}>
-      <path d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 0 1 2.121 2.122L11.121 12l4.596 4.596a1.499 1.499 0 1 1-2.12 2.122L7.938 13.06h.002Z" />
+      <path d="M7.23 11.77a1.5 1.5 0 0 0 0 2.12l6.36 6.36a1.5 1.5 0 0 0 2.12-2.12L10.34 12l5.37-5.37a1.5 1.5 0 0 0-2.12-2.12L7.23 11.77Z" />
     </IconWrap>
   );
 };
@@ -58,7 +58,7 @@ export const IconAdress = (props: IconType) => {
 export const IconArrowRight = (props: IconType) => {
   return (
     <IconWrap {...props}>
-      <path d="M16.06 13.06a1.5 1.5 0 0 0 0-2.12l-5.656-5.658a1.5 1.5 0 0 0-2.121 2.122L12.879 12l-4.596 4.596a1.5 1.5 0 1 0 2.12 2.122l5.659-5.658h-.002Z" />
+      <path d="M16.77 12.23a1.5 1.5 0 0 0 0-2.12l-6.36-6.36a1.5 1.5 0 0 0-2.12 2.12L13.66 12l-5.37 5.37a1.5 1.5 0 1 0 2.12 2.12l6.36-6.36Z" />
     </IconWrap>
   );
 };

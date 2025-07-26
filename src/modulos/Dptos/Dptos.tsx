@@ -416,7 +416,7 @@ const Dptos = () => {
                 backgroundColor:
                   !data?.message?.total || data?.message?.total === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
             >
               <IconDepartments2
@@ -475,7 +475,7 @@ const Dptos = () => {
 
       <List
         onTabletRow={renderItem}
-        height={"calc(100vh - 420px)"}
+        height={"calc(100vh - 450px)"}
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
         emptyLine2="del condominio las verás aquí."

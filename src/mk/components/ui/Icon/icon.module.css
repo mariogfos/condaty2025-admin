@@ -5,15 +5,17 @@
   box-sizing: border-box;
   &.button {
     cursor: pointer;
-    padding: 4px;
-    /* border-radius: var(--bRadiusS); */
-    background-color: var(--cWhiteV2);
+    /* padding: 4px; */
+    /* background-color: var(--cWhiteV2); */
     &:hover {
-      background-color: var(--cHoverTable);
+      /* background-color: var(--cHoverTable); */
     }
   }
   &.circle {
     border-radius: 100%;
+    padding: 8px;
+    width: 40px; /* Tamaño del círculo */
+    height: 40px;
     /* background-color: var(--cWhite); */
     /* color: var(--cBlack); */
     /* padding: var(--spS); */
@@ -21,7 +23,7 @@
   &.square {
     /* background-color: var(--cWhite); */
     /* color: var(--cBlack); */
-    /* padding: var(--spS); */
+    padding: 9px;
     border-radius: var(--bRadiusS);
   }
   &.responsive {

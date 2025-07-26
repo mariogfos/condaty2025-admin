@@ -5,16 +5,15 @@ import { useMemo, useState } from 'react';
 import NotAccess from '@/components/layout/NotAccess/NotAccess';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import { formatNumber } from '@/mk/utils/numbers';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import { getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
-import Input from '@/mk/components/forms/Input/Input';
-import { RenderAnularModal } from './RenderDel/RenderDel';
+
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 
 const Outlays = () => {
   const router = useRouter();
@@ -53,6 +52,8 @@ const Outlays = () => {
     permiso: '',
     extraData: true,
     renderForm: RenderForm,
+    titleAdd: 'Nuevo',
+    titleDel: 'Anular',
     renderView: (props: any) => (
       <RenderView
         {...props}
@@ -60,7 +61,7 @@ const Outlays = () => {
         extraData={extraData}
       />
     ),
-    renderDel: RenderAnularModal,
+    // Usar el renderDel por defecto de useCrud
     hideActions: {
       edit: true,
       del: true,
@@ -71,6 +72,8 @@ const Outlays = () => {
       edit: 'Egreso actualizado con éxito',
       del: 'Egreso anulado con éxito',
     },
+    messageDel:
+      '¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu flujo de efectivo.',
   };
   const paramsInitial = {
     perPage: 20,
@@ -110,7 +113,7 @@ const Outlays = () => {
       date_at: {
         rules: ['required'],
         api: 'ae',
-        label: 'Fecha de operación',
+        label: 'Fecha de pago',
         form: { type: 'date' },
         list: {
           onRender: (props: any) => {
@@ -209,24 +212,10 @@ const Outlays = () => {
         label: 'Concepto',
         form: { type: 'text' },
       },
-
-      amount: {
+      type: {
         rules: ['required'],
         api: 'ae',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total
-          </span>
-        ),
-        form: { type: 'number' },
-        list: {
-          onRender: (props: any) => (
-            <div style={{ width: '100%', textAlign: 'right' }}>
-              {'Bs ' + formatNumber(props.item.amount)}
-            </div>
-          ),
-          align: 'right',
-        },
+        label: 'Tipo de pago',
       },
       status: {
         rules: [''],
@@ -264,6 +253,25 @@ const Outlays = () => {
           label: 'Estado',
           width: '180px',
           options: getStatusOptions,
+        },
+      },
+
+      amount: {
+        rules: ['required'],
+        api: 'ae',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto total
+          </span>
+        ),
+        form: { type: 'number' },
+        list: {
+          onRender: (props: any) => (
+            <div style={{ width: '100%', textAlign: 'right' }}>
+              {'Bs ' + formatNumber(props.item.amount)}
+            </div>
+          ),
+          align: 'right',
         },
       },
       client_id: {
@@ -319,31 +327,6 @@ const Outlays = () => {
     extraButtons,
     getFilter: handleGetFilter,
   });
-  const onSaveCustomFilter = () => {
-    let err: { startDate?: string; endDate?: string } = {};
-    if (!customDateRange.startDate) {
-      err.startDate = 'La fecha de inicio es obligatoria';
-    }
-    if (!customDateRange.endDate) {
-      err.endDate = 'La fecha de fin es obligatoria';
-    }
-    if (
-      customDateRange.startDate &&
-      customDateRange.endDate &&
-      customDateRange.startDate > customDateRange.endDate
-    ) {
-      err.startDate = 'La fecha de inicio no puede ser mayor a la fecha fin';
-    }
-    if (Object.keys(err).length > 0) {
-      setCustomDateErrors(err);
-      return;
-    }
-    const customDateFilterString = `${customDateRange.startDate},${customDateRange.endDate}`;
-    onFilter('date_at', customDateFilterString);
-
-    setOpenCustomFilter(false);
-    setCustomDateErrors({});
-  };
   useCrudUtils({
     onSearch,
     searchs,
@@ -358,7 +341,7 @@ const Outlays = () => {
   return (
     <div className={styles.outlays}>
       <List
-        height={'calc(100vh - 330px)'}
+        height={'calc(100vh - 350px)'}
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
@@ -376,54 +359,35 @@ const Outlays = () => {
         />
       )} */}
 
-      <DataModal
+      <DateRangeFilterModal
         open={openCustomFilter}
-        title="Seleccionar Rango de Fechas"
-        onSave={onSaveCustomFilter}
         onClose={() => {
           setCustomDateRange({});
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
-        buttonText="Aplicar Filtro"
-        buttonCancel="Cancelar"
-      >
-        <Input
-          type="date"
-          label="Fecha de inicio"
-          name="startDate"
-          error={customDateErrors.startDate}
-          value={customDateRange.startDate || ''}
-          onChange={e => {
-            setCustomDateRange({
-              ...customDateRange,
-              startDate: e.target.value,
-            });
-            if (customDateErrors.startDate)
-              setCustomDateErrors(prev => ({
-                ...prev,
-                startDate: undefined,
-              }));
-          }}
-          required
-        />
-        <Input
-          type="date"
-          label="Fecha de fin"
-          name="endDate"
-          error={customDateErrors.endDate}
-          value={customDateRange.endDate || ''}
-          onChange={e => {
-            setCustomDateRange({
-              ...customDateRange,
-              endDate: e.target.value,
-            });
-            if (customDateErrors.endDate)
-              setCustomDateErrors(prev => ({ ...prev, endDate: undefined }));
-          }}
-          required
-        />
-      </DataModal>
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (startDate && endDate && startDate > endDate) {
+            err.startDate =
+              'La fecha de inicio no puede ser mayor a la fecha fin';
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter('date_at', customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        initialStartDate={customDateRange.startDate || ''}
+        initialEndDate={customDateRange.endDate || ''}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
     </div>
   );
 };
