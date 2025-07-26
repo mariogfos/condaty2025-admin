@@ -208,7 +208,7 @@ const RenderForm = ({
         maxLength={255}
         required={false}
         // type="textarea" //esto?
-        error={errors.description}
+        error={errors}
       />
       {/* //esto? */}
       {/* <div style={{ marginTop: "1rem" }}> */}

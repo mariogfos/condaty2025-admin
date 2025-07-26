@@ -359,7 +359,7 @@ const Expenses = () => {
           height={"calc(100vh - 270px)"}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
-          emptyMsg="Lista de expensa vacía. Una vez generes las cuotas"
+          emptyMsg="Lista de expensas vacía. Una vez generes las cuotas"
           emptyLine2="de los residentes las verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
           filterBreakPoint={800}

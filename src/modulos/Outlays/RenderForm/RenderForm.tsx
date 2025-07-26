@@ -4,10 +4,10 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import Input from '@/mk/components/forms/Input/Input';
-import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
 import Toast from '@/mk/components/ui/Toast/Toast';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import { checkRules } from '@/mk/utils/validate/Rules';
 
 interface Category {
   id: number | string;
@@ -49,14 +49,14 @@ interface ExtraData {
 }
 
 interface Errors {
-  [key: string]: string | undefined;
+  [key: string]: string;
 }
 
 interface RenderFormProps {
   open: boolean;
   onClose: () => void;
   item?: Partial<OutlayFormState>;
-  onSave?: () => void;
+  onSave?: (params: any) => void;
   extraData?: ExtraData;
   execute: (url: string, method: string, params: any) => Promise<any>;
   showToast: (
@@ -71,34 +71,27 @@ const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
   item,
-
   extraData,
-  execute,
   showToast,
-  reLoad,
-
+  onSave,
 }) => {
   const [_formState, _setFormState] = useState<OutlayFormState>(() => {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = today.toISOString().split("T")[0];
     return {
+      ...(item || {}),
       ...(item || {}),
       date_at: (item && item.date_at) || formattedDate,
       type: (item && item.type) || '',
       file: (item && item.file) || null,
-      filename: (item && item.filename) || null,
-      ext: (item && item.ext) || null,
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState<
     Subcategory[]
   >([]);
-  const [selectedFiles, setSelectedFiles] = useState<
-    Record<string, File | string>
-  >({});
 
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  const [toast, setToast] = useState<{
+  const [toast] = useState<{
     msg: string;
     type: 'info' | 'success' | 'error' | 'warning';
   }>({ msg: '', type: 'info' });
@@ -112,16 +105,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       _setFormState(prev => ({
         ...prev,
         file: null,
-        filename: null,
-        ext: null,
       }));
-      setSelectedFiles({});
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
-
     if (!isInitialized && open) {
       const today = new Date();
       const formattedDate = today.toISOString().split('T')[0];
@@ -130,10 +118,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         date_at: (item && item.date_at) || formattedDate,
         type: (item && item.type) || '',
         file: (item && item.file) || null,
-        filename: (item && item.filename) || null,
-        ext: (item && item.ext) || null,
       });
-
       setIsInitialized(true);
     }
   }, [open, item, isInitialized]);
@@ -177,24 +162,93 @@ const RenderForm: React.FC<RenderFormProps> = ({
     [extraData?.subcategories]
   );
   const validar = useCallback(() => {
-    const err: Errors = {};
-    if (!_formState.date_at) err.date_at = 'Este campo es requerido';
-    if (!_formState.category_id) err.category_id = 'Este campo es requerido';
-    if (_formState.category_id && !_formState.subcategory_id) {
-      err.subcategory_id = 'Este campo es requerido';
-    }
-    if (!_formState.description) err.description = 'Este campo es requerido';
-    else if (_formState.description.length > 500)
-      err.description = 'El concepto no puede exceder los 500 caracteres';
-    if (!_formState.amount) err.amount = 'Este campo es requerido';
-    if (!_formState.type) err.type = 'Este campo es requerido';
-    if (!_formState.file) {
-      err.file = 'El comprobante es requerido';
-    }
+    let errs: Errors = {};
 
-    set_Errors({ ...err });
+    const addError = (
+      result: string | Record<string, string> | null,
+      key: string
+    ) => {
+      if (typeof result === 'string' && result) {
+        errs[key] = result;
+      } else if (result && typeof result === 'object') {
+        Object.entries(result).forEach(([k, v]) => {
+          if (v) errs[k] = v;
+        });
+      }
+    };
 
-    if (Object.keys(err).length > 0) {
+    addError(
+      checkRules({
+        value: _formState.date_at,
+        rules: ['required'],
+        key: 'date_at',
+        errors: errs,
+      }),
+      'date_at'
+    );
+    addError(
+      checkRules({
+        value: _formState.category_id,
+        rules: ['required'],
+        key: 'category_id',
+        errors: errs,
+      }),
+      'category_id'
+    );
+    addError(
+      checkRules({
+        value: _formState.subcategory_id,
+        rules: ['required'],
+        key: 'subcategory_id',
+        errors: errs,
+      }),
+      'subcategory_id'
+    );
+    addError(
+      checkRules({
+        value: _formState.description,
+        rules: ['required', 'max:500'],
+        key: 'description',
+        errors: errs,
+      }),
+      'description'
+    );
+    addError(
+      checkRules({
+        value: _formState.amount,
+        rules: ['required', 'max:10'],
+        key: 'amount',
+        errors: errs,
+      }),
+      'amount'
+    );
+    addError(
+      checkRules({
+        value: _formState.type,
+        rules: ['required'],
+        key: 'type',
+        errors: errs,
+      }),
+      'type'
+    );
+    addError(
+      checkRules({
+        value: _formState.file,
+        rules: ['required'],
+        key: 'file',
+        errors: errs,
+      }),
+      'file'
+    );
+
+    const filteredErrs = Object.fromEntries(
+      Object.entries(errs).filter(
+        ([_, v]) => typeof v === 'string' && v !== undefined
+      )
+    );
+    set_Errors(filteredErrs);
+
+    if (Object.keys(errs).length > 0) {
       setTimeout(() => {
         const firstErrorElement =
           document.querySelector(`.${styles.error}`) ||
@@ -210,57 +264,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
         }
       }, 100);
     }
-
-    return Object.keys(err).length === 0;
-  }, [_formState, filteredSubcategories, set_Errors]);
-
-  const _onSaveEgreso = useCallback(async () => {
-    if (!validar()) {
-      showToast('Por favor complete todos los campos requeridos', 'error');
-      return;
-    }
-
-    let params = {
-      date_at: _formState.date_at,
-      category_id: _formState.category_id,
-      subcategory_id: _formState.subcategory_id || null,
-      description: _formState.description,
-      amount: parseFloat(String(_formState.amount || '0')),
-      type: _formState.type,
-      file: _formState.file,
-    };
-
-    try {
-      const { data, error } = await execute('/expenses', 'POST', params);
-
-      if (data?.success) {
-        showToast('Egreso registrado con éxito', 'success');
-        reLoad();
-        onCloseModal();
-      } else if (error) {
-        console.error('Error al guardar el egreso:', error);
-        showToast(
-          error?.data?.message || 'Error al guardar el egreso',
-          'error'
-        );
-        const errorMsg = error?.data?.message || 'Error al guardar el egreso';
-        showToast(errorMsg, 'error');
-        if (error.data && error.data.errors) {
-          showToast(error.data.errors, 'error');
-          set_Errors(error.data.errors);
-        } else {
-          showToast(errorMsg, 'error');
-          set_Errors(prev => ({ ...prev, general: errorMsg }));
-        }
-      }
-    } catch (err) {
-      showToast('Error inesperado al guardar el egreso', 'error');
-      set_Errors(prev => ({
-        ...prev,
-        general: 'Error inesperado al guardar el egreso',
-      }));
-    }
-  }, [_formState, validar, execute, reLoad, onClose, set_Errors]);
+    return Object.keys(errs).length === 0;
+  }, [_formState]);
 
   const onCloseModal = useCallback(() => {
     setIsInitialized(false);
@@ -272,14 +277,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: '',
       amount: '',
       file: null,
-      filename: null,
-      ext: null,
     }));
     setFilteredSubcategories([]);
-    setSelectedFiles({});
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
     set_Errors({});
     onClose();
   }, [onClose, set_Errors]);
@@ -292,16 +292,41 @@ const RenderForm: React.FC<RenderFormProps> = ({
     { id: 'C', name: 'Cheque' },
   ];
 
+  const handleSave = useCallback(() => {
+    if (!validar()) return;
+
+    const {
+      date_at,
+      category_id,
+      subcategory_id,
+      description,
+      amount,
+      type,
+      file,
+    } = _formState;
+    const params = {
+      date_at,
+      category_id,
+      subcategory_id: subcategory_id || null,
+      description,
+      amount: parseFloat(String(amount || '0')),
+      type,
+      file,
+    };
+
+    onSave?.(params);
+  }, [_formState, validar, onSave]);
+
   return (
     <>
       <Toast toast={toast} showToast={showToast} />
       <DataModal
         open={open}
         onClose={onCloseModal}
-        onSave={_onSaveEgreso}
+        onSave={handleSave}
         buttonCancel="Cancelar"
-        buttonText={'Registrar egreso'}
-        title={'Nuevo egreso'}
+        buttonText={'Crear egreso'}
+        title={'Crear egreso'}
       >
         <div className={styles['outlays-form-container']}>
           {/* Fecha de pago */}
@@ -325,8 +350,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               />
             </div>
           </div>
-
-          {/* Categoría y Subcategoría (en dos columnas) */}
+          {/* Categoría y Subcategoría */}
           <div className={styles.section}>
             <div className={styles['two-column-container']}>
               <div className={styles.column}>
@@ -364,8 +388,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               </div>
             </div>
           </div>
-
-          {/* Monto y Método de pago (en dos columnas) */}
+          {/* Monto y Método de pago */}
           <div className={styles['two-column-container']}>
             <div className={styles.column}>
               <div className={styles.section}>
@@ -378,7 +401,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                     onChange={handleChangeInput}
                     error={_errors}
                     required
-                    maxLength={20}
+                    maxLength={10}
                     className={_errors.amount ? styles.error : ''}
                   />
                 </div>
@@ -403,8 +426,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               </div>
             </div>
           </div>
-
-          {/* --- SECCIÓN COMPROBANTE --- */}
+          {/* Comprobante */}
           <div className={styles.section}>
             <div className={styles['input-container']}>
               <UploadFile
@@ -423,10 +445,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
           {/* Concepto del pago */}
           <div className={styles.section}>
-            <div className={styles['input-container']}>
+
               <TextArea
                 name="description"
-                label="Concepto del egreso"
+                label="Concepto"
                 value={_formState.description || ''}
                 onChange={handleChangeInput}
                 error={_errors}
@@ -434,13 +456,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 maxLength={500}
                 className={_errors.description ? styles.error : ''}
               />
-              {_formState.description &&
-                _formState.description.length > 0 && (
-                  <p className={styles['char-count']}>
-                    {_formState.description.length}/500 caracteres
-                  </p>
-                )}
-            </div>
+              {_formState.description && _formState.description.length > 0 && (
+                <p className={styles['char-count']}>
+                  {_formState.description.length}/500 caracteres
+                </p>
+              )}
+
           </div>
           {/* Mostrar errores generales si existen */}
           {_errors.general && (
@@ -455,3 +476,4 @@ const RenderForm: React.FC<RenderFormProps> = ({
 };
 
 export default RenderForm;
+

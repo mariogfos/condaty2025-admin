@@ -70,64 +70,66 @@ const DateRangeFilterModal: React.FC<Props> = ({
       buttonText={buttonText}
       buttonCancel={buttonCancel}
     >
-      <Input
-        type="date"
-        label={labelStart}
-        name="startDate"
-        error={
-          localError.startDate
-            ? { startDate: localError.startDate }
-            : errorStart
-            ? { startDate: errorStart }
-            : undefined
-        }
-        value={startDate}
-        onChange={e => {
-          setStartDate(e.target.value);
-          if (
-            localError.startDate &&
-            e.target.value &&
-            (!endDate || e.target.value <= endDate)
-          ) {
-            setLocalError(prev => ({ ...prev, startDate: undefined }));
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Input
+          type="date"
+          label={labelStart}
+          name="startDate"
+          error={
+            localError.startDate
+              ? { startDate: localError.startDate }
+              : errorStart
+              ? { startDate: errorStart }
+              : undefined
           }
-          if (localError.endDate && endDate && e.target.value <= endDate) {
-            setLocalError(prev => ({ ...prev, endDate: undefined }));
+          value={startDate}
+          onChange={e => {
+            setStartDate(e.target.value);
+            if (
+              localError.startDate &&
+              e.target.value &&
+              (!endDate || e.target.value <= endDate)
+            ) {
+              setLocalError(prev => ({ ...prev, startDate: undefined }));
+            }
+            if (localError.endDate && endDate && e.target.value <= endDate) {
+              setLocalError(prev => ({ ...prev, endDate: undefined }));
+            }
+          }}
+          required
+        />
+        <Input
+          type="date"
+          label={labelEnd}
+          name="endDate"
+          error={
+            localError.endDate
+              ? { endDate: localError.endDate }
+              : errorEnd
+              ? { endDate: errorEnd }
+              : undefined
           }
-        }}
-        required
-      />
-      <Input
-        type="date"
-        label={labelEnd}
-        name="endDate"
-        error={
-          localError.endDate
-            ? { endDate: localError.endDate }
-            : errorEnd
-            ? { endDate: errorEnd }
-            : undefined
-        }
-        value={endDate}
-        onChange={e => {
-          setEndDate(e.target.value);
-          if (
-            localError.endDate &&
-            e.target.value &&
-            (!startDate || startDate <= e.target.value)
-          ) {
-            setLocalError(prev => ({ ...prev, endDate: undefined }));
-          }
-          if (
-            localError.startDate &&
-            startDate &&
-            startDate <= e.target.value
-          ) {
-            setLocalError(prev => ({ ...prev, startDate: undefined }));
-          }
-        }}
-        required
-      />
+          value={endDate}
+          onChange={e => {
+            setEndDate(e.target.value);
+            if (
+              localError.endDate &&
+              e.target.value &&
+              (!startDate || startDate <= e.target.value)
+            ) {
+              setLocalError(prev => ({ ...prev, endDate: undefined }));
+            }
+            if (
+              localError.startDate &&
+              startDate &&
+              startDate <= e.target.value
+            ) {
+              setLocalError(prev => ({ ...prev, startDate: undefined }));
+            }
+          }}
+          required
+        />
+      </div>
     </DataModal>
   );
 };

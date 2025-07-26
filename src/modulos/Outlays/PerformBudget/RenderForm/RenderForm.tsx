@@ -29,6 +29,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
         ...itemEdit,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const validate = () => {
     let errors: any = {};

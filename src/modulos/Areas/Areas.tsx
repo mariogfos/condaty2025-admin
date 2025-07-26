@@ -344,7 +344,7 @@ const Areas = () => {
   return (
     <div>
       <List
-        height={"calc(100vh - 330px)"}
+        height={"calc(100vh - 350px)"}
         //   emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
         //   emptyLine2="del condominio las verás aquí."
         //   emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)"

@@ -1,10 +1,10 @@
-"use client";
-import { useEffect, useState } from "react";
-import Input from "../Input/Input";
+'use client';
+import { useEffect, useState } from 'react';
+import Input from '../Input/Input';
 import {
   IconSearch,
   IconX,
-} from "../../../../components/layout/icons/IconsBiblioteca";
+} from '../../../../components/layout/icons/IconsBiblioteca';
 // import Button from "../Button/Button";
 import styles from "./dataSearch.module.css";
 import { PropsTypeInputBase } from "../ControlLabel";
@@ -21,13 +21,13 @@ const DataSearch = ({
   setSearch,
   name,
   value,
-  label = "",
+  label = '',
   textButton = idioma.search,
-  className = "",
-  searchMsg = "", // Nuevo prop
+  className = '',
+  searchMsg = '', // Nuevo prop
 }: PropsType) => {
-  const [searchBy, setSearchBy] = useState("");
-  const [oldSearch, setOldSearch] = useState("");
+  const [searchBy, setSearchBy] = useState('');
+  const [oldSearch, setOldSearch] = useState('');
   const [focused, setFocused] = useState(false); // Nuevo estado
 
   const onSearch = (v: any = false) => {
@@ -53,7 +53,7 @@ const DataSearch = ({
   }, [value]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       onSearch();
     }
   };
@@ -117,20 +117,19 @@ const DataSearch = ({
       {/* {focused && searchMsg && (
         <div
           style={{
-            position: "absolute",
-            top: "100%",
-            left: 40,
-            background: "rgba(0,0,0,0.85)",
-            color: "var(--cWhite)",
-            padding: 8,
-            borderRadius: 8,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            zIndex: 10,
-            minWidth: 250,
-            fontSize: 13,
-            marginTop: 4,
+            position: 'absolute',
+            left: '50%',
+            top: '-8px',
+            transform: 'translate(-50%, -100%)',
+            fontSize: 14,
+            zIndex: 9999,
+            textAlign: 'end',
+            marginTop: 0,
           }}
         >
+          <span />
+        </Tooltip>
+      )}
           {searchMsg}
         </div>
       )} */}

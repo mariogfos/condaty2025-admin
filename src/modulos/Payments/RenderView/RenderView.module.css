@@ -51,7 +51,6 @@
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spS) 0;
 }
 .detailsSection {
   display: flex;

@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: var(--spL);
-  gap: var(--spM);
+  gap: var(--spL);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
@@ -62,7 +62,7 @@
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spM) 0;
+
 }
 .detailsSection {
   display: flex;
@@ -99,6 +99,9 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+.infoValue span {
+  display: block;
+}
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
@@ -114,7 +117,7 @@
   padding-bottom: var(--spS);
 }
 .voucherButton {
-  background-color: var(--cHoverTable);
+  background-color: var(--cHoveTablePdf);
   color: var(--cWhite);
   border: 1px solid var(--cWhiteV1);
   font-size: var(--sM);
@@ -131,6 +134,7 @@
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
+
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
@@ -192,7 +196,7 @@
     padding-top: var(--spM);
   }
   .voucherButton {
-    background-color: var(--cHoverTable);
+    background-color: var(--cHoveTablePdf);
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;
