@@ -828,7 +828,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       </div>
                     </div>
                     <span className={styles.reservationStatus}>
-                      Reservación: En proceso
+                      Reserva: En proceso
                     </span>
                   </div>
                 </div>
