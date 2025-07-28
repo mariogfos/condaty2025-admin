@@ -28,7 +28,6 @@ const LoadingScreen = ({
     }
   }, [waiting]);
 
-  // console.log("waitin,", waiting, loaded);
   // If onlyLoading is true, show the loading animation while data is not loaded
   if (onlyLoading && !_loaded && circle) {
     return (
