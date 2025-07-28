@@ -226,20 +226,8 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
         ))}
       </div> */}
       {loading && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999999,
-          }}
-        >
-          <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+        <div className={styles.loading}>
+          <p style={{ fontSize: "14px", fontWeight: "bold" }}>
             Cargando días...
           </p>
         </div>
