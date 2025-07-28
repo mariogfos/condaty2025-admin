@@ -1,41 +1,35 @@
-"use client";
-import { useMemo, useCallback, useState } from "react";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import styles from "./Categories.module.css";
-import {
-  IconArrowLeft,
-  IconCategories,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Link from "next/link";
-import { CategoryItem } from "./Type/CategoryType";
-import Button from "@/mk/components/forms/Button/Button";
-import CategoryForm from "./RenderForm/RenderForm";
-import CategoryCard from "./CategoryCard/CategoryCard";
-import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
-import NotAccess from "@/components/layout/NotAccess/NotAccess";
+'use client';
+import { useMemo, useCallback, useState } from 'react';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import styles from './Categories.module.css';
+import { IconArrowLeft, IconCategories } from '@/components/layout/icons/IconsBiblioteca';
+import Link from 'next/link';
+import { CategoryItem } from './Type/CategoryType';
+import Button from '@/mk/components/forms/Button/Button';
+import CategoryForm from './RenderForm/RenderForm';
+import CategoryCard from './CategoryCard/CategoryCard';
+import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
+import NotAccess from '@/components/layout/NotAccess/NotAccess';
 
-const BackNavigation = ({ type }: { type: "I" | "E" }) => (
-  <Link
-    href={type === "I" ? "/payments" : "/outlays"}
-    className={styles.backLink}
-  >
+const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
+  <Link href={type === 'I' ? '/payments' : '/outlays'} className={styles.backLink}>
     <IconArrowLeft />
-    <span>Volver a sección {type === "I" ? "ingresos" : "egresos"}</span>
+    <span>Volver a sección {type === 'I' ? 'ingresos' : 'egresos'}</span>
   </Link>
 );
-const Categories = ({ type = "" }) => {
-  const typeToUse = type === "I" ? "I" : "E";
-  const categoryTypeText = typeToUse === "I" ? "ingresos" : "egresos";
+const Categories = ({ type = '' }) => {
+  const typeToUse = type === 'I' ? 'I' : 'E';
+  const categoryTypeText = typeToUse === 'I' ? 'ingresos' : 'egresos';
 
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
   const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
   const mod = useMemo<ModCrudType>(
     () => ({
-      modulo: "categories",
-      singular: "Categoría",
-      plural: "Categorías",
-      permiso: "categories",
+      modulo: 'categories',
+      singular: 'Categoría',
+      plural: 'Categorías',
+      permiso: 'categories',
       search: { hide: true },
       extraData: { params: { type: typeToUse } } as any,
       hideActions: {
@@ -47,7 +41,7 @@ const Categories = ({ type = "" }) => {
         del: `Categoría de ${categoryTypeText} eliminada con éxito`,
       },
       messageDel:
-        "¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no podrás recuperarla",
+        '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no podrás recuperarla',
       renderForm: (propsFromCrud: any) => (
         <CategoryForm
           {...propsFromCrud}
@@ -69,66 +63,58 @@ const Categories = ({ type = "" }) => {
     [typeToUse, categoryTypeText, initialFormDataOverride]
   );
 
-  const {
-    List,
-    onEdit,
-    onDel,
-    onAdd,
-    getExtraData,
-    onSearch,
-    searchs,
-    userCan,
-  } = useCrud({
-    paramsInitial: useMemo(
-      () => ({
-        perPage: 20,
-        page: 1,
-        fullType: "L",
-        searchBy: "",
-        type: typeToUse,
-      }),
-      [typeToUse]
-    ),
-    mod: mod,
+  const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs, userCan, extraData } =
+    useCrud({
+      paramsInitial: useMemo(
+        () => ({
+          perPage: 20,
+          page: 1,
+          fullType: 'L',
+          searchBy: '',
+          type: typeToUse,
+        }),
+        [typeToUse]
+      ),
+      mod: mod,
 
-    fields: useMemo(
-      () => ({
-        id: { rules: [], api: "e" },
-        name: {
-          rules: ["required"],
-          api: "ae",
-          label: "Categoría",
-          form: { type: "text" },
-          list: {},
-        },
-        description: {
-          rules: [],
-          api: "ae",
-          label: "Descripción",
-          form: { type: "textarea" },
-          list: {},
-        },
-        category_id: {
-          rules: [],
-          api: "ae",
-          label: "Categoría Padre",
-          form: {
-            type: "select",
-            optionsExtra: "categories",
-            placeholder: "Seleccione una categoría",
+      fields: useMemo(
+        () => ({
+          id: { rules: [], api: 'e' },
+          name: {
+            rules: ['required'],
+            api: 'ae',
+            label: 'Categoría',
+            form: { type: 'text' },
+            list: {},
           },
-        },
-        hijos: { rules: [], api: "", label: "Subcategorías" },
-        type: {
-          rules: ["required"],
-          api: "ae",
-          label: "Tipo",
-          form: { type: "hidden", precarga: typeToUse },
-        },
-      }),
-      [typeToUse]
-    ),
-  });
+          description: {
+            rules: [],
+            api: 'ae',
+            label: 'Descripción',
+            form: { type: 'textarea' },
+            list: {},
+          },
+          category_id: {
+            rules: [],
+            api: 'ae',
+            label: 'Categoría Padre',
+            form: {
+              type: 'select',
+              optionsExtra: 'categories',
+              placeholder: 'Seleccione una categoría',
+            },
+          },
+          hijos: { rules: [], api: '', label: 'Subcategorías' },
+          type: {
+            rules: ['required'],
+            api: 'ae',
+            label: 'Tipo',
+            form: { type: 'hidden', precarga: typeToUse },
+          },
+        }),
+        [typeToUse]
+      ),
+    });
   const handleEdit = useCallback(
     (itemToEdit: CategoryItem) => {
       onEdit({
@@ -140,10 +126,7 @@ const Categories = ({ type = "" }) => {
     [onEdit, typeToUse]
   );
 
-  const handleDelete = useCallback(
-    (itemToDelete: CategoryItem) => onDel(itemToDelete),
-    [onDel]
-  );
+  const handleDelete = useCallback((itemToDelete: CategoryItem) => onDel(itemToDelete), [onDel]);
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
       setInitialFormDataOverride({
@@ -161,11 +144,7 @@ const Categories = ({ type = "" }) => {
     onAdd({ type: typeToUse });
   }, [onAdd, typeToUse]);
   const renderCardFunction = useCallback(
-    (
-      item: CategoryItem,
-      index: number,
-      baseOnRowClick: (item: CategoryItem) => void
-    ) => (
+    (item: CategoryItem, index: number, baseOnRowClick: (item: CategoryItem) => void) => (
       <CategoryCard
         key={item.id ?? `category-${index}`}
         item={item}
@@ -178,13 +157,7 @@ const Categories = ({ type = "" }) => {
         forceOpen={forceOpenAccordions}
       />
     ),
-    [
-      handleEdit,
-      handleDelete,
-      typeToUse,
-      handleAddSubcategory,
-      forceOpenAccordions,
-    ]
+    [handleEdit, handleDelete, typeToUse, handleAddSubcategory, forceOpenAccordions]
   );
   const handleSearch = useCallback(
     (value: string) => {
@@ -193,7 +166,7 @@ const Categories = ({ type = "" }) => {
     },
     [onSearch]
   );
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
@@ -201,22 +174,23 @@ const Categories = ({ type = "" }) => {
       <div className={styles.searchContainer}>
         <div style={{ flex: 1 }}>
           <DataSearch
-            value={searchs.searchBy || ""}
+            value={searchs.searchBy || ''}
             name="categoriesSearch"
             setSearch={handleSearch}
             textButton="Buscar"
             className={styles.dataSearchCustom}
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
+            searchMsg={extraData?.searchMsg || ''}
           />
         </div>
         <Button
           onClick={handleAddPrincipalCategory}
           style={{
-            padding: "8px 16px",
-            width: "auto",
+            padding: '8px 16px',
+            width: 'auto',
             height: 48,
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           Nueva categoría
@@ -224,7 +198,7 @@ const Categories = ({ type = "" }) => {
       </div>
       <List
         onRenderBody={renderCardFunction}
-        height={"calc(100vh - 400px)"}
+        height={'calc(100vh - 400px)'}
         emptyMsg="Sin categorías."
         emptyLine2="Crea categorías para organizar tus movimientos financieros."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
