@@ -67,7 +67,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
     status = "F";
   }
   const currentStatus = status ? statusMap[status] : null;
-  console.log(details);
+
   return (
     <>
       {status == "A" && (
