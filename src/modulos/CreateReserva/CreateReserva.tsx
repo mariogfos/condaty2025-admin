@@ -335,6 +335,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         );
       }
     } catch (error) {
+      console.error(error);
       showToast("Ocurrió un error inesperado al crear la reserva.", "error");
     } finally {
       setIsSubmitting(false);
@@ -366,8 +367,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }));
 
     if (errors.cantidad_personas) {
-      if (finalValue.trim() === "") {
-      } else {
+      if (finalValue.trim() !== "") {
         const numValCheck = Number(finalValue);
         const maxCap = selectedAreaDetails?.max_capacity;
         if (
