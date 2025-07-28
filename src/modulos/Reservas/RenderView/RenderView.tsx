@@ -67,10 +67,11 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
     status = "F";
   }
   const currentStatus = status ? statusMap[status] : null;
+  console.log(details);
   return (
     <>
       {status == "A" && (
-        <button
+        <p
           onClick={onCancel}
           style={{
             color: "var(--cError)",
@@ -80,7 +81,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
           }}
         >
           Cancelar reserva
-        </button>
+        </p>
       )}
       <div className={styles.reservationBlock}>
         <div className={styles.requesterSection}>
@@ -107,6 +108,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
           </div>
           {/* Usa la función pasada por props */}
           <span className={styles.requestTime}>
+            Solicitado:{" "}
             {details.created_at
               ? getFormattedRequestTime(details.created_at)
               : ""}
@@ -115,45 +117,26 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
         <hr className={styles.areaSeparator} />
 
         <div className={styles.mainDetailsContainer}>
-          <div className={styles.imageWrapper}>
-            {details.area?.images?.length > 0 ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={getUrlImages(
-                    `/AREA-${details.area.id}-${details.area.images[0].id}.${
-                      details.area.images[0].ext
-                    }?d=${details.area.updated_at || Date.now()}`
-                  )}
-                  alt={`Imagen de ${details.area.title}`}
-                  className={styles.areaImage}
-                  onError={(e: any) => {
-                    e.currentTarget.src = "/placeholder-image.png";
-                  }} // Considera un placeholder local
-                />
-              </>
-            ) : (
-              <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
-                <span className={styles.imagePlaceholderText}>Sin Imagen</span>
-              </div>
-            )}
-          </div>
-
           <div className={styles.detailsColumn}>
-            <div className={styles.areaTextInfo}>
-              <span className={styles.areaTitle}>
-                {details.area?.title ?? "Área desconocida"}
-              </span>
-              <span className={styles.areaDescription}>
-                {details.area?.description ?? "Sin descripción"}
-              </span>
-            </div>
-
-            <hr className={styles.areaSeparator} />
             <div className={styles.specificDetails}>
-              <span className={styles.detailsHeader}>
-                Detalles de la Reserva
-              </span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span className={styles.detailsHeader}>
+                  Área social: {details?.area?.title}
+                </span>
+                <div
+                  className={`${styles.statusBadge} ${
+                    currentStatus ? currentStatus.class : styles.statusUnknown
+                  }`}
+                >
+                  {currentStatus ? currentStatus.label : "Estado desconocido"}
+                </div>
+              </div>
               <div className={styles.detailsList}>
                 <div className={styles.detailItem}>
                   <IconCalendar size={18} className={styles.detailIcon} />
@@ -188,16 +171,8 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             </div>
           </div>
         </div>
-        <div
-          className={`${styles.statusBadge} ${
-            currentStatus ? currentStatus.class : styles.statusUnknown
-          }`}
-        >
-          {currentStatus ? currentStatus.label : "Estado desconocido"}
-        </div>
       </div>
 
-      {/* Muestra el error de acción */}
       {actionError && (
         <div
           className={styles.errorText}
