@@ -25,6 +25,7 @@ import { getDateStrMes } from "../../mk/utils/date1";
 import StepProgressBar from "@/components/StepProgressBar/StepProgressBar";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import { formatBs, formatNumber } from "@/mk/utils/numbers";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 
 const initialState: FormState = {
   unidad: "",
@@ -701,13 +702,21 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                                     }
                                   }}
                                   disabled={isDisabled}
-                                  title={
-                                    !slot.isAvailable
-                                      ? "Este período ya fue reservado"
-                                      : ""
-                                  }
+                                  // title={
+                                  //   !slot.isAvailable
+                                  //     ? "Este período ya fue reservado"
+                                  //     : ""
+                                  // }
                                 >
-                                  {slot?.period?.replace("-", " a ")}
+                                  <Tooltip
+                                    title={
+                                      !slot.isAvailable
+                                        ? "Período no disponible"
+                                        : ""
+                                    }
+                                  >
+                                    {slot?.period?.replace("-", " a ")}
+                                  </Tooltip>
                                 </button>
                               );
                             })}
