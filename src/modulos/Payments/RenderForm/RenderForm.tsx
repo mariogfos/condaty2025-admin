@@ -55,6 +55,20 @@ interface Deuda {
   debt?: {
     month?: number;
     year?: number;
+    type?: number;
+    description?: string;
+    due_at?: string;
+    status?: string;
+    reservation?: {
+      id?: string;
+      debt_id?: string;
+      area_id?: string;
+      area?: {
+        id?: string;
+        title?: string;
+        description?: string;
+      };
+    };
   };
 }
 
@@ -590,10 +604,22 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
 
           <div className={styles['deudas-table']}>
-            <div className={styles['deudas-header']}>
-              <span className={styles['header-item']}>Periodo</span>
+            <div
+              className={`${styles['deudas-header']} ${
+                formState.subcategory_id === extraData?.client_config?.cat_reservations
+                  ? styles['deudas-header-reservations']
+                  : ''
+              }`}
+            >
+              <span className={styles['header-item']}>
+                {formState.subcategory_id === extraData?.client_config?.cat_reservations
+                  ? 'Área Social'
+                  : 'Periodo'}
+              </span>
               <span className={styles['header-item']}>Monto</span>
-              <span className={styles['header-item']}>Multa</span>
+              {formState.subcategory_id !== extraData?.client_config?.cat_reservations && (
+                <span className={styles['header-item']}>Multa</span>
+              )}
               <span className={styles['header-item']}>SubTotal</span>
               <span className={styles['header-item']}>Seleccionar</span>
             </div>
@@ -612,21 +638,31 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   textAlign: 'inherit',
                 }}
               >
-                <div className={styles['deuda-row']}>
+                <div
+                  className={`${styles['deuda-row']} ${
+                    formState.subcategory_id === extraData?.client_config?.cat_reservations
+                      ? styles['deuda-row-reservations']
+                      : ''
+                  }`}
+                >
                   <div className={styles['deuda-cell']}>
-                    {periodo.debt &&
-                    typeof periodo.debt === 'object' &&
-                    periodo.debt.month !== undefined &&
-                    periodo.debt.year !== undefined
+                    {formState.subcategory_id === extraData?.client_config?.cat_reservations
+                      ? periodo.debt?.reservation?.area?.title || 'N/A'
+                      : periodo.debt &&
+                        typeof periodo.debt === 'object' &&
+                        periodo.debt.month !== undefined &&
+                        periodo.debt.year !== undefined
                       ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
                       : 'N/A'}
                   </div>
                   <div className={styles['deuda-cell']}>
                     {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}{' '}
                   </div>
-                  <div className={styles['deuda-cell']}>
-                    {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
-                  </div>
+                  {formState.subcategory_id !== extraData?.client_config?.cat_reservations && (
+                    <div className={styles['deuda-cell']}>
+                      {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
+                    </div>
+                  )}
                   <div className={styles['deuda-cell']}>
                     {'Bs ' +
                       (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)).toFixed(

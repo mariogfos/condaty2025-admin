@@ -187,6 +187,11 @@
   width: 100%;
 }
 
+.deudas-header-reservations,
+.deuda-row-reservations {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .deudas-header {
   background-color: var(--cBlackV2, #333536);
   color: var(--cWhite, #fbfbfb);
