@@ -221,7 +221,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       );
 
       unavailableSlots = dataDay?.available.filter(
-        (d: any) => parseInt(d.split("-")[1]) < new Date().getHours()
+        (d: any) => parseInt(d.split("-")[1]) <= new Date().getHours()
       );
     } else {
       daysAvailable = dataDay?.available;
