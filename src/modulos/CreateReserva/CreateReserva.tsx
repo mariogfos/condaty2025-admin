@@ -67,6 +67,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>(
     []
   );
+  const [openComfirm, setOpenComfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [dataReserv, setDataReserv]: any = useState([]);
@@ -404,9 +405,17 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       a.period.localeCompare(b.period)
     );
   }, [availableTimeSlots, unavailableTimeSlots]);
+
+  const _onClose = () => {
+    if (currentStep == 3) {
+      setOpenComfirm(true);
+      return;
+    }
+    onClose();
+  };
   return (
     <div className={styles.pageWrapper}>
-      <HeaderBack label="Volver a lista de reservas" onClick={onClose} />
+      <HeaderBack label="Volver a lista de reservas" onClick={_onClose} />
       <div className={styles.createReservaContainer}>
         <div className={styles.header}>
           <p style={{ fontSize: "24px", fontWeight: 600 }}>
@@ -1084,6 +1093,21 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                 {selectedAreaDetails?.cancellation_policy}
               </p>
             </div>
+          </DataModal>
+        )}
+        {openComfirm && (
+          <DataModal
+            title="Volver a lista de reservas"
+            open={openComfirm}
+            onClose={() => setOpenComfirm(false)}
+            onSave={() => onClose()}
+            buttonText="Volver"
+            buttonCancel="Continuar creación"
+          >
+            <p>
+              ¿Seguro que quieres volver? Recuerda que si realizas esta acción,
+              los cambios que has cargado en todos los pasos se eliminarán.
+            </p>
           </DataModal>
         )}
       </div>

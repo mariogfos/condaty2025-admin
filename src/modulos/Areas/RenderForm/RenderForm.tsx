@@ -11,16 +11,9 @@ import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
-const RenderForm = ({
-  onClose,
-  open,
-  item,
-  execute,
-  setOpenList,
-  reLoad,
-  action,
-}: any) => {
+const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
     booking_mode: item?.booking_mode || "day",
@@ -29,6 +22,7 @@ const RenderForm = ({
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
+  const [openComfirm, setOpenComfirm] = useState(false);
 
   useEffect(() => {
     setOpenList(false);
@@ -101,7 +95,7 @@ const RenderForm = ({
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
-        rules: ["required", "number", "positive", "less:10000","greater:0"],
+        rules: ["required", "number", "positive", "less:10000", "greater:0"],
         key: "price",
         errors,
       });
@@ -193,7 +187,7 @@ const RenderForm = ({
       }
     );
 
-    if (data?.success == true) {
+    if (data?.success) {
       onClose();
       reLoad();
       showToast(data.message, "success");
@@ -201,9 +195,17 @@ const RenderForm = ({
       showToast(data.message, "error");
     }
   };
+
+  const _onClose = () => {
+    if (level == 4) {
+      setOpenComfirm(true);
+      return;
+    }
+    onClose();
+  };
   return (
     <div className={styles.RenderForm}>
-      <HeaderBack label="Volver a lista de áreas sociales" onClick={onClose} />
+      <HeaderBack label="Volver a lista de áreas sociales" onClick={_onClose} />
       <div
         style={{
           width: "800px",
@@ -275,6 +277,22 @@ const RenderForm = ({
           </div>
         </Card>
       </div>
+      {openComfirm && (
+        <DataModal
+          title="Volver a lista de áreas sociales"
+          open={openComfirm}
+          onClose={() => setOpenComfirm(false)}
+          onSave={() => onClose()}
+          buttonText="Volver"
+          buttonCancel="Continuar creación"
+        >
+          <p>
+            ¿Seguro que quieres volver? Recuerda que si realizas esta acción,
+            los cambios que has cargado en todos los pasos se eliminarán y el
+            área social no será creada
+          </p>
+        </DataModal>
+      )}
     </div>
   );
 };
