@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { useEvent } from "@/mk/hooks/useEvents";
+import { useCallback, useState } from "react";
 
 type PropsType = {
   isTablet: boolean;
@@ -47,13 +48,23 @@ const Header = ({
 }: PropsType) => {
   const isActive = (path: string) => router.pathname === path;
   const { store, setStore } = useAuth();
+  const [count, setCount] = useState(0);
 
   const menuItems = [
     { name: "Roles", route: "/roles" },
     { name: "Categorias de roles", route: "/rolescategories" },
     { name: "Permisos", route: "/rolesabilities" },
   ];
-
+  const onNotif = useCallback((data: any) => {
+    console.log("nueva counter", data);
+    setCount((old) => old + 1);
+  }, []);
+  const onResetNotif = useCallback((data: any) => {
+    console.log("nueva counter", data);
+    setCount(0);
+  }, []);
+  useEvent("onResetNotif", onResetNotif);
+  useEvent("onNotif", onNotif);
   const Title = () => {
     return (
       <div className={styles["header-title"]}>
@@ -91,16 +102,14 @@ const Header = ({
     );
   };
 
-  const Round = ({ icon, href, onClick }: any) => {
+  const Round = ({ icon, href, onClick, bage }: any) => {
     return (
       <div className={styles.notificationContainer}>
         <Link onClick={onClick} href={href || "#"}>
           <div className={styles.notificationIcon}>
             {icon}
-            {store?.notif > 0 && href == "/notifications" && (
-              <div className={styles.notificationBadge}>
-                {store?.notif || 0}
-              </div>
+            {bage > 0 && href == "/notifications" && (
+              <div className={styles.notificationBadge}>{bage || 0}</div>
             )}
           </div>
         </Link>
@@ -136,34 +145,32 @@ const Header = ({
 
   if (isTablet)
     return (
-      <>
-        <HeadTitle
-          title={title}
-          customTitle={path == "/" ? <Title /> : customTitle()}
-          left={
-            path == "/" ? (
-              <IconMenu
-                onClick={() => setOpenSlider(!openSlider)}
-                circle
-                size={32}
-              />
-            ) : null
-          }
-          right={
-            path == "/" ? (
-              <div className={styles.headerRightContainer}>
-                <NotificationIcon />
-                {/* <Dropdown
+      <HeadTitle
+        title={title}
+        customTitle={path == "/" ? <Title /> : customTitle()}
+        left={
+          path == "/" ? (
+            <IconMenu
+              onClick={() => setOpenSlider(!openSlider)}
+              circle
+              size={32}
+            />
+          ) : null
+        }
+        right={
+          path == "/" ? (
+            <div className={styles.headerRightContainer}>
+              <NotificationIcon />
+              {/* <Dropdown
                   trigger={<IconSetting circle size={32} />}
                   items={menuItems}
                 /> */}
-              </div>
-            ) : (
-              right()
-            )
-          }
-        />
-      </>
+            </div>
+          ) : (
+            right()
+          )
+        }
+      />
     );
 
   return (
@@ -181,6 +188,7 @@ const Header = ({
         <Round
           icon={<IconNotification color="var(--cWhiteV1)" />}
           href="/notifications"
+          bage={count}
         />
         {/* <div
           style={{

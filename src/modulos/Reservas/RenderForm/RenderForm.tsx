@@ -16,10 +16,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { formatNumber } from "@/mk/utils/numbers";
 import styles from "./RenderForm.module.css";
-import {
-  IconDocs,
-  IconPDF,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconDocs, IconPDF } from "@/components/layout/icons/IconsBiblioteca";
 import { ToastType } from "@/mk/hooks/useToast";
 import Toast from "@/mk/components/ui/Toast/Toast";
 
@@ -38,13 +35,13 @@ const RenderForm = ({
   const [_formState, _setFormState] = useState(() => {
     // Obtener la fecha actual en formato YYYY-MM-DD
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
-    
+    const formattedDate = today.toISOString().split("T")[0];
+
     return {
-      ...item || {},
+      ...(item || {}),
       // Si no hay fecha en 'item', usa la fecha actual
       date_at: (item && item.date_at) || formattedDate,
-      payment_method: (item && item.payment_method) || "" // Añadir campo de método de pago
+      payment_method: (item && item.payment_method) || "", // Añadir campo de método de pago
     };
   });
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
@@ -56,7 +53,7 @@ const RenderForm = ({
   const { store } = useAuth();
 
   const extem = ["jpg", "pdf", "png", "jpeg", "doc", "docx", "xls", "xlsx"];
-  
+
   // Toast function
   const showToast = (message, type) => {
     setToast({ msg: message, type });
@@ -85,37 +82,41 @@ const RenderForm = ({
   }, [open]);
 
   // Handler for form field changes
-  const handleChangeInput = useCallback((e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
+  const handleChangeInput = useCallback(
+    (e) => {
+      const { name, value, type } = e.target;
+      const newValue =
+        type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
 
-    // Handle category_id changes specifically
-    if (name === "category_id") {
-      // Clear subcategory when category changes
-      _setFormState(prev => ({
-        ...prev,
-        [name]: newValue,
-        subcategory_id: ""
-      }));
+      // Handle category_id changes specifically
+      if (name === "category_id") {
+        // Clear subcategory when category changes
+        _setFormState((prev) => ({
+          ...prev,
+          [name]: newValue,
+          subcategory_id: "",
+        }));
 
-      // Load subcategories for selected category
-      if (newValue && extraData?.subcategories) {
-        // Filter subcategories that belong to the selected category
-        const filtered = extraData.subcategories.filter(
-          subcat => subcat.category_id === parseInt(newValue)
-        );
-        setFilteredSubcategories(filtered || []);
+        // Load subcategories for selected category
+        if (newValue && extraData?.subcategories) {
+          // Filter subcategories that belong to the selected category
+          const filtered = extraData.subcategories.filter(
+            (subcat) => subcat.category_id === parseInt(newValue)
+          );
+          setFilteredSubcategories(filtered || []);
+        } else {
+          setFilteredSubcategories([]);
+        }
       } else {
-        setFilteredSubcategories([]);
+        // Handle all other form fields
+        _setFormState((prev) => ({
+          ...prev,
+          [name]: newValue,
+        }));
       }
-    } else {
-      // Handle all other form fields
-      _setFormState(prev => ({
-        ...prev,
-        [name]: newValue
-      }));
-    }
-  }, [extraData?.subcategories]);
+    },
+    [extraData?.subcategories]
+  );
 
   // File upload handlers
   const onChangeFile = useCallback(
@@ -124,7 +125,7 @@ const RenderForm = ({
         if (!e.target.files || e.target.files.length === 0) return;
 
         const file = e.target.files[0];
-        
+
         const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
         if (!extem.includes(fileExtension)) {
           showToast("Solo se permiten archivos " + extem.join(", "), "error");
@@ -217,7 +218,7 @@ const RenderForm = ({
   // Form validation
   const validar = useCallback(() => {
     let err = {};
-  
+
     if (!_formState.date_at) {
       err.date_at = "Este campo es requerido";
     }
@@ -239,7 +240,7 @@ const RenderForm = ({
     if (!_formState.file) {
       err.file = "El comprobante es requerido";
     }
-  
+
     setErrors(err);
     return Object.keys(err).length === 0;
   }, [_formState, setErrors]);
@@ -406,7 +407,9 @@ const RenderForm = ({
 
           {/* Comprobante */}
           <div className={styles.section}>
-            <div className={styles["section-title"]}>Adjuntar comprobante o recibo del pago</div>
+            <div className={styles["section-title"]}>
+              Adjuntar comprobante o recibo del pago
+            </div>
             <div
               className={`${styles["file-upload-area"]} ${
                 isDraggingFile ? styles.dragging : ""
@@ -427,10 +430,15 @@ const RenderForm = ({
               {!_formState.file || _formState.file === "" ? (
                 <div className={styles["upload-instructions"]}>
                   <div className={styles["upload-text"]}>
-                    <label htmlFor="file-upload" className={styles["upload-link"]}>
+                    <label
+                      htmlFor="file-upload"
+                      className={styles["upload-link"]}
+                    >
                       <span>Cargar un archivo</span>
                     </label>
-                    <p className={styles["upload-alternative"]}>o arrastrar y soltar</p>
+                    <p className={styles["upload-alternative"]}>
+                      o arrastrar y soltar
+                    </p>
                   </div>
                   <p className={styles["file-types"]}>{extem.join(", ")}</p>
                   {errors.file && (
@@ -444,7 +452,7 @@ const RenderForm = ({
                     "type" in selectedFiles &&
                     selectedFiles.type ? (
                       selectedFiles.type.startsWith("image/") ? (
-                        <img    
+                        <img
                           src={URL.createObjectURL(selectedFiles)}
                           alt="Preview"
                           className={styles["file-thumbnail"]}
