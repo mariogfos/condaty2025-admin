@@ -34,10 +34,7 @@ interface ReservationDetailsViewProps {
   getFormattedRequestTime: (isoDate: string) => string;
   getFormattedReservationDate: (dateStr: string) => string;
   getFormattedReservationTime: (periods: any[] | undefined | null) => string;
-  getPriceDetails: (
-    area: any | undefined | null,
-    totalAmount: string
-  ) => string;
+  getPriceDetails: (area: any, totalAmount: string) => string;
 }
 const statusMap: any = {
   W: { label: "Por confirmar", class: styles.statusW },
@@ -73,7 +70,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
   return (
     <>
       {status == "A" && (
-        <p
+        <button
           onClick={onCancel}
           style={{
             color: "var(--cError)",
@@ -83,7 +80,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
           }}
         >
           Cancelar reserva
-        </p>
+        </button>
       )}
       <div className={styles.reservationBlock}>
         <div className={styles.requesterSection}>
@@ -120,19 +117,21 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
         <div className={styles.mainDetailsContainer}>
           <div className={styles.imageWrapper}>
             {details.area?.images?.length > 0 ? (
-              <img
-                // Consider using next/image for better performance and optimization
-                src={getUrlImages(
-                  `/AREA-${details.area.id}-${details.area.images[0].id}.${
-                    details.area.images[0].ext
-                  }?d=${details.area.updated_at || Date.now()}`
-                )}
-                alt={`Imagen de ${details.area.title}`}
-                className={styles.areaImage}
-                onError={(e: any) => {
-                  e.currentTarget.src = "/placeholder-image.png";
-                }} // Considera un placeholder local
-              />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={getUrlImages(
+                    `/AREA-${details.area.id}-${details.area.images[0].id}.${
+                      details.area.images[0].ext
+                    }?d=${details.area.updated_at || Date.now()}`
+                  )}
+                  alt={`Imagen de ${details.area.title}`}
+                  className={styles.areaImage}
+                  onError={(e: any) => {
+                    e.currentTarget.src = "/placeholder-image.png";
+                  }} // Considera un placeholder local
+                />
+              </>
             ) : (
               <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
                 <span className={styles.imagePlaceholderText}>Sin Imagen</span>
@@ -251,13 +250,13 @@ const ReservationDetailModal = ({
 }: {
   open: boolean;
   onClose: () => void;
-  item?: any | null;
+  item?: any;
   reservationId?: string | number | null;
   reLoad?: () => void;
 }) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [displayedData, setDisplayedData] = useState<any | null>(null);
+  const [displayedData, setDisplayedData] = useState<any>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
@@ -280,7 +279,7 @@ const ReservationDetailModal = ({
       setRejectErrors({}); // Limpiar errores de rechazo
       setRejectionReason(""); // Limpiar razón de rechazo
 
-      if (item && item.id) {
+      if (item.id) {
         setDisplayedData(item);
       } else if (reservationId) {
         setDisplayedData(null);
