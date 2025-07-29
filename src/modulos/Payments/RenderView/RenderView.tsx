@@ -16,8 +16,6 @@ interface PaymentDetail {
   confirmed_by?: any;
   canceled_by?: any;
   canceled_obs?: string;
-  canceled_by?: any;
-  canceled_obs?: string;
   owner?: any;
   details?: any[];
   dptos?: string;
@@ -38,8 +36,6 @@ interface DetailPaymentProps {
   onClose: () => void;
   extraData?: { dptos?: any[] };
   reLoad?: () => void;
-  payment_id?: string | number;
-  item?: PaymentDetail;
   payment_id?: string | number;
   item?: PaymentDetail;
   onDel?: (item?: PaymentDetail) => void;
@@ -70,11 +66,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       showToast('Recibo generado con éxito.', 'success');
     } else {
       showToast(error?.data?.message || 'No se pudo generar el recibo.', 'error');
-      showToast(error?.data?.message || 'No se pudo generar el recibo.', 'error');
     }
   };
 
-  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === 'checkbox') {
@@ -139,11 +133,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
 
     const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
-    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
 
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, '') : '';
-      const descSinComa = dpto.description ? dpto.description.replace(/,/g, '') : '';
       const descSinComa = dpto.description ? dpto.description.replace(/,/g, '') : '';
       return `${nroSinComa} - ${descSinComa}`;
     } else {
@@ -225,11 +217,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     anuladoPorDisplay = getFullName(item.canceled_by);
   }
 
-  let anuladoPorDisplay = '-/-';
-  if (item.canceled_by && typeof item.canceled_by === 'object') {
-    anuladoPorDisplay = getFullName(item.canceled_by);
-  }
-
   let infoBlockContent;
   if (item.user) {
     infoBlockContent = (
@@ -265,7 +252,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>
             <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
-            <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
               Anular ingreso
             </button>
           </div>
@@ -298,7 +284,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) ||
                   {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) ||
                     item?.category?.padre?.name ||
                     '-/-'}
@@ -397,7 +382,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 className={styles.voucherButton}
                 onClick={() => {
                   window.open(
-                    getUrlImages('/PAYMENT-' + item.id + '.' + item.ext + '?d=' + item.updated_at),
                     getUrlImages('/PAYMENT-' + item.id + '.' + item.ext + '?d=' + item.updated_at),
                     '_blank'
                   );
