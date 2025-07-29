@@ -260,8 +260,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           <div className={styles.headerSection}>
             <div className={styles.amountDisplay}>{formatBs(item.amount ?? 0)}</div>
             <div className={styles.dateDisplay}>{formatToDayDDMMYYYYHHMM(item.paid_at)}</div>
-            <div className={styles.amountDisplay}>{formatBs(item.amount ?? 0)}</div>
-            <div className={styles.dateDisplay}>{formatToDayDDMMYYYYHHMM(item.paid_at)}</div>
           </div>
 
           {/* Divisor antes de la sección de info y botón */}
@@ -302,15 +300,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                   </span>
                 </div>
               )}
-
-              {item.status === 'X' && item.canceled_obs && (
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Motivo de anulación</span>
-                  <span className={`${styles.infoValue} ${styles.canceledReason}`}>
-                    {item.canceled_obs}
-                  </span>
-                </div>
-              )}
             </div>
             {/* Columna Derecha */}
             <div className={styles.detailsColumn}>
@@ -322,7 +311,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>{getPaymentType(item.type || '')}</span>
                 <span className={styles.infoValue}>{getPaymentType(item.type || '')}</span>
               </div>
               <div className={styles.infoBlock}>

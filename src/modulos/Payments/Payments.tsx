@@ -82,12 +82,10 @@ const Payments = () => {
     permiso: '',
     extraData: true,
     renderForm: RenderForm,
-    titleAdd: 'Nuevo',
-    renderView: (props: any) => (
-      <RenderView {...props} payment_id={props?.item?.id} />
-    ),
-    renderDel: RenderAnularModal,
-    loadView: { fullType: "DET" },
+
+    renderView: (props: any) => <RenderView {...props} payment_id={props?.item?.id} />,
+    renderDel: (props: any) => <RenderDel {...props} />,
+    loadView: { fullType: 'DET' },
     hideActions: {
       view: false,
       add: false,
