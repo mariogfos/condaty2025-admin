@@ -411,13 +411,13 @@ const DefaultersView = () => {
                 backgroundColor:
                   !defaultersLength || defaultersLength === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
               circle
             />
           }
           className={styles.widgetResumeCard}
-          style={{ maxWidth: 250 }}
+          style={{ maxWidth: 280 }}
         />
 
         <div className={styles.listContainer}>
