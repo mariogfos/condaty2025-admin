@@ -30,7 +30,7 @@ import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 const initialState: FormState = {
   unidad: "",
   area_social: "",
-  fecha: new Date().toISOString().split("T")?.[0],
+  fecha: "",
   cantidad_personas: "",
   motivo: "",
   nombre_responsable: "",
@@ -64,9 +64,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [busyDays, setBusyDays] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
-  const [unavailableTimeSlots, setUnavailableTimeSlots] = useState<string[]>(
-    []
-  );
+  const [unavailableTimeSlots, setUnavailableTimeSlots] = useState([]);
   const [openComfirm, setOpenComfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
@@ -77,7 +75,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const [showMessage, setShowMessage] = useState(false);
   const { execute } = useAxios();
   const [loadingCalendar, setLoadingCalendar] = useState(false);
-
   const { showToast } = useAuth();
 
   useEffect(() => {
@@ -92,7 +89,10 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState?.area_social, formState.unidad]);
-
+  useEffect(() => {
+    setFormState({ ...formState, unidad: "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState?.area_social]);
   useEffect(() => {
     if (formState?.unidad) {
       const selectedUnit = extraData?.dptos?.find(
@@ -281,22 +281,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const nextStep = (): void => {
     if (currentStep === 1) {
       const dateNow = new Date().toISOString().split("T")?.[0];
-      //dia de la semana de dateNow
-      const day = dateNow.split("-")[2];
+      const day = new Date(dateNow).getDay();
       const weekday = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
+        "Lunes",
+        "Martes",
+        "Miercoles",
+        "Jueves",
+        "Miercoles",
+        "Jueves",
+        "Viernes",
       ];
-      const date = dateNow.split("-");
-      const dayNumber = weekday.indexOf(day);
 
-      // setFormState({...formState,fecha:dateNow});
-      handleDateChange(dateNow);
+      if (
+        selectedAreaDetails?.available_days?.includes(weekday[day]) &&
+        !formState?.fecha
+      ) {
+        handleDateChange(dateNow);
+      }
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 2) {
       validateStep2();
@@ -496,7 +497,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     />
                   </div>
                 </div>
-                {selectedAreaDetails && (
+                {selectedAreaDetails && selectedUnit && (
                   <>
                     <div className={styles.areaPreview}>
                       {selectedAreaDetails.images &&
@@ -936,7 +937,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
               </div>
             )}
             <div className={styles.formActions}>
-              {currentStep === 1 && selectedAreaDetails && (
+              {currentStep === 1 && selectedAreaDetails && selectedUnit && (
                 <div style={{ flex: 1 }}>
                   <p
                     style={{
@@ -969,7 +970,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                   <Button
                     className={`${styles.button} ${styles.nextBtn}`}
                     onClick={nextStep}
-                    disabled={isSubmitting || !selectedAreaDetails}
+                    disabled={
+                      loadingCalendar ||
+                      !selectedAreaDetails ||
+                      !formState?.unidad
+                    }
                   >
                     Continuar
                   </Button>
