@@ -31,13 +31,6 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
   const { showToast } = useAuth();
 
-  const activeAreas = useMemo(() => {
-    if (!areas) {
-      return [];
-    }
-    return areas.filter((area: any) => area.status === "A");
-  }, [areas]);
-
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormState({
@@ -204,7 +197,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             value={formState?.area_id}
             error={errors}
             onChange={handleChange}
-            options={activeAreas || []}
+            options={areas || []}
             optionLabel="title"
             optionValue="id"
           />

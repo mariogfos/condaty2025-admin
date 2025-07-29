@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Notifications.module.css";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -19,6 +19,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
   fullType: "L",
@@ -243,6 +244,11 @@ const Notifications = () => {
       return null;
     }
   };
+  const { dispatch } = useEvent("onResetNotif");
+
+  useEffect(() => {
+    dispatch("hola");
+  }, []);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
@@ -255,7 +261,7 @@ const Notifications = () => {
         onRowClick={handleRowClick}
         emptyMsg="Lista vacía. Una vez comiencen las interacciones"
         emptyLine2="con el sistema, verás las notificaciones aquí."
-        emptyIcon={<IconNotification size={80} color="var(--cWhiteV1)"/>} 
+        emptyIcon={<IconNotification size={80} color="var(--cWhiteV1)" />}
       />
       {openPayment.open && (
         <PaymentRender
