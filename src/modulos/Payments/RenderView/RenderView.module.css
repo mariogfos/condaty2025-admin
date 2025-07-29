@@ -51,7 +51,6 @@
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spS) 0;
 }
 .detailsSection {
   display: flex;
@@ -111,6 +110,15 @@
 .statusCanceled {
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
+}
+
+.canceledReason {
+  color: var(--cError) !important;
+  font-style: italic;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--cError);
 }
 .voucherButtonContainer {
   display: flex;

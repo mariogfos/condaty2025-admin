@@ -132,11 +132,7 @@
   text-align: left;
   width: 50%;
 }
-.subcategoryActions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
+
 .actionButton,
 .actionButtonSub {
   background-color: transparent;
@@ -189,7 +185,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  
 }
 
 .dataSearchCustom {
@@ -205,10 +201,10 @@
 }
 
 .addButton {
-  padding: '8px 16px'; 
-  width: 'auto';
+  padding: "8px 16px";
+  width: "auto";
   height: 48;
-  display: 'flex'; 
+  display: "flex";
 }
 
 .backLink {
@@ -231,7 +227,6 @@
 .categoryCard.accordionOpen {
   border: 1px solid var(--cWhite);
   border-radius: 1px;
-
 }
 .subcategoryRow {
   display: flex;
@@ -268,4 +263,5 @@
   flex-direction: row;
   gap: 8px;
   margin-left: auto;
+  flex-shrink: 0;
 }

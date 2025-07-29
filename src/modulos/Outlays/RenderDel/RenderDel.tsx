@@ -89,18 +89,18 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
     };
 
     try {
-      const { data: response } = await execute(`/payments/${item?.id}`, 'DELETE', params);
+      const { data: response } = await execute(`/expenses/${item?.id}`, 'DELETE', params);
 
       if (response?.success) {
         onClose();
         reLoad();
-        showToast('Ingreso anulado con éxito', 'success');
+        showToast('Egreso anulado con éxito', 'success');
       } else {
-        showToast(response?.message || 'Error al anular el ingreso', 'error');
+        showToast(response?.message || 'Error al anular el egreso', 'error');
       }
     } catch (error) {
-      console.error('Error deleting payment:', error);
-      showToast('Error al anular el ingreso', 'error');
+      console.error('Error deleting expense:', error);
+      showToast('Error al anular el egreso', 'error');
     }
   }, [validar, item?.id, canceledObs, execute, onClose, reLoad, showToast]);
 
@@ -114,11 +114,11 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
 
   return (
     <DataModal
-      id="PaymentDelModal"
-      title="Anular ingreso"
+      id="OutlayDelModal"
+      title="Anular egreso"
       open={open}
       onClose={onCloseModal}
-      buttonText="Anular ingreso"
+      buttonText="Anular egreso"
       buttonCancel="Cancelar"
       onSave={handleSave}
       className={styles.delModalContent}
@@ -126,7 +126,7 @@ const RenderDel = memo(({ open, onClose, item, onSave, execute, reLoad }: Render
     >
       <div className={styles.delContainer}>
         <p className={styles.warningText}>
-          ¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta acción perderás los
+          ¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los
           cambios y no se reflejará en tu flujo de efectivo.
         </p>
 

@@ -8,7 +8,7 @@ export interface CategoryItem {
     name?: string;
   };
   hijos?: CategoryItem[];
-  type?: 'I' | 'E' | string;
+  type?: "I" | "E" | string;
   fixed?: string;
   _isAddingSubcategoryFlow?: boolean;
   [key: string]: any;
@@ -19,21 +19,24 @@ export interface CategoryFormProps {
   onClose: () => void;
   item: Partial<CategoryItem>;
   setItem: (
-    item: Partial<CategoryItem> | ((prev: Partial<CategoryItem>) => Partial<CategoryItem>)
+    item:
+      | Partial<CategoryItem>
+      | ((prev: Partial<CategoryItem>) => Partial<CategoryItem>)
   ) => void;
   errors: Record<string, any>;
   onSave: (item: Partial<CategoryItem>) => void;
   extraData?: Record<string, any>;
   getExtraData?: () => void;
-  action: 'add' | 'edit' | string;
-  categoryType: 'I' | 'E';
+  action: "add" | "edit" | string;
+  categoryType: "I" | "E";
   data?: any[];
-}export interface CategoryCardProps {
+}
+export interface CategoryCardProps {
   item: CategoryItem;
   onClick?: (item: CategoryItem) => void;
   onEdit: (item: CategoryItem) => void;
   onDel: (item: CategoryItem) => void;
-  categoryType: 'I' | 'E';
+  categoryType: "I" | "E";
   onAddSubcategory: (parentCategoryId: string) => void;
   className?: string;
   isSelected?: boolean;

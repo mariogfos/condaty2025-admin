@@ -7,10 +7,10 @@ import {
   memo,
   useCallback,
   useRef,
-} from 'react';
-import useAxios from '../useAxios';
-import { getUrlImages } from '../../utils/string';
-import { useAuth } from '../../contexts/AuthProvider';
+} from "react";
+import useAxios from "../useAxios";
+import { capitalize, getUrlImages } from "../../utils/string";
+import { useAuth } from "../../contexts/AuthProvider";
 import {
   ActionType,
   checkRulesFields,
@@ -74,6 +74,7 @@ export type ModCrudType = {
   search?: boolean | object;
   titleAdd?: string;
   titleEdit?: string;
+  titleDel?: string;
 };
 
 export type TypeRenderForm = {
@@ -189,8 +190,9 @@ const useCrud = ({
   const [openCard, setOpenCard] = useState(false);
 
   if (mod) {
-    mod.titleAdd = mod.titleAdd ?? 'Agregar';
-    mod.titleEdit = mod.titleEdit ?? 'Editar';
+    mod.titleAdd = mod.titleAdd ?? "Agregar";
+    mod.titleEdit = mod.titleEdit ?? "Editar";
+    mod.titleDel = mod.titleDel ?? "Eliminar";
   }
 
   // console.log("Etradata", params, mod.extraData);
@@ -246,21 +248,21 @@ const useCrud = ({
   };
 
   const onAdd = useCallback(() => {
-    if (!userCan(mod.permiso, 'C'))
-      return showToast('No tiene permisos para crear', 'error');
+    if (!userCan(mod.permiso, "C"))
+      return showToast("No tiene permisos para " + mod.titleAdd, "error");
     initOpen(setOpen);
   }, []);
 
   const onDel = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, 'D'))
-      return showToast('No tiene permisos para eliminar', 'error');
-    initOpen(setOpenDel, item, 'del');
+    if (!userCan(mod.permiso, "D"))
+      return showToast("No tiene permisos para " + mod.titleDel, "error");
+    initOpen(setOpenDel, item, "del");
   }, []);
 
   const onEdit = useCallback((item: Record<string, any>) => {
-    if (!userCan(mod.permiso, 'U'))
-      return showToast('No tiene permisos para editar', 'error');
-    initOpen(setOpen, item, 'edit');
+    if (!userCan(mod.permiso, "U"))
+      return showToast("No tiene permisos para " + mod.titleEdit, "error");
+    initOpen(setOpen, item, "edit");
   }, []);
 
   const onView = useCallback(async (item: Record<string, any>) => {
@@ -920,15 +922,14 @@ const useCrud = ({
           <IconFilter
             title="Filtros"
             style={{
-              height: "48px",
-              minWidth: "48px",
               ...(Object.values(filterSel).filter(
-                e => e !== 'ALL' && e !== '' && e !== 'T'
-              )?.length > 0 && { color: 'var(--cPrimary)', minWidth: '24px' }),
+                (e) => e !== "ALL" && e !== "" && e !== "T"
+              )?.length > 0 && { color: "var(--cPrimary)" }),
             }}
-            className={data?.length == 0 ? ' ' + styles.disabled : undefined}
+            className={
+              styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+            }
             onClick={() => setOpen(true)}
-            square
           />
           <DataModal
             open={open}
@@ -1054,19 +1055,19 @@ const useCrud = ({
           {mod.import && (
             <IconImport
               title="Importar"
-              className={data?.length == 0 ? " " + styles.disabled : undefined}
-              style={{ minWidth: "32px", height: "48px" }}
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
               onClick={data?.length > 0 ? onImport : () => {}}
-              square
             />
           )}
           {mod.export && (
             <IconExport
               title="Exportar reporte"
-              style={{ minWidth: "48px", height: "48px" }}
-              className={data?.length == 0 ? " " + styles.disabled : undefined}
+              className={
+                styles.icons + " " + (data?.length == 0 ? styles.disabled : "")
+              }
               onClick={data?.length > 0 ? () => onExport("pdf") : () => {}}
-              square
             />
           )}
           {mod.listAndCard && (
@@ -1075,15 +1076,24 @@ const useCrud = ({
                 className={!openCard ? styles.active : ''}
                 onClick={() => setOpenCard(false)}
               >
-                <IconMenu style={{ minWidth: "32px", height: "48px" }} square />
+                <IconMenu
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
+                />
               </div>
               <div
                 className={openCard ? styles.active : ''}
                 onClick={() => setOpenCard(true)}
               >
                 <IconGrilla
-                  style={{ minWidth: "32px", height: "48px" }}
-                  square
+                  className={
+                    styles.icons +
+                    " " +
+                    (data?.length == 0 ? styles.disabled : "")
+                  }
                 />
               </div>
             </div>
@@ -1120,8 +1130,8 @@ const useCrud = ({
       return (
         <DataModal
           id="Eliminar"
-          title={'Eliminar ' + mod.singular}
-          buttonText="Eliminar"
+          title={capitalize(mod.titleDel) + " " + mod.singular}
+          buttonText={capitalize(mod.titleDel)}
           buttonCancel="Cancelar"
           onSave={e => (onConfirm ? onConfirm(item) : onSave(item))}
           onClose={onClose}
@@ -1132,12 +1142,13 @@ const useCrud = ({
             message
           ) : (
             <>
-              ¿Estás seguro de eliminar esta información?
+              ¿Estás seguro de {mod.titleDel} esta información?
               <br />
               {/* <br />
               {item.name || item.description}
               <br /> */}
-              Recuerda que, al momento de eliminar, ya no podrás recuperarla.
+              Recuerda que, al momento de {mod.titleDel}, ya no podrás
+              recuperarla.
             </>
           )}
         </DataModal>

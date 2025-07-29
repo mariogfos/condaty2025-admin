@@ -9,6 +9,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import CategoryForm from './RenderForm/RenderForm';
 import CategoryCard from './CategoryCard/CategoryCard';
 import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
+import NotAccess from '@/components/layout/NotAccess/NotAccess';
 
 const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
   <Link href={type === 'I' ? '/payments' : '/outlays'} className={styles.backLink}>
@@ -19,95 +20,108 @@ const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
 const Categories = ({ type = '' }) => {
   const typeToUse = type === 'I' ? 'I' : 'E';
   const categoryTypeText = typeToUse === 'I' ? 'ingresos' : 'egresos';
-  
-  const [initialFormDataOverride, setInitialFormDataOverride] = useState<Partial<CategoryItem> | null>(null);
-  const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
 
-  const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs } = useCrud({
-    paramsInitial: useMemo(
-      () => ({
-        perPage: 20,
-        page: 1,
-        fullType: 'L',
-        searchBy: '',
-        type: typeToUse,
-      }),
-      [typeToUse]
-    ),
-    mod: useMemo<ModCrudType>(
-      () => ({
-        modulo: 'categories',
-        singular: 'Categoría',
-        plural: 'Categorías',
-        permiso: '',
-        search: { hide: true },
-        extraData: { params: { type: typeToUse } } as any,
-        hideActions: {
-          add: true,
-        },
-        saveMsg: {
-          add: `Categoría de ${categoryTypeText} creada con éxito`,
-          edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
-          del: `Categoría de ${categoryTypeText} eliminada con éxito`,
-        },
-        messageDel:
-          '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no verás esta categoría reflejada en tu balance y no podrás recuperarla',
-        renderForm: (propsFromCrud: any) => (
-          <CategoryForm
-            {...propsFromCrud}
-            item={initialFormDataOverride ? { ...propsFromCrud.item, ...initialFormDataOverride } : propsFromCrud.item}
-            onClose={() => {
-              setInitialFormDataOverride(null);
-              propsFromCrud.onClose();
-            }}
-            categoryType={typeToUse}
-            getExtraData={getExtraData}
-          />
-        ),
-      }),
-      [typeToUse, categoryTypeText, initialFormDataOverride]
-    ),
-    fields: useMemo(
-      () => ({
-        id: { rules: [], api: 'e' },
-        name: {
-          rules: ['required'],
-          api: 'ae',
-          label: 'Categoría',
-          form: { type: 'text' },
-          list: {},
-        },
-        description: {
-          rules: [],
-          api: 'ae',
-          label: 'Descripción',
-          form: { type: 'textarea' },
-          list: {},
-        },
-        category_id: {
-          rules: [],
-          api: 'ae',
-          label: 'Categoría Padre',
-          form: {
-            type: 'select',
-            optionsExtra: 'categories',
-            placeholder: 'Seleccione una categoría',
+  const [initialFormDataOverride, setInitialFormDataOverride] =
+    useState<Partial<CategoryItem> | null>(null);
+  const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
+  const mod = useMemo<ModCrudType>(
+    () => ({
+      modulo: 'categories',
+      singular: 'Categoría',
+      plural: 'Categorías',
+      permiso: 'categories',
+      search: { hide: true },
+      extraData: { params: { type: typeToUse } } as any,
+      hideActions: {
+        add: true,
+      },
+      saveMsg: {
+        add: `Categoría de ${categoryTypeText} creada con éxito`,
+        edit: `Categoría de ${categoryTypeText} actualizada con éxito`,
+        del: `Categoría de ${categoryTypeText} eliminada con éxito`,
+      },
+      messageDel:
+        '¿Seguro que quieres eliminar esta categoría? Recuerda que si realizas esta acción ya no podrás recuperarla',
+      renderForm: (propsFromCrud: any) => (
+        <CategoryForm
+          {...propsFromCrud}
+          item={
+            initialFormDataOverride
+              ? { ...propsFromCrud.item, ...initialFormDataOverride }
+              : propsFromCrud.item
+          }
+          onClose={() => {
+            setInitialFormDataOverride(null);
+            propsFromCrud.onClose();
+          }}
+          categoryType={typeToUse}
+          getExtraData={getExtraData}
+        />
+      ),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [typeToUse, categoryTypeText, initialFormDataOverride]
+  );
+
+  const { List, onEdit, onDel, onAdd, getExtraData, onSearch, searchs, userCan, extraData } =
+    useCrud({
+      paramsInitial: useMemo(
+        () => ({
+          perPage: 20,
+          page: 1,
+          fullType: 'L',
+          searchBy: '',
+          type: typeToUse,
+        }),
+        [typeToUse]
+      ),
+      mod: mod,
+
+      fields: useMemo(
+        () => ({
+          id: { rules: [], api: 'e' },
+          name: {
+            rules: ['required'],
+            api: 'ae',
+            label: 'Categoría',
+            form: { type: 'text' },
+            list: {},
           },
-        },
-        hijos: { rules: [], api: '', label: 'Subcategorías' },
-        type: {
-          rules: ['required'],
-          api: 'ae',
-          label: 'Tipo',
-          form: { type: 'hidden', precarga: typeToUse },
-        },
-      }),
-      [typeToUse]
-    ),
-  });
+          description: {
+            rules: [],
+            api: 'ae',
+            label: 'Descripción',
+            form: { type: 'textarea' },
+            list: {},
+          },
+          category_id: {
+            rules: [],
+            api: 'ae',
+            label: 'Categoría Padre',
+            form: {
+              type: 'select',
+              optionsExtra: 'categories',
+              placeholder: 'Seleccione una categoría',
+            },
+          },
+          hijos: { rules: [], api: '', label: 'Subcategorías' },
+          type: {
+            rules: ['required'],
+            api: 'ae',
+            label: 'Tipo',
+            form: { type: 'hidden', precarga: typeToUse },
+          },
+        }),
+        [typeToUse]
+      ),
+    });
   const handleEdit = useCallback(
     (itemToEdit: CategoryItem) => {
-      onEdit({ ...itemToEdit, type: typeToUse, category_id: itemToEdit.category_id || null });
+      onEdit({
+        ...itemToEdit,
+        type: typeToUse,
+        category_id: itemToEdit.category_id || null,
+      });
     },
     [onEdit, typeToUse]
   );
@@ -145,16 +159,18 @@ const Categories = ({ type = '' }) => {
     ),
     [handleEdit, handleDelete, typeToUse, handleAddSubcategory, forceOpenAccordions]
   );
-  const handleSearch = useCallback((value: string) => {
-    onSearch(value);
-    setForceOpenAccordions(!!value?.trim());
-  }, [onSearch]);
+  const handleSearch = useCallback(
+    (value: string) => {
+      onSearch(value);
+      setForceOpenAccordions(!!value?.trim());
+    },
+    [onSearch]
+  );
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div className={styles.container}>
       <BackNavigation type={typeToUse} />
-      <p className={styles.headerTitle} >
-        Categorías de {categoryTypeText}
-      </p>
+      <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
       <div className={styles.searchContainer}>
         <div style={{ flex: 1 }}>
           <DataSearch
@@ -164,11 +180,18 @@ const Categories = ({ type = '' }) => {
             textButton="Buscar"
             className={styles.dataSearchCustom}
             style={{ width: '100%' }}
+            searchMsg={extraData?.searchMsg || ''}
           />
         </div>
         <Button
           onClick={handleAddPrincipalCategory}
-          style={{ padding: '8px 16px', width: 'auto', height: 48, display: 'flex', alignItems: 'center' }}
+          style={{
+            padding: '8px 16px',
+            width: 'auto',
+            height: 48,
+            display: 'flex',
+            alignItems: 'center',
+          }}
         >
           Nueva categoría
         </Button>

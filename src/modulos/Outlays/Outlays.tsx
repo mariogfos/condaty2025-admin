@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
+import RenderDel from './RenderDel/RenderDel';
 
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
@@ -53,15 +54,11 @@ const Outlays = () => {
     extraData: true,
     renderForm: RenderForm,
     titleAdd: 'Nuevo',
-
+    titleDel: 'Anular',
     renderView: (props: any) => (
-      <RenderView
-        {...props}
-        outlay_id={props?.item?.id}
-        extraData={extraData}
-      />
+      <RenderView {...props} outlay_id={props?.item?.id} extraData={extraData} />
     ),
-    // Usar el renderDel por defecto de useCrud
+    renderDel: (props: any) => <RenderDel {...props} />,
     hideActions: {
       edit: true,
       del: true,
@@ -72,8 +69,6 @@ const Outlays = () => {
       edit: 'Egreso actualizado con éxito',
       del: 'Egreso anulado con éxito',
     },
-    messageDel:
-      '¿Seguro que quieres anular este egreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu balance.',
   };
   const paramsInitial = {
     perPage: 20,
@@ -143,10 +138,7 @@ const Outlays = () => {
           options: (items: any) => {
             let data: any = [];
             items?.extraData?.categories
-              ?.filter(
-                (c: { padre: any; category_id: any }) =>
-                  !c.padre && !c.category_id
-              )
+              ?.filter((c: { padre: any; category_id: any }) => !c.padre && !c.category_id)
               ?.map((c: any) => {
                 data.push({
                   id: c.id,
@@ -220,13 +212,7 @@ const Outlays = () => {
       status: {
         rules: [''],
         api: 'ae',
-        label: (
-          <span
-            style={{ display: 'block', textAlign: 'center', width: '100%' }}
-          >
-            Estado
-          </span>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: (props: any) => (
             <div
@@ -238,11 +224,7 @@ const Outlays = () => {
                 height: '100%',
               }}
             >
-              <div
-                className={`${styles.statusBadge} ${
-                  styles[`status${props.item.status}`]
-                }`}
-              >
+              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
                 {props.item.status === 'A' ? 'Pagado' : 'Anulado'}
               </div>
             </div>
@@ -260,9 +242,7 @@ const Outlays = () => {
         rules: ['required'],
         api: 'ae',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total
-          </span>
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
         ),
         form: { type: 'number' },
         list: {
@@ -310,23 +290,14 @@ const Outlays = () => {
       Categorías
     </Button>,
   ];
-  const {
-    userCan,
-    List,
-    setStore,
-    onEdit,
-    onDel,
-    onSearch,
-    searchs,
-    onFilter,
-    extraData,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    extraButtons,
-    getFilter: handleGetFilter,
-  });
+  const { userCan, List, setStore, onEdit, onDel, onSearch, searchs, onFilter, extraData } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+      extraButtons,
+      getFilter: handleGetFilter,
+    });
   useCrudUtils({
     onSearch,
     searchs,
@@ -371,8 +342,7 @@ const Outlays = () => {
           if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
           if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
           if (startDate && endDate && startDate > endDate) {
-            err.startDate =
-              'La fecha de inicio no puede ser mayor a la fecha fin';
+            err.startDate = 'La fecha de inicio no puede ser mayor a la fecha fin';
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);

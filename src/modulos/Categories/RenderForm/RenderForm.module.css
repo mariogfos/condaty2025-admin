@@ -3,3 +3,13 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.error {
+  border-color: #dc3545 !important;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 4px;
+}

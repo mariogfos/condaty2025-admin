@@ -282,7 +282,8 @@ export const UploadFile = ({
               {(editedImage ||
                 selectedFiles?.type?.startsWith("image/") ||
                 (value &&
-                  (value.ext == "webp" || value.indexOf(".webp") > -1))) &&
+                  (value.ext == "webp" ||
+                    (value.indexOf && value.indexOf(".webp") > -1)))) &&
               img ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

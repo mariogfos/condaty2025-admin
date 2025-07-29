@@ -71,13 +71,14 @@ const CategoryCard = memo(
     return (
       <div
         className={cardClasses}
+        onClick={toggleSubcategories}
         style={parentBgColor ? { backgroundColor: parentBgColor } : undefined}
       >
         <div className={styles.categoryHeader} onClick={handleMainCardClick}>
           <div className={styles.categoryTitle}>
             <IconArrowDown
               className={`${styles.arrowIcon} ${isAccordionOpen ? styles.expanded : ''}`}
-              onClick={toggleSubcategories}
+              
               size={20}
             />
             <span
@@ -85,10 +86,10 @@ const CategoryCard = memo(
                 isAccordionOpen ? styles.categoryNameTextOpen : ''
               }`}
             >
-              {item.name || 'Sin nombre'}
+              {item.name || '-/-'}
             </span>
           </div>
-          <div className={styles.categoryDescription}>{item.description || 'Sin descripción'}</div>
+          <div className={styles.categoryDescription}>{item.description || '-/-'}</div>
           <div className={styles.categoryActions}>
             <button
               className={`${styles.actionButton} ${styles.editButton}`}

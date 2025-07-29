@@ -2,9 +2,9 @@
   display: flex;
   color: var(--cWhite);
   width: 100%;
-  padding-top: var(--spL);
-  padding-left: var(--spL);
-  padding-right: var(--spL);
+  padding-top: var(--spM);
+  padding-left: var(--spM);
+  padding-right: var(--spM);
   align-items: center;
 
   /* top: 0; */
