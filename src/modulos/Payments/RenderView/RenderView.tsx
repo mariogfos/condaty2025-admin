@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES, getDateStrMesShort } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
@@ -424,7 +424,9 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                                   className={styles.periodsTableCell}
                                   data-label="Fecha de reserva"
                                 >
-                                  {formatToDayDDMMYYYYHHMM(periodo?.debt_dpto?.debt?.due_at)}
+                                  {getDateStrMesShort(
+                                    periodo?.debt_dpto?.debt?.reservation?.date_at
+                                  )}
                                 </div>
                                 <div className={styles.periodsTableCell} data-label="Reserva por">
                                   {periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
