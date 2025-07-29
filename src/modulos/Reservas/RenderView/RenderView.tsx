@@ -482,11 +482,11 @@ const ReservationDetailModal = ({
     );
     if (data?.success) {
       setOpenModalCancel(false);
-      showToast("Reserva cancelada", "success");
+      showToast(data?.message || "Reserva cancelada", "success");
       onClose();
       if (reLoad) reLoad();
     } else {
-      showToast("Ocurrió un error", "error");
+      showToast(data?.message || "Ocurrió un error", "error");
     }
   };
   return (
