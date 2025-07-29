@@ -42,15 +42,12 @@ interface DetailPaymentProps {
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
-  const { open, onClose, extraData, reLoad, item: propItem, onDel } = props;
+  const { open, onClose, extraData, reLoad, item, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const { execute } = useAxios();
   const { showToast } = useAuth();
-
-  // Usar el item que viene de useCrud en lugar de hacer una llamada manual
-  const item = propItem;
 
   const handleGenerateReceipt = async () => {
     showToast('Generando recibo...', 'info');
@@ -319,6 +316,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>
                 <span className={styles.infoValue}>{getFullName(item.owner) || '-/-'}</span>
+                <span className={styles.infoValue}>{getFullName(item.owner) || '-/-'}</span>
               </div>
 
               {item.status === 'X' ? (
@@ -332,6 +330,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                     <span className={styles.infoValue}>{registradoPorDisplay}</span>
                   </div>
                 </>
+              ) : item.status === 'S' ? (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Registrado por</span>
+                  <span className={styles.infoValue}>{registradoPorDisplay}</span>
+                </div>
               ) : item.confirmed_by ? (
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{aprobadoLabel}</span>
@@ -343,6 +346,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
+                <span className={styles.infoValue}>{item.voucher || '-/-'}</span>
                 <span className={styles.infoValue}>{item.voucher || '-/-'}</span>
               </div>
             </div>
@@ -376,53 +380,101 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             )}
           </div>
 
-          {Array.isArray(item.details) && item.details.length > 0 && (
-            <div className={styles.periodsDetailsSection}>
-              <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
-              </div>
+          {Array.isArray(item.details) &&
+            item.details.length > 0 &&
+            (() => {
+              // Detectar si es una reserva
+              const isReservation = item.details.some(
+                (detail: any) => detail?.debt_dpto?.debt?.reservation
+              );
 
-              <div className={styles.periodsTableWrapper}>
-                <div className={styles.periodsTable}>
-                  <div className={styles.periodsTableHeader}>
-                    <div className={styles.periodsTableCell}>Periodo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
-                    <div className={styles.periodsTableCell}>Monto</div>
-                    <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>Subtotal</div>
+              return (
+                <div className={styles.periodsDetailsSection}>
+                  <div className={styles.periodsDetailsHeader}>
+                    <h3 className={styles.periodsDetailsTitle}>
+                      {isReservation ? 'Detalles de reserva' : 'Periodos pagados'}
+                    </h3>
                   </div>
-                  <div className={styles.periodsTableBody}>
-                    {item.details?.map((periodo: any, index: number) => (
-                      <div className={styles.periodsTableRow} key={periodo?.id ?? index}>
-                        <div className={styles.periodsTableCell} data-label="Periodo">
-                          {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
-                          {periodo?.debt_dpto?.debt?.year}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Concepto">
-                          {item?.category?.padre?.name || '-/-'}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Monto">
-                          {formatBs(periodo?.debt_dpto?.amount || 0)}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Multa">
-                          {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Subtotal">
-                          {formatBs(periodo?.amount || 0)}
-                        </div>
+
+                  <div className={styles.periodsTableWrapper}>
+                    <div className={styles.periodsTable}>
+                      <div className={styles.periodsTableHeader}>
+                        {isReservation ? (
+                          <>
+                            <div className={styles.periodsTableCell}>Fecha de reserva</div>
+                            <div className={styles.periodsTableCell}>Reserva por</div>
+                            <div className={styles.periodsTableCell}>Monto</div>
+                            <div className={styles.periodsTableCell}>Multa</div>
+                            <div className={styles.periodsTableCell}>Subtotal</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className={styles.periodsTableCell}>Periodo</div>
+                            <div className={styles.periodsTableCell}>Concepto</div>
+                            <div className={styles.periodsTableCell}>Monto</div>
+                            <div className={styles.periodsTableCell}>Multa</div>
+                            <div className={styles.periodsTableCell}>Subtotal</div>
+                          </>
+                        )}
                       </div>
-                    ))}
+                      <div className={styles.periodsTableBody}>
+                        {item.details?.map((periodo: any, index: number) => (
+                          <div className={styles.periodsTableRow} key={periodo?.id ?? index}>
+                            {isReservation ? (
+                              <>
+                                <div
+                                  className={styles.periodsTableCell}
+                                  data-label="Fecha de reserva"
+                                >
+                                  {formatToDayDDMMYYYYHHMM(periodo?.debt_dpto?.debt?.due_at)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Reserva por">
+                                  {periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Monto">
+                                  {formatBs(periodo?.debt_dpto?.amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Multa">
+                                  {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Subtotal">
+                                  {formatBs(periodo?.amount || 0)}
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className={styles.periodsTableCell} data-label="Periodo">
+                                  {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
+                                  {periodo?.debt_dpto?.debt?.year}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Concepto">
+                                  {item?.category?.padre?.name || '-/-'}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Monto">
+                                  {formatBs(periodo?.debt_dpto?.amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Multa">
+                                  {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Subtotal">
+                                  {formatBs(periodo?.amount || 0)}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.periodsDetailsFooter}>
+                    <div className={styles.periodsDetailsTotal}>
+                      Total pagado:{' '}
+                      <span className={styles.totalAmountValue}>{formatBs(getTotalAmount())}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className={styles.periodsDetailsFooter}>
-                <div className={styles.periodsDetailsTotal}>
-                  Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>{formatBs(getTotalAmount())}</span>
-                </div>
-              </div>
-            </div>
-          )}
+              );
+            })()}
 
           {item?.status === 'S' && (
             <div className={styles.actionButtonsContainer}>
