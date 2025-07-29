@@ -86,12 +86,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   }, []);
 
   useEffect(() => {
-    if (formState?.area_social) {
+    if (formState?.area_social && formState?.unidad) {
       getCalendar();
       setCurrentImageIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState?.area_social]);
+  }, [formState?.area_social, formState.unidad]);
 
   useEffect(() => {
     if (formState?.unidad) {
@@ -113,7 +113,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         {
           area_id: formState?.area_social || "none",
           date_at: date || new Date().toISOString()?.split("T")[0],
-          owner_id: ownerId,
+          owner_id:
+            ownerId ||
+            extraData?.dptos?.find(
+              (u: any) => String(u.id) === formState.unidad
+            )?.titular?.owner_id,
         },
         false,
         true
@@ -134,17 +138,30 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       selectedUnit,
       setLoadingCalendar,
       showToast,
+      formState?.unidad,
+      extraData?.dptos,
     ]
   );
 
-  const unidadesOptions = useMemo(() => {
-    return extraData?.dptos?.map(
-      (unidad: ApiUnidad): Option => ({
-        id: String(unidad.id),
-        name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
-      })
-    );
-  }, [extraData]);
+  const unidadesOptions = () => {
+    let data: any = [];
+    extraData?.dptos?.map((unidad: any) => {
+      if (selectedAreaDetails?.penalty_or_debt_restriction == "A") {
+        if (unidad?.defaulter == "X") {
+          data.push({
+            id: String(unidad.id),
+            name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+          });
+        }
+      } else {
+        data.push({
+          id: String(unidad.id),
+          name: `Unidad: ${unidad.nro}, ${unidad.description || ""}`,
+        });
+      }
+    });
+    return data;
+  };
 
   const selectedAreaDetails: ApiArea | undefined = useMemo(() => {
     if (!formState.area_social) {
@@ -429,23 +446,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
             {currentStep === 1 && (
               <div className={`${styles.stepContent} ${styles.step1Content}`}>
                 {/* Sección Datos Generales (Unidad) */}
-                <div className={styles.formSection}>
-                  <h3 className={styles.sectionTitle}>Datos generales</h3>
-                  <div className={styles.formField}>
-                    <Select
-                      label="Unidad"
-                      name="unidad"
-                      value={formState.unidad}
-                      options={unidadesOptions}
-                      onChange={handleChange}
-                      error={errors}
-                    />
-                  </div>
-                </div>
-                <hr
-                  className={styles.areaSeparator}
-                  style={{ marginBottom: 12 }}
-                />
+
                 <div className={styles.formSection}>
                   <h3 className={styles.sectionTitle}>Datos de la reserva</h3>
                   <div className={styles.formField}>
@@ -456,6 +457,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       options={extraData?.areas}
                       optionLabel="title"
                       optionValue="id"
+                      onChange={handleChange}
+                      error={errors}
+                    />
+                  </div>
+                </div>
+                <hr
+                  className={styles.areaSeparator}
+                  style={{ marginBottom: 12 }}
+                />
+                <div className={styles.formSection}>
+                  <h3 className={styles.sectionTitle}>Datos generales</h3>
+                  <div className={styles.formField}>
+                    <Select
+                      label="Unidad"
+                      name="unidad"
+                      value={formState.unidad}
+                      options={unidadesOptions()}
                       onChange={handleChange}
                       error={errors}
                     />
