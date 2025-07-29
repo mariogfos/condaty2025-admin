@@ -105,10 +105,19 @@
 }
 .statusRejected {
   color: var(--cError) !important;
+  color: var(--cMediumAlert) !important;
   font-weight: var(--bSemibold);
 }
 .statusCanceled {
   color: var(--cError) !important;
+  font-weight: var(--bSemibold);
+}
+.statusVoucher {
+  color: var(--cInfo) !important;
+  font-weight: var(--bSemibold);
+}
+.statusApproval {
+  color: var(--cWarning) !important;
   font-weight: var(--bSemibold);
 }
 

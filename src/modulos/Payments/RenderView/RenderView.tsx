@@ -190,6 +190,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     statusClass = styles.statusRejected;
   } else if (item.status === 'X') {
     statusClass = styles.statusCanceled;
+  } else if (item.status === 'E') {
+    statusClass = styles.statusVoucher;
+  } else if (item.status === 'M') {
+    statusClass = styles.statusApproval;
   }
 
   let ownerDisplay = '-/-';

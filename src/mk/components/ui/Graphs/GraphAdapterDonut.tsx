@@ -1,4 +1,5 @@
 import { formatNumber } from "@/mk/utils/numbers";
+import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
 
 const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   const xLabels: any = [];
@@ -43,11 +44,11 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       },
       style: {
         fontSize: "16px",
-        color: "#000",
+        fontWeight: "var(--bMedium)",
       },
       background: {
         enabled: true,
-        foreColor: "#000",
+        foreColor: "var(--cWhiteV2)",
         padding: 4,
         borderRadius: 2,
 
