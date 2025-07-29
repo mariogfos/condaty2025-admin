@@ -189,6 +189,7 @@ const RenderForm = ({
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
+        is_free: formState?.has_price == "S" ? "X" : "A",
       }
     );
 

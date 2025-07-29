@@ -6,7 +6,6 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
-import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -16,6 +15,7 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 const statusColor: any = {
   A: { color: "var(--cSuccess)", background: "var(--cHoverSuccess)" },
@@ -332,7 +332,7 @@ const Areas = () => {
       Poner en mantenimiento
     </Button>,
   ];
-  const { userCan, List, reLoad, data } = useCrud({
+  const { userCan, List, reLoad, data, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -357,7 +357,7 @@ const Areas = () => {
         <MaintenanceModal
           open={openMaintenance}
           onClose={() => setOpenMaintenance(false)}
-          areas={data?.data}
+          areas={extraData?.areas}
         />
       )}
     </div>
