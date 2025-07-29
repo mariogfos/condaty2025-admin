@@ -52,6 +52,8 @@ const Outlays = () => {
     permiso: '',
     extraData: true,
     renderForm: RenderForm,
+    titleAdd: 'Nuevo',
+
     renderView: (props: any) => (
       <RenderView
         {...props}

@@ -89,6 +89,7 @@ const Payments = () => {
     permiso: "",
     extraData: true,
     renderForm: RenderForm,
+    titleAdd: 'Nuevo',
     renderView: (props: any) => (
       <RenderView {...props} payment_id={props?.item?.id} />
     ),
