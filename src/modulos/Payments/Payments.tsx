@@ -128,6 +128,7 @@ const Payments = () => {
     { id: 'ALL', name: 'Todos' },
     { id: 'P', name: 'Cobrado' },
     { id: 'S', name: 'Por confirmar' },
+    { id: 'E', name: 'Por subir comprobante' },
     { id: 'R', name: 'Rechazado' },
     { id: 'X', name: 'Anulado' },
   ];
