@@ -280,6 +280,23 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   };
   const nextStep = (): void => {
     if (currentStep === 1) {
+      const dateNow = new Date().toISOString().split("T")?.[0];
+      //dia de la semana de dateNow
+      const day = dateNow.split("-")[2];
+      const weekday = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+      const date = dateNow.split("-");
+      const dayNumber = weekday.indexOf(day);
+
+      // setFormState({...formState,fecha:dateNow});
+      handleDateChange(dateNow);
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 2) {
       validateStep2();
