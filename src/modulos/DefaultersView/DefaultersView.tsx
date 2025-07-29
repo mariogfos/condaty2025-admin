@@ -72,7 +72,7 @@ const DefaultersView = () => {
   };
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Morosos' });
+    setStore({ ...store, title: '' });
   }, []);
   // Definición de campos para el CRUD con filtros
   const fields = useMemo(
