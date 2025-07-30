@@ -54,6 +54,7 @@
     display: flex;
     font-size: var(--spL);
     margin-top: var(--spL);
+    width: 300px;
     color: var(--cWhite);
   }
   & > div:nth-child(2) {
