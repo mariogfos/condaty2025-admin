@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName } from '@/mk/utils/string';
-import { MONTHS_S } from '@/mk/utils/date';
+import { MONTHS_S, formatToDayDDMMYYYYHHMM, getDateStrMesShort } from '@/mk/utils/date';
 import EmptyData from '@/components/NoData/EmptyData';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
@@ -55,6 +55,24 @@ interface Deuda {
   debt?: {
     month?: number;
     year?: number;
+    type?: number;
+    description?: string;
+    due_at?: string;
+    status?: string;
+    reservation?: {
+      id?: string;
+      debt_id?: string;
+      area_id?: string;
+      date_at?: string;
+      date_end?: string;
+      paid_at?: string | null;
+      created_at?: string;
+      area?: {
+        id?: string;
+        title?: string;
+        description?: string;
+      };
+    };
   };
 }
 
@@ -590,12 +608,31 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
 
           <div className={styles['deudas-table']}>
-            <div className={styles['deudas-header']}>
-              <span className={styles['header-item']}>Periodo</span>
-              <span className={styles['header-item']}>Monto</span>
-              <span className={styles['header-item']}>Multa</span>
-              <span className={styles['header-item']}>SubTotal</span>
-              <span className={styles['header-item']}>Seleccionar</span>
+            <div
+              className={`${styles['deudas-header']} ${
+                formState.subcategory_id === extraData?.client_config?.cat_reservations
+                  ? styles['deudas-header-reservations']
+                  : ''
+              }`}
+            >
+              {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
+                <>
+                  <span className={styles['header-item']}>Fecha de reserva</span>
+                  <span className={styles['header-item']}>Reserva por</span>
+                  <span className={styles['header-item']}>Monto</span>
+                  <span className={styles['header-item']}>Multa</span>
+                  <span className={styles['header-item']}>Subtotal</span>
+                  <span className={styles['header-item']}>Seleccionar</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles['header-item']}>Periodo</span>
+                  <span className={styles['header-item']}>Monto</span>
+                  <span className={styles['header-item']}>Multa</span>
+                  <span className={styles['header-item']}>SubTotal</span>
+                  <span className={styles['header-item']}>Seleccionar</span>
+                </>
+              )}
             </div>
 
             {deudas.map(periodo => (
@@ -612,27 +649,58 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   textAlign: 'inherit',
                 }}
               >
-                <div className={styles['deuda-row']}>
-                  <div className={styles['deuda-cell']}>
-                    {periodo.debt &&
-                    typeof periodo.debt === 'object' &&
-                    periodo.debt.month !== undefined &&
-                    periodo.debt.year !== undefined
-                      ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
-                      : 'N/A'}
-                  </div>
-                  <div className={styles['deuda-cell']}>
-                    {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}{' '}
-                  </div>
-                  <div className={styles['deuda-cell']}>
-                    {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}{' '}
-                  </div>
-                  <div className={styles['deuda-cell']}>
-                    {'Bs ' +
-                      (Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)).toFixed(
-                        2
-                      )}{' '}
-                  </div>
+                <div
+                  className={`${styles['deuda-row']} ${
+                    formState.subcategory_id === extraData?.client_config?.cat_reservations
+                      ? styles['deuda-row-reservations']
+                      : ''
+                  }`}
+                >
+                  {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
+                    <>
+                      <div className={styles['deuda-cell']}>
+                        {getDateStrMesShort(periodo.debt?.reservation?.date_at) || 'N/A'}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {periodo.debt?.reservation?.area?.title || 'N/A'}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' +
+                          (
+                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                          ).toFixed(2)}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className={styles['deuda-cell']}>
+                        {periodo.debt &&
+                        typeof periodo.debt === 'object' &&
+                        periodo.debt.month !== undefined &&
+                        periodo.debt.year !== undefined
+                          ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
+                          : 'N/A'}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}
+                      </div>
+                      <div className={styles['deuda-cell']}>
+                        {'Bs ' +
+                          (
+                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                          ).toFixed(2)}
+                      </div>
+                    </>
+                  )}
 
                   <div className={`${styles['deuda-cell']} ${styles['deuda-check']}`}>
                     {selectedPeriodo.some(item => item.id === periodo.id) ? (

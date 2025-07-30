@@ -8,6 +8,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
+import RenderDel from './RenderDel/RenderDel';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
@@ -81,8 +82,9 @@ const Payments = () => {
     permiso: '',
     extraData: true,
     renderForm: RenderForm,
+
     renderView: (props: any) => <RenderView {...props} payment_id={props?.item?.id} />,
-    // Usar el renderDel por defecto de useCrud
+    renderDel: (props: any) => <RenderDel {...props} />,
     loadView: { fullType: 'DET' },
     hideActions: {
       view: false,
@@ -99,8 +101,6 @@ const Payments = () => {
       edit: 'Ingreso actualizado con éxito',
       del: 'Ingreso anulado con éxito',
     },
-    messageDel:
-      '¿Seguro que quieres anular este ingreso? Recuerda que si realizas esta acción perderás los cambios y no se reflejará en tu flujo de efectivo.',
   };
 
   const getPeriodOptions = () => [
@@ -129,6 +129,7 @@ const Payments = () => {
     { id: 'ALL', name: 'Todos' },
     { id: 'P', name: 'Cobrado' },
     { id: 'S', name: 'Por confirmar' },
+    { id: 'E', name: 'Por subir comprobante' },
     { id: 'R', name: 'Rechazado' },
     { id: 'X', name: 'Anulado' },
   ];

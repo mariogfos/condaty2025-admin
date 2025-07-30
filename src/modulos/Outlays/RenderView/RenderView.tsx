@@ -32,6 +32,8 @@ interface OutlayItem {
   ext?: string;
   updated_at?: string;
   user?: User | null;
+  canceled_by?: User | null;
+  canceled_obs?: string;
 }
 interface ExtraData {
   categories?: Category[];
@@ -183,9 +185,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
               <span className={styles.infoValue}>{subCategoryName}</span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>
-                {item.status === 'X' ? 'Anulado por' : 'Registrado por'}
-              </span>
+              <span className={styles.infoLabel}>Registrado por</span>
               <span className={styles.infoValue}>
                 {item.user
                   ? getFullName({
@@ -197,6 +197,29 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
                   : '-/-'}
               </span>
             </div>
+            
+            {item.status === 'X' && item.canceled_by && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Anulado por</span>
+                <span className={styles.infoValue}>
+                  {getFullName({
+                    ...item.canceled_by,
+                    middle_name: item.canceled_by.middle_name || undefined,
+                    last_name: item.canceled_by.last_name || undefined,
+                    mother_last_name: item.canceled_by.mother_last_name || undefined,
+                  })}
+                </span>
+              </div>
+            )}
+            
+            {item.status === 'X' && item.canceled_obs && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Motivo de anulación</span>
+                <span className={`${styles.infoValue} ${styles.canceledReason}`}>
+                  {item.canceled_obs}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Columna Derecha */}

@@ -572,7 +572,7 @@ const Owners = () => {
                 backgroundColor:
                   !data?.extraData?.totals || data?.extraData?.totals === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
               circle
               size={38}
