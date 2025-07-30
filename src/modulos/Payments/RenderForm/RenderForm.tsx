@@ -3,7 +3,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName } from '@/mk/utils/string';
-import { MONTHS_S, formatToDayDDMMYYYYHHMM, getDateStrMesShort } from '@/mk/utils/date';
+import {
+  MONTHS_S,
+  formatToDayDDMMYYYY,
+  getDateStrMesShort,
+  getDateTimeStrMesShort,
+} from '@/mk/utils/date';
 import EmptyData from '@/components/NoData/EmptyData';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
@@ -60,6 +65,20 @@ interface Deuda {
     due_at?: string;
     status?: string;
     reservation?: {
+      id?: string;
+      debt_id?: string;
+      area_id?: string;
+      date_at?: string;
+      date_end?: string;
+      paid_at?: string | null;
+      created_at?: string;
+      area?: {
+        id?: string;
+        title?: string;
+        description?: string;
+      };
+    };
+    reservation_penalty?: {
       id?: string;
       debt_id?: string;
       area_id?: string;
@@ -370,7 +389,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const handleSelectPeriodo = useCallback((periodo: Deuda) => {
-    const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
+    // Para multas (type 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
+    const subtotal =
+      periodo.debt?.type === 3
+        ? Number(periodo.penalty_amount ?? 0)
+        : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0);
 
     setSelectedPeriodo(prev => {
       const exists = prev.some(item => item.id === periodo.id);
@@ -588,7 +611,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 } else {
                   const allPeriodos: SelectedPeriodo[] = deudas.map(periodo => ({
                     id: periodo.id,
-                    amount: Number(periodo.amount) + Number(periodo.penalty_amount),
+                    amount:
+                      periodo.debt?.type === 3
+                        ? Number(periodo.penalty_amount ?? 0)
+                        : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0),
                   }));
 
                   const totalAmount = allPeriodos.reduce((sum, item) => sum + item.amount, 0);
@@ -611,17 +637,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
             <div
               className={`${styles['deudas-header']} ${
                 formState.subcategory_id === extraData?.client_config?.cat_reservations
-                  ? styles['deudas-header-reservations']
+                  ? styles['deudas-header-reservations-simple']
                   : ''
               }`}
             >
               {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
                 <>
-                  <span className={styles['header-item']}>Fecha de reserva</span>
-                  <span className={styles['header-item']}>Reserva por</span>
-                  <span className={styles['header-item']}>Monto</span>
-                  <span className={styles['header-item']}>Multa</span>
-                  <span className={styles['header-item']}>Subtotal</span>
+                  <span className={styles['header-item']}>Fecha</span>
+                  <span className={styles['header-item']}>Concepto</span>
+                  <span className={styles['header-item']}>Total</span>
                   <span className={styles['header-item']}>Seleccionar</span>
                 </>
               ) : (
@@ -652,29 +676,31 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div
                   className={`${styles['deuda-row']} ${
                     formState.subcategory_id === extraData?.client_config?.cat_reservations
-                      ? styles['deuda-row-reservations']
+                      ? styles['deuda-row-reservations-simple']
                       : ''
                   }`}
                 >
                   {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
                     <>
                       <div className={styles['deuda-cell']}>
-                        {getDateStrMesShort(periodo.debt?.reservation?.date_at) || 'N/A'}
+                        {periodo.debt?.type === 3
+                          ? formatToDayDDMMYYYY(periodo.debt?.reservation_penalty?.date_at) || '-/-'
+                          : formatToDayDDMMYYYY(periodo.debt?.reservation?.date_at) || '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
-                        {periodo.debt?.reservation?.area?.title || 'N/A'}
-                      </div>
-                      <div className={styles['deuda-cell']}>
-                        {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}
-                      </div>
-                      <div className={styles['deuda-cell']}>
-                        {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}
+                        {periodo.debt?.type === 3
+                          ? `Multa: Cancelación del área ${
+                              periodo.debt?.reservation_penalty?.area?.title || '-/-'
+                            }`
+                          : periodo.debt?.reservation?.area?.title || '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
                         {'Bs ' +
-                          (
-                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
-                          ).toFixed(2)}
+                          (periodo.debt?.type === 3
+                            ? Number(periodo.penalty_amount ?? 0).toFixed(2)
+                            : (
+                                Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                              ).toFixed(2))}
                       </div>
                     </>
                   ) : (
@@ -685,7 +711,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         periodo.debt.month !== undefined &&
                         periodo.debt.year !== undefined
                           ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
-                          : 'N/A'}
+                          : '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
                         {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}
