@@ -254,7 +254,7 @@ const ReservationDetailModal = ({
       setRejectErrors({}); // Limpiar errores de rechazo
       setRejectionReason(""); // Limpiar razón de rechazo
 
-      if (item.id) {
+      if (item?.id) {
         setDisplayedData(item);
       } else if (reservationId) {
         setDisplayedData(null);
