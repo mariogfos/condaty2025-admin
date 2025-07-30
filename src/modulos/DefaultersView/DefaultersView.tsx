@@ -269,9 +269,9 @@ const DefaultersView = () => {
   // Actualizar la configuración del gráfico en la función renderRightPanel
   const renderRightPanel = () => {
     // Definir los colores consistentes para los widgets y el gráfico
-    const expensaColor = "#f7b267"; // Color naranja para expensas (del IconBilletera)
-    const multaColor = "#b996f6"; // Color morado para multas (del IconMultas)
-    const totalColor = "#4ED58C"; // Color verde para el total (del IconHandcoin)
+    const expensaColor = "var(--cCompl5)"; // Color naranja para expensas (del IconBilletera)
+    const multaColor = "var(--cCompl3)"; // Color morado para multas (del IconMultas)
+    const totalColor = "var(--cWhite)"; // Color verde para el total (del IconHandcoin)
 
     return (
       <div className={styles.rightPanel}>
@@ -283,29 +283,29 @@ const DefaultersView = () => {
             <WidgetDefaulterResume
               title={"Total de expensas"}
               amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
-              pointColor={"var(--cWarning)"}
+              pointColor={"var(--cCompl5)"}
               icon={
                 <IconHandcoin
                   size={26}
-                  color={"var(--cWarning)"}
-                  style={{ borderColor: "var(--cWarning)", borderWidth: 1 }}
+                  color={"var(--cCompl5)"}
+                  style={{ borderColor: "var(--cCompl5)", borderWidth: 1 }}
                 />
               }
-              iconBorderColor="var(--cWarning)"
-              backgroundColor={`rgba(${hexToRgb(expensaColor)}, 0.2)`}
+              iconBorderColor="var(--cCompl5)"
+              backgroundColor={'var(--cHoverCompl8)'}
               textColor="white"
-              style={{ width: "100%", borderColor: "var(--cWarning)" }}
+              style={{ width: "100%", borderColor: "var(--cCompl5)" }}
             />
 
             <WidgetDefaulterResume
               title={"Total de multas"}
               amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
-              pointColor={"var(--cError)"}
-              icon={<IconMultas size={26} color={"#B382D9"} />}
-              iconBorderColor="#B382D9"
-              backgroundColor={`rgba(${hexToRgb(multaColor)}, 0.2)`}
+              pointColor={"var(--cCompl3)"}
+              icon={<IconMultas size={26} color={"var(--cCompl3)"} />}
+              iconBorderColor="var(--cCompl3)"
+              backgroundColor={'var(--cHoverCompl6)'}
               textColor="white"
-              style={{ width: "100%", borderColor: "#B382D9" }}
+              style={{ width: "100%", borderColor: "var(--cCompl3)" }}
             />
           </section>
         </div>
@@ -332,8 +332,8 @@ const DefaultersView = () => {
               label: "Total de morosidad general entre expensas y multas",
               // Usar exactamente los mismos colores que los fondos de los widgets
               colors: [expensaColor, multaColor],
-              height: 400,
-              width: 400,
+              height: 380,
+              width: 380,
               centerText: "Total",
             }}
           />
