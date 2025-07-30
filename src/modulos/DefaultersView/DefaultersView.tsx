@@ -326,7 +326,6 @@ const DefaultersView = () => {
             }}
             chartTypes={["donut"]}
             background="darkv2"
-            downloadPdf
             options={{
               // title: "Representación gráfica del estado general de morosos",
               subtitle: "",

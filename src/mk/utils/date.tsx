@@ -559,6 +559,44 @@ export const getDateTimeAgo = (
   }
 };
 
+export const formatToDayDDMMYYYY = (
+  dateStr: string | null = "",
+  utc: boolean = true
+): string => {
+  if (!dateStr || dateStr === "") return "";
+
+  let dateForFormatting: Date;
+
+  // 1. Obtener un objeto Date base
+  if (esFormatoISO8601(dateStr) || utc) {
+    const convertedDate = convertirFechaUTCaLocal(dateStr);
+    if (!convertedDate) return "Fecha inválida";
+    dateForFormatting = convertedDate;
+  } else {
+    let tempDate = new Date(dateStr.replace(" ", "T"));
+    if (isNaN(tempDate.getTime())) {
+      const parts = dateStr.split(/[- :\/]/);
+      if (parts.length >= 3) {
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2])
+        );
+      }
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
+    }
+    dateForFormatting = tempDate;
+  }
+
+  // 2. Extraer componentes de fecha del objeto Date
+  const diaSemana = DAYS_SHORT[dateForFormatting.getDay()];
+  const dia = String(dateForFormatting.getDate()).padStart(2, "0");
+  const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
+  const año = dateForFormatting.getFullYear();
+
+  return `${diaSemana}, ${dia}/${mesNum}/${año}`;
+};
+
 export const formatToDayDDMMYYYYHHMM = (
   dateStr: string | null = "",
   utc: boolean = true
