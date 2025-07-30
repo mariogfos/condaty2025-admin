@@ -271,6 +271,16 @@
   justify-content: center;
 }
 
+.amount-cell {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.header-amount {
+  text-align: right;
+  justify-content: flex-end;
+}
+
 .total-container {
   display: flex;
   justify-content: flex-end;

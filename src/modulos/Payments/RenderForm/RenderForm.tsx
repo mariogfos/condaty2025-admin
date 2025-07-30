@@ -18,7 +18,7 @@ import Toast from '@/mk/components/ui/Toast/Toast';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
-import { formatBs } from '@/mk/utils/numbers';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 interface Dpto {
   id: string | number;
@@ -645,15 +645,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <>
                   <span className={styles['header-item']}>Fecha</span>
                   <span className={styles['header-item']}>Concepto</span>
-                  <span className={styles['header-item']}>Total</span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Total
+                  </span>
                   <span className={styles['header-item']}>Seleccionar</span>
                 </>
               ) : (
                 <>
                   <span className={styles['header-item']}>Periodo</span>
-                  <span className={styles['header-item']}>Monto</span>
-                  <span className={styles['header-item']}>Multa</span>
-                  <span className={styles['header-item']}>SubTotal</span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Monto
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Multa
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    SubTotal
+                  </span>
                   <span className={styles['header-item']}>Seleccionar</span>
                 </>
               )}
@@ -694,13 +702,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
                             }`
                           : periodo.debt?.reservation?.area?.title || '-/-'}
                       </div>
-                      <div className={styles['deuda-cell']}>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
-                          (periodo.debt?.type === 3
-                            ? Number(periodo.penalty_amount ?? 0).toFixed(2)
-                            : (
-                                Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
-                              ).toFixed(2))}
+                          formatNumber(
+                            periodo.debt?.type === 3
+                              ? Number(periodo.penalty_amount ?? 0)
+                              : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                          )}
                       </div>
                     </>
                   ) : (
@@ -713,17 +721,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
                           ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
                           : '-/-'}
                       </div>
-                      <div className={styles['deuda-cell']}>
-                        {'Bs ' + Number(periodo.amount ?? 0).toFixed(2)}
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
                       </div>
-                      <div className={styles['deuda-cell']}>
-                        {'Bs ' + Number(periodo.penalty_amount ?? 0).toFixed(2)}
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
                       </div>
-                      <div className={styles['deuda-cell']}>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
-                          (
+                          formatNumber(
                             Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
-                          ).toFixed(2)}
+                          )}
                       </div>
                     </>
                   )}
