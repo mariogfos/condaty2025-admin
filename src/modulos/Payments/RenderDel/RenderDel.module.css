@@ -1,8 +1,7 @@
 .delContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px 0;
+  gap: 12px;
 }
 
 .warningText {
@@ -10,7 +9,7 @@
   font-size: 14px;
   line-height: 1.4;
   margin: 0;
-  padding: 12px 16px;
+
   border-radius: 6px;
 }
 
@@ -25,6 +24,3 @@
   margin: -8px 0 0 0;
 }
 
-.delModalContent {
-  /* Removed max-width to allow mini variant to work properly */
-}

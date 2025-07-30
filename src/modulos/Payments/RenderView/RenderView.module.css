@@ -113,7 +113,6 @@
 }
 
 .canceledReason {
-  color: var(--cError) !important;
   font-style: italic;
   background-color: rgba(220, 53, 69, 0.1);
   padding: 8px 12px;

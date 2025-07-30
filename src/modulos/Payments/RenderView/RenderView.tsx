@@ -300,7 +300,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               {item.status === 'X' && item.canceled_obs && (
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Motivo de anulación</span>
-                  <span className={`${styles.infoValue} ${styles.canceledReason}`}>
+                  <span className={`${styles.infoValue}`}>
                     {item.canceled_obs}
                   </span>
                 </div>
