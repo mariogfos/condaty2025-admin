@@ -285,11 +285,11 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       const weekday = [
         "Lunes",
         "Martes",
-        "Miercoles",
-        "Jueves",
-        "Miercoles",
+        "Miércoles",
         "Jueves",
         "Viernes",
+        "Sábado",
+        "Domingo",
       ];
 
       if (
