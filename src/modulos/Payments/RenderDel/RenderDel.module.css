@@ -26,5 +26,5 @@
 }
 
 .delModalContent {
-  max-width: 500px;
+  /* Removed max-width to allow mini variant to work properly */
 }

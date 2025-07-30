@@ -2,12 +2,17 @@ import React, { memo, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES, getDateStrMesShort } from '@/mk/utils/date';
+import {
+  formatToDayDDMMYYYYHHMM,
+  MONTHS_ES,
+  getDateStrMesShort,
+  formatToDayDDMMYYYY,
+} from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
-import { formatBs } from '@/mk/utils/numbers';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 interface PaymentDetail {
   id: string | number;
@@ -381,9 +386,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           {Array.isArray(item.details) &&
             item.details.length > 0 &&
             (() => {
-              // Detectar si es una reserva
+              // Detectar si es una reserva (incluyendo multas)
               const isReservation = item.details.some(
-                (detail: any) => detail?.debt_dpto?.debt?.reservation
+                (detail: any) =>
+                  detail?.debt_dpto?.debt?.reservation ||
+                  detail?.debt_dpto?.debt?.reservation_penalty
               );
 
               return (
@@ -399,8 +406,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                       <div className={styles.periodsTableHeader}>
                         {isReservation ? (
                           <>
-                            <div className={styles.periodsTableCell}>Fecha de reserva</div>
-                            <div className={styles.periodsTableCell}>Reserva por</div>
+                            <div className={styles.periodsTableCell}>Fecha</div>
+                            <div className={styles.periodsTableCell}>Concepto</div>
                             <div className={styles.periodsTableCell}>Monto</div>
                             <div className={styles.periodsTableCell}>Multa</div>
                             <div className={styles.periodsTableCell}>Subtotal</div>
@@ -420,16 +427,22 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           <div className={styles.periodsTableRow} key={periodo?.id ?? index}>
                             {isReservation ? (
                               <>
-                                <div
-                                  className={styles.periodsTableCell}
-                                  data-label="Fecha de reserva"
-                                >
-                                  {getDateStrMesShort(
-                                    periodo?.debt_dpto?.debt?.reservation?.date_at
-                                  )}
+                                <div className={styles.periodsTableCell} data-label="Fecha">
+                                  {periodo?.debt_dpto?.debt?.type === 3
+                                    ? formatToDayDDMMYYYY(
+                                        periodo?.debt_dpto?.debt?.reservation_penalty?.date_at
+                                      ) || '-/-'
+                                    : formatToDayDDMMYYYY(
+                                        periodo?.debt_dpto?.debt?.reservation?.date_at
+                                      ) || '-/-'}
                                 </div>
-                                <div className={styles.periodsTableCell} data-label="Reserva por">
-                                  {periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
+                                <div className={styles.periodsTableCell} data-label="Concepto">
+                                  {periodo?.debt_dpto?.debt?.type === 3
+                                    ? `Multa: Cancelación del área ${
+                                        periodo?.debt_dpto?.debt?.reservation_penalty?.area
+                                          ?.title || '-/-'
+                                      }`
+                                    : periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
                                 </div>
                                 <div className={styles.periodsTableCell} data-label="Monto">
                                   {formatBs(periodo?.debt_dpto?.amount || 0)}
@@ -438,7 +451,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                                   {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
                                 </div>
                                 <div className={styles.periodsTableCell} data-label="Subtotal">
-                                  {formatBs(periodo?.amount || 0)}
+                                  {'Bs ' +
+                                    formatNumber(
+                                      periodo?.debt_dpto?.debt?.type === 3
+                                        ? Number(periodo?.debt_dpto?.penalty_amount || 0)
+                                        : Number(periodo?.debt_dpto?.amount || 0) +
+                                            Number(periodo?.debt_dpto?.penalty_amount || 0)
+                                    )}
                                 </div>
                               </>
                             ) : (
