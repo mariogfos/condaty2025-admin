@@ -292,8 +292,6 @@ const DefaultersView = () => {
             flexDirection: 'column',
           }}
         >
-          <div>Total de morosidad general entre expensas y multas: </div>
-          <div style={{ fontSize: 'var(--spL)' }}>Bs {formatNumber(totalMorosidad)} </div>
         </div>
       </div>
     );
