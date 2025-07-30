@@ -144,7 +144,7 @@ const DefaultersView = () => {
       className={styles.exportButton}
       role="button"
     >
-      <IconExport size={32} />
+      <IconExport size={30} />
     </div>,
   ];
 
