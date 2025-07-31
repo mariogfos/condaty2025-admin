@@ -331,7 +331,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
       return;
     }
     let startTime = "";
-    const sortedSelectedPeriods = [...selectedPeriods]?.sort();
+    const sortedSelectedPeriods = [...selectedPeriods];
     if (sortedSelectedPeriods.length > 0) {
       startTime = sortedSelectedPeriods[0].split("-")[0];
     }

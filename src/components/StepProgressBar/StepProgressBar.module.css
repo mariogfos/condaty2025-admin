@@ -1,11 +1,11 @@
 .StepProgressBar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spS);
   width: 100%;
 
   & > p {
-    font-size: 14px;
+    font-size: var(--sM);
     font-weight: 300;
     color: var(--cWhite);
   }
@@ -22,6 +22,7 @@
       left: 0;
       bottom: 0;
       border-radius: 5px;
+      transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
     }
   }
 }
