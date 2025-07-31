@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './DefaultersView.module.css';
-import './defaulters-tooltip-fix.css';
 import useAxios from '@/mk/hooks/useAxios';
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
