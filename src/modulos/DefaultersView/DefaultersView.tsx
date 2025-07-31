@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './DefaultersView.module.css';
+import './defaulters-tooltip-fix.css';
 import useAxios from '@/mk/hooks/useAxios';
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
@@ -291,28 +292,13 @@ const DefaultersView = () => {
             alignItems: 'center',
             flexDirection: 'column',
           }}
-        >
-        </div>
+        ></div>
       </div>
     );
   };
-  // Función auxiliar para convertir colores hexadecimales a RGB
-  const hexToRgb = (hex: any) => {
-    // Eliminar el # si existe
-    hex = hex.replace(/^#/, '');
-
-    // Convertir hex a RGB
-    let bigint = parseInt(hex, 16);
-    let r = (bigint >> 16) & 255;
-    let g = (bigint >> 8) & 255;
-    let b = bigint & 255;
-
-    return `${r}, ${g}, ${b}`;
-  };
-
   return (
     <LoadingScreen>
-      <div className={styles.container}>
+      <div className={`${styles.container} defaulters-view-container`}>
         <h1 className={styles.title}>Morosos</h1>
         <WidgetDashCard
           title="Total de unidades morosas"
