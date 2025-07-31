@@ -16,7 +16,7 @@ import {
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import useAxios from "@/mk/hooks/useAxios";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { ApiUnidad, ApiArea, Option, FormState } from "./Type";
+import { ApiArea, FormState } from "./Type";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import Button from "@/mk/components/forms/Button/Button";

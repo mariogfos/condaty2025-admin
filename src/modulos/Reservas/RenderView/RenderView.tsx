@@ -298,7 +298,6 @@ const ReservationDetailModal = ({
     }
   }, [fetchedData, detailsLoaded, detailsError, item]); // Dependencias clave
 
-  // --- Funciones Auxiliares (se quedan en el padre y se pasan como props) ---
   const getFormattedRequestTime = (isoDate: string): string => {
     if (!isoDate) return "Fecha inválida";
     try {

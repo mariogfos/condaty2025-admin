@@ -241,13 +241,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
               formState={formState}
             />
           )}
-          {level === 4 && (
-            <FourPart
-              // handleChange={handleChange}
-              // errors={errors}
-              item={formState}
-            />
-          )}
+          {level === 4 && <FourPart item={formState} />}
           <div
             style={{
               display: "flex",
