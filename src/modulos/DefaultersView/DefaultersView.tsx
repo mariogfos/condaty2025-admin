@@ -303,6 +303,8 @@ const DefaultersView = () => {
           title="Total de unidades morosas"
           data={`${defaultersLength}`}
           onClick={() => {}}
+          tooltip={true}
+          tooltipTitle="Muestra el número total de unidades que tienen pagos pendientes o en mora. Este módulo permite visualizar y gestionar las unidades con deudas vencidas."
           icon={
             <IconHousing
               reverse
