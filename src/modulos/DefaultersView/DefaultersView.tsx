@@ -17,6 +17,7 @@ import useCrud from '@/mk/hooks/useCrud/useCrud';
 import WidgetDefaulterResume from '@/components/Widgets/WidgetDefaulterResume/WidgetDefaulterResume';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 
 const DefaultersView = () => {
   useEffect(() => {});
@@ -123,32 +124,32 @@ const DefaultersView = () => {
       expensa: {
         rules: [],
         api: 'ae',
-        label: 'Monto por expensa',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto por expensa</span>
+        ),
         list: {
-          onRender: (props: any) => {
-            return 'Bs ' + formatNumber(props?.item?.expensa);
-          },
+          onRender: (props: any) => <FormatBsAlign value={props?.item?.expensa} alignRight />,
         },
       },
       multa: {
         rules: [],
         api: 'ae',
-        label: 'Multa',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>
+        ),
         list: {
-          onRender: (props: any) => {
-            return 'Bs ' + formatNumber(props?.item?.multa);
-          },
+          onRender: (props: any) => <FormatBsAlign value={props?.item?.multa} alignRight />,
         },
       },
 
       total: {
         rules: [],
         api: 'ae',
-        label: 'Total',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</span>
+        ),
         list: {
-          onRender: (props: any) => {
-            return 'Bs ' + formatNumber(props?.item?.expensa + props?.item?.multa);
-          },
+          onRender: (props: any) => <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />,
         },
       },
     }),

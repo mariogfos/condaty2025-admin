@@ -1,5 +1,5 @@
-import { formatNumber } from "@/mk/utils/numbers";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
+import { fontWeight } from 'html2canvas/dist/types/css/property-descriptors/font-weight';
 
 const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   const xLabels: any = [];
@@ -12,43 +12,41 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "50%",
+          size: '50%',
           labels: {
             show: true,
-            value:{
-            color:'var(--cWhite)',
-            formatter: function (val:any) {
-              // return formatNumber(totalRadial) + " Bs";
-              return val!== 0 ? formatNumber(Number(val)) + " Bs" : "";
-            }
+            value: {
+              color: 'var(--cWhite)',
+              formatter: function (val: any) {
+                // return formatNumber(totalRadial) + " Bs";
+                return val !== 0 ? formatNumber(Number(val)) + ' Bs' : '';
+              },
             },
             total: {
               show: true,
-              label: options?.centerText || "Total",
-              fontSize: "16px",
-              color: "#00E38C",
+              label: options?.centerText || 'Total',
+              fontSize: '16px',
+              color: '#00E38C',
               formatter: function () {
-                return formatNumber(totalRadial) + " Bs";
-              }
-            }
-          }
+                return formatBs(totalRadial);
+              },
+            },
+          },
         },
       },
     },
     dataLabels: {
       ...oDef.dataLabels,
       formatter: function (val: any, opts: any) {
-        
-        if (val !== 0) return Number(val).toFixed(2) + "%";
-        
+        if (val !== 0) return Number(val).toFixed(2) + '%';
       },
       style: {
-        fontSize: "16px",
-        fontWeight: "var(--bMedium)",
+        fontSize: '16px',
+        fontWeight: 'var(--bMedium)',
       },
       background: {
         enabled: true,
-        foreColor: "var(--cWhiteV2)",
+        foreColor: 'var(--cWhiteV2)',
         padding: 4,
         borderRadius: 2,
 
@@ -67,7 +65,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
         top: 1,
         left: 1,
         blur: 1,
-        color: "#000",
+        color: '#000',
         opacity: 0.45,
       },
     },
@@ -77,7 +75,6 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
       custom: function ({ series, seriesIndex, dataPointIndex, w }: any) {
         const seriesName = w.globals.seriesNames[seriesIndex] || w.globals.labels[seriesIndex];
         const value = series[seriesIndex];
-        const percentage = ((value / totalRadial) * 100).toFixed(1);
         // Obtener el color de la serie
         const color = w.globals.colors[seriesIndex] || '#A7A7A7';
 
@@ -89,8 +86,9 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
             </div>
             <div style="margin-left: 20px;">
               <div style="color: #666; font-size: 12px; margin-bottom: 2px;">Monto:</div>
-              <div style="font-weight: bold; color: #000; font-size: 16px;">Bs ${formatNumber(value)}</div>
-              <div style="color: #666; font-size: 12px; margin-top: 4px;">${percentage}% del total</div>
+              <div style="font-weight: bold; color: #000; font-size: 16px;">Bs ${formatNumber(
+                value
+              )}</div>
             </div>
           </div>
         `;
