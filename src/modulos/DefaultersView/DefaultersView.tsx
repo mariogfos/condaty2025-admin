@@ -304,7 +304,7 @@ const DefaultersView = () => {
           data={`${defaultersLength}`}
           onClick={() => {}}
           tooltip={true}
-          tooltipTitle="Muestra el número total de unidades que tienen pagos pendientes o en mora. Este módulo permite visualizar y gestionar las unidades con deudas vencidas."
+          tooltipTitle="Lista de unidades que no han  pagado sus expensas a tiempo."
           icon={
             <IconHousing
               reverse
