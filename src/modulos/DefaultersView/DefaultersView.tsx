@@ -1,7 +1,6 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './DefaultersView.module.css';
-
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { formatNumber } from '@/mk/utils/numbers';
@@ -18,10 +17,9 @@ import WidgetDefaulterResume from '@/components/Widgets/WidgetDefaulterResume/Wi
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import NotAccess from '@/components/auth/NotAccess/NotAccess';
 
 const DefaultersView = () => {
-  useEffect(() => {});
-
   const mod = {
     modulo: 'defaulters',
     singular: 'Moroso',
@@ -51,6 +49,7 @@ const DefaultersView = () => {
   const { setStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: '' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const fields = useMemo(
     () => ({
@@ -68,7 +67,7 @@ const DefaultersView = () => {
         api: 'ae',
         label: 'Titular',
         list: {
-          onRender: (props: any) => {
+          onRender: (props: { item: { titular: { owner: any } } }) => {
             const titular = props?.item?.titular?.owner;
             const titularId = titular?.id;
 
@@ -115,7 +114,7 @@ const DefaultersView = () => {
         label: 'Expensas atrasadas',
         width: '115px',
         list: {
-          onRender: (props: any) => {
+          onRender: (props: { item: { count: number } }) => {
             const s = props?.item?.count > 1 ? 's' : '';
             return props?.item?.count + ' expensa' + s;
           },
@@ -125,105 +124,89 @@ const DefaultersView = () => {
         rules: [],
         api: 'ae',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto por expensa</span>
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Monto por expensa
+          </span>
         ),
         list: {
-          onRender: (props: any) => <FormatBsAlign value={props?.item?.expensa} alignRight />,
+          onRender: (props: { item: { expensa: number } }) => (
+            <FormatBsAlign value={props?.item?.expensa} alignRight />
+          ),
         },
       },
       multa: {
         rules: [],
         api: 'ae',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
         list: {
-          onRender: (props: any) => <FormatBsAlign value={props?.item?.multa} alignRight />,
+          onRender: (props: { item: { multa: number } }) => (
+            <FormatBsAlign value={props?.item?.multa} alignRight />
+          ),
         },
       },
 
       total: {
         rules: [],
         api: 'ae',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</span>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</span>,
         list: {
-          onRender: (props: any) => <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />,
+          onRender: (props: { item: { expensa: number; multa: number } }) => (
+            <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />
+          ),
         },
       },
     }),
     []
   );
-
-  const {
-    userCan,
-    List,
-    onView,
-    onEdit,
-    onDel,
-    reLoad,
-    onAdd,
-    execute,
-    setParams,
-    data,
-    extraData,
-  } = useCrud({
+  const { userCan, List, data, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
-    // extraButtons,
   });
 
-  // Estado para controlar el número total de defaulters
   const [defaultersLength, setDefaultersLength] = useState(0);
 
-  // Actualizar datos cuando cambia data
   useEffect(() => {
     if (data?.data) {
       setDefaultersLength(data.data.length ?? 0);
     }
   }, [data]);
 
-  // Calcular totales desde los datos individuales ya que extraData viene en 0
+  interface Totals {
+    porCobrarExpensa: number;
+    porCobrarMulta: number;
+  }
+
   const calculatedTotals = useMemo(() => {
     if (!data?.data || data.data.length === 0) {
       return { porCobrarExpensa: 0, porCobrarMulta: 0 };
     }
-    
-    const totals = data.data.reduce((acc: any, item: any) => {
-      acc.porCobrarExpensa += item.expensa || 0;
-      acc.porCobrarMulta += item.multa || 0;
-      return acc;
-    }, { porCobrarExpensa: 0, porCobrarMulta: 0 });
-    
+    const totals = data.data.reduce(
+      (acc: Totals, item: { expensa: number; multa: number }) => {
+        acc.porCobrarExpensa += item.expensa || 0;
+        acc.porCobrarMulta += item.multa || 0;
+        return acc;
+      },
+      { porCobrarExpensa: 0, porCobrarMulta: 0 }
+    );
     return totals;
   }, [data?.data]);
+  const finalTotals = useMemo(
+    () => ({
+      porCobrarExpensa: extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
+      porCobrarMulta: extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
+    }),
+    [
+      extraData?.porCobrarExpensa,
+      extraData?.porCobrarMulta,
+      calculatedTotals.porCobrarExpensa,
+      calculatedTotals.porCobrarMulta,
+    ]
+  );
 
-  // Usar los totales calculados o los del extraData si están disponibles
-  const finalTotals = {
-    porCobrarExpensa: extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
-    porCobrarMulta: extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
-  };
-
-  // Calcular el total de morosidad
-  const totalMorosidad = finalTotals.porCobrarExpensa + finalTotals.porCobrarMulta;
-
-  // Calcular porcentajes para la gráfica
-  const porcentajeExpensas =
-    totalMorosidad > 0
-      ? Math.round((finalTotals.porCobrarExpensa / totalMorosidad) * 100)
-      : 0;
-  const porcentajeMultas =
-    totalMorosidad > 0 ? Math.round((finalTotals.porCobrarMulta / totalMorosidad) * 100) : 0;
-
-  // Componente del panel derecho con gráfico y widgets
-  // Actualizar la configuración del gráfico en la función renderRightPanel
-  const renderRightPanel = () => {
-    // Definir los colores consistentes para los widgets y el gráfico
-    const expensaColor = 'var(--cCompl5)'; // Color naranja para expensas (del IconBilletera)
-    const multaColor = 'var(--cCompl3)'; // Color morado para multas (del IconMultas)
-    const totalColor = 'var(--cWhite)'; // Color verde para el total (del IconHandcoin)
+  const renderRightPanel = useCallback(() => {
+    const expensaColor = 'var(--cCompl5)';
+    const multaColor = 'var(--cCompl3)';
 
     return (
       <div className={styles.rightPanel}>
@@ -277,10 +260,8 @@ const DefaultersView = () => {
             chartTypes={['donut']}
             background="darkv2"
             options={{
-              // title: "Representación gráfica del estado general de morosos",
               subtitle: '',
               label: 'Total de morosidad general entre expensas y multas',
-              // Usar exactamente los mismos colores que los fondos de los widgets
               colors: [expensaColor, multaColor],
               height: 380,
               width: 380,
@@ -288,18 +269,10 @@ const DefaultersView = () => {
             }}
           />
         </div>
-        <div
-          style={{
-            fontWeight: 'Bold',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}
-        ></div>
       </div>
     );
-  };
+  }, [finalTotals.porCobrarExpensa, finalTotals.porCobrarMulta]);
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <LoadingScreen>
       <div className={`${styles.container} defaulters-view-container`}>
@@ -307,7 +280,7 @@ const DefaultersView = () => {
         <WidgetDashCard
           title="Total de unidades morosas"
           data={`${defaultersLength}`}
-          onClick={() => {}}
+          onClick={() => undefined}
           tooltip={true}
           tooltipTitle="Lista de unidades que no han  pagado sus expensas a tiempo."
           icon={
@@ -329,7 +302,6 @@ const DefaultersView = () => {
           className={styles.widgetResumeCard}
           style={{ maxWidth: 280 }}
         />
-
         <div className={styles.listContainer}>
           <List
             height={'calc(100vh - 380px)'}
