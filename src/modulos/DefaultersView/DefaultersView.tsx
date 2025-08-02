@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './DefaultersView.module.css';
-import useAxios from '@/mk/hooks/useAxios';
+
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { formatNumber } from '@/mk/utils/numbers';
@@ -167,7 +167,7 @@ const DefaultersView = () => {
     execute,
     setParams,
     data,
-    // extraData,
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -177,41 +177,45 @@ const DefaultersView = () => {
 
   // Estado para controlar el número total de defaulters
   const [defaultersLength, setDefaultersLength] = useState(0);
-  const [extraData, setExtraData] = useState<any>({});
-  const { data: extraDat } = useAxios(
-    '/defaulters',
-    'GET',
-    {
-      fullType: 'EXTRA',
-    },
-    false
-  );
 
-  // Actualizar datos cuando cambia extraData
+  // Actualizar datos cuando cambia data
   useEffect(() => {
     if (data?.data) {
       setDefaultersLength(data.data.length ?? 0);
     }
   }, [data]);
 
-  useEffect(() => {
-    if (extraDat?.data) {
-      setExtraData(extraDat?.data);
+  // Calcular totales desde los datos individuales ya que extraData viene en 0
+  const calculatedTotals = useMemo(() => {
+    if (!data?.data || data.data.length === 0) {
+      return { porCobrarExpensa: 0, porCobrarMulta: 0 };
     }
-  }, [extraDat]);
+    
+    const totals = data.data.reduce((acc: any, item: any) => {
+      acc.porCobrarExpensa += item.expensa || 0;
+      acc.porCobrarMulta += item.multa || 0;
+      return acc;
+    }, { porCobrarExpensa: 0, porCobrarMulta: 0 });
+    
+    return totals;
+  }, [data?.data]);
 
-  // console.log(extraData,'extraDat')
+  // Usar los totales calculados o los del extraData si están disponibles
+  const finalTotals = {
+    porCobrarExpensa: extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
+    porCobrarMulta: extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
+  };
 
   // Calcular el total de morosidad
-  const totalMorosidad = (extraData?.porCobrarExpensa || 0) + (extraData?.porCobrarMulta || 0);
+  const totalMorosidad = finalTotals.porCobrarExpensa + finalTotals.porCobrarMulta;
 
   // Calcular porcentajes para la gráfica
   const porcentajeExpensas =
     totalMorosidad > 0
-      ? Math.round(((extraData?.porCobrarExpensa || 0) / totalMorosidad) * 100)
+      ? Math.round((finalTotals.porCobrarExpensa / totalMorosidad) * 100)
       : 0;
   const porcentajeMultas =
-    totalMorosidad > 0 ? Math.round(((extraData?.porCobrarMulta || 0) / totalMorosidad) * 100) : 0;
+    totalMorosidad > 0 ? Math.round((finalTotals.porCobrarMulta / totalMorosidad) * 100) : 0;
 
   // Componente del panel derecho con gráfico y widgets
   // Actualizar la configuración del gráfico en la función renderRightPanel
@@ -228,7 +232,7 @@ const DefaultersView = () => {
           <section>
             <WidgetDefaulterResume
               title={'Total de expensas'}
-              amount={`Bs ${formatNumber(extraData?.porCobrarExpensa || 0)}`}
+              amount={`Bs ${formatNumber(finalTotals.porCobrarExpensa)}`}
               pointColor={'var(--cCompl5)'}
               icon={
                 <IconHandcoin
@@ -245,7 +249,7 @@ const DefaultersView = () => {
 
             <WidgetDefaulterResume
               title={'Total de multas'}
-              amount={`Bs ${formatNumber(extraData?.porCobrarMulta || 0)}`}
+              amount={`Bs ${formatNumber(finalTotals.porCobrarMulta)}`}
               pointColor={'var(--cCompl3)'}
               icon={<IconMultas size={26} color={'var(--cCompl3)'} />}
               iconBorderColor="var(--cCompl3)"
@@ -262,11 +266,11 @@ const DefaultersView = () => {
               values: [
                 {
                   name: 'Expensas',
-                  values: [extraData?.porCobrarExpensa || 0],
+                  values: [finalTotals.porCobrarExpensa],
                 },
                 {
                   name: 'Multas',
-                  values: [extraData?.porCobrarMulta || 0],
+                  values: [finalTotals.porCobrarMulta],
                 },
               ],
             }}
