@@ -160,13 +160,14 @@
 
 .detailsList {
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   gap: var(--spS, 8px);
 }
 
 .detailItem {
   display: flex;
   align-items: center;
+  flex: 1;
   gap: var(--spXs, 4px);
 }
 
@@ -274,9 +275,10 @@
   line-height: 1.4;
 }
 .statusBadge {
-  padding: 6px 0px;
+  padding: 8px;
   text-align: center;
   border-radius: 4px;
+  font-size: 14px;
 }
 .statusW {
   background-color: var(--cHoverWarning); /* Fondo amarillo suave */

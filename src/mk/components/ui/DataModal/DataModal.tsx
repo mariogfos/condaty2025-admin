@@ -85,7 +85,7 @@ const DataModal = ({
             !fullScreen && (
               <IconX
                 className=""
-                size={44}
+                size={40}
                 onClick={() => _close(false)}
                 circle
                 style={{ backgroundColor: "transparent", padding: "0px" }}

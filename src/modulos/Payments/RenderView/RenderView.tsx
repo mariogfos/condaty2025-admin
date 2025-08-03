@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES, getDateStrMesShort } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
@@ -14,6 +14,8 @@ interface PaymentDetail {
   status: string;
   user?: any;
   confirmed_by?: any;
+  canceled_by?: any;
+  canceled_obs?: string;
   owner?: any;
   details?: any[];
   dptos?: string;
@@ -34,43 +36,20 @@ interface DetailPaymentProps {
   onClose: () => void;
   extraData?: { dptos?: any[] };
   reLoad?: () => void;
-  payment_id: string | number;
+  payment_id?: string | number;
+  item?: PaymentDetail;
   onDel?: (item?: PaymentDetail) => void;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
-  const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
+  const { open, onClose, extraData, reLoad, item, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
-  const [item, setItem] = useState<PaymentDetail | null>(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
-  const fetchPaymentData = async () => {
-    if (payment_id && open) {
-      const { data } = await execute(
-        '/payments',
-        'GET',
-        {
-          fullType: 'DET',
-          searchBy: payment_id,
-          page: 1,
-          perPage: 1,
-        },
-        false,
-        true
-      );
-      setItem(data?.data as PaymentDetail);
-    }
-  };
-
-  useEffect(() => {
-    fetchPaymentData();
-  }, [payment_id]);
-
   const handleGenerateReceipt = async () => {
-
     showToast('Generando recibo...', 'info');
 
     const { data: file, error } = await execute(
@@ -86,16 +65,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       window.open(receiptUrl, '_blank');
       showToast('Recibo generado con éxito.', 'success');
     } else {
-      showToast(
-        error?.data?.message || 'No se pudo generar el recibo.',
-        'error'
-      );
+      showToast(error?.data?.message || 'No se pudo generar el recibo.', 'error');
     }
   };
 
-  const handleChangeInput = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === 'checkbox') {
       value = (e.target as HTMLInputElement).checked ? 'P' : 'N';
@@ -158,15 +132,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const getDptoName = () => {
     if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
 
-    const dpto = extraData.dptos.find(
-      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
-    );
+    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
 
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, '') : '';
-      const descSinComa = dpto.description
-        ? dpto.description.replace(/,/g, '')
-        : '';
+      const descSinComa = dpto.description ? dpto.description.replace(/,/g, '') : '';
       return `${nroSinComa} - ${descSinComa}`;
     } else {
       return (item?.dptos || '-/-').replace(/,/g, '');
@@ -203,8 +173,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   let aprobadoLabel;
   if (item.status === 'P') {
     aprobadoLabel = 'Aprobado por';
-  } else if (item.status === 'X') {
-    aprobadoLabel = 'Anulado por';
   } else if (item.status === 'R') {
     aprobadoLabel = 'Rechazado por';
   } else if (item.status === 'S') {
@@ -222,6 +190,10 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     statusClass = styles.statusRejected;
   } else if (item.status === 'X') {
     statusClass = styles.statusCanceled;
+  } else if (item.status === 'E') {
+    statusClass = styles.statusVoucher;
+  } else if (item.status === 'M') {
+    statusClass = styles.statusApproval;
   }
 
   let ownerDisplay = '-/-';
@@ -242,6 +214,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   let aprobadoPorDisplay = '-/-';
   if (item.confirmed_by && typeof item.confirmed_by === 'object') {
     aprobadoPorDisplay = getFullName(item.confirmed_by);
+  }
+
+  let anuladoPorDisplay = '-/-';
+  if (item.canceled_by && typeof item.canceled_by === 'object') {
+    anuladoPorDisplay = getFullName(item.canceled_by);
   }
 
   let infoBlockContent;
@@ -278,23 +255,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       >
         {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>
-            <button
-              type="button"
-              onClick={handleAnularClick}
-              className={styles.textButtonDanger}
-            >
+            <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
               Anular ingreso
             </button>
           </div>
         )}
         <div className={styles.container}>
           <div className={styles.headerSection}>
-            <div className={styles.amountDisplay}>
-              {formatBs(item.amount ?? 0)}
-            </div>
-            <div className={styles.dateDisplay}>
-              {formatToDayDDMMYYYYHHMM(item.paid_at)}
-            </div>
+            <div className={styles.amountDisplay}>{formatBs(item.amount ?? 0)}</div>
+            <div className={styles.dateDisplay}>{formatToDayDDMMYYYYHHMM(item.paid_at)}</div>
           </div>
 
           {/* Divisor antes de la sección de info y botón */}
@@ -317,9 +286,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {item.concept?.map((c: string, i: number) => (
-                    <div key={i}>-{c}</div>
-                  )) ||
+                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) ||
                     item?.category?.padre?.name ||
                     '-/-'}
                 </span>
@@ -328,6 +295,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 <span className={styles.infoLabel}>Observación</span>
                 <span className={styles.infoValue}>{item.obs || '-/-'}</span>
               </div>
+
+              {item.status === 'X' && item.canceled_obs && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Motivo de anulación</span>
+                  <span className={`${styles.infoValue} ${styles.canceledReason}`}>
+                    {item.canceled_obs}
+                  </span>
+                </div>
+              )}
             </div>
             {/* Columna Derecha */}
             <div className={styles.detailsColumn}>
@@ -339,18 +315,30 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentType(item.type || '')}
-                </span>
+                <span className={styles.infoValue}>{getPaymentType(item.type || '')}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.owner) || '-/-'}
-                </span>
+                <span className={styles.infoValue}>{getFullName(item.owner) || '-/-'}</span>
               </div>
 
-              {item.confirmed_by ? (
+              {item.status === 'X' ? (
+                <>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Anulado por</span>
+                    <span className={styles.infoValue}>{anuladoPorDisplay}</span>
+                  </div>
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Registrado por</span>
+                    <span className={styles.infoValue}>{registradoPorDisplay}</span>
+                  </div>
+                </>
+              ) : item.status === 'S' ? (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Registrado por</span>
+                  <span className={styles.infoValue}>{registradoPorDisplay}</span>
+                </div>
+              ) : item.confirmed_by ? (
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>{aprobadoLabel}</span>
                   <span className={styles.infoValue}>{aprobadoPorDisplay}</span>
@@ -361,9 +349,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
-                <span className={styles.infoValue}>
-                  {item.voucher || '-/-'}
-                </span>
+                <span className={styles.infoValue}>{item.voucher || '-/-'}</span>
               </div>
             </div>
           </section>
@@ -386,14 +372,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 className={styles.voucherButton}
                 onClick={() => {
                   window.open(
-                    getUrlImages(
-                      '/PAYMENT-' +
-                        item.id +
-                        '.' +
-                        item.ext +
-                        '?d=' +
-                        item.updated_at
-                    ),
+                    getUrlImages('/PAYMENT-' + item.id + '.' + item.ext + '?d=' + item.updated_at),
                     '_blank'
                   );
                 }}
@@ -403,77 +382,103 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             )}
           </div>
 
-          {Array.isArray(item.details) && item.details.length > 0 && (
-            <div className={styles.periodsDetailsSection}>
-              <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
-              </div>
+          {Array.isArray(item.details) &&
+            item.details.length > 0 &&
+            (() => {
+              // Detectar si es una reserva
+              const isReservation = item.details.some(
+                (detail: any) => detail?.debt_dpto?.debt?.reservation
+              );
 
-              <div className={styles.periodsTableWrapper}>
-                <div className={styles.periodsTable}>
-                  <div className={styles.periodsTableHeader}>
-                    <div className={styles.periodsTableCell}>Periodo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
-                    <div className={styles.periodsTableCell}>Monto</div>
-                    <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>Subtotal</div>
+              return (
+                <div className={styles.periodsDetailsSection}>
+                  <div className={styles.periodsDetailsHeader}>
+                    <h3 className={styles.periodsDetailsTitle}>
+                      {isReservation ? 'Detalles de reserva' : 'Periodos pagados'}
+                    </h3>
                   </div>
-                  <div className={styles.periodsTableBody}>
-                    {item.details?.map((periodo: any, index: number) => (
-                      <div
-                        className={styles.periodsTableRow}
-                        key={periodo?.id ?? index}
-                      >
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Periodo"
-                        >
-                          {
-                            MONTHS_ES[
-                              (periodo?.debt_dpto?.debt?.month ?? 1) - 1
-                            ]
-                          }{' '}
-                          {periodo?.debt_dpto?.debt?.year}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Concepto"
-                        >
-                          {item?.category?.padre?.name || '-/-'}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Monto"
-                        >
-                          {formatBs(periodo?.debt_dpto?.amount || 0)}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Multa"
-                        >
-                          {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Subtotal"
-                        >
-                          {formatBs(periodo?.amount || 0)}
-                        </div>
+
+                  <div className={styles.periodsTableWrapper}>
+                    <div className={styles.periodsTable}>
+                      <div className={styles.periodsTableHeader}>
+                        {isReservation ? (
+                          <>
+                            <div className={styles.periodsTableCell}>Fecha de reserva</div>
+                            <div className={styles.periodsTableCell}>Reserva por</div>
+                            <div className={styles.periodsTableCell}>Monto</div>
+                            <div className={styles.periodsTableCell}>Multa</div>
+                            <div className={styles.periodsTableCell}>Subtotal</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className={styles.periodsTableCell}>Periodo</div>
+                            <div className={styles.periodsTableCell}>Concepto</div>
+                            <div className={styles.periodsTableCell}>Monto</div>
+                            <div className={styles.periodsTableCell}>Multa</div>
+                            <div className={styles.periodsTableCell}>Subtotal</div>
+                          </>
+                        )}
                       </div>
-                    ))}
+                      <div className={styles.periodsTableBody}>
+                        {item.details?.map((periodo: any, index: number) => (
+                          <div className={styles.periodsTableRow} key={periodo?.id ?? index}>
+                            {isReservation ? (
+                              <>
+                                <div
+                                  className={styles.periodsTableCell}
+                                  data-label="Fecha de reserva"
+                                >
+                                  {getDateStrMesShort(
+                                    periodo?.debt_dpto?.debt?.reservation?.date_at
+                                  )}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Reserva por">
+                                  {periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Monto">
+                                  {formatBs(periodo?.debt_dpto?.amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Multa">
+                                  {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Subtotal">
+                                  {formatBs(periodo?.amount || 0)}
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className={styles.periodsTableCell} data-label="Periodo">
+                                  {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
+                                  {periodo?.debt_dpto?.debt?.year}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Concepto">
+                                  {item?.category?.padre?.name || '-/-'}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Monto">
+                                  {formatBs(periodo?.debt_dpto?.amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Multa">
+                                  {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                                </div>
+                                <div className={styles.periodsTableCell} data-label="Subtotal">
+                                  {formatBs(periodo?.amount || 0)}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.periodsDetailsFooter}>
+                    <div className={styles.periodsDetailsTotal}>
+                      Total pagado:{' '}
+                      <span className={styles.totalAmountValue}>{formatBs(getTotalAmount())}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className={styles.periodsDetailsFooter}>
-                <div className={styles.periodsDetailsTotal}>
-                  Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>
-                    {formatBs(getTotalAmount())}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
+              );
+            })()}
 
           {item?.status === 'S' && (
             <div className={styles.actionButtonsContainer}>

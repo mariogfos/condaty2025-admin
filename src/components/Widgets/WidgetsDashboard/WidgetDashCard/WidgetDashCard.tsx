@@ -69,7 +69,7 @@ export const WidgetDashCard = ({
             </Tooltip>
           )}
         </div>
-        <p>{subtitle}</p>
+        {/* <p>{subtitle}</p> */}
         <p className={styles.data} style={color ? { color: color } : undefined}>
           {data}
         </p>

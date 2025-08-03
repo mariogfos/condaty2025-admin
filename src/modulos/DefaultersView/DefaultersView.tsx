@@ -72,7 +72,7 @@ const DefaultersView = () => {
   };
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Morosos' });
+    setStore({ ...store, title: '' });
   }, []);
   // Definición de campos para el CRUD con filtros
   const fields = useMemo(
@@ -411,13 +411,13 @@ const DefaultersView = () => {
                 backgroundColor:
                   !defaultersLength || defaultersLength === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
               circle
             />
           }
           className={styles.widgetResumeCard}
-          style={{ maxWidth: 250 }}
+          style={{ maxWidth: 280 }}
         />
 
         <div className={styles.listContainer}>
