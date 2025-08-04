@@ -7,7 +7,6 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import styles from "./Reserva.module.css";
-import { useRouter } from "next/navigation";
 import { format, parse } from "date-fns";
 import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
@@ -50,7 +49,6 @@ const paramsInitial = {
 };
 
 const Reserva = () => {
-  const router = useRouter();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors]: any = useState({
     start: "",
@@ -331,7 +329,7 @@ const Reserva = () => {
   return (
     <div>
       <List
-        height={"calc(100vh - 330px)"}
+        height={"calc(100vh - 360px)"}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}

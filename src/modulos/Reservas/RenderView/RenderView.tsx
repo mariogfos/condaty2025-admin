@@ -34,10 +34,7 @@ interface ReservationDetailsViewProps {
   getFormattedRequestTime: (isoDate: string) => string;
   getFormattedReservationDate: (dateStr: string) => string;
   getFormattedReservationTime: (periods: any[] | undefined | null) => string;
-  getPriceDetails: (
-    area: any | undefined | null,
-    totalAmount: string
-  ) => string;
+  getPriceDetails: (area: any, totalAmount: string) => string;
 }
 const statusMap: any = {
   W: { label: "Por confirmar", class: styles.statusW },
@@ -70,6 +67,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
     status = "F";
   }
   const currentStatus = status ? statusMap[status] : null;
+
   return (
     <>
       {status == "A" && (
@@ -110,6 +108,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
           </div>
           {/* Usa la función pasada por props */}
           <span className={styles.requestTime}>
+            Solicitado:{" "}
             {details.created_at
               ? getFormattedRequestTime(details.created_at)
               : ""}
@@ -118,43 +117,26 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
         <hr className={styles.areaSeparator} />
 
         <div className={styles.mainDetailsContainer}>
-          <div className={styles.imageWrapper}>
-            {details.area?.images?.length > 0 ? (
-              <img
-                // Consider using next/image for better performance and optimization
-                src={getUrlImages(
-                  `/AREA-${details.area.id}-${details.area.images[0].id}.${
-                    details.area.images[0].ext
-                  }?d=${details.area.updated_at || Date.now()}`
-                )}
-                alt={`Imagen de ${details.area.title}`}
-                className={styles.areaImage}
-                onError={(e: any) => {
-                  e.currentTarget.src = "/placeholder-image.png";
-                }} // Considera un placeholder local
-              />
-            ) : (
-              <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
-                <span className={styles.imagePlaceholderText}>Sin Imagen</span>
-              </div>
-            )}
-          </div>
-
           <div className={styles.detailsColumn}>
-            <div className={styles.areaTextInfo}>
-              <span className={styles.areaTitle}>
-                {details.area?.title ?? "Área desconocida"}
-              </span>
-              <span className={styles.areaDescription}>
-                {details.area?.description ?? "Sin descripción"}
-              </span>
-            </div>
-
-            <hr className={styles.areaSeparator} />
             <div className={styles.specificDetails}>
-              <span className={styles.detailsHeader}>
-                Detalles de la Reserva
-              </span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span className={styles.detailsHeader}>
+                  Área social: {details?.area?.title}
+                </span>
+                <div
+                  className={`${styles.statusBadge} ${
+                    currentStatus ? currentStatus.class : styles.statusUnknown
+                  }`}
+                >
+                  {currentStatus ? currentStatus.label : "Estado desconocido"}
+                </div>
+              </div>
               <div className={styles.detailsList}>
                 <div className={styles.detailItem}>
                   <IconCalendar size={18} className={styles.detailIcon} />
@@ -189,16 +171,8 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             </div>
           </div>
         </div>
-        <div
-          className={`${styles.statusBadge} ${
-            currentStatus ? currentStatus.class : styles.statusUnknown
-          }`}
-        >
-          {currentStatus ? currentStatus.label : "Estado desconocido"}
-        </div>
       </div>
 
-      {/* Muestra el error de acción */}
       {actionError && (
         <div
           className={styles.errorText}
@@ -251,13 +225,13 @@ const ReservationDetailModal = ({
 }: {
   open: boolean;
   onClose: () => void;
-  item?: any | null;
+  item?: any;
   reservationId?: string | number | null;
   reLoad?: () => void;
 }) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [displayedData, setDisplayedData] = useState<any | null>(null);
+  const [displayedData, setDisplayedData] = useState<any>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
@@ -280,7 +254,7 @@ const ReservationDetailModal = ({
       setRejectErrors({}); // Limpiar errores de rechazo
       setRejectionReason(""); // Limpiar razón de rechazo
 
-      if (item && item.id) {
+      if (item?.id) {
         setDisplayedData(item);
       } else if (reservationId) {
         setDisplayedData(null);
@@ -324,7 +298,6 @@ const ReservationDetailModal = ({
     }
   }, [fetchedData, detailsLoaded, detailsError, item]); // Dependencias clave
 
-  // --- Funciones Auxiliares (se quedan en el padre y se pasan como props) ---
   const getFormattedRequestTime = (isoDate: string): string => {
     if (!isoDate) return "Fecha inválida";
     try {
@@ -508,11 +481,11 @@ const ReservationDetailModal = ({
     );
     if (data?.success) {
       setOpenModalCancel(false);
-      showToast("Reserva cancelada", "success");
+      showToast(data?.message || "Reserva cancelada", "success");
       onClose();
       if (reLoad) reLoad();
     } else {
-      showToast("Ocurrió un error", "error");
+      showToast(data?.message || "Ocurrió un error", "error");
     }
   };
   return (

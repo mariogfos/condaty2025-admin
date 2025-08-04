@@ -7,8 +7,6 @@ import {
   isSameDay,
   startOfMonth,
   endOfMonth,
-  startOfWeek,
-  endOfWeek,
   addMonths,
   subMonths,
   addWeeks,
@@ -16,7 +14,6 @@ import {
   eachDayOfInterval,
   isBefore,
   startOfDay,
-  isSameMonth,
 } from "date-fns";
 import { es } from "date-fns/locale";
 import styles from "./CalendarPicker.module.css";
@@ -109,35 +106,51 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
     }
   }, [selectedDate]);
 
-  const currentInterval = useMemo(() => {
-    const weekOpts = { locale: es };
-    const start =
-      viewMode === "month"
-        ? startOfWeek(startOfMonth(currentDateForView), weekOpts)
-        : startOfWeek(currentDateForView, weekOpts);
-
-    const end =
-      viewMode === "month"
-        ? endOfWeek(endOfMonth(currentDateForView), weekOpts)
-        : endOfWeek(currentDateForView, weekOpts);
-
-    return { start, end };
-  }, [viewMode, currentDateForView]);
+  // const currentInterval = useMemo(() => {
+  //   const monthStart = startOfMonth(currentDateForView);
+  //   const monthEnd = endOfMonth(currentDateForView);
+  //   return {
+  //     start: monthStart,
+  //     end: monthEnd,
+  //   };
+  // }, [viewMode, currentDateForView]);
 
   const generateCalendarDays = useCallback(() => {
     const today = startOfDay(new Date());
     const busySet = new Set(busyDays);
     const refMonth = startOfMonth(currentDateForView);
 
-    const days = eachDayOfInterval(currentInterval).map((date) => {
+    // Día de la semana del primer día del mes (ajustado para que Lunes sea 0)
+    const firstDayOfWeek = (refMonth.getDay() + 6) % 7;
+
+    // Días vacíos iniciales
+    const emptyDays: CalendarDay[] = Array(firstDayOfWeek)
+      .fill(null)
+      .map(() => ({
+        date: new Date(),
+        dayOfMonth: 0,
+        isCurrentMonth: false,
+        isCurrentView: false,
+        isPartiallyBusy: false,
+        isSelected: false,
+        isPast: true,
+        isToday: false,
+        isSelectedBusy: null,
+      }));
+
+    // Días del mes actual
+    const days = eachDayOfInterval({
+      start: refMonth,
+      end: endOfMonth(refMonth),
+    }).map((date) => {
       const formatted = format(date, "yyyy-MM-dd");
       const isAllowed = allowedWeekdayIndices.includes(date.getDay());
 
       return {
         date,
         dayOfMonth: date.getDate(),
-        isCurrentMonth: isSameMonth(date, refMonth),
-        isCurrentView: viewMode === "week" || isSameMonth(date, refMonth),
+        isCurrentMonth: true,
+        isCurrentView: true,
         isPartiallyBusy: busySet.has(formatted),
         isSelected: selectedDateInternal
           ? isSameDay(date, selectedDateInternal)
@@ -151,13 +164,11 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
       };
     });
 
-    setCalendarDays(days);
+    setCalendarDays([...emptyDays, ...days]);
   }, [
     allowedWeekdayIndices,
-    currentInterval,
     busyDays,
     selectedDateInternal,
-    viewMode,
     currentDateForView,
   ]);
 
@@ -214,6 +225,13 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
           </button>
         ))}
       </div> */}
+      {loading && (
+        <div className={styles.loading}>
+          <p style={{ fontSize: "14px", fontWeight: "bold" }}>
+            Cargando días...
+          </p>
+        </div>
+      )}
 
       <div
         className={styles.calendarGridContainer}
@@ -257,7 +275,9 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
         <div className={styles.calendarDaysGrid}>
           {calendarDays.map((day, index) => {
-            const isDisabled = !day.isCurrentView || day.isPast;
+            const isPlaceholder = day.dayOfMonth === 0;
+            const isDisabled =
+              isPlaceholder || !day.isCurrentView || day.isPast;
 
             const classes = [
               styles.calendarDayButton,
@@ -273,19 +293,25 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
 
             return (
               <div key={index} className={styles.calendarDayCell}>
-                <button
-                  type="button"
-                  disabled={isDisabled}
-                  className={classes}
-                  onClick={() => handleDateSelect(day)}
-                  aria-label={`Seleccionar ${format(day.date, "PPPP", {
-                    locale: es,
-                  })}${
-                    day.isPartiallyBusy && !isDisabled ? " (con reservas)" : ""
-                  }${isDisabled ? " (no disponible)" : ""}`}
-                >
-                  <span>{day.dayOfMonth}</span>
-                </button>
+                {isPlaceholder ? (
+                  <div className={styles.placeholderCell}></div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isDisabled}
+                    className={classes}
+                    onClick={() => handleDateSelect(day)}
+                    aria-label={`Seleccionar ${format(day.date, "PPPP", {
+                      locale: es,
+                    })}${
+                      day.isPartiallyBusy && !isDisabled
+                        ? " (con reservas)"
+                        : ""
+                    }${isDisabled ? " (no disponible)" : ""}`}
+                  >
+                    <span>{day.dayOfMonth}</span>
+                  </button>
+                )}
               </div>
             );
           })}

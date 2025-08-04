@@ -10,7 +10,6 @@
   border-radius: var(--bRadius);
   padding-left: var(--spM);
   padding-right: var(--spM);
-
   padding-top: var(--spL);
   border: var(--bWidth) solid var(--cBlackV2);
   font-size: var(--sM);
@@ -62,6 +61,7 @@
       padding: 0;
       margin: 0;
       color: var(--cWhite);
+      margin-top: 8px;
       resize: none;
     }
   }
