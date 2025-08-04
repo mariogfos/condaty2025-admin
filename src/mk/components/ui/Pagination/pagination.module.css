@@ -3,8 +3,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 0px;
-  margin-top: 24px;
+  margin-top: var(--spXl);
 }
 .paginationInfo {
   color: var(--accent);

@@ -38,7 +38,7 @@ export const IconWrap = ({
   title = "",
 }: IconWrapType) => {
   return (
-    <Tooltip title={title}>
+    <Tooltip title={title} position="left">
       <svg
         viewBox={viewBox}
         className={

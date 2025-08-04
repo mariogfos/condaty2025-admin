@@ -39,11 +39,11 @@
 .left {
   top: 20;
   right: 100%; /* Posiciona el tooltip a la izquierda del elemento */
-  transform: translateY(-50%);
+  transform: translateY(-100%);
 }
 
 .right {
   top: 20;
   left: 100%; /* Posiciona el tooltip a la derecha del elemento */
-  transform: translateY(-50%);
+  transform: translateY(-100%);
 }
