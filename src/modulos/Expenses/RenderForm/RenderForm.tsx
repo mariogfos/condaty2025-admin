@@ -1,38 +1,26 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import Input from "@/mk/components/forms/Input/Input";
-import Select from "@/mk/components/forms/Select/Select";
-import Check from "@/mk/components/forms/Check/Check"; //esto?
-import { MONTHS } from "@/mk/utils/date";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import { getFullName } from "@/mk/utils/string";
-import { UnitsType } from "@/mk/utils/utils";
+'use client';
+import React, { useEffect, useState } from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import Input from '@/mk/components/forms/Input/Input';
+import Select from '@/mk/components/forms/Select/Select';
+import { MONTHS } from '@/mk/utils/date';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
+import TextArea from '@/mk/components/forms/TextArea/TextArea';
+import { getFullName } from '@/mk/utils/string';
+import { UnitsType } from '@/mk/utils/utils';
 
 type yearProps = { id: string | number; name: string }[];
 
-const RenderForm = ({
-  open,
-  onClose,
-  item,
-  setItem,
-  execute,
-  extraData,
-  user,
-  reLoad,
-}: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, reLoad }: any) => {
+  const [formState, setFormState]: any = useState({
+    ...item,
+    type: 1,
+    dpto_id: item.dpto_id || [], 
+  });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
-  const client = user.clients.filter(
-    (item: any) => item.id === user.client_id
-  )[0];
-  // Estado para el check "asignar"
-
-  console.log(extraData, "extradataatrata"); //esto?
-  const [assignState, setAssignState] = useState(formState.asignar || ""); //esto?
+  const client = user.clients.filter((item: any) => item.id === user.client_id)[0];
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
@@ -40,50 +28,46 @@ const RenderForm = ({
     setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleAssignChange = (e: any) => {
-    //esto? se usa o no
-    setAssignState(e.target.name);
-    setFormState((prev: any) => ({ ...prev, asignar: e.target.name }));
-  };
-
-  // Validación usando checkRules (adaptada a los campos de Expensas)
   const validate = () => {
     let errs: any = {};
     errs = checkRules({
       value: formState.year,
-      rules: ["required"],
-      key: "year",
+      rules: ['required'],
+      key: 'year',
       errors: errs,
     });
     errs = checkRules({
       value: formState.month,
-      rules: ["required"],
-      key: "month",
+      rules: ['required'],
+      key: 'month',
       errors: errs,
     });
     errs = checkRules({
       value: formState.due_at,
-      rules: ["required"],
-      key: "due_at",
+      rules: ['required'],
+      key: 'due_at',
       errors: errs,
     });
-    errs = checkRules({
-      value: formState.type,
-      rules: ["required"],
-      key: "type",
-      errors: errs,
-    });
+
+    if (formState.year && formState.month !== undefined && formState.due_at) {
+      const expenseDate = new Date(formState.year, formState.month, 1);
+      const dueDate = new Date(formState.due_at);
+
+      if (dueDate < expenseDate) {
+        errs.due_at = 'La fecha de vencimiento no puede ser anterior al período de la expensa';
+      }
+    }
     errs = checkRules({
       value: formState.asignar,
-      rules: ["required"],
-      key: "asignar",
+      rules: ['required'],
+      key: 'asignar',
       errors: errs,
     });
-    if (formState.asignar === "S") {
+    if (formState.asignar === 'S') {
       errs = checkRules({
-        value: formState.dpto_id,
-        rules: ["required"],
-        key: "dpto_id",
+        value: formState.dpto_id && formState.dpto_id.length > 0 ? formState.dpto_id : null,
+        rules: ['required'],
+        key: 'dpto_id',
         errors: errs,
       });
     }
@@ -91,35 +75,34 @@ const RenderForm = ({
     return errs;
   };
   const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
+    let method = formState.id ? 'PUT' : 'POST';
     if (hasErrors(validate())) return;
     const { data: response } = await execute(
-      "/debts" + (formState.id ? "/" + formState.id : ""),
+      '/debts' + (formState.id ? '/' + formState.id : ''),
       method,
       {
         year: formState.year,
         month: formState.month,
         due_at: formState.due_at,
-        type: formState.type,
+        type: 1, 
         description: formState.description,
         asignar: formState.asignar,
-        dpto_id: formState.dpto_id,
+        dpto_id: formState.dpto_id, 
       },
       false
     );
     if (response?.success === true) {
       reLoad();
       setItem(formState);
-      showToast(response?.message, "success");
+      showToast(response?.message, 'success');
       onClose();
     } else {
-      showToast(response?.message, "error");
+      showToast(response?.message, 'error');
     }
   };
 
-  // Opciones para el campo Año, generadas dinámicamente
   const getYearOptions = () => {
-    const years: yearProps = [{ id: "", name: "Todos" }];
+    const years: yearProps = [];
     const lastYear = new Date().getFullYear();
     for (let i = lastYear; i >= 2000; i--) {
       years.push({ id: i, name: i.toString() });
@@ -127,17 +110,10 @@ const RenderForm = ({
     return years;
   };
 
-  // Opciones para el campo Mes basadas en el array MONTHS
   const monthOptions = MONTHS.map((month, index) => ({
     id: index,
     name: month,
   }));
-
-  // Opciones para el campo Categoría (en este ejemplo solo "Expensas")
-  const typeOptions = [
-    { id: 1, name: "Expensas" },
-    { id: 2, name: "Reservas" },
-  ];
 
   useEffect(() => {
     const lista: any = [];
@@ -145,25 +121,20 @@ const RenderForm = ({
       lista[key] = {
         id: item.id,
         nro:
-          (getFullName(item.titular?.owner) || "Sin titular") +
-          " - " +
+          (getFullName(item.titular?.owner) || 'Sin titular') +
+          ' - ' +
           item.nro +
-          " " +
-          UnitsType["_" + client.type_dpto] +
-          " " +
+          ' ' +
+          UnitsType['_' + client.type_dpto] +
+          ' ' +
           item.description,
       };
     });
     setLdpto(lista);
-  }, [extraData?.dptos]); //esto?
+  }, [client.type_dpto, extraData?.dptos]); //esto?
 
   return (
-    <DataModal
-      open={open}
-      onClose={onClose}
-      title="Crear Expensa"
-      onSave={onSave}
-    >
+    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave}>
       <Select
         label="Año"
         name="year"
@@ -172,7 +143,6 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       />
-
       <Select
         label="Mes"
         name="month"
@@ -181,7 +151,6 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       />
-
       <Input
         label="Fecha de vencimiento"
         name="due_at"
@@ -190,16 +159,6 @@ const RenderForm = ({
         type="date"
         error={errors}
       />
-
-      <Select
-        label="Tipo"
-        name="type"
-        value={formState.type}
-        options={typeOptions}
-        onChange={handleChange}
-        error={errors}
-      />
-
       <TextArea
         label="Descripción"
         name="description"
@@ -207,78 +166,35 @@ const RenderForm = ({
         onChange={handleChange}
         maxLength={255}
         required={false}
-        // type="textarea" //esto?
         error={errors}
       />
-      {/* //esto? */}
-      {/* <div style={{ marginTop: "1rem" }}> */}
-      {/* <label>Asignar a</label> */}
-      <div className="space-y-3">
-        {/* //esto? */}
-        {/* <Check
-            label="Todas las unidades"
-            name="T"
-            checked={assignState === "T"}
-            onChange={handleAssignChange}
-            optionValue={["Y", "N"]}
-            value={assignState === "T" ? "Y" : "N"}
-            style={{color:"var(--cWhiteV1)"}}
-          />
-          <Check
-            label="Unidades ocupadas"
-            name="O"
-            checked={assignState === "O"}
-            onChange={handleAssignChange}
-            optionValue={["Y", "N"]}
-            value={assignState === "O" ? "Y" : "N"}
-          />
-          <Check
-            label="Unidades no ocupadas"
-            name="L"
-            checked={assignState === "L"}
-            onChange={handleAssignChange}
-            optionValue={["Y", "N"]}
-            value={assignState === "L" ? "Y" : "N"}
-          />
-          <Check
-            label="Seleccionar"
-            name="S"
-            checked={assignState === "S"}
-            onChange={handleAssignChange}
-            optionValue={["Y", "N"]}
-            value={assignState === "S" ? "Y" : "N"}
-          />
-          {errors.asignar && (
-            <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.asignar}</p>
-          )} */}
+      <Select
+        label="Asignar a"
+        name="asignar"
+        value={formState.asignar}
+        options={[
+          { id: 'T', name: 'Todas las unidades' },
+          { id: 'O', name: 'Unidades ocupadas' },
+          { id: 'L', name: 'Unidades no ocupadas' },
+          { id: 'S', name: 'Seleccionar unidades específicas' },
+        ]}
+        onChange={handleChange}
+        error={errors}
+      />
+      {formState.asignar === 'S' && (
         <Select
-          label="Asignar a"
-          name="asignar"
-          value={formState.asignar}
-          options={[
-            { id: "T", name: "Todas las unidades" },
-            { id: "O", name: "Unidades ocupadas" },
-            { id: "L", name: "Unidades no ocupadas" },
-            { id: "S", name: "Asignar a una unidad" },
-          ]}
+          label="Seleccionar Unidades"
+          name="dpto_id"
+          value={formState?.dpto_id || []}
+          options={ldpto}
+          optionLabel="nro"
+          optionValue="id"
           onChange={handleChange}
           error={errors}
+          placeholder="Seleccione las unidades"
+          multiSelect={true}
         />
-        {formState.asignar === "S" && (
-          <Select
-            label={"Número de Unidad"}
-            name="dpto_id"
-            value={formState?.dpto_id}
-            options={ldpto}
-            optionLabel="nro"
-            optionValue="id"
-            onChange={handleChange}
-            error={errors}
-          />
-        )}
-      </div>
-      {/* </div> */}
-      {/* //esto? */}
+      )}
     </DataModal>
   );
 };
