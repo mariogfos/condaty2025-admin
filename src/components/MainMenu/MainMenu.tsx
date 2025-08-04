@@ -119,8 +119,8 @@ const MainMenu = ({
                 bage: store?.paymentsBage,
               },
               { href: "/outlays", label: "Egresos" },
+            { href: "/expenses", label: "Expensas" },  
               { href: "/defaulters", label: "Morosos" },
-              { href: "/expenses", label: "Expensas" },
               // { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
