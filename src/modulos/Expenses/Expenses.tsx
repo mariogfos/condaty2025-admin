@@ -5,8 +5,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import useCrudUtils from '../shared/useCrudUtils';
 import { useMemo, useState } from 'react';
 import RenderItem from '../shared/RenderItem';
-import { MONTHS, MONTHS_S, getDateStrMes } from '@/mk/utils/date';
-import { formatNumber } from '@/mk/utils/numbers';
+import { MONTHS, getDateStrMes } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import {
   isUnitInDefault,
@@ -20,27 +19,41 @@ import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 
-// Funciones de renderizado extraídas
-const renderPeriodCell = (props: any) => (
-  <div>
-    {MONTHS_S[props?.item?.month]}/{props?.item?.year}
-  </div>
-);
-
-const renderDateCell = (props: any) => <div>{getDateStrMes(props.item.due_at) || 'Sin fecha'}</div>;
+const renderPeriodCell = (props: any) => {
+  const month = props?.item?.month;
+  const year = props?.item?.year;
+  const monthName = MONTHS[month] || '';
+  return (
+    <div>
+      {monthName} {year}
+    </div>
+  );
+};
 
 const renderTotalExpensesCell = (props: any) => (
   <FormatBsAlign value={sumExpenses(props?.item?.asignados)} alignRight />
 );
 
 const renderPaidUnitsCell = (props: any) => (
-  <div style={{ textAlign: 'center' }}>{paidUnits(props?.item?.asignados)} U</div>
+  <div
+    style={{
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+    }}
+  >
+    {paidUnits(props?.item?.asignados)} U
+  </div>
 );
 
 const renderUnitsPayableCell = (props: any) => (
   <div
     style={{
-      textAlign: 'center',
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
       color: isUnitInDefault(props?.item) ? 'var(--cError)' : '',
     }}
   >
@@ -170,7 +183,11 @@ const Expenses = () => {
       paidUnits: {
         rules: [''],
         api: '',
-        label: 'Unidades al día',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Unidades al día
+          </span>
+        ),
         list: {
           onRender: renderPaidUnitsCell,
           order: 3,
@@ -179,7 +196,11 @@ const Expenses = () => {
       unitsPayable: {
         rules: [''],
         api: '',
-        label: 'Unidades por pagar',
+        label: (
+          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Unidades por pagar
+          </span>
+        ),
         list: {
           onRender: renderUnitsPayableCell,
           order: 4,
