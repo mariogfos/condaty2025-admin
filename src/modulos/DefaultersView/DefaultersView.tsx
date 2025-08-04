@@ -24,7 +24,7 @@ const DefaultersView = () => {
     modulo: 'defaulters',
     singular: 'Moroso',
     plural: 'Morosos',
-    permiso: '',
+    permiso: 'defaulters',
     extraData: true,
     export: true,
     hideActions: {
