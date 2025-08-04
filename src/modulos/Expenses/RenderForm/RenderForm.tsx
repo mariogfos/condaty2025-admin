@@ -200,16 +200,6 @@ const RenderForm = ({
         error={errors}
       />
 
-      <TextArea
-        label="Descripción"
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        maxLength={255}
-        required={false}
-        // type="textarea" //esto?
-        error={errors}
-      />
       {/* //esto? */}
       {/* <div style={{ marginTop: "1rem" }}> */}
       {/* <label>Asignar a</label> */}
@@ -277,8 +267,18 @@ const RenderForm = ({
           />
         )}
       </div>
-      {/* </div> */}
-      {/* //esto? */}
+
+      <TextArea
+        label="Descripción"
+        name="description"
+        value={formState.description}
+        onChange={handleChange}
+        maxLength={255}
+        required={false}
+        // type="textarea" //esto?
+        error={errors}
+      />
+      
     </DataModal>
   );
 };
