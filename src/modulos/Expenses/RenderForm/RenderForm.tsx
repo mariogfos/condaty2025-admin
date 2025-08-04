@@ -119,14 +119,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const monthOptions = MONTHS.map((month, index) => ({
     id: index,
     name: month,
-  }));
+  })).filter(option => option.name !== "");
 
   useEffect(() => {
     const lista: any = [];
     extraData?.dptos?.map((item: any, key: number) => {
       lista[key] = {
         id: item.id,
-        nro:
+        nro: item.nro, // Mantener el nro original
+        label:
           (getFullName(item.titular?.owner) || 'Sin titular') +
           ' - ' +
           item.nro +
@@ -165,15 +166,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         type="date"
         error={errors}
       />
-      <TextArea
-        label="Descripción"
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        maxLength={255}
-        required={false}
-        error={errors}
-      />
       <Select
         label="Asignar a"
         name="asignar"
@@ -193,7 +185,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           name="dpto_id"
           value={formState?.dpto_id || []}
           options={ldpto}
-          optionLabel="nro"
+          optionLabel="label"
           optionValue="id"
           onChange={handleChange}
           error={errors}
@@ -201,6 +193,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           multiSelect={true}
         />
       )}
+      <TextArea
+        label="Descripción"
+        name="description"
+        value={formState.description}
+        onChange={handleChange}
+        maxLength={255}
+        required={false}
+        error={errors}
+      />
     </DataModal>
   );
 };
