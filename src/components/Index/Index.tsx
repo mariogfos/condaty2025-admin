@@ -466,7 +466,7 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Cartera vencida"
                   data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
-                  onClick={() => (window.location.href = "/defaultersview")}
+                  onClick={() => (window.location.href = "/defaulters")}
                   icon={
                     <IconWallet
                       color={

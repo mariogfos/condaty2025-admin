@@ -73,8 +73,6 @@
   margin-bottom: var(--spM);
 }
 
-/* Añadir esto a tu DefaultersView.module.css */
-
 .widgetsPanel {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

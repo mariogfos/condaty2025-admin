@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import styles from './DefaultersView.module.css';
+import styles from './Defaulters.module.css';
 import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import { formatNumber } from '@/mk/utils/numbers';
@@ -19,7 +19,7 @@ import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDash
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
 
-const DefaultersView = () => {
+const Defaulters = () => {
   const mod = {
     modulo: 'defaulters',
     singular: 'Moroso',
@@ -317,4 +317,4 @@ const DefaultersView = () => {
   );
 };
 
-export default DefaultersView;
+export default Defaulters;
