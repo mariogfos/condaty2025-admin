@@ -190,8 +190,8 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  width: fit-content;
-  /* min-width: 110px; */ /* Mantenido ELIMINADO */
+  width: 100%;
+  /* min-width: 110px; */
   white-space: normal; /* Permitir wrap */
   line-height: 1.3;
   box-sizing: border-box;

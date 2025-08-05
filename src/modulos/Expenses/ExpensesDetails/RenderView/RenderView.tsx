@@ -84,7 +84,7 @@ const RenderView = (props: {
         <div className={styles.totalAmountSection}>
           <div className={styles.totalAmount}>Bs {props?.item?.amount}</div>
           <div className={styles.paymentDate}>
-            {getDateStrMes(props?.item?.paid_at) || "Sin fecha"}
+            {getDateStrMes(props?.item?.paid_at) || "-/-"}
           </div>
         </div>
 
@@ -138,7 +138,7 @@ const RenderView = (props: {
           </div> */}
           <LabelValue
             label="Fecha de pago"
-            value={getDateStrMes(props?.item?.paid_at) || "Sin fecha"}
+            value={getDateStrMes(props?.item?.paid_at) || "-/-"}
           />
 
           {/* <div className={styles.detailRow}>

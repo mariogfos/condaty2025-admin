@@ -75,11 +75,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case "A":
         return { text: "Por cobrar", code: "A" };
       case "E":
-        return { text: "En espera", code: "E" };
+        return { text: "Subir comprobante", code: "E" };
       case "P":
         return { text: "Cobrado", code: "P" };
       case "S":
-        return { text: "Revisar pago", code: "S" };
+        return { text: "Por confirmar", code: "S" };
       case "M":
         return { text: "En mora", code: "M" }; // explícitamente en mora
       default:
@@ -214,7 +214,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         list: {
           onRender: (props: any) => {
             return (
-              <div>{getDateStrMes(props?.item?.paid_at) || "En espera"}</div>
+              <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>
             );
           },
         },
@@ -289,11 +289,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: "ALL", name: "Todos" },
               { id: "A", name: "Por cobrar" },
-              { id: "E", name: "En espera" },
+              { id: "E", name: "Subir comprobante" },
               { id: "P", name: "Cobrado" },
-              { id: "S", name: "Revisar pago" },
+              { id: "S", name: "Por confirmar" },
               { id: "M", name: "En mora" },
-              //{ id: "R", name: "Rechazado" },
+              { id: "R", name: "Rechazado" },
             ];
           },
           optionLabel: "name",
