@@ -57,7 +57,7 @@ const renderUnitsPayableCell = (props: any) => (
       color: isUnitInDefault(props?.item) ? 'var(--cError)' : '',
     }}
   >
-    {unitsPayable(props?.item?.asignados)} U
+    {unitsPayable(props?.item?.asignados)} Unidades
   </div>
 );
 
