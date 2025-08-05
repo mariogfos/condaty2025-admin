@@ -2,12 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import {
-  formatToDayDDMMYYYYHHMM,
-  MONTHS_ES,
-  getDateStrMesShort,
-  formatToDayDDMMYYYY,
-} from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES, formatToDayDDMMYYYY } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
@@ -39,20 +34,19 @@ interface PaymentDetail {
 interface DetailPaymentProps {
   open: boolean;
   onClose: () => void;
-  extraData?: { dptos?: any[] };
   reLoad?: () => void;
-  payment_id?: string | number;
   item?: PaymentDetail;
   onDel?: (item?: PaymentDetail) => void;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
-  const { open, onClose, extraData, reLoad, item, onDel } = props;
+  const { open, onClose, reLoad, item, onDel } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
   const { execute } = useAxios();
   const { showToast } = useAuth();
+  console.log("golsdfsafd llega");
 
   const handleGenerateReceipt = async () => {
     showToast('Generando recibo...', 'info');
@@ -134,19 +128,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     return statusMap[status] || status;
   };
 
-  const getDptoName = () => {
-    if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
-
-    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
-
-    if (dpto) {
-      const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, '') : '';
-      const descSinComa = dpto.description ? dpto.description.replace(/,/g, '') : '';
-      return `${nroSinComa} - ${descSinComa}`;
-    } else {
-      return (item?.dptos || '-/-').replace(/,/g, '');
-    }
-  };
   const getTotalAmount = () => {
     if (!item?.details?.length) return item?.amount || 0;
     return item.details.reduce(
@@ -278,7 +259,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             <div className={styles.detailsColumn}>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Unidad</span>
-                <span className={styles.infoValue}>{getDptoName()}</span>
+                <span className={styles.infoValue}>{item.dptos || '-/-'}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Propietario </span>

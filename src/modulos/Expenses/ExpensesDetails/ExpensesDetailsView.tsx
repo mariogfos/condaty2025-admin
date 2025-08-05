@@ -1,35 +1,34 @@
-"use client";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import useAxios from "@/mk/hooks/useAxios";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./ExpensesDetailsView.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import { useMemo, useState, useEffect } from "react";
-import { getDateStrMes, MONTHS } from "@/mk/utils/date";
-import { formatNumber } from "@/mk/utils/numbers";
-import RenderItem from "@/modulos/shared/RenderItem";
-import useCrudUtils from "@/modulos/shared/useCrudUtils";
+'use client';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import useAxios from '@/mk/hooks/useAxios';
+import NotAccess from '@/components/auth/NotAccess/NotAccess';
+import styles from './ExpensesDetailsView.module.css';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import { useMemo, useState, useEffect } from 'react';
+import { getDateStrMes, MONTHS } from '@/mk/utils/date';
+import { formatNumber } from '@/mk/utils/numbers';
+import RenderItem from '@/modulos/shared/RenderItem';
+import useCrudUtils from '@/modulos/shared/useCrudUtils';
 import {
   IconArrowLeft,
-  IconBilletera,
   IconHandcoin,
   IconMonedas,
   IconMultas,
   IconUnidades,
   IconWallet,
-} from "@/components/layout/icons/IconsBiblioteca";
-import RenderView from "./RenderView/RenderView";
-import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
-import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+} from '@/components/layout/icons/IconsBiblioteca';
+import RenderView from './RenderView/RenderView';
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 
 const getStatus = (status: string) => {
   let _status;
-  if (status == "A") _status = "Por cobrar";
-  if (status == "E") _status = "En espera";
-  if (status == "P") _status = "Cobrado";
-  if (status == "S") _status = "Por Confirmar";
-  if (status == "M") _status = "En mora";
-  if (status == "R") _status = "Rechazado";
+  if (status == 'A') _status = 'Por cobrar';
+  if (status == 'E') _status = 'En espera';
+  if (status == 'P') _status = 'Cobrado';
+  if (status == 'S') _status = 'Por Confirmar';
+  if (status == 'M') _status = 'En mora';
+  if (status == 'R') _status = 'Rechazado';
   return _status;
 };
 
@@ -46,34 +45,33 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.debt?.due_at) {
+    if (item.status === 'A' && item.debt?.due_at) {
       const dueDate = new Date(item.debt.due_at);
       if (today > dueDate) {
-        return { text: "En mora", code: "M" };
+        return { text: 'En mora', code: 'M' };
       }
     }
 
-
     switch (item.status) {
-      case "A":
-        return { text: "Por cobrar", code: "A" };
-      case "E":
-        return { text: "En espera", code: "E" };
-      case "P":
-        return { text: "Cobrado", code: "P" };
-      case "S":
-        return { text: "Revisar pago", code: "S" };
-      case "M":
-        return { text: "En mora", code: "M" }; // explícitamente en mora
+      case 'A':
+        return { text: 'Por cobrar', code: 'A' };
+      case 'E':
+        return { text: 'En espera', code: 'E' };
+      case 'P':
+        return { text: 'Cobrado', code: 'P' };
+      case 'S':
+        return { text: 'Revisar pago', code: 'S' };
+      case 'M':
+        return { text: 'En mora', code: 'M' }; // explícitamente en mora
       default:
-        return { text: item.status || "Desconocido", code: item.status || "" };
+        return { text: item.status || 'Desconocido', code: item.status || '' };
     }
   };
 
-  const { data: expenseDetails } = useAxios("/debt-dptos", "GET", {
+  const { data: expenseDetails } = useAxios('/debt-dptos', 'GET', {
     perPage: -1,
     page: 1,
-    fullType: "L",
+    fullType: 'L',
     debt_id: data?.id,
   });
 
@@ -87,10 +85,10 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       let calculatedOverdueUnits = 0;
       expensesData.forEach((item: any) => {
         let isOverdue = false;
-        if (item.status === "M") {
+        if (item.status === 'M') {
           // Ya está marcado como 'M'
           isOverdue = true;
-        } else if (item.status === "A" && item.debt?.due_at) {
+        } else if (item.status === 'A' && item.debt?.due_at) {
           const dueDate = new Date(item.debt.due_at);
           // dueDate se parsea como YYYY-MM-DD 00:00:00 en la zona horaria local
           if (today > dueDate) {
@@ -102,22 +100,16 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         }
       });
 
-      // Calcular estadísticas
       const totalUnits = expensesData.length;
-      const paidUnits = expensesData.filter(
-        (item: any) => item.status === "P"
-      ).length;
+      const paidUnits = expensesData.filter((item: any) => item.status === 'P').length;
 
       const totalAmount = expensesData.reduce(
         (sum: number, item: any) => sum + parseFloat(item.amount || 0),
         0
       );
       const paidAmount = expensesData
-        .filter((item: any) => item.status === "P")
-        .reduce(
-          (sum: number, item: any) => sum + parseFloat(item.amount || 0),
-          0
-        );
+        .filter((item: any) => item.status === 'P')
+        .reduce((sum: number, item: any) => sum + parseFloat(item.amount || 0), 0);
       const penaltyAmount = expensesData.reduce(
         (sum: number, item: any) => sum + parseFloat(item.penalty_amount || 0),
         0
@@ -137,9 +129,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   }, [expenseDetails]);
 
   const mod: ModCrudType = {
-    modulo: "debt-dptos",
-    singular: "Expensa",
-    plural: "Expensas",
+    modulo: 'debt-dptos',
+    singular: '',
+    plural: '',
     filter: true,
     export: true,
     hideActions: {
@@ -155,24 +147,24 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       item: Record<string, any>;
       onConfirm?: Function;
     }) => <RenderView {...props} />,
-    permiso: "",
+    permiso: '',
     // extraData: true,
   };
 
   const paramsInitial = {
     perPage: -1,
     page: 1,
-    fullType: "L",
+    fullType: 'L',
     debt_id: data.id,
   };
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       unit: {
-        rules: [""],
-        api: "",
-        label: "Unidad",
+        rules: [''],
+        api: '',
+        label: 'Unidad',
         list: {
           onRender: (props: any) => {
             return <div>{props?.item?.dpto?.nro}</div>;
@@ -180,9 +172,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       address: {
-        rules: [""],
-        api: "",
-        label: "Dirección",
+        rules: [''],
+        api: '',
+        label: 'Dirección',
         list: {
           onRender: (props: any) => {
             return <div>{props?.item?.dpto?.description}</div>;
@@ -190,21 +182,19 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       paid_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha de pago",
+        rules: [''],
+        api: '',
+        label: 'Fecha de pago',
         list: {
           onRender: (props: any) => {
-            return (
-              <div>{getDateStrMes(props?.item?.paid_at) || "En espera"}</div>
-            );
+            return <div>{getDateStrMes(props?.item?.paid_at) || 'En espera'}</div>;
           },
         },
       },
       due_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha de plazo",
+        rules: [''],
+        api: '',
+        label: 'Fecha de plazo',
         list: {
           onRender: (props: any) => {
             return <div>{getDateStrMes(props?.item?.debt?.due_at)}</div>;
@@ -212,32 +202,32 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       amount: {
-        rules: ["required"],
-        api: "e",
-        label: "Monto de expensa",
+        rules: ['required'],
+        api: 'e',
+        label: 'Monto de expensa',
         list: {
           onRender: (props: any) => {
             return <div>Bs {formatNumber(props?.item?.amount)}</div>;
           },
         },
         form: {
-          type: "text",
-          label: "Monto",
+          type: 'text',
+          label: 'Monto',
         },
       },
       obs: {
-        rules: ["required"],
-        api: "e",
-        label: "Motivo del cambio",
+        rules: ['required'],
+        api: 'e',
+        label: 'Motivo del cambio',
         form: {
-          type: "text",
-          label: "Motivo del cambio",
+          type: 'text',
+          label: 'Motivo del cambio',
         },
       },
       penalty_amount: {
-        rules: [""],
-        api: "",
-        label: "Multa",
+        rules: [''],
+        api: '',
+        label: 'Multa',
         list: {
           onRender: (props: any) => {
             return <div>Bs {formatNumber(props.item?.penalty_amount)}</div>;
@@ -245,9 +235,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       status: {
-        rules: [""],
-        api: "",
-        label: "Estado",
+        rules: [''],
+        api: '',
+        label: 'Estado',
         list: {
           onRender: (props: any) => {
             // Utiliza la función getDisplayStatus que definimos antes
@@ -258,39 +248,36 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             }`;
             return (
               <div className={statusClass}>
-                {displayStatus.text}{" "}
-                {/* Muestra el texto del estado efectivo */}
+                {displayStatus.text} {/* Muestra el texto del estado efectivo */}
               </div>
             );
           },
         },
         filter: {
-          label: "Estado",
-          width: "278px",
+          label: 'Estado',
+          width: '278px',
           options: () => {
             return [
-              { id: "ALL", name: "Todos" },
-              { id: "A", name: "Por cobrar" },
-              { id: "E", name: "En espera" },
-              { id: "P", name: "Cobrado" },
-              { id: "S", name: "Revisar pago" },
-              { id: "M", name: "En mora" },
+              { id: 'ALL', name: 'Todos' },
+              { id: 'A', name: 'Por cobrar' },
+              { id: 'E', name: 'En espera' },
+              { id: 'P', name: 'Cobrado' },
+              { id: 'S', name: 'Revisar pago' },
+              { id: 'M', name: 'En mora' },
               //{ id: "R", name: "Rechazado" },
             ];
           },
-          optionLabel: "name",
+          optionLabel: 'name',
         },
       },
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-    }
-  );
+  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+  });
 
   const { onLongPress, selItem } = useCrudUtils({
     onSearch,
@@ -301,11 +288,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     onDel,
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
+  const renderItem = (item: Record<string, any>, i: number, onClick: Function) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
         <ItemList
@@ -318,7 +301,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     );
   };
 
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
 
   return (
     <div className={styles.ExpensesDetailsView}>
@@ -328,175 +311,170 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       </div>
 
       <LoadingScreen>
-        <div className={styles.dashboardContainer}>
-          <h1 className={styles.dashboardTitle}>
-            Expensas de {MONTHS[data?.month]} {data?.year}
-          </h1>
-          {/* CONTENEDOR ÚNICO PARA TODAS LAS TARJETAS */}
-          <div className={styles.allStatsRow}>
-            {/* Tarjeta 1 (antes en grupo izquierdo) */}
-            <WidgetDashCard
-              data={statsData.totalUnits}
-              title="Unidades asignadas"
-              icon={
-                  <IconUnidades
-                    color={
-                      !statsData.totalUnits || statsData.totalUnits === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cWhite)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.totalUnits || statsData.totalUnits === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverCompl1)",
-                    }}
-                    circle
-                    size={16}
-                  />
-              }
-            />
-            {/* Tarjeta 2 (antes en grupo izquierdo) */}
-            <WidgetDashCard
-              data={statsData.paidUnits}
-              title="Unidades al día"
-              icon={
-                  <IconUnidades
-                    color={
-                      !statsData.paidUnits || statsData.paidUnits === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cSuccess)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.paidUnits || statsData.paidUnits === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverCompl2)",
-                    }}
-                    circle
-                    size={16}
-                  />
-              }
-            />
-            {/* Tarjeta 3 (antes en grupo izquierdo) */}
-            <WidgetDashCard
-              data={statsData.overdueUnits}
-              title="Unidades morosas"
-              icon={
-                  <IconUnidades
-                    color={
-                      !statsData.overdueUnits || statsData.overdueUnits === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cError)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.overdueUnits || statsData.overdueUnits === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverError)",
-                    }}
-                    circle
-                    size={16}
-                  />
-              }
-            />
-            {/* Tarjeta 4 (antes en grupo derecho) */}
+        <h1 className={styles.dashboardTitle}>
+          Expensas de {MONTHS[data?.month]} {data?.year}
+        </h1>
+        <div className={styles.allStatsRow}>
+          {/* Tarjeta 1 (antes en grupo izquierdo) */}
+          <WidgetDashCard
+            data={statsData.totalUnits}
+            title="Unidades asignadas"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.totalUnits || statsData.totalUnits === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.totalUnits || statsData.totalUnits === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 2 (antes en grupo izquierdo) */}
+          <WidgetDashCard
+            data={statsData.paidUnits}
+            title="Unidades al día"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.paidUnits || statsData.paidUnits === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cSuccess)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.paidUnits || statsData.paidUnits === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl2)',
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 3 (antes en grupo izquierdo) */}
+          <WidgetDashCard
+            data={statsData.overdueUnits}
+            title="Unidades morosas"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.overdueUnits || statsData.overdueUnits === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cError)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.overdueUnits || statsData.overdueUnits === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverError)',
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 4 (antes en grupo derecho) */}
 
-            <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.totalAmount)}
-              title="Monto total de expensa"
-              icon={
-                  <IconMonedas
-                    color={
-                      !statsData.totalAmount || statsData.totalAmount === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cCompl4)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.totalAmount || statsData.totalAmount === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverCompl7)",
-                    }}
-                    circle
-                    size={16}
-                  />
-              }
-            />
-            {/* Tarjeta 5 (antes en grupo derecho) */}
+          <WidgetDashCard
+            data={'Bs ' + formatNumber(statsData.totalAmount)}
+            title="Monto total de expensa"
+            icon={
+              <IconMonedas
+                color={
+                  !statsData.totalAmount || statsData.totalAmount === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cCompl4)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.totalAmount || statsData.totalAmount === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl7)',
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 5 (antes en grupo derecho) */}
 
-            <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.paidAmount)}
-              title="Monto cobrado"
-              icon={
-                  <IconWallet
-                    color={
-                      !statsData.paidAmount || statsData.paidAmount === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cSuccess)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.paidAmount || statsData.paidAmount === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverCompl2)",
-                    }}
-                    circle
-                    size={16}
-                  />
-              }
-            />
-            {/* Tarjeta 6 (antes en grupo derecho) */}
+          <WidgetDashCard
+            data={'Bs ' + formatNumber(statsData.paidAmount)}
+            title="Monto cobrado"
+            icon={
+              <IconWallet
+                color={
+                  !statsData.paidAmount || statsData.paidAmount === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cSuccess)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.paidAmount || statsData.paidAmount === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl2)',
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 6 (antes en grupo derecho) */}
 
-            <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.penaltyAmount)}
-              title="Monto por multas"
-              icon={
-                  <IconMultas
-                    color={
-                      !statsData.penaltyAmount || statsData.penaltyAmount === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cAlert)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.penaltyAmount || statsData.penaltyAmount === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverCompl9)",
-                    }}
-                    circle
-                    size={18}
-                  />
-              }
-            />
-            {/* Tarjeta 7 (antes en grupo derecho) */}
+          <WidgetDashCard
+            data={'Bs ' + formatNumber(statsData.penaltyAmount)}
+            title="Monto por multas"
+            icon={
+              <IconMultas
+                color={
+                  !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cAlert)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl9)',
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+          {/* Tarjeta 7 (antes en grupo derecho) */}
 
-            <WidgetDashCard
-              data={"Bs " + formatNumber(statsData.pendingAmount)}
-              title="Monto por cobrar"
-              icon={
-                  <IconHandcoin
-                    color={
-                      !statsData.pendingAmount || statsData.pendingAmount === 0
-                        ? "var(--cWhiteV1)"
-                        : "var(--cError)"
-                    }
-                    style={{
-                      backgroundColor:
-                        !statsData.pendingAmount || statsData.pendingAmount === 0
-                          ? "var(--cHover)"
-                          : "var(--cHoverError)",
-                    }}
-                    circle
-                    size={18}
-                  />
-              }
-            />
-            {/* Fin de las tarjetas */}
-          </div>{" "}
-          {/* Fin .allStatsRow */}
-        </div>{" "}
-        {/* Fin .dashboardContainer */}
+          <WidgetDashCard
+            data={'Bs ' + formatNumber(statsData.pendingAmount)}
+            title="Monto por cobrar"
+            icon={
+              <IconHandcoin
+                color={
+                  !statsData.pendingAmount || statsData.pendingAmount === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cError)'
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.pendingAmount || statsData.pendingAmount === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverError)',
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+          {/* Fin de las tarjetas */}
+        </div>
         <List onTabletRow={renderItem} />
       </LoadingScreen>
     </div>
