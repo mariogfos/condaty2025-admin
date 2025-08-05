@@ -183,8 +183,8 @@
 
 /* --- Estilos para badges de estado (Mantenidos de la corrección anterior) --- */
 .statusBadge {
-  font-weight: var(--bMedium);
-  padding: 6px var(--spM);
+  font-weight: var(--bRegular);
+  padding: 6px var(--spS);
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
@@ -197,27 +197,27 @@
   box-sizing: border-box;
 }
 .statusP {
-  background-color: var(--cHoverSuccess);
+  background-color: var(--cHoverCompl2);
   color: var(--cSuccess);
 }
 .statusS {
-  background-color: var(--cHoverWarning);
+  background-color: var(--cHoverCompl4);
   color: var(--cWarning);
 }
 .statusR {
-  background-color: var(--cHoverError);
+  background-color: var(--cHoverCompl11);
   color: var(--cError);
 }
 .statusE {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
 .statusA {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
 .statusM {
-  background-color: var(--cHoverError);
+  background-color: var(--cHoverCompl11);
   color: var(--cError);
 }
 /* --- Fin Badges --- */
