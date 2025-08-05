@@ -21,6 +21,7 @@ import {
   IconMonedas,
   IconMultas,
   IconUnidades,
+  IconWallet,
 } from "@/components/layout/icons/IconsBiblioteca";
 import {
   StatusDetailExpColor,
@@ -356,7 +357,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={statsData.totalUnits}
               title="Unidades asignadas"
               icon={
-                <div className={styles.statIconContainer}>
                   <IconUnidades
                     color={
                       !statsData.totalUnits || statsData.totalUnits === 0
@@ -367,10 +367,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.totalUnits || statsData.totalUnits === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverCompl1)",
                     }}
+                    circle
+                    size={16}
                   />
-                </div>
               }
             />
             {/* Tarjeta 2 (antes en grupo izquierdo) */}
@@ -378,7 +379,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={statsData.paidUnits}
               title="Unidades al día"
               icon={
-                <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
                   <IconUnidades
                     color={
                       !statsData.paidUnits || statsData.paidUnits === 0
@@ -389,10 +389,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.paidUnits || statsData.paidUnits === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverCompl2)",
                     }}
+                    circle
+                    size={16}
                   />
-                </div>
               }
             />
             {/* Tarjeta 3 (antes en grupo izquierdo) */}
@@ -400,7 +401,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={statsData.overdueUnits}
               title="Unidades morosas"
               icon={
-                <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
                   <IconUnidades
                     color={
                       !statsData.overdueUnits || statsData.overdueUnits === 0
@@ -411,10 +411,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.overdueUnits || statsData.overdueUnits === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverError)",
                     }}
+                    circle
+                    size={16}
                   />
-                </div>
               }
             />
             {/* Tarjeta 4 (antes en grupo derecho) */}
@@ -423,21 +424,21 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={"Bs " + formatNumber(statsData.totalAmount)}
               title="Monto total de expensa"
               icon={
-                <div className={styles.statIconContainer}>
                   <IconMonedas
                     color={
                       !statsData.totalAmount || statsData.totalAmount === 0
                         ? "var(--cWhiteV1)"
-                        : "var(--cInfo)"
+                        : "var(--cCompl4)"
                     }
                     style={{
                       backgroundColor:
                         !statsData.totalAmount || statsData.totalAmount === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverCompl7)",
                     }}
+                    circle
+                    size={16}
                   />
-                </div>
               }
             />
             {/* Tarjeta 5 (antes en grupo derecho) */}
@@ -446,8 +447,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={"Bs " + formatNumber(statsData.paidAmount)}
               title="Monto cobrado"
               icon={
-                <div className={`${styles.statIconContainer} ${styles.iconPaid}`}>
-                  <IconBilletera
+                  <IconWallet
                     color={
                       !statsData.paidAmount || statsData.paidAmount === 0
                         ? "var(--cWhiteV1)"
@@ -457,10 +457,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.paidAmount || statsData.paidAmount === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverCompl2)",
                     }}
+                    circle
+                    size={16}
                   />
-                </div>
               }
             />
             {/* Tarjeta 6 (antes en grupo derecho) */}
@@ -469,21 +470,21 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={"Bs " + formatNumber(statsData.penaltyAmount)}
               title="Monto por multas"
               icon={
-                <div className={`${styles.statIconContainer} ${styles.iconPenalty}`}>
                   <IconMultas
                     color={
                       !statsData.penaltyAmount || statsData.penaltyAmount === 0
                         ? "var(--cWhiteV1)"
-                        : "var(--cError)"
+                        : "var(--cAlert)"
                     }
                     style={{
                       backgroundColor:
                         !statsData.penaltyAmount || statsData.penaltyAmount === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverCompl9)",
                     }}
+                    circle
+                    size={18}
                   />
-                </div>
               }
             />
             {/* Tarjeta 7 (antes en grupo derecho) */}
@@ -492,7 +493,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               data={"Bs " + formatNumber(statsData.pendingAmount)}
               title="Monto por cobrar"
               icon={
-                <div className={`${styles.statIconContainer} ${styles.iconOverdue}`}>
                   <IconHandcoin
                     color={
                       !statsData.pendingAmount || statsData.pendingAmount === 0
@@ -503,10 +503,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.pendingAmount || statsData.pendingAmount === 0
                           ? "var(--cHover)"
-                          : undefined,
+                          : "var(--cHoverError)",
                     }}
+                    circle
+                    size={18}
                   />
-                </div>
               }
             />
             {/* Fin de las tarjetas */}
