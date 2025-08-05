@@ -43,7 +43,7 @@ const renderPaidUnitsCell = (props: any) => (
       alignItems: 'center',
     }}
   >
-    {paidUnits(props?.item?.asignados)} U
+    {paidUnits(props?.item?.asignados)}
   </div>
 );
 
@@ -57,7 +57,7 @@ const renderUnitsPayableCell = (props: any) => (
       color: isUnitInDefault(props?.item) ? 'var(--cError)' : '',
     }}
   >
-    {unitsPayable(props?.item?.asignados)} Unidades
+    {unitsPayable(props?.item?.asignados)}
   </div>
 );
 
