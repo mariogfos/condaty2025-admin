@@ -5,7 +5,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import useCrudUtils from '../shared/useCrudUtils';
 import { useMemo, useState } from 'react';
 import RenderItem from '../shared/RenderItem';
-import { MONTHS, getDateStrMes } from '@/mk/utils/date';
+import { MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import {
   isUnitInDefault,
@@ -18,6 +18,7 @@ import {
 import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import styles from './Expenses.module.css';
 
 const renderPeriodCell = (props: any) => {
   const month = props?.item?.month;
@@ -35,28 +36,13 @@ const renderTotalExpensesCell = (props: any) => (
 );
 
 const renderPaidUnitsCell = (props: any) => (
-  <div
-    style={{
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    }}
-  >
+  <div className={styles.PaidUnitsCell} >
     {paidUnits(props?.item?.asignados)}
   </div>
 );
 
 const renderUnitsPayableCell = (props: any) => (
-  <div
-    style={{
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      color: isUnitInDefault(props?.item) ? 'var(--cError)' : '',
-    }}
-  >
+  <div className={styles.UnitsPayableCell} style={{ color: isUnitInDefault(props?.item) ? 'var(--cError)' : 'var(--cWhiteV1)' }}>
     {unitsPayable(props?.item?.asignados)}
   </div>
 );
@@ -86,7 +72,7 @@ const mod: ModCrudType = {
   plural: 'Expensas',
   export: true,
   filter: true,
-  permiso: '',
+  permiso: 'expense',
   extraData: true,
   search: { hide: true },
   hideActions: {
@@ -167,68 +153,68 @@ const Expenses = () => {
           order: 1,
         },
       },
-      totalExpensesSum: {
-        rules: [''],
-        api: '',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Total de expensas
-          </span>
-        ),
-        list: {
-          onRender: renderTotalExpensesCell,
-          order: 2,
-        },
-      },
       paidUnits: {
         rules: [''],
         api: '',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <span className={styles.SpanLabel}>
             Unidades al día
           </span>
         ),
         list: {
           onRender: renderPaidUnitsCell,
-          order: 3,
+          order: 2,
         },
       },
       unitsPayable: {
         rules: [''],
         api: '',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <span className={styles.SpanLabel}>
             Unidades por pagar
           </span>
         ),
         list: {
           onRender: renderUnitsPayableCell,
-          order: 4,
+          order: 3,
         },
       },
-      ammountsCollected: {
+      totalExpensesSum: {
         rules: [''],
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Total cobrado
+            Monto total de expensas
           </span>
         ),
         list: {
-          onRender: renderAmountsCollectedCell,
-          order: 5,
+          onRender: renderTotalExpensesCell,
+          order: 4,
         },
       },
       sumPenalty: {
         rules: [''],
         api: '',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Total de mora
+          <span className={styles.SpanLabel}>
+            Multa total de mora
           </span>
         ),
         list: {
           onRender: renderSumPenaltyCell,
+          order: 5,
+        },
+      },
+      ammountsCollected: {
+        rules: [''],
+        api: '',
+        label: (
+          <span className={styles.SpanLabel}>
+            Total cobrado
+          </span>
+        ),
+        list: {
+          onRender: renderAmountsCollectedCell,
           order: 6,
         },
       },
@@ -236,7 +222,7 @@ const Expenses = () => {
         rules: [''],
         api: '',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <span className={styles.SpanLabel}>
             Saldo a cobrar
           </span>
         ),
@@ -252,7 +238,7 @@ const Expenses = () => {
         form: { type: 'text' },
         filter: {
           label: 'Año',
-          width: '200px',
+          width: '100%',
           options: getYearOptions,
           optionLabel: 'name',
         },
@@ -270,7 +256,7 @@ const Expenses = () => {
         },
         filter: {
           label: 'Meses',
-          width: '200px',
+          width: '100%',
           options: () =>
             MONTHS.map((month, index) => ({
               id: index == 0 ? 'ALL' : index,
@@ -297,8 +283,8 @@ const Expenses = () => {
     fields,
   });
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch: () => {}, // Función vacía ya que no usamos search
-    searchs: {}, // Objeto vacío ya que no usamos search
+    onSearch: () => { },
+    searchs: {},
     setStore,
     mod,
     onEdit,
