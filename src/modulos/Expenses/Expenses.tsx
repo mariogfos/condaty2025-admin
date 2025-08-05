@@ -36,13 +36,13 @@ const renderTotalExpensesCell = (props: any) => (
 );
 
 const renderPaidUnitsCell = (props: any) => (
-  <div className={styles.PaidUnitsCell} style={{ color: isUnitInDefault(props?.item) ? 'var(--cError)' : 'var(--cWhiteV1)' }}>
+  <div className={styles.PaidUnitsCell} >
     {paidUnits(props?.item?.asignados)}
   </div>
 );
 
 const renderUnitsPayableCell = (props: any) => (
-  <div className={styles.UnitsPayableCell}>
+  <div className={styles.UnitsPayableCell} style={{ color: isUnitInDefault(props?.item) ? 'var(--cError)' : 'var(--cWhiteV1)' }}>
     {unitsPayable(props?.item?.asignados)}
   </div>
 );
