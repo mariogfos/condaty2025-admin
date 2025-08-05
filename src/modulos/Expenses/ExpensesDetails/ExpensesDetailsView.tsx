@@ -35,7 +35,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 const getStatus = (status: string) => {
   let _status;
   if (status == "A") _status = "Por cobrar";
-  if (status == "E") _status = "En espera";
+  if (status == "E") _status = "Subir comprobante";
   if (status == "P") _status = "Cobrado";
   if (status == "S") _status = "Por Confirmar";
   if (status == "M") _status = "En mora";
