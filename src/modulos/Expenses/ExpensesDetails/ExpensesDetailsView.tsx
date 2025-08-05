@@ -438,7 +438,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                           : "var(--cHoverCompl7)",
                     }}
                     circle
-                    size={16}
+                    size={18}
                   />
               }
             />
