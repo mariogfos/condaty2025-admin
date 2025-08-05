@@ -172,7 +172,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total de expensas
+            Total de expensas
           </span>
         ),
         list: {
@@ -211,7 +211,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total cobrado
+            Total cobrado
           </span>
         ),
         list: {
@@ -224,7 +224,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Multa total de mora
+            Total de mora
           </span>
         ),
         list: {
@@ -237,7 +237,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Total a cobrar
+            Saldo a cobrar
           </span>
         ),
         list: {
