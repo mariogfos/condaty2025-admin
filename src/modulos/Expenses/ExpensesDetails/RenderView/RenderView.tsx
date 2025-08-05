@@ -129,6 +129,7 @@ const RenderView = (props: {
   };
 
   return (
+<<<<<<< HEAD
     <>
       <DataModal
         open={props.open && !payDetails}
@@ -146,6 +147,23 @@ const RenderView = (props: {
             <div className={styles.paymentDate}>
               {getDateStrMes(props?.item?.paid_at) || 'Sin fecha'}
             </div>
+=======
+    <DataModal
+      open={props.open}
+      onClose={props?.onClose}
+      title="Detalle de expensa"
+      buttonText=""
+      buttonCancel=""
+      style={{ width: "883px" }}
+    >
+      {/* <div className={styles.container}> */}
+      <Card>
+        {/* Sección para mostrar el monto total y la fecha */}
+        <div className={styles.totalAmountSection}>
+          <div className={styles.totalAmount}>Bs {props?.item?.amount}</div>
+          <div className={styles.paymentDate}>
+            {getDateStrMes(props?.item?.paid_at) || "-/-"}
+>>>>>>> 50d45346801f12c57dc1d1612e46b78e803cdc64
           </div>
 
           {/* Separador horizontal */}
@@ -191,10 +209,17 @@ const RenderView = (props: {
               {getDateStrMes(props?.item?.paid_at) || "Sin fecha"}
             </div>
           </div> */}
+<<<<<<< HEAD
             <LabelValue
               label="Fecha de pago"
               value={getDateStrMes(props?.item?.paid_at) || 'Sin fecha'}
             />
+=======
+          <LabelValue
+            label="Fecha de pago"
+            value={getDateStrMes(props?.item?.paid_at) || "-/-"}
+          />
+>>>>>>> 50d45346801f12c57dc1d1612e46b78e803cdc64
 
             {/* <div className={styles.detailRow}>
             <div className={styles.label}>Fecha de plazo</div>

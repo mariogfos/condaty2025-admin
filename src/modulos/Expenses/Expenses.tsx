@@ -184,7 +184,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total de expensas
+            Total de expensas
           </span>
         ),
         list: {
@@ -197,7 +197,7 @@ const Expenses = () => {
         api: '',
         label: (
           <span className={styles.SpanLabel}>
-            Multa total de mora
+            Total de multa
           </span>
         ),
         list: {

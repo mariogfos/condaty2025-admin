@@ -23,12 +23,13 @@ import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDash
 
 const getStatus = (status: string) => {
   let _status;
-  if (status == 'A') _status = 'Por cobrar';
-  if (status == 'E') _status = 'En espera';
-  if (status == 'P') _status = 'Cobrado';
-  if (status == 'S') _status = 'Por Confirmar';
-  if (status == 'M') _status = 'En mora';
-  if (status == 'R') _status = 'Rechazado';
+
+  if (status == "A") _status = "Por cobrar";
+  if (status == "E") _status = "Subir comprobante";
+  if (status == "P") _status = "Cobrado";
+  if (status == "S") _status = "Por Confirmar";
+  if (status == "M") _status = "En mora";
+  if (status == "R") _status = "Rechazado";
   return _status;
 };
 
@@ -156,6 +157,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     page: 1,
     fullType: 'L',
     debt_id: data.id,
+    extraData: true
   };
 
   const fields = useMemo(() => {
@@ -187,7 +189,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         label: 'Fecha de pago',
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.paid_at) || 'En espera'}</div>;
+              <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>
+            ;
           },
         },
       },
@@ -258,13 +261,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           width: '278px',
           options: () => {
             return [
-              { id: 'ALL', name: 'Todos' },
-              { id: 'A', name: 'Por cobrar' },
-              { id: 'E', name: 'En espera' },
-              { id: 'P', name: 'Cobrado' },
-              { id: 'S', name: 'Revisar pago' },
-              { id: 'M', name: 'En mora' },
-              //{ id: "R", name: "Rechazado" },
+
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "E", name: "Subir comprobante" },
+              { id: "P", name: "Cobrado" },
+              { id: "S", name: "Por confirmar" },
+              { id: "M", name: "En mora" },
+              { id: "R", name: "Rechazado" },
             ];
           },
           optionLabel: 'name',
@@ -383,28 +387,28 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Tarjeta 4 (antes en grupo derecho) */}
 
-          <WidgetDashCard
-            data={'Bs ' + formatNumber(statsData.totalAmount)}
-            title="Monto total de expensa"
-            icon={
-              <IconMonedas
-                color={
-                  !statsData.totalAmount || statsData.totalAmount === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cCompl4)'
-                }
-                style={{
-                  backgroundColor:
-                    !statsData.totalAmount || statsData.totalAmount === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl7)',
-                }}
-                circle
-                size={16}
-              />
-            }
-          />
-          {/* Tarjeta 5 (antes en grupo derecho) */}
+
+            <WidgetDashCard
+              data={"Bs " + formatNumber(statsData.totalAmount)}
+              title="Monto total de expensa"
+              icon={
+                  <IconMonedas
+                    color={
+                      !statsData.totalAmount || statsData.totalAmount === 0
+                        ? "var(--cWhiteV1)"
+                        : "var(--cCompl4)"
+                    }
+                    style={{
+                      backgroundColor:
+                        !statsData.totalAmount || statsData.totalAmount === 0
+                          ? "var(--cHover)"
+                          : "var(--cHoverCompl7)",
+                    }}
+                    circle
+                    size={18}
+                  />
+              }
+            />
 
           <WidgetDashCard
             data={'Bs ' + formatNumber(statsData.paidAmount)}
