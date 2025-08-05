@@ -4,46 +4,24 @@ import useAxios from "@/mk/hooks/useAxios";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./ExpensesDetailsView.module.css";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
-
 import { useMemo, useState, useEffect } from "react";
-
-import { getDateStrMes, MONTHS, MONTHS_S } from "@/mk/utils/date";
+import { getDateStrMes, MONTHS } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
-import Check from "@/mk/components/forms/Check/Check";
 import RenderItem from "@/modulos/shared/RenderItem";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
-import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
 import {
   IconArrowLeft,
   IconBilletera,
   IconHandcoin,
-  IconHome,
   IconMonedas,
   IconMultas,
   IconUnidades,
 } from "@/components/layout/icons/IconsBiblioteca";
-import {
-  StatusDetailExpColor,
-  sumExpenses,
-  sumPenalty,
-} from "@/mk/utils/utils";
 import RenderView from "./RenderView/RenderView";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 
-const getStatus = (status: string) => {
-  let _status;
-  if (status == "A") _status = "Por cobrar";
-  //if (status == "E") _status = "En espera";
-  if (status == "P") _status = "Cobrado";
-  if (status == "S") _status = "Revisar pago";
-  if (status == "M") _status = "En mora";
-  //if (status == "R") _status = "Rechazado";
-  return _status;
-};
-
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
-  // Estado para estadísticas
   const [statsData, setStatsData] = useState({
     totalUnits: 0,
     paidUnits: 0,
@@ -53,23 +31,17 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     penaltyAmount: 0,
     pendingAmount: 0,
   });
-  // Helper function to determine the display status of an item
   const getDisplayStatus = (item: any) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy a medianoche para una comparación precisa de solo fecha
-
-    // Si el estado es 'A' (Por cobrar) y tiene una fecha de vencimiento en 'debt'
+    today.setHours(0, 0, 0, 0);
     if (item.status === "A" && item.debt?.due_at) {
-      const dueDate = new Date(item.debt.due_at); // Parsea 'YYYY-MM-DD' como fecha local a medianoche
-      // No es necesario normalizar dueDate con setHours si ya es YYYY-MM-DD,
-      // ya que new Date('YYYY-MM-DD') lo interpreta como medianoche.
-
+      const dueDate = new Date(item.debt.due_at);
       if (today > dueDate) {
-        return { text: "En mora", code: "M" }; // Efectivamente está en mora por fecha
+        return { text: "En mora", code: "M" };
       }
     }
 
-    // Lógica original para otros estados o si no está en mora por fecha
+
     switch (item.status) {
       case "A":
         return { text: "Por cobrar", code: "A" };
@@ -80,13 +52,12 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case "S":
         return { text: "Revisar pago", code: "S" };
       case "M":
-        return { text: "En mora", code: "M" }; // explícitamente en mora
+        return { text: "En mora", code: "M" }; 
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
   };
 
-  // Obtener datos de detalles de expensas directamente con useAxios
   const { data: expenseDetails } = useAxios("/debt-dptos", "GET", {
     perPage: -1,
     page: 1,
@@ -283,7 +254,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
         filter: {
           label: "Estado",
-          width: "200px",
+          width: "278px",
           options: () => {
             return [
               { id: "ALL", name: "Todos" },
