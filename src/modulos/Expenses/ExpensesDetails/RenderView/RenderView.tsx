@@ -11,9 +11,7 @@ import { formatBs } from '@/mk/utils/numbers';
 const RenderView = (props: { open: boolean; onClose: any; item: Record<string, any> }) => {
   const [payDetails, setPayDetails] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
-  const [loadingPayment, setLoadingPayment] = useState(false);
-  const { execute } = useAxios();
-  const { showToast } = useAuth();
+
 
   const getStatus = (item: any) => {
     const today = new Date();
