@@ -53,7 +53,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case 'P':
         return { text: 'Cobrado', code: 'P' };
       case 'S':
-        return { text: 'Revisar pago', code: 'S' };
+        return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
       default:
@@ -225,7 +225,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               { id: 'P', name: 'Cobrado' },
               { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },
-              { id: 'R', name: 'Rechazado' },
             ];
           },
           optionLabel: 'name',

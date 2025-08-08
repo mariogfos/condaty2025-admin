@@ -29,8 +29,7 @@ const RenderView = (props: {
     if (status == "E") _status = "En espera";
     if (status == "P") _status = "Cobrado";
     if (status == "S") _status = "Por confirmar";
-    if (status == "M") _status = "En Mora";
-    if (status == "R") _status = "Rechazado";
+    if (status == "M") _status = "En mora";
     return _status;
   };
 
