@@ -31,7 +31,7 @@ const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
 
   { id: "w", name: "Esta semana" },
-  { id: "lw", name: "Semana pasada" },
+  { id: "lw", name: "Semana anterior" },
   { id: "m", name: "Este mes" },
   { id: "lm", name: "Mes anterior" },
   { id: "y", name: "Este año" },

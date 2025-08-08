@@ -49,7 +49,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
       case 'E':
-        return { text: 'En espera', code: 'E' };
+        return { text: 'Subir comprobante', code: 'E' };
       case 'P':
         return { text: 'Cobrado', code: 'P' };
       case 'S':
@@ -66,7 +66,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     { id: 'd', name: 'Hoy' },
     { id: 'ld', name: 'Ayer' },
     { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana pasada' },
+    { id: 'lw', name: 'Semana anterior' },
     { id: 'm', name: 'Este mes' },
     { id: 'lm', name: 'Mes anterior' },
     { id: 'y', name: 'Este año' },
