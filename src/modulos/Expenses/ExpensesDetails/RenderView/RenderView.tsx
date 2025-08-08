@@ -5,7 +5,6 @@ import { getDateStrMes, MONTHS_S } from '@/mk/utils/date';
 import { useState } from 'react';
 import { Card } from '@/mk/components/ui/Card/Card';
 import PaymentRenderView from '../../../Payments/RenderView/RenderView';
-
 import { formatBs } from '@/mk/utils/numbers';
 
 const RenderView = (props: { open: boolean; onClose: any; item: Record<string, any> }) => {
@@ -60,7 +59,7 @@ const RenderView = (props: { open: boolean; onClose: any; item: Record<string, a
         <p>{label}</p>
         <p
           style={{
-            color: colorValue ? colorValue : 'var(--cWhite)',
+            color: colorValue || 'var(--cWhite)',
           }}
         >
           {value}
@@ -146,7 +145,7 @@ const RenderView = (props: { open: boolean; onClose: any; item: Record<string, a
 
                       return (
                         <div
-                          key={index}
+                          key={`${periodo.month}-${periodo.year}`}
                           className={`${styles.tableRow} ${isLastRow ? styles.tableLastRow : ''}`}
                         >
                           <div
