@@ -8,6 +8,7 @@ import { Card } from "@/mk/components/ui/Card/Card";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import PaymentRenderView from "../../../Payments/RenderView/RenderView";
+import style from "styled-jsx/style";
 
 const RenderView = (props: {
   open: boolean;
@@ -73,9 +74,10 @@ const RenderView = (props: {
       open={props.open}
       onClose={props?.onClose}
       title="Detalle de expensa"
-      buttonText=""
+      buttonText={props?.item?.status == "P" && props?.item?.payment_id ? "Ver pago" : ""}
+      onSave={props?.item?.status == "P" && props?.item?.payment_id ? () => setOpenPayment(true): undefined }
       buttonCancel=""
-      style={{ width: "883px" }}
+      //style={{ height: "90%" }}
     >
       <Card>
         <div className={styles.totalAmountSection}>
@@ -201,7 +203,7 @@ const RenderView = (props: {
             )}
 
           {/* Botón para ver detalles de pago si está pagado */}
-          {props?.item?.status == "P" && props?.item?.payment_id && (
+       {/*    {props?.item?.status == "P" && props?.item?.payment_id && (
             <div className={styles.buttonContainer}>
               <Button
                 className={styles.paymentButton}
@@ -211,7 +213,7 @@ const RenderView = (props: {
                 {loadingPayment ? "Cargando..." : "Ver pago"}
               </Button>
             </div>
-          )}
+          )} */}
         </div>
       </Card>
 

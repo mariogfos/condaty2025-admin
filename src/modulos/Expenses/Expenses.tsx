@@ -3,7 +3,7 @@ import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import useCrudUtils from '../shared/useCrudUtils';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import RenderItem from '../shared/RenderItem';
 import { MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
@@ -19,6 +19,7 @@ import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import styles from './Expenses.module.css';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
 const renderPeriodCell = (props: any) => {
   const month = props?.item?.month;
@@ -65,6 +66,7 @@ const renderTotalAmountCollectedCell = (props: any) => (
     alignRight
   />
 );
+
 
 const mod: ModCrudType = {
   modulo: 'debts',
@@ -124,7 +126,10 @@ const mod: ModCrudType = {
 const Expenses = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
-
+  const { setStore: setAuthStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Expensas' });
+  }, []);
   const getYearOptions = () => {
     const lAnios: any = [{ id: 'ALL', name: 'Todos' }];
     const lastYear = new Date().getFullYear();
@@ -183,9 +188,9 @@ const Expenses = () => {
         rules: [''],
         api: '',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
             Total de expensas
-          </span>
+          </label>
         ),
         list: {
           onRender: renderTotalExpensesCell,
@@ -196,9 +201,9 @@ const Expenses = () => {
         rules: [''],
         api: '',
         label: (
-          <span className={styles.SpanLabel}>
+          <label className={styles.SpanLabel}>
             Total de multa
-          </span>
+          </label>
         ),
         list: {
           onRender: renderSumPenaltyCell,
@@ -209,9 +214,9 @@ const Expenses = () => {
         rules: [''],
         api: '',
         label: (
-          <span className={styles.SpanLabel}>
+          <label className={styles.SpanLabel}>
             Total cobrado
-          </span>
+          </label>
         ),
         list: {
           onRender: renderAmountsCollectedCell,
@@ -222,9 +227,9 @@ const Expenses = () => {
         rules: [''],
         api: '',
         label: (
-          <span className={styles.SpanLabel}>
+          <label className={styles.SpanLabel}>
             Saldo a cobrar
-          </span>
+          </label>
         ),
         list: {
           onRender: renderTotalAmountCollectedCell,
@@ -282,6 +287,8 @@ const Expenses = () => {
     mod,
     fields,
   });
+
+
   const { onLongPress, selItem } = useCrudUtils({
     onSearch: () => { },
     searchs: {},
@@ -309,6 +316,7 @@ const Expenses = () => {
   };
 
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+
 
   if (openDetail) return <ExpensesDetails data={detailItem} setOpenDetail={setOpenDetail} />;
   else
