@@ -70,6 +70,7 @@ const RenderView = (props: {
   };
 
   return (
+    <>
     <DataModal
       open={props.open}
       onClose={props?.onClose}
@@ -216,7 +217,7 @@ const RenderView = (props: {
           )} */}
         </div>
       </Card>
-
+      </DataModal>
       {/* Modal de detalles de pago */}
       {openPayment && (
         <PaymentRenderView
@@ -225,10 +226,10 @@ const RenderView = (props: {
             setOpenPayment(false);
           }}
           payment_id={props.item.payment_id}
-          style={{ width: "100%" }}
+          //style={{ width: "100%" }}
         />
       )}
-    </DataModal>
+    </>
   );
 };
 
