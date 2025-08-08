@@ -76,7 +76,7 @@ const mod: ModCrudType = {
   plural: "Expensas",
   export: true,
   filter: true,
-  permiso: "expense",
+  permiso: "expenses",
   extraData: true,
   search: { hide: true },
   hideActions: {
