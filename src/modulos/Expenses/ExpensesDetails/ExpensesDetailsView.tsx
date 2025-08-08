@@ -371,7 +371,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                           : "var(--cHoverCompl1)",
                     }}
                     circle
-                    size={16}
+                    size={18}
                   />
               }
             />
@@ -393,7 +393,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                           : "var(--cHoverCompl2)",
                     }}
                     circle
-                    size={16}
+                    size={18}
                   />
               }
             />
@@ -415,7 +415,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                           : "var(--cHoverError)",
                     }}
                     circle
-                    size={16}
+                    size={18}
                   />
               }
             />
@@ -461,7 +461,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                           : "var(--cHoverCompl2)",
                     }}
                     circle
-                    size={16}
+                    size={18}
                   />
               }
             />
