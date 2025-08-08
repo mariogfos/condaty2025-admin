@@ -84,7 +84,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (!value || value === 'ALL') {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -120,8 +120,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     debt_id: data.id,
   };
 
-  const fields = useMemo(() => {
-    return {
+  const fields = useMemo(
+    () => ({
       id: { rules: [], api: 'e' },
       unit: {
         rules: [''],
@@ -229,8 +229,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           optionLabel: 'name',
         },
       },
-    };
-  }, []);
+    }),
+    []
+  );
 
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, extraData, onFilter } =
     useCrud({
@@ -239,6 +240,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       fields,
       getFilter: handleGetFilter,
     });
+
+  // Update statistics when useCrud data loads
   useEffect(() => {
     if (extraData) {
       setStatsData({
@@ -253,7 +256,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     }
   }, [extraData]);
 
-  const { } = useCrudUtils({
+  // Initialize crud utils (keeping for potential future use)
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -435,9 +439,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Fin de las tarjetas */}
         </div>
-        <List
-          height={'calc(100vh - 480px)'}
-        />
+        <List height={'calc(100vh - 480px)'} />
       </LoadingScreen>
 
       <DateRangeFilterModal
@@ -447,19 +449,27 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           setCustomDateErrors({});
         }}
         onSave={({ startDate, endDate }) => {
-          let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
-          if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+          const errors: { startDate?: string; endDate?: string } = {};
+
+          if (!startDate) {
+            errors.startDate = 'La fecha de inicio es obligatoria';
           }
-          if (Object.keys(err).length > 0) {
-            setCustomDateErrors(err);
+          if (!endDate) {
+            errors.endDate = 'La fecha de fin es obligatoria';
+          }
+          if (startDate && endDate && startDate > endDate) {
+            errors.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+          }
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            errors.startDate = 'El periodo personalizado debe estar dentro del mismo año';
+            errors.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+          }
+
+          if (Object.keys(errors).length > 0) {
+            setCustomDateErrors(errors);
             return;
           }
+
           const customDateFilterString = `${startDate},${endDate}`;
           onFilter('paid_at', customDateFilterString);
           setOpenCustomFilter(false);
