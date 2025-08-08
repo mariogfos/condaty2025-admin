@@ -3,7 +3,6 @@
   background-color: var(--cBlackV2);
   padding: var(--spM) var(--spS);
   border-radius: var(--bRadius);
-  margin-bottom: var(--spS);
   position: relative;
   border: 0.5px solid var(--cWhiteV1);
   gap: var(--spS);
