@@ -23,14 +23,31 @@ const RenderView = (props: {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const { execute } = useAxios();
   const { showToast } = useAuth();
-  const getStatus = (status: any) => {
-    let _status: string = "";
-    if (status == "A") _status = "Por cobrar";
-    if (status == "E") _status = "En espera";
-    if (status == "P") _status = "Cobrado";
-    if (status == "S") _status = "Por confirmar";
-    if (status == "M") _status = "En mora";
-    return _status;
+
+  const getStatus = (item: any) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (item.status === 'A' && item.debt?.due_at) {
+      const dueDate = new Date(item.debt.due_at);
+      if (today > dueDate) {
+        return { text: 'En mora', code: 'M' };
+      }
+    }
+
+    switch (item.status) {
+      case 'A':
+        return { text: 'Por cobrar', code: 'A' };
+      case 'E':
+        return { text: 'En espera', code: 'E' };
+      case 'P':
+        return { text: 'Cobrado', code: 'P' };
+      case 'S':
+        return { text: 'Por confirmar', code: 'S' };
+      case 'M':
+        return { text: 'En mora', code: 'M' };
+      default:
+        return { text: item.status || 'Desconocido', code: item.status || '' };
+    }
   };
 
   const colorStatus: any = {
@@ -94,8 +111,8 @@ const RenderView = (props: {
 
             <LabelValue
               label="Estado"
-              value={getStatus(props?.item?.status)}
-              colorValue={colorStatus[props?.item?.status]}
+              value={getStatus(props?.item).text}
+              colorValue={colorStatus[getStatus(props?.item).code]}
             />
 
             <LabelValue
