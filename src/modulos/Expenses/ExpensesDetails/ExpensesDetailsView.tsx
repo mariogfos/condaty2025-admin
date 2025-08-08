@@ -504,7 +504,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                       backgroundColor:
                         !statsData.pendingAmount || statsData.pendingAmount === 0
                           ? "var(--cHover)"
-                          : "var(--cHoverError)",
+                          : "var(--cHoverCompl11)",
                     }}
                     circle
                     size={18}
