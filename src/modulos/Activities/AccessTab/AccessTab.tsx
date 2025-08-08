@@ -254,12 +254,6 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                     <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
                   </div>
                 </div>
-                {/* <div className={styles.companionsText}>
-                  {props?.item?.accesses.length > 0 &&
-                    `+${props?.item?.accesses?.length} acompañante${
-                      props?.item?.accesses?.length > 1 ? "s" : ""
-                    }`}
-                </div> */}
               </div>
             );
           },
@@ -287,9 +281,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                 </div>
                 <div className={styles.avatarText}>
                   <div>{getFullName(props.item.owner)}</div>
-                  <div>
-                    Unidad: {props?.item?.owner?.dpto[0]?.nro || "Sin unidad"}
-                  </div>
+                  <div>Unidad: {props?.item?.owner?.dpto[0]?.nro || "-/-"}</div>
                 </div>
               </div>
             );
@@ -322,36 +314,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               <div>
                 {props.item.out_at
                   ? getDateTimeStrMesShort(props.item.out_at)
-                  : "No registrada"}
+                  : "-/-"}
               </div>
             );
           },
         },
       },
-
-      // NUEVO DISEÑO SIN ESTOS CAMPOS
-      // plate: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Placa",
-      //   list: {
-      //     width: "100px",
-      //     onRender: (props: any) => {
-      //       return <div>{props.item.plate || "Sin placa"}</div>;
-      //     },
-      //   },
-      // },
-
-      // guard_id: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Guardia",
-      //   list: {
-      //     onRender: (props: any) => {
-      //       return getFullName(props.item.guardia);
-      //     },
-      //   },
-      // },
 
       type_access: {
         rules: [],

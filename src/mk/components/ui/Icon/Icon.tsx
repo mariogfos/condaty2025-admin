@@ -1,7 +1,7 @@
 "use client";
 import { CSSProperties } from "react";
 import styles from "./icon.module.css";
-import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
+import Tooltip, { TooltipPosition } from "@/mk/components/ui/Tooltip/Tooltip";
 
 export interface IconType {
   className?: string | undefined;
@@ -19,6 +19,7 @@ export interface IconType {
 interface IconWrapType extends IconType {
   children?: any;
   fillStroke?: string;
+  position?: TooltipPosition;
   responsive?: boolean;
 }
 
@@ -35,10 +36,11 @@ export const IconWrap = ({
   circle = false,
   responsive = false,
   square = false,
+  position = "top-right",
   title = "",
 }: IconWrapType) => {
   return (
-    <Tooltip title={title}>
+    <Tooltip title={title} position={position}>
       <svg
         viewBox={viewBox}
         className={
