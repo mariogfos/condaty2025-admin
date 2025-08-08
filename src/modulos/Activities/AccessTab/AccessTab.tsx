@@ -227,46 +227,29 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Visitante",
         list: {
           onRender: (props: any) => {
-            if (props.item.type === "O") {
-              return (
-                <div style={{ display: "flex", gap: 8 }}>
-                  {/* <div className={styles.iconCircle}> */}
-                  <IconKey
-                    size={46}
-                    circle
-                    style={{ backgroundColor: "var(--cWhiteV1)" }}
-                  />
-                  {/* </div> */}
-                  <div className={styles.avatarText}>
-                    <div className={styles.typeName}>Llave Virtual QR</div>
-                  </div>
-                </div>
-              );
-            }
+            let user =
+              props?.item.type === "O"
+                ? props?.item?.owner
+                : props?.item?.visit;
+            let prefix = props?.item.type === "O" ? "/OWNER-" : "/VISIT-";
+            console.log(props?.item);
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {/* <div className={styles.iconCircle}> */}
-                {/* {props.item.plate ? (
-                    <IconVehicle className={styles.typeIcon} />
-                  ) : (
-                    <IconFoot className={styles.typeIcon} />
-                  )} */}
-
                 <div style={{ display: "flex", gap: 8 }}>
                   <Avatar
-                    hasImage={props.item.visit.has_image}
-                    name={getFullName(props.item.visit)}
+                    hasImage={user?.has_image}
+                    name={getFullName(user)}
                     src={getUrlImages(
-                      "/VISIT-" +
-                        props.item.visit.id +
+                      prefix +
+                        user?.id +
                         ".webp?" +
-                        props.item.visit.updated_at
+                        (user?.updated_at || new Date().toISOString())
                     )}
                   />
                   {/* </div> */}
                   <div className={styles.avatarText}>
                     <div style={{ color: "var(--cWhite)" }}>
-                      {getFullName(props.item.visit)}
+                      {getFullName(user)}
                     </div>
                     <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
                   </div>
@@ -319,7 +302,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateTimeStrMesShort(props.item.in_at || "")}</div>;
+            return <div>{getDateTimeStrMesShort(props?.item?.in_at)}</div>;
           },
         },
         filter: {
