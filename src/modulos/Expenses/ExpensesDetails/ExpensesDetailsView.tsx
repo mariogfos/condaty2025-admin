@@ -43,6 +43,18 @@ const getStatus = (status: string) => {
   return _status;
 };
 
+const getPeriodOptions = () => [
+  { id: 'ALL', name: 'Todos' },
+  { id: 'd', name: 'Hoy' },
+  { id: 'ld', name: 'Ayer' },
+  { id: 'w', name: 'Esta semana' },
+  { id: 'lw', name: 'Semana pasada' },
+  { id: 'm', name: 'Este mes' },
+  { id: 'lm', name: 'Mes anterior' },
+  { id: 'y', name: 'Este año' },
+  { id: 'ly', name: 'Año anterior' },
+];
+
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   // Estado para estadísticas
   const [statsData, setStatsData] = useState({
@@ -218,6 +230,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>
             );
           },
+        },
+        filter: {
+          label: "Fecha de pago",
+          width: "200px",
+          options: () => {
+            return getPeriodOptions();
+          },
+          optionLabel: "name",
         },
       },
       due_at: {
