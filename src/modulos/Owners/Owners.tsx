@@ -575,7 +575,7 @@ const Owners = () => {
                     : "var(--cHoverCompl3)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
@@ -597,7 +597,7 @@ const Owners = () => {
                     : "var(--cHoverSuccess)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
@@ -621,7 +621,7 @@ const Owners = () => {
                     : "var(--cHoverWarning)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
