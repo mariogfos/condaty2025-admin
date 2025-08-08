@@ -313,6 +313,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
                     : "var(--cWhite)"
                 }
                 style={{
+                  
                   backgroundColor:
                     !statsData.totalUnits || statsData.totalUnits === 0
                       ? "var(--cHover)"

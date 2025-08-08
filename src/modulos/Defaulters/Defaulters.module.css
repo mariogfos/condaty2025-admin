@@ -1,11 +1,12 @@
 .container {
   width: 100%;
+
 }
 
 .title {
   font-size: var(--sXxl);
   font-weight: var(--bSemibold);
-  margin-bottom: 5px;
+  margin-bottom: var(--spL);
   color: var(--cWhite);
 }
 
@@ -20,6 +21,7 @@
   flex-direction: column;
   gap: var(--spL);
   flex-wrap: wrap;
+
 }
 
 .exportButton {
@@ -64,7 +66,9 @@
 
   }
 }
-
+.widgetResumeCard {
+  margin-bottom: var(--spL);
+}
 .graphPanel {
   padding: var(--spM);
   display: flex;
