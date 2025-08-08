@@ -1,11 +1,11 @@
-'use client';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import styles from './ExpensesDetailsView.module.css';
-import { useMemo, useState, useEffect } from 'react';
-import { getDateStrMes, MONTHS } from '@/mk/utils/date';
-import { formatNumber } from '@/mk/utils/numbers';
-import useCrudUtils from '@/modulos/shared/useCrudUtils';
+"use client";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import styles from "./ExpensesDetailsView.module.css";
+import { useMemo, useState, useEffect } from "react";
+import { getDateStrMes, MONTHS } from "@/mk/utils/date";
+import { formatNumber } from "@/mk/utils/numbers";
+import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import {
   IconArrowLeft,
   IconHandcoin,
@@ -13,12 +13,12 @@ import {
   IconMultas,
   IconUnidades,
   IconWallet,
-} from '@/components/layout/icons/IconsBiblioteca';
-import RenderView from './RenderView/RenderView';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+} from "@/components/layout/icons/IconsBiblioteca";
+import RenderView from "./RenderView/RenderView";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const [statsData, setStatsData] = useState({
@@ -38,46 +38,46 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (item.status === 'A' && item.debt?.due_at) {
+    if (item.status === "A" && item.debt?.due_at) {
       const dueDate = new Date(item.debt.due_at);
       if (today > dueDate) {
-        return { text: 'En mora', code: 'M' };
+        return { text: "En mora", code: "M" };
       }
     }
 
     switch (item.status) {
-      case 'A':
-        return { text: 'Por cobrar', code: 'A' };
-      case 'E':
-        return { text: 'En espera', code: 'E' };
-      case 'P':
-        return { text: 'Cobrado', code: 'P' };
-      case 'S':
-        return { text: 'Revisar pago', code: 'S' };
-      case 'M':
-        return { text: 'En mora', code: 'M' };
+      case "A":
+        return { text: "Por cobrar", code: "A" };
+      case "E":
+        return { text: "En espera", code: "E" };
+      case "P":
+        return { text: "Cobrado", code: "P" };
+      case "S":
+        return { text: "Revisar pago", code: "S" };
+      case "M":
+        return { text: "En mora", code: "M" };
       default:
-        return { text: item.status || 'Desconocido', code: item.status || '' };
+        return { text: item.status || "Desconocido", code: item.status || "" };
     }
   };
 
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana pasada' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
     //{ id: 'custom', name: 'Personalizado' },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'paid_at' && value === 'custom') {
+    if (opt === "paid_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
@@ -93,12 +93,12 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   };
 
   const mod: ModCrudType = {
-    modulo: 'debt-dptos',
-    singular: '',
-    plural: '',
+    modulo: "debt-dptos",
+    singular: "",
+    plural: "",
     filter: true,
     export: true,
-    permiso: 'expenses',
+    permiso: "expenses",
     hideActions: {
       add: true,
       edit: true,
@@ -114,7 +114,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   };
 
   const paramsInitial = {
-    fullType: 'L',
+    fullType: "L",
     page: 1,
     perPage: 20,
     debt_id: data.id,
@@ -124,9 +124,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     () => ({
       id: { rules: [], api: 'e' },
       unit: {
-        rules: [''],
-        api: '',
-        label: 'Unidad',
+        rules: [""],
+        api: "",
+        label: "Unidad",
         list: {
           onRender: (props: any) => {
             return <div>{props?.item?.dpto?.nro}</div>;
@@ -134,9 +134,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       address: {
-        rules: [''],
-        api: '',
-        label: 'Dirección',
+        rules: [""],
+        api: "",
+        label: "Dirección",
         list: {
           onRender: (props: any) => {
             return <div>{props?.item?.dpto?.description}</div>;
@@ -144,89 +144,109 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         },
       },
       paid_at: {
-        rules: [''],
-        api: '',
-        label: 'Fecha de pago',
+        rules: [""],
+        api: "",
+        label: "Fecha de pago",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.paid_at) || '-/-'}</div>;
+            return <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>;
           },
         },
         filter: {
-          key: 'paid_at',
-          label: 'Periodo',
+          key: "paid_at",
+          label: "Periodo",
           options: getPeriodOptions,
         },
       },
       due_at: {
-        rules: [''],
-        api: '',
-        label: 'Fecha de plazo',
+        rules: [""],
+        api: "",
+        label: "Fecha de plazo",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.debt?.due_at) || '-/-'}</div>;
+            return (
+              <div>{getDateStrMes(props?.item?.debt?.due_at) || "-/-"}</div>
+            );
           },
         },
       },
       amount: {
-        rules: ['required'],
-        api: 'e',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Expensa</span>,
+        rules: ["required"],
+        api: "e",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Expensa
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
             return <FormatBsAlign value={props?.item?.amount} alignRight />;
           },
         },
         form: {
-          type: 'text',
-          label: 'Monto',
+          type: "text",
+          label: "Monto",
         },
       },
       obs: {
-        rules: ['required'],
-        api: 'e',
-        label: 'Motivo del cambio',
+        rules: ["required"],
+        api: "e",
+        label: "Motivo del cambio",
         form: {
-          type: 'text',
-          label: 'Motivo del cambio',
+          type: "text",
+          label: "Motivo del cambio",
         },
       },
       penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Multa
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
-            return <FormatBsAlign value={props.item?.penalty_amount} alignRight />;
+            return (
+              <FormatBsAlign value={props.item?.penalty_amount} alignRight />
+            );
           },
         },
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
             const displayStatus = getDisplayStatus(props?.item);
-            const statusClass = `${styles.statusBadge} ${styles[`status${displayStatus.code}`]}`;
+            const statusClass = `${styles.statusBadge} ${
+              styles[`status${displayStatus.code}`]
+            }`;
             return <div className={statusClass}>{displayStatus.text}</div>;
           },
         },
         filter: {
-          label: 'Estado',
-          width: '278px',
+          label: "Estado",
+          width: "278px",
           options: () => {
             return [
-              { id: 'ALL', name: 'Todos' },
-              { id: 'A', name: 'Por cobrar' },
-              { id: 'E', name: 'Subir comprobante' },
-              { id: 'P', name: 'Cobrado' },
-              { id: 'S', name: 'Por confirmar' },
-              { id: 'M', name: 'En mora' },
-              { id: 'R', name: 'Rechazado' },
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "E", name: "Subir comprobante" },
+              { id: "P", name: "Cobrado" },
+              { id: "S", name: "Por confirmar" },
+              { id: "M", name: "En mora" },
+              { id: "R", name: "Rechazado" },
             ];
           },
-          optionLabel: 'name',
+          optionLabel: "name",
         },
       },
     }),
@@ -266,7 +286,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     onDel,
   });
 
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.ExpensesDetailsView}>
@@ -288,14 +308,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               <IconUnidades
                 color={
                   !statsData.totalUnits || statsData.totalUnits === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cWhite)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWhite)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.totalUnits || statsData.totalUnits === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl1)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl1)",
                 }}
                 circle
                 size={16}
@@ -310,14 +330,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               <IconUnidades
                 color={
                   !statsData.paidUnits || statsData.paidUnits === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cSuccess)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cSuccess)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.paidUnits || statsData.paidUnits === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl2)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl2)",
                 }}
                 circle
                 size={16}
@@ -332,14 +352,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               <IconUnidades
                 color={
                   !statsData.overdueUnits || statsData.overdueUnits === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cError)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.overdueUnits || statsData.overdueUnits === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverError)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={16}
@@ -349,20 +369,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 4 (antes en grupo derecho) */}
 
           <WidgetDashCard
-            data={'Bs ' + formatNumber(statsData.totalAmount)}
+            data={"Bs " + formatNumber(statsData.totalAmount)}
             title="Monto total de expensa"
             icon={
               <IconMonedas
                 color={
                   !statsData.totalAmount || statsData.totalAmount === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cCompl4)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cCompl4)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.totalAmount || statsData.totalAmount === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl7)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl7)",
                 }}
                 circle
                 size={18}
@@ -371,20 +391,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
 
           <WidgetDashCard
-            data={'Bs ' + formatNumber(statsData.paidAmount)}
+            data={"Bs " + formatNumber(statsData.paidAmount)}
             title="Monto cobrado"
             icon={
               <IconWallet
                 color={
                   !statsData.paidAmount || statsData.paidAmount === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cSuccess)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cSuccess)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.paidAmount || statsData.paidAmount === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl2)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl2)",
                 }}
                 circle
                 size={16}
@@ -394,20 +414,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 6 (antes en grupo derecho) */}
 
           <WidgetDashCard
-            data={'Bs ' + formatNumber(statsData.penaltyAmount)}
+            data={"Bs " + formatNumber(statsData.penaltyAmount)}
             title="Monto por multas"
             icon={
               <IconMultas
                 color={
                   !statsData.penaltyAmount || statsData.penaltyAmount === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cAlert)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cAlert)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.penaltyAmount || statsData.penaltyAmount === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverCompl9)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl9)",
                 }}
                 circle
                 size={18}
@@ -417,20 +437,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 7 (antes en grupo derecho) */}
 
           <WidgetDashCard
-            data={'Bs ' + formatNumber(statsData.pendingAmount)}
+            data={"Bs " + formatNumber(statsData.pendingAmount)}
             title="Monto por cobrar"
             icon={
               <IconHandcoin
                 color={
                   !statsData.pendingAmount || statsData.pendingAmount === 0
-                    ? 'var(--cWhiteV1)'
-                    : 'var(--cError)'
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !statsData.pendingAmount || statsData.pendingAmount === 0
-                      ? 'var(--cHover)'
-                      : 'var(--cHoverError)',
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
@@ -471,7 +491,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           }
 
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('paid_at', customDateFilterString);
+          onFilter("paid_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
