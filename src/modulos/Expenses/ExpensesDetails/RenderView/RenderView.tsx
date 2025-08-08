@@ -29,7 +29,7 @@ const RenderView = (props: { open: boolean; onClose: any; item: Record<string, a
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
       case 'E':
-        return { text: 'En espera', code: 'E' };
+        return { text: 'Subir comprobante', code: 'E' };
       case 'P':
         return { text: 'Cobrado', code: 'P' };
       case 'S':

@@ -108,7 +108,7 @@ const Payments = () => {
     { id: 'd', name: 'Hoy' },
     { id: 'ld', name: 'Ayer' },
     { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana pasada' },
+    { id: 'lw', name: 'Semana anterior' },
     { id: 'm', name: 'Este mes' },
     { id: 'lm', name: 'Mes anterior' },
     { id: 'y', name: 'Este año' },
