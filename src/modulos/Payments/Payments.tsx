@@ -230,7 +230,6 @@ const Payments = () => {
       status: {
         rules: [],
         api: 'ae',
-
         label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,

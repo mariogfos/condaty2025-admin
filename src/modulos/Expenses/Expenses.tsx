@@ -19,6 +19,7 @@ import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import styles from "./Expenses.module.css";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const renderPeriodCell = (props: any) => {
   const month = props?.item?.month;
@@ -129,6 +130,10 @@ const mod: ModCrudType = {
 const Expenses = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
+  const { setStore: setAuthStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: "Expensas" });
+  }, []);
 
   useEffect(() => {
     setStore({ title: mod?.plural });
@@ -184,9 +189,11 @@ const Expenses = () => {
         rules: [""],
         api: "",
         label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+          <label
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+          >
             Total de expensas
-          </span>
+          </label>
         ),
         list: {
           onRender: renderTotalExpensesCell,
@@ -196,7 +203,7 @@ const Expenses = () => {
       sumPenalty: {
         rules: [""],
         api: "",
-        label: <span className={styles.SpanLabel}>Total de multa</span>,
+        label: <label className={styles.SpanLabel}>Total de multa</label>,
         list: {
           onRender: renderSumPenaltyCell,
           order: 5,
@@ -205,7 +212,7 @@ const Expenses = () => {
       ammountsCollected: {
         rules: [""],
         api: "",
-        label: <span className={styles.SpanLabel}>Total cobrado</span>,
+        label: <label className={styles.SpanLabel}>Total cobrado</label>,
         list: {
           onRender: renderAmountsCollectedCell,
           order: 6,
@@ -214,7 +221,7 @@ const Expenses = () => {
       totalAmmountCollected: {
         rules: [""],
         api: "",
-        label: <span className={styles.SpanLabel}>Saldo a cobrar</span>,
+        label: <label className={styles.SpanLabel}>Saldo a cobrar</label>,
         list: {
           onRender: renderTotalAmountCollectedCell,
           order: 7,
@@ -271,6 +278,7 @@ const Expenses = () => {
     mod,
     fields,
   });
+
   const { onLongPress, selItem } = useCrudUtils({
     onSearch: () => {},
     searchs: {},

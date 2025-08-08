@@ -491,7 +491,7 @@ const HomeOwners = () => {
                   : "rgba(255, 255, 255, 0.1)",
             }}
             circle
-            size={38}
+            size={18}
           />
         }
         style={{ width: "280px" }}

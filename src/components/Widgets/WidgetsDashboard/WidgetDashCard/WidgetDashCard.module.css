@@ -31,7 +31,7 @@
 
     /* Estilos para el dato principal */
     .data {
-      font-size: var(--sXxl) !important;
+      font-size: var(--sXl) !important;
       font-weight: var(--bSemibold);
       color: var(--cWhite);
 

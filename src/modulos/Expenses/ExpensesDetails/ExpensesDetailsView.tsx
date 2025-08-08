@@ -1,13 +1,10 @@
 "use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import useAxios from "@/mk/hooks/useAxios";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./ExpensesDetailsView.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { useMemo, useState, useEffect } from "react";
 import { getDateStrMes, MONTHS } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
-import RenderItem from "@/modulos/shared/RenderItem";
 import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import {
   IconArrowLeft,
@@ -20,18 +17,8 @@ import {
 import RenderView from "./RenderView/RenderView";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-
-const getStatus = (status: string) => {
-  let _status;
-
-  if (status == "A") _status = "Por cobrar";
-  if (status == "E") _status = "Subir comprobante";
-  if (status == "P") _status = "Cobrado";
-  if (status == "S") _status = "Por Confirmar";
-  if (status == "M") _status = "En mora";
-  if (status == "R") _status = "Rechazado";
-  return _status;
-};
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const [statsData, setStatsData] = useState({
@@ -43,6 +30,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     penaltyAmount: 0,
     pendingAmount: 0,
   });
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
   const getDisplayStatus = (item: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -63,76 +55,42 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case "S":
         return { text: "Revisar pago", code: "S" };
       case "M":
-        return { text: "En mora", code: "M" }; // explícitamente en mora
+        return { text: "En mora", code: "M" };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
   };
 
-  const { data: expenseDetails } = useAxios("/debt-dptos", "GET", {
-    perPage: -1,
-    page: 1,
-    fullType: "L",
-    debt_id: data?.id,
-  });
+  const getPeriodOptions = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana pasada" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    //{ id: 'custom', name: 'Personalizado' },
+  ];
 
-  // Actualizar estadísticas cuando se cargan los datos
-  useEffect(() => {
-    if (expenseDetails?.data && expenseDetails.data.length > 0) {
-      const expensesData = expenseDetails.data;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Normaliza la fecha de hoy para la comparación
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-      let calculatedOverdueUnits = 0;
-      expensesData.forEach((item: any) => {
-        let isOverdue = false;
-        if (item.status === "M") {
-          // Ya está marcado como 'M'
-          isOverdue = true;
-        } else if (item.status === "A" && item.debt?.due_at) {
-          const dueDate = new Date(item.debt.due_at);
-          // dueDate se parsea como YYYY-MM-DD 00:00:00 en la zona horaria local
-          if (today > dueDate) {
-            isOverdue = true;
-          }
-        }
-        if (isOverdue) {
-          calculatedOverdueUnits++;
-        }
-      });
-
-      const totalUnits = expensesData.length;
-      const paidUnits = expensesData.filter(
-        (item: any) => item.status === "P"
-      ).length;
-
-      const totalAmount = expensesData.reduce(
-        (sum: number, item: any) => sum + parseFloat(item.amount || 0),
-        0
-      );
-      const paidAmount = expensesData
-        .filter((item: any) => item.status === "P")
-        .reduce(
-          (sum: number, item: any) => sum + parseFloat(item.amount || 0),
-          0
-        );
-      const penaltyAmount = expensesData.reduce(
-        (sum: number, item: any) => sum + parseFloat(item.penalty_amount || 0),
-        0
-      );
-      const pendingAmount = totalAmount - paidAmount;
-
-      setStatsData({
-        totalUnits,
-        paidUnits,
-        overdueUnits: calculatedOverdueUnits,
-        totalAmount,
-        paidAmount,
-        penaltyAmount,
-        pendingAmount,
-      });
+    if (opt === "paid_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
     }
-  }, [expenseDetails]);
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
 
   const mod: ModCrudType = {
     modulo: "debt-dptos",
@@ -140,10 +98,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     plural: "",
     filter: true,
     export: true,
+    permiso: "expenses",
     hideActions: {
       add: true,
-      // edit: data?.status !== "A",
-      // del: data?.status !== "A",
       edit: true,
       del: true,
     },
@@ -153,16 +110,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       item: Record<string, any>;
       onConfirm?: Function;
     }) => <RenderView {...props} />,
-    permiso: "",
-    // extraData: true,
+    extraData: true,
   };
 
   const paramsInitial = {
-    perPage: -1,
-    page: 1,
     fullType: "L",
+    page: 1,
+    perPage: 20,
     debt_id: data.id,
-    extraData: true,
   };
 
   const fields = useMemo(() => {
@@ -194,8 +149,13 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         label: "Fecha de pago",
         list: {
           onRender: (props: any) => {
-            <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>;
+            return <div>{getDateStrMes(props?.item?.paid_at) || "-/-"}</div>;
           },
+        },
+        filter: {
+          key: "paid_at",
+          label: "Periodo",
+          options: getPeriodOptions,
         },
       },
       due_at: {
@@ -204,17 +164,23 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         label: "Fecha de plazo",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.debt?.due_at)}</div>;
+            return (
+              <div>{getDateStrMes(props?.item?.debt?.due_at) || "-/-"}</div>
+            );
           },
         },
       },
       amount: {
         rules: ["required"],
         api: "e",
-        label: "Monto de expensa",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Expensa
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
-            return <div>Bs {formatNumber(props?.item?.amount)}</div>;
+            return <FormatBsAlign value={props?.item?.amount} alignRight />;
           },
         },
         form: {
@@ -234,31 +200,36 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       penalty_amount: {
         rules: [""],
         api: "",
-        label: "Multa",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Multa
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
-            return <div>Bs {formatNumber(props.item?.penalty_amount)}</div>;
+            return (
+              <FormatBsAlign value={props.item?.penalty_amount} alignRight />
+            );
           },
         },
       },
       status: {
         rules: [""],
         api: "",
-        label: "Estado",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: (props: any) => {
-            // Utiliza la función getDisplayStatus que definimos antes
             const displayStatus = getDisplayStatus(props?.item);
-
             const statusClass = `${styles.statusBadge} ${
-              styles[`status${displayStatus.code}`] // Usa el código de estado efectivo para el estilo
+              styles[`status${displayStatus.code}`]
             }`;
-            return (
-              <div className={statusClass}>
-                {displayStatus.text}{" "}
-                {/* Muestra el texto del estado efectivo */}
-              </div>
-            );
+            return <div className={statusClass}>{displayStatus.text}</div>;
           },
         },
         filter: {
@@ -281,15 +252,37 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    extraData,
+    onFilter,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    getFilter: handleGetFilter,
+  });
+  useEffect(() => {
+    if (extraData) {
+      setStatsData({
+        totalUnits: extraData.assignedUnits || 0,
+        paidUnits: extraData.paidUnits || 0,
+        overdueUnits: extraData.overdueUnits || 0,
+        totalAmount: extraData.expenseAmount || 0,
+        paidAmount: extraData.paidAmount || 0,
+        penaltyAmount: extraData.penaltyAmount || 0,
+        pendingAmount: extraData.pendingAmount || 0,
+      });
     }
-  );
+  }, [extraData]);
 
-  const { onLongPress, selItem } = useCrudUtils({
+  const {} = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -297,23 +290,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     onEdit,
     onDel,
   });
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
@@ -488,8 +464,43 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           />
           {/* Fin de las tarjetas */}
         </div>
-        <List onTabletRow={renderItem} />
+        <List height={"calc(100vh - 480px)"} />
       </LoadingScreen>
+
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("paid_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
     </div>
   );
 };
