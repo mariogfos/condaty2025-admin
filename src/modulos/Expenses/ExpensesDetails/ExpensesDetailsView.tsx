@@ -289,9 +289,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
   return (
     <div className={styles.ExpensesDetailsView}>
-      <div className={styles.backButton} onClick={() => setOpenDetail(false)}>
-        <IconArrowLeft />
-        <p>Volver a sección expensas</p>
+      <div className={styles.backButton}>
+        <div className={styles.backButtonContent} onClick={() => setOpenDetail(false)}>
+          <IconArrowLeft />
+          <p>Volver a sección expensas</p>
+        </div>
       </div>
 
       <LoadingScreen>

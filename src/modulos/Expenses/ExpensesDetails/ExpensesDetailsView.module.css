@@ -10,9 +10,21 @@
   display: flex;
   align-items: center;
   gap: var(--spM);
-  cursor: pointer;
   margin-bottom: var(--spS);
   color: var(--accent);
+}
+
+.backButtonContent{
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--spM);
+  &:hover{
+    opacity: 0.8;
+    & p{
+      opacity: 0.8;
+    }
+  }
 }
 
 .backButton p {
