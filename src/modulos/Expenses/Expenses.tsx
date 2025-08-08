@@ -133,10 +133,7 @@ const Expenses = () => {
   const { setStore: setAuthStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: "Expensas" });
-  }, []);
-
-  useEffect(() => {
-    setStore({ title: mod?.plural });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getYearOptions = () => {
