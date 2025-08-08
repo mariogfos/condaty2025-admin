@@ -11,15 +11,34 @@ import { formatBs } from '@/mk/utils/numbers';
 const RenderView = (props: { open: boolean; onClose: any; item: Record<string, any> }) => {
   const [payDetails, setPayDetails] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
-  const getStatus = (status: any) => {
-    let _status: string = '';
-    if (status == 'A') _status = 'Por cobrar';
-    if (status == 'E') _status = 'En espera';
-    if (status == 'P') _status = 'Cobrado';
-    if (status == 'S') _status = 'Por confirmar';
-    if (status == 'M') _status = 'En Mora';
-    if (status == 'R') _status = 'Rechazado';
-    return _status;
+  const [loadingPayment, setLoadingPayment] = useState(false);
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
+
+  const getStatus = (item: any) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (item.status === 'A' && item.debt?.due_at) {
+      const dueDate = new Date(item.debt.due_at);
+      if (today > dueDate) {
+        return { text: 'En mora', code: 'M' };
+      }
+    }
+
+    switch (item.status) {
+      case 'A':
+        return { text: 'Por cobrar', code: 'A' };
+      case 'E':
+        return { text: 'En espera', code: 'E' };
+      case 'P':
+        return { text: 'Cobrado', code: 'P' };
+      case 'S':
+        return { text: 'Por confirmar', code: 'S' };
+      case 'M':
+        return { text: 'En mora', code: 'M' };
+      default:
+        return { text: item.status || 'Desconocido', code: item.status || '' };
+    }
   };
 
   const colorStatus: any = {
@@ -80,11 +99,11 @@ const RenderView = (props: { open: boolean; onClose: any; item: Record<string, a
             <div className={styles.detailsContainer}>
               <LabelValue label="Unidad" value={props?.item?.dpto?.nro || 'Sin unidad'} />
 
-              <LabelValue
-                label="Estado"
-                value={getStatus(props?.item?.status)}
-                colorValue={colorStatus[props?.item?.status]}
-              />
+            <LabelValue
+              label="Estado"
+              value={getStatus(props?.item).text}
+              colorValue={colorStatus[getStatus(props?.item).code]}
+            />
 
               <LabelValue
                 label="Periodo"
