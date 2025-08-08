@@ -84,7 +84,9 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       return { filterBy: currentFilters };
     }
 
-    if (!value || value === 'ALL') {
+    if (value === 'ALL') {
+      currentFilters[opt] = 'ALL'; // Enviamos 'ALL' explícitamente
+    } else if (!value) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
