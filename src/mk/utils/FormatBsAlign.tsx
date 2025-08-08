@@ -1,24 +1,24 @@
-import React from 'react';
-import { formatBs } from '@/mk/utils/numbers';
+import React from "react";
+import { formatBs } from "@/mk/utils/numbers";
 
 interface FormatBsAlignProps {
   value: number | string;
-  alignRight?: boolean;
+  left?: boolean;
   className?: string;
 }
 
 const FormatBsAlign: React.FC<FormatBsAlignProps> = ({
   value,
-  alignRight = false,
+  left = false,
   className,
 }) => {
   return (
     <div
       style={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: alignRight ? 'flex-end' : 'flex-start',
-        alignItems: 'center',
+        width: "100%",
+        display: "flex",
+        justifyContent: left ? "flex-start" : "flex-end",
+        alignItems: "center",
       }}
       className={className}
     >
