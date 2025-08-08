@@ -9,7 +9,7 @@
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: var(--bRadiusM);
-  border: var(--bWidth) solid var(--cWhiteV1);
+  border: 0.5px solid var(--cWhiteV1);
 }
 
 .headerSection {
@@ -107,20 +107,20 @@
 }
 
 .accessTime {
-    display: flex;
-    align-items: center;
-    gap: var(--spXs);
-    font-size: var(--sS);
-    color: var(--cWhiteV1);
-    font-weight: var(--bRegular);
+  display: flex;
+  align-items: center;
+  gap: var(--spXs);
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  font-weight: var(--bRegular);
 }
 
 .accessInIcon {
-    color: var(--cSuccess);
+  color: var(--cSuccess);
 }
 
 .accessOutIcon {
-    color: var(--cError);
+  color: var(--cError);
 }
 
 @media (max-width: 768px) {
@@ -134,16 +134,23 @@
     width: 100%;
     gap: var(--spXl);
   }
-  
+
   .infoBlock {
     min-width: unset;
   }
 
-  .detailsSection .detailsColumn:not(:first-child){
+  .detailsSection .detailsColumn:not(:first-child) {
     margin-top: var(--spXl);
   }
 
   .sectionTitle {
-     margin-top: var(--spXl);
+    margin-top: var(--spXl);
   }
+}
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+  margin: var(--spS) 0;
 }

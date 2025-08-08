@@ -232,7 +232,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                 ? props?.item?.owner
                 : props?.item?.visit;
             let prefix = props?.item.type === "O" ? "/OWNER-" : "/VISIT-";
-            console.log(props?.item);
+
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", gap: 8 }}>

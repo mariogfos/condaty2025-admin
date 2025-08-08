@@ -81,7 +81,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     if (item?.out_at) {
       status = "Completado";
     } else if (item?.in_at) {
-      status = "Por Salir";
+      status = "Por salir";
     } else if (!item?.confirm_at) {
       status = "Por confirmar";
     } else if (item?.confirm == "Y") {
@@ -227,7 +227,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   <span className={styles.infoLabel}>Estado</span>
                   <span
                     className={styles.infoValue}
-                    style={{ color: item?.out_at ? "var(--cAccent)" : "" }}
+                    // style={{ color: item?.out_at ? "var(--cWhite)" : "" }}
                   >
                     {getStatus()}
                   </span>
@@ -276,20 +276,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </div>
             </section>
 
-            <Br />
+            {item.type !== "O" && item?.type !== "C" && (
+              <>
+                <Br />
 
-            {item.type !== "O" && (
-              <div
-                onClick={openDetailsModal}
-                className="link"
-                style={{
-                  marginTop: "var(--spS)",
-                  margin: "0 0 auto",
-                  width: "fit-content",
-                }}
-              >
-                Ver detalles de la invitación
-              </div>
+                <div
+                  onClick={openDetailsModal}
+                  className="link"
+                  style={{
+                    margin: "0 0 auto",
+                    width: "fit-content",
+                  }}
+                >
+                  Ver detalles de la invitación
+                </div>
+              </>
             )}
           </div>
         </LoadingScreen>
