@@ -71,7 +71,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     { id: 'lm', name: 'Mes anterior' },
     { id: 'y', name: 'Este año' },
     { id: 'ly', name: 'Año anterior' },
-    //{ id: 'custom', name: 'Personalizado' },
+    { id: 'custom', name: 'Personalizado' },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
@@ -239,7 +239,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: 'ALL', name: 'Todos' },
               { id: 'A', name: 'Por cobrar' },
-              { id: 'E', name: 'Subir comprobante' },
+              { id: 'E', name: 'Por subir comprobante' },
               { id: 'P', name: 'Cobrado' },
               { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },
