@@ -101,8 +101,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     permiso: 'expenses',
     hideActions: {
       add: true,
-      // edit: data?.status !== "A",
-      // del: data?.status !== "A",
       edit: true,
       del: true,
     },
