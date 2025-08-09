@@ -1,9 +1,6 @@
 import React from 'react';
 import styles from './WidgetDashCard.module.css';
-import {
-  IconAccess,
-  IconInterrogation,
-} from '@/components/layout/icons/IconsBiblioteca';
+import { IconAccess, IconInterrogation } from '@/components/layout/icons/IconsBiblioteca';
 import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 
 interface ItemProps {
@@ -37,9 +34,7 @@ export const WidgetDashCard = ({
 }: ItemProps) => {
   return (
     <div
-      className={`${styles.container} ${
-        onClick ? styles.clickable : ''
-      } ${className}`}
+      className={`${styles.container} ${onClick ? styles.clickable : ''} ${className}`}
       onClick={onClick}
       style={style}
     >
@@ -47,24 +42,17 @@ export const WidgetDashCard = ({
         <div className={styles.title}>
           {title}{' '}
           {tooltip && (
-            <Tooltip
-              title={tooltipTitle}
-              position={tooltipPosition}
-              singleLine={false}
-              minWidth={563}
-            >
+            <Tooltip title={tooltipTitle} position={tooltipPosition} singleLine={false} minWidth={200}>
               <span
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   cursor: 'pointer',
                   marginLeft: 5,
+                  
                 }}
               >
-                <IconInterrogation
-                  color={tooltipColor || 'var(--cWhiteV1)'}
-                  size={18}
-                />
+                <IconInterrogation color={tooltipColor || 'var(--cWhiteV1)'} size={18} />
               </span>
             </Tooltip>
           )}
