@@ -306,7 +306,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 1 (antes en grupo izquierdo) */}
           <WidgetDashCard
             data={statsData.totalUnits}
-            title="Unidades asignadas"
+            title="Unidades"
             icon={
               <IconUnidades
                 color={
@@ -329,7 +329,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 2 (antes en grupo izquierdo) */}
           <WidgetDashCard
             data={statsData.paidUnits}
-            title="Unidades al día"
+            title="Al día"
             icon={
               <IconUnidades
                 color={
@@ -351,7 +351,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           {/* Tarjeta 3 (antes en grupo izquierdo) */}
           <WidgetDashCard
             data={statsData.overdueUnits}
-            title="Unidades morosas"
+            title="Morosas"
             icon={
               <IconUnidades
                 color={
@@ -374,7 +374,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
           <WidgetDashCard
             data={"Bs " + formatNumber(statsData.totalAmount)}
-            title="Monto total de expensa"
+            title="Expensa"
             icon={
               <IconMonedas
                 color={
@@ -396,7 +396,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
           <WidgetDashCard
             data={"Bs " + formatNumber(statsData.paidAmount)}
-            title="Monto cobrado"
+            title="Cobrado"
             icon={
               <IconWallet
                 color={
@@ -419,7 +419,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
           <WidgetDashCard
             data={"Bs " + formatNumber(statsData.penaltyAmount)}
-            title="Monto por multas"
+            title="Multa"
             icon={
               <IconMultas
                 color={
@@ -442,7 +442,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
           <WidgetDashCard
             data={"Bs " + formatNumber(statsData.pendingAmount)}
-            title="Monto por cobrar"
+            title="Saldo"
             icon={
               <IconHandcoin
                 color={
