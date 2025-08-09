@@ -1,10 +1,20 @@
-import { CSSProperties } from 'react';
-import styles from './tooltip.module.css';
+import { CSSProperties, ReactNode } from "react";
+import styles from "./tooltip.module.css";
+
+export type TooltipPosition =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
 
 type PropsType = {
   title: string;
-  children: any;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  children: ReactNode;
+  position?: TooltipPosition;
   style?: CSSProperties;
   className?: string;
   singleLine?: boolean;
@@ -15,22 +25,22 @@ type PropsType = {
 const Tooltip = ({
   title,
   children,
-  position = 'top',
+  position = "top",
   style,
   className,
   singleLine = true,
   maxWidth,
   minWidth,
 }: PropsType) => {
-  if (!title || title == '') return children;
+  if (!title) return children;
   return (
-    <div className={`${styles.container} ${className}`} style={style}>
+    <div className={`${styles.container} ${className || ""}`} style={style}>
       <span
         className={`${styles.tooltip} ${styles[position]}`}
         style={{
-          whiteSpace: singleLine ? 'nowrap' : 'normal',
-          maxWidth: maxWidth ? maxWidth : undefined,
-          minWidth: minWidth ? minWidth : undefined,
+          whiteSpace: singleLine ? "nowrap" : "normal",
+          maxWidth: maxWidth || undefined,
+          minWidth: minWidth || undefined,
         }}
       >
         {title}
@@ -39,4 +49,5 @@ const Tooltip = ({
     </div>
   );
 };
+
 export default Tooltip;

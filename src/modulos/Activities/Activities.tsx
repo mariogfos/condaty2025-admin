@@ -32,6 +32,7 @@ const paramsInitialAccess = {
   fullType: "L",
   perPage: 20,
   page: 1,
+  extraData: true,
 };
 
 const paramsInitialPedidos = {
