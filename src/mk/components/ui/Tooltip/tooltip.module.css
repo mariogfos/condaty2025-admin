@@ -1,13 +1,11 @@
 .container {
   position: relative;
-  display: flex;
+  /* display: inline-flex; */
   cursor: pointer;
 }
 
 .tooltip {
   visibility: hidden;
-  width: auto;
-
   background-color: var(--cWhite);
   color: var(--cWhiteV1);
   text-align: start;
@@ -16,34 +14,54 @@
   z-index: 9999;
   position: absolute;
   font-size: 14px;
-  white-space: nowrap;
 }
 
 .container:hover .tooltip {
   visibility: visible;
 }
 
-/* Posicionamiento del tooltip para cada dirección */
+/* Direcciones simples */
 .top {
-  bottom: 100%; /* Posiciona el tooltip arriba del elemento */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .bottom {
-  top: 100%; /* Posiciona el tooltip abajo del elemento */
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .left {
-  top: 20;
-  right: 100%; /* Posiciona el tooltip a la izquierda del elemento */
-  transform: translateY(-100%);
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
 }
 
 .right {
-  top: 20;
-  left: 100%; /* Posiciona el tooltip a la derecha del elemento */
-  transform: translateY(-100%);
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+}
+
+/* Direcciones combinadas */
+.top-left {
+  bottom: 100%;
+  left: 0;
+}
+
+.top-right {
+  bottom: 100%;
+  right: 0;
+}
+
+.bottom-left {
+  top: 100%;
+  left: 0;
+}
+
+.bottom-right {
+  top: 100%;
+  right: 0;
 }

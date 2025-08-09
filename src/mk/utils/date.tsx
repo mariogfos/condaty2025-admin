@@ -129,7 +129,10 @@ const _getDateTimeStrMes = (
   utc: boolean = false,
   utcBase: boolean = false
 ): string => {
+  // console.log(dateStr);
+  // console.log(esFormatoISO8601(dateStr), utc);
   if (esFormatoISO8601(dateStr) || utc) {
+    console.log("Entro");
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
       .toISOString()
@@ -147,10 +150,10 @@ const _getDateTimeStrMes = (
     `${date[0]}-${date[1]}-${date[2]}T${hours}:${minutes}:00`
   );
 
-  if (esFormatoISO8601(dateStr)) {
-    timeDate.setHours(parseInt(hours) + GMT);
-    timeDate.setMinutes(parseInt(minutes));
-  }
+  // if (esFormatoISO8601(dateStr)) {
+  //   timeDate.setHours(parseInt(hours) + GMT);
+  //   timeDate.setMinutes(parseInt(minutes));
+  // }
 
   // Formatear el nuevo tiempo
   const adjustedTime = `${String(timeDate.getHours()).padStart(
@@ -183,7 +186,10 @@ export const getDateTimeStrMesShort = (
 ): string => {
   if (!dateStr || dateStr == "") return "";
   const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
-  return `${date[0]}/${date[1]}/${date[2]} ${date[3]}`;
+  // obtener el dia, lunes martes, etc
+  let _date = new Date(dateStr);
+  let day = DAYS_SHORT[_date.getDay()];
+  return `${day}, ${date[2]}/${date[1]}/${date[0]} - ${date[3]}`;
 };
 
 const _getDateStrMes = (

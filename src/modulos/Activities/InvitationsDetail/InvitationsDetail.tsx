@@ -7,6 +7,7 @@ import {
   getDateStrMes,
   getDateTimeStrMes,
   formatDateRange,
+  getDateTimeStrMesShort,
 } from "@/mk/utils/date";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import {
@@ -36,33 +37,37 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
     let statusText = "Desconocido";
     let statusClass = "";
 
-    if (item?.out_at) {
-      statusText = "Completado";
+    if (invitation?.status == "O") {
+      statusText = "Finalizado";
       statusClass = styles.statusActive;
-    } else if (item?.in_at) {
-      statusText = "Por Salir";
-      statusClass = styles.statusActive;
-    } else if (item?.confirm == "Y") {
+      // } else if (invitation?.status == "A") {
+      //   statusText = "Por salir";
+      //   statusClass = styles.statusActive;
+    } else if (invitation?.status == "A" || invitation?.status == "I") {
       statusText = "Activo";
       statusClass = styles.statusActive;
-    } else if (item?.confirm == "N") {
-      statusText = "Denegado";
+      // } else if (item?.confirm == "N") {
+      //   statusText = "Denegado";
+      //   statusClass = styles.statusDenied;
+    } else if (invitation?.status == "X") {
+      statusText = "Anulado";
       statusClass = styles.statusDenied;
-    } else if (!item?.confirm_at) {
-      statusText = "Por confirmar";
-      statusClass = styles.statusPending;
     }
     return { text: statusText, className: statusClass };
   };
 
   const getAccess = () => {
-    return invitation?.guests?.filter((a: any) => a.status !== "A") || [];
+    if (invitation?.type == "G") {
+      return invitation?.guests?.filter((a: any) => a?.access) || [];
+    }
+    if (invitation?.type == "F") {
+      return invitation?.access;
+    }
+    return [];
   };
-
-  const getPending = () => {
-    return invitation?.guests?.filter((a: any) => a.status === "A") || [];
+  const getNotAttend = () => {
+    return invitation?.guests?.filter((a: any) => !a.access) || [];
   };
-
   function parseWeekDays(binaryNumber: number): string[] {
     const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
     const result: string[] = [];
@@ -76,6 +81,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   }
 
   const statusInfo = getStatusInfo();
+  console.log(item);
 
   return (
     <DataModal
@@ -86,6 +92,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
       buttonText=""
     >
       <div className={styles.container}>
+        <p>Creador</p>
         <section className={styles.headerSection}>
           <Avatar
             hasImage={owner.has_image}
@@ -102,7 +109,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             C.I. {owner?.ci} - Unidad: {owner?.dpto?.[0]?.nro}
           </div>
         </section>
-
+        <hr className={styles.sectionDivider} />
         <section className={styles.detailsSection}>
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
@@ -118,7 +125,9 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               </span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Indicaciones</span>
+              <span className={styles.infoLabel}>
+                {item?.type == "F" ? "Indicaciones" : "Detalle"}
+              </span>
               <span className={styles.infoValue}>
                 {invitation?.obs || "-/-"}
               </span>
@@ -192,42 +201,93 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
         {(item?.type === "F" || item?.type === "G") && (
           <>
             <p className={styles.sectionTitle}>
-              Accesos {invitation?.access?.length || getAccess().length}/
-              {item?.type === "F"
-                ? invitation?.max_entries || "ilimitados"
-                : invitation?.guests?.length}
+              {item?.type == "F" ? "Accesos" : "Asistieron"}{" "}
+              {invitation?.access?.length || getAccess().length}
+              <span style={{ color: "var(--cWhiteV1)" }}>
+                /
+                {item?.type === "F"
+                  ? invitation?.max_entries || "ilimitados"
+                  : invitation?.guests?.length}
+              </span>
             </p>
             <div className={styles.listContainer}>
-              {(invitation?.access || getAccess())?.map((acc: any) => (
+              {getAccess()?.map((acc: any) => (
                 <ItemList
                   variant="V3"
                   key={acc.id}
                   title={getFullName(acc.visit || visit)}
+                  subtitle={
+                    <>
+                      <div
+                        className={styles.accessTime}
+                        style={{ marginTop: 4, marginBottom: 8 }}
+                      >
+                        <IconArrowRight
+                          className={styles.accessInIcon}
+                          size={12}
+                        />
+                        {getDateTimeStrMesShort(
+                          acc?.in_at || acc?.access?.in_at
+                        )}
+                      </div>
+                      {(acc?.out_at || acc?.access?.out_at) && (
+                        <div className={styles.accessTime}>
+                          <IconArrowLeft
+                            className={styles.accessOutIcon}
+                            size={12}
+                          />
+                          {getDateTimeStrMesShort(
+                            acc?.out_at || acc?.access?.out_at
+                          )}
+                        </div>
+                      )}
+                    </>
+                  }
                   left={
                     <Avatar
                       hasImage={
                         acc.visit ? acc.visit?.has_image : visit?.has_image
                       }
+                      src={getUrlImages(
+                        "/VISIT-" +
+                          (acc?.visit?.id || visit?.id) +
+                          ".webp?" +
+                          (acc?.visit?.updated_at || visit?.updated_at)
+                      )}
                       name={getFullName(acc.visit || visit)}
                     />
                   }
-                >
-                  <div className={styles.accessTime}>
-                    <IconArrowRight className={styles.accessInIcon} size={12} />
-                    {getDateTimeStrMes(acc?.in_at || acc?.access?.in_at)}
-                  </div>
-                  {(acc?.out_at || acc?.access?.out_at) && (
-                    <div className={styles.accessTime}>
-                      <IconArrowLeft
-                        className={styles.accessOutIcon}
-                        size={12}
-                      />
-                      {getDateTimeStrMes(acc?.out_at || acc?.access?.out_at)}
-                    </div>
-                  )}
-                </ItemList>
+                ></ItemList>
               ))}
             </div>
+            {getNotAttend().length > 0 && (
+              <>
+                <p className={styles.sectionTitle}>
+                  No asistieron {getNotAttend().length}
+                  <span style={{ color: "var(--cWhiteV1)" }}>
+                    /{invitation?.guests?.length}
+                  </span>
+                </p>
+                <div className={styles.listContainer}>
+                  {getNotAttend()?.map((acc: any) => (
+                    <ItemList
+                      variant="V3"
+                      key={acc.id}
+                      title={getFullName(acc.visit || visit)}
+                      left={
+                        <Avatar
+                          hasImage={1}
+                          name={getFullName(acc.visit || visit)}
+                          src={getUrlImages(
+                            "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
+                          )}
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

@@ -5,13 +5,13 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--spXl);
+  padding: var(--spL);
   gap: var(--spL);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
   border-radius: var(--bRadiusS);
-  border: 1px solid var(--cWhiteV1);
+  border: 0.5px solid var(--cWhiteV1);
   min-width: 600px; /* Ajusta este valor según tus necesidades */
 }
 
@@ -20,21 +20,20 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spXs);
-  padding-bottom: var(--spL);
+  /* padding-bottom: var(--spL); */
   text-align: center;
 }
 
 .amountDisplay {
   color: var(--cWhite);
-  font-size: 24px; /* Ajustado para nombres */
-  font-weight: var(--bBold);
-  line-height: 1.2;
+  font-size: 16px; /* Ajustado para nombres */
+  font-weight: 500;
 }
 
 .dateDisplay {
   color: var(--cWhiteV1);
-  font-size: var(--sM);
-  line-height: 1.5;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .sectionDivider {
@@ -68,7 +67,8 @@
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  max-width: 280px; /* IMPORTANTE: Esto limita el ancho */
+  min-width: 280px;
+  max-width: 380px; /* IMPORTANTE: Esto limita el ancho */
 }
 
 .infoLabel {
@@ -90,13 +90,13 @@
   text-align: left;
 }
 
-.infoValue span { /* Estilo para los acompañantes */
+.infoValue span {
+  /* Estilo para los acompañantes */
   line-height: 1.4;
   min-width: 0;
   text-align: left;
   color: var(--cWhite);
 }
-
 
 /* Estilos Responsive */
 @media (max-width: var(--responsive-tablet)) {
@@ -135,7 +135,9 @@
     align-items: center;
     text-align: center;
   }
-  .infoLabel, .infoValue, .infoValue span {
+  .infoLabel,
+  .infoValue,
+  .infoValue span {
     text-align: center;
   }
 }
