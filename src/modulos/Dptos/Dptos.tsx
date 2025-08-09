@@ -433,6 +433,7 @@ const Dptos = () => {
           display: "flex",
           gap: 12,
           overflowX: "auto",
+          marginBottom: 16,
         }}
       >
         <WidgetDashCard
