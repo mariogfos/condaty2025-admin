@@ -267,7 +267,7 @@ const HomeOwners = () => {
         label: "Nombre Completo",
         form: {
           type: "text",
-          style: { width: "49%" },
+          style: { width: "100%" },
           label: "Primer nombre",
           disabled: onDisbled,
           required: true,
@@ -323,7 +323,7 @@ const HomeOwners = () => {
         label: "Segundo nombre",
         form: {
           type: "text",
-          style: { width: "49%" },
+          style: { width: "100%" },
           disabled: onDisbled,
           required: false,
         },
@@ -335,7 +335,7 @@ const HomeOwners = () => {
         label: "Apellido paterno",
         form: {
           type: "text",
-          style: { width: "49%" },
+          style: { width: "100%" },
           disabled: onDisbled,
           required: true,
         },
@@ -347,7 +347,7 @@ const HomeOwners = () => {
         label: "Apellido materno",
         form: {
           type: "text",
-          style: { width: "49%" },
+          style: { width: "100%" },
           disabled: onDisbled,
           required: false,
         },
