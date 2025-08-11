@@ -192,6 +192,11 @@
   grid-template-columns: repeat(6, 1fr);
 }
 
+.deudas-header-reservations-simple,
+.deuda-row-reservations-simple {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .deudas-header {
   background-color: var(--cBlackV2, #333536);
   color: var(--cWhite, #fbfbfb);
@@ -264,6 +269,16 @@
 
 .deuda-check {
   justify-content: center;
+}
+
+.amount-cell {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.header-amount {
+  text-align: right;
+  justify-content: flex-end;
 }
 
 .total-container {

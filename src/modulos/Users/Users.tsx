@@ -482,7 +482,7 @@ const Users = () => {
             color={"var(--cWhite)"}
             style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
             circle
-            size={38}
+            size={18}
           />
         }
         style={{ width: "290px" }}
