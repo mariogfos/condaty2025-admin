@@ -106,15 +106,21 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       edit: true,
       del: true,
     },
-    loadView: {
-    },
+    loadView: {},
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
       execute: Function;
-    }) => <RenderView {...props} />,
+      reLoad: Function;
+    }) => {
+      const handleClose = () => {
+        props.reLoad(null, mod?.noWaiting); // Recargar datos antes de cerrar
+        props.onClose(); // Cerrar la vista
+      };
+      return <RenderView {...props} onClose={handleClose} />;
+    },
     extraData: true,
   };
 
