@@ -50,7 +50,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  gap: var(--spXl, 48px);
+  gap: 68px;
   width: 100%;
   padding: var(--spL) 0;
   box-sizing: border-box;
@@ -67,8 +67,9 @@
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  min-width: 280px;
-  max-width: 380px; /* IMPORTANTE: Esto limita el ancho */
+  /* min-width: 280px; */
+  /* max-width: 380px; IMPORTANTE: Esto limita el ancho */
+  flex: 1;
 }
 
 .infoLabel {
