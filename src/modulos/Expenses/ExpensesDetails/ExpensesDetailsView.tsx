@@ -20,6 +20,42 @@ import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDash
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 
+const renderUnitCell = ({ item }: { item: any }) => <div>{item?.dpto?.nro}</div>;
+
+const renderAddressCell = ({ item }: { item: any }) => <div>{item?.dpto?.description}</div>;
+
+const renderPaidAtCell = ({ item }: { item: any }) => (
+  <div>{getDateStrMes(item?.paid_at) || '-/-'}</div>
+);
+
+const renderDueAtCell = ({ item }: { item: any }) => (
+  <div>{getDateStrMes(item?.debt?.due_at) || '-/-'}</div>
+);
+
+const renderAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.amount} alignRight />
+);
+
+const renderPenaltyAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.penalty_amount} alignRight />
+);
+
+const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function, styles: any) => {
+  const statusClassMap: { [key: string]: string | undefined } = {
+    A: styles.statusA,
+    E: styles.statusE,
+    P: styles.statusP,
+    S: styles.statusS,
+    M: styles.statusM,
+    R: styles.statusR,
+  };
+
+  const displayStatus = getDisplayStatus(item);
+  const specificStatusClass = statusClassMap[displayStatus.code] || '';
+  const statusClass = `${styles.statusBadge} ${specificStatusClass}`;
+  return <div className={statusClass}>{displayStatus.text}</div>;
+};
+
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   const [statsData, setStatsData] = useState({
     totalUnits: 0,
@@ -131,17 +167,15 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     debt_id: data.id,
   };
 
-  const fields = useMemo(
-    () => ({
+  const fields = useMemo(() => {
+    return {
       id: { rules: [], api: 'e' },
       unit: {
         rules: [''],
         api: '',
         label: 'Unidad',
         list: {
-          onRender: (props: any) => {
-            return <div>{props?.item?.dpto?.nro}</div>;
-          },
+          onRender: renderUnitCell,
         },
       },
       address: {
@@ -149,9 +183,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: 'Dirección',
         list: {
-          onRender: (props: any) => {
-            return <div>{props?.item?.dpto?.description}</div>;
-          },
+          onRender: renderAddressCell,
         },
       },
       paid_at: {
@@ -159,9 +191,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: 'Fecha de pago',
         list: {
-          onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.paid_at) || '-/-'}</div>;
-          },
+          onRender: renderPaidAtCell,
         },
         filter: {
           key: 'paid_at',
@@ -174,9 +204,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: 'Fecha de plazo',
         list: {
-          onRender: (props: any) => {
-            return <div>{getDateStrMes(props?.item?.debt?.due_at) || '-/-'}</div>;
-          },
+          onRender: renderDueAtCell,
         },
       },
       amount: {
@@ -184,9 +212,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: 'e',
         label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Expensa</span>,
         list: {
-          onRender: (props: any) => {
-            return <FormatBsAlign value={props?.item?.amount} alignRight />;
-          },
+          onRender: renderAmountCell,
         },
         form: {
           type: 'text',
@@ -207,9 +233,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
         list: {
-          onRender: (props: any) => {
-            return <FormatBsAlign value={props.item?.penalty_amount} alignRight />;
-          },
+          onRender: renderPenaltyAmountCell,
         },
       },
       status: {
@@ -217,11 +241,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
-          onRender: (props: any) => {
-            const displayStatus = getDisplayStatus(props?.item);
-            const statusClass = `${styles.statusBadge} ${styles[`status${displayStatus.code}`]}`;
-            return <div className={statusClass}>{displayStatus.text}</div>;
-          },
+          onRender: (props: any) => renderStatusCell(props, getDisplayStatus, styles),
         },
         filter: {
           label: 'Estado',
@@ -239,9 +259,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           optionLabel: 'name',
         },
       },
-    }),
-    []
-  );
+    };
+  }, []);
 
   const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, extraData, onFilter } =
     useCrud({
@@ -251,7 +270,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       getFilter: handleGetFilter,
     });
 
-  // Update statistics when useCrud data loads
   useEffect(() => {
     if (extraData) {
       setStatsData({
@@ -266,7 +284,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     }
   }, [extraData]);
 
-  // Initialize crud utils (keeping for potential future use)
   useCrudUtils({
     onSearch,
     searchs,
@@ -281,10 +298,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   return (
     <div className={styles.ExpensesDetailsView}>
       <div className={styles.backButton}>
-        <div className={styles.backButtonContent} onClick={() => setOpenDetail(false)}>
+        <button
+          type="button"
+          className={styles.backButtonContent}
+          onClick={() => setOpenDetail(false)}
+        >
           <IconArrowLeft />
           <p>Volver a sección expensas</p>
-        </div>
+        </button>
       </div>
 
       <LoadingScreen>
@@ -367,7 +388,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               />
             }
           />
-          {/* Tarjeta 4 (antes en grupo derecho) */}
 
           <WidgetDashCard
             data={'Bs ' + formatNumber(statsData.totalAmount)}

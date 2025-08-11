@@ -2,7 +2,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName } from "@/mk/utils/string";
 import { getDateStrMes, MONTHS_S } from "@/mk/utils/date";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/mk/components/ui/Card/Card";
 import PaymentRenderView from "../../../Payments/RenderView/RenderView";
 import { formatBs } from "@/mk/utils/numbers";
@@ -13,7 +13,6 @@ const RenderView = (props: {
   item: Record<string, any>;
   execute: Function;
 }) => {
-  const [payDetails, setPayDetails] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [item, setItem] = useState(props.item);
 
@@ -31,7 +30,7 @@ const RenderView = (props: {
       true
     );
     if (data.success) {
-      console.log("*******", data);
+
       setItem({ ...data.data });
     }
   };
@@ -44,7 +43,6 @@ const RenderView = (props: {
         return { text: "En mora", code: "M" };
       }
     }
-
     switch (item.status) {
       case "A":
         return { text: "Por cobrar", code: "A" };
@@ -68,8 +66,7 @@ const RenderView = (props: {
     P: "var(--cSuccess)",
     E: "var(--cInfo)",
   };
-  console.log("ExpensesDetails item:", item);
-  console.log("PayDetails:", payDetails);
+
   type LabelValueProps = {
     value: string;
     label: string;
