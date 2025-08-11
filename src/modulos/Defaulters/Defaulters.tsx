@@ -18,8 +18,11 @@ import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
+import { useRouter } from 'next/navigation';
 
 const Defaulters = () => {
+  const router = useRouter();
+
   const mod = {
     modulo: 'defaulters',
     singular: 'Moroso',
@@ -124,9 +127,9 @@ const Defaulters = () => {
         rules: [],
         api: 'ae',
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
             Monto por expensa
-          </span>
+          </label>
         ),
         list: {
           onRender: (props: { item: { expensa: number } }) => (
@@ -137,7 +140,7 @@ const Defaulters = () => {
       multa: {
         rules: [],
         api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
         list: {
           onRender: (props: { item: { multa: number } }) => (
             <FormatBsAlign value={props?.item?.multa} alignRight />
@@ -148,7 +151,7 @@ const Defaulters = () => {
       total: {
         rules: [],
         api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</span>,
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</label>,
         list: {
           onRender: (props: { item: { expensa: number; multa: number } }) => (
             <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />
@@ -203,6 +206,9 @@ const Defaulters = () => {
       calculatedTotals.porCobrarMulta,
     ]
   );
+  const handleRowClick = (item: any) => {
+    router.push(`/dashDpto/${item.dpto_id}`);
+  };
 
   const renderRightPanel = useCallback(() => {
     const expensaColor = 'var(--cCompl5)';
@@ -211,7 +217,7 @@ const Defaulters = () => {
     return (
       <div className={styles.rightPanel}>
         <div className={styles.subtitle}>Representación gráfica del estado general de morosos </div>
-        <div className={styles.widgetsPanel}>
+        <div className={styles.widgetlabelel}>
           <section>
             <WidgetDefaulterResume
               title={'Total de expensas'}
@@ -304,12 +310,13 @@ const Defaulters = () => {
         />
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 380px)'}
+            height={'calc(100vh - 390px)'}
             renderRight={data?.data && data.data.length > 0 ? renderRightPanel : undefined}
             emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
             emptyLine2="residentes con pagos atrasados los verás aquí."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             emptyFullScreen={true}
+            onRowClick={handleRowClick}
           />
         </div>
       </div>

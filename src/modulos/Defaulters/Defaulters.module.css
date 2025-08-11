@@ -47,11 +47,11 @@
   border-radius: var(--bRadiusL);
   border: 0.5px solid var(--cWhiteV1);
   & > div:nth-child(1) {
-    margin-bottom: 0px;
+    margin-bottom: var(--spL);
     display: flex;
     font-size: var(--spL);
     margin-top: var(--spL);
-    width: 300px;
+    width: 100%;
     color: var(--cWhite);
   }
   & > div:nth-child(2) {
