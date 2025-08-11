@@ -18,12 +18,18 @@ const RenderView = (props: {
   const [item, setItem] = useState(props.item);
 
   const reloadItem = async () => {
-    const { data } = await props.execute("/debtdptos", "GET", {
-      fullType: "DET",
-      searchBy: item.id,
-      page: 1,
-      perPage: 1,
-    });
+    const { data } = await props.execute(
+      "/debt-dptos",
+      "GET",
+      {
+        fullType: "DET",
+        searchBy: item.id,
+        page: 1,
+        perPage: 1,
+      },
+      false,
+      true
+    );
     if (data.success) {
       setItem(data.data);
     }
