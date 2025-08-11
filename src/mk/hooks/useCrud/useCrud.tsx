@@ -56,6 +56,7 @@ export type ModCrudType = {
   renderForm?: Function;
   renderDel?: Function;
   export?: boolean;
+  pagination?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -1384,20 +1385,22 @@ const useCrud = ({
                 ) : (
                   <section>{emptyContent}</section>
                 )}
-                <div>
-                  <Pagination
-                    currentPage={params.page}
-                    onPageChange={onChangePage}
-                    setParams={setParams}
-                    params={params}
-                    totalPages={Math.ceil(
-                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
-                    )}
-                    previousLabel=""
-                    nextLabel=""
-                    total={data?.message?.total ?? 0}
-                  />
-                </div>
+                {(mod.pagination !== false) && (
+                  <div>
+                    <Pagination
+                      currentPage={params.page}
+                      onPageChange={onChangePage}
+                      setParams={setParams}
+                      params={params}
+                      totalPages={Math.ceil(
+                        (data?.message?.total ?? 1) / (params.perPage ?? 1)
+                      )}
+                      previousLabel=""
+                      nextLabel=""
+                      total={data?.message?.total ?? 0}
+                    />
+                  </div>
+                )}
               </section>
               {props.renderRight ? props.renderRight() : null}
             </div>
