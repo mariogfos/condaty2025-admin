@@ -25,7 +25,7 @@ const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
 
   { id: "w", name: "Esta semana" },
-  { id: "lw", name: "Semana pasada" },
+  { id: "lw", name: "Semana anterior" },
   { id: "m", name: "Este mes" },
   { id: "lm", name: "Mes anterior" },
   { id: "y", name: "Este año" },
@@ -176,11 +176,11 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     return typeMap[type];
   };
   const typeMap: Record<string, string> = {
-    C: "Sin Qr",
-    G: "Qr Grupal",
-    I: "Qr Individual",
+    C: "Sin QR",
+    G: "QR Grupal",
+    I: "QR Individual",
     P: "Pedido",
-    O: "Llave Qr",
+    O: "Llave QR",
   };
   // Definición del módulo Accesos
   const modAccess: ModCrudType = useMemo(() => {
@@ -312,7 +312,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       type_access: {
         rules: [],
         api: "",
-        label: "Tipo de Acceso",
+        label: "Tipo de acceso",
         list: {
           onRender: (props: any) => {
             return (
@@ -333,12 +333,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
           width: "180px",
           options: () => [
             { id: "ALL", name: "Todos" },
-            { id: "C", name: "Sin Qr" },
-            { id: "G", name: "Qr Grupal" },
-            { id: "I", name: "Qr Individual" },
+            { id: "C", name: "Sin QR" },
+            { id: "I", name: "QR Individual" },
+            { id: "G", name: "QR Grupal" },
+            { id: "F", name: "QR frecuente" },
             { id: "P", name: "Pedido" },
-            { id: "O", name: "Llave Qr" },
-            { id: "F", name: "Qr frecuente" },
+            { id: "O", name: "Llave QR" },
           ],
         },
       },

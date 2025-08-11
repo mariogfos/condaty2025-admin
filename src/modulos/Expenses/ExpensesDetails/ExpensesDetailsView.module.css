@@ -10,9 +10,21 @@
   display: flex;
   align-items: center;
   gap: var(--spM);
-  cursor: pointer;
   margin-bottom: var(--spS);
   color: var(--accent);
+}
+
+.backButtonContent{
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: var(--spM);
+  &:hover{
+    opacity: 0.8;
+    & p{
+      opacity: 0.8;
+    }
+  }
 }
 
 .backButton p {
@@ -183,41 +195,41 @@
 
 /* --- Estilos para badges de estado (Mantenidos de la corrección anterior) --- */
 .statusBadge {
-  font-weight: var(--bMedium);
-  padding: 6px var(--spM);
+  font-weight: var(--bRegular);
+  padding: 6px var(--spS);
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  width: fit-content;
-  /* min-width: 110px; */ /* Mantenido ELIMINADO */
+  width: 100%;
+  /* min-width: 110px; */
   white-space: normal; /* Permitir wrap */
   line-height: 1.3;
   box-sizing: border-box;
 }
 .statusP {
-  background-color: var(--cHoverSuccess);
+  background-color: var(--cHoverCompl2);
   color: var(--cSuccess);
 }
 .statusS {
-  background-color: var(--cHoverWarning);
+  background-color: var(--cHoverCompl4);
   color: var(--cWarning);
 }
 .statusR {
-  background-color: var(--cHoverError);
+  background-color: var(--cHoverCompl11);
   color: var(--cError);
 }
 .statusE {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
 .statusA {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
 .statusM {
-  background-color: var(--cHoverError);
+  background-color: var(--cHoverCompl11);
   color: var(--cError);
 }
 /* --- Fin Badges --- */

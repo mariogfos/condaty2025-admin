@@ -16,12 +16,7 @@ import { UnitsType } from "@/mk/utils/utils";
 import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import {
-  IconDepartment,
-  IconDepartments,
-  IconDepartments2,
-  IconHome,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconDepartments2, IconHome, IconUnidades, IconDepartment, IconLocal } from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   fullType: "L",
@@ -33,6 +28,40 @@ const lTitulars = [
   { id: "S", name: "Disponibles" },
   { id: "C", name: "Habitadas" },
 ];
+
+const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
+  if (name === "Departamento") {
+    return (
+      <IconDepartment
+        color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"}
+        style={{
+          backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl4)"
+        }}
+        circle
+        size={18}
+      />
+    );
+  } else if (name === "Local") {
+    return (
+      <IconLocal
+        color={
+          isEmpty
+          ? "var(--cWhiteV1)"
+          : "var(--cAlert)"
+        }
+        style={{
+          backgroundColor:
+            isEmpty
+            ? "var(--cHover)"
+            : "var(--cHoverCompl9)"
+        }}
+        circle
+        size={18}
+      />
+    )
+  }
+  return <div style={{ width: 40, height: 40 }} />;
+};
 
 const Dptos = () => {
   const router = useRouter();
@@ -404,29 +433,29 @@ const Dptos = () => {
           display: "flex",
           gap: 12,
           overflowX: "auto",
+          marginBottom: 16,
         }}
       >
         <WidgetDashCard
           title={"Unidades totales"}
-          data={data?.message?.total || 0}
-          style={{ minWidth: "280px", maxWidth: "260px" }}
+          data={data?.message?.total}
+          style={{ minWidth: "160px", maxWidth: "268px" }}
           icon={
-            <Round
+            <IconUnidades
+              color={
+                !data?.message?.total || data?.message?.total === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
+              }
               style={{
                 backgroundColor:
                   !data?.message?.total || data?.message?.total === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl3)",
               }}
-            >
-              <IconDepartments2
-                color={
-                  !data?.message?.total || data?.message?.total === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cInfo)"
-                }
-              />
-            </Round>
+              circle
+              size={18}
+            />
           }
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
@@ -436,36 +465,27 @@ const Dptos = () => {
               key={i}
               title={item.name}
               data={item.value}
-              style={{ minWidth: "280px", maxWidth: "260px" }}
+              style={{ minWidth: "160px", maxWidth: "268px" }}
               icon={
-                item?.name === "Casa" ? (
-                  <Round
+                item?.name === "Casa"
+                ? (
+                  <IconHome
+                    color={
+                      isEmpty
+                      ? "var(--cWhiteV1)"
+                      : "var(--cSuccess)"
+                    }
                     style={{
-                      backgroundColor: isEmpty
+                      backgroundColor:
+                        isEmpty
                         ? "var(--cHover)"
-                        : "var(--cHoverSuccess)",
-                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)",
+                        : "var(--cHoverCompl2)"
                     }}
-                  >
-                    <IconHome
-                      color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"}
-                    />
-                  </Round>
-                ) : item.name == "Departamento" ? (
-                  <Round
-                    style={{
-                      backgroundColor: isEmpty
-                        ? "var(--cHover)"
-                        : "var(--cHoverWarning)",
-                      color: isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)",
-                    }}
-                  >
-                    <IconDepartment
-                      color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"}
-                    />
-                  </Round>
+                    circle
+                    size={18}
+                  />
                 ) : (
-                  <div style={{ width: 40, height: 40 }} />
+                  renderDepartmentIcon(item.name, isEmpty)
                 )
               }
             />

@@ -320,7 +320,7 @@ const Alerts = () => {
                       : "rgba(255, 255, 255, 0.1)",
                 }}
                 circle
-                size={38}
+                size={18}
               />
             }
             className={styles.widgetResumeCard}
@@ -344,7 +344,7 @@ const Alerts = () => {
                       : "var(--cHoverSuccess)",
                 }}
                 circle
-                size={38}
+                size={18}
               />
             }
             className={styles.widgetResumeCard}
@@ -369,7 +369,7 @@ const Alerts = () => {
                       : "var(--cHoverWarning)",
                 }}
                 circle
-                size={38}
+                size={18}
               />
             }
             className={styles.widgetResumeCard}
@@ -393,7 +393,7 @@ const Alerts = () => {
                       : "var(--errorBg)",
                 }}
                 circle
-                size={38}
+                size={18}
               />
             }
             className={styles.widgetResumeCard}
@@ -417,7 +417,7 @@ const Alerts = () => {
                       : "var(--errorBg)",
                 }}
                 circle
-                size={38}
+                size={18}
               />
             }
             className={styles.widgetResumeCard}
