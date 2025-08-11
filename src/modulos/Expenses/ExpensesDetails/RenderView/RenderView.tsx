@@ -31,7 +31,8 @@ const RenderView = (props: {
       true
     );
     if (data.success) {
-      setItem(data.data);
+      console.log("*******", data);
+      setItem({ ...data.data });
     }
   };
   const getStatus = (item: any) => {
@@ -242,6 +243,7 @@ const RenderView = (props: {
             setOpenPayment(false);
           }}
           payment_id={item.payment_id}
+          noWaiting={true}
         />
       )}
     </>
