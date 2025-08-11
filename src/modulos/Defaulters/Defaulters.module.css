@@ -60,7 +60,7 @@
   }
   & > div > section:nth-child(1) {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     width: 100%;
     flex: 1;
 
