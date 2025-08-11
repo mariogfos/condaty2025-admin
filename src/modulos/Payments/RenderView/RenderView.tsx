@@ -170,7 +170,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo((props) => {
       P: "Cobrado",
       S: "Por confirmar",
       R: "Rechazado",
-      E: "Por subir comprobante",
       A: "Por pagar",
       M: "Moroso",
       X: "Anulado",

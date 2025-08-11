@@ -19,7 +19,6 @@ interface HistoryPaymentsProps {
 const getStatus = (status: string) => {
   const statusMap: Record<string, string> = {
     A: "Por Pagar",
-    E: "Por subir comprobante",
     P: "Pagado",
     S: "Por confirmar",
     M: "Moroso",

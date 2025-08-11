@@ -84,8 +84,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     switch (item.status) {
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
-      case 'E':
-        return { text: 'Subir comprobante', code: 'E' };
       case 'P':
         return { text: 'Cobrado', code: 'P' };
       case 'S':
@@ -250,7 +248,6 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: 'ALL', name: 'Todos' },
               { id: 'A', name: 'Por cobrar' },
-              { id: 'E', name: 'Por subir comprobante' },
               { id: 'P', name: 'Cobrado' },
               { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },

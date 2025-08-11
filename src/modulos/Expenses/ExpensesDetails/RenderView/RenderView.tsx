@@ -45,8 +45,6 @@ const RenderView = (props: {
     switch (item.status) {
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
-      case 'E':
-        return { text: 'Subir comprobante', code: 'E' };
       case 'P':
         return { text: 'Cobrado', code: 'P' };
       case 'S':
