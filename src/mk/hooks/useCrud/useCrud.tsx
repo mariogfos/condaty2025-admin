@@ -158,6 +158,7 @@ type UseCrudType = {
   findOptions: Function;
   getExtraData: Function;
   openCard: boolean;
+  localSearchTerm: string;
 };
 
 const useCrud = ({
@@ -382,12 +383,28 @@ const useCrud = ({
   };
 
   const [oldSearch, setOldSearch] = useState({});
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
   const onSearch = (_search: string) => {
-    let searchBy = { searchBy: _search };
-    if (getSearch) searchBy = getSearch(_search, oldSearch);
-    setSearchs(searchBy);
-    setParams({ ...params, ...searchBy, page: 1 });
-    setOldSearch(searchBy);
+    
+    if (getSearch) {
+      const searchResult = getSearch(_search, oldSearch);
+      if (searchResult === null) {
+        // Búsqueda local
+        setLocalSearchTerm(_search);
+        setSearchs({ searchBy: _search });
+        return;
+      }
+      // Búsqueda remota
+      setSearchs(searchResult);
+      setParams({ ...params, ...searchResult, page: 1 });
+      setOldSearch(searchResult);
+    } else {
+      // Búsqueda remota por defecto
+      let searchBy = { searchBy: _search };
+      setSearchs(searchBy);
+      setParams({ ...params, ...searchBy, page: 1 });
+      setOldSearch(searchBy);
+    }
   };
   const [oldFilter, setOldFilter]: any = useState({});
   const onFilter = (_opt: string, value: string) => {
@@ -1290,18 +1307,61 @@ const useCrud = ({
       return head;
     };
 
+    // Filtrar datos localmente si hay término de búsqueda local
+    const getFilteredData = () => {
+      if (!localSearchTerm || !data?.data) return data?.data || [];
+      
+      const searchLower = localSearchTerm.toLowerCase();
+      
+      return data.data.filter((item: any) => {
+      
+        const searchInObject = (obj: any, depth = 0): boolean => {
+          if (depth > 3) return false; 
+          
+          if (obj === null || obj === undefined) return false;
+          
+          if (typeof obj === 'string' || typeof obj === 'number') {
+            return String(obj).toLowerCase().includes(searchLower);
+          }
+          
+          if (typeof obj === 'object') {
+            for (const key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                if (searchInObject(obj[key], depth + 1)) {
+                  return true;
+                }
+              }
+            }
+          }
+          
+          return false;
+        };
+        
+       
+        return searchInObject(item);
+      });
+    };
+
     const [header, setHeader]: any = useState([]);
     const [lFilter, setLfilter]: any = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    
     useEffect(() => {
       setHeader(getHeader());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fields]);
+
+    useEffect(() => {
+      setFilteredData(getFilteredData());
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data?.data, localSearchTerm]);
     let emptyContent;
     if (props.onRenderEmpty) {
       emptyContent = props.onRenderEmpty();
     } else if (
       (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && Object.keys(searchs).length > 0)
+      (searchs && Object.keys(searchs).length > 0) ||
+      localSearchTerm
     ) {
       emptyContent = (
         <EmptyData
@@ -1334,7 +1394,7 @@ const useCrud = ({
           <AddMenu
             filters={lFilter}
             extraButtons={extraButtons}
-            data={data?.data}
+            data={filteredData}
             breakPoint={props.filterBreakPoint}
           />
         )}
@@ -1354,9 +1414,9 @@ const useCrud = ({
                   flexGrow: 1,
                 }}
               >
-                {data?.data?.length > 0 ? (
+                {filteredData?.length > 0 ? (
                   <Table
-                    data={data?.data}
+                    data={filteredData}
                     onRowClick={
                       mod.hideActions?.view ? props.onRowClick : onView
                     }
@@ -1574,6 +1634,7 @@ const useCrud = ({
     findOptions,
     getExtraData,
     openCard,
+    localSearchTerm,
   };
 };
 
