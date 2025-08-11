@@ -73,17 +73,16 @@
 
 .infoLabel {
   color: var(--cWhiteV1);
-  font-size: var(--sS);
+  font-size: var(--sL);
   font-weight: var(--bRegular);
-  line-height: 1.4;
+  font-weight: 400;
   text-align: left;
 }
 
 .infoValue {
   color: var(--cWhite);
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
-  line-height: 1.5;
+  font-size: var(--sL);
+  font-weight: 500;
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0;
