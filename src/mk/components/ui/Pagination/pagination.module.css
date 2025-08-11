@@ -180,3 +180,9 @@
     width: 100%;
   }
 }
+
+button:disabled,
+button:hover:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
