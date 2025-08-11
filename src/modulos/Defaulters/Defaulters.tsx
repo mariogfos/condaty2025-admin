@@ -128,7 +128,7 @@ const Defaulters = () => {
         api: 'ae',
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto por expensa
+            Total expensas
           </label>
         ),
         list: {
@@ -140,7 +140,11 @@ const Defaulters = () => {
       multa: {
         rules: [],
         api: 'ae',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Total multas
+          </label>
+        ),
         list: {
           onRender: (props: { item: { multa: number } }) => (
             <FormatBsAlign value={props?.item?.multa} alignRight />
@@ -151,7 +155,9 @@ const Defaulters = () => {
       total: {
         rules: [],
         api: 'ae',
-        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</label>,
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</label>
+        ),
         list: {
           onRender: (props: { item: { expensa: number; multa: number } }) => (
             <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />
