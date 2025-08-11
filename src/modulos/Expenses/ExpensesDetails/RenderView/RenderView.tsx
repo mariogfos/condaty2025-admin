@@ -43,6 +43,7 @@ const RenderView = (props: { open: boolean; onClose: any; item: Record<string, a
     M: 'var(--cError)',
     S: 'var(--cWarning)',
     P: 'var(--cSuccess)',
+    E: 'var(--cInfo)',
   };
   console.log('ExpensesDetails props?.item:', props?.item);
   console.log('PayDetails:', payDetails);
