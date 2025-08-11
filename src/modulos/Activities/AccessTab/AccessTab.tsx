@@ -1,17 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState, useEffect } from "react";
 import styles from "../Activities.module.css";
-import { getDateStrMes, getDateTimeStrMesShort } from "@/mk/utils/date";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import {
-  IconVehicle,
-  IconFoot,
-  IconOwner,
-  IconKey,
-  IconExitHome,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconExitHome } from "@/components/layout/icons/IconsBiblioteca";
 
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
@@ -171,12 +165,6 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       }
     }
   };
-
-  // const typeOrder:any ={
-  //   T:'Taxi',
-  //   D:'Delivery',
-  //   O:'Otro tipo'
-  // }
 
   const getTypeAccess = (type: string, param: any) => {
     if (type === "P") {
@@ -361,9 +349,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   const {
     userCan,
     List,
-    data,
     reLoad,
-    params,
     setParams,
     onSearch,
     searchs,
@@ -428,13 +414,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
 
   return (
     <>
-      {" "}
-      {/* O un div principal */}
       <List
         height={"calc(100vh - 350px)"}
         emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
         emptyLine2="aquí una vez el guardia registre un acceso."
         emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={1700}
       />
       <DataModal
         open={openCustomFilterModal}
