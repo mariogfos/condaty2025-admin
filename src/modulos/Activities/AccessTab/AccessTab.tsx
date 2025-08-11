@@ -324,7 +324,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       type_access: {
         rules: [],
         api: "",
-        label: "Tipo de Acceso",
+        label: "Tipo de acceso",
         list: {
           onRender: (props: any) => {
             return (
