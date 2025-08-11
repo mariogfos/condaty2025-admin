@@ -263,7 +263,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Guardia de salida</span>
                   <span className={styles.infoValue}>
-                    {getFullName(out_guard || guardia) || "-/-"}
+                    {out_at ? getFullName(out_guard || guardia) : "-/-"}
                   </span>
                 </div>
 

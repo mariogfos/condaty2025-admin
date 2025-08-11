@@ -426,9 +426,9 @@ const Dptos = () => {
       <h1 className={styles.dashboardTitle}>Unidades</h1>
       <div className={styles.allStatsRow}>
         <WidgetDashCard
-          title={'Unidades totales'}
-          data={data?.message?.total}
-          style={{ minWidth: '160px', maxWidth: '268px' }}
+          title={"Unidades totales"}
+          data={data?.message?.total || 0}
+          style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <IconUnidades
               color={
