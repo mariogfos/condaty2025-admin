@@ -107,12 +107,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   } = accessDetail;
 
   const typeMap: Record<string, string> = {
-    C: "Sin Qr",
-    G: "Qr Grupal",
-    I: "Qr Individual",
+    C: "Sin QR",
+    I: "QR Individual",
+    G: "QR Grupal",
+    F: "QR Frecuente",
     P: "Pedido",
     O: "Llave QR",
-    F: "Qr Frecuente",
   };
 
   const getTypeAccess = (type: string, param: any) => {
