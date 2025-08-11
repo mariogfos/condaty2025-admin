@@ -408,7 +408,7 @@ const Dptos = () => {
       >
         <WidgetDashCard
           title={"Unidades totales"}
-          data={data?.message?.total}
+          data={data?.message?.total || 0}
           style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <Round
