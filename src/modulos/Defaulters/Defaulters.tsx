@@ -28,6 +28,7 @@ const Defaulters = () => {
     singular: "Moroso",
     plural: "Morosos",
     permiso: "defaulters",
+    pagination: false,
     extraData: true,
     export: true,
     hideActions: {
