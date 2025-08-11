@@ -39,7 +39,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
 
     if (invitation?.status == "O") {
       statusText = "Finalizado";
-      statusClass = styles.statusActive;
+      statusClass = styles.statusCompleted;
       // } else if (invitation?.status == "A") {
       //   statusText = "Por salir";
       //   statusClass = styles.statusActive;
@@ -81,7 +81,6 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   }
 
   const statusInfo = getStatusInfo();
-  console.log(item);
 
   return (
     <DataModal
@@ -119,9 +118,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               </span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Invitado</span>
+              <span className={styles.infoLabel}>
+                {invitation.type !== "G" ? "Invitado" : "Evento"}
+              </span>
               <span className={styles.infoValue}>
-                {getFullName(visit) || invitation?.title || "-/-"}
+                {invitation.type !== "G"
+                  ? getFullName(visit) || "-/-"
+                  : invitation?.title || "-/-"}
               </span>
             </div>
             <div className={styles.infoBlock}>
@@ -133,6 +136,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               </span>
             </div>
           </div>
+
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
@@ -140,10 +144,21 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 {statusInfo.text}
               </span>
             </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Teléfono</span>
-              <span className={styles.infoValue}>{visit?.phone || "-/-"}</span>
-            </div>
+            {invitation.type !== "G" ? (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Teléfono</span>
+                <span className={styles.infoValue}>
+                  {visit?.phone || "-/-"}
+                </span>
+              </div>
+            ) : (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Cantidad de invitados</span>
+                <span className={styles.infoValue}>
+                  {invitation?.guests?.length || "-/-"}
+                </span>
+              </div>
+            )}
             {item?.type !== "C" && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>
