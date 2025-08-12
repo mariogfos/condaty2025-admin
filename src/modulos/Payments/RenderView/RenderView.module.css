@@ -239,6 +239,11 @@
   height: 55px;
 }
 
+.periodsTableBody .periodsTableRow,
+.periodsTableBody .periodsTableRowReservations {
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
 .periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,
 .periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell {
   background-color: var(--cWhiteV2);
