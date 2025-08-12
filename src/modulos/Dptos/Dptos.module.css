@@ -24,3 +24,24 @@
   border-radius: 4px;
   font-size: 12px;
 }
+
+.dashboardTitle {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: var(--spL);
+  color: var(--cWhite);
+}
+
+.allStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spM);
+  width: 100%;
+  margin-bottom: var(--spL);
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spL);
+}
