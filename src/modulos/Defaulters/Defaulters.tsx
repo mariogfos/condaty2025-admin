@@ -316,6 +316,7 @@ const Defaulters = () => {
           onClick={() => undefined}
           tooltip={true}
           tooltipTitle="Lista de unidades que no han  pagado sus expensas a tiempo."
+          tooltipWidth={348}
           icon={
             <IconHousing
               reverse
