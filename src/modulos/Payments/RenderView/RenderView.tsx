@@ -498,11 +498,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                             </div>
                             <div className={styles.periodsTableCell} data-label="Concepto">
                               {periodo?.debt_dpto?.debt?.type === 3
-                                ? `Multa: Cancelación del área ${
+                                ? `Multa por Cancelación: ${
                                     periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
                                     '-/-'
                                   }`
-                                : periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}
+                                : `Reserva: ${
+                                    periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'
+                                  }`}
                             </div>
                             <div className={styles.periodsTableCell} data-label="Total">
                               {formatBs(periodo?.amount || 0)}
