@@ -1175,7 +1175,7 @@ const useCrud = ({
                 e.stopPropagation();
                 onEdit(item);
               }}
-              size={28}
+              size={32}
               circle
             />
           </div>
@@ -1187,7 +1187,7 @@ const useCrud = ({
                 e.stopPropagation();
                 onDel(item);
               }}
-              size={28}
+              size={32}
               circle
             />
           </div>
