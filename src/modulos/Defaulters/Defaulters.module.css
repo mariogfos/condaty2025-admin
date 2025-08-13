@@ -1,6 +1,5 @@
 .container {
   width: 100%;
-
 }
 
 .title {
@@ -21,7 +20,6 @@
   flex-direction: column;
   margin-top: var(--spL);
   flex-wrap: wrap;
-
 }
 
 .exportButton {
@@ -37,7 +35,8 @@
 .rightPanel {
   width: 40%;
   display: flex;
-  height: fit-content;
+  /* height: fit-content; */
+  height: calc(100vh - 310px);
   overflow-y: auto;
   flex-direction: column;
   padding-left: var(--spL);
@@ -63,7 +62,6 @@
     gap: 4px;
     width: 100%;
     flex: 1;
-
   }
 }
 .widgetResumeCard {
@@ -74,7 +72,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: var(--spM);
+  /* margin-bottom: var(--spM); */
 }
 
 .widgetsPanel {
@@ -134,5 +132,3 @@
     }
   }
 }
-
-
