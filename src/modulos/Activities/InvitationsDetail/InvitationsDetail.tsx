@@ -119,10 +119,10 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>
-                {invitation.type !== "G" ? "Invitado" : "Evento"}
+                {invitation?.type !== "G" ? "Invitado" : "Evento"}
               </span>
               <span className={styles.infoValue}>
-                {invitation.type !== "G"
+                {invitation?.type !== "G"
                   ? getFullName(visit) || "-/-"
                   : invitation?.title || "-/-"}
               </span>
@@ -144,14 +144,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 {statusInfo.text}
               </span>
             </div>
-            {invitation.type !== "G" ? (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Teléfono</span>
-                <span className={styles.infoValue}>
-                  {visit?.phone || "-/-"}
-                </span>
-              </div>
-            ) : (
+            {invitation.type == "G" && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Cantidad de invitados</span>
                 <span className={styles.infoValue}>
