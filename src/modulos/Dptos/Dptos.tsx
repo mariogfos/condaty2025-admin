@@ -67,22 +67,22 @@ const Dptos = () => {
 
   const client = user?.clients?.filter((item: any) => item?.id === user?.client_id)[0];
 
-  const { setStore } = useAuth();
+  const { setStore, store } = useAuth();
 
   useEffect(() => {
-    setStore({ UnitsType: UnitsType[client?.type_dpto], title: '' });
+    setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: '' });
   }, []);
 
   const mod: ModCrudType = {
     modulo: 'dptos',
-    singular: 'unidad',
-    plural: 'unidades',
+    singular: '',
+    plural: '',
     filter: true,
     permiso: '',
     export: true,
     extraData: true,
     import: true,
-    titleAdd:"Nueva",
+    titleAdd: 'Nueva unidad',
     hideActions: {
       view: true,
       add: false,
