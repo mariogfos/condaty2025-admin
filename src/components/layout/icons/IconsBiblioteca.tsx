@@ -1069,7 +1069,7 @@ export const IconLogoBackgroundElekta = (props: IconType) => {
       <path
         d="M495.031 390.21C495.46 376.877 497.819 364.288 501.678 352.515H401.972L319.955 270.744C338.753 243.085 349.76 209.752 349.76 173.866C349.724 78.1228 271.531 0.5 175.041 0.5C78.5508 0.5 0.322266 78.1228 0.322266 173.866C0.322266 269.609 78.5508 347.232 175.041 347.232C214.816 347.232 251.483 334.041 280.859 311.807L399.506 429.5H498.247C495.782 418.72 494.96 407.302 494.96 395.245C494.96 393.579 494.96 391.912 495.031 390.245V390.21Z"
         fill="#F48120"
-        fill-opacity="0.04"
+        fillOpacity="0.04"
       />
     </IconWrap>
   );
@@ -3676,7 +3676,6 @@ export const IconGuardShield = (props: IconType) => {
 export const IconAlert2 = (props: IconType) => {
   const { color, size, ...restOfProps } = props; // Destructuramos size también por si IconWrap no lo usa directamente
   const iconColorToUse = color || "currentColor";
-  const desiredStrokeWidth = "1"; // Un trazo fino, ajusta si es necesario o si no se desea trazo.
   // El path original no define trazos, parece más una forma rellena.
 
   // Valores de traslación para centrar el dibujo de IconAlert2
