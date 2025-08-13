@@ -36,14 +36,14 @@
   width: 40%;
   display: flex;
   /* height: fit-content; */
-  height: 488px;
+  height: calc(100vh - 318px);
   overflow-y: auto;
   flex-direction: column;
   padding-left: var(--spL);
   padding-right: var(--spL);
   background-color: var(--cBlackV1);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: var(--bRadiusL);
+  border-radius: var(--bRadius);
   border: 0.5px solid var(--cWhiteV1);
   & > div:nth-child(1) {
     margin-bottom: var(--spL);
