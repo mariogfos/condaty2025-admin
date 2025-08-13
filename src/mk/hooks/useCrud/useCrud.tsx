@@ -1400,7 +1400,7 @@ const useCrud = ({
                 ) : (
                   <section>{emptyContent}</section>
                 )}
-                {mod.pagination !== false && (
+                {props?.paginationHide ? null : (
                   <div>
                     <Pagination
                       currentPage={params.page}

@@ -318,8 +318,8 @@ const Defaulters = () => {
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
               colors: [expensaColor, multaColor],
-              height: 380,
-              width: 380,
+              height: 310,
+              width: 310,
               centerText: "Total",
             }}
           />
@@ -371,6 +371,7 @@ const Defaulters = () => {
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             emptyFullScreen={true}
             onRowClick={handleRowClick}
+            paginationHide={true}
           />
         </div>
       </div>
