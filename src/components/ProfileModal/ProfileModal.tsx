@@ -162,7 +162,7 @@ const ProfileModal = ({
     });
     if (data?.success == true) {
       // getAreasM();
-      showToast(profileRole + " eliminar con éxito", "success");
+      showToast(profileRole + " eliminado con éxito", "success");
       onClose();
       reLoad();
       reLoadDet();
