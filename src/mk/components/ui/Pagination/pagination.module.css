@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: var(--spXl);
+  margin-top: var(--spL);
 }
 .paginationInfo {
   color: var(--accent);
@@ -179,4 +179,10 @@
   .goButton {
     width: 100%;
   }
+}
+
+.button:disabled,
+.button:hover:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

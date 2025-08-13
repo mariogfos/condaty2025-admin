@@ -36,7 +36,7 @@
   width: 40%;
   display: flex;
   /* height: fit-content; */
-  height: calc(100vh - 310px);
+  height: 488px;
   overflow-y: auto;
   flex-direction: column;
   padding-left: var(--spL);
@@ -46,11 +46,11 @@
   border-radius: var(--bRadiusL);
   border: 0.5px solid var(--cWhiteV1);
   & > div:nth-child(1) {
-    margin-bottom: 0px;
+    margin-bottom: var(--spL);
     display: flex;
     font-size: var(--spL);
     margin-top: var(--spL);
-    width: 300px;
+    width: 100%;
     color: var(--cWhite);
   }
   & > div:nth-child(2) {
@@ -59,7 +59,7 @@
   }
   & > div > section:nth-child(1) {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     width: 100%;
     flex: 1;
   }

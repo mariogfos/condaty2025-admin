@@ -18,13 +18,38 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import { useRouter } from "next/navigation";
 
 const Defaulters = () => {
+  const router = useRouter();
+  const onSearch = (items: any[], search: any) => {
+    const d: any[] = [];
+
+    items.map((item) => {
+      const name =
+        item.titular?.owner?.name +
+        " " +
+        item.titular?.owner?.second_name +
+        " " +
+        item.titular?.owner?.last_name +
+        " " +
+        item.titular?.owner?.mother_last_name;
+      console.log("****search", search, item);
+      if (
+        item.dpto?.toLowerCase().includes(search.searchBy?.toLowerCase()) ||
+        name.toLowerCase().includes(search.searchBy?.toLowerCase())
+      ) {
+        d.push(item);
+      }
+    });
+    return d;
+  };
   const mod = {
     modulo: "defaulters",
     singular: "Moroso",
     plural: "Morosos",
     permiso: "defaulters",
+    pagination: false,
     extraData: true,
     export: true,
     hideActions: {
@@ -39,6 +64,7 @@ const Defaulters = () => {
       edit: "Moroso actualizado con éxito",
       del: "Moroso eliminado con éxito",
     },
+    onSearch: onSearch,
   };
 
   const paramsInitial = {
@@ -126,8 +152,11 @@ const Defaulters = () => {
         rules: [],
         api: "ae",
         label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Monto por expensa
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Total de expensas"
+          >
+            Expensas
           </span>
         ),
         list: {
@@ -140,8 +169,11 @@ const Defaulters = () => {
         rules: [],
         api: "ae",
         label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Multa
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Total de multas"
+          >
+            Multas
           </span>
         ),
         list: {
@@ -155,7 +187,10 @@ const Defaulters = () => {
         rules: [],
         api: "ae",
         label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Monto total"
+          >
             Total
           </span>
         ),
@@ -218,6 +253,9 @@ const Defaulters = () => {
       calculatedTotals.porCobrarMulta,
     ]
   );
+  const handleRowClick = (item: any) => {
+    router.push(`/dashDpto/${item.dpto_id}`);
+  };
 
   const renderRightPanel = useCallback(() => {
     const expensaColor = "var(--cCompl5)";
@@ -228,7 +266,7 @@ const Defaulters = () => {
         <div className={styles.subtitle}>
           Representación gráfica del estado general de morosos{" "}
         </div>
-        <div className={styles.widgetsPanel}>
+        <div className={styles.widgetlabelel}>
           <section>
             <WidgetDefaulterResume
               title={"Total de expensas"}
@@ -280,8 +318,8 @@ const Defaulters = () => {
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
               colors: [expensaColor, multaColor],
-              height: 300,
-              width: 300,
+              height: 310,
+              width: 310,
               centerText: "Total",
             }}
           />
@@ -300,6 +338,7 @@ const Defaulters = () => {
           onClick={() => undefined}
           tooltip={true}
           tooltipTitle="Lista de unidades que no han  pagado sus expensas a tiempo."
+          tooltipWidth={348}
           icon={
             <IconHousing
               reverse
@@ -323,7 +362,7 @@ const Defaulters = () => {
         />
         <div className={styles.listContainer}>
           <List
-            height={"calc(100vh - 380px)"}
+            height={"calc(100vh - 390px)"}
             renderRight={
               data?.data && data.data.length > 0 ? renderRightPanel : undefined
             }
@@ -331,6 +370,7 @@ const Defaulters = () => {
             emptyLine2="residentes con pagos atrasados los verás aquí."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             emptyFullScreen={true}
+            onRowClick={handleRowClick}
             paginationHide={true}
           />
         </div>

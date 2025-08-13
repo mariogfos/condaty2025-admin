@@ -221,7 +221,9 @@ const Head = memo(function Head({
               title={
                 onRenderHead
                   ? onRenderHead(item, index, onSort, sortCol, true)
-                  : item.label
+                  : typeof item.label === "string"
+                  ? item.label
+                  : undefined
               }
             >
               {onRenderHead

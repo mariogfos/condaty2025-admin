@@ -114,10 +114,7 @@ const UnitsType = () => {
         api: "ae",
         label: "Descripción",
         list: true,
-        form: { type: "text" },
-        onRender: (props: any) => {
-          console.log(props, "extr 71");
-        },
+        form: { type: "text" }
       },
       fields: {
         rules: [""],
