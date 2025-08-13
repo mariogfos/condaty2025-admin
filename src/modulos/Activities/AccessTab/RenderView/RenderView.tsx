@@ -121,7 +121,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     }
     return typeMap[type];
   };
-
   return (
     <>
       <DataModal
@@ -180,14 +179,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getTypeAccess(item?.type, item)}
                   </span>
                 </div>
-                {/* {item?.type == "G" && (
+                {item?.type == "G" && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Evento</span>
                     <span className={styles.infoValue}>
-                      {item?.access?.title}
+                      {item?.invitation?.title}
                     </span>
                   </div>
-                )} */}
+                )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
                     Hora y fecha de ingreso
@@ -240,6 +239,16 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getStatus()}
                   </span>
                 </div>
+                {item?.type == "G" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      Cantidad de invitados
+                    </span>
+                    <span className={styles.infoValue}>
+                      {accessDetail?.invitation?.guests?.length || "-/-"}
+                    </span>
+                  </div>
+                )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
                     Hora y fecha de salida
