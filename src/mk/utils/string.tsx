@@ -1,5 +1,116 @@
 import { JSX } from "react";
 
+const exceptions: Record<string, string> = {
+  hombre: "hombres",
+  hombres: "hombre",
+  régimen: "regímenes",
+  regímenes: "régimen",
+  carácter: "caracteres",
+  caracteres: "carácter",
+  espécimen: "especímenes",
+  especímenes: "espécimen",
+  yérsey: "yérseys",
+  yérseys: "yérsey",
+  // Palabras invariables (mismo singular y plural)
+  crisis: "crisis",
+  tesis: "tesis",
+  paréntesis: "paréntesis",
+  análisis: "análisis",
+  síntesis: "síntesis",
+};
+
+export function pluralize(word: string, count: number) {
+  // Normalizar la palabra a minúsculas para facilitar el manejo
+  const normalizedWord = word.toLowerCase().trim();
+
+  // Si count es 1, devolver la palabra en singular (verificar excepciones)
+  if (count === 1) {
+    return exceptions[normalizedWord] &&
+      exceptions[normalizedWord] !== normalizedWord
+      ? exceptions[normalizedWord]
+      : normalizedWord;
+  }
+
+  // Verificar si la palabra tiene una excepción en plural
+  if (exceptions[normalizedWord]) {
+    return exceptions[normalizedWord];
+  }
+
+  // Reglas para pluralizar
+  const pluralizeRules = [
+    {
+      // Palabras que terminan en vocal átona (a, e, o, u) o en "í", "ú"
+      test: (w: string) => /[aeiouíú]$/.test(w),
+      transform: (w: string) => w + "s",
+    },
+    {
+      // Palabras que terminan en vocal tónica con tilde (á, é, ó)
+      test: (w: string) => /[áéó]$/.test(w),
+      transform: (w: string) =>
+        w.slice(0, -1) +
+        w.slice(-1).replace("á", "a").replace("é", "e").replace("ó", "o") +
+        "es",
+    },
+    {
+      // Palabras que terminan en consonante (excepto z, s)
+      test: (w: string) => /[^aeiouáéíóúzs]$/.test(w),
+      transform: (w: string) => w + "es",
+    },
+    {
+      // Palabras que terminan en "z"
+      test: (w: string) => /z$/.test(w),
+      transform: (w: string) => w.slice(0, -1) + "ces",
+    },
+    {
+      // Palabras que terminan en "s" y no cambian (ej. crisis, paréntesis)
+      test: (w: string) => /s$/.test(w),
+      transform: (w: string) => w, // No cambian en plural
+    },
+  ];
+
+  // Aplicar la regla adecuada para pluralizar
+  const rule = pluralizeRules.find((r) => r.test(normalizedWord));
+  return rule ? rule.transform(normalizedWord) : normalizedWord;
+}
+
+export function singularize(word: string) {
+  // Normalizar la palabra a minúsculas
+  const normalizedWord = word.toLowerCase().trim();
+
+  // Verificar si la palabra tiene una excepción en singular
+  if (exceptions[normalizedWord]) {
+    return exceptions[normalizedWord];
+  }
+
+  // Reglas para singularizar
+  const singularizeRules = [
+    {
+      // Palabras que terminan en "s" y la singular termina en vocal (ej. casas -> casa)
+      test: (w: string) => /[aeiou]s$/.test(w),
+      transform: (w: string) => w.slice(0, -1),
+    },
+    {
+      // Palabras que terminan en "ces" (ej. peces -> pez)
+      test: (w: string) => /ces$/.test(w),
+      transform: (w: string) => w.slice(0, -3) + "z",
+    },
+    {
+      // Palabras que terminan en "es" y la singular termina en consonante (ej. flores -> flor)
+      test: (w: string) => /[^aeiou]es$/.test(w),
+      transform: (w: string) => w.slice(0, -2),
+    },
+    {
+      // Palabras que no cambian (ej. crisis, paréntesis)
+      test: (w: string) => /s$/.test(w),
+      transform: (w: string) => w,
+    },
+  ];
+
+  // Aplicar la regla adecuada para singularizar
+  const rule = singularizeRules.find((r) => r.test(normalizedWord));
+  return rule ? rule.transform(normalizedWord) : normalizedWord;
+}
+
 export const initialsName = (name: string) => {
   const names = (name + " ").split(" ");
   return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase().trim();
@@ -89,35 +200,7 @@ export const displayObjectAsHtml = (obj: Record<string, any>): JSX.Element => {
     </ul>
   );
 };
-// document.addEventListener("keydown", function (e) {
-//   e.preventDefault();
-//   if (e.ctrlKey && e.key === "p") {
-//     takeScreenshot(function (screenshot) {
 
-//       printPage(screenshot);
-//     });
-//   }
-// });
-// export function printPage(screenshot) {
-//   var win: any = window.open("", "prueba");
-//   win.document.write("<html>");
-//   win.document.write("<head></head>");
-//   win.document.write("<body>");
-//   win.document.write('<img src="' + screenshot + '"/>');
-//   win.document.write("</body>");
-//   win.document.write("</html>");
-//   win.print();
-//   win.close();
-// }
-export function takeScreenshot(cb: any) {
-  // html2canvas(document.getElementById('area'), {
-  //   useCORS: true,
-  //   onrendered: function (canvas) {
-  //     var image = canvas.toDataURL();
-  //     cb(image);
-  //   }
-  // });
-}
 export const PREFIX_COUNTRY = [
   { id: "54", name: "🇦🇷 Argentina", label: "+54 Argentina" }, // Argentina
   { id: "297", name: "🇦🇼 Aruba", label: "+297 Aruba" }, // Aruba
@@ -162,4 +245,3 @@ export const getInitials = (name = "", lastName = "") => {
   const lastInitial = lastName?.charAt(0)?.toUpperCase() || "";
   return `${firstInitial}${lastInitial}`;
 };
-
