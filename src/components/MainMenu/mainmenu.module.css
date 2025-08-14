@@ -70,7 +70,7 @@
     display: flex;
     align-items: center;
     gap: var(--spS);
-    padding: var(--spL) var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
   }
 
@@ -173,7 +173,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spS);
-    padding: var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
 
     & > div:nth-child(1) {
