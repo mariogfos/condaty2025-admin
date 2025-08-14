@@ -222,18 +222,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getDateTimeStrMesShort(in_at) || "-/-"}
                   </span>
                 </div>
-                {/* {accesses?.length > 0 && (
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Acompañantes</span>
-                    <span className={styles.infoValue}>
-                      {accesses.map((access: any, i: number) => (
-                        <span key={i} style={{ display: "block" }}>
-                          {getFullName(access?.visit)}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                )} */}
                 {item?.type !== "O" && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Visitó a</span>
@@ -284,20 +272,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getDateTimeStrMesShort(out_at) || "-/-"}
                   </span>
                 </div>
-                {/* {accesses?.length > 0 && (
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>
-                      Carnet de identidad
-                    </span>
-                    <span className={styles.infoValue}>
-                      {accesses.map((access: any, i: number) => (
-                        <span key={i} style={{ display: "block" }}>
-                          {access?.visit?.ci || "-/-"}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                )} */}
+
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Unidad</span>
                   <span className={styles.infoValue}>
