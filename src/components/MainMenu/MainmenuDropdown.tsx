@@ -110,7 +110,7 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
         collapsed ? styles.collapsed : ''
       } ${isRouteActive ? styles.isRouteActive : ''}`}
     >
-      <div onClick={toggleDropdown}>
+      <div onClick={toggleDropdown} style={{padding:"var(--spL) var(--spM)"}}>
         <div>
           {icon}
           {!collapsed && <p>{label}</p>}
