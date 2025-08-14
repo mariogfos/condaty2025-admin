@@ -152,14 +152,14 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div>
-  
 
-      <List 
+
+      <List
       onTabletRow={renderItem}
       height={'calc(100vh - 405px)'}
        />
 
-  
+
     </div>
   );
 };

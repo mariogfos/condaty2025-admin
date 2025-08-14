@@ -181,6 +181,8 @@
 }
 .periodsTable {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .periodsTableHeader,
 .periodsTableRow {
@@ -189,59 +191,99 @@
   width: 100%;
   align-items: stretch;
 }
-.periodsTableRow {
-  border-bottom: 1px solid var(--cBlackV3);
+
+.periodsTableHeaderReservations,
+.periodsTableRowReservations {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 100%;
+  align-items: stretch;
 }
-.periodsTableBody .periodsTableRow:last-child {
-  border-bottom: none;
-}
-.periodsTableHeader {
+
+.periodsTableHeader,
+.periodsTableHeaderReservations {
   background-color: var(--cBlackV2);
-  border-bottom: 1px solid var(--cWhiteV1);
   color: var(--cWhite);
-  font-size: var(--sM);
-  font-weight: var(--bSemibold);
+  font-family: Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
 }
+
+.periodsTableBody .periodsTableRow:not(:last-child),
+.periodsTableBody .periodsTableRowReservations:not(:last-child) {
+  border-bottom: 0.5px solid var(--cWhiteV2);
+}
+
 .periodsTableCell {
-  padding: var(--spM);
-  text-align: left;
-  font-size: var(--sS);
-  color: var(--cWhiteV1);
-  line-height: 1.4;
   display: flex;
   align-items: center;
-  min-height: 44px;
-  overflow-wrap: break-word;
-  min-width: 0;
+  height: 55px;
+  padding: 0 1rem;
+  text-align: left;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid var(--cWhiteV2);
 }
-.periodsTableRow:nth-child(odd) .periodsTableCell {
-  background-color: var(--cHoverCompl1);
+
+.periodsTableBody .periodsTableCell {
+  height: 63px;
+  font-size: 14px;
 }
-.periodsTableRow:nth-child(even) .periodsTableCell {
-  background-color: var(--cWhiteV2);
-}
-.periodsTableHeader .periodsTableCell {
+
+.periodsTableHeader .periodsTableCell,
+.periodsTableHeaderReservations .periodsTableCell {
   color: var(--cWhite);
-  font-size: var(--sL);
-  font-weight: var(--bSemibold);
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
   background-color: var(--cBlackV2);
+  height: 55px;
 }
-.periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'] {
+
+.periodsTableBody .periodsTableRow,
+.periodsTableBody .periodsTableRowReservations {
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,
+.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell {
+  background-color: var(--cWhiteV2);
+  color: var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell,
+.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhiteV1);
+}
+.periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRowReservations .periodsTableCell[data-label='Total'] {
+  font-weight: 500;
+}
+
+.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell[data-label='Total'],
+.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell[data-label='Total'] {
   color: var(--cWhite);
-  font-weight: var(--bMedium);
 }
 .periodsTableCell:last-child {
   border-right: none;
 }
 .periodsTableCell[data-label='Monto'],
 .periodsTableCell[data-label='Multa'],
-.periodsTableCell[data-label='Subtotal'] {
+.periodsTableCell[data-label='Subtotal'],
+.periodsTableCell[data-label='Total'] {
   justify-content: flex-end;
   text-align: right;
 }
 .periodsTableHeader .periodsTableCell:nth-child(3),
 .periodsTableHeader .periodsTableCell:nth-child(4),
 .periodsTableHeader .periodsTableCell:nth-child(5) {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.periodsTableHeaderReservations .periodsTableCell:nth-child(3) {
   justify-content: flex-end;
   text-align: right;
 }
