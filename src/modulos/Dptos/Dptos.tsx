@@ -98,7 +98,7 @@ const Dptos = () => {
     titleAdd: 'Nueva unidad',
     hideActions: {
       view: true,
-      add: true,
+      add: false,
       edit: true,
       del: true,
     },
