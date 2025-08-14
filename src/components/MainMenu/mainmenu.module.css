@@ -70,7 +70,7 @@
     display: flex;
     align-items: center;
     gap: var(--spS);
-    padding: var(--spL) var(--spM);
+    padding: var(--spL) var(--spS);
     border-radius: var(--bRadiusS);
   }
 
@@ -132,7 +132,7 @@
   &.isOpen {
     background-color: rgba(33, 37, 41, 0.5);
     color: var(--cWhite);
-    padding-bottom: 16px;
+    padding: var(--spS) var(--spXs);
 
     &.collapsed {
       padding: 0;
@@ -188,13 +188,13 @@
     flex-direction: column;
     align-self: self-start;
     width: 100%;
-    padding-right: var(--spXl);
-    padding-left: var(--spXl);
+    padding-right: 20px;
+    padding-left: 20px;
 
     & > a {
       text-decoration: none;
       color: var(--cWhiteV1);
-      padding: var(--spS);
+      padding: var(--spS) var(--spM);
       border-radius: var(--bRadiusS);
     }
 
