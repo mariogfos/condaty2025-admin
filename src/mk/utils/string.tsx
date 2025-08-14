@@ -20,10 +20,7 @@ const exceptions: Record<string, string> = {
 };
 
 export function pluralize(word: string, count: number) {
-  // Normalizar la palabra a minúsculas para facilitar el manejo
   const normalizedWord = word.toLowerCase().trim();
-
-  // Si count es 1, devolver la palabra en singular (verificar excepciones)
   if (count === 1) {
     return exceptions[normalizedWord] &&
       exceptions[normalizedWord] !== normalizedWord
@@ -31,12 +28,9 @@ export function pluralize(word: string, count: number) {
       : normalizedWord;
   }
 
-  // Verificar si la palabra tiene una excepción en plural
   if (exceptions[normalizedWord]) {
     return exceptions[normalizedWord];
   }
-
-  // Reglas para pluralizar
   const pluralizeRules = [
     {
       // Palabras que terminan en vocal átona (a, e, o, u) o en "í", "ú"
@@ -68,16 +62,12 @@ export function pluralize(word: string, count: number) {
     },
   ];
 
-  // Aplicar la regla adecuada para pluralizar
   const rule = pluralizeRules.find((r) => r.test(normalizedWord));
   return rule ? rule.transform(normalizedWord) : normalizedWord;
 }
 
 export function singularize(word: string) {
-  // Normalizar la palabra a minúsculas
   const normalizedWord = word.toLowerCase().trim();
-
-  // Verificar si la palabra tiene una excepción en singular
   if (exceptions[normalizedWord]) {
     return exceptions[normalizedWord];
   }
@@ -106,7 +96,6 @@ export function singularize(word: string) {
     },
   ];
 
-  // Aplicar la regla adecuada para singularizar
   const rule = singularizeRules.find((r) => r.test(normalizedWord));
   return rule ? rule.transform(normalizedWord) : normalizedWord;
 }
