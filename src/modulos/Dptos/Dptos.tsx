@@ -122,7 +122,7 @@ const Dptos = () => {
   const StateLabel = ({ children, backgroundColor, color }: StateLabelProps) => {
     return (
       <div
-        className={styles.stateLabel}
+        className={styles.statusBadge}
         style={{
           backgroundColor: backgroundColor,
           color: color,
@@ -305,17 +305,21 @@ const Dptos = () => {
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         form: false,
         list: {
           width: '160px',
           onRender: (props: any) => {
-            return props?.item?.titular ? (
-              <StateLabel color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
-                Habitada
-              </StateLabel>
-            ) : (
-              <StateLabel backgroundColor="var(--cHover)">Disponible</StateLabel>
+            return (
+              <div className={styles.statusCellCenter}>
+                {props?.item?.titular ? (
+                  <StateLabel color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
+                    Habitada
+                  </StateLabel>
+                ) : (
+                  <StateLabel backgroundColor="var(--cHover)">Disponible</StateLabel>
+                )}
+              </div>
             );
           },
         },

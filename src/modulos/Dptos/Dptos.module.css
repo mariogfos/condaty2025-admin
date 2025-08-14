@@ -45,3 +45,24 @@
   flex-direction: column;
   margin-top: var(--spL);
 }
+
+.statusCellCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.statusBadge {
+  font-weight: 400;
+  padding: 6px var(--spM);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 166px;
+  min-height: 28px;
+  white-space: nowrap;
+}
