@@ -152,13 +152,14 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div>
-      {/* {!loaded ? (
-        <LoadingScreen loaded={false} type="TableSkeleton" onlyLoading/>
-      ) : ( */}
+  
 
-      <List onTabletRow={renderItem} />
+      <List 
+      onTabletRow={renderItem}
+      height={'calc(100vh - 405px)'}
+       />
 
-      {/* )} */}
+  
     </div>
   );
 };
