@@ -221,6 +221,12 @@ const Dptos = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Avatar
                   hasImage={props?.item?.homeowner?.has_image}
+                  src={getUrlImages(
+                    '/OWNER-' +
+                      props?.item?.homeowner?.id +
+                      '.webp?d=' +
+                      props?.item?.homeowner?.updated_at
+                  )}
                   name={getFullName(props?.item?.homeowner)}
                 />
                 <div>

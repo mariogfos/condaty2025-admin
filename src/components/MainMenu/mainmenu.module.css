@@ -6,7 +6,7 @@
   padding: var(--spM);
   overflow: auto;
   background-color:  var(--cBlackV2);
-  
+
   & > div:nth-child(2) {
     display: flex;
     flex-direction: column;
@@ -191,6 +191,8 @@
     gap: var(--spXs);
     width: 100%;
     margin-top: var(--spS);
+    padding-right: var(--spL);
+    padding-left: var(--spL);
 
     & > a {
       text-decoration: none;
