@@ -73,6 +73,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   }
 
   const statusInfo = getStatusInfo();
+  console.log(invitation);
 
   return (
     <DataModal
@@ -202,7 +203,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           <>
             <p className={styles.sectionTitle}>
               {item?.type == "F" ? "Accesos" : "Asistieron"}{" "}
-              {invitation?.access?.length || getAccess().length}
+              {getAccess().length}
               <span style={{ color: "var(--cWhiteV1)" }}>
                 /
                 {item?.type === "F"
