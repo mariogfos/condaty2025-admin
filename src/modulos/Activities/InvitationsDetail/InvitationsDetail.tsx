@@ -5,7 +5,6 @@ import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import {
   getDateStrMes,
-  getDateTimeStrMes,
   formatDateRange,
   getDateTimeStrMesShort,
 } from "@/mk/utils/date";
@@ -32,7 +31,6 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const owner = item?.owner;
   const visit = item?.visit;
   const invitation = item?.invitation;
-
   const getStatusInfo = () => {
     let statusText = "Desconocido";
     let statusClass = "";
@@ -40,15 +38,9 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
     if (invitation?.status == "O") {
       statusText = "Finalizado";
       statusClass = styles.statusCompleted;
-      // } else if (invitation?.status == "A") {
-      //   statusText = "Por salir";
-      //   statusClass = styles.statusActive;
     } else if (invitation?.status == "A" || invitation?.status == "I") {
       statusText = "Activo";
       statusClass = styles.statusActive;
-      // } else if (item?.confirm == "N") {
-      //   statusText = "Denegado";
-      //   statusClass = styles.statusDenied;
     } else if (invitation?.status == "X") {
       statusText = "Anulado";
       statusClass = styles.statusDenied;

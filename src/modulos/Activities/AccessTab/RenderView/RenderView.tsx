@@ -1,5 +1,4 @@
-// @ts-nocheck
-import React from "react";
+import React, { useState } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -10,6 +9,13 @@ import InvitationsDetail from "../../InvitationsDetail/InvitationsDetail";
 import PedidosDetail from "../../PedidosDetail/PedidosDetail";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import Br from "@/components/Detail/Br";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconExpand,
+} from "@/components/layout/icons/IconsBiblioteca";
+import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -45,19 +51,42 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   onConfirm,
   extraData,
 }) => {
+  const [openExpand, setOpenExpand] = useState({
+    open: false,
+    id: null,
+    type: "",
+    invitation: null,
+  });
+
   const { data } = useAxios(
     "/accesses",
     "GET",
     {
-      searchBy: item.id,
+      searchBy: item?.access_id || item?.id,
       fullType: "DET",
       perPage: -1,
       page: 1,
     },
     true
   );
-  const [openInvitation, setOpenInvitation] = React.useState(false);
-  const [openOrders, setOpenOrders] = React.useState(false);
+  const [openInvitation, setOpenInvitation] = useState(false);
+  const [openOrders, setOpenOrders] = useState(false);
+
+  const accessDetail = data?.data[0] || {};
+  const {
+    visit,
+    in_at,
+    out_at,
+    guardia,
+    out_guard,
+    obs_in,
+    obs_out,
+    confirm_at,
+    confirm,
+    owner,
+    accesses,
+    plate,
+  } = accessDetail;
 
   const openDetailsModal = () => {
     if (item?.type === "P") {
@@ -78,33 +107,19 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
 
   const getStatus = () => {
     let status = "";
-    if (item?.out_at) {
+    if (out_at) {
       status = "Completado";
-    } else if (item?.in_at) {
+    } else if (in_at) {
       status = "Por salir";
-    } else if (!item?.confirm_at) {
+    } else if (!confirm_at) {
       status = "Por confirmar";
-    } else if (item?.confirm == "Y") {
+    } else if (confirm == "Y") {
       status = "Por entrar";
     } else {
       status = "Denegado";
     }
     return status;
   };
-
-  const accessDetail = data?.data[0] || {};
-  const {
-    visit,
-    in_at,
-    out_at,
-    guardia,
-    out_guard,
-    obs_in,
-    obs_out,
-    owner,
-    accesses,
-    plate,
-  } = accessDetail;
 
   const typeMap: Record<string, string> = {
     C: "Sin QR",
@@ -120,6 +135,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
       return "Pedido/" + param?.other?.other_type?.name;
     }
     return typeMap[type];
+  };
+  const getAcomData = () => {
+    return accesses?.filter((item: any) => item.taxi != "C");
+  };
+  const getTaxiData = () => {
+    return accesses?.filter((item: any) => item.taxi == "C");
   };
   return (
     <>
@@ -139,7 +160,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
             {item?.type === "O" ? (
               <section className={styles.headerSection}>
                 <Avatar
-                  hasImage={!!owner?.has_image}
+                  hasImage={owner?.has_image}
                   name={getFullName(owner)}
                   src={getUrlImages(
                     "/OWNER-" + owner?.id + ".webp?" + owner?.updated_at
@@ -148,13 +169,16 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
                 <div className={styles.amountDisplay}>{getFullName(owner)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {owner?.ci} {plate ? `- Placa: ${plate}` : ""}
+                  C.I. : {owner?.ci}{" "}
+                  {plate && getTaxiData().length == 0
+                    ? `- Placa: ${plate}`
+                    : ""}
                 </div>
               </section>
             ) : (
               <section className={styles.headerSection}>
                 <Avatar
-                  hasImage={!!visit?.has_image}
+                  hasImage={visit?.has_image}
                   name={getFullName(visit)}
                   src={getUrlImages(
                     "/VISIT-" + visit?.id + ".webp?" + visit?.updated_at
@@ -163,7 +187,10 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 />
                 <div className={styles.amountDisplay}>{getFullName(visit)}</div>
                 <div className={styles.dateDisplay}>
-                  C.I. : {visit?.ci} {plate ? `- Placa: ${plate}` : ""}
+                  C.I. : {visit?.ci}{" "}
+                  {plate && getTaxiData()?.length == 0
+                    ? `- Placa: ${plate}`
+                    : ""}
                 </div>
               </section>
             )}
@@ -195,7 +222,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getDateTimeStrMesShort(in_at) || "-/-"}
                   </span>
                 </div>
-                {accesses?.length > 0 && (
+                {/* {accesses?.length > 0 && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Acompañantes</span>
                     <span className={styles.infoValue}>
@@ -206,7 +233,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       ))}
                     </span>
                   </div>
-                )}
+                )} */}
                 {item?.type !== "O" && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Visitó a</span>
@@ -257,7 +284,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                     {getDateTimeStrMesShort(out_at) || "-/-"}
                   </span>
                 </div>
-                {accesses?.length > 0 && (
+                {/* {accesses?.length > 0 && (
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>
                       Carnet de identidad
@@ -270,7 +297,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       ))}
                     </span>
                   </div>
-                )}
+                )} */}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>Unidad</span>
                   <span className={styles.infoValue}>
@@ -292,11 +319,96 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 </div>
               </div>
             </section>
+            {getAcomData()?.length > 0 && (
+              <>
+                <Br />
+                <p>Acompañantes</p>
+                <div className={styles.listContainer}>
+                  {getAcomData()?.map((acc: any) => (
+                    <ItemList
+                      variant="V3"
+                      key={acc.id}
+                      title={getFullName(acc.visit || visit)}
+                      subtitle={"C.I: " + acc?.visit?.ci}
+                      left={
+                        <Avatar
+                          hasImage={
+                            acc.visit ? acc.visit?.has_image : visit?.has_image
+                          }
+                          src={getUrlImages(
+                            "/VISIT-" +
+                              (acc?.visit?.id || visit?.id) +
+                              ".webp?" +
+                              (acc?.visit?.updated_at || visit?.updated_at)
+                          )}
+                          name={getFullName(acc.visit || visit)}
+                        />
+                      }
+                      right={
+                        <IconExpand
+                          color="var(--cWhiteV1)"
+                          onClick={() =>
+                            setOpenExpand({
+                              open: true,
+                              id: acc.id,
+                              type: "A",
+                              invitation: null,
+                            })
+                          }
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            {getTaxiData()?.length > 0 && (
+              <>
+                <Br />
+                <p>Taxista</p>
+                <div className={styles.listContainer}>
+                  {getTaxiData()?.map((acc: any) => (
+                    <ItemList
+                      variant="V3"
+                      key={acc.id}
+                      title={getFullName(acc.visit || visit)}
+                      subtitle={"C.I: " + acc?.visit?.ci}
+                      left={
+                        <Avatar
+                          hasImage={
+                            acc.visit ? acc.visit?.has_image : visit?.has_image
+                          }
+                          src={getUrlImages(
+                            "/VISIT-" +
+                              (acc?.visit?.id || visit?.id) +
+                              ".webp?" +
+                              (acc?.visit?.updated_at || visit?.updated_at)
+                          )}
+                          name={getFullName(acc.visit || visit)}
+                        />
+                      }
+                      right={
+                        <IconExpand
+                          color="var(--cWhiteV1)"
+                          onClick={() =>
+                            setOpenExpand({
+                              open: true,
+                              id: acc.id,
+                              type: "T",
+                              invitation: null,
+                            })
+                          }
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
             {item.type !== "O" && item?.type !== "C" && (
               <>
                 <Br />
-
                 <div
                   onClick={openDetailsModal}
                   className="link"
@@ -312,6 +424,19 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           </div>
         </LoadingScreen>
       </DataModal>
+
+      {openExpand?.open && (
+        <ModalAccessExpand
+          open={openExpand?.open}
+          onClose={() =>
+            setOpenExpand({ open: false, id: null, type: "", invitation: null })
+          }
+          // item={accessDetail}
+          id={openExpand?.id}
+          type={openExpand?.type}
+        />
+      )}
+
       {openInvitation && (
         <InvitationsDetail
           open={openInvitation}
