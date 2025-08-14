@@ -1,30 +1,55 @@
-'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import styles from './Defaulters.module.css';
-import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { formatNumber } from '@/mk/utils/numbers';
-import { useAuth } from '@/mk/contexts/AuthProvider';
+"use client";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styles from "./Defaulters.module.css";
+import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { formatNumber } from "@/mk/utils/numbers";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 import {
   IconMultas,
   IconHandcoin,
   IconHousing,
   IconCategories,
-} from '../../components/layout/icons/IconsBiblioteca';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import WidgetDefaulterResume from '@/components/Widgets/WidgetDefaulterResume/WidgetDefaulterResume';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
+} from "../../components/layout/icons/IconsBiblioteca";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import WidgetDefaulterResume from "@/components/Widgets/WidgetDefaulterResume/WidgetDefaulterResume";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import { useRouter } from "next/navigation";
 
 const Defaulters = () => {
+  const router = useRouter();
+  const onSearch = (items: any[], search: any) => {
+    const d: any[] = [];
+
+    items.map((item) => {
+      const name =
+        item.titular?.owner?.name +
+        " " +
+        item.titular?.owner?.second_name +
+        " " +
+        item.titular?.owner?.last_name +
+        " " +
+        item.titular?.owner?.mother_last_name;
+      console.log("****search", search, item);
+      if (
+        item.dpto?.toLowerCase().includes(search.searchBy?.toLowerCase()) ||
+        name.toLowerCase().includes(search.searchBy?.toLowerCase())
+      ) {
+        d.push(item);
+      }
+    });
+    return d;
+  };
   const mod = {
-    modulo: 'defaulters',
-    singular: 'Moroso',
-    plural: 'Morosos',
-    permiso: 'defaulters',
+    modulo: "defaulters",
+    singular: "Moroso",
+    plural: "Morosos",
+    permiso: "defaulters",
+    pagination: false,
     extraData: true,
     export: true,
     hideActions: {
@@ -35,37 +60,38 @@ const Defaulters = () => {
     },
     filter: true,
     saveMsg: {
-      add: 'Moroso creado con éxito',
-      edit: 'Moroso actualizado con éxito',
-      del: 'Moroso eliminado con éxito',
+      add: "Moroso creado con éxito",
+      edit: "Moroso actualizado con éxito",
+      del: "Moroso eliminado con éxito",
     },
+    onSearch: onSearch,
   };
 
   const paramsInitial = {
-    fullType: 'L',
+    fullType: "L",
     page: 1,
     perPage: -1,
   };
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: '' });
+    setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const fields = useMemo(
     () => ({
       dpto: {
         rules: [],
-        api: 'ae',
-        label: 'Unidad',
-        width: '170px',
+        api: "ae",
+        label: "Unidad",
+        width: "170px",
         list: {
-          width: '83px',
+          width: "83px",
         },
       },
       titular: {
         rules: [],
-        api: 'ae',
-        label: 'Titular',
+        api: "ae",
+        label: "Titular",
         list: {
           onRender: (props: { item: { titular: { owner: any } } }) => {
             const titular = props?.item?.titular?.owner;
@@ -76,9 +102,9 @@ const Defaulters = () => {
                 {titular ? (
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
                     }}
                   >
                     <Avatar
@@ -86,13 +112,15 @@ const Defaulters = () => {
                       src={
                         titularId
                           ? getUrlImages(
-                              '/OWNER' +
-                                '-' +
+                              "/OWNER" +
+                                "-" +
                                 titularId +
-                                '.webp' +
-                                (titular?.updated_at ? '?d=' + titular?.updated_at : '')
+                                ".webp" +
+                                (titular?.updated_at
+                                  ? "?d=" + titular?.updated_at
+                                  : "")
                             )
-                          : ''
+                          : ""
                       }
                       name={getFullName(titular)}
                       w={32}
@@ -101,7 +129,7 @@ const Defaulters = () => {
                     {getFullName(titular)}
                   </div>
                 ) : (
-                  ' Sin titular'
+                  " Sin titular"
                 )}
               </div>
             );
@@ -110,22 +138,25 @@ const Defaulters = () => {
       },
       count: {
         rules: [],
-        api: 'ae',
-        label: 'Expensas atrasadas',
-        width: '115px',
+        api: "ae",
+        label: "Expensas atrasadas",
+        width: "115px",
         list: {
           onRender: (props: { item: { count: number } }) => {
-            const s = props?.item?.count > 1 ? 's' : '';
-            return props?.item?.count + ' expensa' + s;
+            const s = props?.item?.count > 1 ? "s" : "";
+            return props?.item?.count + " expensa" + s;
           },
         },
       },
       expensa: {
         rules: [],
-        api: 'ae',
+        api: "ae",
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto por expensa
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Total de expensas"
+          >
+            Expensas
           </span>
         ),
         list: {
@@ -136,8 +167,15 @@ const Defaulters = () => {
       },
       multa: {
         rules: [],
-        api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Total de multas"
+          >
+            Multas
+          </span>
+        ),
         list: {
           onRender: (props: { item: { multa: number } }) => (
             <FormatBsAlign value={props?.item?.multa} alignRight />
@@ -147,11 +185,21 @@ const Defaulters = () => {
 
       total: {
         rules: [],
-        api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Total</span>,
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Monto total"
+          >
+            Total
+          </span>
+        ),
         list: {
           onRender: (props: { item: { expensa: number; multa: number } }) => (
-            <FormatBsAlign value={props?.item?.expensa + props?.item?.multa} alignRight />
+            <FormatBsAlign
+              value={props?.item?.expensa + props?.item?.multa}
+              alignRight
+            />
           ),
         },
       },
@@ -193,8 +241,10 @@ const Defaulters = () => {
   }, [data?.data]);
   const finalTotals = useMemo(
     () => ({
-      porCobrarExpensa: extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
-      porCobrarMulta: extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
+      porCobrarExpensa:
+        extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
+      porCobrarMulta:
+        extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
     }),
     [
       extraData?.porCobrarExpensa,
@@ -203,76 +253,81 @@ const Defaulters = () => {
       calculatedTotals.porCobrarMulta,
     ]
   );
+  const handleRowClick = (item: any) => {
+    router.push(`/dashDpto/${item.dpto_id}`);
+  };
 
   const renderRightPanel = useCallback(() => {
-    const expensaColor = 'var(--cCompl5)';
-    const multaColor = 'var(--cCompl3)';
+    const expensaColor = "var(--cCompl5)";
+    const multaColor = "var(--cCompl3)";
 
     return (
       <div className={styles.rightPanel}>
-        <div className={styles.subtitle}>Representación gráfica del estado general de morosos </div>
-        <div className={styles.widgetsPanel}>
+        <div className={styles.subtitle}>
+          Representación gráfica del estado general de morosos{" "}
+        </div>
+        <div className={styles.widgetlabelel}>
           <section>
             <WidgetDefaulterResume
-              title={'Total de expensas'}
+              title={"Total de expensas"}
               amount={`Bs ${formatNumber(finalTotals.porCobrarExpensa)}`}
-              pointColor={'var(--cCompl5)'}
+              pointColor={"var(--cCompl5)"}
               icon={
                 <IconHandcoin
                   size={26}
-                  color={'var(--cCompl5)'}
-                  style={{ borderColor: 'var(--cCompl5)', borderWidth: 1 }}
+                  color={"var(--cCompl5)"}
+                  style={{ borderColor: "var(--cCompl5)", borderWidth: 1 }}
                 />
               }
               iconBorderColor="var(--cCompl5)"
-              backgroundColor={'var(--cHoverCompl8)'}
+              backgroundColor={"var(--cHoverCompl8)"}
               textColor="white"
-              style={{ width: '100%', borderColor: 'var(--cCompl5)' }}
+              style={{ width: "100%", borderColor: "var(--cCompl5)" }}
             />
 
             <WidgetDefaulterResume
-              title={'Total de multas'}
+              title={"Total de multas"}
               amount={`Bs ${formatNumber(finalTotals.porCobrarMulta)}`}
-              pointColor={'var(--cCompl3)'}
-              icon={<IconMultas size={26} color={'var(--cCompl3)'} />}
+              pointColor={"var(--cCompl3)"}
+              icon={<IconMultas size={26} color={"var(--cCompl3)"} />}
               iconBorderColor="var(--cCompl3)"
-              backgroundColor={'var(--cHoverCompl6)'}
+              backgroundColor={"var(--cHoverCompl6)"}
               textColor="white"
-              style={{ width: '100%', borderColor: 'var(--cCompl3)' }}
+              style={{ width: "100%", borderColor: "var(--cCompl3)" }}
             />
           </section>
         </div>
         <div className={styles.graphPanel}>
           <GraphBase
             data={{
-              labels: ['Expensas', 'Multas'],
+              labels: ["Expensas", "Multas"],
               values: [
                 {
-                  name: 'Expensas',
+                  name: "Expensas",
                   values: [finalTotals.porCobrarExpensa],
                 },
                 {
-                  name: 'Multas',
+                  name: "Multas",
                   values: [finalTotals.porCobrarMulta],
                 },
               ],
             }}
-            chartTypes={['donut']}
+            chartTypes={["donut"]}
             background="darkv2"
             options={{
-              subtitle: '',
-              label: 'Total de morosidad general entre expensas y multas',
+              subtitle: "",
+              label: "Total de morosidad general entre expensas y multas",
               colors: [expensaColor, multaColor],
-              height: 380,
-              width: 380,
-              centerText: 'Total',
+              height: 310,
+              width: 310,
+              centerText: "Total",
             }}
           />
         </div>
       </div>
     );
   }, [finalTotals.porCobrarExpensa, finalTotals.porCobrarMulta]);
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <LoadingScreen>
       <div className={`${styles.container} defaulters-view-container`}>
@@ -283,18 +338,21 @@ const Defaulters = () => {
           onClick={() => undefined}
           tooltip={true}
           tooltipTitle="Lista de unidades que no han  pagado sus expensas a tiempo."
+          tooltipWidth={348}
           icon={
             <IconHousing
               reverse
               size={32}
               color={
-                !defaultersLength || defaultersLength === 0 ? 'var(--cWhiteV1)' : 'var(--cInfo)'
+                !defaultersLength || defaultersLength === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
               }
               style={{
                 backgroundColor:
                   !defaultersLength || defaultersLength === 0
-                    ? 'var(--cHover)'
-                    : 'var(--cHoverCompl3)',
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl3)",
               }}
               circle
             />
@@ -304,12 +362,16 @@ const Defaulters = () => {
         />
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 380px)'}
-            renderRight={data?.data && data.data.length > 0 ? renderRightPanel : undefined}
+            height={"calc(100vh - 390px)"}
+            renderRight={
+              data?.data && data.data.length > 0 ? renderRightPanel : undefined
+            }
             emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
             emptyLine2="residentes con pagos atrasados los verás aquí."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             emptyFullScreen={true}
+            onRowClick={handleRowClick}
+            paginationHide={true}
           />
         </div>
       </div>

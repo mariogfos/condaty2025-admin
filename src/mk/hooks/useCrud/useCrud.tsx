@@ -56,6 +56,7 @@ export type ModCrudType = {
   renderForm?: Function;
   renderDel?: Function;
   export?: boolean;
+  pagination?: boolean;
   loadView?: Record<string, any>;
   import?: boolean;
   filter?: boolean;
@@ -386,7 +387,10 @@ const useCrud = ({
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
     setSearchs(searchBy);
-    setParams({ ...params, ...searchBy, page: 1 });
+    // console.log("apappaa", searchBy, mod?.searchLocal);
+    if (!mod.onSearch) {
+      setParams({ ...params, ...searchBy, page: 1 });
+    }
     setOldSearch(searchBy);
   };
   const [oldFilter, setOldFilter]: any = useState({});
@@ -1174,7 +1178,7 @@ const useCrud = ({
                 e.stopPropagation();
                 onEdit(item);
               }}
-              size={28}
+              size={32}
               circle
             />
           </div>
@@ -1186,7 +1190,7 @@ const useCrud = ({
                 e.stopPropagation();
                 onDel(item);
               }}
-              size={28}
+              size={32}
               circle
             />
           </div>
@@ -1292,10 +1296,22 @@ const useCrud = ({
 
     const [header, setHeader]: any = useState([]);
     const [lFilter, setLfilter]: any = useState([]);
+    const [_data, set_data]: any = useState(data?.data);
     useEffect(() => {
       setHeader(getHeader());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fields]);
+
+    useEffect(() => {
+      if (data?.data && mod.onSearch && searchs.searchBy) {
+        const d = mod.onSearch(data.data, searchs);
+        set_data(d);
+      } else {
+        set_data(data?.data);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchs, data]);
+
     let emptyContent;
     if (props.onRenderEmpty) {
       emptyContent = props.onRenderEmpty();
@@ -1334,7 +1350,7 @@ const useCrud = ({
           <AddMenu
             filters={lFilter}
             extraButtons={extraButtons}
-            data={data?.data}
+            data={_data}
             breakPoint={props.filterBreakPoint}
           />
         )}
@@ -1354,9 +1370,9 @@ const useCrud = ({
                   flexGrow: 1,
                 }}
               >
-                {data?.data?.length > 0 ? (
+                {_data?.length > 0 ? (
                   <Table
-                    data={data?.data}
+                    data={_data}
                     onRowClick={
                       mod.hideActions?.view ? props.onRowClick : onView
                     }
@@ -1384,20 +1400,26 @@ const useCrud = ({
                 ) : (
                   <section>{emptyContent}</section>
                 )}
-                <div>
-                  <Pagination
-                    currentPage={params.page}
-                    onPageChange={onChangePage}
-                    setParams={setParams}
-                    params={params}
-                    totalPages={Math.ceil(
-                      (data?.message?.total ?? 1) / (params.perPage ?? 1)
-                    )}
-                    previousLabel=""
-                    nextLabel=""
-                    total={data?.message?.total ?? 0}
-                  />
-                </div>
+                {props?.paginationHide ? null : (
+                  <div>
+                    <Pagination
+                      currentPage={params.page}
+                      onPageChange={onChangePage}
+                      setParams={setParams}
+                      params={params}
+                      totalPages={Math.ceil(
+                        (mod.onSearch
+                          ? _data.length
+                          : data?.message?.total ?? 1) / (params.perPage ?? 1)
+                      )}
+                      previousLabel=""
+                      nextLabel=""
+                      total={
+                        mod.onSearch ? _data.length : data?.message?.total ?? 0
+                      }
+                    />
+                  </div>
+                )}
               </section>
               {props.renderRight ? props.renderRight() : null}
             </div>

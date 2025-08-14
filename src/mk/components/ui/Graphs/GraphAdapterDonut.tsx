@@ -19,7 +19,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
               color: 'var(--cWhite)',
               formatter: function (val: any) {
                 // return formatNumber(totalRadial) + " Bs";
-                return val !== 0 ? formatNumber(Number(val)) + ' Bs' : '';
+                return val !== 0 ? formatBs(Number(val)) : '';
               },
             },
             total: {
@@ -86,7 +86,7 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
             </div>
             <div style="margin-left: 20px;">
               <div style="color: #666; font-size: 12px; margin-bottom: 2px;">Monto:</div>
-              <div style="font-weight: bold; color: #000; font-size: 16px;">Bs ${formatNumber(
+              <div style="font-weight: bold; color: #000; font-size: 16px;">${formatBs(
                 value
               )}</div>
             </div>

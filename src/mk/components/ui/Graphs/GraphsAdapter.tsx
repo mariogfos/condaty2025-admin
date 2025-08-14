@@ -5,7 +5,7 @@ import GraphAdapterBar from './GraphAdapterBar';
 import GraphAdapterRadialBar from './GraphAdapterRadialbar';
 import GraphAdapterLine from './GraphAdapterLine';
 import GraphAdapterPie from './GraphAdapterPie';
-import { formatNumber } from '@/mk/utils/numbers';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 import GraphAdapterDonut from './GraphAdapterDonut';
 import React from 'react';
 
@@ -82,7 +82,7 @@ const GraphsAdapter = ({
       offsetX: 0,
       formatter: function (seriesName: string, opts: any) {
         const value = opts.w.globals.seriesTotals[opts.seriesIndex];
-        return [seriesName, ': Bs. ' + formatNumber(value)];
+        return [seriesName, ': ' + formatBs(value)];
       },
       markers: {
         width: 12,
@@ -136,7 +136,7 @@ const GraphsAdapter = ({
             <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${color}; margin-right:6px;"></span>
             <div>
               <div style="margin-bottom: 4px; color: #A7A7A7;">${seriesName}</div>
-              <div style=" font-weight: bold; color: #000;"> Bs ${formatNumber(
+              <div style=" font-weight: bold; color: #000;"> ${formatBs(
                 value
               )}</div>
             </div>
@@ -145,7 +145,7 @@ const GraphsAdapter = ({
       },
       y: {
         formatter: function (val: any) {
-          return ': Bs. ' + formatNumber(val);
+          return formatBs(val);
         },
       },
     },
@@ -157,7 +157,7 @@ const GraphsAdapter = ({
           fontFamily: 'Roboto',
         },
         formatter: (value: any) => {
-          return 'Bs. ' + formatNumber(value);
+          return formatBs(value);
         },
       },
     },

@@ -1,8 +1,8 @@
-import React, { memo, useState, useEffect, CSSProperties } from 'react';
+import React, { memo, useState, useEffect, useCallback, CSSProperties } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES, formatToDayDDMMYYYY } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
@@ -40,10 +40,21 @@ interface DetailPaymentProps {
   item?: PaymentDetail;
   onDel?: (item?: PaymentDetail) => void;
   style?: CSSProperties;
+  noWaiting?: boolean;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
-  const { open, onClose, extraData, reLoad, item: propItem, onDel, payment_id ,style} = props;
+  const {
+    open,
+    onClose,
+    extraData,
+    reLoad,
+    item: propItem,
+    onDel,
+    payment_id,
+    style,
+    noWaiting = false,
+  } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
@@ -51,13 +62,13 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
-  const fetchPaymentData = async () => {
+  const fetchPaymentData = useCallback(async () => {
     if (payment_id && open) {
       const { data } = await execute(
-        "/payments",
-        "GET",
+        '/payments',
+        'GET',
         {
-          fullType: "DET",
+          fullType: 'DET',
           searchBy: payment_id,
           page: 1,
           perPage: 1,
@@ -67,12 +78,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       );
       setItem(data?.data);
     }
-  };
+  }, [payment_id, open, execute]);
 
   useEffect(() => {
     fetchPaymentData();
-  }, [payment_id]);
-
+  }, [fetchPaymentData, payment_id]);
 
   // Usar el item que viene de useCrud en lugar de hacer una llamada manual
   //const item = propItem;
@@ -115,11 +125,17 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         return;
       }
     }
-    const { data: payment, error } = await execute('/payment-confirm', 'POST', {
-      id: item?.id,
-      confirm: rechazado ? 'P' : 'R',
-      confirm_obs: formState.confirm_obs,
-    });
+    const { data: payment, error } = await execute(
+      '/payment-confirm',
+      'POST',
+      {
+        id: item?.id,
+        confirm: rechazado ? 'P' : 'R',
+        confirm_obs: formState.confirm_obs,
+      },
+      false,
+      noWaiting
+    );
 
     if (payment?.success === true) {
       showToast(payment?.message, 'success');
@@ -149,7 +165,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       P: 'Cobrado',
       S: 'Por confirmar',
       R: 'Rechazado',
-      E: 'Por subir comprobante',
       A: 'Por pagar',
       M: 'Moroso',
       X: 'Anulado',
@@ -274,17 +289,25 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         open={open}
         title="Detalle del ingreso"
         buttonText={item?.status !== 'S' ? '' : 'Aprobar Pago'}
-        buttonCancel={""}
-        onSave={() => { if (item?.status === 'S') { onConfirm(true) } }}
+        buttonCancel={''}
+        onSave={() => {
+          if (item?.status === 'S') {
+            onConfirm(true);
+          }
+        }}
         onClose={onClose}
-        buttonExtra={item.status === 'S'? <Button
-          variant="secondary"
-          onClick={() => {
-            setOnRechazar(true);
-          }}
-        >
-          Rechazar pago
-        </Button>: undefined}
+        buttonExtra={
+          item.status === 'S' ? (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setOnRechazar(true);
+              }}
+            >
+              Rechazar pago
+            </Button>
+          ) : undefined
+        }
         style={style}
       >
         {item && onDel && item.status === 'P' && item.user && (
@@ -414,37 +437,99 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
           {Array.isArray(item.details) && item.details.length > 0 && (
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
+                <h3 className={styles.periodsDetailsTitle}>
+                  {item.details[0]?.debt_dpto?.debt?.type === 2
+                    ? 'Reservas pagadas'
+                    : item.details[0]?.debt_dpto?.debt?.type === 3
+                    ? 'Multas pagadas'
+                    : 'Periodos pagados'}
+                </h3>
               </div>
 
               <div className={styles.periodsTableWrapper}>
                 <div className={styles.periodsTable}>
-                  <div className={styles.periodsTableHeader}>
-                    <div className={styles.periodsTableCell}>Periodo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
-                    <div className={styles.periodsTableCell}>Monto</div>
-                    <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>Subtotal</div>
+                  <div
+                    className={
+                      item.details[0]?.debt_dpto?.debt?.type === 2 ||
+                      item.details[0]?.debt_dpto?.debt?.type === 3
+                        ? styles.periodsTableHeaderReservations
+                        : styles.periodsTableHeader
+                    }
+                  >
+                    {item.details[0]?.debt_dpto?.debt?.type === 2 ||
+                    item.details[0]?.debt_dpto?.debt?.type === 3 ? (
+                      <>
+                        <div className={styles.periodsTableCell}>Fecha</div>
+                        <div className={styles.periodsTableCell}>Concepto</div>
+                        <div className={styles.periodsTableCell}>Total</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.periodsTableCell}>Periodo</div>
+                        <div className={styles.periodsTableCell}>Concepto</div>
+                        <div className={styles.periodsTableCell}>Monto</div>
+                        <div className={styles.periodsTableCell}>Multa</div>
+                        <div className={styles.periodsTableCell}>Subtotal</div>
+                      </>
+                    )}
                   </div>
                   <div className={styles.periodsTableBody}>
                     {item.details?.map((periodo: any, index: number) => (
-                      <div className={styles.periodsTableRow} key={periodo?.id ?? index}>
-                        <div className={styles.periodsTableCell} data-label="Periodo">
-                          {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
-                          {periodo?.debt_dpto?.debt?.year}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Concepto">
-                          {item?.category?.padre?.name || '-/-'}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Monto">
-                          {formatBs(periodo?.debt_dpto?.amount || 0)}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Multa">
-                          {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
-                        </div>
-                        <div className={styles.periodsTableCell} data-label="Subtotal">
-                          {formatBs(periodo?.amount || 0)}
-                        </div>
+                      <div
+                        className={
+                          periodo?.debt_dpto?.debt?.type === 2 ||
+                          periodo?.debt_dpto?.debt?.type === 3
+                            ? styles.periodsTableRowReservations
+                            : styles.periodsTableRow
+                        }
+                        key={periodo?.id ?? index}
+                      >
+                        {periodo?.debt_dpto?.debt?.type === 2 ||
+                        periodo?.debt_dpto?.debt?.type === 3 ? (
+                          <>
+                            <div className={styles.periodsTableCell} data-label="Fecha">
+                              {periodo?.debt_dpto?.debt?.type === 3
+                                ? formatToDayDDMMYYYY(
+                                    periodo?.debt_dpto?.debt?.reservation_penalty?.date_at
+                                  ) || '-/-'
+                                : formatToDayDDMMYYYY(
+                                    periodo?.debt_dpto?.debt?.reservation?.date_at
+                                  ) || '-/-'}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Concepto">
+                              {periodo?.debt_dpto?.debt?.type === 3
+                                ? `Multa por Cancelación: ${
+                                    periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
+                                    '-/-'
+                                  }`
+                                : `Reserva: ${
+                                    periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'
+                                  }`}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Total">
+                              {formatBs(periodo?.amount || 0)}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className={styles.periodsTableCell} data-label="Periodo">
+                              {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
+                              {periodo?.debt_dpto?.debt?.year}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Concepto">
+                              {item?.category?.padre?.name || '-/-'}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Monto">
+                              {formatBs(periodo?.debt_dpto?.amount || 0)}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Multa">
+                              {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Subtotal">
+                              {formatBs(periodo?.amount || 0)}
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -459,7 +544,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             </div>
           )}
 
-{/*           {item?.status === 'S' && (
+          {/*           {item?.status === 'S' && (
             <div className={styles.actionButtonsContainer}>
               <Button
                 variant="cancel"

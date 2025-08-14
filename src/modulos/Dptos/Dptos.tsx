@@ -16,7 +16,7 @@ import { UnitsType } from "@/mk/utils/utils";
 import RenderForm from "./RenderForm";
 import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import { IconDepartments2, IconHome, IconUnidades, IconDepartment, IconLocal } from "@/components/layout/icons/IconsBiblioteca";
+import { IconDepartments2, IconHome, IconUnidades, IconDepartment, IconLocal, IconGarage } from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
   fullType: "L",
@@ -54,6 +54,24 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
             isEmpty
             ? "var(--cHover)"
             : "var(--cHoverCompl9)"
+        }}
+        circle
+        size={18}
+      />
+    )
+  } else if (name === "Garaje") {
+    return (
+      <IconGarage
+        color={
+          isEmpty
+          ? "var(--cWhiteV1)"
+          : "var(--cCompl4)"
+        }
+        style={{
+          backgroundColor:
+            isEmpty
+            ? "var(--cHover)"
+            : "var(--cHoverCompl7)"
         }}
         circle
         size={18}

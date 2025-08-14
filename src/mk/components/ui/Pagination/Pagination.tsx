@@ -1,10 +1,10 @@
 import {
   IconArrowBack,
   IconArrowNext,
-} from '@/components/layout/icons/IconsBiblioteca';
-import { useEffect, useMemo, useState } from 'react';
-import styles from './pagination.module.css';
-import Select from '../../forms/Select/Select';
+} from "@/components/layout/icons/IconsBiblioteca";
+import { useEffect, useMemo, useState } from "react";
+import styles from "./pagination.module.css";
+import Select from "../../forms/Select/Select";
 
 type PropsType = {
   className?: string;
@@ -19,11 +19,11 @@ type PropsType = {
 };
 
 const Pagination = ({
-  className = '',
+  className = "",
   currentPage = 1,
-  nextLabel = 'Siguiente',
+  nextLabel = "Siguiente",
   onPageChange = (page: number) => {},
-  previousLabel = 'Anterior',
+  previousLabel = "Anterior",
   totalPages,
   setParams,
   params,
@@ -96,7 +96,7 @@ const Pagination = ({
 
   // Manejar pulsación de tecla en el input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       const pageNumber = parseInt(pageInput);
       if (!isNaN(pageNumber)) {
@@ -105,7 +105,7 @@ const Pagination = ({
     }
   };
 
-  if (safeTotal <= 1) {
+  if (safeTotal == 0) {
     return null;
   }
   if (total == 0) {
@@ -113,44 +113,45 @@ const Pagination = ({
   }
   return (
     <div className={`${styles.pagination} ${className}`}>
-      {totalPages > 1 ? (
-        <>
-          {/* Texto informativo a la izquierda */}
-          <div className={styles.paginationInfo}>
-            <span className={styles.currentPageInfo}>
-              <button
-                className={styles.goToPageButton}
-                onClick={() => goToPage(1)}
-              >
-                Ir a la página 1
-              </button>
-            </span>
-          </div>
+      {/* {totalPages > 1 ? ( */}
+      <>
+        {/* Texto informativo a la izquierda */}
+        <div className={styles.paginationInfo}>
+          <span className={styles.currentPageInfo}>
+            <button
+              className={styles.goToPageButton}
+              onClick={() => goToPage(1)}
+              disabled={totalPages <= 1}
+            >
+              Ir a la página 1
+            </button>
+          </span>
+        </div>
 
-          {/* Botones de navegación en el centro */}
-          <div className={styles.navigationButtons}>
-            <button
-              className={styles.navButton}
-              onClick={goToPreviousPage}
-              disabled={currentPage <= 1}
-            >
-              <IconArrowBack size={16} color="var(--cWhite)" />
-            </button>
-            <button
-              className={styles.nextButton}
-              onClick={goToNextPage}
-              disabled={currentPage >= safeTotal}
-            >
-              Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
-            </button>
-            <span className={styles.totalPages}>
-              {currentPage}/{safeTotal}
-            </span>
-          </div>
-        </>
-      ) : (
+        {/* Botones de navegación en el centro */}
+        <div className={styles.navigationButtons}>
+          <button
+            className={styles.navButton}
+            onClick={goToPreviousPage}
+            disabled={currentPage <= 1}
+          >
+            <IconArrowBack size={16} color="var(--cWhite)" />
+          </button>
+          <button
+            className={styles.nextButton}
+            onClick={goToNextPage}
+            disabled={currentPage >= safeTotal}
+          >
+            Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
+          </button>
+          <span className={styles.totalPages}>
+            {currentPage}/{safeTotal}
+          </span>
+        </div>
+      </>
+      {/* ) : (
         <div style={{ flexGrow: 1 }}></div>
-      )}
+      )} */}
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
@@ -160,22 +161,27 @@ const Pagination = ({
               {currentPage}/{safeTotal}
             </span> */}
           </span>
-          {totalPages > 1 && (
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                value={pageInput}
-                onChange={handlePageInputChange}
-                onKeyDown={handleKeyDown}
-                className={styles.pageInput}
-                aria-label="Ir a página"
-              />
+          {/* {totalPages > 1 && ( */}
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={pageInput}
+              onChange={handlePageInputChange}
+              onKeyDown={handleKeyDown}
+              className={styles.pageInput}
+              aria-label="Ir a página"
+              disabled={totalPages <= 1}
+            />
 
-              <button type="submit" className={styles.goButton}>
-                Ir
-              </button>
-            </div>
-          )}
+            <button
+              type="submit"
+              className={styles.goButton}
+              disabled={totalPages <= 1}
+            >
+              Ir
+            </button>
+          </div>
+          {/* )} */}
         </form>
       </div>
 

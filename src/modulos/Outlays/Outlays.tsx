@@ -212,7 +212,7 @@ const Outlays = () => {
       status: {
         rules: [''],
         api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        label: (<span style={{ display: 'block', textAlign: 'center', width: '100%' }} title="Estado">Estado</span>),
         list: {
           onRender: (props: any) => (
             <div
@@ -241,9 +241,7 @@ const Outlays = () => {
       amount: {
         rules: ['required'],
         api: 'ae',
-        label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
-        ),
+        label: (<span style={{ display: 'block', textAlign: 'right', width: '100%' }} title="Monto total">Monto total</span>),
         form: { type: 'number' },
         list: {
           onRender: (props: any) => (
