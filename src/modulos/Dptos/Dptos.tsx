@@ -1,22 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
-import styles from "./Dptos.module.css";
-import RenderItem from "../shared/RenderItem";
-import useCrudUtils from "../shared/useCrudUtils";
-import { Children, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import NotAccess from "@/components/layout/NotAccess/NotAccess";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { useAuth } from "@/mk/contexts/AuthProvider";
+'use client';
+import styles from './Dptos.module.css';
+import RenderItem from '../shared/RenderItem';
+import useCrudUtils from '../shared/useCrudUtils';
+import { Children, useEffect, useMemo, useState } from 'react';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import NotAccess from '@/components/layout/NotAccess/NotAccess';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { useRouter } from "next/navigation";
-import { UnitsType } from "@/mk/utils/utils";
-import RenderForm from "./RenderForm";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
-import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import { IconDepartments2, IconHome, IconUnidades, IconDepartment, IconLocal, IconGarage } from "@/components/layout/icons/IconsBiblioteca";
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import { useRouter } from 'next/navigation';
+import { UnitsType } from '@/mk/utils/utils';
+import RenderForm from './RenderForm';
+import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
+import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import {
+  IconDepartments2,
+  IconHome,
+  IconUnidades,
+  IconDepartment,
+  IconLocal,
+  IconGarage,
+} from '@/components/layout/icons/IconsBiblioteca';
 
 const paramsInitial = {
   fullType: 'L',
@@ -51,25 +58,18 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
         circle
         size={18}
       />
-    )
-  } else if (name === "Garaje") {
+    );
+  } else if (name === 'Garaje') {
     return (
       <IconGarage
-        color={
-          isEmpty
-          ? "var(--cWhiteV1)"
-          : "var(--cCompl4)"
-        }
+        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cCompl4)'}
         style={{
-          backgroundColor:
-            isEmpty
-            ? "var(--cHover)"
-            : "var(--cHoverCompl7)"
+          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl7)',
         }}
         circle
         size={18}
       />
-    )
+    );
   }
   return <div style={{ width: 40, height: 40 }} />;
 };
@@ -94,11 +94,11 @@ const Dptos = () => {
     permiso: '',
     export: true,
     extraData: true,
-    import: true,
+    import: false,
     titleAdd: 'Nueva unidad',
     hideActions: {
       view: true,
-      add: false,
+      add: true,
       edit: true,
       del: true,
     },
@@ -327,6 +327,16 @@ const Dptos = () => {
     setOpenImport(true);
   };
 
+  // Custom filter function to map 'titular' to 'status'
+  const getFilter = (opt: string, value: string, oldFilter: any) => {
+    if (opt === 'titular') {
+      // Remove the 'titular' key and add 'status' instead
+      const { titular, ...restFilters } = oldFilter.filterBy || {};
+      return { filterBy: { ...restFilters, status: value } };
+    }
+    return { filterBy: { ...oldFilter.filterBy, [opt]: value } };
+  };
+
   const {
     userCan,
     List,
@@ -343,6 +353,7 @@ const Dptos = () => {
     paramsInitial,
     mod,
     fields,
+    getFilter,
     _onImport: onImport,
   });
 
