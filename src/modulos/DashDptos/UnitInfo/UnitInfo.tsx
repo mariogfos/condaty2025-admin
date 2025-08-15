@@ -179,7 +179,7 @@ const UnitInfo = ({
                         setOpenOwnerMenu(false);
                       }}
                     >
-                      Desvincular
+                      Liberar residencia
                     </div>
                   </div>
                 )}
