@@ -181,8 +181,10 @@
   }
 }
 
-.button:disabled,
-.button:hover:disabled {
+.goButton:disabled,
+.goButton:hover:disabled,
+.goToPageButton:disabled,
+.goToPageButton:hover:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

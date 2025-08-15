@@ -5,7 +5,6 @@ import styles from './DashDptos.module.css';
 import { useRouter } from 'next/navigation';
 import {
   IconArrowDown,
-  IconCalendar,
   IconDelivery,
   IconEdit,
   IconExitHome,
@@ -56,7 +55,6 @@ const getStatus = (status: string) => {
 const DashDptos = ({ id }: DashDptosProps) => {
   const { user, showToast, setStore } = useAuth();
   const router = useRouter();
-  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -199,6 +197,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
       label: 'Estado',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
+        const status = item?.status as PaymentStatus;
+        const statusInfo = getPaymentStatus(status);
         return (
           <span className={`${styles.status} ${styles[`status${item?.status}`]}`}>
             {getStatus(item?.status)}

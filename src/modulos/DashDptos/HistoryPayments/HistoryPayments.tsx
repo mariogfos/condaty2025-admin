@@ -23,6 +23,7 @@ const getStatus = (status: string) => {
     S: "Por confirmar",
     M: "Moroso",
     R: "Rechazado",
+    X: "Anulado",
   };
   return statusMap[status] || status;
 };
@@ -113,11 +114,15 @@ const HistoryPayments = ({
                   )}
                   <div className={styles.cell}>
                     {pago?.payment?.type === "Q"
-                      ? "Qr"
+                      ? "Pago QR"
                       : pago?.payment?.type === "T"
-                      ? "Transferencia"
+                      ? "Transferencia bancaria"
                       : pago?.payment?.type === "O"
                       ? "Pago en oficina"
+                      : pago?.payment?.type === "E"
+                      ? "Efectivo"
+                      : pago?.payment?.type === "C"
+                      ? "Cheque"
                       : "Sin pago"}
                   </div>
                   <div className={styles.cell}>
@@ -138,23 +143,6 @@ const HistoryPayments = ({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.paginationWrapper}>
-            <div className={styles.totalItems}>
-              Total {filteredData.length} items
-            </div>
-            <Pagination
-              currentPage={params.page}
-              onPageChange={(page) => setParams({ ...params, page })}
-              totalPages={Math.ceil(filteredData.length / params.perPage)}
-              previousLabel=""
-              nextLabel=""
-              params={params}
-              setParams={setParams}
-            />
           </div>
         </div>
       </div>

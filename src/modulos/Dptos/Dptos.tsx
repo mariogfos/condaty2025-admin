@@ -16,6 +16,7 @@ import { UnitsType } from '@/mk/utils/utils';
 import RenderForm from './RenderForm';
 import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
 import {
   IconDepartments2,
   IconHome,
@@ -98,7 +99,7 @@ const Dptos = () => {
     titleAdd: 'Nueva unidad',
     hideActions: {
       view: true,
-      add: true,
+      add: false,
       edit: true,
       del: true,
     },
@@ -111,26 +112,6 @@ const Dptos = () => {
       user: any;
       execute: any;
     }) => <RenderForm {...props} />,
-  };
-
-  type StateLabelProps = {
-    children: React.ReactNode;
-    backgroundColor?: string;
-    color?: string;
-  };
-
-  const StateLabel = ({ children, backgroundColor, color }: StateLabelProps) => {
-    return (
-      <div
-        className={styles.statusBadge}
-        style={{
-          backgroundColor: backgroundColor,
-          color: color,
-        }}
-      >
-        {children}
-      </div>
-    );
   };
 
   const fields = useMemo(() => {
@@ -313,11 +294,11 @@ const Dptos = () => {
             return (
               <div className={styles.statusCellCenter}>
                 {props?.item?.titular ? (
-                  <StateLabel color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
+                  <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
                     Habitada
-                  </StateLabel>
+                  </StatusBadge>
                 ) : (
-                  <StateLabel backgroundColor="var(--cHover)">Disponible</StateLabel>
+                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">Disponible</StatusBadge>
                 )}
               </div>
             );
