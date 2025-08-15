@@ -405,7 +405,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     },
     {
       key: 'sub_categorie',
-      label: 'Sub Categoría',
+      label: 'Subcategoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
         return item?.payment?.category?.name || '-';
@@ -860,6 +860,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               position="top"
                             >
                               <Avatar
+                                className={styles.dependentAvatar}
                                 hasImage={dependiente.owner?.has_image}
                                 src={
                                   dependiente.owner?.id
