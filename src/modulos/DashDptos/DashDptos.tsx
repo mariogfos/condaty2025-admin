@@ -199,6 +199,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
       label: 'Estado',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
+        const status = item?.status as PaymentStatus;
+        const statusInfo = getPaymentStatus(status);
         return (
           <span className={`${styles.status} ${styles[`status${item?.status}`]}`}>
             {getStatus(item?.status)}
