@@ -5,15 +5,15 @@
   width: 100%;
 }
 
+.dashboardTitle {
+  margin-bottom: var(--spL);
+}
+
 .dashboardContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spM); /* Espacio entre título y fila de tarjetas */
-  background-color: var(--cBlackV2);
-  padding: var(--spL);
-  border-radius: var(--bRadiusL);
-  border: 0.5px solid var(--cWhiteV1);
-  margin-bottom: var(--spXl);
+  gap: var(--spM);
+  margin-bottom: var(--spL);
 }
 .allStatsRow {
   display: flex;
