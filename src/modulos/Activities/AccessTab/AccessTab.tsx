@@ -24,6 +24,7 @@ import useCrudUtils from "@/modulos/shared/useCrudUtils";
 interface AccessesTabProps {
   paramsInitial: any;
   onRowClick?: (item: any) => void;
+  unitParam?: string | null;
 }
 
 // Función actualizada para obtener las opciones de período
@@ -39,7 +40,7 @@ const getPeriodOptions = () => [
   { id: "custom", name: "Personalizado" },
 ];
 
-const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
+const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial, unitParam }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
   const [formStateFilter, setFormStateFilter] = useState<{

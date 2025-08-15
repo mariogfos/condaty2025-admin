@@ -1,8 +1,8 @@
-"use client";
-import { useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import styles from "./DashDptos.module.css";
-import { useRouter } from "next/navigation";
+'use client';
+import { useState, useEffect } from 'react';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import styles from './DashDptos.module.css';
+import { useRouter } from 'next/navigation';
 import {
   IconArrowDown,
   IconCalendar,
@@ -15,30 +15,28 @@ import {
   IconReservedAreas,
   IconTaxi,
   IconTrash,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
-import Select from "@/mk/components/forms/Select/Select";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import useAxios from "@/mk/hooks/useAxios";
-import EmptyData from "@/components/NoData/EmptyData";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import HistoryAccess from "./HistoryAccess/HistoryAccess";
-import HistoryPayments from "./HistoryPayments/HistoryPayments";
-import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
-import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
-import RenderView from "../Payments/RenderView/RenderView";
-import OwnersRenderView from "../Owners/RenderView/RenderView";
-import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
-import Table from "@/mk/components/ui/Table/Table";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import Switch from "@/mk/components/forms/Switch/Switch";
-import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
-import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
-import RenderForm from "../Dptos/RenderForm";
-import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
-import HistoryReservations from "./HistoryReservations/HistoryReservations";
-import { Calendar } from "@/mk/components/Calendar";
+} from '@/components/layout/icons/IconsBiblioteca';
+import Button from '@/mk/components/forms/Button/Button';
+import Select from '@/mk/components/forms/Select/Select';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import useAxios from '@/mk/hooks/useAxios';
+import EmptyData from '@/components/NoData/EmptyData';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import HistoryOwnership from './HistoryOwnership/HistoryOwnership';
+import { getDateStrMes, getDateTimeStrMes } from '@/mk/utils/date';
+import RenderView from '../Payments/RenderView/RenderView';
+import OwnersRenderView from '../Owners/RenderView/RenderView';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
+import Table from '@/mk/components/ui/Table/Table';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import Switch from '@/mk/components/forms/Switch/Switch';
+import WidgetBase from '@/components/Widgets/WidgetBase/WidgetBase';
+import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
+import RenderForm from '../Dptos/RenderForm';
+import HeaderBack from '@/mk/components/ui/HeaderBack/HeaderBack';
+
+import { Calendar } from '@/mk/components/Calendar';
 
 interface DashDptosProps {
   id: string | number;
@@ -46,71 +44,98 @@ interface DashDptosProps {
 
 const getStatus = (status: string) => {
   const statusMap: Record<string, string> = {
-    A: "Por Pagar",
-    P: "Pagado",
-    S: "Por confirmar",
-    M: "Moroso",
-    R: "Rechazado",
+    A: 'Por Pagar',
+    P: 'Pagado',
+    S: 'Por confirmar',
+    M: 'Moroso',
+    R: 'Rechazado',
   };
   return statusMap[status] || status;
 };
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { user, showToast } = useAuth();
+  const { user, showToast, setStore } = useAuth();
   const router = useRouter();
   // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
-  const [formState, setFormState] = useState<any>({ isTitular: "I" });
+  const [formState, setFormState] = useState<any>({ isTitular: 'I' });
   const [errorsT, setErrorsT] = useState<any>({});
-  const [openAccesos, setOpenAccesos] = useState(false);
-  const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
-  const [openReservasHist, setOpenReservasHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
+  const [openTenantMenu, setOpenTenantMenu] = useState(false);
+  const [openTitularSelector, setOpenTitularSelector] = useState(false);
   const {
     data: dashData,
     reLoad,
     execute,
-  } = useAxios("/dptos", "GET", {
-    fullType: "DET",
+  } = useAxios('/dptos', 'GET', {
+    fullType: 'DET',
     dpto_id: id,
     extraData: true,
   });
 
   const datas = dashData?.data || {};
 
+  // Cerrar menús cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        !target.closest(`.${styles.menuDots}`) &&
+        !target.closest(`.${styles.dropdownMenu}`) &&
+        !target.closest(`.${styles.titularDropdown}`)
+      ) {
+        setOpenOwnerMenu(false);
+        setOpenTenantMenu(false);
+        setOpenTitularSelector(false);
+      }
+    };
+
+    if (openOwnerMenu || openTenantMenu || openTitularSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
+
+  const locationParams = (path: string, key: string, value: string) => {
+    setStore({
+      [key]: value,
+    });
+    router.push(path);
+  };
+
   const onSave = async () => {
     if (!formState.owner_id) {
-      setErrorsT({ owner_id: "Este campo es obligatorio" });
+      setErrorsT({ owner_id: 'Este campo es obligatorio' });
       return;
     }
 
     try {
-      const { data: response } = await execute(
-        "/dptos-change-titular",
-        "POST",
-        {
-          owner_id: formState.owner_id,
-          dpto_id: id,
-        }
-      );
+      const { data: response } = await execute('/dptos-change-titular', 'POST', {
+        owner_id: formState.owner_id,
+        dpto_id: id,
+      });
 
       if (response?.success) {
-        showToast("Titular actualizado", "success");
+        showToast('Titular actualizado', 'success');
         setOpenTitular(false);
         setErrorsT({});
         reLoad();
       } else {
-        showToast(response?.message || "Error al actualizar titular", "error");
+        showToast(response?.message || 'Error al actualizar titular', 'error');
       }
     } catch (error) {
-      showToast("Error al actualizar titular", "error");
+      showToast('Error al actualizar titular', 'error');
     }
   };
 
@@ -121,38 +146,38 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const header = [
     {
-      key: "paid_at",
-      label: "Fecha de pago",
-      responsive: "desktop",
+      key: 'paid_at',
+      label: 'Fecha de pago',
+      responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || "-";
+        return getDateStrMes(item?.paid_at) || '-';
       },
     },
     {
-      key: "categorie",
-      label: "Categoría",
-      responsive: "desktop",
+      key: 'categorie',
+      label: 'Categoría',
+      responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || "-";
+        return item?.payment?.categoryP?.name || '-';
       },
     },
     {
-      key: "sub_categorie",
-      label: "Sub Categoría",
-      responsive: "desktop",
+      key: 'sub_categorie',
+      label: 'Sub Categoría',
+      responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || "-";
+        return item?.payment?.category?.name || '-';
       },
     },
     {
-      key: "amount",
-      label: "Monto",
-      responsive: "desktop",
+      key: 'amount',
+      label: 'Monto',
+      responsive: 'desktop',
 
       onRender: ({ item }: any) => {
         return item?.amount && item?.penalty_amount
           ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : "-";
+          : '-';
       },
     },
     // {
@@ -170,14 +195,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
     //   },
     // },
     {
-      key: "status",
-      label: "Estado",
-      responsive: "desktop",
+      key: 'status',
+      label: 'Estado',
+      responsive: 'desktop',
       onRender: ({ item }: any) => {
         return (
-          <span
-            className={`${styles.status} ${styles[`status${item?.status}`]}`}
-          >
+          <span className={`${styles.status} ${styles[`status${item?.status}`]}`}>
             {getStatus(item?.status)}
           </span>
         );
@@ -201,7 +224,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <p>{label}</p>
         <p
           style={{
-            color: colorValue ? colorValue : "var(--cWhite)",
+            color: colorValue ? colorValue : 'var(--cWhite)',
           }}
         >
           {value}
@@ -215,35 +238,31 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
   const TitleRender = ({ title, onClick }: TitleRenderProps) => {
     return (
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <h3 className={styles.accountTitle}>{title}</h3>
         {onClick && (
           <span className={styles.viewMore} onClick={onClick}>
-            Ver historial completo
+            Ver más
           </span>
         )}
       </div>
     );
   };
   const onDel = async () => {
-    const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
+    const { data } = await execute('/dptos/' + datas.data.id, 'DELETE');
     if (data?.success) {
-      showToast("Unidad eliminada", "success");
-      router.push("/units");
+      showToast('Unidad eliminada', 'success');
+      router.push('/units');
     } else {
-      showToast(data?.message || "Error al eliminar unidad", "error");
+      showToast(data?.message || 'Error al eliminar unidad', 'error');
     }
   };
 
   const getHourPeriod = (start_time: any, end_time: any) => {
     const start =
-      typeof start_time === "string"
-        ? new Date(`1970-01-01T${start_time}`)
-        : new Date(start_time);
+      typeof start_time === 'string' ? new Date(`1970-01-01T${start_time}`) : new Date(start_time);
     const end =
-      typeof end_time === "string"
-        ? new Date(`1970-01-01T${end_time}`)
-        : new Date(end_time);
+      typeof end_time === 'string' ? new Date(`1970-01-01T${end_time}`) : new Date(end_time);
 
     const diff = end.getTime() - start.getTime();
     const hours = Math.floor(diff / 1000 / 60 / 60);
@@ -256,7 +275,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     } else if (hours > 0) {
       return `${hours}h`;
     }
-    return "0m";
+    return '0m';
   };
 
   const leftAccess = (item: any) => {
@@ -277,11 +296,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div
           style={{
             padding: 8,
-            backgroundColor: "var(--cWhiteV1)",
-            borderRadius: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            backgroundColor: 'var(--cWhiteV1)',
+            borderRadius: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {icon}
@@ -302,15 +321,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const onTitular = () => {
     if (!datas?.data?.homeowner) {
       showToast(
-        "No se puede asignar un titular a esta casa porque no existe un propietario registrado.",
-        "error"
+        'No se puede asignar un titular a esta casa porque no existe un propietario registrado.',
+        'error'
       );
       return;
     }
     setOpenTitular(true);
   };
   const renderSubtitle = (item: any) => {
-    let subtitle = "CI: " + item.visit?.ci;
+    let subtitle = 'CI: ' + item.visit?.ci;
     if (item?.other) {
       subtitle = item.other?.other_type?.name;
     }
@@ -318,24 +337,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
 
   const removeTitular = async () => {
-    const { data } = await execute("/dptos-remove-titular", "POST", {
+    const { data } = await execute('/dptos-remove-titular', 'POST', {
       dpto_id: datas?.data?.id,
     });
     if (data?.success) {
-      showToast("Titular eliminado", "success");
+      showToast('Titular eliminado', 'success');
       reLoad();
       setOpenDelTitular(false);
     } else {
-      showToast(data?.message || "Error al eliminar titular", "error");
+      showToast(data?.message || 'Error al eliminar titular', 'error');
     }
   };
 
   return (
     <div className={styles.container}>
-      <HeaderBack
-        label="Volver a lista de unidades"
-        onClick={() => router.push("/units")}
-      />
+      <HeaderBack label="Volver a lista de unidades" onClick={() => router.push('/units')} />
       <section>
         <div className={styles.firtsPanel}>
           <div className={styles.infoCard}>
@@ -346,7 +362,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 </p>
                 <p className={styles.subtitle}> {datas?.data?.description}</p>
               </div>
-              <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ display: 'flex', gap: 12 }}>
                 <div className={styles.iconActions}>
                   <IconEdit size={30} onClick={() => setOpenEdit(true)} />
                 </div>
@@ -358,236 +374,315 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
             <Br />
 
-            <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
-              {!datas?.data?.homeowner ? (
-                <EmptyData
-                  message="Sin propietario a cargo. Para registrar"
-                  line2="un propietario a esta unidad."
-                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-                  centered={true}
-                  fontSize={14}
-                />
-              ) : (
-                <ItemList
-                  title={getFullName(datas?.data?.homeowner)}
-                  subtitle={"Propietario"}
-                  left={
-                    <Avatar
-                      hasImage={datas?.data?.homeowner?.has_image}
-                      // src={
-                      //   datas?.data?.id
-                      //     ? getUrlImages(
-                      //         "/DPTO" +
-                      //           "-" +
-                      //           datas?.data?.id +
-                      //           ".webp" +
-                      //           (datas?.data?.updated_at
-                      //             ? "?d=" + datas?.data?.updated_at
-                      //             : "")
-                      //       )
-                      //     : ""
-                      // }
-                      name={getFullName(datas?.data?.homeowner)}
-                      w={48}
-                      h={48}
+            {/* Sección de información de la unidad */}
+            <div className={styles.unitInfoSection}>
+              <div className={styles.unitInfoGrid}>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Estado</span>
+                  <span className={styles.infoValue}>
+                    {datas?.titular ? 'Habitada' : 'Disponible'}
+                  </span>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Monto expensa</span>
+                  <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Titular</span>
+                  <div
+                    className={styles.titularDropdown}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setOpenTitularSelector(!openTitularSelector);
+                    }}
+                  >
+                    <span className={styles.infoValue}>
+                      {datas?.titular
+                        ? 'Residente'
+                        : datas?.data?.homeowner
+                        ? 'Propietario'
+                        : 'Sin asignar'}
+                    </span>
+                    <IconArrowDown
+                      size={16}
+                      className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
                     />
-                  }
-                  right={
-                    <div className={styles.SwitchContainer}>
-                      <Switch
-                        name="isTitular"
-                        // optionValue={["P", "I"]}
-                        disabled={true}
-                        checked={formState.isTitular == "P"}
-                        onChange={() => {
-                          setFormState({
-                            ...formState,
-                            isTitular: formState.isTitular == "P" ? "I" : "P",
-                          });
-                        }}
-                        value={formState.isTitular}
-                        label="A cargo de la unidad"
-                      />
-                    </div>
-                  }
-                />
-              )}
-            </div>
-
-            <div>
-              {/* Info Grid */}
-              <div className={styles.infoGrid}>
-                <LabelValue
-                  value={datas?.titular ? "Habitada" : "Disponible"}
-                  label="Estado"
-                  colorValue={
-                    datas?.titular ? "var(--cSuccess)" : "var(--cWhite)"
-                  }
-                />
-                <LabelValue
-                  value={datas?.data?.expense_amount}
-                  label="Expensa"
-                />
-                <LabelValue
-                  value={datas?.data?.dimension + " m²"}
-                  label="Dimensiones"
-                />
-              </div>
-
-              <Br />
-
-              <div style={{ width: "100%" }}>
-                {/* Sección Titular */}
-                {!datas?.titular ? (
-                  <div className={styles.emptyTitular}>
-                    <EmptyData
-                      message="Sin inquilino asignado. Para asignar"
-                      line2="un inquilino a esta unidad."
-                      icon={
-                        <IconHomePerson2 size={32} color="var(--cWhiteV1)" />
-                      }
-                      centered={true}
-                      fontSize={14}
-                    />
-                    {/* <Button className={styles.addButton} onClick={onTitular}>
-                      Agregar Titular
-                    </Button> */}
-                  </div>
-                ) : (
-                  <div>
-                    <ItemList
-                      title={getFullName(datas?.titular)}
-                      subtitle={"Titular"}
-                      left={
-                        <Avatar
-                          hasImage={datas?.titular?.has_image}
-                          src={
-                            datas?.titular?.id
-                              ? getUrlImages(
-                                  "/OWNER" +
-                                    "-" +
-                                    datas?.titular?.id +
-                                    ".webp" +
-                                    (datas?.titular?.updated_at
-                                      ? "?d=" + datas?.titular?.updated_at
-                                      : "")
-                                )
-                              : ""
-                          }
-                          name={getFullName(datas?.titular)}
-                          w={48}
-                          h={48}
-                        />
-                      }
-                      right={
-                        <div className={styles.SwitchContainer}>
-                          <Switch
-                            optionValue={["I", "P"]}
-                            name="isTitular"
-                            checked={formState?.isTitular == "I"}
-                            onChange={(e: any) => {
-                              setFormState({
-                                ...formState,
-                                isTitular:
-                                  formState.isTitular == "I" ? "P" : "I",
-                              });
-                            }}
-                            value={formState.isTitular}
-                            label="A cargo de la unidad"
-                          />
+                    {openTitularSelector && (
+                      <div className={styles.dropdownMenu}>
+                        <div
+                          className={styles.menuItem}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setOpenTitularSelector(false);
+                            // Lógica para establecer propietario como titular
+                          }}
+                        >
+                          Propietario
                         </div>
-                      }
-                    />
-                    {/* <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Button
-                        onClick={() => setOpenTitular(true)}
-                        variant="terciary"
-                        style={{
-                          padding: 0,
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          width: "fit-content",
-                        }}
-                        small
-                      >
-                        Cambiar titular
-                      </Button> */}
-                    <Button
-                      onClick={() => setOpenDelTitular(true)}
-                      variant="terciary"
-                      style={{
-                        padding: 0,
-                        color: "var(--cError)",
-                        width: "fit-content",
-                      }}
-                      small
-                    >
-                      Eliminar titular
-                    </Button>
-                    {/* </div> */}
-
-                    {/* Dependientes */}
-                    {datas?.titular?.dependientes && (
-                      <div className={styles.dependentesSection}>
-                        <p>Dependientes</p>
-                        <div className={styles.dependentesGrid}>
-                          {datas.titular.dependientes.length > 0 ? (
-                            datas.titular.dependientes.map(
-                              (dependiente: any, index: number) => (
-                                <Tooltip
-                                  key={index}
-                                  title={getFullName(dependiente.owner)}
-                                  position="top"
-                                  className={styles.tooltip}
-                                >
-                                  <Avatar
-                                    hasImage={dependiente.owner?.has_image}
-                                    key={index}
-                                    src={
-                                      dependiente.owner?.id
-                                        ? getUrlImages(
-                                            "/OWNER" +
-                                              "-" +
-                                              dependiente.owner?.id +
-                                              ".webp" +
-                                              (datas?.titular?.updated_at
-                                                ? "?d=" +
-                                                  datas?.titular?.updated_at
-                                                : "")
-                                          )
-                                        : ""
-                                    }
-                                    name={getFullName(dependiente.owner)}
-                                    w={40}
-                                    h={40}
-                                    className={styles.dependentAvatar}
-                                    onClick={() =>
-                                      handleOpenPerfil(dependiente.owner_id)
-                                    }
-                                  />
-                                </Tooltip>
-                              )
-                            )
-                          ) : (
-                            <>
-                              <Br />
-                              <p className={styles.emptyMessage}>
-                                aquí verás a los dependientes que se vinculen a
-                                un propietario o un inquilino.
-                              </p>
-                            </>
-                          )}
+                        <div
+                          className={styles.menuItem}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setOpenTitularSelector(false);
+                            // Lógica para establecer residente como titular
+                          }}
+                        >
+                          Residente
                         </div>
                       </div>
                     )}
                   </div>
-                )}
+                </div>
               </div>
+
+              <Br />
+
+              {/* Sección Propietario */}
+              {datas?.data?.homeowner && (
+                <div className={styles.ownerSection}>
+                  <div className={styles.sectionHeader}>
+                    <h3 className={styles.sectionTitle}>Propietario</h3>
+                    <div className={styles.sectionActions}>
+                      <div
+                        className={styles.menuDots}
+                        onClick={e => {
+                          e.stopPropagation();
+
+                          setOpenOwnerMenu(!openOwnerMenu);
+                        }}
+                      >
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                      </div>
+                      {openOwnerMenu && (
+                        <div className={styles.dropdownMenu}>
+                          <div
+                            className={styles.menuItem}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setOpenOwnerMenu(false);
+                              // Lógica para cambiar/nuevo propietario
+                            }}
+                          >
+                            Cambiar/Nuevo
+                          </div>
+                          <div
+                            className={styles.menuItem}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setOpenOwnerMenu(false);
+                              // Lógica para desvincular propietario
+                            }}
+                          >
+                            Desvincular
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.personCard}>
+
+                    <Avatar
+                      hasImage={datas?.data?.homeowner?.has_image}
+                      src={
+                        datas?.data?.homeowner?.id
+                          ? getUrlImages(
+                              '/OWNER-' +
+                                datas?.data?.homeowner?.id +
+                                '.webp' +
+                                (datas?.data?.homeowner?.updated_at
+                                  ? '?d=' + datas?.data?.homeowner?.updated_at
+                                  : '')
+                            )
+                          : ''
+                      }
+                      name={getFullName(datas?.data?.homeowner)}
+                      w={48}
+                      h={48}
+                    />
+                    <div className={styles.personInfo}>
+                      <h4 className={styles.personName}>{getFullName(datas?.data?.homeowner)}</h4>
+                      <p className={styles.personId}>
+                        C.I. {datas?.data?.homeowner?.ci || 'Sin registro'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={styles.contactGrid}>
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>E-mail</span>
+                      <span className={styles.contactValue}>
+                        {datas?.data?.homeowner?.email || 'Sin email'}
+                      </span>
+                    </div>
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>Celular</span>
+                      <span className={styles.contactValue}>
+                        {datas?.data?.homeowner?.phone || 'Sin teléfono'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <Br />
+              {/* Sección Residente/Titular */}
+              {datas?.titular && (
+                <div className={styles.residentSection}>
+                  <div className={styles.sectionHeader}>
+                    <h3 className={styles.sectionTitle}>Residente</h3>
+                    <div className={styles.sectionActions}>
+                      <div
+                        className={styles.menuDots}
+                        onClick={e => {
+                          e.stopPropagation();
+
+                          setOpenTenantMenu(!openTenantMenu);
+                        }}
+                      >
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                      </div>
+                      {openTenantMenu && (
+                        <div className={styles.dropdownMenu}>
+                          <div
+                            className={styles.menuItem}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setOpenTenantMenu(false);
+                              setOpenTitular(true);
+                            }}
+                          >
+                            Cambiar/Nuevo
+                          </div>
+                          <div
+                            className={styles.menuItem}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setOpenTenantMenu(false);
+                              setOpenDelTitular(true);
+                            }}
+                          >
+                            Desvincular
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.personCard}>
+                    <Avatar
+                      hasImage={datas?.titular?.has_image}
+                      src={
+                        datas?.titular?.id
+                          ? getUrlImages(
+                              '/OWNER-' +
+                                datas?.titular?.id +
+                                '.webp' +
+                                (datas?.titular?.updated_at
+                                  ? '?d=' + datas?.titular?.updated_at
+                                  : '')
+                            )
+                          : ''
+                      }
+                      name={getFullName(datas?.titular)}
+                      w={48}
+                      h={48}
+                    />
+                    <div className={styles.personInfo}>
+                      <h4 className={styles.personName}>{getFullName(datas?.titular)}</h4>
+                      <p className={styles.personId}>C.I. {datas?.titular?.ci || 'Sin registro'}</p>
+                    </div>
+                  </div>
+
+                  <div className={styles.contactGrid}>
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>E-mail</span>
+                      <span className={styles.contactValue}>
+                        {datas?.titular?.email || 'Sin email'}
+                      </span>
+                    </div>
+                    <div className={styles.contactItem}>
+                      <span className={styles.contactLabel}>Celular</span>
+                      <span className={styles.contactValue}>
+                        {datas?.titular?.phone || 'Sin teléfono'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Dependientes */}
+                  {datas?.titular?.dependientes && datas.titular.dependientes.length > 0 && (
+                    <div className={styles.dependentsSection}>
+                      <div className={styles.dependentsHeader}>
+                        <h4 className={styles.dependentsTitle}>Dependientes</h4>
+                        <div className={styles.dependentsCount}>
+
+                        </div>
+                      </div>
+                      <div className={styles.dependentsGrid}>
+                        {datas.titular.dependientes
+                          .slice(0, 3)
+                          .map((dependiente: any, index: number) => (
+                            <Tooltip
+                              key={index}
+                              title={getFullName(dependiente.owner)}
+                              position="top"
+                            >
+                              <Avatar
+                                hasImage={dependiente.owner?.has_image}
+                                src={
+                                  dependiente.owner?.id
+                                    ? getUrlImages(
+                                        '/OWNER-' +
+                                          dependiente.owner?.id +
+                                          '.webp' +
+                                          (dependiente.owner?.updated_at
+                                            ? '?d=' + dependiente.owner?.updated_at
+                                            : '')
+                                      )
+                                    : ''
+                                }
+                                name={getFullName(dependiente.owner)}
+                                w={40}
+                                h={40}
+                                onClick={() => handleOpenPerfil(dependiente.owner_id)}
+                              />
+                            </Tooltip>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+               {/*    <Button
+                    onClick={() => setOpenDelTitular(true)}
+                    variant="terciary"
+                    style={{
+                      padding: 0,
+                      color: 'var(--cError)',
+                      width: 'fit-content',
+                      marginTop: 16,
+                    }}
+                    small
+                  >
+                    Eliminar titular
+                  </Button> */}
+                </div>
+              )}
+
+              {/* Estado sin titular */}
+              {!datas?.titular && (
+                <div className={styles.emptyState}>
+                  <EmptyData
+                    message="Sin inquilino asignado. Para asignar"
+                    line2="un inquilino a esta unidad."
+                    icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+                    centered={true}
+                    fontSize={14}
+                  />
+                </div>
+              )}
             </div>
 
             <Button
@@ -595,9 +690,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
               small
               style={{
                 padding: 0,
-                display: "flex",
-                justifyContent: "flex-start",
-                width: "fit-content",
+                display: 'flex',
+                justifyContent: 'flex-start',
+                width: 'fit-content',
               }}
               onClick={() => setOpenTitularHist(true)}
             >
@@ -609,7 +704,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title={
               <TitleRender
                 title="Historial de pagos"
-                onClick={() => setOpenPaymentsHist(true)}
+                onClick={() => locationParams('/payments', 'paymentSearchBy', datas?.data?.nro)}
               />
             }
             variant="V1"
@@ -623,11 +718,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   icon={<IconPagos size={80} color="var(--cWhiteV1)" />}
                 />
               ) : (
-                <Table
-                  header={header}
-                  data={datas?.payments}
-                  className="striped"
-                />
+                <Table header={header} data={datas?.payments} className="striped" />
               )}
             </div>
           </WidgetBase>
@@ -636,28 +727,28 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Visitas Mini Lista */}
           <WidgetBase
-            subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
+            subtitle={'+' + datas.accessCount + ' accesos nuevos este mes'}
             title={
               <TitleRender
                 title="Historial de accesos"
-                onClick={() => setOpenAccesos(true)}
+                onClick={() => router.push(`/activities?search_by=${datas?.data?.nro}`)}
               />
             }
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ width: '48%' }}
           >
             <div
               style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
+                display: 'flex',
+                overflowX: 'auto',
+                width: '100%',
                 marginTop: 24,
               }}
             >
               {datas?.access && datas.access.length > 0 ? (
                 <div
                   style={{
-                    display: "flex",
+                    display: 'flex',
                     gap: 16,
                   }}
                 >
@@ -667,7 +758,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         key={index}
                         style={{
                           width: 468,
-                          border: "1px solid var(--cWhiteV1)",
+                          border: '1px solid var(--cWhiteV1)',
                           padding: 12,
                           borderRadius: 12,
                         }}
@@ -681,38 +772,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               style={{
                                 width: 80,
                                 fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
+                                display: 'flex',
+                                justifyContent: 'end',
                                 color:
-                                  acc.in_at && acc.out_at
-                                    ? "var(--cSuccess)"
-                                    : "var(--cError)",
+                                  acc.in_at && acc.out_at ? 'var(--cSuccess)' : 'var(--cError)',
                               }}
                             >
-                              {acc.in_at && acc.out_at
-                                ? "Completado"
-                                : "Por salir"}
+                              {acc.in_at && acc.out_at ? 'Completado' : 'Por salir'}
                             </p>
                           }
                         />
                         <KeyValue
-                          title={"Tipo de visita"}
+                          title={'Tipo de visita'}
                           value={
-                            acc.type === "P"
-                              ? "Pedido"
-                              : acc.type == "I"
-                              ? "Individual"
-                              : "Grupal"
+                            acc.type === 'P' ? 'Pedido' : acc.type == 'I' ? 'Individual' : 'Grupal'
                           }
                         />
-                        <KeyValue
-                          title={"Ingreso"}
-                          value={getDateTimeStrMes(acc.in_at) || "-/-"}
-                        />
-                        <KeyValue
-                          title={"Salida"}
-                          value={getDateTimeStrMes(acc.out_at) || "-/-"}
-                        />
+                        <KeyValue title={'Ingreso'} value={getDateTimeStrMes(acc.in_at) || '-/-'} />
+                        <KeyValue title={'Salida'} value={getDateTimeStrMes(acc.out_at) || '-/-'} />
                       </div>
                     );
                   })}
@@ -731,27 +808,25 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title={
               <TitleRender
                 title="Historial de reservas"
-                onClick={() => setOpenReservasHist(true)}
+                onClick={() => router.push(`/reservas?search_by=${datas?.data?.nro}`)}
               />
             }
-            subtitle={
-              "+" + datas.reservationsCount + " reservas nuevas este mes"
-            }
+            subtitle={'+' + datas.reservationsCount + ' reservas nuevas este mes'}
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ width: '48%' }}
           >
             <div
               style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
+                display: 'flex',
+                overflowX: 'auto',
+                width: '100%',
                 marginTop: 24,
               }}
             >
               {datas?.reservations && datas?.reservations?.length > 0 ? (
                 <div
                   style={{
-                    display: "flex",
+                    display: 'flex',
                     gap: 16,
                   }}
                 >
@@ -761,7 +836,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                         key={index}
                         style={{
                           width: 468,
-                          border: "1px solid var(--cWhiteV1)",
+                          border: '1px solid var(--cWhiteV1)',
                           padding: 12,
                           borderRadius: 12,
                         }}
@@ -773,12 +848,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
                             <Avatar
                               name={res?.area?.title}
                               src={getUrlImages(
-                                "/AREA-" +
+                                '/AREA-' +
                                   res?.area?.id +
-                                  "-" +
+                                  '-' +
                                   res?.area?.images?.[0]?.id +
-                                  ".webp" +
-                                  "?" +
+                                  '.webp' +
+                                  '?' +
                                   res?.area?.updated_at
                               )}
                               w={40}
@@ -789,47 +864,39 @@ const DashDptos = ({ id }: DashDptosProps) => {
                             <p
                               style={{
                                 color:
-                                  res.status === "A"
-                                    ? "var(--cSuccess)"
-                                    : res.status === "W"
-                                    ? "var(--cWarning)"
-                                    : res.status === "X"
-                                    ? "var(--cError)"
-                                    : "var(--cError)",
+                                  res.status === 'A'
+                                    ? 'var(--cSuccess)'
+                                    : res.status === 'W'
+                                    ? 'var(--cWarning)'
+                                    : res.status === 'X'
+                                    ? 'var(--cError)'
+                                    : 'var(--cError)',
                                 fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
+                                display: 'flex',
+                                justifyContent: 'end',
                               }}
                             >
-                              {res.status === "A"
-                                ? "Aprovada "
-                                : res.status === "W"
-                                ? "En espera"
-                                : res.status === "X"
-                                ? "Rechazado"
-                                : "Cancelado"}
+                              {res.status === 'A'
+                                ? 'Aprovada '
+                                : res.status === 'W'
+                                ? 'En espera'
+                                : res.status === 'X'
+                                ? 'Rechazado'
+                                : 'Cancelado'}
                             </p>
                           }
                         />
                         <KeyValue
-                          title={"Fecha y hora de reserva"}
-                          value={
-                            res.start_time.slice(0, 5) + " - " + res.date_at ||
-                            "Sin fecha"
-                          }
+                          title={'Fecha y hora de reserva'}
+                          value={res.start_time.slice(0, 5) + ' - ' + res.date_at || 'Sin fecha'}
                         />
                         <KeyValue
-                          title={"Cantidad de personas"}
-                          value={
-                            res.people_count + " personas" || "Sin cantidad"
-                          }
+                          title={'Cantidad de personas'}
+                          value={res.people_count + ' personas' || 'Sin cantidad'}
                         />
                         <KeyValue
-                          title={"Cantidad de horas"}
-                          value={
-                            getHourPeriod(res.start_time, res?.end_time) ||
-                            "Sin fecha"
-                          }
+                          title={'Cantidad de horas'}
+                          value={getHourPeriod(res.start_time, res?.end_time) || 'Sin fecha'}
                         />
                       </div>
                     );
@@ -862,10 +929,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               name="owner_id"
               error={errorsT.owner_id}
               required={true}
-              value={formState.owner_id || ""}
-              onChange={(e) =>
-                setFormState({ ...formState, owner_id: e.target.value })
-              }
+              value={formState.owner_id || ''}
+              onChange={e => setFormState({ ...formState, owner_id: e.target.value })}
               options={(datas?.owners || []).map((owner: any) => ({
                 ...owner,
                 name: `${getFullName(owner)}`,
@@ -882,29 +947,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
             ownershipData={datas?.titularHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
-          />
-        )}
-
-        {openPaymentsHist && (
-          <HistoryPayments
-            paymentsData={datas?.payments || []}
-            open={openPaymentsHist}
-            close={() => setOpenPaymentsHist(false)}
-          />
-        )}
-
-        {openAccesos && (
-          <HistoryAccess
-            accessData={datas?.access || []}
-            open={openAccesos}
-            close={() => setOpenAccesos(false)}
-          />
-        )}
-        {openReservasHist && (
-          <HistoryReservations
-            open={openReservasHist}
-            onClose={() => setOpenReservasHist(false)}
-            id={datas?.data?.id}
           />
         )}
 
@@ -934,9 +976,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
             item={
               idPerfil === datas?.titular?.id
                 ? datas?.titular
-                : datas?.titular?.dependientes?.find(
-                    (dep: any) => dep.owner_id === idPerfil
-                  )?.owner || {}
+                : datas?.titular?.dependientes?.find((dep: any) => dep.owner_id === idPerfil)
+                    ?.owner || {}
             }
             reLoad={reLoad}
           />
@@ -961,8 +1002,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           >
             <div className={styles.modalContent}>
               <p>
-                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción
-                no se puede deshacer.
+                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción no se puede deshacer.
               </p>
             </div>
           </DataModal>

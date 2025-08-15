@@ -68,6 +68,10 @@ const renderAmountCell = (props: any) => <FormatBsAlign value={props.item.amount
 
 const Payments = () => {
   const router = useRouter();
+  
+  // Obtener parámetros de URL
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const unitParam = searchParams.get('unit');
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
@@ -136,7 +140,7 @@ const Payments = () => {
     perPage: 20,
     page: 1,
     fullType: 'L',
-    searchBy: '',
+    searchBy: unitParam || '',
   };
 
   const fields = useMemo(
