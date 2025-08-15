@@ -5,7 +5,6 @@ import styles from './DashDptos.module.css';
 import { useRouter } from 'next/navigation';
 import {
   IconArrowDown,
-  IconCalendar,
   IconDelivery,
   IconEdit,
   IconExitHome,
@@ -37,8 +36,6 @@ import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
 import RenderForm from '../Dptos/RenderForm';
 import HeaderBack from '@/mk/components/ui/HeaderBack/HeaderBack';
 
-import { Calendar } from '@/mk/components/Calendar';
-
 interface DashDptosProps {
   id: string | number;
 }
@@ -67,7 +64,6 @@ const getPaymentStatus = (status: PaymentStatus) => {
 const DashDptos = ({ id }: DashDptosProps) => {
   const { user, showToast, setStore } = useAuth();
   const router = useRouter();
-  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -231,20 +227,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     colorValue?: string;
   };
 
-  const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
-    return (
-      <div className={styles.LabelValue}>
-        <p>{label}</p>
-        <p
-          style={{
-            color: colorValue ? colorValue : 'var(--cWhite)',
-          }}
-        >
-          {value}
-        </p>
-      </div>
-    );
-  };
+
   type TitleRenderProps = {
     title: string;
     onClick?: () => void;

@@ -53,7 +53,20 @@ interface StatusConfig {
   bgColor: string;
 }
 
+interface StatusConfig {
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
 const renderStatusCell = (props: any) => {
+  const statusConfig: Record<string, StatusConfig> = {
+    P: { label: 'Cobrado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
+    S: { label: 'Por confirmar', color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
+    R: { label: 'Rechazado', color: 'var(--cMediumAlert)', bgColor: 'var(--cHoverCompl5)' },
+    A: { label: 'Por pagar', color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+    M: { label: 'Moroso', color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
+    X: { label: 'Anulado', color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
   const statusConfig: Record<string, StatusConfig> = {
     P: { label: 'Cobrado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
     S: { label: 'Por confirmar', color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
@@ -63,17 +76,17 @@ const renderStatusCell = (props: any) => {
     X: { label: 'Anulado', color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
   };
 
-  const defaultConfig: StatusConfig = { 
+  const defaultConfig: StatusConfig = {
     label: 'No disponible',
-    color: 'var(--cWhite)', 
-    bgColor: 'var(--cHoverCompl1)' 
+    color: 'var(--cWhite)',
+    bgColor: 'var(--cHoverCompl1)'
   };
 
   const { label, color, bgColor } = statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
 
   return (
-    <StatusBadge 
-      color={color} 
+    <StatusBadge
+      color={color}
       backgroundColor={bgColor}
     >
       {label}

@@ -182,14 +182,6 @@ const RenderForm = ({
         disabled={action !== 'add' && item.is_fixed === 'A'}
         required
       />
-      <Input
-        name="description"
-        label="Descripción"
-        value={formState?.description ?? ''}
-        onChange={handleChange}
-        error={_errors}
-        required={false}
-      />
       <div className={styles.textContainer}>
         <div>Campos adicionales</div>
         <div>
