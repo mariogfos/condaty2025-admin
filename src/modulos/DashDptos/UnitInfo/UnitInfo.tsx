@@ -230,6 +230,19 @@ const UnitInfo = ({
           </div>
         )}
 
+        {/* Estado sin propietario */}
+        {!datas?.data?.homeowner && (
+          <div className={styles.emptyState}>
+            <EmptyData
+              message="Sin propietario asignado. Para asignar"
+              line2="un propietario a esta unidad."
+              icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+              centered={true}
+              fontSize={14}
+            />
+          </div>
+        )}
+
         <Br />
 
         {/* Sección Residente/Titular */}
@@ -356,8 +369,8 @@ const UnitInfo = ({
         {!datas?.titular && (
           <div className={styles.emptyState}>
             <EmptyData
-              message="Sin inquilino asignado. Para asignar"
-              line2="un inquilino a esta unidad."
+              message="Sin Residente asignado. Para asignar"
+              line2="un residente a esta unidad."
               icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
               centered={true}
               fontSize={14}

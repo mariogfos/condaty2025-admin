@@ -103,6 +103,11 @@ const Dptos = () => {
       edit: true,
       del: true,
     },
+    saveMsg: {
+      add: `Unidad registrada con éxito`,
+      edit: `Unidad actualizada con éxito`,
+      del: `Unidad eliminada con éxito`,
+    },
     renderForm: (props: {
       item: any;
       setItem: any;
