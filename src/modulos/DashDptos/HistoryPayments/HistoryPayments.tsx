@@ -145,23 +145,6 @@ const HistoryPayments = ({
             </div>
           </div>
         </div>
-
-        <div className={styles.footer}>
-          <div className={styles.paginationWrapper}>
-            <div className={styles.totalItems}>
-              Total {filteredData.length} items
-            </div>
-            <Pagination
-              currentPage={params.page}
-              onPageChange={(page) => setParams({ ...params, page })}
-              totalPages={Math.ceil(filteredData.length / params.perPage)}
-              previousLabel=""
-              nextLabel=""
-              params={params}
-              setParams={setParams}
-            />
-          </div>
-        </div>
       </div>
     </DataModal>
   );
