@@ -2,6 +2,7 @@ import styles from "./Alerts.module.css";
 import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
@@ -67,19 +68,33 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={reLoad} />,
   };
   const { setStore } = useAuth();
-  const getAlertLevelClass = (level: any) => {
+  const getAlertLevelInfo = (level: number) => {
     switch (level) {
-      case 4:
-        // return styles.nivelPanico;
-        return styles.nivelAlto;
-      case 3:
-        return styles.nivelAlto;
-      case 2:
-        return styles.nivelMedio;
-      case 1:
-        return styles.nivelBajo;
+      case 4: // Panic (treated as High)
+      case 3: // High
+        return { 
+          label: level === 4 ? 'Nivel pánico' : 'Nivel alto',
+          backgroundColor: 'var(--cHoverError)',
+          color: 'var(--cError)'
+        };
+      case 2: // Medium
+        return { 
+          label: 'Nivel medio',
+          backgroundColor: 'var(--cHoverWarning)',
+          color: 'var(--cWarning)'
+        };
+      case 1: // Low
+        return { 
+          label: 'Nivel bajo',
+          backgroundColor: 'var(--cHoverSuccess)',
+          color: 'var(--cSuccess)'
+        };
       default:
-        return styles.nivelMedio;
+        return { 
+          label: 'Nivel desconocido',
+          backgroundColor: 'var(--cHoverLight)',
+          color: 'var(--cLightDark)'
+        };
     }
   };
 
@@ -236,7 +251,9 @@ const Alerts = () => {
         rules: [""],
         api: "",
         label: "Fecha y hora de creación",
-        list: {},
+        list: {
+          width: "314px",
+        },
         onRender: (props: any) => {
           return getDateTimeStrMesShort(props.item.created_at);
         },
@@ -245,22 +262,25 @@ const Alerts = () => {
       level: {
         rules: ["required"],
         api: "ae",
-        label: "Categoría de alerta",
+        label: <span style={{display: "block", textAlign: "center", width: "100%"}}>Nivel de alerta</span>,
         list: {
+          width: "194px",
           onRender: (props: any) => {
             const alertLevel = props?.item?.level || 2;
-            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(
-              alertLevel
-            )}`;
-
+            const { backgroundColor, color, label } = getAlertLevelInfo(alertLevel);
             return (
-              <div className={levelClass}>{getAlertLevelText(alertLevel)}</div>
+              <StatusBadge
+                backgroundColor={backgroundColor}
+                color={color}
+              >
+                {label}
+              </StatusBadge>
             );
           },
         },
         form: { type: "select", options: lLevels },
         filter: {
-          label: "Categoría",
+          label: "Nivel de alerta",
           width: "200px",
           options: () => [...lLevels],
           optionLabel: "name",
@@ -317,7 +337,7 @@ const Alerts = () => {
                     !data?.extraData?.total_alerts ||
                     data?.extraData?.total_alerts === 0
                       ? "var(--cHover)"
-                      : "rgba(255, 255, 255, 0.1)",
+                      : "var(--cHoverCompl1)",
                 }}
                 circle
                 size={18}
