@@ -1,72 +1,68 @@
-'use client';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import useCrudUtils from '../shared/useCrudUtils';
-import { useMemo, useState } from 'react';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import { getDateStrMes, getDateTimeStrMes } from '@/mk/utils/date';
-import styles from './Reserva.module.css';
-import { format, parse } from 'date-fns';
-import ReservationDetailModal from './RenderView/RenderView';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import CreateReserva from '../CreateReserva/CreateReserva';
-import { IconCalendar } from '@/components/layout/icons/IconsBiblioteca';
+"use client";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import useCrudUtils from "../shared/useCrudUtils";
+import { useMemo, useState } from "react";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
+import styles from "./Reserva.module.css";
+import { format, parse } from "date-fns";
+import ReservationDetailModal from "./RenderView/RenderView";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import CreateReserva from "../CreateReserva/CreateReserva";
+import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 const mod = {
-  modulo: 'reservations',
-  singular: 'reserva',
-  plural: 'reservas',
-  permiso: '',
+  modulo: "reservations",
+  singular: "reserva",
+  plural: "reservas",
+  permiso: "",
   extraData: true,
   hideActions: { edit: true, del: true },
   renderForm: (props: any) => <CreateReserva {...props} />,
   renderView: (props: any) => <ReservationDetailModal {...props} />,
-  loadView: { fullType: 'DET' },
+  loadView: { fullType: "DET" },
   filter: true,
   export: true,
-  titleAdd: 'Nueva',
+  titleAdd: "Nueva",
 };
 
 const periodOptions = [
-  { id: 'ALL', name: 'Todos' },
-  { id: 'd', name: 'Hoy' },
-  { id: 'ld', name: 'Ayer' },
-  { id: 'w', name: 'Esta semana' },
-  { id: 'lw', name: 'Semana anterior' },
-  { id: 'm', name: 'Este mes' },
-  { id: 'lm', name: 'Mes anterior' },
-  { id: 'y', name: 'Este año' },
-  { id: 'ly', name: 'Año anterior' },
-  { id: 'custom', name: 'Personalizado' },
+  { id: "ALL", name: "Todos" },
+  { id: "d", name: "Hoy" },
+  { id: "ld", name: "Ayer" },
+  { id: "w", name: "Esta semana" },
+  { id: "lw", name: "Semana anterior" },
+  { id: "m", name: "Este mes" },
+  { id: "lm", name: "Mes anterior" },
+  { id: "y", name: "Este año" },
+  { id: "ly", name: "Año anterior" },
+  { id: "custom", name: "Personalizado" },
 ];
 
+const paramsInitial = {
+  perPage: 20,
+  page: 1,
+  fullType: "L",
+  searchBy: "",
+};
+
 const Reserva = () => {
-  // Obtener parámetros de URL
-  const searchParams = new URLSearchParams(
-    typeof window !== 'undefined' ? window.location.search : ''
-  );
-  const unitParam = searchParams.get('unit');
-
-  const paramsInitial = {
-    perPage: 20,
-    page: 1,
-    fullType: 'L',
-    searchBy: unitParam || '',
-  };
-
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors]: any = useState({
-    start: '',
-    end: '',
+    start: "",
+    end: "",
   });
   const getReservaStatusOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'W', name: 'Por confirmar' },
-    { id: 'A', name: 'Reservado' },
-    { id: 'X', name: 'Rechazado' },
-    { id: 'C', name: 'Cancelado' },
-    { id: 'F', name: 'Completado' },
+    { id: "ALL", name: "Todos" },
+    { id: "W", name: "Por confirmar" },
+    { id: "A", name: "Reservado" },
+    { id: "X", name: "Rechazado" },
+    { id: "C", name: "Cancelado" },
+    { id: "F", name: "Completado" },
   ];
 
   const onRenderAreaList = ({ item }: any) => {
@@ -80,16 +76,16 @@ const Reserva = () => {
         )
       : undefined;
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Avatar src={imageUrl} hasImage={2} name={areaName} />
         <p
           style={{
-            color: 'var(--cWhite)',
+            color: "var(--cWhite)",
             fontWeight: 500,
             fontSize: 14,
           }}
         >
-          {areaName || 'Área no disponible'}
+          {areaName || "Área no disponible"}
         </p>
       </div>
     );
@@ -98,20 +94,22 @@ const Reserva = () => {
   const onRenderOwnerList = ({ item }: any) => {
     const owner = item?.owner;
     const dpto = item?.dpto;
-    const ownerName = owner ? getFullName(owner) : 'Residente no disponible';
-    const dptoNro = dpto?.nro ? dpto.nro : 'Sin Dpto.';
+    const ownerName = owner ? getFullName(owner) : "Residente no disponible";
+    const dptoNro = dpto?.nro ? dpto.nro : "Sin Dpto.";
 
     const imageUrl = owner
-      ? getUrlImages(`/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`)
+      ? getUrlImages(
+          `/OWNER-${owner.id}.webp?d=${owner.updated_at || Date.now()}`
+        )
       : undefined;
 
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Avatar src={imageUrl} name={ownerName} />
         <div>
           <p
             style={{
-              color: 'var(--cWhite)',
+              color: "var(--cWhite)",
               fontWeight: 500,
               fontSize: 14,
             }}
@@ -122,7 +120,7 @@ const Reserva = () => {
             <p
               style={{
                 fontSize: 14,
-                color: 'var(--cWhiteV1)',
+                color: "var(--cWhiteV1)",
               }}
             >
               {dptoNro}
@@ -132,7 +130,7 @@ const Reserva = () => {
             <p
               style={{
                 fontSize: 14,
-                color: 'var(--cWhiteV1)',
+                color: "var(--cWhiteV1)",
               }}
             >
               {dptoNro}
@@ -145,28 +143,28 @@ const Reserva = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       area: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Área Social',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Área Social",
+        form: { type: "text" },
         list: {
           onRender: onRenderAreaList,
         },
       },
       owner: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Residente',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Residente",
+        form: { type: "text" },
         list: {
           // width: 470,
           onRender: onRenderOwnerList,
         },
       },
       created_at: {
-        label: 'Fecha de solicitud',
+        label: "Fecha de solicitud",
         form: false,
         list: {
           // width: 246,
@@ -176,76 +174,115 @@ const Reserva = () => {
         },
       },
       date_at: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha del evento',
-        form: { type: 'date' },
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha del evento",
+        form: { type: "date" },
         list: {
           // width: 246,
           onRender: (props: any) => {
             return (
               <div>
-                {getDateStrMes(props?.item?.date_at)}{' '}
-                {format(parse(props?.item?.start_time, 'HH:mm:ss', new Date()), 'H:mm')}
+                {getDateStrMes(props?.item?.date_at)}{" "}
+                {format(
+                  parse(props?.item?.start_time, "HH:mm:ss", new Date()),
+                  "H:mm"
+                )}
               </div>
             );
           },
         },
         filter: {
-          label: 'Fecha del evento',
-          width: '246px',
+          label: "Fecha del evento",
+          width: "246px",
           options: () => periodOptions,
         },
       },
 
       status_reservation: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Estado',
+        rules: ["required"],
+        api: "ae",
+        label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
         form: {
-          type: 'select',
+          type: "select",
           options: [
-            { id: 'A', name: 'Disponible' },
-            { id: 'X', name: 'No disponible' },
-            { id: 'M', name: 'En mantenimiento' },
+            { id: "A", name: "Disponible" },
+            { id: "X", name: "No disponible" },
+            { id: "M", name: "En mantenimiento" },
           ],
         },
         list: {
           // width: 180,
           onRender: (props: any) => {
-            let status = props?.item?.status as 'W' | 'A' | 'X' | 'C' | 'F' | undefined;
+            let status = props?.item?.status as
+              | "W"
+              | "A"
+              | "X"
+              | "C"
+              | "F"
+              | undefined;
 
-            let dateEnd = new Date(props?.item?.date_end + 'T' + props?.item?.end_time)
+            let dateEnd = new Date(
+              props?.item?.date_end + "T" + props?.item?.end_time
+            )
               ?.toISOString()
-              ?.split('.')[0];
+              ?.split(".")[0];
 
-            if (status === 'A' && dateEnd < new Date().toISOString().split('.')[0]) {
-              status = 'F';
+            if (
+              status === "A" &&
+              dateEnd < new Date().toISOString().split(".")[0]
+            ) {
+              status = "F";
             }
 
             const statusMap = {
-              W: { label: 'Por confirmar', class: styles.statusW },
-              A: { label: 'Reservado', class: styles.statusA },
-              X: { label: 'Rechazado', class: styles.statusX },
-              C: { label: 'Cancelado', class: styles.statusC },
-              F: { label: 'Completado', class: styles.statusF },
+              W: {
+                label: "Por confirmar",
+                backgroundColor: "var(--cHoverWarning)",
+                color: "var(--cWarning)",
+              },
+              A: {
+                label: "Reservado",
+                backgroundColor: "var(--cHoverSuccess)",
+                color: "var(--cSuccess)",
+              },
+              X: {
+                label: "Rechazado",
+                backgroundColor: "var(--cHoverError)",
+                color: "var(--cError)",
+              },
+              C: {
+                label: "Cancelado",
+                backgroundColor: "var(--cHoverCompl5)",
+                color: "var(--cMediumAlert)",
+              },
+              F: {
+                label: "Completado",
+                backgroundColor: "var(--cHoverCompl1)",
+                color: "var(--cWhite)",
+              },
             };
             const currentStatus = status ? statusMap[status] : null;
 
             return (
-              <div
-                className={`${styles.statusBadge} ${
-                  currentStatus ? currentStatus.class : styles.statusUnknown
-                }`}
+              <StatusBadge
+                backgroundColor={
+                  currentStatus
+                    ? currentStatus.backgroundColor
+                    : "var(--cHoverLight)"
+                }
+                color={
+                  currentStatus ? currentStatus.color : "var(--cLightDark)"
+                }
               >
-                {currentStatus ? currentStatus.label : 'Estado desconocido'}
-              </div>
+                {currentStatus ? currentStatus.label : "Estado desconocido"}
+              </StatusBadge>
             );
           },
         },
         filter: {
-          label: 'Estado',
-          width: '180px',
+          label: "Estado",
+          width: "180px",
           options: getReservaStatusOptions,
         },
       },
@@ -255,14 +292,14 @@ const Reserva = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'date_at' && value === 'custom') {
+    if (opt === "date_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -272,25 +309,35 @@ const Reserva = () => {
 
   const onSaveFilterModal = ({ startDate, endDate }: any) => {
     let err: { startDate?: string; endDate?: string } = {};
-    if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-    if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+    if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+    if (!endDate) err.endDate = "La fecha de fin es obligatoria";
     if (startDate && endDate && startDate > endDate)
-      err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+      err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
     if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-      err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-      err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+      err.startDate =
+        "El periodo personalizado debe estar dentro del mismo año";
+      err.endDate = "El periodo personalizado debe estar dentro del mismo año";
     }
     if (Object.keys(err).length > 0) {
       setCustomDateErrors(err);
       return;
     }
     const customDateFilterString = `${startDate},${endDate}`;
-    onFilter('date_at', customDateFilterString);
+    onFilter("date_at", customDateFilterString);
     setOpenCustomFilter(false);
     setCustomDateErrors({});
   };
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel, onFilter } = useCrud({
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    onFilter,
+  } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -305,11 +352,11 @@ const Reserva = () => {
     onDel,
   });
 
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
       <List
-        height={'calc(100vh - 360px)'}
+        height={"calc(100vh - 360px)"}
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
