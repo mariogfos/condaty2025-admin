@@ -877,7 +877,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                               }}
                             >
                               {res.status === 'A'
-                                ? 'Aprovada '
+                                ? 'Aprobada '
                                 : res.status === 'W'
                                 ? 'En espera'
                                 : res.status === 'X'
