@@ -273,6 +273,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar unidad"
             open={openDel}
             onSave={onDel}
+            variant={"mini"}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
           >
@@ -288,6 +289,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar titular"
             open={openDelTitular}
             onSave={removeTitular}
+            variant={"mini"}
             onClose={() => setOpenDelTitular(false)}
             buttonText="Eliminar"
           >
