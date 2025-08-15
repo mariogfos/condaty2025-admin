@@ -105,12 +105,12 @@ const Pagination = ({
     }
   };
 
-  // if (safeTotal <= 1) {
-  //   return null;
-  // }
-  // if (total == 0) {
-  //   return null;
-  // }
+  if (safeTotal == 0) {
+    return null;
+  }
+  if (total == 0) {
+    return null;
+  }
   return (
     <div className={`${styles.pagination} ${className}`}>
       {/* {totalPages > 1 ? ( */}
