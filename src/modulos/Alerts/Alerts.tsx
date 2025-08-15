@@ -55,7 +55,7 @@ const Alerts = () => {
     modulo: "alerts",
     singular: "alerta",
     plural: "alertas",
-    permiso: "",
+    permiso: "alerts",
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
