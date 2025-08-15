@@ -199,8 +199,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
       label: 'Estado',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        const status = item?.status as PaymentStatus;
-        const statusInfo = getPaymentStatus(status);
         return (
           <span className={`${styles.status} ${styles[`status${item?.status}`]}`}>
             {getStatus(item?.status)}
@@ -485,7 +483,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   </div>
 
                   <div className={styles.personCard}>
-
                     <Avatar
                       hasImage={datas?.data?.homeowner?.has_image}
                       src={
@@ -619,9 +616,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     <div className={styles.dependentsSection}>
                       <div className={styles.dependentsHeader}>
                         <h4 className={styles.dependentsTitle}>Dependientes</h4>
-                        <div className={styles.dependentsCount}>
-
-                        </div>
+                        <div className={styles.dependentsCount}></div>
                       </div>
                       <div className={styles.dependentsGrid}>
                         {datas.titular.dependientes
@@ -657,7 +652,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     </div>
                   )}
 
-               {/*    <Button
+                  {/*    <Button
                     onClick={() => setOpenDelTitular(true)}
                     variant="terciary"
                     style={{
