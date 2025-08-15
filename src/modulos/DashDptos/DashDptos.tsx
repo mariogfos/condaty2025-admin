@@ -5,7 +5,6 @@ import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
 import {
   IconArrowDown,
-  IconCalendar,
   IconDelivery,
   IconEdit,
   IconExitHome,
@@ -34,31 +33,34 @@ import Table from "@/mk/components/ui/Table/Table";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import HistoryReservations from "./HistoryReservations/HistoryReservations";
-import { Calendar } from "@/mk/components/Calendar";
 
 interface DashDptosProps {
   id: string | number;
 }
 
-const getStatus = (status: string) => {
-  const statusMap: Record<string, string> = {
-    A: "Por Pagar",
-    P: "Pagado",
-    S: "Por confirmar",
-    M: "Moroso",
-    R: "Rechazado",
-  };
-  return statusMap[status] || status;
+const PAYMENT_STATUS_MAP = {
+  A: { label: "Por Pagar", backgroundColor: "var(--cHoverWarning)", color: "var(--cWarning)" },
+  P: { label: "Pagado", backgroundColor: "var(--cHoverSuccess)", color: "var(--cSuccess)" },
+  S: { label: "Por confirmar", backgroundColor: "var(--cHoverWarning)", color: "var(--cWarning)" },
+  M: { label: "Moroso", backgroundColor: "var(--cHoverError)", color: "var(--cError)" },
+  R: { label: "Rechazado", backgroundColor: "var(--cHoverError)", color: "var(--cError)" },
+  X: { label: "Anulado", backgroundColor: "var(--cHoverCompl5)", color: "var(--cMediumAlert)" },
+} as const;
+
+type PaymentStatus = keyof typeof PAYMENT_STATUS_MAP;
+
+const getPaymentStatus = (status: PaymentStatus) => {
+  return PAYMENT_STATUS_MAP[status] || { label: status, backgroundColor: "var(--cHoverLight)", color: "var(--cLightDark)" };
 };
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { user, showToast } = useAuth();
+  const { showToast } = useAuth();
   const router = useRouter();
-  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -155,31 +157,20 @@ const DashDptos = ({ id }: DashDptosProps) => {
           : "-";
       },
     },
-    // {
-    //   key: "type",
-    //   label: "Tipo de pago",
-    //   responsive: "desktop",
-    //   onRender: ({ item }: any) => {
-    //     return item?.payment?.type === "Q"
-    //       ? "Qr"
-    //       : item?.payment?.type === "T"
-    //       ? "Transferencia"
-    //       : item?.payment?.type === "O"
-    //       ? "Pago en oficina"
-    //       : "Sin pago";
-    //   },
-    // },
     {
       key: "status",
       label: "Estado",
       responsive: "desktop",
       onRender: ({ item }: any) => {
+        const status = item?.status as PaymentStatus;
+        const statusInfo = getPaymentStatus(status);
         return (
-          <span
-            className={`${styles.status} ${styles[`status${item?.status}`]}`}
+          <StatusBadge
+            backgroundColor={statusInfo.backgroundColor}
+            color={statusInfo.color}
           >
-            {getStatus(item?.status)}
-          </span>
+            {statusInfo.label}
+          </StatusBadge>
         );
       },
     },

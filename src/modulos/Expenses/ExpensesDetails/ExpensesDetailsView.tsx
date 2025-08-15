@@ -19,6 +19,7 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
 
 const renderUnitCell = ({ item }: { item: any }) => <div>{item?.dpto?.nro}</div>;
 
@@ -40,20 +41,27 @@ const renderPenaltyAmountCell = ({ item }: { item: any }) => (
   <FormatBsAlign value={item?.penalty_amount} alignRight />
 );
 
-const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function, styles: any) => {
-  const statusClassMap: { [key: string]: string | undefined } = {
-    A: styles.statusA,
-    E: styles.statusE,
-    P: styles.statusP,
-    S: styles.statusS,
-    M: styles.statusM,
-    R: styles.statusR,
+const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
+  const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
+    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
+    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
+    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
+    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
+    M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
   };
 
   const displayStatus = getDisplayStatus(item);
-  const specificStatusClass = statusClassMap[displayStatus.code] || '';
-  const statusClass = `${styles.statusBadge} ${specificStatusClass}`;
-  return <div className={statusClass}>{displayStatus.text}</div>;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+  
+  return (
+    <StatusBadge 
+      color={color}
+      backgroundColor={bgColor}
+    >
+      {displayStatus.text}
+    </StatusBadge>
+  );
 };
 
 const ExpensesDetails = ({ data, setOpenDetail }: any) => {
@@ -239,7 +247,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         api: '',
         label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
-          onRender: (props: any) => renderStatusCell(props, getDisplayStatus, styles),
+          onRender: (props: any) => renderStatusCell(props, getDisplayStatus),
         },
         filter: {
           label: 'Estado',

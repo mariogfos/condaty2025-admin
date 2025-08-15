@@ -15,15 +15,6 @@
   font-size: 14px;
   padding: 4px 0;
 }
-.stateLabel {
-  display: flex;
-  align-items: center;
-  color: var(--cWhite);
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
 
 .dashboardTitle {
   font-size: var(--sXxl);
@@ -51,18 +42,4 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-}
-
-.statusBadge {
-  font-weight: 400;
-  padding: 6px var(--spM);
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: fit-content;
-  min-width: 166px;
-  min-height: 28px;
-  white-space: nowrap;
 }

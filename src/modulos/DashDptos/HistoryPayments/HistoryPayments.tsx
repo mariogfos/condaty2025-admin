@@ -23,6 +23,7 @@ const getStatus = (status: string) => {
     S: "Por confirmar",
     M: "Moroso",
     R: "Rechazado",
+    X: "Anulado",
   };
   return statusMap[status] || status;
 };
@@ -113,11 +114,15 @@ const HistoryPayments = ({
                   )}
                   <div className={styles.cell}>
                     {pago?.payment?.type === "Q"
-                      ? "Qr"
+                      ? "Pago QR"
                       : pago?.payment?.type === "T"
-                      ? "Transferencia"
+                      ? "Transferencia bancaria"
                       : pago?.payment?.type === "O"
                       ? "Pago en oficina"
+                      : pago?.payment?.type === "E"
+                      ? "Efectivo"
+                      : pago?.payment?.type === "C"
+                      ? "Cheque"
                       : "Sin pago"}
                   </div>
                   <div className={styles.cell}>
