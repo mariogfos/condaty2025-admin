@@ -1,15 +1,9 @@
 .container {
   width: 100%;
-  /* height: calc(100vh - 100px); */
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  /* & > section:first-child {
-    display: flex;
-    cursor: pointer;
-    align-items: center;
-    color: var(--accent);
-  } */
+
   & > section {
     display: flex;
     flex-direction: column;
@@ -37,7 +31,6 @@
   flex-wrap: wrap;
 }
 
-/* Responsive para pantallas medianas */
 @media (max-width: 1400px) {
   .firtsPanel {
     flex-direction: column;
@@ -63,7 +56,6 @@
   overflow-y: auto;
 }
 
-/* Responsive para la info card */
 @media (max-width: 1400px) {
   .infoCard {
     width: 100%;
@@ -84,13 +76,13 @@
   color: var(--twhite);
   font-size: 32px;
   font-weight: bold;
-  /* display: flex; */
   align-items: center;
   gap: 1rem;
-  white-space: nowrap; /* Evita que el texto se divida en varias líneas (opcional) */
-  overflow: hidden; /* Maneja el desbordamiento si el texto es demasiado largo */
-  text-overflow: ellipsis; /* Agrega puntos suspensivos si el texto se corta */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .subtitle {
   color: var(--cWhiteV1);
   font-size: var(--sL);
@@ -109,22 +101,6 @@
   gap: 16px;
   margin-bottom: var(--spL);
 }
-/*
-.infoRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-} */
-
-/* .label {
-  color: var(--lightv3);
-}
-
-.value {
-  color: var(--twhite);
-  font-weight: 600;
-} */
-
 .divider {
   height: 1px;
   background-color: var(--lightv3);
@@ -143,74 +119,38 @@
   margin-top: 1rem;
 }
 
-/* .titularInfo {
-  text-align: center;
-  padding-left: 24px;
-} */
-
-/* .titularName {
-  color: var(--twhite);
-  font-weight: 600;
-  margin-top: 1rem;
-}
-
-.titularLabel {
-  color: var(--lightv3);
-  margin-bottom: 1rem;
-} */
-
-/* .changeButton {
-  width: 100%;
-  margin: 1rem 0;
-} */
-
-/* .titularData {
-  text-align: left;
-} */
-
-/* .titularDataLabel {
-  color: var(--lightv3);
-  margin-bottom: 0.5rem;
-} */
-
-/* .titularDataValue {
-  color: var(--twhite);
-  margin-bottom: 1rem;
-} */
-
 .modalContent {
   width: 100%;
   padding: 1rem;
 }
 
-/* Estado de cuenta sección */
-/* .accountSection {
-  background-color: var(--darkv2);
-  flex-grow: 1;
-  border-radius: 1rem;
-  padding: 1.5rem;
-} */
-
-/* .accountHeader {
+.titleContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-} */
+  width: 100%;
+}
 
 .accountTitle {
   color: var(--twhite);
   font-size: 24px;
   font-weight: 600;
+  margin: 0;
 }
 
 .viewMore {
   color: var(--accentColor);
   cursor: pointer;
   text-decoration: underline;
+  font-size: var(--sM);
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
-/* Historial de visitas sección */
+.viewMore:hover {
+  color: var(--cPrimaryHover);
+}
+
 .visitsSection {
   background-color: var(--darkv2);
   border-radius: 1rem;
@@ -235,7 +175,6 @@
   overflow-y: auto;
 }
 
-/* Estilos para historial de titulares */
 .historySectionContent {
   margin-top: 1rem;
 }
@@ -273,14 +212,12 @@
   margin-left: 0.5rem;
 }
 
-/* Tabla de pagos - más alta */
 .accountContent {
   margin-top: 1rem;
   height: 520px;
   overflow: hidden;
 }
 
-/* Tablas de accesos y reservas - exactamente 5 elementos */
 .accessContent,
 .reservationsContent {
   margin-top: 1rem;
@@ -292,7 +229,6 @@
   justify-content: center;
 }
 
-/* Ocultar scrollbars en todas las tablas */
 .accountContent::-webkit-scrollbar,
 .accessContent::-webkit-scrollbar,
 .reservationsContent::-webkit-scrollbar {
@@ -313,7 +249,7 @@
   scrollbar-width: none;
 }
 
-/* Responsive para las tablas */
+
 @media (max-width: 1400px) {
   .accountContent {
     height: 400px;
@@ -463,38 +399,11 @@
 .dependentesGrid {
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: center; */
   margin: 8px 0px;
   gap: 4px;
 }
 
-/* .dependentAvatar {
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 50%;
-} */
 
-/* .dependentAvatar:hover {
-  border-color: var(--accentColor);
-  box-shadow: 0 0 8px var(--accentColor);
-} */
-
-.historyItem {
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.historyItem:hover {
-  border-color: var(--accentColor);
-  box-shadow: 0 0 8px rgba(0, 227, 140, 0.3);
-}
-
-.accountRow {
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
 
 .accountRow:hover {
   border-color: var(--accentColor);
@@ -509,8 +418,7 @@
 }
 
 .tooltip {
-  & > span {
-    /* background-color: #00E38C; */
+  z-index: 100;  & > span {
     width: max-content;
   }
 }
@@ -592,7 +500,6 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-
   border-radius: 4px;
   transition: background-color 0.2s ease;
   z-index: 1;
@@ -645,7 +552,6 @@
 
 .sectionActions {
   display: flex;
-
   color: var(--cWhiteV1);
   cursor: pointer;
   position: relative;
@@ -676,7 +582,8 @@
 
 .contactGrid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .contactItem {
@@ -701,6 +608,7 @@
   margin-top: 1.5rem;
   max-height: 120px;
   overflow-y: auto;
+  overflow-x: visible;
 }
 
 .dependentsHeader {
@@ -736,6 +644,10 @@
 .dependentsGrid {
   display: flex;
   gap: 0.5rem;
+}
+
+.dependentsGrid .tooltip {
+  z-index: 10001;
 }
 
 .emptyState {
@@ -805,11 +717,4 @@
 .menuItem:hover {
   background-color: var(--cFillSidebar);
   color: var(--cWhite);
-}
-
-/* Ajustar el grid de contacto para 2 columnas */
-.contactGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
 }
