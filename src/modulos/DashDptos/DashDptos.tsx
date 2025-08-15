@@ -5,6 +5,8 @@ import styles from './DashDptos.module.css';
 import { useRouter } from 'next/navigation';
 import {
   IconArrowDown,
+  IconArrowRight,
+  IconArrowLeft,
   IconDelivery,
   IconEdit,
   IconExitHome,
@@ -23,7 +25,7 @@ import useAxios from '@/mk/hooks/useAxios';
 import EmptyData from '@/components/NoData/EmptyData';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import HistoryOwnership from './HistoryOwnership/HistoryOwnership';
-import { getDateStrMes, getDateTimeStrMes } from '@/mk/utils/date';
+import { getDateStrMes, getDateTimeStrMes, getDateTimeStrMesShort } from '@/mk/utils/date';
 import RenderView from '../Payments/RenderView/RenderView';
 import OwnersRenderView from '../Owners/RenderView/RenderView';
 import ProfileModal from '@/components/ProfileModal/ProfileModal';
@@ -158,6 +160,231 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setSelectedDependentId(owner_id);
     setOpenProfileModal(true);
   };
+
+  // Header para tabla de accesos
+  const accessHeader = [
+    {
+      key: 'visit',
+      label: 'Visita',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {leftAccess(item)}
+            <div>
+              <p style={{ color: 'var(--cWhite)', margin: 0 }}>{getFullName(item.visit)}</p>
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                {renderSubtitle(item)}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'visited_to',
+      label: 'Visitó a',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar
+              hasImage={datas?.titular?.has_image}
+              src={
+                datas?.titular?.id
+                  ? getUrlImages(
+                      '/OWNER-' +
+                        datas?.titular?.id +
+                        '.webp' +
+                        (datas?.titular?.updated_at ? '?d=' + datas?.titular?.updated_at : '')
+                    )
+                  : ''
+              }
+              name={getFullName(datas?.titular)}
+              w={32}
+              h={32}
+            />
+            <div>
+              <p style={{ color: 'var(--cWhite)', margin: 0 }}>{getFullName(datas?.titular)}</p>
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                C.I. {datas?.titular?.ci || 'Sin registro'}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'type',
+      label: 'Tipo de visita',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return item.type === 'P' ? 'Pedido' : item.type == 'I' ? 'Individual' : 'Grupal';
+      },
+    },
+    {
+      key: 'entry_exit',
+      label: 'Ingreso/Salida',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: 0 }}>
+              <IconArrowRight size={12} color="var(--cSuccess)" />
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                {getDateTimeStrMesShort(item.in_at) || '-/-'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, margin: 0 }}>
+              <IconArrowLeft size={12} color="var(--cError)" />
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                {getDateTimeStrMesShort(item.out_at) || '-/-'}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+  ];
+
+  // Header para tabla de reservas
+  const reservationsHeader = [
+    {
+      key: 'area',
+      label: 'Área social',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar
+              name={item?.area?.title}
+              src={getUrlImages(
+                '/AREA-' +
+                  item?.area?.id +
+                  '-' +
+                  item?.area?.images?.[0]?.id +
+                  '.webp' +
+                  '?' +
+                  item?.area?.updated_at
+              )}
+              w={32}
+              h={32}
+            />
+            <div>
+              <p style={{ color: 'var(--cWhite)', margin: 0 }}>{item?.area?.title}</p>
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                {item?.area?.description}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'reserved_by',
+      label: 'Reservado por',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar
+              hasImage={datas?.titular?.has_image}
+              src={
+                datas?.titular?.id
+                  ? getUrlImages(
+                      '/OWNER-' +
+                        datas?.titular?.id +
+                        '.webp' +
+                        (datas?.titular?.updated_at ? '?d=' + datas?.titular?.updated_at : '')
+                    )
+                  : ''
+              }
+              name={getFullName(datas?.titular)}
+              w={32}
+              h={32}
+            />
+            <div>
+              <p style={{ color: 'var(--cWhite)', margin: 0 }}>{getFullName(datas?.titular)}</p>
+              <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+                C.I. {datas?.titular?.ci || 'Sin registro'}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'reservation_date',
+      label: 'Fecha de reserva',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return (
+          <div>
+            <p style={{ color: 'var(--cWhite)', margin: 0 }}>{item.date_at || 'Sin fecha'}</p>
+            <p style={{ color: 'var(--cWhiteV1)', margin: 0, fontSize: 'var(--sS)' }}>
+              {item.start_time?.slice(0, 5)} - {getHourPeriod(item.start_time, item?.end_time)}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'people_count',
+      label: 'Personas',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        return item.people_count + ' personas' || 'Sin cantidad';
+      },
+    },
+    {
+      key: 'status',
+      label: 'Estado',
+      responsive: 'desktop',
+      onRender: ({ item }: any) => {
+        const getReservationStatus = (status: string) => {
+          switch (status) {
+            case 'A':
+              return {
+                label: 'Aprobada',
+                backgroundColor: 'var(--cHoverSuccess)',
+                color: 'var(--cSuccess)',
+              };
+            case 'W':
+              return {
+                label: 'En espera',
+                backgroundColor: 'var(--cHoverWarning)',
+                color: 'var(--cWarning)',
+              };
+            case 'X':
+              return {
+                label: 'Rechazada',
+                backgroundColor: 'var(--cHoverError)',
+                color: 'var(--cError)',
+              };
+            case 'C':
+              return {
+                label: 'Cancelada',
+                backgroundColor: 'var(--cHoverError)',
+                color: 'var(--cError)',
+              };
+            default:
+              return {
+                label: 'Desconocido',
+                backgroundColor: 'var(--cHoverLight)',
+                color: 'var(--cLightDark)',
+              };
+          }
+        };
+
+        const statusInfo = getReservationStatus(item.status);
+        return (
+          <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
+            {statusInfo.label}
+          </StatusBadge>
+        );
+      },
+    },
+  ];
 
   const header = [
     {
@@ -369,9 +596,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 <div className={styles.iconActions}>
                   <IconEdit size={30} onClick={() => setOpenEdit(true)} />
                 </div>
-                <div className={styles.iconActions}>
-                  <IconTrash size={30} onClick={() => setOpenDel(true)} />
-                </div>
+                {!datas?.titular && !datas?.data?.homeowner && (
+                  <div className={styles.iconActions}>
+                    <IconTrash size={30} onClick={() => setOpenDel(true)} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -681,6 +910,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                     centered={true}
                     fontSize={14}
                   />
+                  {/*    <Button className={styles.addButton} onClick={onTitular} variant="primary">
+                    Agregar Titular
+                  </Button> */}
                 </div>
               )}
             </div>
@@ -707,7 +939,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
                 onClick={() => locationParams('/payments', 'paymentSearchBy', datas?.data?.nro)}
               />
             }
+            subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
+            style={{ flex: 1, minWidth: '300px' }}
           >
             <div className={styles.accountContent}>
               {!datas?.payments || datas.payments.length === 0 ? (
@@ -718,14 +952,14 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   icon={<IconPagos size={80} color="var(--cWhiteV1)" />}
                 />
               ) : (
-                <Table header={header} data={datas?.payments} className="striped" />
+                <Table header={header} data={datas?.payments} className="striped"  />
               )}
             </div>
           </WidgetBase>
         </div>
 
         <div className={styles.secondPanel}>
-          {/* Historial de Visitas Mini Lista */}
+          {/* Historial de Accesos - Tabla */}
           <WidgetBase
             subtitle={'+' + datas.accessCount + ' accesos nuevos este mes'}
             title={
@@ -735,75 +969,23 @@ const DashDptos = ({ id }: DashDptosProps) => {
               />
             }
             variant="V1"
-            style={{ width: '48%' }}
+            style={{ flex: 1, minWidth: '300px' }}
           >
-            <div
-              style={{
-                display: 'flex',
-                overflowX: 'auto',
-                width: '100%',
-                marginTop: 24,
-              }}
-            >
-              {datas?.access && datas.access.length > 0 ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 16,
-                  }}
-                >
-                  {datas.access.map((acc: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: '1px solid var(--cWhiteV1)',
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={getFullName(acc.visit)}
-                          subtitle={renderSubtitle(acc)}
-                          left={leftAccess(acc)}
-                          right={
-                            <p
-                              style={{
-                                width: 80,
-                                fontSize: 12,
-                                display: 'flex',
-                                justifyContent: 'end',
-                                color:
-                                  acc.in_at && acc.out_at ? 'var(--cSuccess)' : 'var(--cError)',
-                              }}
-                            >
-                              {acc.in_at && acc.out_at ? 'Completado' : 'Por salir'}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={'Tipo de visita'}
-                          value={
-                            acc.type === 'P' ? 'Pedido' : acc.type == 'I' ? 'Individual' : 'Grupal'
-                          }
-                        />
-                        <KeyValue title={'Ingreso'} value={getDateTimeStrMes(acc.in_at) || '-/-'} />
-                        <KeyValue title={'Salida'} value={getDateTimeStrMes(acc.out_at) || '-/-'} />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
+            <div className={styles.accessContent}>
+              {!datas?.access || datas.access.length === 0 ? (
                 <EmptyData
                   message="No existen accesos registrados. El historial de visitantes se mostrará"
                   line2="aquí, una vez la unidad reciba visitas."
                   centered={true}
-                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />}
+                  icon={<IconExitHome size={80} color="var(--cWhiteV1)" />}
                 />
+              ) : (
+                <Table header={accessHeader} data={datas?.access?.slice(0, 5)} className="striped" />
               )}
             </div>
           </WidgetBase>
+
+          {/* Historial de Reservas - Tabla */}
           <WidgetBase
             title={
               <TitleRender
@@ -813,103 +995,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
             }
             subtitle={'+' + datas.reservationsCount + ' reservas nuevas este mes'}
             variant="V1"
-            style={{ width: '48%' }}
+            style={{ flex: 1, minWidth: '300px' }}
           >
-            <div
-              style={{
-                display: 'flex',
-                overflowX: 'auto',
-                width: '100%',
-                marginTop: 24,
-              }}
-            >
-              {datas?.reservations && datas?.reservations?.length > 0 ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 16,
-                  }}
-                >
-                  {datas.reservations.map((res: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: '1px solid var(--cWhiteV1)',
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={res?.area?.title}
-                          subtitle={res?.area?.description}
-                          left={
-                            <Avatar
-                              name={res?.area?.title}
-                              src={getUrlImages(
-                                '/AREA-' +
-                                  res?.area?.id +
-                                  '-' +
-                                  res?.area?.images?.[0]?.id +
-                                  '.webp' +
-                                  '?' +
-                                  res?.area?.updated_at
-                              )}
-                              w={40}
-                              h={40}
-                            />
-                          }
-                          right={
-                            <p
-                              style={{
-                                color:
-                                  res.status === 'A'
-                                    ? 'var(--cSuccess)'
-                                    : res.status === 'W'
-                                    ? 'var(--cWarning)'
-                                    : res.status === 'X'
-                                    ? 'var(--cError)'
-                                    : 'var(--cError)',
-                                fontSize: 12,
-                                display: 'flex',
-                                justifyContent: 'end',
-                              }}
-                            >
-                              {res.status === 'A'
-                                ? 'Aprovada '
-                                : res.status === 'W'
-                                ? 'En espera'
-                                : res.status === 'X'
-                                ? 'Rechazado'
-                                : 'Cancelado'}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={'Fecha y hora de reserva'}
-                          value={res.start_time.slice(0, 5) + ' - ' + res.date_at || 'Sin fecha'}
-                        />
-                        <KeyValue
-                          title={'Cantidad de personas'}
-                          value={res.people_count + ' personas' || 'Sin cantidad'}
-                        />
-                        <KeyValue
-                          title={'Cantidad de horas'}
-                          value={getHourPeriod(res.start_time, res?.end_time) || 'Sin fecha'}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
+            <div className={styles.reservationsContent}>
+              {!datas?.reservations || datas?.reservations?.length === 0 ? (
                 <EmptyData
                   message="No hay solicitudes de reserva. Una vez los residentes"
                   line2="comiencen a reservar áreas sociales se mostrarán aquí."
-                  icon={<IconReservedAreas size={32} color="var(--cWhiteV1)" />}
+                  icon={<IconReservedAreas size={80} color="var(--cWhiteV1)" />}
                   h={120}
                   centered={true}
                 />
+              ) : (
+                <Table header={reservationsHeader} data={datas?.reservations?.slice(0, 5)} className="striped" />
               )}
             </div>
           </WidgetBase>
