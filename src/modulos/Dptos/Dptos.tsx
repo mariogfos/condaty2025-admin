@@ -100,7 +100,6 @@ const Dptos = () => {
     hideActions: {
       view: true,
       add: false,
-      add: false,
       edit: true,
       del: true,
     },
@@ -301,7 +300,6 @@ const Dptos = () => {
                   </StatusBadge>
                   </StatusBadge>
                 ) : (
-                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">Disponible</StatusBadge>
                   <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">Disponible</StatusBadge>
                 )}
               </div>

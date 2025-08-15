@@ -26,6 +26,7 @@ import HistoryOwnership from './HistoryOwnership/HistoryOwnership';
 import { getDateStrMes, getDateTimeStrMes } from '@/mk/utils/date';
 import RenderView from '../Payments/RenderView/RenderView';
 import OwnersRenderView from '../Owners/RenderView/RenderView';
+import ProfileModal from '@/components/ProfileModal/ProfileModal';
 import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import Table from '@/mk/components/ui/Table/Table';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
@@ -78,6 +79,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
   const [openTitularSelector, setOpenTitularSelector] = useState(false);
+  const [openProfileModal, setOpenProfileModal] = useState(false);
+  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(null);
   const {
     data: dashData,
     reLoad,
@@ -149,6 +152,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const handleOpenPerfil = (owner_id: string) => {
     setIdPerfil(owner_id);
     setOpenPerfil(true);
+  };
+
+  const handleOpenDependentProfile = (owner_id: string) => {
+    setSelectedDependentId(owner_id);
+    setOpenProfileModal(true);
   };
 
   const header = [
@@ -226,7 +234,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
     label: string;
     colorValue?: string;
   };
-
 
   type TitleRenderProps = {
     title: string;
@@ -640,7 +647,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
                                 name={getFullName(dependiente.owner)}
                                 w={40}
                                 h={40}
-                                onClick={() => handleOpenPerfil(dependiente.owner_id)}
+                                onClick={() => handleOpenDependentProfile(dependiente.owner_id)}
                               />
                             </Tooltip>
                           ))}
@@ -1010,6 +1017,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
           >
             <p>¿Estás seguro de que quieres eliminar este titular?</p>
           </DataModal>
+        )}
+
+        {openProfileModal && selectedDependentId && (
+          <ProfileModal
+            open={openProfileModal}
+            onClose={() => {
+              setOpenProfileModal(false);
+              setSelectedDependentId(null);
+            }}
+            dataID={selectedDependentId}
+            title="Perfil del Dependiente"
+            titleBack="Volver a la Unidad"
+            type="owner"
+            reLoad={reLoad}
+          />
         )}
       </section>
     </div>

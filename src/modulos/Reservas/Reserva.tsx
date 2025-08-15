@@ -203,9 +203,6 @@ const Reserva = () => {
         rules: ["required"],
         api: "ae",
         label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
-        rules: ["required"],
-        api: "ae",
-        label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
         form: {
           type: "select",
           options: [
@@ -264,44 +261,13 @@ const Reserva = () => {
                 backgroundColor: "var(--cHoverCompl1)",
                 color: "var(--cWhite)",
               },
-              W: {
-                label: "Por confirmar",
-                backgroundColor: "var(--cHoverWarning)",
-                color: "var(--cWarning)",
-              },
-              A: {
-                label: "Reservado",
-                backgroundColor: "var(--cHoverSuccess)",
-                color: "var(--cSuccess)",
-              },
-              X: {
-                label: "Rechazado",
-                backgroundColor: "var(--cHoverError)",
-                color: "var(--cError)",
-              },
-              C: {
-                label: "Cancelado",
-                backgroundColor: "var(--cHoverCompl5)",
-                color: "var(--cMediumAlert)",
-              },
-              F: {
-                label: "Completado",
-                backgroundColor: "var(--cHoverCompl1)",
-                color: "var(--cWhite)",
-              },
+           
+            
             };
             const currentStatus = status ? statusMap[status] : null;
 
             return (
-              <StatusBadge
-                backgroundColor={
-                  currentStatus
-                    ? currentStatus.backgroundColor
-                    : "var(--cHoverLight)"
-                }
-                color={
-                  currentStatus ? currentStatus.color : "var(--cLightDark)"
-                }
+              
               <StatusBadge
                 backgroundColor={
                   currentStatus
@@ -314,8 +280,8 @@ const Reserva = () => {
               >
                 {currentStatus ? currentStatus.label : "Estado desconocido"}
               </StatusBadge>
-                {currentStatus ? currentStatus.label : "Estado desconocido"}
-              </StatusBadge>
+            
+           
             );
           },
         },

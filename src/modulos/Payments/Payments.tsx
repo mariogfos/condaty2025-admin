@@ -60,13 +60,7 @@ interface StatusConfig {
 }
 
 const renderStatusCell = (props: any) => {
-  const statusConfig: Record<string, StatusConfig> = {
-    P: { label: 'Cobrado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-    S: { label: 'Por confirmar', color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-    R: { label: 'Rechazado', color: 'var(--cMediumAlert)', bgColor: 'var(--cHoverCompl5)' },
-    A: { label: 'Por pagar', color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-    M: { label: 'Moroso', color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-    X: { label: 'Anulado', color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+  
   const statusConfig: Record<string, StatusConfig> = {
     P: { label: 'Cobrado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
     S: { label: 'Por confirmar', color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
