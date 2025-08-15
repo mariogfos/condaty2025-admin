@@ -73,7 +73,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   }
 
   const statusInfo = getStatusInfo();
-  console.log(invitation);
+  console.log(item);
 
   return (
     <DataModal
