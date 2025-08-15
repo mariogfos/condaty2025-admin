@@ -1,4 +1,3 @@
-
 .ExpensesDetailsView {
   display: flex;
   flex-direction: column;
@@ -12,7 +11,7 @@
   color: var(--accent);
 }
 
-.backButtonContent{
+.backButtonContent {
   display: flex;
   cursor: pointer;
   background: none;
@@ -23,9 +22,9 @@
   text-align: inherit;
   align-items: center;
   gap: var(--spM);
-  &:hover{
+  &:hover {
     opacity: 0.8;
-    & p{
+    & p {
       opacity: 0.8;
     }
   }
@@ -59,9 +58,7 @@
   flex-wrap: wrap;
   gap: var(--spM);
   width: 100%;
-
 }
-
 
 .statIconContainer {
   width: 40px;
@@ -136,7 +133,6 @@
 .header > section > div:nth-child(2) {
   color: var(--cWhiteV1);
 }
-
 
 .renderView > div {
   display: flex;

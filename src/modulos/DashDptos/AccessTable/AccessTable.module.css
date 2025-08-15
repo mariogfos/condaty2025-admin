@@ -1,0 +1,42 @@
+.visitInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visitName {
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.visitSubtitle {
+  color: var(--cWhiteV1);
+  margin: 0;
+  font-size: var(--sS);
+}
+
+.iconContainer {
+  padding: 8px;
+  background-color: var(--cWhiteV1);
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visitorAvatar {
+  /* Estilos específicos para el avatar del visitante si es necesario */
+}
+
+.entryExit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.timeText {
+  color: var(--cWhiteV1);
+  margin: 0;
+  font-size: var(--sS);
+}
