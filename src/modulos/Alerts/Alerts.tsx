@@ -54,7 +54,7 @@ const Alerts = () => {
   const mod = {
     modulo: "alerts",
     singular: "alerta",
-    plural: "alertas",
+    plural: "",
     permiso: "alerts",
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
@@ -319,6 +319,7 @@ const Alerts = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
+      <h1 className={styles.dashboardTitle}>Alertas</h1>
       <div className={styles.dashboardContainer}>
         <div className={styles.allStatsRow}>
           <WidgetDashCard

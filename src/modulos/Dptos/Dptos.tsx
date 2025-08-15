@@ -295,9 +295,7 @@ const Dptos = () => {
               <div className={styles.statusCellCenter}>
                 {props?.item?.titular ? (
                   <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
-                  <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
                     Habitada
-                  </StatusBadge>
                   </StatusBadge>
                 ) : (
                   <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">Disponible</StatusBadge>
