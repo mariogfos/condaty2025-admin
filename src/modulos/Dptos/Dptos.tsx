@@ -16,7 +16,7 @@ import { UnitsType } from '@/mk/utils/utils';
 import RenderForm from './RenderForm';
 import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import {
   IconDepartments2,
   IconHome,

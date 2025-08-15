@@ -14,7 +14,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
 const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/[,]/g, '')}</div>;
 

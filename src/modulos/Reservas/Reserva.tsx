@@ -12,7 +12,7 @@ import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CreateReserva from "../CreateReserva/CreateReserva";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
-import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 const mod = {
