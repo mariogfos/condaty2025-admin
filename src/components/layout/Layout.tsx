@@ -238,16 +238,18 @@ const Layout = ({ children }: any) => {
       )}
       {openAlert?.open && (
         <DataModal
-          style={{ border: "1px solid var(--cError)" }}
+          style={{ border: "2px solid #F23D2D", width: "450px" }}
           title="Nueva emergencia"
+          colorTitle="var(--cError)"
           iconClose={false}
           open={openAlert?.open}
           buttonCancel=""
-          buttonText="Cerrar alerta"
+          buttonText="Cerrar"
           onClose={onCloseAlert}
           onSave={onCloseAlert}
+          
         >
-          <p style={{ color: "var(--cWhiteV1)", marginBottom: 8 }}>Residente</p>
+          <p style={{ color: "var(--cWhiteV1)", marginBottom: 8, fontSize: "14px" }}>Residente</p>
           {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
           <ItemList
             variant="V1"
