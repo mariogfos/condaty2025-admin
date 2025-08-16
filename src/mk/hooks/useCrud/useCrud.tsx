@@ -181,9 +181,12 @@ const useCrud = ({
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
+  const extraParams = localStorage.getItem(mod.modulo + "Params");
+  localStorage.removeItem(mod.modulo + "Params");
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
+    ...(extraParams ? JSON.parse(extraParams) : {}),
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
   const [searchs, setSearchs]: any = useState({});
@@ -196,37 +199,38 @@ const useCrud = ({
     mod.titleDel = mod.titleDel ?? "Eliminar";
   }
 
-  const [data, setData]: any = useState(null);
-  const [loaded, setLoaded] = useState(false);
-  const { reLoad, execute } = useAxios();
-  // const { data, reLoad, execute, loaded } = useAxios(
-  //   "/" + mod.modulo,
-  //   "GET",
-  //   params,
-  //   mod?.noWaiting
-  // );
+  // const [data, setData]: any = useState(null);
+  // const [loaded, setLoaded] = useState(false);
+  // const { reLoad, execute } = useAxios();
+  const { data, reLoad, execute, loaded } = useAxios(
+    "/" + mod.modulo,
+    "GET",
+    params,
+    mod?.noWaiting
+  );
 
-  useEffect(() => {
-    const load = async () => {
-      setLoaded(false);
-      let p = params;
-      if (store[mod.modulo + "searchBy"]) {
-        p = { ...params, searchBy: store[mod.modulo + "searchBy"] };
-        setStore({ ...store, [mod.modulo + "searchBy"]: "" });
-      }
-      const { data, loaded } = await execute(
-        "/" + mod.modulo,
-        "GET",
-        p,
-        mod?.noWaiting
-      );
-      setData(data);
-      setLoaded(loaded);
-    };
-    if (store && execute) {
-      load();
-    }
-  }, []);
+  // useEffect(() => {
+  //   const load = async () => {
+  //     setLoaded(false);
+  //     let p = params;
+  //     if (store[mod.modulo + "searchBy"]) {
+  //       p = { ...params, searchBy: store[mod.modulo + "searchBy"] };
+  //       setStore({ ...store, [mod.modulo + "searchBy"]: "" });
+  //     }
+  //     const { data, loaded } = await execute(
+  //       "/" + mod.modulo,
+  //       "GET",
+  //       p,
+  //       mod?.noWaiting
+  //     );
+  //     setData(data);
+  //     setLoaded(loaded);
+  //   };
+  //   console.log("useffect inicial uscrud", store, execute);
+  //   if (store) {
+  //     load();
+  //   }
+  // }, [store]);
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -1362,6 +1366,8 @@ const useCrud = ({
 
     return (
       <div className={styles.useCrud}>
+        {/* {JSON.stringify(data)}---
+        {JSON.stringify(_data)}--- */}
         {store?.title && openList && !props.hideTitle && (
           <p style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>
             {store?.title}
@@ -1418,7 +1424,7 @@ const useCrud = ({
                     // scrollTo={scrollTo}
                     id={mod?.modulo}
                   />
-                ) : (
+                ) : data === null ? null : (
                   <section>{emptyContent}</section>
                 )}
                 {props?.paginationHide ? null : (
