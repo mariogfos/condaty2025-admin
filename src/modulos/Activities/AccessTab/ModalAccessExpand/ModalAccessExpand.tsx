@@ -15,14 +15,7 @@ interface PropsType {
   type: "A" | "T" | "I" | "V" | "P" | string;
   invitation?: any;
 }
-// const typeInvitation: any = {
-//   G: "QR grupal",
-//   I: "QR individual",
-//   F: "QR frecuente",
-//   O: "Llave QR",
-//   P: "Pedido",
-//   C: "Sin QR",
-// };
+
 const statusAccess = {
   S: "Por salir",
   C: "Completado",
@@ -270,7 +263,6 @@ const ModalAccessExpand = ({
       <>
         <ItemList
           title={getFullName(invitation?.owner)}
-          // subtitle={'C.I.' + data?.owner?.ci}
           subtitle={
             "Unidad: " +
             invitation?.owner?.dpto?.nro +
@@ -290,10 +282,7 @@ const ModalAccessExpand = ({
           }
           style={{ marginBottom: 8 }}
         />
-        {/* <KeyValue
-          keys="Tipo de invitación"
-          value={typeInvitation[invitation.type]}
-        /> */}
+
         <KeyValue title="Tipo de pedido" value={invitation?.other_type?.name} />
         <KeyValue
           title="Fecha de notificación"
