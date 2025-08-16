@@ -276,7 +276,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
             variant={"mini"}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
-            variant="mini"
           >
             <div className={styles.modalContent}>
               <p>
