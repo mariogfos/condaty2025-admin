@@ -6,6 +6,7 @@ import EmptyData from '@/components/NoData/EmptyData';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import { IconReservedAreas } from '@/components/layout/icons/IconsBiblioteca';
 import styles from './ReservationsTable.module.css';
+import { formatToDayDDMMYYYY } from '@/mk/utils/date';
 
 interface ReservationsTableProps {
   reservations: any[];
@@ -136,26 +137,18 @@ const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) =>
       onRender: ({ item }: any) => {
         return (
           <div>
-            <p className={styles.reservationDate}>{item.date_at || 'Sin fecha'}</p>
-            <p className={styles.reservationTime}>
-              {item.start_time?.slice(0, 5)} - {getHourPeriod(item.start_time, item?.end_time)}
+            <p className={styles.reservationDate}>
+              {formatToDayDDMMYYYY(item.date_at) || 'Sin fecha'}
             </p>
           </div>
         );
       },
     },
     {
-      key: 'people_count',
-      label: 'Personas',
-      responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return item.people_count + ' personas' || 'Sin cantidad';
-      },
-    },
-    {
       key: 'status',
       label: 'Estado',
       responsive: 'desktop',
+      style: { textAlign: 'center', justifyContent: 'center' },
       onRender: ({ item }: any) => {
         const statusInfo = getReservationStatus(item.status);
         return (
