@@ -340,6 +340,7 @@ const UnitInfo = ({
                     
                       <Avatar
                         hasImage={dependiente.owner?.has_image}
+                        className={styles.dependentAvatar}
                         src={
                           dependiente.owner?.id
                             ? getUrlImages(
