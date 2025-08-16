@@ -13,13 +13,13 @@ import {
   IconMultas,
   IconUnidades,
   IconWallet,
-} from '@/components/layout/icons/IconsBiblioteca';
-import RenderView from './RenderView/RenderView';
-import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+} from "@/components/layout/icons/IconsBiblioteca";
+import RenderView from "./RenderView/RenderView";
+import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
@@ -45,24 +45,24 @@ const renderPenaltyAmountCell = ({ item }: { item: any }) => (
   <FormatBsAlign value={item?.penalty_amount} alignRight />
 );
 
-const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
+const renderStatusCell = (
+  { item }: { item: any },
+  getDisplayStatus: Function
+) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
-    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
-    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
-    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
-    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
-    M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+    A: { color: "var(--cInfo)", bgColor: "var(--cHoverCompl3)" }, // Por cobrar
+    P: { color: "var(--cSuccess)", bgColor: "var(--cHoverCompl2)" }, // Cobrado
+    S: { color: "var(--cWarning)", bgColor: "var(--cHoverCompl4)" }, // Por confirmar
+    R: { color: "var(--cMediumAlert)", bgColor: "var(--cMediumAlertHover)" }, // Rechazado
+    E: { color: "var(--cWhite)", bgColor: "var(--cHoverCompl1)" }, // Por defecto
+    M: { color: "var(--cError)", bgColor: "var(--cHoverError)" }, // En mora
   };
 
   const displayStatus = getDisplayStatus(item);
   const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
 
   return (
-    <StatusBadge
-      color={color}
-      backgroundColor={bgColor}
-    >
+    <StatusBadge color={color} backgroundColor={bgColor}>
       {displayStatus.text}
     </StatusBadge>
   );
@@ -94,14 +94,14 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     }
 
     switch (item.status) {
-      case 'A':
-        return { text: 'Por cobrar', code: 'A' };
-      case 'P':
-        return { text: 'Cobrado', code: 'P' };
-      case 'S':
-        return { text: 'Por confirmar', code: 'S' };
-      case 'M':
-        return { text: 'En mora', code: 'M' };
+      case "A":
+        return { text: "Por cobrar", code: "A" };
+      case "P":
+        return { text: "Cobrado", code: "P" };
+      case "S":
+        return { text: "Por confirmar", code: "S" };
+      case "M":
+        return { text: "En mora", code: "M" };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
@@ -162,8 +162,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       reLoad: Function;
     }) => {
       const handleClose = () => {
-        props.reLoad(null, mod?.noWaiting); // Recargar datos antes de cerrar // esto?
-        props.onClose(); // Cerrar la vista // esto?
+        props.reLoad(null, mod?.noWaiting);
+        props.onClose();
       };
       return <RenderView {...props} onClose={handleClose} />;
     },
@@ -272,11 +272,11 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           width: "278px",
           options: () => {
             return [
-              { id: 'ALL', name: 'Todos' },
-              { id: 'A', name: 'Por cobrar' },
-              { id: 'P', name: 'Cobrado' },
-              { id: 'S', name: 'Por confirmar' },
-              { id: 'M', name: 'En mora' },
+              { id: "ALL", name: "Todos" },
+              { id: "A", name: "Por cobrar" },
+              { id: "P", name: "Cobrado" },
+              { id: "S", name: "Por confirmar" },
+              { id: "M", name: "En mora" },
             ];
           },
           optionLabel: "name",
