@@ -9,7 +9,7 @@ import NotAccess from '@/components/layout/NotAccess/NotAccess';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 
-import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { getFullName, getUrlImages, pluralize } from '@/mk/utils/string';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { useRouter } from 'next/navigation';
 import { UnitsType } from '@/mk/utils/utils';
@@ -72,7 +72,17 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
       />
     );
   }
-  return <div style={{ width: 40, height: 40 }} />;
+  // Ícono por defecto para tipos de unidades no conocidas
+  return (
+    <IconHome
+      color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+      style={{
+        backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+      }}
+      circle
+      size={18}
+    />
+  );
 };
 
 const Dptos = () => {
@@ -303,7 +313,9 @@ const Dptos = () => {
                     Habitada
                   </StatusBadge>
                 ) : (
-                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">Disponible</StatusBadge>
+                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">
+                    Disponible
+                  </StatusBadge>
                 )}
               </div>
             );
@@ -433,26 +445,14 @@ const Dptos = () => {
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
           const isEmpty = !item.value || item.value === 0;
+          const pluralizedTitle = pluralize(item.name, item.value || 0);
           return (
             <WidgetDashCard
               key={i}
-              title={item.name}
+              title={pluralizedTitle}
               data={item.value}
               style={{ minWidth: '160px', maxWidth: '268px' }}
-              icon={
-                item?.name === 'Casa' ? (
-                  <IconHome
-                    color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
-                    style={{
-                      backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
-                    }}
-                    circle
-                    size={18}
-                  />
-                ) : (
-                  renderDepartmentIcon(item.name, isEmpty)
-                )
-              }
+              icon={renderDepartmentIcon(item.name, isEmpty)}
             />
           );
         })}
