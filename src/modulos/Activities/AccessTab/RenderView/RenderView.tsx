@@ -10,11 +10,7 @@ import PedidosDetail from "../../PedidosDetail/PedidosDetail";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import Br from "@/components/Detail/Br";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconExpand,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconExpand } from "@/components/layout/icons/IconsBiblioteca";
 import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
 
 interface AccessRenderViewProps {
@@ -25,31 +21,10 @@ interface AccessRenderViewProps {
   extraData?: any;
 }
 
-interface LabelValueProps {
-  value: string;
-  label: string;
-  colorValue?: string;
-}
-const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
-  return (
-    <div className={styles.LabelValue}>
-      <p>{label}</p>
-      <p
-        style={{
-          color: colorValue ? colorValue : "var(--cWhite)",
-        }}
-      >
-        {value}
-      </p>
-    </div>
-  );
-};
 const RenderView: React.FC<AccessRenderViewProps> = ({
   open,
   onClose,
   item,
-  onConfirm,
-  extraData,
 }) => {
   const [openExpand, setOpenExpand] = useState({
     open: false,
