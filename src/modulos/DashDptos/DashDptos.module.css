@@ -650,6 +650,18 @@
   z-index: 10001;
 }
 
+.dependentAvatar {
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.dependentAvatar:hover {
+  border-color: var(--cAccent);
+  box-shadow: 0 0 8px var(--cAccent);
+}
+
 .emptyState {
   text-align: center;
   padding: 2rem 0;
