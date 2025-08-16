@@ -118,7 +118,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       return "Pedido:" + param?.other?.other_type?.name;
     }
     if (type === "F") {
-      return "Qr Frecuente";
+      return "QR Frecuente";
     }
     return typeMap[type];
   };

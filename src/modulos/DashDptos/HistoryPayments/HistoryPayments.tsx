@@ -113,7 +113,7 @@ const HistoryPayments = ({
                   )}
                   <div className={styles.cell}>
                     {pago?.payment?.type === "Q"
-                      ? "Qr"
+                      ? "QR"
                       : pago?.payment?.type === "T"
                       ? "Transferencia"
                       : pago?.payment?.type === "O"

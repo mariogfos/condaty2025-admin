@@ -74,7 +74,7 @@ const HistoryAccess = ({ accessData, open, close }: HistoryAccessProps) => {
                 ) : visita.type === "G" ? (
                   "Grupal"
                 ) : visita.type === "C" ? (
-                  "Sin Qr"
+                  "Sin QR"
                 ) : (
                   <EmptyData
                     message="No hay registros de visitas"
