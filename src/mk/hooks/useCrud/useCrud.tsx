@@ -196,16 +196,37 @@ const useCrud = ({
     mod.titleDel = mod.titleDel ?? "Eliminar";
   }
 
-  // console.log("Etradata", params, mod.extraData);
-  const { data, reLoad, execute, loaded } = useAxios(
-    "/" + mod.modulo,
-    "GET",
-    params,
-    mod?.noWaiting
-  );
-  // setParams({ ...paramsInitial });
-  // const { isMobile } = useScreenSize();
-  // const isMobile = false;
+  const [data, setData]: any = useState(null);
+  const [loaded, setLoaded] = useState(false);
+  const { reLoad, execute } = useAxios();
+  // const { data, reLoad, execute, loaded } = useAxios(
+  //   "/" + mod.modulo,
+  //   "GET",
+  //   params,
+  //   mod?.noWaiting
+  // );
+
+  useEffect(() => {
+    const load = async () => {
+      setLoaded(false);
+      let p = params;
+      if (store[mod.modulo + "searchBy"]) {
+        p = { ...params, searchBy: store[mod.modulo + "searchBy"] };
+        setStore({ ...store, [mod.modulo + "searchBy"]: "" });
+      }
+      const { data, loaded } = await execute(
+        "/" + mod.modulo,
+        "GET",
+        p,
+        mod?.noWaiting
+      );
+      setData(data);
+      setLoaded(loaded);
+    };
+    if (store && execute) {
+      load();
+    }
+  }, []);
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
