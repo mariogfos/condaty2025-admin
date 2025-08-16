@@ -1,26 +1,20 @@
-/* RenderView.module.css */
-
-
-
-/* --- Estructura Principal (Contenedor Figma) --- */
 .figmaContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spL, 16px); /* gap-4 de Tailwind (1rem = 16px) */
+  gap: var(--spM);
   align-self: stretch;
   background-color: var(--figma-main-bg, #333536);
-  padding: var(--spL, 16px); /* p-4 de Tailwind */
-  border-radius: var(--bRadiusL, 16px); /* rounded-2xl de Tailwind (1rem = 16px) */
-  border: 0.5px solid var(--figma-border-color, #a7a7a7);
+  padding: var(--spL, 16px);
+  border-radius: var(--bRadiusL, 16px);
+  border: 0.5px solid var(--cWhiteV1);
 }
 
-/* --- Estilos para Diseño de NIVEL ALTO/EMERGENCIA (prefijo hl) --- */
 .hlTopSection,
 .hlMiddleSection,
 .hlBottomSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 12px); /* gap-3 de Figma */
+  gap: var(--spM, 12px);
   align-self: stretch;
 }
 
@@ -64,10 +58,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* Centra el UserRow si es más angosto */
-  gap: var(--spS, 10px); /* gap-2.5 de Figma (10px) */
+  align-items: center;
+  gap: var(--spS, 10px);
   align-self: stretch;
-  padding: var(--spS, 10px) 0; /* py-2.5 de Figma */
 }
 
 .hlUserRow {
@@ -116,8 +109,8 @@
 
 .hlInfoRow {
   display: flex;
-  justify-content: space-between; /* Alinea los bloques de info */
-  gap: var(--spXL, 48px); /* gap-12 de Figma (48px), ajustar si es mucho */
+  justify-content: space-between;
+  gap: 48px;
   align-self: stretch;
 }
 
@@ -139,7 +132,7 @@
 .hlInfoBlockContent {
   display: flex;
   flex-direction: column;
-  gap: var(--spXS, 4px); /* gap-1 de Figma */
+  gap: var(--spXs);
   align-self: stretch;
 }
 
@@ -176,14 +169,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spS, 8px); /* gap-2 de Figma */
+  gap: var(--spS);
   align-self: stretch;
-  padding: var(--spM) 0; /* Espaciado vertical */
 }
 
 .hlPendingIconContainer {
-  width: 32px; /* w-[31.999...] de Figma */
-  height: 32px; /* h-[31.999...] de Figma */
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,7 +216,6 @@
   justify-content: center;
   gap: var(--spS, 10px); /* gap-2.5 */
   align-self: stretch;
-  padding: var(--spS, 10px); /* p-2.5 */
 }
 
 .gUserRow {
@@ -342,8 +333,7 @@
 /* --- Estilos para el Botón de Acción (común a ambos diseños si se muestra) --- */
 .actionButtonWrapper {
   display: flex;
-  justify-content: center; /* Centra el botón si no es de ancho completo */
-  margin-top: var(--spL, 16px);
+  justify-content: center;
   width: 100%;
 }
 
@@ -370,12 +360,12 @@
 /* --- Media Queries (Opcional, si necesitas responsividad específica aquí) --- */
 @media (max-width: 750px) {
   .figmaContainer {
-    padding: var(--spM, 12px);
-    gap: var(--spM, 12px);
+    padding: var(--spM);
+    gap: var(--spM);
   }
   .hlInfoRow, .gInfoRow {
     flex-direction: column;
-    gap: var(--spM, 12px); /* Espacio entre bloques cuando están en columna */
+    gap: var(--spM);
     align-items: flex-start; /* Alinea a la izquierda en móvil */
   }
   .hlInfoBlockFixed, .gInfoBlockFixed {

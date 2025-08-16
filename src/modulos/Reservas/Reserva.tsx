@@ -12,6 +12,8 @@ import ReservationDetailModal from "./RenderView/RenderView";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CreateReserva from "../CreateReserva/CreateReserva";
 import { IconCalendar } from "@/components/layout/icons/IconsBiblioteca";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 const mod = {
   modulo: "reservations",
@@ -200,7 +202,7 @@ const Reserva = () => {
       status_reservation: {
         rules: ["required"],
         api: "ae",
-        label: "Estado",
+        label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
         form: {
           type: "select",
           options: [
@@ -234,22 +236,52 @@ const Reserva = () => {
             }
 
             const statusMap = {
-              W: { label: "Por confirmar", class: styles.statusW },
-              A: { label: "Reservado", class: styles.statusA },
-              X: { label: "Rechazado", class: styles.statusX },
-              C: { label: "Cancelado", class: styles.statusC },
-              F: { label: "Completado", class: styles.statusF },
+              W: {
+                label: "Por confirmar",
+                backgroundColor: "var(--cHoverWarning)",
+                color: "var(--cWarning)",
+              },
+              A: {
+                label: "Reservado",
+                backgroundColor: "var(--cHoverSuccess)",
+                color: "var(--cSuccess)",
+              },
+              X: {
+                label: "Rechazado",
+                backgroundColor: "var(--cHoverError)",
+                color: "var(--cError)",
+              },
+              C: {
+                label: "Cancelado",
+                backgroundColor: "var(--cHoverCompl5)",
+                color: "var(--cMediumAlert)",
+              },
+              F: {
+                label: "Completado",
+                backgroundColor: "var(--cHoverCompl1)",
+                color: "var(--cWhite)",
+              },
+           
+            
             };
             const currentStatus = status ? statusMap[status] : null;
 
             return (
-              <div
-                className={`${styles.statusBadge} ${
-                  currentStatus ? currentStatus.class : styles.statusUnknown
-                }`}
+              
+              <StatusBadge
+                backgroundColor={
+                  currentStatus
+                    ? currentStatus.backgroundColor
+                    : "var(--cHoverLight)"
+                }
+                color={
+                  currentStatus ? currentStatus.color : "var(--cLightDark)"
+                }
               >
                 {currentStatus ? currentStatus.label : "Estado desconocido"}
-              </div>
+              </StatusBadge>
+            
+           
             );
           },
         },

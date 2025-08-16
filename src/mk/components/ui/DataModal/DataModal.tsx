@@ -21,6 +21,7 @@ type PropsType = {
   iconClose?: boolean;
   disabled?: boolean;
   style?: CSSProperties;
+  colorTitle?: string;
   variant?: string | null;
 };
 
@@ -40,6 +41,7 @@ const DataModal = ({
   fullScreen = false,
   iconClose = true,
   disabled = false,
+  colorTitle = "var(--cWhite)",
   variant = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
@@ -93,7 +95,7 @@ const DataModal = ({
             )
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorTitle={colorTitle}
         />
         <div className={styles.headerDivider} />
         <section className={className}>{children}</section>

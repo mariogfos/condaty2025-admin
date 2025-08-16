@@ -35,7 +35,7 @@
 
         & > div {
           font-size: var(--sM);
-          font-weight: var(--bBold);
+          font-weight: var(--bMedium);
 
           text-overflow: ellipsis;
           overflow: hidden;

@@ -1,15 +1,6 @@
 .outlays {
   width: 100%;
 }
-.statusA {
-  background-color: var(--cHoverCompl2);
-  color: var(--cSuccess);
-}
-
-.statusX {
-  background-color: var(--cHoverCompl1);
-  color: var(--cWhite);
-}
 
 .title {
   font-size: 24px;
@@ -88,17 +79,4 @@
   .categoriesButton {
     width: 32%;
   }
-}
-
-.statusBadge {
-  font-weight: 400;
-  padding: 6px 12px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: fit-content;
-  min-width: 110px;
-  white-space: nowrap;
 }
