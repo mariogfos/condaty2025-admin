@@ -213,6 +213,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               }))}
               optionLabel="name"
               optionValue="id"
+              filter={true}
               iconRight={<IconArrowDown />}
             />
           </div>

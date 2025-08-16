@@ -69,6 +69,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
     {
       key: 'status',
       label: 'Estado',
+      style: { textAlign: 'center', justifyContent: 'center' },
       responsive: 'desktop',
       onRender: ({ item }: any) => {
         const status = item?.status as PaymentStatus;

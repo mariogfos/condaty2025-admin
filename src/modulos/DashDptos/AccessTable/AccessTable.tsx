@@ -147,7 +147,7 @@ const AccessTable = ({ access, titular }: AccessTableProps) => {
     );
   }
 
-  return <Table header={accessHeader} data={access.slice(0, 5)} className="striped" />;
+  return <Table header={accessHeader} data={access.slice(0, 5)} className="striped" style={{ width: '100%', minWidth: '800px' }} />;
 };
 
 export default AccessTable;
