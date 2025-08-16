@@ -68,9 +68,25 @@ const AccessTable = ({ access, titular }: AccessTableProps) => {
         return (
           <div className={styles.visitInfo}>
             {leftAccess(item)}
+            <Avatar
+              hasImage={item?.visit?.has_image}
+              src={
+                item?.visit?.id
+                  ? getUrlImages(
+                      '/VISIT-' +
+                        item?.visit?.id +
+                        '.webp' +
+                        (item?.visit?.updated_at ? '?d=' + item?.visit?.updated_at : '')
+                    )
+                  : ''
+              }
+              name={getFullName(item.visit)}
+              w={32}
+              h={32}
+            />
             <div>
               <p className={styles.visitName}>{getFullName(item.visit)}</p>
-              <p className={styles.visitSubtitle}>{renderSubtitle(item)}</p>
+              <p className={styles.visitSubtitle}>{item.type === 'P' ? 'Pedido' : item.type == 'I' ? 'QR Individual' : 'QR Grupal'}</p>
             </div>
           </div>
         );
@@ -108,14 +124,6 @@ const AccessTable = ({ access, titular }: AccessTableProps) => {
       },
     },
     {
-      key: 'type',
-      label: 'Tipo de visita',
-      responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return item.type === 'P' ? 'Pedido' : item.type == 'I' ? 'Individual' : 'Grupal';
-      },
-    },
-    {
       key: 'entry_exit',
       label: 'Ingreso/Salida',
       responsive: 'desktop',
@@ -147,7 +155,7 @@ const AccessTable = ({ access, titular }: AccessTableProps) => {
     );
   }
 
-  return <Table header={accessHeader} data={access.slice(0, 5)} className="striped" style={{ width: '100%', minWidth: '800px' }} />;
+  return <Table header={accessHeader} data={access.slice(0, 5)} className="striped" style={{ width: '100%', height: '100%' }} />;
 };
 
 export default AccessTable;
