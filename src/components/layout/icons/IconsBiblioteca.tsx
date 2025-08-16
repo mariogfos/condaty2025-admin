@@ -3572,7 +3572,7 @@ export const IconLocal = (props: IconType) => {
 
 export const IconGarage = (props: IconType) => {
   return (
-    <IconWrap {...props} viewBox="0 0 24 24" >
+    <IconWrap {...props} viewBox="-2.5 -2 24 24" >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
