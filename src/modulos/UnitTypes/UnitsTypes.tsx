@@ -18,7 +18,7 @@ const mod = {
       hideDel: item.is_fixed == 'A',
     };
   },
-  permiso: '',
+  permiso: 'unittypes',
   extraData: true,
   renderForm: (props: {
     item: any;
@@ -41,7 +41,6 @@ const mod = {
     item: Record<string, any>;
     extraData: any;
   }) => {
-    console.log(props, 'props renderview');
     return (
       <DataModal
         open={props.open}
@@ -102,6 +101,7 @@ const renderExtraFields = (props: any) => {
   return <span>{fieldNames.join(', ')}</span>;
 };
 
+
 const UnitsType = () => {
   const fields = useMemo(() => {
     return {
@@ -149,7 +149,7 @@ const UnitsType = () => {
       </RenderItem>
     );
   };
-  console.log(loaded, 'loaded');
+
 
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
