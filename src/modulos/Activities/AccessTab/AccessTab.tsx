@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps // esto? esto debe estar en solo la linea no en todo el archivo, ademas creo que no es necedsrio en este archivo */
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -17,8 +16,7 @@ interface AccessesTabProps {
   onRowClick?: (item: any) => void;
 }
 
-// Función actualizada para obtener las opciones de período // esto? no debe ser una funcion, deberia ser directamente un array
-const getPeriodOptions = () => [
+const periodOptions = [
   { id: "ALL", name: "Todos" },
   { id: "d", name: "Hoy" },
   { id: "ld", name: "Ayer" },
@@ -234,7 +232,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         filter: {
           label: "Periodo",
           width: "180px",
-          options: getPeriodOptions,
+          options: () => periodOptions,
         },
       },
 
@@ -290,26 +288,13 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       },
     };
   }, []);
-
-  // Instancia de useCrud para Accesos
-  const {
-    userCan,
-    List,
-    reLoad,
-    onSearch,
-    searchs,
-    setStore,
-    onFilter,
-    onEdit,
-    onDel,
-  } = useCrud({
+  const { userCan, List, reLoad, onFilter } = useCrud({
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
     getFilter: handleGetFilter,
   });
 
-  // Validación de permisos // esto? comentario demas el nombre de la funcion ya indica que hace
   const canAccess = userCan(modAccess.permiso, "R");
 
   if (!canAccess) return <NotAccess />;

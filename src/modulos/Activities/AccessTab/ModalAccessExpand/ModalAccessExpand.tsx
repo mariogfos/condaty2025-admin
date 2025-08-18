@@ -12,7 +12,7 @@ interface PropsType {
   id: string | number | null;
   open: boolean;
   onClose: () => void;
-  type: "A" | "T" | "I" | "V" | "P" | string; // esto?  quitar string, fijate que sonarqube te avisa, que si pones string ya no es necsario poner los otros, pero en este caso debes eliminar el string para que acepte solo esas iniciales
+  type: "A" | "T" | "I" | "V" | "P";
   invitation?: any;
 }
 
@@ -21,6 +21,26 @@ const statusAccess = {
   C: "Completado",
   I: "Por ingresar",
 };
+const typeText: any = {
+  A: "acompañante",
+  T: "taxista",
+  I: "invitación",
+  V: "visitante",
+};
+
+const Br = () => {
+  return (
+    <div
+      style={{
+        height: 0.5,
+        backgroundColor: "var(--cWhiteV1)",
+        margin: "8px 0px",
+        width: "100%",
+      }}
+    />
+  );
+};
+
 const ModalAccessExpand = ({
   id,
   open,
@@ -47,34 +67,19 @@ const ModalAccessExpand = ({
       true
     );
     setLoading(false);
-    if (data?.success == true) {
-      // esto? resolver lo que te indica el sonarqube ponete sobre el amarillo y te sale
+    if (data?.success) {
       setData(data?.data?.[0]);
     }
   };
+
   useEffect(() => {
     if (type != "I" && type != "P") {
       getAccess();
     }
-  }, []); // esto? aqui poner que ingone pero solo esta linea
-
-  const Br = () => {
-    return (
-      <div
-        style={{
-          height: 0.5,
-          backgroundColor: "var(--cWhiteV1)",
-          margin: "8px 0px",
-          width: "100%",
-        }}
-      />
-    );
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
 
   const getStatus = () => {
-    // if (condition) {// esto? que es esto hay que borrra si no se usa
-
-    // }// esto?
     if (!data?.in_at) {
       return "I";
     }
@@ -86,7 +91,7 @@ const ModalAccessExpand = ({
     }
     return "I";
   };
-  const rendeAccess = () => {
+  const RendeAccess = () => {
     return (
       <>
         <ItemList
@@ -160,12 +165,11 @@ const ModalAccessExpand = ({
     return result;
   }
 
-  const renderInvitation = () => {
+  const RenderInvitation = () => {
     return (
       <>
         <ItemList
           title={getFullName(invitation?.owner)}
-          // subtitle={'C.I.' + data?.owner?.ci}
           subtitle={
             "Unidad: " +
             invitation?.owner?.dptos?.[0]?.nro +
@@ -191,10 +195,6 @@ const ModalAccessExpand = ({
             value={invitation?.title || "-/-"}
           />
         )}
-        {/* <KeyValue
-          title="Tipo de invitación"
-          value={typeInvitation[invitation.type]}
-        /> */}
         {invitation.type != "F" && (
           <>
             <KeyValue
@@ -207,17 +207,14 @@ const ModalAccessExpand = ({
         {invitation.type == "F" && (
           <>
             {invitation?.start_date && (
-              // esto? debes quitar los <> ya que no es necesario por eso e queja el sonarqube
-              <>
-                <KeyValue
-                  title="Periodo de validez"
-                  value={
-                    getDateStrMes(invitation?.start_date) +
-                    " a " +
-                    getDateStrMes(invitation?.end_date)
-                  }
-                />
-              </>
+              <KeyValue
+                title="Periodo de validez"
+                value={
+                  getDateStrMes(invitation?.start_date) +
+                  " a " +
+                  getDateStrMes(invitation?.end_date)
+                }
+              />
             )}
             <KeyValue title="Indicaciones" value={invitation?.obs || "-/-"} />
             {invitation?.is_advanced == "Y" && (
@@ -260,7 +257,7 @@ const ModalAccessExpand = ({
       </>
     );
   };
-  const renderPedido = () => {
+  const RenderPedido = () => {
     return (
       <>
         <ItemList
@@ -294,34 +291,33 @@ const ModalAccessExpand = ({
       </>
     );
   };
+
+  const renderData = () => {
+    switch (type) {
+      case "A":
+        return <RendeAccess />;
+      case "T":
+        return <RendeAccess />;
+      case "I":
+        return <RenderInvitation />;
+      case "P":
+        return <RenderPedido />;
+      case "V":
+        return <RendeAccess />;
+      default:
+        break;
+    }
+  };
   return (
     <DataModal
       style={{ width: 600 }}
       buttonText=""
       buttonCancel=""
-      title={
-        type === "A"
-          ? "Detalle del acompañante"
-          : type === "T" // esto? en esto como te indica sonaqube, podrias crear una funcion y llmarla aqui
-          ? "Detalle del taxista"
-          : type === "I" || type === "P"
-          ? "Detalle de la invitación"
-          : type === "V"
-          ? "Detalle del visitante"
-          : ""
-      }
+      title={"Detalle del " + typeText[type]}
       open={open}
       onClose={onClose}
     >
-      {loading ? (
-        <LoadingScreen onlyLoading />
-      ) : type === "I" ? ( // esto? igual que el anterior podrias hacer una funcion que lo llames aqui
-        renderInvitation()
-      ) : type == "P" ? (
-        renderPedido()
-      ) : (
-        rendeAccess()
-      )}
+      {loading ? <LoadingScreen onlyLoading /> : renderData()}
     </DataModal>
   );
 };
