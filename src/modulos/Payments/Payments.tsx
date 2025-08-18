@@ -1,48 +1,50 @@
-'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import useCrud from '@/mk/hooks/useCrud/useCrud';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import styles from './Payments.module.css';
-import { getDateStrMes } from '@/mk/utils/date';
-import Button from '@/mk/components/forms/Button/Button';
-import { useRouter } from 'next/navigation';
-import RenderForm from './RenderForm/RenderForm';
-import RenderView from './RenderView/RenderView';
-import RenderDel from './RenderDel/RenderDel';
-import { useAuth } from '@/mk/contexts/AuthProvider';
+"use client";
+import React, { useState, useMemo, useEffect } from "react";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import styles from "./Payments.module.css";
+import { getDateStrMes } from "@/mk/utils/date";
+import Button from "@/mk/components/forms/Button/Button";
+import { useRouter } from "next/navigation";
+import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView";
+import RenderDel from "./RenderDel/RenderDel";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
-import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
-import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
-import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
-const renderDptosCell = (props: any) => <div>{String(props.item.dptos).replace(/[,]/g, '')}</div>;
+const renderDptosCell = (props: any) => (
+  <div>{String(props.item.dptos).replace(/,/g, "")}</div>
+);
 
 const renderPaidAtCell = (props: any) => (
-  <div>{getDateStrMes(props.item.paid_at) || 'No pagado'}</div>
+  <div>{getDateStrMes(props.item.paid_at) || "No pagado"}</div>
 );
 
 const renderCategoryCell = (props: any) => (
-  <div>{props.item.category?.padre?.name || 'Sin categoría padre'}</div>
+  <div>{props.item.category?.padre?.name || "Sin categoría padre"}</div>
 );
 
 const renderSubcategoryCell = (props: any) => {
   const category = props.item.category;
-  if (!category) return '-/-';
-  if (category.padre && typeof category.padre === 'object') {
-    return category.name || '-/-';
+  if (!category) return "-/-";
+  if (category.padre && typeof category.padre === "object") {
+    return category.name || "-/-";
   } else {
-    return '-/-';
+    return "-/-";
   }
 };
 
 const renderTypeCell = (props: any) => {
   const typeMap: Record<string, string> = {
-    T: 'Transferencia bancaria',
-    E: 'Efectivo',
-    C: 'Cheque',
-    Q: 'Pago QR',
-    O: 'Pago en oficina',
+    T: "Transferencia bancaria",
+    E: "Efectivo",
+    C: "Cheque",
+    Q: "Pago QR",
+    O: "Pago en oficina",
   };
   return <div>{typeMap[props.item.type] || props.item.type}</div>;
 };
@@ -60,35 +62,59 @@ interface StatusConfig {
 }
 
 const renderStatusCell = (props: any) => {
-  
   const statusConfig: Record<string, StatusConfig> = {
-    P: { label: 'Cobrado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
-    S: { label: 'Por confirmar', color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
-    R: { label: 'Rechazado', color: 'var(--cMediumAlert)', bgColor: 'var(--cHoverCompl5)' },
-    A: { label: 'Por pagar', color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
-    M: { label: 'Moroso', color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
-    X: { label: 'Anulado', color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+    P: {
+      label: "Cobrado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
+    },
+    S: {
+      label: "Por confirmar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
+    },
+    R: {
+      label: "Rechazado",
+      color: "var(--cMediumAlert)",
+      bgColor: "var(--cHoverCompl5)",
+    },
+    A: {
+      label: "Por pagar",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
+    },
+    M: {
+      label: "Moroso",
+      color: "var(--cMediumAlert)",
+      bgColor: "var(--cMediumAlertHover)",
+    },
+    X: {
+      label: "Anulado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
+    },
   };
 
   const defaultConfig: StatusConfig = {
-    label: 'No disponible',
-    color: 'var(--cWhite)',
-    bgColor: 'var(--cHoverCompl1)'
+    label: "No disponible",
+    color: "var(--cWhite)",
+    bgColor: "var(--cHoverCompl1)",
   };
 
-  const { label, color, bgColor } = statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
+  const { label, color, bgColor } =
+    statusConfig[props.item.status as keyof typeof statusConfig] ||
+    defaultConfig;
 
   return (
-    <StatusBadge
-      color={color}
-      backgroundColor={bgColor}
-    >
+    <StatusBadge color={color} backgroundColor={bgColor}>
       {label}
     </StatusBadge>
   );
 };
 
-const renderAmountCell = (props: any) => <FormatBsAlign value={props.item.amount} alignRight />;
+const renderAmountCell = (props: any) => (
+  <FormatBsAlign value={props.item.amount} alignRight />
+);
 
 const Payments = () => {
   const router = useRouter();
@@ -99,16 +125,18 @@ const Payments = () => {
   }>({});
 
   const mod = {
-    modulo: 'payments',
-    singular: 'Ingreso',
-    plural: 'Ingresos',
-    permiso: '',
+    modulo: "payments",
+    singular: "Ingreso",
+    plural: "Ingresos",
+    permiso: "",
     extraData: true,
     renderForm: RenderForm,
 
-    renderView: (props: any) => <RenderView {...props} payment_id={props?.item?.id} />,
+    renderView: (props: any) => (
+      <RenderView {...props} payment_id={props?.item?.id} />
+    ),
     renderDel: (props: any) => <RenderDel {...props} />,
-    loadView: { fullType: 'DET' },
+    loadView: { fullType: "DET" },
     hideActions: {
       view: false,
       add: false,
@@ -117,109 +145,109 @@ const Payments = () => {
     },
     filter: true,
     export: true,
-    titleAdd: 'Nuevo',
-    titleDel: 'Anular',
+    titleAdd: "Nuevo",
+    titleDel: "Anular",
     saveMsg: {
-      add: 'Ingreso creado con éxito',
-      edit: 'Ingreso actualizado con éxito',
-      del: 'Ingreso anulado con éxito',
+      add: "Ingreso creado con éxito",
+      edit: "Ingreso actualizado con éxito",
+      del: "Ingreso anulado con éxito",
     },
   };
 
   const getPeriodOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'd', name: 'Hoy' },
-    { id: 'ld', name: 'Ayer' },
-    { id: 'w', name: 'Esta semana' },
-    { id: 'lw', name: 'Semana anterior' },
-    { id: 'm', name: 'Este mes' },
-    { id: 'lm', name: 'Mes anterior' },
-    { id: 'y', name: 'Este año' },
-    { id: 'ly', name: 'Año anterior' },
-    { id: 'custom', name: 'Personalizado' },
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
   ];
 
   const getPaymentTypeOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'T', name: 'Transferencia bancaria' },
-    { id: 'E', name: 'Efectivo' },
-    { id: 'C', name: 'Cheque' },
-    { id: 'Q', name: 'Pago QR' },
-    { id: 'O', name: 'Pago en oficina' },
+    { id: "ALL", name: "Todos" },
+    { id: "T", name: "Transferencia bancaria" },
+    { id: "E", name: "Efectivo" },
+    { id: "C", name: "Cheque" },
+    { id: "Q", name: "Pago QR" },
+    { id: "O", name: "Pago en oficina" },
   ];
 
   const getStatusOptions = () => [
-    { id: 'ALL', name: 'Todos' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'S', name: 'Por confirmar' },
-    { id: 'R', name: 'Rechazado' },
-    { id: 'X', name: 'Anulado' },
+    { id: "ALL", name: "Todos" },
+    { id: "P", name: "Cobrado" },
+    { id: "S", name: "Por confirmar" },
+    { id: "R", name: "Rechazado" },
+    { id: "X", name: "Anulado" },
   ];
 
   const paramsInitial = {
     perPage: 20,
     page: 1,
-    fullType: 'L',
-    searchBy: '',
+    fullType: "L",
+    searchBy: "",
   };
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       paid_at: {
         rules: [],
-        api: 'ae',
-        label: 'Fecha de cobro',
+        api: "ae",
+        label: "Fecha de cobro",
         form: {
-          type: 'date',
+          type: "date",
         },
         list: {
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: 'paid_at',
-          label: 'Periodo',
+          key: "paid_at",
+          label: "Periodo",
 
           options: getPeriodOptions,
         },
       },
 
       dptos: {
-        api: 'ae',
-        label: 'Unidad',
+        api: "ae",
+        label: "Unidad",
         list: {
           onRender: renderDptosCell,
         },
       },
       category_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Categoría',
+        rules: ["required"],
+        api: "ae",
+        label: "Categoría",
         form: {
-          type: 'select',
-          optionsExtra: 'categories',
-          placeholder: 'Seleccione una categoría',
+          type: "select",
+          optionsExtra: "categories",
+          placeholder: "Seleccione una categoría",
         },
         list: {
           onRender: renderCategoryCell,
         },
         filter: {
-          label: 'Categoría',
+          label: "Categoría",
           options: (extraData: any) => {
             const categories = extraData?.categories || []; //esto?
             const categoryOptions = categories.map((category: any) => ({
               id: category.id,
               name: category.name,
             }));
-            return [{ id: 'ALL', name: 'Todos' }, ...categoryOptions];
+            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
           },
         },
       },
       subcategory_id: {
-        rules: ['required'],
-        label: 'Subcategoría',
+        rules: ["required"],
+        label: "Subcategoría",
         form: {
-          type: 'select',
+          type: "select",
           disabled: (formState: { category_id: any }) => !formState.category_id,
           options: () => [],
         },
@@ -228,22 +256,22 @@ const Payments = () => {
         },
       },
       type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Forma de pago',
+        rules: ["required"],
+        api: "ae",
+        label: "Forma de pago",
         form: {
-          type: 'select',
+          type: "select",
           options: [
-            { id: 'T', name: 'Transferencia' },
-            { id: 'E', name: 'Efectivo' },
-            { id: 'C', name: 'Cheque' },
+            { id: "T", name: "Transferencia" },
+            { id: "E", name: "Efectivo" },
+            { id: "C", name: "Cheque" },
           ],
         },
         list: {
           onRender: renderTypeCell,
         },
         filter: {
-          label: 'Forma de pago',
+          label: "Forma de pago",
 
           options: getPaymentTypeOptions,
         },
@@ -251,25 +279,33 @@ const Payments = () => {
 
       status: {
         rules: [],
-        api: 'ae',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: {
           onRender: renderStatusCell,
         },
         filter: {
-          label: 'Estado',
+          label: "Estado",
           options: getStatusOptions,
         },
       },
       amount: {
-        rules: ['required', 'number'],
-        api: 'ae',
+        rules: ["required", "number"],
+        api: "ae",
         label: (
-          <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</span>
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Monto total
+          </span>
         ),
         form: {
-          type: 'number',
-          placeholder: 'Ej: 100.00',
+          type: "number",
+          placeholder: "Ej: 100.00",
         },
         list: {
           onRender: renderAmountCell,
@@ -279,17 +315,18 @@ const Payments = () => {
     []
   );
 
-  const goToCategories = (type = '') => {
+  const goToCategories = (type = "") => {
     if (type) {
       router.push(`/categories?type=${type}`);
     } else {
-      router.push('/categories');
+      router.push("/categories");
     }
   };
 
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Ingresos' });
+    setStore({ ...store, title: "Ingresos" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   //
   // This function updates the filter state for the payments list, handling custom date logic and removing empty filters. (EN)
@@ -297,14 +334,14 @@ const Payments = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === 'paid_at' && value === 'custom') {
+    if (opt === "paid_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -315,7 +352,7 @@ const Payments = () => {
   const extraButtons = [
     <Button
       key="categories-button"
-      onClick={() => goToCategories('I')}
+      onClick={() => goToCategories("I")}
       className={styles.categoriesButton}
     >
       Categorías
@@ -329,11 +366,11 @@ const Payments = () => {
     extraButtons,
     getFilter: handleGetFilter,
   });
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.container}>
       <List
-        height={'calc(100vh - 350px)'}
+        height={"calc(100vh - 350px)"}
         emptyMsg="Lista de ingresos vacía. Cuando empieces a registrar los pagos"
         emptyLine2="de expensas y otros ingresos, los verás aquí."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
@@ -347,20 +384,26 @@ const Payments = () => {
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
-          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
-            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
-          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
-            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
-            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('paid_at', customDateFilterString);
+          onFilter("paid_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

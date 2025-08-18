@@ -69,7 +69,7 @@ const mod = {
                 {props?.extraData?.fields
                   ?.filter((field: any) => field.type_id === props.item.id)
                   .map((field: any, index: number) => (
-                    <div key={index} className="pl-4">
+                    <div key={field.id || `field-${props.item.id}-${index}`} className="pl-4">
                       <span style={{ color: 'var(--cWhite)' }}>{field.name}</span>
                       {field.description}
                     </div>
@@ -89,6 +89,19 @@ const paramsInitial = {
   searchBy: '',
 };
 
+const renderExtraFields = (props: any) => {
+  const fieldsForThisType = props?.extraData?.fields?.filter(
+    (field: any) => field.type_id === props.item.id
+  );
+
+  if (!fieldsForThisType || fieldsForThisType.length === 0) {
+    return <span>Sin campos extras</span>;
+  }
+
+  const fieldNames = fieldsForThisType.map((field: any) => field.name);
+  return <span>{fieldNames.join(', ')}</span>;
+};
+
 const UnitsType = () => {
   const fields = useMemo(() => {
     return {
@@ -105,18 +118,7 @@ const UnitsType = () => {
         api: 'ae',
         label: 'Campos extras',
         list: true,
-        onRender: (props: any) => {
-          const fieldsForThisType = props?.extraData?.fields?.filter(
-            (field: any) => field.type_id === props.item.id
-          );
-
-          if (!fieldsForThisType || fieldsForThisType.length === 0) {
-            return <span>Sin campos extras</span>;
-          }
-
-          const fieldNames = fieldsForThisType.map((field: any) => field.name);
-          return <span>{fieldNames.join(', ')}</span>;
-        },
+        onRender: renderExtraFields,
       },
     };
   }, []);
@@ -152,14 +154,7 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div>
-
-
-      <List
-      onTabletRow={renderItem}
-      height={'calc(100vh - 405px)'}
-       />
-
-
+      <List onTabletRow={renderItem} height={'calc(100vh - 405px)'} />
     </div>
   );
 };

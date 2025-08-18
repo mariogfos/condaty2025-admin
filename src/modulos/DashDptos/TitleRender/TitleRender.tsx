@@ -11,9 +11,13 @@ const TitleRender = ({ title, onClick }: TitleRenderProps) => {
     <div className={styles.titleContainer}>
       <h3 className={styles.accountTitle}>{title}</h3>
       {onClick && (
-        <span className={styles.viewMore} onClick={onClick}>
+        <button
+          className={styles.viewMore}
+          onClick={onClick}
+          type="button"
+        >
           Ver más
-        </span>
+        </button>
       )}
     </div>
   );

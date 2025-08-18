@@ -1,17 +1,18 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import EmptyData from '@/components/NoData/EmptyData';
-import Button from '@/mk/components/forms/Button/Button';
-import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
+"use client";
+import { useState, useEffect } from "react";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import EmptyData from "@/components/NoData/EmptyData";
+import Button from "@/mk/components/forms/Button/Button";
+import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
 import {
   IconArrowDown,
   IconEdit,
   IconTrash,
   IconHomePerson2,
-} from '@/components/layout/icons/IconsBiblioteca';
-import styles from '../DashDptos.module.css';
+} from "@/components/layout/icons/IconsBiblioteca";
+import styles from "../DashDptos.module.css";
+import Br from "@/components/Detail/Br";
 
 interface UnitInfoProps {
   datas: any;
@@ -22,6 +23,7 @@ interface UnitInfoProps {
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
+
 
 const UnitInfo = ({
   datas,
@@ -52,16 +54,36 @@ const UnitInfo = ({
     };
 
     if (openOwnerMenu || openTenantMenu || openTitularSelector) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
-  const Br = () => <div className={styles.br} />;
+  const owner = datas?.data?.homeowner;
+  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
+  const ownerAvatarSrc = owner?.id
+    ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
+    : "";
 
+  const tenant = datas?.titular;
+  const tenantUpdatedAtQuery = tenant?.updated_at
+    ? `?d=${tenant.updated_at}`
+    : "";
+  const tenantAvatarSrc = tenant?.id
+    ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
+    : "";
+  const HandleTitular = () => {
+    if (datas?.titular) {
+      return "Residente";
+    }
+    if (datas?.data?.homeowner) {
+      return "Propietario";
+    }
+    return "Sin asignar";
+  };
   return (
     <div className={styles.infoCard}>
       <div className={styles.cardHeader}>
@@ -71,7 +93,7 @@ const UnitInfo = ({
           </p>
           <p className={styles.subtitle}>{datas?.data?.description}</p>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: "flex", gap: 12 }}>
           <div className={styles.iconActions}>
             <IconEdit size={30} onClick={onEdit} />
           </div>
@@ -90,55 +112,58 @@ const UnitInfo = ({
         <div className={styles.unitInfoGrid}>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Estado</span>
-            <span className={styles.infoValue}>{datas?.titular ? 'Habitada' : 'Disponible'}</span>
+            <span className={styles.infoValue}>
+              {datas?.titular ? "Habitada" : "Disponible"}
+            </span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
+            <span className={styles.infoValue}>
+              Bs {datas?.data?.expense_amount || "0"}
+            </span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
-            <div
+            <button
+              type="button"
               className={styles.titularDropdown}
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
               }}
             >
-              <span className={styles.infoValue}>
-                {datas?.titular
-                  ? 'Residente'
-                  : datas?.data?.homeowner
-                  ? 'Propietario'
-                  : 'Sin asignar'}
-              </span>
+              <span className={styles.infoValue}>{HandleTitular()}</span>
               <IconArrowDown
                 size={16}
-                className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
+                className={
+                  openTitularSelector ? styles.arrowUp : styles.arrowDown
+                }
               />
               {openTitularSelector && (
                 <div className={styles.dropdownMenu}>
-                  <div
+                  <button
+                    type="button"
                     className={styles.menuItem}
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       setOpenTitularSelector(false);
                     }}
                   >
                     Propietario
-                  </div>
-                  <div
+                  </button>
+                  <button
+                    type="button"
                     className={styles.menuItem}
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       setOpenTitularSelector(false);
                     }}
                   >
                     Residente
-                  </div>
+                  </button>
                 </div>
               )}
-            </div>
+            </button>
           </div>
         </div>
 
@@ -150,9 +175,10 @@ const UnitInfo = ({
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Propietario</h3>
               <div className={styles.sectionActions}>
-                <div
+                <button
+                  type="button"
                   className={styles.menuDots}
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     setOpenOwnerMenu(!openOwnerMenu);
                   }}
@@ -160,27 +186,29 @@ const UnitInfo = ({
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
-                </div>
+                </button>
                 {openOwnerMenu && (
                   <div className={styles.dropdownMenu}>
-                    <div
+                    <button
+                      type="button"
                       className={styles.menuItem}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
                       }}
                     >
                       Cambiar/Nuevo
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
                       className={styles.menuItem}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
                       }}
                     >
                       Liberar residencia
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -188,27 +216,16 @@ const UnitInfo = ({
 
             <div className={styles.personCard}>
               <Avatar
-                hasImage={datas?.data?.homeowner?.has_image}
-                src={
-                  datas?.data?.homeowner?.id
-                    ? getUrlImages(
-                        '/OWNER-' +
-                          datas?.data?.homeowner?.id +
-                          '.webp' +
-                          (datas?.data?.homeowner?.updated_at
-                            ? '?d=' + datas?.data?.homeowner?.updated_at
-                            : '')
-                      )
-                    : ''
-                }
-                name={getFullName(datas?.data?.homeowner)}
+                hasImage={owner?.has_image}
+                src={ownerAvatarSrc}
+                name={getFullName(owner)}
                 w={48}
                 h={48}
               />
               <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(datas?.data?.homeowner)}</h4>
+                <h4 className={styles.personName}>{getFullName(owner)}</h4>
                 <p className={styles.personId}>
-                  C.I. {datas?.data?.homeowner?.ci || 'Sin registro'}
+                  C.I. {owner?.ci || "Sin registro"}
                 </p>
               </div>
             </div>
@@ -217,13 +234,13 @@ const UnitInfo = ({
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
                 <span className={styles.contactValue}>
-                  {datas?.data?.homeowner?.email || 'Sin email'}
+                  {owner?.email || "Sin email"}
                 </span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
                 <span className={styles.contactValue}>
-                  {datas?.data?.homeowner?.phone || 'Sin teléfono'}
+                  {owner?.phone || "Sin teléfono"}
                 </span>
               </div>
             </div>
@@ -251,9 +268,10 @@ const UnitInfo = ({
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Residente</h3>
               <div className={styles.sectionActions}>
-                <div
+                <button
+                  type="button"
                   className={styles.menuDots}
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation();
                     setOpenTenantMenu(!openTenantMenu);
                   }}
@@ -261,29 +279,31 @@ const UnitInfo = ({
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
-                </div>
+                </button>
                 {openTenantMenu && (
                   <div className={styles.dropdownMenu}>
-                    <div
+                    <button
+                      type="button"
                       className={styles.menuItem}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
                         onTitular();
                       }}
                     >
                       Cambiar/Nuevo
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
                       className={styles.menuItem}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
                         onRemoveTitular();
                       }}
                     >
                       Desvincular
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -291,78 +311,79 @@ const UnitInfo = ({
 
             <div className={styles.personCard}>
               <Avatar
-                hasImage={datas?.titular?.has_image}
-                src={
-                  datas?.titular?.id
-                    ? getUrlImages(
-                        '/OWNER-' +
-                          datas?.titular?.id +
-                          '.webp' +
-                          (datas?.titular?.updated_at ? '?d=' + datas?.titular?.updated_at : '')
-                      )
-                    : ''
-                }
-                name={getFullName(datas?.titular)}
+                hasImage={tenant?.has_image}
+                src={tenantAvatarSrc}
+                name={getFullName(tenant)}
                 w={48}
                 h={48}
               />
               <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(datas?.titular)}</h4>
-                <p className={styles.personId}>C.I. {datas?.titular?.ci || 'Sin registro'}</p>
+                <h4 className={styles.personName}>{getFullName(tenant)}</h4>
+                <p className={styles.personId}>
+                  C.I. {tenant?.ci || "Sin registro"}
+                </p>
               </div>
             </div>
 
             <div className={styles.contactGrid}>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.contactValue}>{datas?.titular?.email || 'Sin email'}</span>
+                <span className={styles.infoValue}>
+                  {tenant?.email || "Sin email"}
+                </span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.contactValue}>
-                  {datas?.titular?.phone || 'Sin teléfono'}
+                <span className={styles.infoValue}>
+                  {tenant?.phone || "Sin teléfono"}
                 </span>
               </div>
             </div>
 
             {/* Dependientes */}
-            {datas?.titular?.dependientes && datas.titular.dependientes.length > 0 && (
-              <div className={styles.dependentsSection}>
-                <div className={styles.dependentsHeader}>
-                  <h4 className={styles.dependentsTitle}>Dependientes</h4>
+            {datas?.titular?.dependientes &&
+              datas.titular.dependientes.length > 0 && (
+                <div className={styles.dependentsSection}>
+                  <div className={styles.dependentsHeader}>
+                    <h4 className={styles.dependentsTitle}>Dependientes</h4>
+                  </div>
+                  <div className={styles.dependentsGrid}>
+                    {datas.titular.dependientes
+                      .slice(0, 3)
+                      .map((dependiente: any, index: number) => {
+                        const dependentOwner = dependiente.owner;
+                        const dependentUpdatedAtQuery =
+                          dependentOwner?.updated_at
+                            ? `?d=${dependentOwner.updated_at}`
+                            : "";
+                        const dependentAvatarSrc = dependentOwner?.id
+                          ? getUrlImages(
+                              `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
+                            )
+                          : "";
+                        return (
+                          <Tooltip
+                            key={index}
+                            title={getFullName(dependentOwner)}
+                            position="top-left"
+                          >
+                            <Avatar
+                              hasImage={dependentOwner?.has_image}
+                              className={styles.dependentAvatar}
+                              src={dependentAvatarSrc}
+                              name={getFullName(dependentOwner)}
+                              w={40}
+                              h={40}
+                              onClick={() =>
+                                onOpenDependentProfile(dependiente.owner_id)
+                              }
+                            />
+                          </Tooltip>
+                        );
+                      })}
+                  </div>
                 </div>
-                <div className={styles.dependentsGrid}>
-                  {datas.titular.dependientes.slice(0, 3).map((dependiente: any, index: number) => (
-                    <Tooltip
-                      key={index}
-                      title={getFullName(dependiente.owner)}
-                      position="top-left">
-                    
-                      <Avatar
-                        hasImage={dependiente.owner?.has_image}
-                        className={styles.dependentAvatar}
-                        src={
-                          dependiente.owner?.id
-                            ? getUrlImages(
-                                '/OWNER-' +
-                                  dependiente.owner?.id +
-                                  '.webp' +
-                                  (dependiente.owner?.updated_at
-                                    ? '?d=' + dependiente.owner?.updated_at
-                                    : '')
-                              )
-                            : ''
-                        }
-                        name={getFullName(dependiente.owner)}
-                        w={40}
-                        h={40}
-                        onClick={() => onOpenDependentProfile(dependiente.owner_id)}
-                      />
-                    </Tooltip>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
           </div>
         )}
 
@@ -385,9 +406,9 @@ const UnitInfo = ({
         small
         style={{
           padding: 0,
-          display: 'flex',
-          justifyContent: 'flex-start',
-          width: 'fit-content',
+          display: "flex",
+          justifyContent: "flex-start",
+          width: "fit-content",
         }}
         onClick={onOpenTitularHist}
       >
