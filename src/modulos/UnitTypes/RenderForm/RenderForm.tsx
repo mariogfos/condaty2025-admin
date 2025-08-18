@@ -1,11 +1,11 @@
-'use client';
-import Input from '@/mk/components/forms/Input/Input';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import { useState, useEffect } from 'react';
-import styles from './RenderForm.module.css';
-import { IconTrash } from '@/components/layout/icons/IconsBiblioteca';
-import { checkRules} from '@/mk/utils/validate/Rules';
-import { useAuth } from '@/mk/contexts/AuthProvider';
+"use client";
+import Input from "@/mk/components/forms/Input/Input";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import { useState, useEffect } from "react";
+import styles from "./RenderForm.module.css";
+import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
+import { checkRules } from "@/mk/utils/validate/Rules";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface ExtraField {
   id?: number;
@@ -41,18 +41,20 @@ const RenderForm = ({
   reLoad,
 }: RenderFormProps) => {
   const [extraFields, setExtraFields] = useState<ExtraField[]>(() => {
-    if (action === 'add') return [];
+    if (action === "add") return [];
 
     return (extraData?.fields || [])
       .filter((field: any) => field.type_id === item.id)
       .map((field: any) => ({
         id: field.id,
         name: field.name,
-        value: field.type || 'text',
+        value: field.type || "text",
       }));
   });
   const [formState, setFormState] = useState({ ...item });
-  const [currentErrors, setCurrentErrors] = useState<Record<string, string>>({});
+  const [currentErrors, setCurrentErrors] = useState<Record<string, string>>(
+    {}
+  );
   const { showToast } = useAuth();
 
   // Limpiar errores cuando se cierre el modal
@@ -70,7 +72,7 @@ const RenderForm = ({
 
     // Limpiar error del campo específico si existe
     if (currentErrors[fieldName]) {
-      setCurrentErrors(prev => {
+      setCurrentErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
@@ -79,7 +81,7 @@ const RenderForm = ({
   };
 
   const handleAddField = () => {
-    setExtraFields([...extraFields, { name: '', value: 'text' }]);
+    setExtraFields([...extraFields, { name: "", value: "text" }]);
   };
 
   const handleRemoveField = (index: number) => {
@@ -87,7 +89,11 @@ const RenderForm = ({
     setExtraFields(newFields);
   };
 
-  const handleExtraFieldChange = (index: number, field: string, value: string) => {
+  const handleExtraFieldChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     const newFields = [...extraFields];
     newFields[index] = { ...newFields[index], [field]: value };
     setExtraFields(newFields);
@@ -95,7 +101,7 @@ const RenderForm = ({
     // Limpiar error del campo específico si existe
     const fieldKey = `extra_field_name_${index}`;
     if (currentErrors[fieldKey]) {
-      setCurrentErrors(prev => {
+      setCurrentErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldKey];
         return newErrors;
@@ -109,14 +115,14 @@ const RenderForm = ({
     // Validar nombre
     const nameError = checkRules({
       value: formState.name,
-      rules: ['required'],
-      key: 'name',
+      rules: ["required"],
+      key: "name",
       errors: errs,
     });
 
-    if (typeof nameError === 'string' && nameError) {
+    if (typeof nameError === "string" && nameError) {
       errs.name = nameError;
-    } else if (nameError && typeof nameError === 'object') {
+    } else if (nameError && typeof nameError === "object") {
       Object.entries(nameError).forEach(([k, v]) => {
         if (v) errs[k] = v;
       });
@@ -125,7 +131,7 @@ const RenderForm = ({
     // Validar campos extras
     extraFields.forEach((field, index) => {
       if (!field.name.trim()) {
-        errs[`extra_field_name_${index}`] = 'Este campo es requerido';
+        errs[`extra_field_name_${index}`] = "Este campo es requerido";
       }
     });
 
@@ -136,10 +142,10 @@ const RenderForm = ({
   const handleSubmit = async () => {
     if (!validate()) return;
     const formData = {
-      // ...formState,
+      // ...formState, // esto?
       name: formState.name,
-      description: formState.description || '',
-      fields: extraFields.map(field => {
+      description: formState.description || "",
+      fields: extraFields.map((field) => {
         let fieldData: any = {
           name: field.name,
           type: field.value,
@@ -152,14 +158,14 @@ const RenderForm = ({
       }),
     };
 
-    const method = action === 'add' ? 'POST' : 'PUT';
-    const endpoint = action === 'add' ? '/types' : `/types/${formState.id}`;
+    const method = action === "add" ? "POST" : "PUT";
+    const endpoint = action === "add" ? "/types" : `/types/${formState.id}`;
 
     const { data: response } = await execute(endpoint, method, formData, false);
 
     if (response?.success === true) {
       reLoad();
-      showToast(response?.message, 'success');
+      showToast(response?.message, "success");
       onClose();
     }
   };
@@ -168,38 +174,42 @@ const RenderForm = ({
     <DataModal
       open={open}
       onClose={onClose}
-      title={action === 'add' ? 'Agregar Tipo de Unidad' : 'Editar Tipo de Unidad'}
+      title={
+        action === "add" ? "Agregar Tipo de Unidad" : "Editar Tipo de Unidad"
+      }
       onSave={handleSubmit}
     >
       <Input
         name="name"
         label="Nombre de la unidad"
-        value={formState?.name || ''}
+        value={formState?.name || ""}
         onChange={handleChange}
         error={currentErrors}
-        disabled={action !== 'add' && item.is_fixed === 'A'}
+        disabled={action !== "add" && item.is_fixed === "A"}
         required
       />
       <div className={styles.textContainer}>
         <div>Campos adicionales</div>
         <div>
-          Campos que una unidad puede o no tener en un condominio (Eje: Garaje, Baulera, entre
-          otros)
+          Campos que una unidad puede o no tener en un condominio (Eje: Garaje,
+          Baulera, entre otros)
         </div>
       </div>
       {extraFields.map((field, index) => (
         <div key={index} className={styles.extraFieldRow}>
+          {/* // esto? index no debe estar solo o no debe usarse como key */}
           <Input
             name={`extra_field_name_${index}`}
             label="Nombre del Campo"
             value={field.name}
-            onChange={e => handleExtraFieldChange(index, 'name', e.target.value)}
+            onChange={(e) =>
+              handleExtraFieldChange(index, "name", e.target.value)
+            }
             style={{ flex: 1 }}
             iconRight={<IconTrash onClick={() => handleRemoveField(index)} />}
             error={currentErrors}
             required
           />
-
         </div>
       ))}
 
