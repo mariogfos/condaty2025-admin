@@ -31,7 +31,7 @@ interface DashDptosProps {
 }
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { showToast, setStore } = useAuth(); // esto?  lo que no se usa se debria quitar
+  const { showToast } = useAuth(); 
   const router = useRouter();
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);

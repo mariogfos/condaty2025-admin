@@ -20,8 +20,6 @@ const HistoryOwnership = ({
   open,
   close,
 }: HistoryOwnershipProps) => {
-  const [openPerfil, setOpenPerfil] = useState(false); // esto? se usa? o no se usa
-  const [idPerfil, setIdPerfil] = useState<string | null>(null); // esto? se usa? o no se usa
   const [setDataOw] = useState<any>(null);
   const [filteredData, setFilteredData] = useState(ownershipData);
 
@@ -68,11 +66,9 @@ const HistoryOwnership = ({
           ) : (
             filteredData.map((titular, index) => (
               <button
-                key={index} // esto? existe una regla de buena praxctica que no debes usar elmindex en las key o solo index, debes combianrlo con otra cxosa que sea unica como un id
+                key={titular?.owner_id}
                 className={styles.titularCard}
                 onClick={() => {
-                  setIdPerfil(titular?.owner_id);
-                  setOpenPerfil(true);
                   setDataOw({});
                 }}
               >

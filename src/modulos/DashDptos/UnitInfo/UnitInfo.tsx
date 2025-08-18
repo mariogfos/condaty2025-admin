@@ -12,6 +12,7 @@ import {
   IconHomePerson2,
 } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "../DashDptos.module.css";
+import Br from "@/components/Detail/Br";
 
 interface UnitInfoProps {
   datas: any;
@@ -22,7 +23,7 @@ interface UnitInfoProps {
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
-const Br = () => <div className={styles.br} />; // esto?  creo que ya existe un COmponente BR, ver si se puede reutilizar?
+
 
 const UnitInfo = ({
   datas,
