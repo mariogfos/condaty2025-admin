@@ -146,7 +146,7 @@ const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) =>
     );
   }
 
-  return <Table header={reservationsHeader} data={reservations.slice(0, 5)} className="striped" style={{ width: '100%', minWidth: '800px' }} />;
+  return <Table header={reservationsHeader} data={reservations.slice(0, 5)} className="striped" style={{ width: '100%', height:'100%'}} />;
 };
 
 export default ReservationsTable;
