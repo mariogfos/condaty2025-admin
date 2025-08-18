@@ -15,6 +15,7 @@ import RenderDel from './RenderDel/RenderDel';
 import { IconIngresos } from '@/components/layout/icons/IconsBiblioteca';
 import { getFullName } from '@/mk/utils/string';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
 
 const Outlays = () => {
   const router = useRouter();
@@ -214,21 +215,43 @@ const Outlays = () => {
         api: 'ae',
         label: (<span style={{ display: 'block', textAlign: 'center', width: '100%' }} title="Estado">Estado</span>),
         list: {
-          onRender: (props: any) => (
-            <div
-              style={{
+          onRender: (props: any) => {
+            interface StatusConfig {
+              [key: string]: {
+                label: string;
+                color: string;
+                bgColor: string;
+              };
+            }
+            
+            const statusConfig: StatusConfig = {
+              A: { label: 'Pagado', color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
+              X: { label: 'Anulado', color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
+            };
+            
+            const defaultConfig = { 
+              label: 'Desconocido',
+              color: 'var(--cWhite)', 
+              bgColor: 'var(--cHoverCompl1)' 
+            };
+            
+            const status = props.item.status as keyof typeof statusConfig;
+            const { label, color, bgColor } = statusConfig[status] || defaultConfig;
+            
+            return (
+              <div style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 width: '100%',
                 height: '100%',
-              }}
-            >
-              <div className={`${styles.statusBadge} ${styles[`status${props.item.status}`]}`}>
-                {props.item.status === 'A' ? 'Pagado' : 'Anulado'}
+              }}>
+                <StatusBadge color={color} backgroundColor={bgColor}>
+                  {label}
+                </StatusBadge>
               </div>
-            </div>
-          ),
+            );
+          },
           align: 'center',
         },
         filter: {

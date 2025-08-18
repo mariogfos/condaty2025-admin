@@ -1,6 +1,5 @@
 .container {
   width: 100%;
-
 }
 
 .title {
@@ -21,7 +20,6 @@
   flex-direction: column;
   margin-top: var(--spL);
   flex-wrap: wrap;
-
 }
 
 .exportButton {
@@ -37,14 +35,15 @@
 .rightPanel {
   width: 40%;
   display: flex;
-  height: fit-content;
+  /* height: fit-content; */
+  height: calc(100vh - 318px);
   overflow-y: auto;
   flex-direction: column;
   padding-left: var(--spL);
   padding-right: var(--spL);
   background-color: var(--cBlackV1);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: var(--bRadiusL);
+  border-radius: var(--bRadius);
   border: 0.5px solid var(--cWhiteV1);
   & > div:nth-child(1) {
     margin-bottom: var(--spL);
@@ -63,18 +62,17 @@
     gap: 8px;
     width: 100%;
     flex: 1;
-
   }
 }
 .widgetResumeCard {
   margin-bottom: var(--spL);
 }
 .graphPanel {
-  padding: var(--spM);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: var(--spM);
+  width: 100%;
+  height: 380px;
 }
 
 .widgetsPanel {
@@ -134,5 +132,3 @@
     }
   }
 }
-
-

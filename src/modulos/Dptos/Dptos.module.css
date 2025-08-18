@@ -15,15 +15,6 @@
   font-size: 14px;
   padding: 4px 0;
 }
-.stateLabel {
-  display: flex;
-  align-items: center;
-  color: var(--cWhite);
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
 
 .dashboardTitle {
   font-size: var(--sXxl);
@@ -44,4 +35,11 @@
   display: flex;
   flex-direction: column;
   margin-top: var(--spL);
+}
+
+.statusCellCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }

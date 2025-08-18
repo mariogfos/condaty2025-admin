@@ -27,28 +27,35 @@ const tabs: TabType[] = [
   { value: "P", text: "Pedidos" },
 ];
 
-// Parámetros iniciales para cada tipo
-const paramsInitialAccess = {
-  fullType: "L",
-  perPage: 20,
-  page: 1,
-  extraData: true,
-};
-
-const paramsInitialPedidos = {
-  fullType: "L",
-  page: 1,
-  perPage: 20,
-};
-
-const paramsInitialQR = {
-  fullType: "L",
-  page: 1,
-  perPage: 20,
-};
-
 const Activities = () => {
   const { user, showToast, setStore } = useAuth();
+  
+  // Obtener parámetros de URL
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const unitParam = searchParams.get('unit');
+
+  // Parámetros iniciales para cada tipo
+  const paramsInitialAccess = {
+    fullType: "L",
+    perPage: 20,
+    page: 1,
+    extraData: true,
+    searchBy: unitParam || "",
+  };
+
+  const paramsInitialPedidos = {
+    fullType: "L",
+    page: 1,
+    perPage: 20,
+    searchBy: unitParam || "",
+  };
+
+  const paramsInitialQR = {
+    fullType: "L",
+    page: 1,
+    perPage: 20,
+    searchBy: unitParam || "",
+  };
   const [typeSearch, setTypeSearch] = useState<string>("A");
   const [openInvitationInfo, setOpenInvitationInfo] = useState<boolean>(false);
   const [selectedInvitation, setSelectedInvitation] = useState<any | null>(
@@ -141,6 +148,7 @@ const Activities = () => {
           <AccessesTab
             paramsInitial={paramsInitialAccess}
             onRowClick={handleItemClick}
+            unitParam={unitParam}
           />
 
           {/* {typeSearch === "Q" && (

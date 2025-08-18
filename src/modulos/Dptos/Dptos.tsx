@@ -3,24 +3,27 @@
 import styles from './Dptos.module.css';
 import RenderItem from '../shared/RenderItem';
 import useCrudUtils from '../shared/useCrudUtils';
-import { useEffect, useMemo, useState } from 'react';
+import { Children, useEffect, useMemo, useState } from 'react';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import NotAccess from '@/components/layout/NotAccess/NotAccess';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import { getFullName, getUrlImages } from '@/mk/utils/string';
+
+import { getFullName, getUrlImages, pluralize } from '@/mk/utils/string';
 import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
 import { useRouter } from 'next/navigation';
 import { UnitsType } from '@/mk/utils/utils';
 import RenderForm from './RenderForm';
 import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import {
   IconDepartments2,
   IconHome,
   IconUnidades,
   IconDepartment,
   IconLocal,
+  IconGarage,
 } from '@/components/layout/icons/IconsBiblioteca';
 
 const paramsInitial = {
@@ -35,7 +38,18 @@ const lTitulars = [
 ];
 
 const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
-  if (name === 'Departamento') {
+  if (name === 'Casa') {
+    return (
+      <IconHome
+        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+        style={{
+          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+        }}
+        circle
+        size={18}
+      />
+    );
+  } else if (name === 'Departamento') {
     return (
       <IconDepartment
         color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
@@ -57,8 +71,29 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
         size={18}
       />
     );
+  } else if (name === 'Garaje') {
+    return (
+      <IconGarage
+        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cCompl4)'}
+        style={{
+          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl7)',
+        }}
+        circle
+        size={18}
+      />
+    );
   }
-  return <div style={{ width: 40, height: 40 }} />;
+  // Ícono por defecto para tipos de unidades no conocidas
+  return (
+    <IconUnidades
+      color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWhite)'}
+      style={{
+        backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl1)',
+      }}
+      circle
+      size={18}
+    />
+  );
 };
 
 const Dptos = () => {
@@ -81,13 +116,18 @@ const Dptos = () => {
     permiso: '',
     export: true,
     extraData: true,
-    import: true,
+    import: false,
     titleAdd: 'Nueva unidad',
     hideActions: {
       view: true,
       add: false,
       edit: true,
       del: true,
+    },
+    saveMsg: {
+      add: `Unidad registrada con éxito`,
+      edit: `Unidad actualizada con éxito`,
+      del: `Unidad eliminada con éxito`,
     },
     renderForm: (props: {
       item: any;
@@ -98,26 +138,6 @@ const Dptos = () => {
       user: any;
       execute: any;
     }) => <RenderForm {...props} />,
-  };
-
-  type StateLabelProps = {
-    children: React.ReactNode;
-    backgroundColor?: string;
-    color?: string;
-  };
-
-  const StateLabel = ({ children, backgroundColor, color }: StateLabelProps) => {
-    return (
-      <div
-        className={styles.stateLabel}
-        style={{
-          backgroundColor: backgroundColor,
-          color: color,
-        }}
-      >
-        {children}
-      </div>
-    );
   };
 
   const fields = useMemo(() => {
@@ -221,6 +241,12 @@ const Dptos = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Avatar
                   hasImage={props?.item?.homeowner?.has_image}
+                  src={getUrlImages(
+                    '/OWNER-' +
+                      props?.item?.homeowner?.id +
+                      '.webp?d=' +
+                      props?.item?.homeowner?.updated_at
+                  )}
                   name={getFullName(props?.item?.homeowner)}
                 />
                 <div>
@@ -286,17 +312,23 @@ const Dptos = () => {
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         form: false,
         list: {
           width: '160px',
           onRender: (props: any) => {
-            return props?.item?.titular ? (
-              <StateLabel color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
-                Habitada
-              </StateLabel>
-            ) : (
-              <StateLabel backgroundColor="var(--cHover)">Disponible</StateLabel>
+            return (
+              <div className={styles.statusCellCenter}>
+                {props?.item?.titular ? (
+                  <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
+                    Habitada
+                  </StatusBadge>
+                ) : (
+                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">
+                    Disponible
+                  </StatusBadge>
+                )}
+              </div>
             );
           },
         },
@@ -306,6 +338,16 @@ const Dptos = () => {
   const [openImport, setOpenImport] = useState(false);
   const onImport = () => {
     setOpenImport(true);
+  };
+
+  // Custom filter function to map 'titular' to 'status'
+  const getFilter = (opt: string, value: string, oldFilter: any) => {
+    if (opt === 'titular') {
+      // Remove the 'titular' key and add 'status' instead
+      const { titular, ...restFilters } = oldFilter.filterBy || {};
+      return { filterBy: { ...restFilters, status: value } };
+    }
+    return { filterBy: { ...oldFilter.filterBy, [opt]: value } };
   };
 
   const {
@@ -324,6 +366,7 @@ const Dptos = () => {
     paramsInitial,
     mod,
     fields,
+    getFilter,
     _onImport: onImport,
   });
 
@@ -413,26 +456,14 @@ const Dptos = () => {
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
           const isEmpty = !item.value || item.value === 0;
+          const pluralizedTitle = pluralize(item.name, item.value || 0).charAt(0).toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
           return (
             <WidgetDashCard
               key={i}
-              title={item.name}
+              title={pluralizedTitle}
               data={item.value}
               style={{ minWidth: '160px', maxWidth: '268px' }}
-              icon={
-                item?.name === 'Casa' ? (
-                  <IconHome
-                    color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
-                    style={{
-                      backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
-                    }}
-                    circle
-                    size={18}
-                  />
-                ) : (
-                  renderDepartmentIcon(item.name, isEmpty)
-                )
-              }
+              icon={renderDepartmentIcon(item.name, isEmpty)}
             />
           );
         })}

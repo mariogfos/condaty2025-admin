@@ -22,7 +22,28 @@ import { useRouter } from "next/navigation";
 
 const Defaulters = () => {
   const router = useRouter();
+  const onSearch = (items: any[], search: any) => {
+    const d: any[] = [];
 
+    items.map((item) => {
+      const name =
+        item.titular?.owner?.name +
+        " " +
+        item.titular?.owner?.second_name +
+        " " +
+        item.titular?.owner?.last_name +
+        " " +
+        item.titular?.owner?.mother_last_name;
+      console.log("****search", search, item);
+      if (
+        item.dpto?.toLowerCase().includes(search.searchBy?.toLowerCase()) ||
+        name.toLowerCase().includes(search.searchBy?.toLowerCase())
+      ) {
+        d.push(item);
+      }
+    });
+    return d;
+  };
   const mod = {
     modulo: "defaulters",
     singular: "Moroso",
@@ -43,6 +64,7 @@ const Defaulters = () => {
       edit: "Moroso actualizado con éxito",
       del: "Moroso eliminado con éxito",
     },
+    onSearch: onSearch,
   };
 
   const paramsInitial = {
@@ -146,7 +168,7 @@ const Defaulters = () => {
       multa: {
         rules: [],
         api: "ae",
-        label:(
+        label: (
           <span
             style={{ display: "block", textAlign: "right", width: "100%" }}
             title="Total de multas"
@@ -296,8 +318,8 @@ const Defaulters = () => {
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
               colors: [expensaColor, multaColor],
-              height: 380,
-              width: 380,
+              height: "380px",
+              width: "100%",
               centerText: "Total",
             }}
           />
@@ -349,6 +371,7 @@ const Defaulters = () => {
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             emptyFullScreen={true}
             onRowClick={handleRowClick}
+            paginationHide={true}
           />
         </div>
       </div>

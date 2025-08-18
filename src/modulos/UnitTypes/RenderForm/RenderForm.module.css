@@ -1,6 +1,7 @@
 .textContainer {
   display: flex;
   flex-direction: column;
+  gap: 12;
   /* align-items: center; */
   margin-bottom: var(--spS);
    & > div:nth-child(1){

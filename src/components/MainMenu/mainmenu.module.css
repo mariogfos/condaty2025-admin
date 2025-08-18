@@ -3,14 +3,13 @@
   display: flex;
   height: 100vh;
   border-right: 1px solid rgba(191, 185, 185, 0.1);
-  padding: var(--spM);
+  padding: var(--spXl) var(--spL) 0;
   overflow: auto;
   background-color:  var(--cBlackV2);
-  
+
   & > div:nth-child(2) {
     display: flex;
     flex-direction: column;
-    gap: var(--spXs);
     margin-top: var(--spXxl);
   }
 
@@ -68,10 +67,12 @@
   & > a {
     text-decoration: none;
     color: var(--cWhiteV1);
+    font-weight: var(--bMedium);
+    font-size: var(--sL);
     display: flex;
     align-items: center;
     gap: var(--spS);
-    padding: var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
   }
 
@@ -95,6 +96,8 @@
 .menuDropdown {
   position: relative;
   color: var(--cWhiteV1);
+  font-weight: var(--bMedium);
+  font-size: var(--sM);
   cursor: pointer;
   border-radius: var(--bRadiusS);
   padding: 0px;
@@ -133,7 +136,7 @@
   &.isOpen {
     background-color: rgba(33, 37, 41, 0.5);
     color: var(--cWhite);
-    padding: var(--spS);
+    padding-bottom: var(--spL);
 
     &.collapsed {
       padding: 0;
@@ -174,7 +177,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spS);
-    padding: var(--spS);
+    padding: var(--spL) var(--spM);
     border-radius: var(--bRadiusS);
 
     & > div:nth-child(1) {
@@ -188,14 +191,16 @@
     display: flex;
     flex-direction: column;
     align-self: self-start;
-    gap: var(--spXs);
     width: 100%;
-    margin-top: var(--spS);
+    padding-right: 24px;
+    padding-left: 24px;
 
     & > a {
       text-decoration: none;
       color: var(--cWhiteV1);
-      padding: var(--spS);
+      padding: var(--spS) var(--spM);
+      font-weight: var(--bRegular);
+      font-size: var(--sM);
       border-radius: var(--bRadiusS);
     }
 
