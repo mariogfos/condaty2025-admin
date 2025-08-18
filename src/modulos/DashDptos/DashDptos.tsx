@@ -21,14 +21,17 @@ import AccessTable from "./AccessTable/AccessTable";
 import ReservationsTable from "./ReservationsTable/ReservationsTable";
 import TitleRender from "./TitleRender/TitleRender";
 import { setParamsCrud } from "@/mk/utils/utils";
-import { TableSkeleton, WidgetSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
+import {
+  TableSkeleton,
+  WidgetSkeleton,
+} from "@/mk/components/ui/Skeleton/Skeleton";
 
 interface DashDptosProps {
   id: string | number;
 }
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { showToast, setStore } = useAuth();
+  const { showToast, setStore } = useAuth(); // esto?  lo que no se usa se debria quitar
   const router = useRouter();
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
@@ -162,7 +165,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              {!loaded ? <TableSkeleton /> : <PaymentsTable payments={datas?.payments} />}
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <PaymentsTable payments={datas?.payments} />
+              )}
             </div>
           </WidgetBase>
         </div>
@@ -170,7 +177,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={loaded ? "+" + datas.accessCount + " accesos nuevos este mes" : "Cargando..."}
+            subtitle={
+              loaded
+                ? "+" + datas.accessCount + " accesos nuevos este mes"
+                : "Cargando..."
+            }
             title={
               <TitleRender
                 title="Historial de accesos"
@@ -184,7 +195,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accessContent}>
-              {!loaded ? <TableSkeleton /> : <AccessTable access={datas?.access} titular={datas?.titular} />}
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <AccessTable access={datas?.access} titular={datas?.titular} />
+              )}
             </div>
           </WidgetBase>
 
@@ -200,16 +215,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
               />
             }
             subtitle={
-              loaded ? "+" + datas.reservationsCount + " reservas nuevas este mes" : "Cargando..."
+              loaded
+                ? "+" + datas.reservationsCount + " reservas nuevas este mes"
+                : "Cargando..."
             }
             variant="V1"
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.reservationsContent}>
-              {!loaded ? <TableSkeleton /> : <ReservationsTable
-                reservations={datas?.reservations}
-                titular={datas?.titular}
-              />}
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <ReservationsTable
+                  reservations={datas?.reservations}
+                  titular={datas?.titular}
+                />
+              )}
             </div>
           </WidgetBase>
         </div>
