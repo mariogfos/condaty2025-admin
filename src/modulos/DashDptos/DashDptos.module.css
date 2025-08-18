@@ -677,11 +677,9 @@
 }
 
 .menuDots {
-  /* Reset button styles */
   background: transparent;
   border: none;
   font: inherit;
-  /* Original div styles */
   display: flex;
   flex-direction: column;
   gap: 2px;

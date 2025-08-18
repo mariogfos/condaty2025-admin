@@ -5,43 +5,21 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import EmptyData from '@/components/NoData/EmptyData';
 import { IconPagos } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-
-
-const PAYMENT_STATUS_MAP = {
-  A: { label: 'Por Pagar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
-  P: { label: 'Pagado', backgroundColor: 'var(--cHoverSuccess)', color: 'var(--cSuccess)' },
-  S: { label: 'Por confirmar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
-  M: { label: 'Moroso', backgroundColor: 'var(--cHoverError)', color: 'var(--cError)' },
-  R: { label: 'Rechazado', backgroundColor: 'var(--cHoverError)', color: 'var(--cError)' },
-  X: { label: 'Anulado', backgroundColor: 'var(--cHoverCompl5)', color: 'var(--cMediumAlert)' },
-} as const;
-type PaymentStatus = keyof typeof PAYMENT_STATUS_MAP;
-const getPaymentStatus = (status: PaymentStatus) => {
-  return (
-    PAYMENT_STATUS_MAP[status] || {
-      label: status,
-      backgroundColor: 'var(--cHoverLight)',
-      color: 'var(--cLightDark)',
-    }
-  );
-};
+import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
 
 const statusCell = ({ item }: { item: any }) => {
   const status = item?.status as PaymentStatus;
-  const statusInfo = getPaymentStatus(status);
-    return (
-      <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
-        {statusInfo.label}
-      </StatusBadge>
-    );
+  const statusInfo = getPaymentStatusConfig(status);
+  return (
+    <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
+      {statusInfo.label}
+    </StatusBadge>
+  );
 };
 
 const amountCell = ({ item }: { item: any }) => {
   return item?.amount && item?.penalty_amount ? (
-    <FormatBsAlign
-      value={item.amount + item.penalty_amount}
-      alignRight={true}
-    />
+    <FormatBsAlign value={item.amount + item.penalty_amount} alignRight={true} />
   ) : (
     '-/-'
   );
@@ -62,7 +40,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       },
     },
     {
-      key: 'categorie',
+      key: 'category',
       label: 'Categoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
@@ -70,7 +48,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       },
     },
     {
-      key: 'sub_categorie',
+      key: 'subcategory',
       label: 'Subcategoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
@@ -82,8 +60,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Monto',
       style: { textAlign: 'right', justifyContent: 'flex-end' },
       responsive: 'desktop',
-      onRender:amountCell
-
+      onRender: amountCell,
     },
     {
       key: 'status',
