@@ -5,7 +5,7 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import EmptyData from '@/components/NoData/EmptyData';
 import { IconPagos } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { formatBs } from '@/mk/utils/numbers';
+
 
 const PAYMENT_STATUS_MAP = {
   A: { label: 'Por Pagar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
@@ -82,10 +82,8 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Monto',
       style: { textAlign: 'right', justifyContent: 'flex-end' },
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        const amount = (parseFloat(item?.amount) || 0) + (parseFloat(item?.penalty_amount) || 0);
-        return <FormatBsAlign value={amount} alignRight />;
-      },
+      onRender:amountCell
+
     },
     {
       key: 'status',
