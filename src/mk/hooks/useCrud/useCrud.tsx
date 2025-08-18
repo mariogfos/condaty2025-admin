@@ -181,15 +181,16 @@ const useCrud = ({
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [openDel, setOpenDel] = useState(false);
-  const extraParams = localStorage.getItem(mod.modulo + "Params");
+  let extraParams: any = localStorage.getItem(mod.modulo + "Params");
+  if (extraParams) extraParams = JSON.parse(extraParams);
   localStorage.removeItem(mod.modulo + "Params");
   // console.log("Etradata00", mod.extraData);
   const [params, setParams] = useState({
     ...paramsInitial,
-    ...(extraParams ? JSON.parse(extraParams) : {}),
+    ...(extraParams || {}),
     ...(mod?.extraData ? { extraData: JSON.stringify(mod?.extraData) } : {}),
   });
-  const [searchs, setSearchs]: any = useState({});
+  const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
 
