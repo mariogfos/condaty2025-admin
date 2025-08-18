@@ -319,7 +319,6 @@
   border-bottom: 1px solid var(--light-v3);
 }
 
-
 .visitRow {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;

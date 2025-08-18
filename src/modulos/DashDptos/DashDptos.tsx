@@ -21,6 +21,7 @@ import AccessTable from "./AccessTable/AccessTable";
 import ReservationsTable from "./ReservationsTable/ReservationsTable";
 import TitleRender from "./TitleRender/TitleRender";
 import { setParamsCrud } from "@/mk/utils/utils";
+import { TableSkeleton, WidgetSkeleton } from "@/mk/components/ui/Skeleton/Skeleton";
 
 interface DashDptosProps {
   id: string | number;
@@ -48,6 +49,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     data: dashData,
     reLoad,
     execute,
+    loaded,
   } = useAxios("/dptos", "GET", {
     fullType: "DET",
     dpto_id: id,
@@ -131,15 +133,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
       />
       <section>
         <div className={styles.firtsPanel}>
-          <UnitInfo
-            datas={datas}
-            onEdit={() => setOpenEdit(true)}
-            onDelete={() => setOpenDel(true)}
-            onTitular={onTitular}
-            onRemoveTitular={() => setOpenDelTitular(true)}
-            onOpenDependentProfile={handleOpenDependentProfile}
-            onOpenTitularHist={() => setOpenTitularHist(true)}
-          />
+          {!loaded ? (
+            <WidgetSkeleton />
+          ) : (
+            <UnitInfo
+              datas={datas}
+              onEdit={() => setOpenEdit(true)}
+              onDelete={() => setOpenDel(true)}
+              onTitular={onTitular}
+              onRemoveTitular={() => setOpenDelTitular(true)}
+              onOpenDependentProfile={handleOpenDependentProfile}
+              onOpenTitularHist={() => setOpenTitularHist(true)}
+            />
+          )}
 
           <WidgetBase
             title={
@@ -156,7 +162,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              <PaymentsTable payments={datas?.payments} />
+              {!loaded ? <TableSkeleton /> : <PaymentsTable payments={datas?.payments} />}
             </div>
           </WidgetBase>
         </div>
@@ -164,7 +170,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
+            subtitle={loaded ? "+" + datas.accessCount + " accesos nuevos este mes" : "Cargando..."}
             title={
               <TitleRender
                 title="Historial de accesos"
@@ -178,7 +184,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accessContent}>
-              <AccessTable access={datas?.access} titular={datas?.titular} />
+              {!loaded ? <TableSkeleton /> : <AccessTable access={datas?.access} titular={datas?.titular} />}
             </div>
           </WidgetBase>
 
@@ -194,16 +200,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
               />
             }
             subtitle={
-              "+" + datas.reservationsCount + " reservas nuevas este mes"
+              loaded ? "+" + datas.reservationsCount + " reservas nuevas este mes" : "Cargando..."
             }
             variant="V1"
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.reservationsContent}>
-              <ReservationsTable
+              {!loaded ? <TableSkeleton /> : <ReservationsTable
                 reservations={datas?.reservations}
                 titular={datas?.titular}
-              />
+              />}
             </div>
           </WidgetBase>
         </div>
