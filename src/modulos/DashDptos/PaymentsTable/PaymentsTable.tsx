@@ -4,6 +4,7 @@ import Table from '@/mk/components/ui/Table/Table';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import EmptyData from '@/components/NoData/EmptyData';
 import { IconPagos } from '@/components/layout/icons/IconsBiblioteca';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 
 const PAYMENT_STATUS_MAP = {
   A: { label: 'Por Pagar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
@@ -47,7 +48,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Fecha de pago',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || '-';
+        return getDateStrMes(item?.paid_at) || '-/-';
       },
     },
     {
@@ -55,15 +56,15 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Categoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || '-';
+        return item?.payment?.categoryP?.name || '-/-';
       },
     },
     {
       key: 'sub_categorie',
-      label: 'Sub Categoría',
+      label: 'Subcategoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || '-';
+        return item?.payment?.category?.name || '-/-';
       },
     },
     {
@@ -71,9 +72,8 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Monto',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.amount && item?.penalty_amount
-          ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : '-';
+        const amount = item?.amount + item?.penalty_amount;
+        return FormatBsAlign(amount) || '-/-';
       },
     },
     {

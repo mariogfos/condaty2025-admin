@@ -306,7 +306,7 @@ const UnitInfo = ({
                 src={tenantAvatarSrc}
                 name={getFullName(tenant)}
                 w={48}
-                h={48}
+                h={48}       
               />
               <div className={styles.personInfo}>
                 <h4 className={styles.personName}>{getFullName(tenant)}</h4>
