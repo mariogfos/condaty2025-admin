@@ -24,7 +24,6 @@ interface UnitInfoProps {
   onOpenTitularHist: () => void;
 }
 
-
 const UnitInfo = ({
   datas,
   onEdit,
@@ -104,9 +103,7 @@ const UnitInfo = ({
           )}
         </div>
       </div>
-
       <Br />
-
       {/* Sección de información de la unidad */}
       <div className={styles.unitInfoSection}>
         <div className={styles.unitInfoGrid}>
@@ -166,9 +163,7 @@ const UnitInfo = ({
             </button>
           </div>
         </div>
-
         <Br />
-
         {/* Sección Propietario */}
         {datas?.data?.homeowner && (
           <div className={styles.ownerSection}>
