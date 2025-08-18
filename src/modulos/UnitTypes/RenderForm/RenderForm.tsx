@@ -142,7 +142,6 @@ const RenderForm = ({
   const handleSubmit = async () => {
     if (!validate()) return;
     const formData = {
-      // ...formState, // esto?
       name: formState.name,
       description: formState.description || "",
       fields: extraFields.map((field) => {
@@ -196,8 +195,7 @@ const RenderForm = ({
         </div>
       </div>
       {extraFields.map((field, index) => (
-        <div key={index} className={styles.extraFieldRow}>
-          {/* // esto? index no debe estar solo o no debe usarse como key */}
+        <div key={field.id || `extra-field-${index}`} className={styles.extraFieldRow}>
           <Input
             name={`extra_field_name_${index}`}
             label="Nombre del Campo"
