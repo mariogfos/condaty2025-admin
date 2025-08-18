@@ -145,6 +145,15 @@
   font-size: var(--sM);
   font-weight: 500;
   transition: color 0.2s;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  z-index: 0;
 }
 
 .viewMore:hover {
@@ -311,10 +320,6 @@
   border-bottom: 1px solid var(--light-v3);
 }
 
-.visitsList {
-  overflow-y: auto;
-  height: calc(100% - 2rem);
-}
 
 .visitRow {
   display: grid;
@@ -369,7 +374,6 @@
   background-color: #a7a7a725;
 }
 
-/* AGREGAR - Estilos para scroll personalizado */
 .accountList::-webkit-scrollbar,
 .visitsList::-webkit-scrollbar {
   width: 6px;
@@ -495,6 +499,11 @@
 }
 
 .titularDropdown {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -669,8 +678,12 @@
   justify-content: center;
 }
 
-/* Estilos para el menú de 3 puntos */
 .menuDots {
+  /* Reset button styles */
+  background: transparent;
+  border: none;
+  font: inherit;
+  /* Original div styles */
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -712,6 +725,10 @@
 }
 
 .menuItem {
+  background: transparent;
+  border: none;
+  font: inherit;
+  text-align: inherit;
   list-style: none;
   width: 100%;
   display: flex;

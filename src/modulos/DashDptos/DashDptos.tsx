@@ -234,10 +234,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setOpenComprobante(false);
               setIdPago(null);
             }}
-            // item={datas.payments?.find(
-            //   (pago: any) => pago?.payment?.id === idPago
-            // )?.payment || {}}
-            // id={idPago}
             extraData={datas}
             payment_id={idPago}
           />

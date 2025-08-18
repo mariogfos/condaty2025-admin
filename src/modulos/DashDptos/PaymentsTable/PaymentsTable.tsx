@@ -13,9 +13,7 @@ const PAYMENT_STATUS_MAP = {
   R: { label: 'Rechazado', backgroundColor: 'var(--cHoverError)', color: 'var(--cError)' },
   X: { label: 'Anulado', backgroundColor: 'var(--cHoverCompl5)', color: 'var(--cMediumAlert)' },
 } as const;
-
 type PaymentStatus = keyof typeof PAYMENT_STATUS_MAP;
-
 const getPaymentStatus = (status: PaymentStatus) => {
   return (
     PAYMENT_STATUS_MAP[status] || {
@@ -25,6 +23,18 @@ const getPaymentStatus = (status: PaymentStatus) => {
     }
   );
 };
+
+const statusCell = ({ item }: { item: any }) => {
+  const status = item?.status as PaymentStatus;
+  const statusInfo = getPaymentStatus(status);
+    return (
+      <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
+        {statusInfo.label}
+      </StatusBadge>
+    );
+};
+
+
 
 interface PaymentsTableProps {
   payments: any[];
@@ -71,15 +81,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Estado',
       style: { textAlign: 'center', justifyContent: 'center' },
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        const status = item?.status as PaymentStatus;
-        const statusInfo = getPaymentStatus(status);
-        return (
-          <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
-            {statusInfo.label}
-          </StatusBadge>
-        );
-      },
+      onRender: statusCell,
     },
   ];
 

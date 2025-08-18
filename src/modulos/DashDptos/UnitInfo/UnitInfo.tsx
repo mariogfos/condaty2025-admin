@@ -22,6 +22,7 @@ interface UnitInfoProps {
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
+const Br = () => <div className={styles.br} />;
 
 const UnitInfo = ({
   datas,
@@ -60,8 +61,26 @@ const UnitInfo = ({
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
-  const Br = () => <div className={styles.br} />;
+  const owner = datas?.data?.homeowner;
+  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : '';
+  const ownerAvatarSrc = owner?.id
+    ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
+    : '';
 
+  const tenant = datas?.titular;
+  const tenantUpdatedAtQuery = tenant?.updated_at ? `?d=${tenant.updated_at}` : '';
+  const tenantAvatarSrc = tenant?.id
+    ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
+    : '';
+  const HandleTitular = () => {
+    if (datas?.titular) {
+      return 'Residente';
+    }
+    if (datas?.data?.homeowner) {
+      return 'Propietario';
+    }
+    return 'Sin asignar';
+  };
   return (
     <div className={styles.infoCard}>
       <div className={styles.cardHeader}>
@@ -98,7 +117,8 @@ const UnitInfo = ({
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
-            <div
+            <button
+              type="button"
               className={styles.titularDropdown}
               onClick={e => {
                 e.stopPropagation();
@@ -106,11 +126,7 @@ const UnitInfo = ({
               }}
             >
               <span className={styles.infoValue}>
-                {datas?.titular
-                  ? 'Residente'
-                  : datas?.data?.homeowner
-                  ? 'Propietario'
-                  : 'Sin asignar'}
+                {HandleTitular()}
               </span>
               <IconArrowDown
                 size={16}
@@ -118,7 +134,8 @@ const UnitInfo = ({
               />
               {openTitularSelector && (
                 <div className={styles.dropdownMenu}>
-                  <div
+                  <button
+                    type="button"
                     className={styles.menuItem}
                     onClick={e => {
                       e.stopPropagation();
@@ -126,8 +143,9 @@ const UnitInfo = ({
                     }}
                   >
                     Propietario
-                  </div>
-                  <div
+                  </button>
+                  <button
+                    type="button"
                     className={styles.menuItem}
                     onClick={e => {
                       e.stopPropagation();
@@ -135,10 +153,10 @@ const UnitInfo = ({
                     }}
                   >
                     Residente
-                  </div>
+                  </button>
                 </div>
               )}
-            </div>
+            </button>
           </div>
         </div>
 
@@ -150,7 +168,8 @@ const UnitInfo = ({
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Propietario</h3>
               <div className={styles.sectionActions}>
-                <div
+                <button
+                  type="button"
                   className={styles.menuDots}
                   onClick={e => {
                     e.stopPropagation();
@@ -160,10 +179,11 @@ const UnitInfo = ({
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
-                </div>
+                </button>
                 {openOwnerMenu && (
                   <div className={styles.dropdownMenu}>
-                    <div
+                    <button
+                      type="button"
                       className={styles.menuItem}
                       onClick={e => {
                         e.stopPropagation();
@@ -171,8 +191,9 @@ const UnitInfo = ({
                       }}
                     >
                       Cambiar/Nuevo
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
                       className={styles.menuItem}
                       onClick={e => {
                         e.stopPropagation();
@@ -180,7 +201,7 @@ const UnitInfo = ({
                       }}
                     >
                       Liberar residencia
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -188,28 +209,15 @@ const UnitInfo = ({
 
             <div className={styles.personCard}>
               <Avatar
-                hasImage={datas?.data?.homeowner?.has_image}
-                src={
-                  datas?.data?.homeowner?.id
-                    ? getUrlImages(
-                        '/OWNER-' +
-                          datas?.data?.homeowner?.id +
-                          '.webp' +
-                          (datas?.data?.homeowner?.updated_at
-                            ? '?d=' + datas?.data?.homeowner?.updated_at
-                            : '')
-                      )
-                    : ''
-                }
-                name={getFullName(datas?.data?.homeowner)}
+                hasImage={owner?.has_image}
+                src={ownerAvatarSrc}
+                name={getFullName(owner)}
                 w={48}
                 h={48}
               />
               <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(datas?.data?.homeowner)}</h4>
-                <p className={styles.personId}>
-                  C.I. {datas?.data?.homeowner?.ci || 'Sin registro'}
-                </p>
+                <h4 className={styles.personName}>{getFullName(owner)}</h4>
+                <p className={styles.personId}>C.I. {owner?.ci || 'Sin registro'}</p>
               </div>
             </div>
 
@@ -217,13 +225,13 @@ const UnitInfo = ({
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
                 <span className={styles.contactValue}>
-                  {datas?.data?.homeowner?.email || 'Sin email'}
+                  {owner?.email || 'Sin email'}
                 </span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
                 <span className={styles.contactValue}>
-                  {datas?.data?.homeowner?.phone || 'Sin teléfono'}
+                  {owner?.phone || 'Sin teléfono'}
                 </span>
               </div>
             </div>
@@ -251,7 +259,8 @@ const UnitInfo = ({
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Residente</h3>
               <div className={styles.sectionActions}>
-                <div
+                <button
+                  type="button"
                   className={styles.menuDots}
                   onClick={e => {
                     e.stopPropagation();
@@ -261,10 +270,11 @@ const UnitInfo = ({
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
                   <div className={styles.dot}></div>
-                </div>
+                </button>
                 {openTenantMenu && (
                   <div className={styles.dropdownMenu}>
-                    <div
+                    <button
+                      type="button"
                       className={styles.menuItem}
                       onClick={e => {
                         e.stopPropagation();
@@ -273,8 +283,9 @@ const UnitInfo = ({
                       }}
                     >
                       Cambiar/Nuevo
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
                       className={styles.menuItem}
                       onClick={e => {
                         e.stopPropagation();
@@ -283,7 +294,7 @@ const UnitInfo = ({
                       }}
                     >
                       Desvincular
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -291,37 +302,26 @@ const UnitInfo = ({
 
             <div className={styles.personCard}>
               <Avatar
-                hasImage={datas?.titular?.has_image}
-                src={
-                  datas?.titular?.id
-                    ? getUrlImages(
-                        '/OWNER-' +
-                          datas?.titular?.id +
-                          '.webp' +
-                          (datas?.titular?.updated_at ? '?d=' + datas?.titular?.updated_at : '')
-                      )
-                    : ''
-                }
-                name={getFullName(datas?.titular)}
+                hasImage={tenant?.has_image}
+                src={tenantAvatarSrc}
+                name={getFullName(tenant)}
                 w={48}
                 h={48}
               />
               <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(datas?.titular)}</h4>
-                <p className={styles.personId}>C.I. {datas?.titular?.ci || 'Sin registro'}</p>
+                <h4 className={styles.personName}>{getFullName(tenant)}</h4>
+                <p className={styles.personId}>C.I. {tenant?.ci || 'Sin registro'}</p>
               </div>
             </div>
 
             <div className={styles.contactGrid}>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.contactValue}>{datas?.titular?.email || 'Sin email'}</span>
+                <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.contactValue}>
-                  {datas?.titular?.phone || 'Sin teléfono'}
-                </span>
+                <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
               </div>
             </div>
 
@@ -332,34 +332,30 @@ const UnitInfo = ({
                   <h4 className={styles.dependentsTitle}>Dependientes</h4>
                 </div>
                 <div className={styles.dependentsGrid}>
-                  {datas.titular.dependientes.slice(0, 3).map((dependiente: any, index: number) => (
-                    <Tooltip
-                      key={index}
-                      title={getFullName(dependiente.owner)}
-                      position="top-left">
-                    
-                      <Avatar
-                        hasImage={dependiente.owner?.has_image}
-                        className={styles.dependentAvatar}
-                        src={
-                          dependiente.owner?.id
-                            ? getUrlImages(
-                                '/OWNER-' +
-                                  dependiente.owner?.id +
-                                  '.webp' +
-                                  (dependiente.owner?.updated_at
-                                    ? '?d=' + dependiente.owner?.updated_at
-                                    : '')
-                              )
-                            : ''
-                        }
-                        name={getFullName(dependiente.owner)}
-                        w={40}
-                        h={40}
-                        onClick={() => onOpenDependentProfile(dependiente.owner_id)}
-                      />
-                    </Tooltip>
-                  ))}
+                  {datas.titular.dependientes
+                    .slice(0, 3)
+                    .map((dependiente: any, index: number) => {
+                      const dependentOwner = dependiente.owner;
+                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
+                        ? `?d=${dependentOwner.updated_at}`
+                        : '';
+                      const dependentAvatarSrc = dependentOwner?.id
+                        ? getUrlImages(`/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`)
+                        : '';
+                      return (
+                        <Tooltip key={index} title={getFullName(dependentOwner)} position="top-left">
+                          <Avatar
+                            hasImage={dependentOwner?.has_image}
+                            className={styles.dependentAvatar}
+                            src={dependentAvatarSrc}
+                            name={getFullName(dependentOwner)}
+                            w={40}
+                            h={40}
+                            onClick={() => onOpenDependentProfile(dependiente.owner_id)}
+                          />
+                        </Tooltip>
+                      );
+                    })}
                 </div>
               </div>
             )}

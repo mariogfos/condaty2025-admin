@@ -15,18 +15,12 @@ interface HistoryOwnershipProps {
   close: () => void;
 }
 
-const modRe = {
-  modulo: 'owners',
-  singular: 'residente',
-  permiso: 'residentes',
-  plural: 'residentes',
-  avatarPrefix: 'OWNER',
-};
+
 
 const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps) => {
   const [openPerfil, setOpenPerfil] = useState(false);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
-  const [dataOw, setDataOw] = useState<any>(null);
+  const [ setDataOw] = useState<any>(null);
   const [filteredData, setFilteredData] = useState(ownershipData);
 
   const handleSearch = (searchTerm: string) => {
@@ -64,7 +58,7 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
             />
           ) : (
             filteredData.map((titular, index) => (
-              <div
+              <button
                 key={index}
                 className={styles.titularCard}
                 onClick={() => {
@@ -99,27 +93,12 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>
       </div>
-      {/*
-      {openPerfil && idPerfil && (
-        <ViewPerfil
-          id={idPerfil}
-          open={openPerfil}
-          onClose={() => {
-            setOpenPerfil(false);
-            setIdPerfil(null);
-          }}
-          setData={setDataOw}
-          viewOptions={false}
-          data={dataOw}
-          mod={modRe}
-        />
-      )}
-    */}
+
     </DataModal>
   );
 };
