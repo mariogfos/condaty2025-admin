@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps // esto? esto debe estar en solo la linea no en todo el archivo, ademas creo que no es necedsrio en este archivo */
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -10,7 +10,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 interface AccessesTabProps {
@@ -18,7 +17,7 @@ interface AccessesTabProps {
   onRowClick?: (item: any) => void;
 }
 
-// Función actualizada para obtener las opciones de período
+// Función actualizada para obtener las opciones de período // esto? no debe ser una funcion, deberia ser directamente un array
 const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
   { id: "d", name: "Hoy" },
@@ -136,7 +135,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       singular: "Acceso",
       plural: "Accesos",
       filter: true,
-      permiso: "",
+      permiso: "accesses",
       export: true,
       extraData: false,
       hideActions: {
@@ -310,16 +309,8 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
     getFilter: handleGetFilter,
   });
 
-  // Validación de permisos
+  // Validación de permisos // esto? comentario demas el nombre de la funcion ya indica que hace
   const canAccess = userCan(modAccess.permiso, "R");
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod: modAccess,
-    onEdit,
-    onDel,
-  });
 
   if (!canAccess) return <NotAccess />;
 

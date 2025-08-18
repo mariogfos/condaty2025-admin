@@ -12,7 +12,7 @@ interface PropsType {
   id: string | number | null;
   open: boolean;
   onClose: () => void;
-  type: "A" | "T" | "I" | "V" | "P" | string;
+  type: "A" | "T" | "I" | "V" | "P" | string; // esto?  quitar string, fijate que sonarqube te avisa, que si pones string ya no es necsario poner los otros, pero en este caso debes eliminar el string para que acepte solo esas iniciales
   invitation?: any;
 }
 
@@ -48,6 +48,7 @@ const ModalAccessExpand = ({
     );
     setLoading(false);
     if (data?.success == true) {
+      // esto? resolver lo que te indica el sonarqube ponete sobre el amarillo y te sale
       setData(data?.data?.[0]);
     }
   };
@@ -55,7 +56,7 @@ const ModalAccessExpand = ({
     if (type != "I" && type != "P") {
       getAccess();
     }
-  }, []);
+  }, []); // esto? aqui poner que ingone pero solo esta linea
 
   const Br = () => {
     return (
@@ -71,9 +72,9 @@ const ModalAccessExpand = ({
   };
 
   const getStatus = () => {
-    // if (condition) {
+    // if (condition) {// esto? que es esto hay que borrra si no se usa
 
-    // }
+    // }// esto?
     if (!data?.in_at) {
       return "I";
     }
@@ -206,6 +207,7 @@ const ModalAccessExpand = ({
         {invitation.type == "F" && (
           <>
             {invitation?.start_date && (
+              // esto? debes quitar los <> ya que no es necesario por eso e queja el sonarqube
               <>
                 <KeyValue
                   title="Periodo de validez"
@@ -300,7 +302,7 @@ const ModalAccessExpand = ({
       title={
         type === "A"
           ? "Detalle del acompañante"
-          : type === "T"
+          : type === "T" // esto? en esto como te indica sonaqube, podrias crear una funcion y llmarla aqui
           ? "Detalle del taxista"
           : type === "I" || type === "P"
           ? "Detalle de la invitación"
@@ -313,7 +315,7 @@ const ModalAccessExpand = ({
     >
       {loading ? (
         <LoadingScreen onlyLoading />
-      ) : type === "I" ? (
+      ) : type === "I" ? ( // esto? igual que el anterior podrias hacer una funcion que lo llames aqui
         renderInvitation()
       ) : type == "P" ? (
         renderPedido()

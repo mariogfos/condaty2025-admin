@@ -14,6 +14,7 @@ interface Props {
 
 const PedidosDetail = ({ item, open, onClose }: Props) => {
   const Br = () => {
+    // esto? podrias sacar esta funcion fuera del componente
     return (
       <div
         style={{
@@ -30,6 +31,7 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
     colorValue?: string;
   };
   const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
+    // esto? podrias sacar esta funcion igual fuera del componente
     return (
       <div className={styles.LabelValue}>
         <p>{label}</p>
@@ -81,7 +83,7 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
               value={
                 item?.other?.status === "I"
                   ? "Ingresado"
-                  : item?.other?.status === "O"
+                  : item?.other?.status === "O" // esto? podrias crear una funcion que llames aca
                   ? "Completado"
                   : ""
               }

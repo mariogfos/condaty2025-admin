@@ -153,7 +153,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 </span>
                 <span className={styles.infoValue}>
                   {item?.type === "F"
-                    ? invitation?.start_date && invitation?.end_date
+                    ? invitation?.start_date && invitation?.end_date // esto?podrias crear una funcion y llamarla aqui
                       ? formatDateRange(
                           invitation?.start_date,
                           invitation?.end_date
