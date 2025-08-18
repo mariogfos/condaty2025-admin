@@ -379,7 +379,7 @@ const Dptos = () => {
     onDel,
   });
   const handleRowClick = (item: any) => {
-    router.push(`/dashDpto/${item.id}`);
+    router.push(`/units/${item.id}`);
   };
 
   const renderItem = (item: Record<string, any>, i: number, onClick: Function) => {

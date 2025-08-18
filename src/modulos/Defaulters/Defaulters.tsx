@@ -254,7 +254,7 @@ const Defaulters = () => {
     ]
   );
   const handleRowClick = (item: any) => {
-    router.push(`/dashDpto/${item.dpto_id}`);
+    router.push(`/units/${item.dpto_id}`);
   };
 
   const renderRightPanel = useCallback(() => {
