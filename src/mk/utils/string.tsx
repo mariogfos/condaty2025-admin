@@ -11,6 +11,12 @@ const exceptions: Record<string, string> = {
   especímenes: "espécimen",
   yérsey: "yérseys",
   yérseys: "yérsey",
+  locales: "local",
+  local: "locales",
+  garajes: "garaje",
+  garaje: "garajes",
+  almacenes: "almacén",
+  almacén: "almacenes",
   // Palabras invariables (mismo singular y plural)
   crisis: "crisis",
   tesis: "tesis",

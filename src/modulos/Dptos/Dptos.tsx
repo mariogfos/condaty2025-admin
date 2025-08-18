@@ -38,7 +38,18 @@ const lTitulars = [
 ];
 
 const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
-  if (name === 'Departamento') {
+  if (name === 'Casa') {
+    return (
+      <IconHome
+        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+        style={{
+          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+        }}
+        circle
+        size={18}
+      />
+    );
+  } else if (name === 'Departamento') {
     return (
       <IconDepartment
         color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
@@ -74,10 +85,10 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
   }
   // Ícono por defecto para tipos de unidades no conocidas
   return (
-    <IconHome
-      color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+    <IconUnidades
+      color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWhite)'}
       style={{
-        backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+        backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl1)',
       }}
       circle
       size={18}
@@ -445,7 +456,7 @@ const Dptos = () => {
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
           const isEmpty = !item.value || item.value === 0;
-          const pluralizedTitle = pluralize(item.name, item.value || 0);
+          const pluralizedTitle = pluralize(item.name, item.value || 0).charAt(0).toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
           return (
             <WidgetDashCard
               key={i}
