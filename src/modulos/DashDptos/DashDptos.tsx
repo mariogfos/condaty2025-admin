@@ -56,13 +56,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
-  // const locationParams = (path: string, key: string, value: string) => {
-  //   setStore({
-  //     [key]: value,
-  //   });
-  //   router.push(path);
-  // };
-
   const onSave = async () => {
     if (!formState.owner_id) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
@@ -179,9 +172,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   setParamsCrud("accesses", "searchBy", datas?.data?.nro);
                   router.push("/activities");
                 }}
-                // onClick={() =>
-                //   router.push(`/activities?search_by=${datas?.data?.nro}`)
-                // }
               />
             }
             variant="V1"
@@ -201,9 +191,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   setParamsCrud("reservations", "searchBy", datas?.data?.nro);
                   router.push("/reservas");
                 }}
-                // onClick={() =>
-                //   router.push(`/reservas?search_by=${datas?.data?.nro}`)
-                // }
               />
             }
             subtitle={
