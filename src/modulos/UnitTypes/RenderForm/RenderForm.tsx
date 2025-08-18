@@ -1,11 +1,10 @@
 'use client';
-import Button from '@/mk/components/forms/Button/Button';
 import Input from '@/mk/components/forms/Input/Input';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { useState, useEffect } from 'react';
 import styles from './RenderForm.module.css';
 import { IconTrash } from '@/components/layout/icons/IconsBiblioteca';
-import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
+import { checkRules} from '@/mk/utils/validate/Rules';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 
 interface ExtraField {
@@ -53,13 +52,13 @@ const RenderForm = ({
       }));
   });
   const [formState, setFormState] = useState({ ...item });
-  const [_errors, set_Errors] = useState<Record<string, string>>({});
+  const [currentErrors, setCurrentErrors] = useState<Record<string, string>>({});
   const { showToast } = useAuth();
 
   // Limpiar errores cuando se cierre el modal
   useEffect(() => {
     if (!open) {
-      set_Errors({});
+      setCurrentErrors({});
     }
   }, [open]);
 
@@ -70,8 +69,8 @@ const RenderForm = ({
     setFormState({ ...formState, [fieldName]: value });
 
     // Limpiar error del campo específico si existe
-    if (_errors[fieldName]) {
-      set_Errors(prev => {
+    if (currentErrors[fieldName]) {
+      setCurrentErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
@@ -95,8 +94,8 @@ const RenderForm = ({
 
     // Limpiar error del campo específico si existe
     const fieldKey = `extra_field_name_${index}`;
-    if (_errors[fieldKey]) {
-      set_Errors(prev => {
+    if (currentErrors[fieldKey]) {
+      setCurrentErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[fieldKey];
         return newErrors;
@@ -130,7 +129,7 @@ const RenderForm = ({
       }
     });
 
-    set_Errors(errs);
+    setCurrentErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
@@ -145,7 +144,7 @@ const RenderForm = ({
           name: field.name,
           type: field.value,
         };
-        // Incluir el ID del campo si existe, independientemente de la acción
+
         if (field.id) {
           fieldData.id = field.id;
         }
@@ -160,7 +159,6 @@ const RenderForm = ({
 
     if (response?.success === true) {
       reLoad();
-      // setItem(formData);
       showToast(response?.message, 'success');
       onClose();
     }
@@ -178,7 +176,7 @@ const RenderForm = ({
         label="Nombre de la unidad"
         value={formState?.name || ''}
         onChange={handleChange}
-        error={_errors}
+        error={currentErrors}
         disabled={action !== 'add' && item.is_fixed === 'A'}
         required
       />
@@ -190,15 +188,7 @@ const RenderForm = ({
         </div>
       </div>
       {extraFields.map((field, index) => (
-        <div
-          key={index}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '10px',
-          }}
-        >
+        <div key={index} className={styles.extraFieldRow}>
           <Input
             name={`extra_field_name_${index}`}
             label="Nombre del Campo"
@@ -206,26 +196,20 @@ const RenderForm = ({
             onChange={e => handleExtraFieldChange(index, 'name', e.target.value)}
             style={{ flex: 1 }}
             iconRight={<IconTrash onClick={() => handleRemoveField(index)} />}
-            error={_errors}
+            error={currentErrors}
             required
           />
 
-          {/* <Button
-            onClick={() => handleRemoveField(index)}>a
-            <Button /> */}
         </div>
       ))}
 
-      <div
+      <button
+        type="button"
         onClick={handleAddField}
-        style={{
-          marginTop: '10px',
-          color: 'var(--cAccent)',
-          cursor: 'pointer',
-        }}
+        className={styles.addFieldButton}
       >
         Agregar Campo Extra
-      </div>
+      </button>
     </DataModal>
   );
 };
