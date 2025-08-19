@@ -493,7 +493,7 @@
 .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
-  font-weight: 600;
+  font-weight: var(--bMedium);
 }
 
 .titularDropdown {

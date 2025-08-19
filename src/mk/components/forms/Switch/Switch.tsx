@@ -79,13 +79,13 @@ const Switch = ({
                         transform: "translateX(20px)",
                         // boxShadow:
                         //   "0 4px 6px -1px rgb(0 0 0 / 0.1),  0 2px 4px -2px rgb(0 0 0 / 0.1)",
-                        backgroundColor: "var(--cBlackV1)",
+                        backgroundColor: "var(--cWhiteV2)",
                       }
                     : {
                         transform: "translateX(4px)",
                         // boxShadow:
                         //   "0 4px 6px -1px rgb(0 0 0 / 0.3),  0 2px 4px -2px rgb(0 0 0 / 0.3)",
-                        backgroundColor: "var(--cBlackV1)",
+                        backgroundColor: "var(--cWhiteV2)",
                       }),
                   height: height ? `${height}px` : "20px",
                   width: width ? `${width}px` : "20px",

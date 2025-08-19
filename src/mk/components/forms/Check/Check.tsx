@@ -23,7 +23,7 @@ const Check = ({
     <div className={styles.check + " " + className}>
       <label
         htmlFor={props.name}
-        style={{ color: props.checked ? "var(--cSuccess)" : "var(--cWhiteV1)" }}
+        style={{ color: props.checked ? "var(--cAccent)" : "var(--cWhiteV1)" }}
       >
         {!reverse && (
           <p>
@@ -44,7 +44,7 @@ const Check = ({
         />
         <span>
           {props.checked ? (
-            <IconCheckSquare color="var(--cSuccess)" style={{ marginTop: 4 }} />
+            <IconCheckSquare color="var(--cAccent)" style={{ marginTop: 4 }} />
           ) : (
             <IconCheckOff style={{ marginTop: 4 }} />
           )}
