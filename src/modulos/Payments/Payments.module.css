@@ -1,34 +1,28 @@
 .container {
   width: 100%;
 }
-
 .title {
   font-size: var(--sXxl);
   font-weight: var(--bSemibold);
   margin-bottom: 5px;
   color: var(--cWhite);
 }
-
 .subtitle {
   color: var(--cWhiteV1);
   font-size: var(--sM);
   margin-bottom: 20px;
 }
-
-/* //esto? esopacios demas  */
 .categoriesButton {
   border: 1px solid var(--cWhiteV1) !important;
   color: var(--cWhiteV1) !important;
   background-color: transparent !important;
   font-size: clamp(12px, 3vw, 14px);
-
   border-radius: var(--bRadius) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
   flex-shrink: 0;
-
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
@@ -37,43 +31,35 @@
   word-break: break-word !important;
   text-align: center;
 }
-
 .categoriesButton:hover {
   background-color: var(--cHover) !important;
 }
-
 .viewButton {
   color: var(--cInfo);
   text-decoration: underline;
   cursor: pointer;
 }
-
 .viewButton:hover {
   opacity: 0.8;
 }
-
 /* Estilos para la tabla */
 .tableContainer {
   overflow-x: auto;
   border-radius: var(--bRadiusS);
   background-color: var(--cBlackV1);
 }
-
 /* Estilos para responsive */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
   }
-
   .title {
     font-size: var(--sXl);
   }
-
   .buttonsContainer {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .graphButton,
   .categoriesButton {
     width: 100%;
@@ -81,9 +67,8 @@
     font-size: clamp(11px, 4vw, 13px);
   }
 }
-
 .statusBadge {
-  font-weight: var(--bMedium);
+  font-weight: 400;
   padding: 6px var(--spM);
   border-radius: 4px;
   display: inline-flex;
@@ -91,41 +76,42 @@
   justify-content: center;
   text-align: center;
   width: fit-content;
-  min-width: 110px;
+  min-width: 166px;
   white-space: nowrap;
 }
-
 .statusP {
-  background-color: var(--accentBg);
-  color: var(--cPrimary);
+  background-color: var(--cHoverCompl2);
+  color: var(--cSuccess);
 }
-
 .statusS {
-  background-color: var(--cHoverWarning);
+  background-color: var(--cHoverCompl4);
   color: var(--cWarning);
 }
-
 .statusR {
   background-color: var(--cHoverCompl5);
   color: var(--cMediumAlert);
 }
-
 .statusE {
-  background-color: var(--cHoverInfo);
+  background-color: var(--cHoverCompl3);
   color: var(--cInfo);
 }
-
 .statusA {
   background-color: rgba(0, 123, 255, 0.2);
   color: var(--info);
 }
-
 .statusM {
   background-color: var(--cMediumAlertHover);
   color: var(--cMediumAlert);
 }
-
 .statusX {
   background-color: var(--cHoverError);
   color: var(--cError);
+}
+.statusCellCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
 }

@@ -6,9 +6,10 @@ import {
   IconX,
 } from '../../../../components/layout/icons/IconsBiblioteca';
 // import Button from "../Button/Button";
-import styles from './dataSearch.module.css';
-import { PropsTypeInputBase } from '../ControlLabel';
-import idioma from '@/mk/utils/traductor/es';
+import styles from "./dataSearch.module.css";
+import { PropsTypeInputBase } from "../ControlLabel";
+import idioma from "@/mk/utils/traductor/es";
+import Tooltip from "../../ui/Tooltip/Tooltip";
 
 interface PropsType extends PropsTypeInputBase {
   setSearch: Function;
@@ -58,74 +59,80 @@ const DataSearch = ({
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <Input
-        name={name}
-        className={styles.dataSearch + ' ' + className}
-        required={false}
-        label={label}
-        placeholder={textButton + '...'}
-        onKeyDown={handleKeyDown}
-        value={searchBy}
-        onChange={onChange}
-        iconLeft={
-          !value && !searchBy ? (
-            <IconSearch
-              size={24}
-              color={'var(--cWhiteV1)'}
-              style={{ marginRight: 'var(--spS)' }}
-            />
-          ) : (
-            <IconX
-              onClick={() => onSearch('')}
-              color={'var(--cWhiteV1)'}
-              className="error"
-            />
-          )
-        }
-        iconRight={
-          searchBy && (
-            // <Button variant="primary" onClick={() => onSearch()}>
-            //   {textButton}
-            // </Button>
-            <div
-              onClick={() => onSearch()}
-              style={{
-                backgroundColor: 'var(--cPrimary)',
-                padding: 4,
-                borderRadius: '100%',
-                display: 'flex',
-                marginRight: 8,
-              }}
-            >
-              <IconSearch color="var(--cBlack)" />
-            </div>
-          )
-        }
-        onFocus={() => setFocused(true)}
-        onBlur={() => setTimeout(() => setFocused(false), 200)}
-        autoComplete="off"
-      />
-      {focused && searchMsg && (
+    <div style={{ position: "relative" }}>
+      <Tooltip title={searchMsg}>
+        <Input
+          name={name}
+          className={styles.dataSearch + " " + className}
+          required={false}
+          label={label}
+          placeholder={textButton + "..."}
+          onKeyDown={handleKeyDown}
+          value={searchBy}
+          onChange={onChange}
+          iconLeft={
+            !value && !searchBy ? (
+              <IconSearch
+                // size={24}
+                color={"var(--cWhiteV1)"}
+                style={{ marginRight: "var(--spS)" }}
+              />
+            ) : (
+              <div onClick={() => onSearch("")} style={{ cursor: "pointer" }}>
+                <IconX color={"var(--cWhiteV1)"} className="error" />
+              </div>
+            )
+          }
+          iconRight={
+            searchBy && (
+              <div
+                onClick={() => onSearch()}
+                style={{
+                  backgroundColor: "var(--cPrimary)",
+                  padding: "4px",
+                  borderRadius: "100%",
+                  display: "flex",
+                  marginRight: "8px",
+                  // width: "22px",
+                  // height: "22px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                }}
+              >
+                <IconSearch
+                  color="var(--cBlack)"
+                  size={16}
+                  // style={{ boxSizing: "content-box }}
+                />
+              </div>
+            )
+          }
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 200)}
+          autoComplete="off"
+        />
+      </Tooltip>
+      {/* {focused && searchMsg && (
         <div
           style={{
             position: 'absolute',
-            top: '100%',
-            left: 40,
-            background: 'rgba(0,0,0,0.85)',
-            color: 'var(--cWhite)',
-            padding: 8,
-            borderRadius: 8,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            zIndex: 10,
-            minWidth: 250,
-            fontSize: 13,
-            marginTop: 4,
+            left: '50%',
+            top: '-8px',
+            transform: 'translate(-50%, -100%)',
+            fontSize: 14,
+            zIndex: 9999,
+            textAlign: 'end',
+            marginTop: 0,
           }}
         >
+          <span />
+        </Tooltip>
+      )}
           {searchMsg}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

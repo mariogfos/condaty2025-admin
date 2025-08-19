@@ -4,6 +4,7 @@ import {
   Fragment,
   memo,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -204,7 +205,8 @@ const Head = memo(function Head({
     );
   };
   return (
-    <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
+    // <header style={{ width: `calc(100% - ${scrollbarWidth || 0}px)` }}>
+    <header style={{ paddingRight: (scrollbarWidth || 0) + "px" }}>
       {header.map(
         (item: any, index: number) =>
           !item.onHide?.() && (
@@ -219,7 +221,9 @@ const Head = memo(function Head({
               title={
                 onRenderHead
                   ? onRenderHead(item, index, onSort, sortCol, true)
-                  : item.label
+                  : typeof item.label === "string"
+                  ? item.label
+                  : undefined
               }
             >
               {onRenderHead
@@ -362,13 +366,13 @@ const Body = ({
   //   };
   // }, [id, store["scrollTop" + id]]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      // console.log("Body se crea");
-      const scrollTop = store["scrollTop" + id];
-      // console.log("scrollTo Set0", id, scrollTop);
-      if (scrollTop) divRef.current.scrollTop = scrollTop;
-    }, 10);
+  useLayoutEffect(() => {
+    // setTimeout(() => {
+    // console.log("Body se crea");
+    const scrollTop = store["scrollTop" + id];
+    // console.log("scrollTo Set0", id, scrollTop);
+    if (scrollTop) divRef.current.scrollTop = scrollTop;
+    // }, 10);
   }, []);
 
   const _onRowClick = (e: any) => {

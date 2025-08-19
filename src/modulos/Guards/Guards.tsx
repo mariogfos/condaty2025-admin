@@ -467,7 +467,7 @@ const Guards = () => {
                     : "rgba(179, 130, 217, 0.1)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
           style={{ width: "280px" }}

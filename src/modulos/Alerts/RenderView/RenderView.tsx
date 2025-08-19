@@ -225,7 +225,7 @@ const RenderView = (props: {
           <div className={styles.hlBottomSection}>
             {isAttended ? (
               <div className={styles.hlAttendedBySection}>
-                <span className={styles.hlInfoLabelLarge}>Atendido por:</span>
+                <span className={styles.hlInfoLabelLarge}>Atendida por:</span>
                 <div className={styles.hlUserInfoContainer}>
                   <div className={styles.hlUserRow}>
                     {attendant && (
@@ -348,12 +348,12 @@ const RenderView = (props: {
               </div>
               <div className={styles.gInfoBlockFixed}>
                 <div className={styles.gInfoBlockContent}>
-                  <span className={styles.gInfoLabel}>Categoría de alerta</span>
+                  <span className={styles.gInfoLabel}>Nivel de alerta</span>
                   <span
                     className={styles.gAlertLevelValue}
                     style={{ color: alertLevelColor }}
                   >
-                    {getAlertLevelText(props.item.level) || "N/A"}
+                    {getAlertLevelText(props.item.level) || "-/-"}
                   </span>
                 </div>
               </div>
@@ -363,7 +363,7 @@ const RenderView = (props: {
           {isAttended && attendant && (
             <div className={styles.gAttendedSection}>
               <div className={styles.gInfoSeparator}></div>
-              <span className={styles.gInfoLabelLarge}>Atendido por:</span>
+              <span className={styles.gInfoLabelLarge}>Atendida por:</span>
               <div className={styles.gUserInfoContainer}>
                 <div className={styles.gUserRow}>
                   <div className={styles.gAvatarContainer}>

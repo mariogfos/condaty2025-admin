@@ -1,10 +1,7 @@
-import React from "react";
-import styles from "./WidgetDashCard.module.css";
-import {
-  IconAccess,
-  IconInterrogation,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Tooltip from "@/components/Tooltip/Tooltip";
+import React from 'react';
+import styles from './WidgetDashCard.module.css';
+import { IconAccess, IconInterrogation } from '@/components/layout/icons/IconsBiblioteca';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 
 interface ItemProps {
   title: string;
@@ -17,44 +14,52 @@ interface ItemProps {
   tooltip?: boolean;
   tooltipTitle?: string;
   tooltipColor?: string;
-  tooltipPosition?: "top" | "bottom" | "left" | "right";
+  tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
+  tooltipWidth?: number;
   style?: React.CSSProperties;
 }
 
 export const WidgetDashCard = ({
   title,
-  subtitle = "",
+  subtitle = '',
   className = styles.flexGrow,
   color,
   data,
   icon,
   tooltip,
-  tooltipTitle = "",
+  tooltipTitle = '',
   tooltipColor,
-  tooltipPosition = "right",
+  tooltipPosition = 'right',
+  tooltipWidth,
   onClick,
   style,
 }: ItemProps) => {
   return (
     <div
-      className={`${styles.container} ${
-        onClick ? styles.clickable : ""
-      } ${className}`}
+      className={`${styles.container} ${onClick ? styles.clickable : ''} ${className}`}
       onClick={onClick}
       style={style}
     >
       <div>
-      <div className={styles.title}>
-        {title}{" "}
-        {tooltip && (
-          <Tooltip title={tooltipTitle} position={tooltipPosition}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', marginLeft:5 }}>
-              <IconInterrogation color={tooltipColor || 'var(--cWhiteV2)'} size={18} />
-            </span>
-          </Tooltip>
-        )}
-      </div>
-        <p>{subtitle}</p>
+        <div className={styles.title}>
+          {title}{' '}
+          {tooltip && (
+            <Tooltip title={tooltipTitle} position={tooltipPosition} singleLine={false} minWidth={tooltipWidth || 200}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  marginLeft: 5,
+                  
+                }}
+              >
+                <IconInterrogation color={tooltipColor || 'var(--cWhiteV1)'} size={18} />
+              </span>
+            </Tooltip>
+          )}
+        </div>
+        {/* <p>{subtitle}</p> */}
         <p className={styles.data} style={color ? { color: color } : undefined}>
           {data}
         </p>

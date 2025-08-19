@@ -1,981 +1,316 @@
 .pageWrapper {
-  width: 100%; /* Ocupa todo el ancho de la ventana */
-  min-height: 100vh; /* Opcional: asegura altura mínima */
-  position: relative; /* Contexto para el botón absoluto */
-  padding-top: 50px; /* Espacio reservado arriba para el botón. Ajusta '50px' si es necesario */
-  box-sizing: border-box; /* Incluye padding en el tamaño total */
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
 }
-
 .createReservaContainer {
   display: flex;
   flex-direction: column;
   gap: var(--spL);
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto; /* Centra este contenedor DENTRO del pageWrapper */
+  max-width: 900px;
+  margin: 0 auto;
   padding: var(--spL);
   color: var(--cWhite);
   font-family: var(--fPrimary);
 }
-
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--spM); /* 0.75rem -> 12px */
-}
-
-.backButton {
-  position: absolute;   /* Posición absoluta */
-  top: var(--spL);      /* Distancia desde arriba del pageWrapper */
-  left: var(--spL);     /* Distancia desde la IZQUIERDA del pageWrapper (borde de PÁGINA) */
-  /* Estilos visuales */
-  display: flex;
-  align-items: center;
-  gap: var(--spS);
-  cursor: pointer;
-  color: var(--cAccent); /* O el color que prefieras */
-  font-size: var(--sM);
-  background: none;
-  border: none;
-  padding: 0;
-  width: fit-content;
-  z-index: 10; /* Asegura que esté visible */
-}
-.backButton:hover {
-  color: var(--cWhiteV2); /* O el color hover que prefieras */
-}
-
-
-.header h1 {
-  font-size: var(--sXxl); /* 24px */
-  font-weight: var(--bSemibold); /* 600 */
-  color: var(--cWhite); /* Asegura color blanco */
-}
-
-.progressContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spS); /* 0.5rem -> 8px */
-  margin-top: var(--spS); /* Añade espacio si es necesario */
-}
-
-.progressBar {
-  height: 7px;
-  background-color: var(--cBlackV1); /* #292929 */
-  border-radius: var(--bRadiusM); /* 1rem -> 16px */
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  /* Color inicial verde oscuro, podría cambiar con JS/clases */
-  background-color: var(--cBigSidebar); /* #246950 */
-  transition: width 0.3s ease-in-out;
+  gap: var(--spM);
 }
 .formCard {
   display: flex;
   flex-direction: column;
-  gap: var(--spXl); /* 1.5rem -> 24px */
-  background-color: var(--cBlackV2); /* #333536 */
-  padding: var(--spL); /* 1rem -> 16px */
-  border-radius: var(--bRadiusM); /* 1rem -> 16px */
-  border: var(--bWidth) solid var(--cWhiteV1); /* 0.5px solid #a7a7a7 -> usamos 1px y variable */
+  gap: var(--spXl);
+  background-color: var(--cBlackV2);
+  padding: var(--spL);
+  border-radius: var(--bRadiusM);
+  border: var(--bWidth) solid var(--cWhiteV1);
 }
-
-.stepIndicator {
-    font-size: var(--sM); /* 14px */
-    color: var(--cWhite); /* #f0f0f0 */
-    align-self: flex-start;
-    margin-bottom: calc(-1 * var(--spL)); /* -1rem (ajusta según diseño exacto) */
-    padding-left: var(--spS); /* Añade un poco de padding para que no pegue al borde */
-}
-.stepIndicatorText { /* Estilo para el texto del paso */
-  font-size: var(--sM); /* 14px */
-  color: var(--cWhite); /* #f0f0f0 */
-  margin-bottom: var(--spXs); /* Espacio antes de la barra */
-  /* align-self: flex-start; Opcional */
-}
-
-.stepContent {
-  display: flex;
-  flex-direction: column;
-   /* Ajusta según el contenido de cada paso (1.5rem -> 24px) */
-}
-
-/* --- Estilos Títulos dentro de Pasos --- */
-.stepTitle, /* Título del paso */
-.step1Content h2,
-.step3Content h2, /* Título "Datos del responsable" */
-.summaryTitle { /* Título "Resumen de la reserva" */
-    font-size: var(--sXl); /* 20px (o var(--sL) si prefieres 16px) */
-    font-weight: var(--bSemibold); /* 600 */
-    color: var(--cWhite); /* Asegura color blanco */
-    margin-top: var(--spS); /* 0.5rem */
-    margin-bottom: calc(-1 * var(--spM)); /* -0.75rem (reduce espacio antes del campo/contenido) */
-}
-/* Ajuste específico para el primer h2 de paso 1 si es necesario */
-.step1Content h2:first-of-type {
-     margin-top: 0;
-}
-/* Ajuste específico para el título del resumen */
 .summaryTitle {
-    margin-top: var(--spL); /* 1rem */
-    margin-bottom: calc(-1 * var(--spS)); /* -0.5rem */
+  font-size: var(--sXl);
+  font-weight: var(--bSemibold);
+  color: var(--cWhite);
 }
-
-/* En CreateReserva.module.css */
-
-/* Contenedor para la info del owner con margen inferior y borde opcional */
 .summaryOwnerInfoContainer {
-  margin-bottom: var(--spM); /* Espacio antes del título "Resumen de la reserva" */
-  padding-bottom: var(--spM); /* Espacio antes del borde */
-  border-bottom: 1px solid var(--cBlackV3); /* Línea separadora */
-  width: 100%; /* Asegura que ocupe el ancho */
+  width: 100%;
+  margin: var(--spM) 0;
 }
-
-/* Contenedor flex principal para la info del owner (avatar/nombre vs estado) */
 .summaryOwnerInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
-
-/* Contenedor para Avatar + Texto (Nombre/Unidad) */
 .ownerIdentifier {
   display: flex;
   align-items: center;
-  gap: var(--spS); /* Espacio entre avatar y texto (ej: 8px) */
+  gap: var(--spS);
 }
-
-/* Contenedor para el texto (Nombre y Unidad en columna) */
 .ownerText {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* Espacio vertical pequeño */
+  gap: 2px;
 }
-
-/* Estilo Nombre Owner */
 .ownerName {
-  font-size: var(--sM); /* 14px */
-  font-weight: var(--bMedium); /* 500 */
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
   color: var(--cWhite);
   line-height: 1.2;
 }
-
-/* Estilo Unidad Owner */
 .ownerUnit {
-  font-size: var(--sM); /* 14px */
-  font-weight: var(--bRegular); /* 400 */
-  color: var(--cWhiteV1); /* Grisáceo */
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  color: var(--cWhiteV1);
   line-height: 1.2;
 }
-
-/* Estilo Estado Reserva (a la derecha) */
 .reservationStatus {
-  font-size: var(--sM); /* 14px */
+  font-size: var(--sM);
   font-weight: var(--bRegular);
   color: var(--cWhiteV1);
   text-align: right;
-  white-space: nowrap; /* Evita que el texto se parta */
-  margin-left: var(--spS); /* Pequeño margen por si acaso */
+  white-space: nowrap;
+  margin-left: var(--spS);
 }
-
-
 .formSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spS); /* Espacio entre título y campo */
+  gap: var(--spS);
 }
-/* --- Estilos Previsualización Área (Paso 1) --- */
 .areaPreview {
   display: flex;
-  flex-direction: row; /* Lado a lado */
-  gap: var(--spL); /* 1rem */
-  margin-top: 12px;
-  padding: var(--spL);
+  flex-direction: row;
+  gap: var(--spL);
+  margin-bottom: 16px;
   border-radius: var(--bRadiusS);
-  background-color: var(--cBlackV2); /* Fondo ligeramente diferente opcional */
+  background-color: var(--cBlackV2);
 }
-
-/* Contenedor Imagen */
 .imageContainer {
-  width: 350px; /* Ancho deseado */
-  flex-shrink: 0; /* Evita que se encoja */
+  flex-grow: 1;
+  flex-basis: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spS);
 }
-
-.previewImage { /* Clase específica para la imagen de previsualización */
-  width: 100%; /* Ocupa el ancho del contenedor (350px) */
-  height: 280px; /* Alto deseado */
-  object-fit: cover; /* Cubre el espacio sin deformar */
-  border-radius: var(--bRadiusS); /* Bordes redondeados */
-  background-color: var(--cBlackV1); /* Fondo mientras carga */
+.previewImage {
+  width: 350px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: var(--bRadius);
+  background-color: var(--cBlackV1);
 }
-
 .imagePagination {
   display: flex;
   align-items: center;
-  justify-content: center; /* O según necesites alinear */
-  gap: var(--spM); /* Espacio entre botones y el texto "1 / X" */
+  justify-content: center;
+  gap: var(--spM);
 }
-
-/* Estilo para los BOTONES de paginación */
 .imagePagination button {
-  background: transparent; /* <-- ESENCIAL: Botón sin fondo */
-  border: none;           /* Sin borde */
-  color: var(--cWhite);   /* Color base para el icono (currentColor) */
-  padding: 0;             /* Sin padding interno */
-  margin: 0;              /* Sin margen extra */
+  background: transparent;
+  border: 0.5px solid var(--cWhite);
+  color: var(--cWhite);
+  padding: 9px;
+  margin: 0;
   cursor: pointer;
-  width: 36px;            /* Tamaño del área clickeable (ajusta) */
-  height: 36px;           /* Tamaño del área clickeable (ajusta) */
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;    /* Mantiene el área de click circular */
+  border-radius: 50%;
 }
-
-/* Estilo para botones deshabilitados */
 .imagePagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  color: var(--cWhiteV1); /* Color más tenue para icono deshabilitado */
 }
-
-/* Estilo base y tamaño para el SVG DENTRO del botón */
-.imagePagination button svg.paginationIcon {
-  width: 36px;             /* Tamaño visual del icono (ajusta) */
-  height: 36px;            /* Tamaño visual del icono (ajusta) */
-  display: block;          /* Ayuda a prevenir espacios extra */
-         /* <-- Grosor de línea deseado (ej: 1px) */
-                           /* Puedes ajustar 0.75px si lo prefieres */
-  /* No definas fill/stroke aquí si quieres controlarlo por elemento */
-}
-
-/* ESTILO ESPECÍFICO para el CÍRCULO DENTRO de estos iconos */
-.imagePagination button svg.paginationIcon circle {
-  fill: none;             /* SIN relleno */
-  stroke: currentColor;   /* CON borde (hereda color blanco del botón) */
-
-}
-
-/* ESTILO ESPECÍFICO para el PATH (flecha) DENTRO de estos iconos */
-.imagePagination button svg.paginationIcon path {
-  fill: none;             /* <-- CORREGIDO: SIN relleno */
-  stroke: currentColor;   /* <-- CORREGIDO: CON borde (hereda color blanco) */
-}
-/* Contenedor Info */
 .areaInfo {
-  flex-grow: 1; /* Ocupa el espacio restante */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spM); /* Espacio entre bloques de info */
 }
-
-.areaHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spS);
-  flex-wrap: wrap; /* Para que el badge baje si no cabe */
-}
-
-.areaTitle { /* Título del Área (Piscina Exclusiva) */
-  font-size: var(--sL); /* 16px */
-  font-weight: var(--bMedium); /* 500 */
+.areaTitle {
+  word-break: break-all;
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
   color: var(--cWhite);
-  margin: 0; /* Resetear margen */
+  margin: 0;
 }
-
-.statusBadge {
-  font-size: var(--sS); /* 12px */
-  padding: var(--spXs) var(--spS); /* 4px 8px */
-  border-radius: var(--bRadiusS); /* 8px */
-  font-weight: var(--bRegular);
-}
-
-.statusDisponible {
-  background-color: var(--cSuccess); /* Verde éxito */
-  color: var(--cWhite);
-  /* O usar los colores de Figma si son diferentes:
-  background-color: #00af90;
-  color: #00e38c;
-  */
-}
-
-.statusNoDisponible {
-  background-color: var(--cError); /* Rojo error */
-  color: var(--cWhite);
-}
-
-.areaDescription { /* Descripción del área */
-  font-size: var(--sM); /* 14px */
-  color: var(--cWhiteV1); /* #a7a7a7 */
-  line-height: 1.4;
-
-  /* --- Añade estas 4 líneas para truncar --- */
-  display: -webkit-box;         /* Necesario para line-clamp */
-  -webkit-line-clamp: 4;        /* Número máximo de líneas */
-  -webkit-box-orient: vertical; /* Orientación vertical */
-  overflow: hidden;             /* Oculta el texto que se desborda */
-  /* text-overflow: ellipsis; */ /* Opcional, usualmente implícito con line-clamp */
-}
-
-.areaSeparator { /* Línea separadora */
+.areaSeparator {
   border: none;
-  border-top: 1px solid var(--cWhiteV1); /* Línea sutil */
-  margin: 0; /* Resetear margen */
+  border-top: 0.5px solid var(--cWhiteV1);
+  margin: 0;
 }
-
-.detailBlock { /* Contenedor para Capacidad, Disponibilidad, Reglas */
+.detailBlock {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0px;
+}
+.detailLabel {
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+}
+.sectionTitle {
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+  margin-bottom: var(--spXs);
+}
+.sectionLabel {
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+  margin-bottom: var(--spXs);
+}
+.sectionSubtitle {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+  margin-bottom: var(--spM);
+}
+.errorText {
+  color: var(--cError);
+  font-size: var(--sS);
+  margin-top: calc(-1 * var(--spM));
+  padding-left: var(--spS);
+}
+.dateSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spXs); /* Espacio entre label y value */
-}
-
-.detailLabel { /* "Cantidad máxima...", "Disponibilidad", "Reglas..." */
-  font-size: var(--sL); /* 16px */
-  font-weight: var(--bMedium); /* 500 */
-  color: var(--cWhite);
-}
-
-.detailValue { /* "16", "Días: ...", "Máximo 2 horas..." */
-  font-size: var(--sM); /* 14px */
-  color: var(--cWhiteV1); /* #a7a7a7 */
-}
-
-/* En CreateReserva.module.css */
-
-.rulesButton {
-  /* Quita o comenta estilos específicos de texto si los tenías */
-  /* text-decoration: underline; */ /* <-- Quitar si existe */
-  /* text-align: left; */ /* Quitar o ajustar */
-
-  /* Añade/Ajusta estilos para botón de icono */
-  background: none; /* Sin fondo */
-  border: none; /* Sin borde */
-  padding: 3px; /* Espacio pequeño alrededor del icono (ajusta si quieres) */
-  margin: 0; /* Resetea margen si es necesario */
-  margin-top: var(--spXs); /* Mantiene el margen superior que tenías */
-  cursor: pointer;
-  color: var(--cWhite); /* Color del icono (heredado por currentColor) */
-  width: auto; /* O un tamaño fijo si prefieres: ej 24px */
-  height: auto;/* O un tamaño fijo si prefieres: ej 24px */
-  display: inline-flex; /* Para alinear bien el SVG */
-  align-items: right;
-  justify-content: right;
-  border-radius: 4px; /* Opcional: esquinas redondeadas para el área del botón */
-  vertical-align: middle; /* Ayuda a alinear con el texto del label */
-}
-
-.rulesButton:hover {
-  color: var(--accentv1); /* Color al pasar el mouse */
-  background-color: rgba(var(--accentRGB), 0.15); /* Opcional: fondo sutil al pasar el mouse */
-}
-
-/* Control específico del tamaño del SVG dentro de ESTE botón */
-.rulesButton svg {
-  width: 16px;  /* Tamaño deseado del icono */
-  height: 16px; /* Tamaño deseado del icono */
-  display: block; /* Evita espacio extra */
-}
-.sectionTitle { /* Estilo para "Datos generales", "Datos de la reserva" */
-  font-size: var(--sL); /* 16px */
-  font-weight: var(--bMedium); /* 500 */
-  color: var(--cWhite);
-  margin-bottom: var(--spXs); /* Pequeño espacio antes del campo */
-}
-/* Quitar margen superior/inferior extra de los h2 si se usa sectionTitle */
-.step1Content h2 {
-  margin: 0; /* Resetear márgenes si usamos sectionTitle */
-  font-size: inherit; /* Heredar tamaño de sectionTitle si se reemplaza */
-  font-weight: inherit;
-}
-
-
-
-
-.sectionLabel { /* Label "Selecciona la fecha", "Selecciona la hora", "Cantidad de personas" */
-    font-size: var(--sL); /* 16px */
-    font-weight: var(--bMedium); /* 500 */
-    color: var(--cWhite); /* Asegura color blanco */
-    margin-bottom: var(--spXs); /* 0.25rem -> 4px */
-}
-
-.sectionSubtitle {
-    font-size: var(--sM); /* 14px */
-    color: var(--cWhiteV1); /* #a7a7a7 */
-    margin-bottom: var(--spM); /* 0.75rem -> 12px */
-}
-
-.errorText {
-    color: var(--cError); /* #e46055 o similar */
-    font-size: var(--sS); /* 12px */
-    margin-top: calc(-1 * var(--spM)); /* Ajusta para acercar al campo (-0.75rem) */
-    padding-left: var(--spS); /* Añade padding si viene de un Select/Input */
-}
-
-/* Sección Fecha */
-.dateSection {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Sección Duración */
-.durationSection {
-    display: flex;
-    flex-direction: column;
-}
-.timeSelection {
-   /* Contenedor si necesitas agrupar los selects */
-}
-.timeFields {
-    display: flex;
-    gap: var(--spL);
-}
-.halfWidth {
-    flex: 1;
-}
-
-/* Sección Personas */
-.peopleSection {
-  position: relative; 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spXl); /* 2rem -> 32px */
 }
 .peopleLabelContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spXs); /* 0.25rem -> 4px */
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  flex-grow: 1;
 }
 .peopleInputContainer {
-    display: flex;
-    align-items: center;
-    gap: var(--spL); /* 1rem -> 16px */
+  display: flex;
+  align-items: center;
+  gap: var(--spL);
 }
-.peopleInput input { /* Estilo específico para el input de número */
-    max-width: 100px;
-    text-align: center;
-}
-
-
-/* --- Estilos Paso 3 --- */
 .step3Content {
-    gap: var(--spXl); /* 1.5rem -> 24px */
+  gap: var(--spXl);
 }
 .summaryContainer {
   background-color: var(--cBlackV2);
-  border-radius: var(--bRadius); /* 0.75rem -> 12px */
-  /* Añade padding aquí si summaryContent no lo tiene */
-   padding: var(--spL); /* Mueve el padding aquí */
-
+  border-radius: var(--bRadius);
+  margin: var(--spM) 0;
 }
-
 .summaryContent {
   display: flex;
-  gap: var(--spL); /* 1rem -> 16px */
-  /* padding: var(--spL); <-- Quita el padding de aquí si lo pusiste en summaryContainer */
-  width: 100%; /* Asegura que ocupe el ancho */
-  flex-direction: row; /* Asegura la dirección horizontal (aunque es default) */
- /* Alinea los items al inicio si tienen alturas diferentes */
+  gap: var(--spL);
+  width: 100%;
+  flex-direction: row;
 }
-
-.summaryImageContainer {
- flex:1;
- width: 218px; /* <-- AÑADE/ASEGURA este ancho */
- 
-}
-.summaryImage { /* (Sin cambios, ya estaba bien) */
-  width: 100%; /* Ocupa el 100% del contenedor (218px) */
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--bRadiusS);
-}
-.summaryDetailsContainer { /* (Sin cambios, ya estaba bien) */
+.summaryDetailsContainer {
   display: flex;
   flex-direction: column;
   gap: var(--spL);
-  flex-grow: 1; /* Ocupa el espacio restante */
-}
-.summaryAreaInfo {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spS); /* 0.5rem -> 8px */
-}
-.summaryAreaName { /* Nombre del área en el resumen */
-    font-size: var(--sL); /* 16px */
-    font-weight: var(--bMedium); /* 500 */
-    color: var(--cWhite); /* #f0f0f0 */
-}
-.summaryAreaDescription {
-    font-size: var(--sM); /* 14px */
-    color: var(--cWhiteV1); /* #a7a7a7 */
+  flex-grow: 1;
 }
 .summaryBookingDetails {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spS); /* 0.5rem -> 8px */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
 }
-.summaryDetailsTitle { /* Título "Detalles" en resumen */
-    font-size: var(--sL); /* 16px */
-    font-weight: var(--bMedium); /* 500 */
-    color: var(--cWhite); /* #f0f0f0 */
+.summaryDetailsTitle {
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
 }
 .summaryDetailItem {
-  display: flex;           /* <-- AÑADE: Para posicionar elementos internos */
+  display: flex;
   align-items: center;
-  gap: var(--spS);        /* Reduce el gap si es necesario para que quepa todo */
+  gap: 4px;
   font-size: var(--sM);
+  flex-grow: 1;
   color: var(--cWhiteV1);
 }
-.summaryDetailItem .detailIcon { /* Selector más específico */
+.summaryDetailItem .detailIcon {
   width: 20px;
   height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0; /* Evita que el icono se encoja */
-  /* margin-right: var(--spXs);  <-- Puedes usar gap en el contenedor padre en su lugar */
+  flex-shrink: 0;
   color: var(--cWhiteV1);
 }
-.summaryDetailItem span:first-child { /* Placeholder para icono */
-    width: 20px;
-    height: 20px;
-    display: inline-flex; /* Usa flex para centrar futuro icono */
-    align-items: center;
-    justify-content: center;
-    /* background-color: var(--terciary); Color placeholder icono */
-    margin-right: var(--spXs); /* 4px */
-    color: var(--cWhiteV1); /* Color del icono mismo */
-}
-.summaryCostPerHour {
-    /* Estilo específico si es necesario */
-}
-/* NUEVO: Estilo para el precio por unidad (Bs 50/h) */
 .summaryPricePerUnit {
-  color: var(--cWhiteV1); /* Mismo color que otros detalles */
-  white-space: nowrap; /* Evita que se parta */
+  color: var(--cWhiteV1);
+  white-space: nowrap;
 }
-
-/* Total Cost (Asegura que se vaya a la derecha) */
-.summaryTotalCost {
-  margin-left: auto;     /* <-- ESENCIAL: Empuja esto a la derecha */
-  font-weight: var(--bMedium);
-  color: var(--cWhite);
-  white-space: nowrap; /* Evita que se parta */
-  text-align: right; /* Alinea el texto a la derecha dentro de su span */
-}
-
-/* --- Estilos Acciones/Botones --- */
 .formActions {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
-  gap: var(--spL); /* 1rem */
-  margin-top: var(--spL);
-  padding-top: var(--spL);
-  border-top: var(--bWidth) solid var(--cWhiteV1); /* #414141 */
+  gap: var(--spL);
+  width: 100%;
 }
 .priceInfoBottom {
-    display: flex;
-    align-items: center;
-    gap: var(--spXs); /* 0.25rem -> 4px */
-    font-size: var(--sXl); /* 14px */
-    color: var(--cWhite); /* #a7a7a7 */
+  gap: var(--spXs);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cWhite);
 }
-
 .button {
-  padding: var(--spM) var(--spXl); /* 0.75rem 1.5rem -> 12px 24px */
-  border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
-  font-weight: var(--bSemibold); /* 600 */
-  font-size: var(--sL); /* 16px */
+  padding: var(--spM) var(--spXl);
+  border-radius: var(--bRadiusS);
+  font-weight: var(--bSemibold);
+  font-size: var(--sL);
   cursor: pointer;
   border: none;
-  min-width: 120px;
+  min-width: 240px;
   text-align: center;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease;
 }
-
 .backBtn {
   background-color: transparent;
-  border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
-  color: var(--cWhiteV1); /* #a7a7a7 */
+  border: var(--bWidth) solid var(--cWhiteV1);
+  color: var(--cWhiteV1);
   margin-right: 10px;
 }
 .backBtn:hover {
-  background-color: var(--cBlackV3); /* #414141 */
-  color: var(--cWhite); /* #f0f0f0 */
+  background-color: var(--cBlackV3);
+  color: var(--cWhite);
   border-color: var(--cBlackV3);
 }
-
-.nextBtn, .submitBtn {
-  background-color: var(--cAccent); /* #00e38c */
-  color: var(--cBlack); /* #212121 */
+.nextBtn,
+.submitBtn {
+  background-color: var(--cAccent);
+  color: var(--cBlack);
 }
-.nextBtn:hover, .submitBtn:hover {
-  background-color: var(--accentv1); /* #4ee7ac (Versión más clara del accent) */
-  /* O mantener el mismo color: background-color: var(--cAccent); */
+.nextBtn:hover,
+.submitBtn:hover {
+  background-color: var(--accentv1);
 }
-
-/* --- Estilos Formularios (Input/Select/TextArea) --- */
 .formField {
-  position: relative; /* <-- AÑADIR: Contexto para el error absoluto */
+  position: relative;
   display: flex;
   flex-direction: column;
 }
-
-/* --- Estilos para CalendarPicker (usando variables de tema) --- */
-.calendarContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spL); /* 1rem */
-  align-self: center;
-  width: 100%; /* Ocupa el ancho disponible */
-  max-width: 707px; /* Ancho máximo si es necesario */
-}
-
-.calendarViewControls {
-  display: flex;
-  gap: var(--spS); /* 0.5rem */
-  align-self: flex-start;
-}
-
-/* Hereda de .button base */
-.controlButton {
-  padding: var(--spS) var(--spL); /* 0.5rem 1rem -> 8px 16px */
-  border-radius: var(--bRadiusS); /* 0.5rem -> 8px */
-  border: var(--bWidth) solid var(--cWhiteV1); /* #a7a7a7 */
-  background-color: transparent;
-  color: var(--cWhiteV1); /* #a7a7a7 */
-  cursor: pointer;
-  font-size: var(--sM); /* 14px */
-  font-weight: var(--bRegular); /* 400 */
-}
-.controlButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.controlButton.active {
-  background-color: var(--cWhite); /* #f0f0f0 */
-  color: var(--cBlackV2); /* #333536 */
-  border-color: var(--cWhite);
-  font-weight: var(--bMedium); /* 500 */
-}
-
-/* --- Estilos para calendario manual (sin react-day-picker) --- */
-/* Contenedor principal del calendario generado manualmente */
-.calendarGridContainer {
-  padding: var(--spL);
-  background-color: var(--cBlackV2);
-  border-radius: var(--bRadiusS);
-  width: 100%;
-  color: var(--cWhite);
-}
-
-/* Equivalente a rdpCaption */
-.calendarNavigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 var(--spS);
-  margin-bottom: var(--spL);
-}
-
-/* Equivalente a rdpCaptionLabel */
-.calendarMonthYear {
-  font-size: var(--sXl); /* 20px */
-  font-weight: var(--bSemibold); /* 600 */
-  color: var(--cWhite);
-  text-transform: capitalize;
-}
-
-/* Equivalente a rdpNavButton */
-.calendarNavButton {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 28px; /* Ajusta tamaño */
-  height: 28px; /* Ajusta tamaño */
-  background-color: transparent;
-  border: var(--bWidth) solid var(--terciary); /* #595959 */
-  border-radius: 50%;
-  color: var(--cWhite);
-  cursor: pointer;
-  font-size: var(--sL); /* Tamaño flecha */
-}
-.calendarNavButton:hover {
-  background-color: var(--cBlackV3); /* #393c3f */
-  border-color: var(--cWhiteV1);
-}
-
-/* Equivalente a rdpHeadRow */
-.calendarWeekdays {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: var(--spS);
-  padding-bottom: var(--spS);
-  border-bottom: var(--bWidth) solid var(--cBlackV3); /* #393c3f */
-}
-
-/* Equivalente a rdpHeadCell */
-.calendarWeekday {
-  flex: 1;
-  text-align: center;
-  font-size: var(--sL); /* 16px */
-  font-weight: var(--bMedium); /* 500 */
-  color: var(--cWhiteV1); /* #a7a7a7 */
-  height: 26px;
-  box-sizing: border-box;
-}
-
-/* Equivalente a rdpTbody */
-.calendarDaysGrid {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-/* Equivalente a rdpCell */
-.calendarDayCell {
-  flex-basis: calc(100% / 7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1px 0;
-  height: 40px;
-  position: relative;
-}
-
-/* Equivalente a rdpDay (el botón) */
-.calendarDayButton {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%; /* Circular */
-  border: var(--bWidth) solid transparent;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: var(--sL); /* 16px */
-  font-weight: var(--bMedium); /* 500 */
-  color: var(--cWhiteV1); /* #a7a7a7 (Color por defecto días mes actual) */
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  position: relative;
-  z-index: 1;
-}
-.calendarDayButton:hover:not(:disabled) {
-  background-color: var(--cBlackV3); /* #393c3f (Hover sutil) */
-}
-
-/* Día seleccionado */
-.calendarDayButton.selectedDay {
-  background-color: transparent !important;
-  color: var(--cAccent) !important; /* #00e38c */
-  font-weight: var(--bBold); /* 700 */
-  border: var(--bWidth) solid var(--cAccent); /* Borde verde */
-  /* box-shadow: 0 0 8px var(--cAccent); Efecto neón opcional */
-}
-.calendarDayButton.selectedDay:hover:not(:disabled) {
-   background-color: transparent !important;
-}
-
-/* Día ocupado (con punto rojo) */
-.calendarDayButton.busyDay::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: var(--cError); /* #e46055 */
-  z-index: 2;
-}
-/* Ajusta color del texto si el día ocupado también está seleccionado */
-.calendarDayButton.selectedDay.busyDay {
-   color: var(--cAccent) !important; /* Mantiene el color neón */
-}
-
-
-/* Día de hoy */
-.calendarDayButton.today {
-  font-weight: var(--bBold); /* 700 */
-  color: var(--cWhite); /* #f0f0f0 */
-  /* border: 1px dashed var(--cWhite); Borde opcional */
-}
-.calendarDayButton.selectedDay.today {
-    /* Mantiene estilos de .selectedDay */
-}
-
-/* Días fuera del mes */
-.calendarDayButton.outsideDay {
-  color: var(--cBlackV3) !important; /* #393c3f (Color muy apagado) */
-  cursor: default;
-  pointer-events: none; /* No interactivo */
-}
-.calendarDayButton.outsideDay:hover {
-    background-color: transparent;
-}
-
-/* Días deshabilitados (pasados o no del mes) */
-.calendarDayButton:disabled,
-.calendarDayButton.disabledDay /* Clase explícita si la añades */
-{
-  color: var(--terciary) !important; /* #595959 (Color deshabilitado) */
-  cursor: not-allowed;
-  pointer-events: none; /* Asegura no interactividad */
-  /* text-decoration: line-through; Opcional */
-  background-color: transparent !important; /* Sin fondo */
-  border-color: transparent !important; /* Sin borde */
-}
-.calendarDayButton:disabled:hover {
-    background-color: transparent; /* Sin hover */
-}
-
-/* --- Estilos Secciones debajo del calendario --- */
-.durationSection, .peopleSection {
-  margin-top: var(--spXl); /* 1.5rem -> 24px */
-  padding-top: var(--spXl); /* 1.5rem -> 24px */
-  border-top: var(--bWidth) solid var(--cBlackV3); /* #414141 */
-}
-
-/* Ajustes menores si son necesarios */
-.errorText {
-  position: absolute;   /* <-- Posicionamiento absoluto */
-  top: 100%;          /* <-- Posiciona el borde superior del error justo debajo del contenedor relativo */
-  left: 0;            /* <-- Alinea a la izquierda del contenedor */
-  width: 100%;          /* <-- Ocupa el ancho del contenedor */
-  margin-top: 2px;      /* <-- Pequeño espacio entre el input y el texto del error */
-  padding-left: 5px;    /* <-- Opcional: pequeña indentación */
-
-  color: var(--cError); /* Color de error */
-  font-size: var(--sS); /* Tamaño pequeño */
-  line-height: 1.2;     /* Interlineado ajustado */
-  
-  /* Importante para evitar problemas de click */
-  pointer-events: none; /* Permite hacer click 'a través' del mensaje de error si solapa algo */
-
-  /* Resetea otros márgenes por si acaso */
-  margin-bottom: 0;
-  margin-left: 0;
-  margin-right: 0;
-}
-
 .periodSelectionContainer {
   display: flex;
-  flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea */
-  gap: var(--spS); /* Espacio entre botones */
+  flex-wrap: wrap;
+  gap: var(--spS);
   margin-top: var(--spS);
 }
-
 .periodButton {
-  padding: var(--spS) var(--spM);
-  border: 1px solid var(--cWhiteV1); /* Borde por defecto */
-  background-color: transparent; /* Fondo transparente */
-  color: var(--cWhite); /* Color de texto */
+  padding: 8px;
+  border: 0.5px solid var(--cWhiteV1);
+  background-color: transparent;
   border-radius: var(--bRadiusS);
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-  font-size: var(--sS); /* Ajusta tamaño de fuente */
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
 }
-
-.periodButton:hover {
-  border-color: var(--accent); /* Borde cambia al hacer hover */
-  background-color: rgba(var(--accentRGB), 0.1); /* Fondo suave al hover */
-}
-
 .periodButton.selectedPeriod {
-  background-color: var(--accent); /* Fondo del botón seleccionado */
-  color: var(--cBlack); /* Color de texto del botón seleccionado */
-  border-color: var(--accent); /* Borde del botón seleccionado */
+  background-color: var(--cFillSidebar);
+  color: var(--cWhite);
+  border-color: var(--cSidebar);
   font-weight: var(--bMedium);
 }
-
-/* Clases de Texto Auxiliares (si no las tienes ya) */
-.loadingText {
-    display: block;
-    margin-top: var(--spS);
-    color: var(--cWhiteV1);
-    font-style: italic;
-}
-
-.warningText {
-    display: block;
-    margin-top: var(--spS);
-    color: var(--cWarning); /* Asegúrate de tener esta variable */
-}
-
-
-
-/* Ajustes al contenedor de la sección de duración si es necesario */
-.durationSection {
-    margin-top: var(--spL); /* Añade espacio arriba */
-}
-/* EN CreateReserva.module.css */
-
-/* Contenedor principal del selector de cantidad */
-.quantitySelector {
-  display: flex;
-  align-items: center;
-  gap: var(--spL); /* Espacio entre botones y número (ajusta 1rem) */
-  /* Puedes añadir otros estilos como background, border-radius si quieres un fondo */
-}
-
-/* Estilo para los botones +/- */
-.quantityButton {
-  background-color: transparent; /* Sin fondo */
-  border: 1px solid var(--cWhiteV1); /* Borde circular */
-  color: var(--cWhite); /* Color del símbolo +/- */
-  width: 32px;  /* Ancho del botón (ajusta) */
-  height: 32px; /* Alto del botón (ajusta) */
-  border-radius: 50%; /* Hace el botón circular */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--sXl); /* Tamaño del símbolo +/- (ajusta 20px) */
-  line-height: 1; /* Ajusta línea para centrar verticalmente */
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0; /* Quitar padding extra */
-  min-width: 32px; /* Asegura ancho mínimo */
-  min-height: 32px; /* Asegura alto mínimo */
-  box-sizing: border-box; /* Incluye padding y border en el tamaño total */
-}
-
-.quantityButton:hover:not(:disabled) {
-  border-color: var(--cAccent); /* Cambia color borde al pasar el mouse */
-  background-color: var(--cBlackV3); /* Fondo sutil al pasar el mouse */
-}
-
-.quantityButton:disabled {
-  opacity: 0.5; /* Botón semi-transparente si está deshabilitado */
-  cursor: not-allowed; /* Cursor no permitido */
-  border-color: var(--terciary); /* Borde más oscuro */
-  color: var(--terciary);
-}
-
-/* Estilo para el input numérico */
-.quantityInput {
-  width: 60px;
-  text-align: center;
-
-  background-color: transparent;
-  color: var(--cWhite);
-  padding: var(--spS);
-  border-radius: var(--bRadiusS);
-  font-size: var(--sM);
-  margin: 0 var(--spS);
-}
-
-/* Contenedor del selector de cantidad */
 .quantitySelector {
   display: flex;
   align-items: center;
@@ -983,66 +318,54 @@
   background-color: var(--cBlackV2);
   padding: var(--spS);
   border-radius: var(--bRadiusS);
-
 }
-
-/* En CreateReserva.module.css */
-
-.periodButton {
-  /* ... tus estilos existentes ... */
+.quantityButton {
+  background-color: transparent;
+  border: 1px solid var(--cWhiteV1);
+  color: var(--cWhite);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--sXl);
+  line-height: 1;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease; /* Añade opacity a la transición */
+  transition: all 0.2s ease;
+  padding: 0;
+  min-width: 32px;
+  min-height: 32px;
+  box-sizing: border-box;
 }
-
-.selectedPeriod {
-  /* ... tus estilos existentes para botón seleccionado ... */
-  background-color: var(--cAccent);
-  color: var(--cBgPrimary);
+.quantityButton:hover:not(:disabled) {
   border-color: var(--cAccent);
+  background-color: var(--cBlackV3);
 }
-
-.disabledPeriod {
-  opacity: 0.5; /* Reduce opacidad */
-  cursor: not-allowed; /* Cambia cursor */
-  /* Opcional: Cambia colores si quieres más feedback */
-  /* background-color: var(--cBgDisabled); */
-  /* border-color: var(--cBorderDisabled); */
-  /* color: var(--cTextDisabled); */
-}
-
-/* Opcional: Evita que el estilo hover afecte a botones deshabilitados */
-.periodButton:hover:not(:disabled) {
-   border-color: var(--cAccent);
-   background-color: rgba(var(--cAccentRGB), 0.1); /* Ejemplo de hover leve */
-}
-
-/* Asegúrate que el hover del seleccionado no se aplique si está deshabilitado */
-.selectedPeriod:hover:not(:disabled) {
-   background-color: var(--cAccent); /* Mantiene el color de fondo */
-   opacity: 0.9; /* Ejemplo leve de hover para seleccionado */
-}
-
-.warningText { /* Estilo para "No hay periodos..." o mensajes de bloqueo */
-    color: var(--cWarning);
-    font-size: var(--fsSmall);
-    margin-top: var(--spMedium);
-    display: block; /* O inline-block si prefieres */
-    text-align: center; /* Opcional */
+.quantityButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--terciary);
+  color: var(--terciary);
 }
 .unavailablePeriod {
-  background-color: var(--cWhiteV2); /* Un fondo gris claro */
-  color: var(--cWhiteV1); /* Un texto más tenue */
-  border-color: var(--cWhiteV2); /* Borde del mismo color */
-  text-decoration: line-through; /* Tachar el texto */
-  cursor: not-allowed !important; /* Forzar el cursor de 'no permitido' */
+  background-color: var(--cWhiteV2);
+  color: var(--cWhiteV1);
+  border-color: var(--cWhiteV2);
+  text-decoration: line-through;
+  cursor: not-allowed !important;
 }
-
-/* Opcional: Para que al hacer hover no cambie de color */
 .unavailablePeriod:hover {
   background-color: var(--cWhiteV3);
   border-color: var(--cWhiteV3);
 }
-
-
-/* ... otros estilos ... */
-
+.rulesModalContent .title {
+  color: var(--cWhite);
+  font-size: 16px;
+  font-weight: 500;
+}
+.rulesModalContent .subtitle {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  font-weight: 400;
+}

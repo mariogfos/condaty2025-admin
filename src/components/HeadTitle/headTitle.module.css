@@ -2,11 +2,13 @@
   display: flex;
   color: var(--cWhite);
   width: 100%;
-  padding: var(--spM);
+  padding-top: var(--spM);
+  padding-left: var(--spM);
+  padding-right: var(--spM);
   align-items: center;
-  /* position: fixed; */
-  top: 0;
-  left: 0;
+
+  /* top: 0; */
+  /* left: 0; */
   z-index: 10;
 
   & > span {

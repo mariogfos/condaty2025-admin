@@ -385,23 +385,24 @@ const HomePage = () => {
                         !dashboard?.data?.TotalIngresos ||
                         dashboard?.data?.TotalIngresos === 0
                           ? "var(--cWhiteV1)"
-                          : "var(--cAccent)"
+                          : "var(--cSuccess)"
                       }
                       style={{
                         backgroundColor:
                           !dashboard?.data?.TotalIngresos ||
                           dashboard?.data?.TotalIngresos === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverSuccess)",
+                            : "var(--cHoverCompl2)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
                   tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
                   tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={437}
                 />
                 <WidgetDashCard
                   title="Egresos"
@@ -423,13 +424,14 @@ const HomePage = () => {
                             : "var(--cHoverError)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
                   tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
                   tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={556}
                 />
                 <WidgetDashCard
                   title={balanceMessage}
@@ -452,44 +454,46 @@ const HomePage = () => {
                         backgroundColor:
                           !balance || balance === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverInfo)",
+                            : "var(--cHoverCompl3)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Diferencia entre los ingresos y egresos registrados en el condominio durante este mes."
+                  tooltipTitle="Monto acumulado proveniente de la diferencia entre ingresos y egresos del condominio"
                   tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={486}
                 />
                 <WidgetDashCard
                   title="Cartera vencida"
                   data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
-                  onClick={() => (window.location.href = "/defaultersview")}
+                  onClick={() => (window.location.href = "/defaulters")}
                   icon={
                     <IconWallet
                       color={
                         !dashboard?.data?.morosos ||
                         dashboard?.data?.morosos === 0
                           ? "var(--cWhiteV1)"
-                          : "var(--cAlert)"
+                          : "var(--cMediumAlert)"
                       }
                       style={{
                         backgroundColor:
                           !dashboard?.data?.morosos ||
                           dashboard?.data?.morosos === 0
                             ? "var(--cHover)"
-                            : "var(--cHoverAlert)",
+                            : "var(--cHoverCompl5)",
                       }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
                   tooltip={true}
-                  tooltipTitle="Total acumulado de cuotas impagas por parte de residentes o propietarios, cuyo vencimiento ya ha pasado. Este monto representa la deuda activa vencida del condominio."
+                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
                   tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={500}
                 />
               </div>
             </WidgetBase>
@@ -593,6 +597,7 @@ const HomePage = () => {
                   tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
+                  tooltipWidth={500}
                 />
                 <WidgetDashCard
                   title="Residentes"
@@ -601,6 +606,7 @@ const HomePage = () => {
                   tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
+                  tooltipWidth={500}
                 />
                 <WidgetDashCard
                   title="Guardias"
@@ -609,6 +615,7 @@ const HomePage = () => {
                   tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
+                  tooltipWidth={500}
                 />
               </div>
             </WidgetBase>

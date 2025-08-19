@@ -572,10 +572,10 @@ const Owners = () => {
                 backgroundColor:
                   !data?.extraData?.totals || data?.extraData?.totals === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverInfo)",
+                    : "var(--cHoverCompl3)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
@@ -597,7 +597,7 @@ const Owners = () => {
                     : "var(--cHoverSuccess)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
@@ -621,13 +621,13 @@ const Owners = () => {
                     : "var(--cHoverWarning)",
               }}
               circle
-              size={38}
+              size={18}
             />
           }
         />
       </div>
       <List
-        height={"calc(100vh - 430px)"}
+        height={"calc(100vh - 465px)"}
         emptyMsg="Lista de residentes vacía. Aquí verás a todos los residentes"
         emptyLine2="del condominio una vez los registres."
         emptyIcon={<IconHomePerson2 size={80} color="var(--cWhiteV1)" />}

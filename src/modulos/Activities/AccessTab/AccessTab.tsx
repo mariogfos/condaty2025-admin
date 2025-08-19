@@ -24,6 +24,7 @@ import useCrudUtils from "@/modulos/shared/useCrudUtils";
 interface AccessesTabProps {
   paramsInitial: any;
   onRowClick?: (item: any) => void;
+  unitParam?: string | null;
 }
 
 // Función actualizada para obtener las opciones de período
@@ -31,7 +32,7 @@ const getPeriodOptions = () => [
   { id: "ALL", name: "Todos" },
 
   { id: "w", name: "Esta semana" },
-  { id: "lw", name: "Semana pasada" },
+  { id: "lw", name: "Semana anterior" },
   { id: "m", name: "Este mes" },
   { id: "lm", name: "Mes anterior" },
   { id: "y", name: "Este año" },
@@ -39,7 +40,7 @@ const getPeriodOptions = () => [
   { id: "custom", name: "Personalizado" },
 ];
 
-const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
+const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial, unitParam }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
   const [formStateFilter, setFormStateFilter] = useState<{
@@ -227,56 +228,33 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Visitante",
         list: {
           onRender: (props: any) => {
-            if (props.item.type === "O") {
-              return (
-                <div style={{ display: "flex", gap: 8 }}>
-                  {/* <div className={styles.iconCircle}> */}
-                  <IconKey
-                    size={46}
-                    circle
-                    style={{ backgroundColor: "var(--cWhiteV1)" }}
-                  />
-                  {/* </div> */}
-                  <div className={styles.avatarText}>
-                    <div className={styles.typeName}>Llave Virtual QR</div>
-                  </div>
-                </div>
-              );
-            }
+            let user =
+              props?.item.type === "O"
+                ? props?.item?.owner
+                : props?.item?.visit;
+            let prefix = props?.item.type === "O" ? "/OWNER-" : "/VISIT-";
+
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {/* <div className={styles.iconCircle}> */}
-                {/* {props.item.plate ? (
-                    <IconVehicle className={styles.typeIcon} />
-                  ) : (
-                    <IconFoot className={styles.typeIcon} />
-                  )} */}
-
                 <div style={{ display: "flex", gap: 8 }}>
                   <Avatar
-                    hasImage={props.item.visit.has_image}
-                    name={getFullName(props.item.visit)}
+                    hasImage={user?.has_image}
+                    name={getFullName(user)}
                     src={getUrlImages(
-                      "/VISIT-" +
-                        props.item.visit.id +
+                      prefix +
+                        user?.id +
                         ".webp?" +
-                        props.item.visit.updated_at
+                        (user?.updated_at || new Date().toISOString())
                     )}
                   />
                   {/* </div> */}
                   <div className={styles.avatarText}>
                     <div style={{ color: "var(--cWhite)" }}>
-                      {getFullName(props.item.visit)}
+                      {getFullName(user)}
                     </div>
                     <div>{getTypeAccess(props?.item?.type, props?.item)}</div>
                   </div>
                 </div>
-                {/* <div className={styles.companionsText}>
-                  {props?.item?.accesses.length > 0 &&
-                    `+${props?.item?.accesses?.length} acompañante${
-                      props?.item?.accesses?.length > 1 ? "s" : ""
-                    }`}
-                </div> */}
               </div>
             );
           },
@@ -304,9 +282,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
                 </div>
                 <div className={styles.avatarText}>
                   <div>{getFullName(props.item.owner)}</div>
-                  <div>
-                    Unidad: {props?.item?.owner?.dpto[0]?.nro || "Sin unidad"}
-                  </div>
+                  <div>Unidad: {props?.item?.owner?.dpto[0]?.nro || "-/-"}</div>
                 </div>
               </div>
             );
@@ -319,7 +295,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         label: "Entrada",
         list: {
           onRender: (props: any) => {
-            return <div>{getDateTimeStrMesShort(props.item.in_at || "")}</div>;
+            return <div>{getDateTimeStrMesShort(props?.item?.in_at)}</div>;
           },
         },
         filter: {
@@ -339,36 +315,12 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
               <div>
                 {props.item.out_at
                   ? getDateTimeStrMesShort(props.item.out_at)
-                  : "No registrada"}
+                  : "-/-"}
               </div>
             );
           },
         },
       },
-
-      // NUEVO DISEÑO SIN ESTOS CAMPOS
-      // plate: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Placa",
-      //   list: {
-      //     width: "100px",
-      //     onRender: (props: any) => {
-      //       return <div>{props.item.plate || "Sin placa"}</div>;
-      //     },
-      //   },
-      // },
-
-      // guard_id: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Guardia",
-      //   list: {
-      //     onRender: (props: any) => {
-      //       return getFullName(props.item.guardia);
-      //     },
-      //   },
-      // },
 
       type_access: {
         rules: [],
@@ -480,7 +432,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       {" "}
       {/* O un div principal */}
       <List
-        height={"calc(100vh - 330px)"}
+        height={"calc(100vh - 350px)"}
         emptyMsg="No existen accesos registrados. El historial de visitantes se mostrará"
         emptyLine2="aquí una vez el guardia registre un acceso."
         emptyIcon={<IconExitHome size={80} color="var(--cWhiteV1)" />}

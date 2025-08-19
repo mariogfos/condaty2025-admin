@@ -105,77 +105,83 @@ const Pagination = ({
     }
   };
 
-  // if (safeTotal === 1) {
-  //   return null;
-  // }
+  if (safeTotal == 0) {
+    return null;
+  }
   if (total == 0) {
     return null;
   }
   return (
     <div className={`${styles.pagination} ${className}`}>
-      {totalPages > 1 ? (
-        <>
-          {/* Texto informativo a la izquierda */}
-          <div className={styles.paginationInfo}>
-            <span className={styles.currentPageInfo}>
-              <button
-                className={styles.goToPageButton}
-                onClick={() => goToPage(1)}
-              >
-                Ir a la página 1
-              </button>
-            </span>
-          </div>
+      {/* {totalPages > 1 ? ( */}
+      <>
+        {/* Texto informativo a la izquierda */}
+        <div className={styles.paginationInfo}>
+          <span className={styles.currentPageInfo}>
+            <button
+              className={styles.goToPageButton}
+              onClick={() => goToPage(1)}
+              disabled={totalPages <= 1}
+            >
+              Ir a la página 1
+            </button>
+          </span>
+        </div>
 
-          {/* Botones de navegación en el centro */}
-          <div className={styles.navigationButtons}>
-            <button
-              className={styles.navButton}
-              onClick={goToPreviousPage}
-              disabled={currentPage <= 1}
-            >
-              <IconArrowBack size={16} color="var(--cWhite)" />
-            </button>
-            <button
-              className={styles.nextButton}
-              onClick={goToNextPage}
-              disabled={currentPage >= safeTotal}
-            >
-              Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
-            </button>
-            <span className={styles.totalPages}>
-              {currentPage}/{safeTotal}
-            </span>
-          </div>
-        </>
-      ) : (
+        {/* Botones de navegación en el centro */}
+        <div className={styles.navigationButtons}>
+          <button
+            className={styles.navButton}
+            onClick={goToPreviousPage}
+            disabled={currentPage <= 1}
+          >
+            <IconArrowBack size={16} color="var(--cWhite)" />
+          </button>
+          <button
+            className={styles.nextButton}
+            onClick={goToNextPage}
+            disabled={currentPage >= safeTotal}
+          >
+            Pág. siguiente <IconArrowNext size={18} color="var(--cWhiteV1)" />
+          </button>
+          <span className={styles.totalPages}>
+            {currentPage}/{safeTotal}
+          </span>
+        </div>
+      </>
+      {/* ) : (
         <div style={{ flexGrow: 1 }}></div>
-      )}
+      )} */}
       {/* Selector de página a la derecha */}
       <div className={styles.pageSelector}>
         <form onSubmit={handleSubmit} className={styles.pageForm}>
           <span className={styles.pageInfo}>
-            <span className={styles.currentPageLabel}>ir a la página</span>
+            <span className={styles.currentPageLabel}>Ir a la página</span>
             {/* <span className={styles.totalPages}>
               {currentPage}/{safeTotal}
             </span> */}
           </span>
-          {totalPages > 1 && (
-            <div style={{ position: "relative" }}>
-              <input
-                type="text"
-                value={pageInput}
-                onChange={handlePageInputChange}
-                onKeyDown={handleKeyDown}
-                className={styles.pageInput}
-                aria-label="Ir a página"
-              />
+          {/* {totalPages > 1 && ( */}
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={pageInput}
+              onChange={handlePageInputChange}
+              onKeyDown={handleKeyDown}
+              className={styles.pageInput}
+              aria-label="Ir a página"
+              disabled={totalPages <= 1}
+            />
 
-              <button type="submit" className={styles.goButton}>
-                Ir
-              </button>
-            </div>
-          )}
+            <button
+              type="submit"
+              className={styles.goButton}
+              disabled={totalPages <= 1}
+            >
+              Ir
+            </button>
+          </div>
+          {/* )} */}
         </form>
       </div>
 

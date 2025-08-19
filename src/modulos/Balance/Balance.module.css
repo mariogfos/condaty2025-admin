@@ -59,7 +59,7 @@
   height: 48px;
   background-color: #414141;
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible;
 }
 .chartTypeButton {
   flex: 1;

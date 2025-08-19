@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 0px;
+  margin-top: var(--spL);
 }
 .paginationInfo {
   color: var(--accent);
@@ -122,7 +122,7 @@
   border: 1px solid var(--cWhite);
   border-radius: 8px;
   color: var(--cWhiteV1);
-  text-align: right;
+  text-align: center;
   font-size: 14px;
   padding: 0 36px 0 8px;
 }
@@ -146,6 +146,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 0;
 }
 .goButton:hover {
   opacity: 0.9;
@@ -178,4 +179,12 @@
   .goButton {
     width: 100%;
   }
+}
+
+.goButton:disabled,
+.goButton:hover:disabled,
+.goToPageButton:disabled,
+.goToPageButton:hover:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

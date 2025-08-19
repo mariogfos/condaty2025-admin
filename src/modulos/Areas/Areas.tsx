@@ -6,19 +6,20 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
-import { IconDepartment2 } from "@/components/layout/icons/IconsBiblioteca";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 const statusColor: any = {
-  A: { color: "var(--cSuccess)", background: "var(--cHoverSuccess)" },
+  A: { color: "var(--cSuccess)", background: "var(--cHoverCompl2)" },
   X: { color: "var(--cError)", background: "var(--cHoverError)" },
 };
 
@@ -286,7 +287,7 @@ const Areas = () => {
       status: {
         rules: [""],
         api: "",
-        label: "Estado",
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%'}}>Estado</span>,
         list: {
           width: "120px",
         },
@@ -296,19 +297,12 @@ const Areas = () => {
           if (props?.item?.status === "X") status = "Inactiva";
 
           return (
-            <p
-              style={{
-                color: statusColor[props?.item?.status]?.color,
-                background: statusColor[props?.item?.status]?.background,
-                padding: "6px 8px",
-                borderRadius: "4px",
-                fontSize: 14,
-                display: "flex",
-              }}
+            <StatusBadge
+              backgroundColor={statusColor[props?.item?.status]?.background}
+              color={statusColor[props?.item?.status]?.color}
             >
-              {" "}
               {status}
-            </p>
+            </StatusBadge>
           );
         },
         filter: {
@@ -332,7 +326,7 @@ const Areas = () => {
       Poner en mantenimiento
     </Button>,
   ];
-  const { userCan, List, reLoad, data } = useCrud({
+  const { userCan, List, reLoad, data, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -345,17 +339,19 @@ const Areas = () => {
   return (
     <div>
       <List
-        height={"calc(100vh - 330px)"}
-        emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
-        emptyLine2="del condominio las verás aquí."
-        emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)" />}
+        height={"calc(100vh - 350px)"}
+        //   emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
+        //   emptyLine2="del condominio las verás aquí."
+        //   emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)"
+        //    />
+        // }
       />
 
       {openMaintenance && (
         <MaintenanceModal
           open={openMaintenance}
           onClose={() => setOpenMaintenance(false)}
-          areas={data?.data}
+          areas={extraData?.areas}
         />
       )}
     </div>

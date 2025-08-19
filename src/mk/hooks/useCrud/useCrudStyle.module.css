@@ -124,7 +124,7 @@
 }
 .extraButtons > div > button,
 .extraButtons > button {
-  height: 56px;
+  height: 48px;
   padding: 0 24px;
   font-size: 16px;
   border-radius: var(--bRadiusS);
@@ -167,7 +167,7 @@
     display: block;
   }
 }
-.iconsMenu {
+/* .iconsMenu {
   background-color: var(--cWhiteV2);
   height: 48px;
   padding: 0px 10px;
@@ -175,4 +175,21 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+} */
+.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.icons,
+.extraButtons > div > svg {
+  cursor: pointer;
+  background-color: var(--cWhiteV2);
+  min-width: 48px;
+  padding: 8px;
+  height: 48px;
+  border-radius: var(--bRadiusS);
+  &:hover {
+    background-color: var(--cHoverTable);
+  }
 }

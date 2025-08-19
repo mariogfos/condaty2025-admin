@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AxiosContext } from "@/mk/contexts/AxiosInstanceProvider";
 import SkeletonAdapterComponent, { SkeletonType } from "./SkeletonAdapter";
 import styles from "./styles.module.css";
@@ -16,22 +16,29 @@ const LoadingScreen = ({
   type = "TableSkeleton",
   className,
   children = null,
-  loaded,
+  loaded = false,
   onlyLoading = false, // Default is false
   circle = false,
 }: PropsType) => {
   const { waiting }: any = useContext(AxiosContext);
+  // const [_loaded, setLoaded] = useState(loaded);
 
-  // If onlyLoading is true, show the loading animation while data is not loaded
-  if (onlyLoading && !loaded && circle) {
-    return (
-      <div className={styles.loadingScreen + " " + className}>
-        <div>
-          <div></div>
-        </div>
-      </div>
-    );
-  }
+  // useEffect(() => {
+  //   if (waiting === 0) {
+  //     setLoaded(true);
+  //   }
+  // }, [waiting]);
+  // console.log(_loaded);
+  // // If onlyLoading is true, show the loading animation while data is not loaded
+  // if (onlyLoading && !_loaded && circle) {
+  //   return (
+  //     <div className={styles.loadingScreen + " " + className}>
+  //       <div>
+  //         <div></div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   if (onlyLoading && !loaded) {
     return <SkeletonAdapterComponent type={type} />;
   }

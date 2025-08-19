@@ -11,22 +11,9 @@ import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FourPart from "./Partes/FourPart";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
-const RenderForm = ({
-  onClose,
-  open,
-  item,
-  setItem,
-  // errors,
-  extraData,
-  user,
-  execute,
-  openList,
-  setOpenList,
-  // setErrors,
-  reLoad,
-  action,
-}: any) => {
+const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
     booking_mode: item?.booking_mode || "day",
@@ -35,6 +22,8 @@ const RenderForm = ({
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
+  const [openComfirm, setOpenComfirm] = useState(false);
+
   useEffect(() => {
     setOpenList(false);
   }, []);
@@ -106,7 +95,7 @@ const RenderForm = ({
     if (formState?.has_price == "S") {
       errors = checkRules({
         value: formState?.price,
-        rules: ["required", "number", "positive", "less:10000"],
+        rules: ["required", "number", "positive", "less:10000", "greater:0"],
         key: "price",
         errors,
       });
@@ -194,10 +183,11 @@ const RenderForm = ({
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
         reservation_duration: parseFloat(formState?.reservation_duration),
+        is_free: formState?.has_price == "S" ? "X" : "A",
       }
     );
 
-    if (data?.success == true) {
+    if (data?.success) {
       onClose();
       reLoad();
       showToast(data.message, "success");
@@ -205,9 +195,17 @@ const RenderForm = ({
       showToast(data.message, "error");
     }
   };
+
+  const _onClose = () => {
+    if (level == 4) {
+      setOpenComfirm(true);
+      return;
+    }
+    onClose();
+  };
   return (
     <div className={styles.RenderForm}>
-      <HeaderBack label="Volver a lista de áreas sociales" onClick={onClose} />
+      <HeaderBack label="Volver a lista de áreas sociales" onClick={_onClose} />
       <div
         style={{
           width: "800px",
@@ -243,13 +241,7 @@ const RenderForm = ({
               formState={formState}
             />
           )}
-          {level === 4 && (
-            <FourPart
-              // handleChange={handleChange}
-              // errors={errors}
-              item={formState}
-            />
-          )}
+          {level === 4 && <FourPart item={formState} />}
           <div
             style={{
               display: "flex",
@@ -277,95 +269,24 @@ const RenderForm = ({
               Continuar
             </Button>
           </div>
-          {/* <Input
-            label="Días disponibles"
-            name="available_days"
-            value={formState?.available_days}
-            onChange={handleChange}
-            error={errors}
-          />  
-          <Input
-            label="Es gratis"
-            name="is_free"
-            value={formState?.is_free}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Duración máxima de reserva"
-            name="max_booking_duration"
-            value={formState?.max_booking_duration}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Restricciones especiales"
-            name="special_restrictions"
-            value={formState?.special_restrictions}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Reglas de uso"
-            name="usage_rules"
-            value={formState?.usage_rules}
-            onChange={handleChange}
-            error={errors}
-          />
-     
-          <Input
-            label="Aprobación automática disponible"
-            name="auto_approval_available"
-            value={formState?.auto_approval_available}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Cancelable"
-            name="cancellable"
-            value={formState?.cancellable}
-            onChange={handleChange}
-            error={errors}
-          />
-   
-          <Input
-            label="Penalización por cancelación tardía"
-            name="late_cancellation_penalty"
-            value={formState?.late_cancellation_penalty}
-            onChange={handleChange}
-            error={errors}
-          />
-
-          <Input
-            label="Habilitar encuesta"
-            name="enable_survey"
-            value={formState?.enable_survey}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Plantilla de encuesta"
-            name="survey_template"
-            value={formState?.survey_template}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar en el calendario"
-            name="show_in_calendar"
-            value={formState?.show_in_calendar}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar disponibilidad en tiempo real"
-            name="show_real_time_availability"
-            value={formState?.show_real_time_availability}
-            onChange={handleChange}
-            error={errors}
-          /> */}
         </Card>
       </div>
+      {openComfirm && (
+        <DataModal
+          title="Volver a lista de áreas sociales"
+          open={openComfirm}
+          onClose={() => setOpenComfirm(false)}
+          onSave={() => onClose()}
+          buttonText="Volver"
+          buttonCancel="Continuar creación"
+        >
+          <p>
+            ¿Seguro que quieres volver? Recuerda que si realizas esta acción,
+            los cambios que has cargado en todos los pasos se eliminarán y el
+            área social no será creada
+          </p>
+        </DataModal>
+      )}
     </div>
   );
 };

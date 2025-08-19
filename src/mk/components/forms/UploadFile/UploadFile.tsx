@@ -278,9 +278,12 @@ export const UploadFile = ({
                     height: "100px",
                   }}
                 /> */}
+              {/* {JSON.stringify(value)} */}
               {(editedImage ||
                 selectedFiles?.type?.startsWith("image/") ||
-                (value && value.ext == "webp")) &&
+                (value &&
+                  (value.ext == "webp" ||
+                    (value.indexOf && value.indexOf(".webp") > -1)))) &&
               img ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -300,18 +303,14 @@ export const UploadFile = ({
               ) : selectedFiles.type === "application/pdf" ? (
                 <>
                   <IconPDF size={80} color={"var(--cWhite)"} />
-                  <p>
-                    Archivo seleccionado: <br />
-                    <span>{selectedFiles.name}</span>
-                  </p>
+                  {/* Archivo seleccionado: <br /> */}
+                  <span>{selectedFiles.name}</span>
                 </>
               ) : (
                 <>
                   <IconDocs size={80} color={"var(--cWhite)"} />
-                  <p>
-                    Archivo seleccionado: <br />
-                    <span>{selectedFiles.name}</span>
-                  </p>
+                  {/* Archivo seleccionado: <br /> */}
+                  <span>{selectedFiles.name}</span>
                 </>
               )}
               {/* <p>

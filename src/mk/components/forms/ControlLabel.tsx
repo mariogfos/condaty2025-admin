@@ -39,25 +39,33 @@ const ControlLabel = (props: PropsType) => {
 
   return (
     <div
-      className={
-        props.className +
-        " " +
-        (props.error?.[props.name] && stylesInput.error) +
-        " " +
-        (props.error?.[props.name] && stylesTextArea.error)
-      }
-      style={props.style}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
     >
-      {props.iconLeft && <span>{props.iconLeft}</span>}
-      {props.prefix && <span>{props.prefix}</span>}
-      <div>
-        {props.children}
-        {props.label && <label htmlFor={props.name}>{label}</label>}
+      <div
+        className={
+          props.className +
+          " " +
+          (props.error?.[props.name] && stylesInput.error) +
+          " " +
+          (props.error?.[props.name] && stylesTextArea.error)
+        }
+        style={props.style}
+      >
+        {props.iconLeft && <span>{props.iconLeft}</span>}
+        {props.prefix && <span>{props.prefix}</span>}
+        <div>
+          {props.children}
+          {props.label && <label htmlFor={props.name}>{label}</label>}
+        </div>
+        {props.iconRight && <span>{props.iconRight}</span>}
+        {props.suffix && <span>{props.suffix}</span>}
       </div>
-      {props.iconRight && <span>{props.iconRight}</span>}
-      {props.suffix && <span>{props.suffix}</span>}
       {!props.error ? null : (
-        <p className={stylesInput.error}>{props.error[props.name] || null}</p>
+        <p className={stylesInput.error}>{props.error[props.name] || " "}</p>
       )}
     </div>
   );

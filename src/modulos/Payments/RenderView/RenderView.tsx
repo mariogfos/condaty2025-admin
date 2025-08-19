@@ -1,37 +1,68 @@
-// @ts-nocheck
-
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useCallback, CSSProperties } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM, MONTHS_ES } from '@/mk/utils/date';
+import { formatToDayDDMMYYYYHHMM, MONTHS_ES, formatToDayDDMMYYYY } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
 import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { formatBs } from '@/mk/utils/numbers';
 
+interface PaymentDetail {
+  id: string | number;
+  status: string;
+  user?: any;
+  confirmed_by?: any;
+  canceled_by?: any;
+  canceled_obs?: string;
+  owner?: any;
+  details?: any[];
+  dptos?: string;
+  dpto_id?: string | number;
+  amount?: number;
+  paid_at?: string;
+  concept?: string[];
+  category?: { padre?: { name?: string } };
+  obs?: string;
+  type?: string;
+  voucher?: string;
+  ext?: string;
+  updated_at?: string;
+}
+
 interface DetailPaymentProps {
   open: boolean;
   onClose: () => void;
-
-  extraData?: any;
+  extraData?: { dptos?: any[] };
   reLoad?: () => void;
-  payment_id: string | number;
-  onDel?: () => void;
+  payment_id?: string | number;
+  item?: PaymentDetail;
+  onDel?: (item?: PaymentDetail) => void;
+  style?: CSSProperties;
+  noWaiting?: boolean;
 }
 
 const RenderView: React.FC<DetailPaymentProps> = memo(props => {
-  ///esto? porque tanto error, revisa todo el archivo
-  const { open, onClose, extraData, reLoad, payment_id, onDel } = props;
+  const {
+    open,
+    onClose,
+    extraData,
+    reLoad,
+    item: propItem,
+    onDel,
+    payment_id,
+    style,
+    noWaiting = false,
+  } = props;
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
-  const [item, setItem] = useState(null);
+  const [item, setItem] = useState<PaymentDetail | null>(null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
-  const fetchPaymentData = async () => {
+  const fetchPaymentData = useCallback(async () => {
     if (payment_id && open) {
       const { data } = await execute(
         '/payments',
@@ -47,15 +78,36 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       );
       setItem(data?.data);
     }
-  };
+  }, [payment_id, open, execute]);
 
   useEffect(() => {
     fetchPaymentData();
-  }, [payment_id]);
+  }, [fetchPaymentData, payment_id]);
 
-  const handleChangeInput = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  // Usar el item que viene de useCrud en lugar de hacer una llamada manual
+  //const item = propItem;
+
+  const handleGenerateReceipt = async () => {
+    showToast('Generando recibo...', 'info');
+
+    const { data: file, error } = await execute(
+      '/payment-recibo',
+      'POST',
+      { id: item?.id },
+      false,
+      true
+    );
+
+    if (file?.success === true && file?.data?.path) {
+      const receiptUrl = getUrlImages('/' + file.data.path);
+      window.open(receiptUrl, '_blank');
+      showToast('Recibo generado con éxito.', 'success');
+    } else {
+      showToast(error?.data?.message || 'No se pudo generar el recibo.', 'error');
+    }
+  };
+
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;
     if ((e.target as HTMLInputElement).type === 'checkbox') {
       value = (e.target as HTMLInputElement).checked ? 'P' : 'N';
@@ -73,11 +125,17 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         return;
       }
     }
-    const { data: payment, error } = await execute('/payment-confirm', 'POST', {
-      id: item?.id,
-      confirm: rechazado ? 'P' : 'R',
-      confirm_obs: formState.confirm_obs,
-    });
+    const { data: payment, error } = await execute(
+      '/payment-confirm',
+      'POST',
+      {
+        id: item?.id,
+        confirm: rechazado ? 'P' : 'R',
+        confirm_obs: formState.confirm_obs,
+      },
+      false,
+      noWaiting
+    );
 
     if (payment?.success === true) {
       showToast(payment?.message, 'success');
@@ -96,19 +154,17 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       T: 'Transferencia bancaria',
       E: 'Efectivo',
       C: 'Cheque',
-      Q: 'QR',
+      Q: 'Pago QR',
       O: 'Pago en oficina',
     };
     return typeMap[type] || type;
   };
 
-  // Función para mapear el estado
   const getStatus = (status: string) => {
     const statusMap: Record<string, string> = {
       P: 'Cobrado',
       S: 'Por confirmar',
       R: 'Rechazado',
-      E: 'Por subir comprobante',
       A: 'Por pagar',
       M: 'Moroso',
       X: 'Anulado',
@@ -116,19 +172,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     return statusMap[status] || status;
   };
 
-  // Busca la unidad en extraData
   const getDptoName = () => {
     if (!extraData?.dptos) return (item?.dptos || '-/-').replace(/,/g, '');
 
-    const dpto = extraData.dptos.find(
-      (d: any) => d.id === item?.dpto_id || d.id === item?.dptos
-    );
+    const dpto = extraData.dptos.find((d: any) => d.id === item?.dpto_id || d.id === item?.dptos);
 
     if (dpto) {
       const nroSinComa = dpto.nro ? dpto.nro.replace(/,/g, '') : '';
-      const descSinComa = dpto.description
-        ? dpto.description.replace(/,/g, '')
-        : '';
+      const descSinComa = dpto.description ? dpto.description.replace(/,/g, '') : '';
       return `${nroSinComa} - ${descSinComa}`;
     } else {
       return (item?.dptos || '-/-').replace(/,/g, '');
@@ -143,7 +194,6 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   };
   const handleAnularClick = () => {
     if (item && onDel) {
-      // Asegura que se pase el item correcto para el flujo de eliminación
       onDel(item);
     }
   };
@@ -156,15 +206,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         title="Detalle de Ingreso"
         buttonText=""
         buttonCancel=""
-      ></DataModal>
+      >
+        {/* Necesario por lo childres solicitados por le datamodal, manejo del null exeption en item */}
+        <></>
+      </DataModal>
     );
   }
 
   let aprobadoLabel;
   if (item.status === 'P') {
     aprobadoLabel = 'Aprobado por';
-  } else if (item.status === 'X') {
-    aprobadoLabel = 'Anulado por';
   } else if (item.status === 'R') {
     aprobadoLabel = 'Rechazado por';
   } else if (item.status === 'S') {
@@ -184,33 +235,92 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     statusClass = styles.statusCanceled;
   }
 
+  let ownerDisplay = '-/-';
+  if (item.owner && typeof item.owner === 'object') {
+    ownerDisplay = getFullName(item.owner);
+  }
+
+  let propietarioDisplay = '-/-';
+  if (typeof item.details?.[0]?.debt_dpto?.dpto?.homeowner === 'object') {
+    propietarioDisplay = getFullName(item.details[0].debt_dpto.dpto.homeowner);
+  }
+
+  let registradoPorDisplay = '-/-';
+  if (item.user && typeof item.user === 'object') {
+    registradoPorDisplay = getFullName(item.user);
+  }
+
+  let aprobadoPorDisplay = '-/-';
+  if (item.confirmed_by && typeof item.confirmed_by === 'object') {
+    aprobadoPorDisplay = getFullName(item.confirmed_by);
+  }
+
+  let anuladoPorDisplay = '-/-';
+  if (item.canceled_by && typeof item.canceled_by === 'object') {
+    anuladoPorDisplay = getFullName(item.canceled_by);
+  }
+
+  let infoBlockContent;
+  if (item.user) {
+    infoBlockContent = (
+      <div className={styles.infoBlock}>
+        <span className={styles.infoLabel}>Registrado por</span>
+        <span className={styles.infoValue}>{registradoPorDisplay}</span>
+      </div>
+    );
+  } else {
+    infoBlockContent = (
+      <>
+        <div className={styles.infoBlock}>
+          <span className={styles.infoLabel}>{aprobadoLabel}</span>
+          <span className={styles.infoValue}>-/-</span>
+        </div>
+        <div className={styles.infoBlock}>
+          <span className={styles.infoLabel}>Registrado por</span>
+          <span className={styles.infoValue}>-/-</span>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <DataModal
         open={open}
-        onClose={onClose}
         title="Detalle del ingreso"
-        buttonText=""
-        buttonCancel=""
+        buttonText={item?.status !== 'S' ? '' : 'Aprobar Pago'}
+        buttonCancel={''}
+        onSave={() => {
+          if (item?.status === 'S') {
+            onConfirm(true);
+          }
+        }}
+        onClose={onClose}
+        buttonExtra={
+          item.status === 'S' ? (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setOnRechazar(true);
+              }}
+            >
+              Rechazar pago
+            </Button>
+          ) : undefined
+        }
+        style={style}
       >
         {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>
-            {/* REEMPLAZO DEL BOTÓN */}
-            <button
-              type="button"
-              onClick={handleAnularClick}
-              className={styles.textButtonDanger}
-            >
+            <button type="button" onClick={handleAnularClick} className={styles.textButtonDanger}>
               Anular ingreso
             </button>
           </div>
         )}
         <div className={styles.container}>
           <div className={styles.headerSection}>
-            <div className={styles.amountDisplay}>{formatBs(item.amount)}</div>
-            <div className={styles.dateDisplay}>
-              {formatToDayDDMMYYYYHHMM(item.paid_at)}
-            </div>
+            <div className={styles.amountDisplay}>{formatBs(item.amount ?? 0)}</div>
+            <div className={styles.dateDisplay}>{formatToDayDDMMYYYYHHMM(item.paid_at)}</div>
           </div>
 
           {/* Divisor antes de la sección de info y botón */}
@@ -224,24 +334,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Propietario </span>
-                <span className={styles.infoValue}>
-                  {item.details?.[0]?.debt_dpto?.dpto?.homeowner
-                    ? getFullName(item.details[0].debt_dpto.dpto.homeowner)
-                    : '-/-'}
-                </span>
+                <span className={styles.infoValue}>{propietarioDisplay}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Titular</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.owner) || '-/-'}
-                </span>
+                <span className={styles.infoValue}>{ownerDisplay}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {item.concept?.map((c: string, i: number) => (
-                    <div key={i}>-{c}</div>
-                  )) ||
+                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) ||
                     item?.category?.padre?.name ||
                     '-/-'}
                 </span>
@@ -250,6 +352,15 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 <span className={styles.infoLabel}>Observación</span>
                 <span className={styles.infoValue}>{item.obs || '-/-'}</span>
               </div>
+
+              {item.status === 'X' && item.canceled_obs && (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>Motivo de anulación</span>
+                  <span className={`${styles.infoValue} ${styles.canceledReason}`}>
+                    {item.canceled_obs}
+                  </span>
+                </div>
+              )}
             </div>
             {/* Columna Derecha */}
             <div className={styles.detailsColumn}>
@@ -261,135 +372,164 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>
-                  {getPaymentType(item.type)}
-                </span>
+                <span className={styles.infoValue}>{getPaymentType(item.type || '')}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>
-                <span className={styles.infoValue}>
-                  {getFullName(item.owner) || '-/-'}
-                </span>
+                <span className={styles.infoValue}>{getFullName(item.owner) || '-/-'}</span>
               </div>
 
-              {item.confirmed_by ? (
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>{aprobadoLabel}</span>
-                  <span className={styles.infoValue}>
-                    {getFullName(item.confirmed_by)}
-                  </span>
-                </div>
-              ) : item.user ? (
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Registrado por</span>
-                  <span className={styles.infoValue}>
-                    {getFullName(item.user)}
-                  </span>
-                </div>
-              ) : (
+              {item.status === 'X' ? (
                 <>
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>{aprobadoLabel}</span>
-                    <span className={styles.infoValue}>-/-</span>
+                    <span className={styles.infoLabel}>Anulado por</span>
+                    <span className={styles.infoValue}>{anuladoPorDisplay}</span>
                   </div>
                   <div className={styles.infoBlock}>
                     <span className={styles.infoLabel}>Registrado por</span>
-                    <span className={styles.infoValue}>-/-</span>
+                    <span className={styles.infoValue}>{registradoPorDisplay}</span>
                   </div>
                 </>
+              ) : item.confirmed_by ? (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>{aprobadoLabel}</span>
+                  <span className={styles.infoValue}>{aprobadoPorDisplay}</span>
+                </div>
+              ) : (
+                infoBlockContent
               )}
 
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Número de comprobante</span>
-                <span className={styles.infoValue}>
-                  {item.voucher || '-/-'}
-                </span>
+                <span className={styles.infoValue}>{item.voucher || '-/-'}</span>
               </div>
             </div>
           </section>
           {/* Divisor después de la sección de info y botón */}
           <hr className={styles.sectionDivider} />
-
-          {item.ext && (
-            <div className={styles.voucherButtonContainer}>
+          <div className={styles.voucherButtonContainer}>
+            {item.status === 'P' && (
               <Button
-                variant="outline"
+                variant="secondary"
+                className={styles.voucherButton}
+                style={item.ext ? { marginRight: 8 } : {}}
+                onClick={handleGenerateReceipt}
+              >
+                Ver Recibo
+              </Button>
+            )}
+            {item.ext && (
+              <Button
+                variant="secondary"
                 className={styles.voucherButton}
                 onClick={() => {
                   window.open(
-                    getUrlImages(
-                      '/PAYMENT-' +
-                        item.id +
-                        '.' +
-                        item.ext +
-                        '?d=' +
-                        item.updated_at
-                    ),
+                    getUrlImages('/PAYMENT-' + item.id + '.' + item.ext + '?d=' + item.updated_at),
                     '_blank'
                   );
                 }}
               >
                 Ver comprobante
               </Button>
-            </div>
-          )}
+            )}
+          </div>
 
-          {item?.details?.length > 0 && (
+          {Array.isArray(item.details) && item.details.length > 0 && (
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
-                <h3 className={styles.periodsDetailsTitle}>Periodos pagados</h3>
+                <h3 className={styles.periodsDetailsTitle}>
+                  {item.details[0]?.debt_dpto?.debt?.type === 2
+                    ? 'Reservas pagadas'
+                    : item.details[0]?.debt_dpto?.debt?.type === 3
+                    ? 'Multas pagadas'
+                    : 'Periodos pagados'}
+                </h3>
               </div>
 
               <div className={styles.periodsTableWrapper}>
                 <div className={styles.periodsTable}>
-                  <div className={styles.periodsTableHeader}>
-                    <div className={styles.periodsTableCell}>Periodo</div>
-                    <div className={styles.periodsTableCell}>Concepto</div>
-                    <div className={styles.periodsTableCell}>Monto</div>
-                    <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>Subtotal</div>
+                  <div
+                    className={
+                      item.details[0]?.debt_dpto?.debt?.type === 2 ||
+                      item.details[0]?.debt_dpto?.debt?.type === 3
+                        ? styles.periodsTableHeaderReservations
+                        : styles.periodsTableHeader
+                    }
+                  >
+                    {item.details[0]?.debt_dpto?.debt?.type === 2 ||
+                    item.details[0]?.debt_dpto?.debt?.type === 3 ? (
+                      <>
+                        <div className={styles.periodsTableCell}>Fecha</div>
+                        <div className={styles.periodsTableCell}>Concepto</div>
+                        <div className={styles.periodsTableCell}>Total</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.periodsTableCell}>Periodo</div>
+                        <div className={styles.periodsTableCell}>Concepto</div>
+                        <div className={styles.periodsTableCell}>Monto</div>
+                        <div className={styles.periodsTableCell}>Multa</div>
+                        <div className={styles.periodsTableCell}>Subtotal</div>
+                      </>
+                    )}
                   </div>
                   <div className={styles.periodsTableBody}>
-                    {item.details.map((periodo: any, index: number) => (
+                    {item.details?.map((periodo: any, index: number) => (
                       <div
-                        className={styles.periodsTableRow}
-                        key={periodo.id || index}
+                        className={
+                          periodo?.debt_dpto?.debt?.type === 2 ||
+                          periodo?.debt_dpto?.debt?.type === 3
+                            ? styles.periodsTableRowReservations
+                            : styles.periodsTableRow
+                        }
+                        key={periodo?.id ?? index}
                       >
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Periodo"
-                        >
-                          {
-                            MONTHS_ES[
-                              (periodo?.debt_dpto?.debt?.month ?? 1) - 1
-                            ]
-                          }{' '}
-                          {periodo?.debt_dpto?.debt?.year}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Concepto"
-                        >
-                          {item?.category?.padre?.name || '-/-'}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Monto"
-                        >
-                          {formatBs(periodo?.debt_dpto?.amount || 0)}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Multa"
-                        >
-                          {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
-                        </div>
-                        <div
-                          className={styles.periodsTableCell}
-                          data-label="Subtotal"
-                        >
-                          {formatBs(periodo?.amount || 0)}
-                        </div>
+                        {periodo?.debt_dpto?.debt?.type === 2 ||
+                        periodo?.debt_dpto?.debt?.type === 3 ? (
+                          <>
+                            <div className={styles.periodsTableCell} data-label="Fecha">
+                              {periodo?.debt_dpto?.debt?.type === 3
+                                ? formatToDayDDMMYYYY(
+                                    periodo?.debt_dpto?.debt?.reservation_penalty?.date_at
+                                  ) || '-/-'
+                                : formatToDayDDMMYYYY(
+                                    periodo?.debt_dpto?.debt?.reservation?.date_at
+                                  ) || '-/-'}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Concepto">
+                              {periodo?.debt_dpto?.debt?.type === 3
+                                ? `Multa por Cancelación: ${
+                                    periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
+                                    '-/-'
+                                  }`
+                                : `Reserva: ${
+                                    periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'
+                                  }`}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Total">
+                              {formatBs(periodo?.amount || 0)}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className={styles.periodsTableCell} data-label="Periodo">
+                              {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
+                              {periodo?.debt_dpto?.debt?.year}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Concepto">
+                              {item?.category?.padre?.name || '-/-'}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Monto">
+                              {formatBs(periodo?.debt_dpto?.amount || 0)}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Multa">
+                              {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                            </div>
+                            <div className={styles.periodsTableCell} data-label="Subtotal">
+                              {formatBs(periodo?.amount || 0)}
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -398,18 +538,16 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
                   Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>
-                    {formatBs(getTotalAmount())}
-                  </span>
+                  <span className={styles.totalAmountValue}>{formatBs(getTotalAmount())}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {item?.status === 'S' && (
+          {/*           {item?.status === 'S' && (
             <div className={styles.actionButtonsContainer}>
               <Button
-                variant="danger"
+                variant="cancel"
                 className={`${styles.actionButton} ${styles.rejectButton}`}
                 onClick={() => {
                   setOnRechazar(true);
@@ -418,14 +556,14 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 Rechazar pago
               </Button>
               <Button
-                variant="success"
+                variant="accent"
                 className={`${styles.actionButton} ${styles.confirmButton}`}
                 onClick={() => onConfirm(true)}
               >
                 Confirmar pago
               </Button>
             </div>
-          )}
+          )} */}
         </div>
       </DataModal>
 
@@ -436,6 +574,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         onSave={() => onConfirm(false)}
         open={onRechazar}
         onClose={() => setOnRechazar(false)}
+        style={style}
       >
         <TextArea
           label="Observaciones"

@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
-    "impagas"
+    "Egresos",
+    "impagas",
+    "Subcategoría"
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "http://localhost:9000",

@@ -57,13 +57,14 @@
   --cWhite: #fafafa;
   --cWhiteV1: #a7a7a7;
   --cWhiteV2: #414141;
-  --cWhiteV3: #ffffff0d;
+  --cWhiteV3: #818181;
   --cBlack: #212121;
   --cBlackV1: #292929;
   --cBlackV2: #333536;
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
+  --cHoveTablePdf: #7979791A;
   --cHoverBigSidebar: #1f2d27;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
@@ -72,7 +73,7 @@
   /* Paleta acciones o estados */
   --cError: #e46055;
   --cSuccess: #34a853;
-  --cInfo: #4285fa;
+  --cInfo: #4285FA;
   --cWarning: #e9b01e;
   --cHoverSuccess: #00af9033;
   --cHoverInfo: #596376;
@@ -93,18 +94,28 @@
   --cCompl1: #ffdd7f;
   --cCompl2: #a2faa3;
   --cCompl3: #b382d9;
-  --cCompl4: #e9b01e;
+  --cCompl4: #A9CCE3;
   --cCompl5: #f7b267;
   --cCompl6: #ff7f51;
   --cCompl7: #6cd16d;
   --cCompl8: #de6a60;
   --cCompl9: #5ab0e9;
 
+  /*Paleta de Hover*/
   --cHoverCompl1: #FAFAFA1A;
-  --cHoverCompl5: #f7b26733;
-
-
-  --cHoverCompl5: #f7b26733;
+  --cHoverCompl2: #00AF9033;
+  --cHoverCompl3: #39ACEC33;
+  --cHoverCompl4: #E1C15133;
+  --cHoverCompl5: #F37F3D33;
+  --cHoverCompl6: #B382D933;
+  --cHoverCompl7: #A9CCE333;
+  --cHoverCompl8: #F7B26733;
+  --cHoverCompl9: #FF7F5133;
+  --cHoverCompl10: #00E38C0D;
+  --cHoverCompl11: #DA5D5D33;
+  --cHoverBlack: #212121CC;
+  --cHoverBlackv2: #33353633;
+  --cHoverUnread: #18F6620F;
 
 
   /* Paleta de colores Random */

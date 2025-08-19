@@ -1,247 +1,232 @@
-/* CalendarPicker.module.css */
-
-/* Contenedor General */
 .calendarContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--spL, 16px); /* Espacio entre controles y grid */
+  gap: var(--spL, 16px);
   width: 100%;
-  max-width: 707px; /* Ancho opcional basado en Figma */
-  margin: 0 auto; /* Centrar si es más estrecho */
+  margin: 0 auto;
   font-family: var(--fPrimary, sans-serif);
+  position: relative;
 }
 
-/* Controles Mes/Semana */
+/* ----- View Switch Buttons ----- */
 .calendarViewControls {
   display: flex;
   gap: var(--spS, 8px);
-  align-self: flex-start; /* Alinea a la izquierda */
+  align-self: flex-start;
 }
 
 .controlButton {
-  padding: var(--spS, 8px) var(--spL, 16px);
-  border-radius: var(--bRadiusS, 8px);
-  border: var(--bWidth, 1px) solid var(--cWhiteV1, #a7a7a7);
+  padding: var(--spS) var(--spL);
+  border-radius: var(--bRadiusS);
+  margin-top: 12;
+  border: var(--bWidth, 1px) solid transparent;
   background-color: transparent;
-  color: var(--cWhiteV1, #a7a7a7);
+  color: var(--cWhiteV1);
   cursor: pointer;
   font-size: var(--sM, 14px);
   font-weight: var(--bRegular, 400);
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .controlButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.controlButton:hover:not(:disabled) {
-    border-color: var(--cWhite, #fff);
-    color: var(--cWhite, #fff);
-}
+
 .controlButton.active {
-  background-color: var(--cWhite, #fff);
-  color: var(--cBlackV2, #333536);
-  border-color: var(--cWhite, #fff);
-  font-weight: var(--bMedium, 500);
+  background-color: var(--cHoverCompl2);
+  color: var(--cWhite);
+  border-color: var(--cSidebar);
+  font-weight: var(--bMedium);
 }
 
-/* Contenedor para Navegación y Grid */
+/* ----- Calendar Container ----- */
 .calendarGridContainer {
-  padding: var(--spL, 16px);
-  background-color: var(--cBlackV2, #333536); /* Fondo oscuro */
-  border-radius: var(--bRadiusS, 8px);
-  width: 100%;
-  color: var(--cWhite, #fff); /* Color texto por defecto */
+  padding: var(--spL);
+  background-color: var(--cBlackV2);
+  border-radius: var(--bRadiusS);
   display: flex;
   flex-direction: column;
-  gap: var(--spM, 12px); /* Espacio entre nav, weekdays, grid */
+  gap: var(--spM);
+  color: var(--cWhite);
+  position: relative;
 }
 
-/* Navegación Mes/Semana */
+/* ----- Navigation Header ----- */
 .calendarNavigation {
   display: flex;
-  justify-content: space-between; /* Empuja botones a los lados */
+  justify-content: space-between;
   align-items: center;
-  padding: 0 var(--spXs, 4px); /* Padding horizontal ligero */
+  padding: 0 var(--spXs, 4px);
 }
 
 .calendarMonthYear {
   font-size: var(--sXl, 20px);
   font-weight: var(--bSemibold, 600);
-  color: var(--cWhite, #fff);
   text-transform: capitalize;
-  text-align: center; /* Asegura centrado */
-  flex-grow: 1; /* Ocupa espacio para centrarse */
-  margin: 0 var(--spS, 8px); /* Margen a los lados */
+  text-align: center;
+  flex-grow: 1;
+  margin: var(--spM) 0px;
 }
 
 .calendarNavButton {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 32px; /* Tamaño botón */
-  height: 32px; /* Tamaño botón */
   background-color: transparent;
-  border: var(--bWidth, 1px) solid var(--terciary, #595959);
-  border-radius: 50%;
-  color: var(--cWhite, #fff);
+  border: none;
+  color: var(--cWhite);
   cursor: pointer;
-  padding: 0; /* Reset padding */
-  flex-shrink: 0; /* Evita que se encojan */
-}
-.calendarNavButton svg { /* Estilo para el icono dentro */
-    width: 18px;
-    height: 18px;
-}
-.calendarNavButton:hover {
-  background-color: var(--cBlackV3, #393c3f);
-  border-color: var(--cWhiteV1, #a7a7a7);
+  padding: 0;
+  flex-shrink: 0;
 }
 
-/* Cabecera Días Semana */
+.calendarNavButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.calendarNavButton:hover {
+  background-color: var(--cBlackV3);
+  border-color: var(--cWhiteV1);
+}
+
+/* ----- Weekday Labels ----- */
 .calendarWeekdays {
-  display: grid; /* Usar grid para 7 columnas iguales */
+  display: grid;
   grid-template-columns: repeat(7, 1fr);
   padding-bottom: var(--spS, 8px);
-  border-bottom: var(--bWidth, 1px) solid var(--cBlackV3, #393c3f);
-  gap: var(--spXs, 4px); /* Espacio ligero entre días */
+  gap: var(--spXs, 4px);
 }
 
 .calendarWeekday {
   text-align: center;
-  font-size: var(--sM, 14px); /* Más pequeño que los números */
+  font-size: var(--sM, 14px);
   font-weight: var(--bMedium, 500);
   color: var(--cWhiteV1, #a7a7a7);
   padding: var(--spXs, 4px) 0;
 }
 
-/* Grid de Días */
+/* ----- Days Grid ----- */
 .calendarDaysGrid {
-  display: grid; /* Usar grid para alinear */
+  display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: var(--spXs, 4px); /* Espacio entre celdas */
+  gap: var(--spXs, 4px);
 }
 
 .calendarDayCell {
-  /* La celda ya no necesita tanto estilo, el grid la posiciona */
-  /* Mantenemos position relative por si usamos ::after */
   position: relative;
-  display: flex; /* Centrar el botón dentro */
+  display: flex;
   justify-content: center;
   align-items: center;
-  height: 40px; /* Altura de la fila */
+  height: 40px;
 }
 
-/* Botón del Día */
+/* ----- Day Button ----- */
 .calendarDayButton {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 36px; /* Tamaño del círculo */
-  height: 36px; /* Tamaño del círculo */
-  border-radius: 50%;
-  border: var(--bWidth, 1px) solid transparent; /* Borde invisible por defecto */
+  width: 90px;
+  height: 36px;
+  border-radius: 8px;
+  border: var(--bWidth, 1px) solid transparent;
   background-color: transparent;
   cursor: pointer;
   font-size: var(--sL, 16px);
   font-weight: var(--bMedium, 500);
-  color: var(--cWhite, #fff); /* Color días mes/semana actual */
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  position: relative; /* Para el pseudo-elemento ::after */
+  color: var(--cWhite);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s,
+    box-shadow 0.2s;
+  position: relative;
   z-index: 1;
-  padding: 0; /* Reset padding */
-}
-.calendarDayButton:hover:not(:disabled) {
-  background-color: var(--cBlackV3, #393c3f); /* Hover sutil */
+  padding: 0;
 }
 
-/* Día seleccionado */
+.calendarDayButton:hover:not(:disabled) {
+  background-color: var(--cBlackV3);
+}
+
+/* ----- States ----- */
 .calendarDayButton.selectedDay {
-  background-color: transparent !important;
-  color: var(--cAccent, #00e38c) !important; /* Texto accent */
-  font-weight: var(--bBold, 700);
-  border-color: var(--cWhiteV1); /* Borde accent */
-  /* box-shadow: 0 0 6px var(--cAccent, #00e38c); */ /* Sombra opcional */
+  background-color: var(--cFillSidebar);
+  color: var(--cAccent) !important;
+  border: var(--bWidth, 1px) solid var(--cAccent);
+  font-weight: var(--bBold);
 }
 .calendarDayButton.selectedDay:hover:not(:disabled) {
-   background-color: transparent !important; /* Sin hover para seleccionado */
-   border-color: var(--cAccent, #00e38c);
+  background-color: var(--cFillSidebar);
+  border-color: var(--cAccent);
+}
+.calendarDayButton.selectedBusyDay {
+  background-color: var(--cHoverCompl1);
+  color: var(--cError);
+  border: var(--bWidth, 1px) solid var(--cWhiteV1);
+  font-weight: var(--bBold);
+}
+.calendarDayButton.selectedBusyDay:hover:not(:disabled) {
+  background-color: var(--cHoverCompl1);
+  border-color: var(--cWhiteV1);
+}
+
+.calendarDayButton.today {
+  font-weight: var(--bBold);
+  color: var(--cWhite);
 }
 
 .calendarDayButton.partiallyBusyDay span {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: rgba(255, 0, 0, 0.4); /* Cambiado de amarillo a rojo semi-transparente */
-  color: var(--cWhite);
+  color: var(--cError);
   font-weight: var(--bMedium);
-  transition: background-color 0.2s, color 0.2s;
 }
 
-/* --- MANEJO DE ESTADOS COMBINADOS --- */
-
-/* Cuando el día ocupado TAMBIÉN está seleccionado */
-.calendarDayButton.selectedDay.partiallyBusyDay span {
-  background-color: rgba(255, 0, 0, 0.6); /* Cambiado a rojo más opaco cuando está seleccionado */
-}
-
-/* Cuando es HOY y está ocupado (pero no seleccionado) */
-.calendarDayButton.today.partiallyBusyDay span {
-  /* Mantenemos el círculo amarillo, el borde de 'today' ya lo destaca */
-}
-
-/* MUY IMPORTANTE: Cuando el día está deshabilitado, no queremos el círculo */
-.calendarDayButton.disabledDay.partiallyBusyDay span,
-.calendarDayButton:disabled.partiallyBusyDay span {
-  background-color: transparent !important; /* Quita el fondo amarillo */
-  color: inherit; /* Hereda el color del padre deshabilitado */
-}
-/* Opcional: Si quieres que el día ocupado no seleccionado tenga otro color de texto */
-.calendarDayButton.partiallyBusyDay:not(.selectedDay):not(.disabledDay) { /* <- Cambiado de .busyDay */
-    /* color: var(--cError); */ /* Podrías poner el texto rojo, pero puede ser confuso */
-}
-
-
-/* Día de hoy */
-.calendarDayButton.today {
-  font-weight: var(--bBold, 700);
-  /* Puedes añadir un borde sutil o fondo diferente si no está seleccionado */
-   border-color: var(--terciary, #595959); /* Borde grisáceo para hoy si no está seleccionado */
-   color: var(--cWhite, #fff);
-}
-/* Estilo si hoy está seleccionado (ya cubierto por .selectedDay) */
-/* .calendarDayButton.selectedDay.today {} */
-
-
-/* Días fuera del mes (solo aplica en vista 'month') */
+/* ----- Disabled / Outside ----- */
 .calendarDayButton.outsideDay {
-  color: var(--cWhiteV2) !important; /* Color muy apagado */
+  color: var(--cWhiteV2);
   cursor: default;
-  pointer-events: none; /* No interactivo */
-}
-.calendarDayButton.outsideDay:hover {
-    background-color: transparent;
+  pointer-events: none;
 }
 
-
-/* Días deshabilitados (pasados, no de la vista) */
 .calendarDayButton:disabled,
 .calendarDayButton.disabledDay {
-  color: var(--cWhiteV2) !important; /* Color muy muy apagado */
+  color: var(--cWhiteV1);
   cursor: not-allowed;
   pointer-events: none;
-  /* text-decoration: line-through; */ /* Tachado opcional */
-  background-color: transparent !important;
-  border-color: transparent !important;
-  opacity: 0.6; /* Hacerlos más tenues */
+  background-color: transparent;
+  border-color: transparent;
+  opacity: 0.6;
 }
-/* Asegura que los días deshabilitados NO muestren el punto rojo */
+
 .calendarDayButton:disabled::after,
 .calendarDayButton.disabledDay::after {
-    display: none !important;
+  display: none;
 }
+
 .calendarDayButton:disabled:hover {
-    background-color: transparent;
+  background-color: transparent;
+}
+
+.calendarDayButton.disabledDay.partiallyBusyDay span,
+.calendarDayButton:disabled.partiallyBusyDay span {
+  background-color: transparent;
+  color: inherit;
+}
+
+.placeholderCell {
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
 }

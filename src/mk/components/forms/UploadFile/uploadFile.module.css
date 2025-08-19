@@ -1,6 +1,4 @@
 .uploadFile {
-  margin-top: var(--spS);
-  margin-bottom: var(--spS);
   position: relative;
 
   & > p {
@@ -30,7 +28,7 @@
     }
     & > div > span {
       color: var(--cWhite);
-      font-size: 8px;
+      font-size: 12px;
     }
     & > div {
       display: flex;

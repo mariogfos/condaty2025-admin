@@ -11,7 +11,7 @@
 }
 
 .section {
-  margin-top: var(--spM);
+  /* margin-top: var(--spM); */
 }
 
 .section-title {
@@ -35,26 +35,6 @@
   width: 331px;
 }
 
-.upload-section {
-  margin-top: var(--spM);
-}
-
-.file-upload-area {
-  margin-top: var(--spS);
-  display: flex;
-  justify-content: center;
-  border-radius: var(--bRadiusS);
-  border: 1px dashed rgba(255, 255, 255, 0.25);
-  padding: var(--spXl);
-}
-
-.file-upload-area.dragging {
-  border-color: var(--cInfo);
-}
-
-.file-upload-area.error {
-  border-color: var(--cError);
-}
 
 .hidden-input {
   position: absolute;
@@ -68,30 +48,7 @@
   border-width: 0;
 }
 
-.upload-instructions {
-  text-align: center;
-  color: var(--cWhiteV1);
-}
 
-.upload-text {
-  margin-top: var(--spL);
-  display: flex;
-  font-size: var(--sM);
-  line-height: 1.5;
-  color: var(--cWhiteV2);
-}
-
-.upload-link {
-  cursor: pointer;
-  border-radius: 6px;
-  font-weight: var(--bSemibold);
-  color: var(--cPrimary);
-}
-
-.upload-alternative {
-  padding-left: var(--spXs);
-  color: var(--cWhiteV1);
-}
 
 .file-types {
   font-size: var(--sS);
@@ -131,27 +88,12 @@
   color: var(--cPrimary);
 }
 
-.voucher-section {
-  margin-top: var(--spM);
-}
 
-.voucher-input {
-  margin-top: var(--spM);
-}
-
-.obs-section {
-  margin-top: var(--spM);
-}
-
-.obs-input {
-  margin-top: var(--spM);
-}
 
 .input-row {
   display: flex;
   gap: var(--spM);
   width: 100%;
-
 }
 
 .input-half {
@@ -210,6 +152,8 @@
   align-items: center;
   cursor: pointer;
   gap: 0.5rem;
+  background-color: inherit;
+  border: none;
 }
 
 .select-all-text {
@@ -243,6 +187,16 @@
   width: 100%;
 }
 
+.deudas-header-reservations,
+.deuda-row-reservations {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.deudas-header-reservations-simple,
+.deuda-row-reservations-simple {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .deudas-header {
   background-color: var(--cBlackV2, #333536);
   color: var(--cWhite, #fbfbfb);
@@ -258,8 +212,6 @@
   border-bottom: 0.5px solid var(--cWhiteV2, #a7a7a7);
   text-align: left;
 }
-
-
 
 .header-item:last-child {
   justify-content: center;
@@ -305,8 +257,6 @@
   color: var(--cWhiteV1, #fbfbfb);
 }
 
-
-
 .deuda-cell:nth-child(4) {
   font-weight: 500;
 }
@@ -317,9 +267,18 @@
   color: var(--cWhiteV1, #fbfbfb);
 }
 
-
 .deuda-check {
   justify-content: center;
+}
+
+.amount-cell {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.header-amount {
+  text-align: right;
+  justify-content: flex-end;
 }
 
 .total-container {

@@ -14,18 +14,18 @@ export const MONTHS = [
   "Diciembre",
 ];
 export const MONTHS_ES = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ];
 export const MONTHS_S = [
   "",
@@ -80,7 +80,7 @@ export const DAYS = [
   "Viernes",
   "Sábado",
 ];
-export const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+export const DAYS_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 export const GMT = -4;
 
@@ -129,7 +129,10 @@ const _getDateTimeStrMes = (
   utc: boolean = false,
   utcBase: boolean = false
 ): string => {
+  // console.log(dateStr);
+  // console.log(esFormatoISO8601(dateStr), utc);
   if (esFormatoISO8601(dateStr) || utc) {
+    console.log("Entro");
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
       .toISOString()
@@ -138,17 +141,19 @@ const _getDateTimeStrMes = (
       .replace("T", " ");
   }
 
-
   const datetime: any = dateStr?.split(" ");
   const date = datetime[0].split("-");
 
   const [hours, minutes] = (datetime[1] + "").substr(0, 5).split(":");
-  const timeDate = new Date();
+  // const timeDate = new Date();
+  const timeDate = new Date(
+    `${date[0]}-${date[1]}-${date[2]}T${hours}:${minutes}:00`
+  );
 
-  if (esFormatoISO8601(dateStr)) {
-    timeDate.setHours(parseInt(hours) + GMT);
-    timeDate.setMinutes(parseInt(minutes));
-  }
+  // if (esFormatoISO8601(dateStr)) {
+  //   timeDate.setHours(parseInt(hours) + GMT);
+  //   timeDate.setMinutes(parseInt(minutes));
+  // }
 
   // Formatear el nuevo tiempo
   const adjustedTime = `${String(timeDate.getHours()).padStart(
@@ -181,7 +186,10 @@ export const getDateTimeStrMesShort = (
 ): string => {
   if (!dateStr || dateStr == "") return "";
   const date = _getDateTimeStrMes(dateStr, dateStrBase, utc, utcBase);
-  return `${date[0]}/${date[1]}/${date[2]} ${date[3]}`;
+  // obtener el dia, lunes martes, etc
+  let _date = new Date(dateStr);
+  let day = DAYS_SHORT[_date.getDay()];
+  return `${day}, ${date[2]}/${date[1]}/${date[0]} - ${date[3]}`;
 };
 
 const _getDateStrMes = (
@@ -457,7 +465,6 @@ export const compareDate = (
   // d2.setHours(d2.getHours() - GMT);
   // console.log("date1:", date1);
 
-
   d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   d2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
   if (oper == "=") return d1 == d2;
@@ -543,7 +550,6 @@ export const getDateTimeAgo = (
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-
   if (diffMinutes < 1) {
     return "Hace un momento";
   } else if (diffHours < 1) {
@@ -551,21 +557,57 @@ export const getDateTimeAgo = (
   } else if (diffMinutes < 5) {
     return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
   } else if (diffHours < 24) {
-
     return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
   } else if (diffDays > 0) {
-
     return `Hace ${diffDays} ${diffDays === 1 ? "día" : "días"}`;
   } else {
     return getDateTimeStrMes(dateStr);
   }
 };
 
-export const formatToDayDDMMYYYYHHMM = (
-  dateStr: string | null = '',
-  utc: boolean = true,
+export const formatToDayDDMMYYYY = (
+  dateStr: string | null = "",
+  utc: boolean = true
 ): string => {
-  if (!dateStr || dateStr === '') return '';
+  if (!dateStr || dateStr === "") return "";
+
+  let dateForFormatting: Date;
+
+  // 1. Obtener un objeto Date base
+  if (esFormatoISO8601(dateStr) || utc) {
+    const convertedDate = convertirFechaUTCaLocal(dateStr);
+    if (!convertedDate) return "Fecha inválida";
+    dateForFormatting = convertedDate;
+  } else {
+    let tempDate = new Date(dateStr.replace(" ", "T"));
+    if (isNaN(tempDate.getTime())) {
+      const parts = dateStr.split(/[- :\/]/);
+      if (parts.length >= 3) {
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2])
+        );
+      }
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
+    }
+    dateForFormatting = tempDate;
+  }
+
+  // 2. Extraer componentes de fecha del objeto Date
+  const diaSemana = DAYS_SHORT[dateForFormatting.getDay()];
+  const dia = String(dateForFormatting.getDate()).padStart(2, "0");
+  const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
+  const año = dateForFormatting.getFullYear();
+
+  return `${diaSemana}, ${dia}/${mesNum}/${año}`;
+};
+
+export const formatToDayDDMMYYYYHHMM = (
+  dateStr: string | null = "",
+  utc: boolean = true
+): string => {
+  if (!dateStr || dateStr === "") return "";
 
   let dateForFormatting: Date;
 
@@ -574,7 +616,7 @@ export const formatToDayDDMMYYYYHHMM = (
     // Para cadenas ISO o marcadas como UTC, usamos convertirFechaUTCaLocal
     // para intentar obtener un objeto Date que represente el tiempo local (GMT-4)
     const convertedDate = convertirFechaUTCaLocal(dateStr);
-    if (!convertedDate) return 'Fecha inválida';
+    if (!convertedDate) return "Fecha inválida";
     dateForFormatting = convertedDate;
   } else {
     // Para otras cadenas, intentamos parsearlas. new Date() las toma como locales del navegador.
@@ -582,23 +624,36 @@ export const formatToDayDDMMYYYYHHMM = (
     // Si son locales del navegador y el navegador no está en GMT-4, esto podría no ser GMT-4.
     // Por consistencia con tus otras funciones, asumimos que las no-ISO/no-UTC ya están en la zona deseada
     // o que el comportamiento de new Date() es aceptable para ellas.
-    let tempDate = new Date(dateStr.replace(' ', 'T'));
+    let tempDate = new Date(dateStr.replace(" ", "T"));
     if (isNaN(tempDate.getTime())) {
-        const parts = dateStr.split(/[- :\/]/);
-        if (parts.length >= 6) { // YYYY, MM, DD, HH, MM, SS
-             tempDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), Number(parts[3]), Number(parts[4]), Number(parts[5]));
-        } else if (parts.length >= 3) { // YYYY, MM, DD
-             tempDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-        }
-        if (isNaN(tempDate.getTime())) return 'Fecha inválida';
+      const parts = dateStr.split(/[- :\/]/);
+      if (parts.length >= 6) {
+        // YYYY, MM, DD, HH, MM, SS
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2]),
+          Number(parts[3]),
+          Number(parts[4]),
+          Number(parts[5])
+        );
+      } else if (parts.length >= 3) {
+        // YYYY, MM, DD
+        tempDate = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2])
+        );
+      }
+      if (isNaN(tempDate.getTime())) return "Fecha inválida";
     }
     dateForFormatting = tempDate;
   }
 
   // 2. Extraer componentes de fecha del objeto Date
   const diaSemana = DAYS_SHORT[dateForFormatting.getDay()];
-  const dia = String(dateForFormatting.getDate()).padStart(2, '0');
-  const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, '0');
+  const dia = String(dateForFormatting.getDate()).padStart(2, "0");
+  const mesNum = String(dateForFormatting.getMonth() + 1).padStart(2, "0");
   const año = dateForFormatting.getFullYear();
 
   // 3. Extraer y ajustar componentes de hora, replicando la lógica de getDateTimeStrMes para la hora
@@ -609,15 +664,16 @@ export const formatToDayDDMMYYYYHHMM = (
   // Esto es un poco específico, pero lo replicamos para consistencia.
   if (esFormatoISO8601(dateStr)) {
     hora = dateForFormatting.getHours() - GMT; // Si GMT es -4, esto suma 4.
-                                               // Esto implica que `convertirFechaUTCaLocal` para ISO
-                                               // podría devolver un Date cuyas horas son UTC,
-                                               // y este es el ajuste final para mostrar en GMT-4.
+    // Esto implica que `convertirFechaUTCaLocal` para ISO
+    // podría devolver un Date cuyas horas son UTC,
+    // y este es el ajuste final para mostrar en GMT-4.
     if (hora < 0) {
-        hora += 24;
-        // Aquí podría ser necesario ajustar el día, pero tus otras funciones no lo hacen explícitamente en este punto.
+      hora += 24;
+      // Aquí podría ser necesario ajustar el día, pero tus otras funciones no lo hacen explícitamente en este punto.
     }
-    if (hora >= 24) { // Por si acaso GMT es positivo y la suma da >= 24
-        hora -= 24;
+    if (hora >= 24) {
+      // Por si acaso GMT es positivo y la suma da >= 24
+      hora -= 24;
     }
   }
   // Si la hora es exactamente 24:00, se ajusta a 23:59 (lógica de getDateTimeStrMes)
@@ -626,8 +682,8 @@ export const formatToDayDDMMYYYYHHMM = (
     minutos = 59;
   }
 
-  const horaStr = String(hora).padStart(2, '0');
-  const minutosStr = String(minutos).padStart(2, '0');
+  const horaStr = String(hora).padStart(2, "0");
+  const minutosStr = String(minutos).padStart(2, "0");
 
   return `${diaSemana}, ${dia}/${mesNum}/${año} - ${horaStr}:${minutosStr}`;
 };
@@ -638,16 +694,16 @@ export const formatDateRange = (
   // Función auxiliar interna para no repetir código.
   // Formatea una sola fecha en el formato "Día, dd/MM/yyyy".
   const formatSingleDate = (dateStr: string | null): string => {
-    if (!dateStr) return '';
+    if (!dateStr) return "";
 
     // Reutilizamos tu función para manejar fechas UTC y locales de forma consistente.
     const date = convertirFechaUTCaLocal(dateStr);
 
-    if (!date) return ''; // Si la fecha no es válida, retorna vacío.
+    if (!date) return ""; // Si la fecha no es válida, retorna vacío.
 
     const diaSemana = DAYS_SHORT[date.getDay()]; // Ej: 'Lun'
-    const dia = String(date.getDate()).padStart(2, '0'); // Ej: '12'
-    const mes = String(date.getMonth() + 1).padStart(2, '0'); // Ej: '04'
+    const dia = String(date.getDate()).padStart(2, "0"); // Ej: '12'
+    const mes = String(date.getMonth() + 1).padStart(2, "0"); // Ej: '04'
     const anio = date.getFullYear(); // Ej: '2025'
 
     return `${diaSemana}, ${dia}/${mes}/${anio}`;
@@ -658,7 +714,7 @@ export const formatDateRange = (
 
   // Si alguna de las fechas es inválida, mejor no mostrar nada o un error.
   if (!formattedStart || !formattedEnd) {
-    return 'Rango de fechas inválido';
+    return "Rango de fechas inválido";
   }
 
   return `${formattedStart} a ${formattedEnd}`;

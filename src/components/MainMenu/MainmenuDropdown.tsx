@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import styles from "./mainmenu.module.css";
-import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
-import { usePathname, useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import styles from './mainmenu.module.css';
+import { IconArrowDown, IconArrowUp } from '../layout/icons/IconsBiblioteca';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 interface MainmenuDropdownProps {
   label: string;
@@ -24,11 +24,11 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
-  const type = searchParams?.get("type");
+  const type = searchParams?.get('type');
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  const hasItemWithBadge = items.some((item) => item.bage && item.bage > 0);
+  const hasItemWithBadge = items.some(item => item.bage && item.bage > 0);
   // Manejo del click fuera del dropdown para cerrarlo SOLO si está colapsado
   useEffect(() => {
     if (!collapsed) return;
@@ -40,19 +40,19 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [collapsed]);
 
   // Verifica si la ruta está activa para gestionar el estado del dropdown
   useEffect(() => {
     const isActive = items.some(
-      (item) =>
+      item =>
         pathname === item.href ||
-        (pathname === "/categories" && item.href === "/payments") ||
-        (item.href === "/units" && pathname?.startsWith("/dashDpto/"))
+        (pathname === '/categories' && item.href === '/payments') ||
+        (item.href === '/units' && pathname?.startsWith('/dashDpto/'))
     );
     setIsRouteActive(isActive);
 
@@ -77,31 +77,38 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
       return true;
     }
     if (
-      pathname === "/categories" &&
-      item.href === "/payments" &&
-      type === "I"
+      pathname === '/categories' &&
+      item.href === '/payments' &&
+      type === 'I'
     ) {
       return true;
     }
     if (
-      pathname === "/categories" &&
-      item.href === "/outlays" &&
-      type === "E"
+      pathname === '/categories' &&
+      item.href === '/outlays' &&
+      type === 'E'
     ) {
       return true;
     }
-    if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
+    if (item.href === '/units' && pathname?.startsWith('/dashDpto/')) {
       return true;
     }
     return false;
   };
 
+  // Cierra el dropdown automáticamente si el menú principal se colapsa
+  useEffect(() => {
+    if (collapsed) {
+      setIsOpen(false);
+    }
+  }, [collapsed]);
+
   return (
     <div
       ref={dropdownRef}
-      className={`${styles.menuDropdown} ${isOpen ? styles.isOpen : ""} ${
-        collapsed ? styles.collapsed : ""
-      } ${isRouteActive ? styles.isRouteActive : ""}`}
+      className={`${styles.menuDropdown} ${isOpen ? styles.isOpen : ''} ${
+        collapsed ? styles.collapsed : ''
+      } ${isRouteActive ? styles.isRouteActive : ''}`}
     >
       <div onClick={toggleDropdown}>
         <div>
@@ -112,8 +119,8 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
               style={{
                 height: 8,
                 width: 8,
-                backgroundColor: "var(--cError)",
-                borderRadius: "50%",
+                backgroundColor: 'var(--cError)',
+                borderRadius: '50%',
               }}
             />
           )}
@@ -127,9 +134,9 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
             <Link
               key={index}
               href={item.href}
-              className={validatePathname(item) ? styles.active : ""}
+              className={validatePathname(item) ? styles.active : ''}
               onClick={handleLinkClick} // Llama a handleLinkClick para cerrar
-              style={{ display: "flex", gap: 4 }}
+              style={{ display: 'flex', gap: 4 }}
             >
               {item.label}
               {item.bage > 0 && (
@@ -137,8 +144,8 @@ const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
                   style={{
                     height: 8,
                     width: 8,
-                    backgroundColor: "var(--cError)",
-                    borderRadius: "50%",
+                    backgroundColor: 'var(--cError)',
+                    borderRadius: '50%',
                   }}
                 />
               )}

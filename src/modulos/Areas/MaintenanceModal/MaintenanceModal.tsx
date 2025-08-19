@@ -2,7 +2,7 @@ import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import useAxios from "@/mk/hooks/useAxios";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import TitleSubtitle from "./TitleSubtitle";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
@@ -31,13 +31,6 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
   const [openConfirm, setOpenConfirm] = useState({ open: false, id: null });
   const { showToast } = useAuth();
 
-  const activeAreas = useMemo(() => {
-    if (!areas) {
-      return [];
-    }
-    return areas.filter((area: any) => area.status === "A");
-  }, [areas]);
-
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormState({
@@ -59,7 +52,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       false,
       true
     );
-    if (data?.success == true) {
+    if (data?.success) {
       const orderUpdate_at = data?.data?.map((item: any) => ({
         ...item,
         orderUpdate_at: getDateStrMes(item?.orderUpdate_at),
@@ -76,6 +69,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     ) {
       getReservas();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formState.date_at, formState.date_end, formState.area_id]);
 
   const _onClose = () => {
@@ -123,7 +117,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       "POST",
       formState
     );
-    if (data?.success == true) {
+    if (data?.success) {
       _onClose();
       showToast("Mantenimiento creado con éxito", "success");
     } else {
@@ -145,7 +139,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       false,
       true
     );
-    if (data?.success == true) {
+    if (data?.success) {
       setDataM(data?.data);
     }
     setLoading(false);
@@ -155,6 +149,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
     if (tab == "A") {
       getAreasM();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   const handleCancelMaintenance = async (id: any) => {
@@ -167,7 +162,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
       false,
       true
     );
-    if (data?.success == true) {
+    if (data?.success) {
       getAreasM();
       showToast("Mantenimiento cancelado con éxito", "success");
       setOpenConfirm({ open: false, id: null });
@@ -204,7 +199,7 @@ const MaintenanceModal = ({ open, onClose, areas }: Props) => {
             value={formState?.area_id}
             error={errors}
             onChange={handleChange}
-            options={activeAreas || []}
+            options={areas || []}
             optionLabel="title"
             optionValue="id"
           />

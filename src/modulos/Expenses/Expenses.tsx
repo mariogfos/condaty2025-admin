@@ -1,38 +1,82 @@
-"use client";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
-// import styles from "./Educations.module.css"; // esto?
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
-import { MONTHS, MONTHS_S } from "@/mk/utils/date";
-import { formatNumber } from "@/mk/utils/numbers";
-import RenderForm from "./RenderForm/RenderForm";
+'use client';
+import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
+import NotAccess from '@/components/auth/NotAccess/NotAccess';
+import ItemList from '@/mk/components/ui/ItemList/ItemList';
+import useCrudUtils from '../shared/useCrudUtils';
+import { useEffect, useMemo, useState } from 'react';
+import RenderItem from '../shared/RenderItem';
+import { MONTHS } from '@/mk/utils/date';
+import RenderForm from './RenderForm/RenderForm';
 import {
   isUnitInDefault,
   paidUnits,
   sumExpenses,
   sumPaidUnits,
   sumPenalty,
-  units, //Esto?
   unitsPayable,
-} from "@/mk/utils/utils";
-import styles from "./Expenses.module.css";
-import ExpensesDetails from "./ExpensesDetails/ExpensesDetailsView";
-import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
+} from '@/mk/utils/utils';
+import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
+import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import styles from './Expenses.module.css';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+
+const renderPeriodCell = (props: any) => {
+  const month = props?.item?.month;
+  const year = props?.item?.year;
+  const monthName = MONTHS[month] || '';
+  return (
+    <div>
+      {monthName} {year}
+    </div>
+  );
+};
+
+const renderTotalExpensesCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={sumExpenses(item?.asignados)} alignRight />
+);
+
+const renderPaidUnitsCell = ({ item }: { item: any }) => (
+  <div className={styles.PaidUnitsCell}>{paidUnits(item?.asignados)}</div>
+);
+
+const renderUnitsPayableCell = ({ item }: { item: any }) => (
+  <div
+    className={styles.UnitsPayableCell}
+    style={{
+      color: isUnitInDefault(item) ? 'var(--cError)' : 'var(--cWhiteV1)',
+    }}
+  >
+    {unitsPayable(item?.asignados)}
+  </div>
+);
+
+const renderAmountsCollectedCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={sumPaidUnits(item?.asignados)} alignRight />
+);
+
+const renderSumPenaltyCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={sumPenalty(item?.asignados)} alignRight />
+);
+
+const renderTotalAmountCollectedCell = ({ item }: { item: any }) => (
+  <FormatBsAlign
+    value={
+      sumExpenses(item?.asignados) + sumPenalty(item?.asignados) - sumPaidUnits(item?.asignados)
+    }
+    alignRight
+  />
+);
 
 const mod: ModCrudType = {
-  modulo: "debts",
-  singular: "Expensa",
-  plural: "Expensas",
+  modulo: 'debts',
+  singular: 'Expensa',
+  plural: 'Expensas',
   export: true,
-  // import: true,
-  // importRequiredCols:"NAME",
   filter: true,
-
-  permiso: "",
+  permiso: 'expense',
   extraData: true,
+  search: { hide: true },
   hideActions: {
     view: true,
     edit: true,
@@ -77,20 +121,19 @@ const mod: ModCrudType = {
       />
     );
   },
-  // renderView: (props: {
-  //     open: boolean;
-  //     onClose: any;
-  //     item: Record<string, any>;
-  //     onConfirm?: Function;
-  //   }) => <RenderView {...props} />,
 };
 
 const Expenses = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
+  const { setStore: setAuthStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Expensas' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getYearOptions = () => {
-    const lAnios: any = [{ id: "ALL", name: "Todos" }];
+    const lAnios: any = [{ id: 'ALL', name: 'Todos' }];
     const lastYear = new Date().getFullYear();
     for (let i = lastYear; i >= 2000; i--) {
       lAnios.push({ id: i, name: i.toString() });
@@ -99,236 +142,144 @@ const Expenses = () => {
   };
 
   const paramsInitial = {
-    perPage: -1,
+    fullType: 'L',
     page: 1,
-    fullType: "L",
-    searchBy: "",
+    perPage: 20,
   };
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       period: {
-        rules: [""],
-        api: "",
-        label: "Periodo",
+        rules: [''],
+        api: '',
+        label: 'Periodo',
         list: {
-          width: "150px",
-          onRender: (props: any) => {
-            //Esto? sacar afuerita
-            return (
-              <div>
-                {MONTHS_S[props?.item?.month]}/{props?.item?.year}
-              </div>
-            );
-          },
+          width: '150px',
+          onRender: renderPeriodCell,
+          order: 1,
+        },
+      },
+      paidUnits: {
+        rules: [''],
+        api: '',
+        label: <span className={styles.SpanLabel}>Unidades al día</span>,
+        list: {
+          onRender: renderPaidUnitsCell,
+          order: 2,
+        },
+      },
+      unitsPayable: {
+        rules: [''],
+        api: '',
+        label: <span className={styles.SpanLabel}>Unidades por pagar</span>,
+        list: {
+          onRender: renderUnitsPayableCell,
+          order: 3,
+        },
+      },
+      totalExpensesSum: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Total de expensas
+          </label>
+        ),
+        list: {
+          onRender: renderTotalExpensesCell,
+          order: 4,
+        },
+      },
+      sumPenalty: {
+        rules: [''],
+        api: '',
+        label: <label className={styles.SpanLabel}>Total de multa</label>,
+        list: {
+          onRender: renderSumPenaltyCell,
+          order: 5,
+        },
+      },
+      ammountsCollected: {
+        rules: [''],
+        api: '',
+        label: <label className={styles.SpanLabel}>Total cobrado</label>,
+        list: {
+          onRender: renderAmountsCollectedCell,
+          order: 6,
+        },
+      },
+      totalAmmountCollected: {
+        rules: [''],
+        api: '',
+        label: <label className={styles.SpanLabel}>Saldo a cobrar</label>,
+        list: {
+          onRender: renderTotalAmountCollectedCell,
+          order: 7,
         },
       },
       year: {
-        rules: ["required"],
-        api: "ae",
-        label: "Año",
-        form: { type: "text" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Año',
+        form: { type: 'text' },
         filter: {
-          label: "Año",
-          width: "200px",
+          label: 'Año',
+          width: '100%',
           options: getYearOptions,
-          optionLabel: "name",
+          optionLabel: 'name',
         },
       },
       month: {
-        rules: ["required"],
-        api: "ae",
-        label: "Mes",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Mes',
         form: {
-          type: "select",
+          type: 'select',
           options: MONTHS.map((month, index) => ({
             id: index,
             name: month,
           })),
         },
         filter: {
-          label: "Meses",
-          width: "200px",
+          label: 'Meses',
+          width: '100%',
           options: () =>
             MONTHS.map((month, index) => ({
-              id: index == 0 ? "ALL" : index,
-              name: index == 0 ? "Todos" : month,
+              id: index == 0 ? 'ALL' : index,
+              name: index == 0 ? 'Todos' : month,
             })),
         },
       },
-      due_at: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha de vencimiento",
-        form: { type: "date" },
-      },
+
       category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Categoría',
         form: {
-          type: "select",
-          options: [{ id: 1, name: "Expensas" }],
-        },
-      },
-
-      // assignedUnits: {
-      //   rules: [""],
-      //   api: "",
-      //   label: "Unidades asignadas",
-      //   list: {
-      //     onRender: (props: any) => {
-      //       return units(props?.item?.asignados) + " U";
-      //     },
-      //   },
-      // },
-      totalExpensesSum: {
-        rules: [""],
-        api: "",
-        label: "Monto total de expensas",
-        list: {
-          onRender: (props: any) => {
-            // esto? tambienn sacar adfuera
-            return (
-              <div>
-                {"Bs " + formatNumber(sumExpenses(props?.item?.asignados))}
-              </div>
-            );
-          },
-        },
-      },
-      paidUnits: {
-        rules: [""],
-        api: "",
-        label: "Unidades al día",
-        list: {
-          onRender: (props: any) => {
-            return <div>{paidUnits(props?.item?.asignados)} U</div>;
-          },
-        },
-      },
-
-      unitsPayable: {
-        rules: [""],
-        api: "",
-        label: "Unidades por pagar",
-        list: {
-          onRender: (props: any) => {
-            //esto?sacar afuera crear funcion fuera
-            return (
-              <div
-                style={{
-                  color: isUnitInDefault(props?.item) ? "var(--cError)" : "",
-                }}
-              >
-                {unitsPayable(props?.item?.asignados)} U
-              </div>
-            );
-          },
-        },
-      },
-      ammountsCollected: {
-        rules: [""],
-        api: "",
-        label: "Monto total cobrado",
-        list: {
-          onRender: (props: any) => {
-            // esto? sacar funcion fuera
-            return (
-              <div>
-                {"Bs " + formatNumber(sumPaidUnits(props?.item?.asignados))}
-              </div>
-            );
-          },
-        },
-      },
-
-      sumPenalty: {
-        rules: [""],
-        api: "",
-        label: "Multa total de mora",
-        list: {
-          onRender: (props: any) => {
-            //esto? sacar fuera
-            return (
-              <div>
-                {"Bs " + formatNumber(sumPenalty(props?.item?.asignados))}
-              </div>
-            );
-          },
-        },
-      },
-      payStatus: {
-        rules: [""],
-        api: "",
-        label: "Estado",
-        list: {
-          onRender: (props: any) => {
-            //esto? sacar fuera
-            const isInDefault = isUnitInDefault(props?.item);
-            const statusClass = `${styles.statusBadge} ${
-              isInDefault ? styles.statusMora : styles.statusDefault
-            }`;
-
-            // Primero verificamos si es Pagado
-            if (props.item.status === "P") {
-              return <div className={styles.statusPay}>Pagado</div>;
-            }
-
-            // Lógica normal para otros estados
-            return (
-              <div className={statusClass}>
-                {isInDefault ? "En mora" : "Vigente"}
-              </div>
-            );
-          },
-        },
-      },
-      totalAmmountCollected: {
-        rules: [""],
-        api: "",
-        label: "Total a cobrar",
-        list: {
-          onRender: (props: any) => {
-            // esto? sacra fuera
-            return (
-              <div>
-                {"Bs. " +
-                  formatNumber(
-                    sumExpenses(props?.item?.asignados) +
-                      sumPenalty(props?.item?.asignados) -
-                      sumPaidUnits(props?.item?.asignados)
-                  )}
-              </div>
-            );
-          },
+          type: 'select',
+          options: [{ id: 1, name: 'Expensas' }],
         },
       },
     };
   }, []);
 
-  const { userCan, List, setStore, onSearch, searchs, onEdit, onDel } = useCrud(
-    {
-      paramsInitial,
-      mod,
-      fields,
-    }
-  );
+  const { userCan, List, setStore, onEdit, onDel } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+  });
+
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
-    searchs,
+    onSearch: () => {},
+    searchs: {},
     setStore,
     mod,
     onEdit,
     onDel,
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
+  const renderItem = (item: Record<string, any>) => {
     return (
       <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
         <ItemList
@@ -341,27 +292,33 @@ const Expenses = () => {
     );
   };
   const onClickDetail = (row: any) => {
-    // const url = `/detailSurveys?id=${row.id}`; //esto?
-
-    // window.location.href = url; //esto?
     setDetailItem(row);
     setOpenDetail(true);
   };
 
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
 
   if (openDetail)
-    return <ExpensesDetails data={detailItem} setOpenDetail={setOpenDetail} />;
+    return (
+      <ExpensesDetails
+        data={detailItem}
+        setOpenDetail={(e: any) => {
+          setStore({ title: mod?.plural });
+          setOpenDetail();
+        }}
+      />
+    );
   else
     return (
       <div>
         <List
-          height={"calc(100vh - 270px)"}
+          height={'calc(100vh - 350px)'}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
-          emptyMsg="Lista de expensa vacía. Una vez generes las cuotas"
+          emptyMsg="Lista de expensas vacía. Una vez generes las cuotas"
           emptyLine2="de los residentes las verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+          filterBreakPoint={800}
         />
       </div>
     );

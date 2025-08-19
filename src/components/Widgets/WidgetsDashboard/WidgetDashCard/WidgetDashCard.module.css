@@ -1,18 +1,19 @@
 .container {
   /* min-width: 180px; */
   background-color: var(--cBlackV2);
-  padding: var(--spL);
+  padding: var(--spM) var(--spS);
   border-radius: var(--bRadius);
-  margin-bottom: var(--spS);
+ 
   position: relative;
   border: 0.5px solid var(--cWhiteV1);
-  /* min-height: 104px; */
+  gap: var(--spS);
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
 
   & > div:nth-child(1) {
     flex-grow: 1;
+    gap: var(--spS);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -22,7 +23,7 @@
     & > p {
       color: var(--cWhiteV1);
       font-size: var(--sM);
-      margin-bottom: var(--spS);
+      /* margin-bottom: var(--spS); */
       align-items: center;
       text-align: left;
       display: flex;
@@ -31,7 +32,7 @@
     /* Estilos para el dato principal */
     .data {
       font-size: var(--sXl) !important;
-      font-weight: 600;
+      font-weight: var(--bSemibold);
       color: var(--cWhite);
 
       /* margin-top: var(--spS); */
@@ -81,4 +82,13 @@
 .iconArrowDown {
   display: inline-block;
   margin-left: 0.5rem;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: var(--sL);
+  font-weight: var(--bRegular);
+  color: var(--cWhiteV1);
+  gap: 6px;
 }

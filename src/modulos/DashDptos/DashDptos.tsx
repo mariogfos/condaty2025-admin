@@ -1,79 +1,49 @@
 "use client";
 import { useState } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName } from "@/mk/utils/string";
 import styles from "./DashDptos.module.css";
 import { useRouter } from "next/navigation";
-import {
-  IconArrowDown,
-  IconCalendar,
-  IconDelivery,
-  IconEdit,
-  IconExitHome,
-  IconHomePerson2,
-  IconOther,
-  IconPagos,
-  IconReservedAreas,
-  IconTaxi,
-  IconTrash,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
+import { IconArrowDown } from "@/components/layout/icons/IconsBiblioteca";
 import Select from "@/mk/components/forms/Select/Select";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
-import EmptyData from "@/components/NoData/EmptyData";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import HistoryAccess from "./HistoryAccess/HistoryAccess";
-import HistoryPayments from "./HistoryPayments/HistoryPayments";
 import HistoryOwnership from "./HistoryOwnership/HistoryOwnership";
-import { getDateStrMes, getDateTimeStrMes } from "@/mk/utils/date";
 import RenderView from "../Payments/RenderView/RenderView";
 import OwnersRenderView from "../Owners/RenderView/RenderView";
-import Tooltip from "@/components/Tooltip/Tooltip";
-import Table from "@/mk/components/ui/Table/Table";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
-import Switch from "@/mk/components/forms/Switch/Switch";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import WidgetBase from "@/components/Widgets/WidgetBase/WidgetBase";
-import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
-import HistoryReservations from "./HistoryReservations/HistoryReservations";
-import { Calendar } from "@/mk/components/Calendar";
+import UnitInfo from "./UnitInfo/UnitInfo";
+import PaymentsTable from "./PaymentsTable/PaymentsTable";
+import AccessTable from "./AccessTable/AccessTable";
+import ReservationsTable from "./ReservationsTable/ReservationsTable";
+import TitleRender from "./TitleRender/TitleRender";
+import { setParamsCrud } from "@/mk/utils/utils";
 
 interface DashDptosProps {
   id: string | number;
 }
 
-const getStatus = (status: string) => {
-  const statusMap: Record<string, string> = {
-    A: "Por Pagar",
-    E: "Por subir comprobante",
-    P: "Pagado",
-    S: "Por confirmar",
-    M: "Moroso",
-    R: "Rechazado",
-  };
-  return statusMap[status] || status;
-};
-
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { user, showToast } = useAuth();
+  const { showToast, setStore } = useAuth();
   const router = useRouter();
-  // const [tipoUnidad, setTipoUnidad] = useState("");
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openComprobante, setOpenComprobante] = useState(false);
   const [formState, setFormState] = useState<any>({ isTitular: "I" });
   const [errorsT, setErrorsT] = useState<any>({});
-  const [openAccesos, setOpenAccesos] = useState(false);
-  const [openPaymentsHist, setOpenPaymentsHist] = useState(false);
-  const [openReservasHist, setOpenReservasHist] = useState(false);
   const [openTitularHist, setOpenTitularHist] = useState(false);
   const [idPago, setIdPago] = useState<string | null>(null);
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [openProfileModal, setOpenProfileModal] = useState(false);
+  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
+    null
+  );
   const {
     data: dashData,
     reLoad,
@@ -85,6 +55,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
   });
 
   const datas = dashData?.data || {};
+
+  // const locationParams = (path: string, key: string, value: string) => {
+  //   setStore({
+  //     [key]: value,
+  //   });
+  //   router.push(path);
+  // };
 
   const onSave = async () => {
     if (!formState.owner_id) {
@@ -111,120 +88,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
         showToast(response?.message || "Error al actualizar titular", "error");
       }
     } catch (error) {
-      showToast("Error al actualizar titular", "error");
+      showToast("Error al actualizar titular", error);
     }
   };
 
-  const handleOpenPerfil = (owner_id: string) => {
-    setIdPerfil(owner_id);
-    setOpenPerfil(true);
-  };
-
-  const header = [
-    {
-      key: "paid_at",
-      label: "Fecha de pago",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || "-";
-      },
-    },
-    {
-      key: "categorie",
-      label: "Categoría",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || "-";
-      },
-    },
-    {
-      key: "sub_categorie",
-      label: "Sub Categoría",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || "-";
-      },
-    },
-    {
-      key: "amount",
-      label: "Monto",
-      responsive: "desktop",
-
-      onRender: ({ item }: any) => {
-        return item?.amount && item?.penalty_amount
-          ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : "-";
-      },
-    },
-    // {
-    //   key: "type",
-    //   label: "Tipo de pago",
-    //   responsive: "desktop",
-    //   onRender: ({ item }: any) => {
-    //     return item?.payment?.type === "Q"
-    //       ? "Qr"
-    //       : item?.payment?.type === "T"
-    //       ? "Transferencia"
-    //       : item?.payment?.type === "O"
-    //       ? "Pago en oficina"
-    //       : "Sin pago";
-    //   },
-    // },
-    {
-      key: "status",
-      label: "Estado",
-      responsive: "desktop",
-      onRender: ({ item }: any) => {
-        return (
-          <span
-            className={`${styles.status} ${styles[`status${item?.status}`]}`}
-          >
-            {getStatus(item?.status)}
-          </span>
-        );
-      },
-    },
-  ];
-
-  const Br = () => {
-    return <div className={styles.br} />;
-  };
-
-  type LabelValueProps = {
-    value: string;
-    label: string;
-    colorValue?: string;
-  };
-
-  const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
-    return (
-      <div className={styles.LabelValue}>
-        <p>{label}</p>
-        <p
-          style={{
-            color: colorValue ? colorValue : "var(--cWhite)",
-          }}
-        >
-          {value}
-        </p>
-      </div>
-    );
-  };
-  type TitleRenderProps = {
-    title: string;
-    onClick?: () => void;
-  };
-  const TitleRender = ({ title, onClick }: TitleRenderProps) => {
-    return (
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3 className={styles.accountTitle}>{title}</h3>
-        {onClick && (
-          <span className={styles.viewMore} onClick={onClick}>
-            Ver historial completo
-          </span>
-        )}
-      </div>
-    );
+  const handleOpenDependentProfile = (owner_id: string) => {
+    setSelectedDependentId(owner_id);
+    setOpenProfileModal(true);
   };
   const onDel = async () => {
     const { data } = await execute("/dptos/" + datas.data.id, "DELETE");
@@ -236,70 +106,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const getHourPeriod = (start_time: any, end_time: any) => {
-    const start =
-      typeof start_time === "string"
-        ? new Date(`1970-01-01T${start_time}`)
-        : new Date(start_time);
-    const end =
-      typeof end_time === "string"
-        ? new Date(`1970-01-01T${end_time}`)
-        : new Date(end_time);
-
-    const diff = end.getTime() - start.getTime();
-    const hours = Math.floor(diff / 1000 / 60 / 60);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
-
-    if (hours === 0 && minutes > 0) {
-      return `${minutes}m`;
-    } else if (hours > 0 && minutes > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    }
-    return "0m";
-  };
-
-  const leftAccess = (item: any) => {
-    if (item?.other) {
-      let icon;
-      switch (item?.other?.other_type_id) {
-        case 1:
-          icon = <IconDelivery color="var(--cBlack)" />;
-          break;
-        case 2:
-          icon = <IconTaxi color="var(--cBlack)" />;
-          break;
-        default:
-          icon = <IconOther color="var(--cBlack)" />;
-          break;
-      }
-      return (
-        <div
-          style={{
-            padding: 8,
-            backgroundColor: "var(--cWhiteV1)",
-            borderRadius: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {icon}
-        </div>
-      );
-    }
-    return (
-      <Avatar
-        hasImage={item?.visit?.has_image}
-        name={getFullName(item.visit)}
-        w={40}
-        h={40}
-        className={styles.visitorAvatar}
-      />
-    );
-  };
-
   const onTitular = () => {
     if (!datas?.data?.homeowner) {
       showToast(
@@ -309,13 +115,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
       return;
     }
     setOpenTitular(true);
-  };
-  const renderSubtitle = (item: any) => {
-    let subtitle = "CI: " + item.visit?.ci;
-    if (item?.other) {
-      subtitle = item.other?.other_type?.name;
-    }
-    return subtitle;
   };
 
   const removeTitular = async () => {
@@ -339,512 +138,85 @@ const DashDptos = ({ id }: DashDptosProps) => {
       />
       <section>
         <div className={styles.firtsPanel}>
-          <div className={styles.infoCard}>
-            <div className={styles.cardHeader}>
-              <div>
-                <p className={styles.title}>
-                  {datas?.data?.type.name} {datas?.data?.nro}
-                </p>
-                <p className={styles.subtitle}> {datas?.data?.description}</p>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <div className={styles.iconActions}>
-                  <IconEdit size={30} onClick={() => setOpenEdit(true)} />
-                </div>
-                <div className={styles.iconActions}>
-                  <IconTrash size={30} onClick={() => setOpenDel(true)} />
-                </div>
-              </div>
-            </div>
-
-            <Br />
-
-            <div style={{ display: "flex", marginBottom: "var(--spS)" }}>
-              {!datas?.data?.homeowner ? (
-                <EmptyData
-                  message="Sin propietario a cargo. Para registrar"
-                  line2="un propietario a esta unidad."
-                  icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-                  centered={true}
-                  fontSize={14}
-                />
-              ) : (
-                <ItemList
-                  title={getFullName(datas?.data?.homeowner)}
-                  subtitle={"Propietario"}
-                  left={
-                    <Avatar
-                      hasImage={datas?.data?.homeowner?.has_image}
-                      // src={
-                      //   datas?.data?.id
-                      //     ? getUrlImages(
-                      //         "/DPTO" +
-                      //           "-" +
-                      //           datas?.data?.id +
-                      //           ".webp" +
-                      //           (datas?.data?.updated_at
-                      //             ? "?d=" + datas?.data?.updated_at
-                      //             : "")
-                      //       )
-                      //     : ""
-                      // }
-                      name={getFullName(datas?.data?.homeowner)}
-                      w={48}
-                      h={48}
-                    />
-                  }
-                  right={
-                    <div className={styles.SwitchContainer}>
-                      <Switch
-                        name="isTitular"
-                        // optionValue={["P", "I"]}
-                        disabled={true}
-                        checked={formState.isTitular == "P"}
-                        onChange={() => {
-                          setFormState({
-                            ...formState,
-                            isTitular: formState.isTitular == "P" ? "I" : "P",
-                          });
-                        }}
-                        value={formState.isTitular}
-                        label="A cargo de la unidad"
-                      />
-                    </div>
-                  }
-                />
-              )}
-            </div>
-
-            <div>
-              {/* Info Grid */}
-              <div className={styles.infoGrid}>
-                <LabelValue
-                  value={datas?.titular ? "Habitada" : "Disponible"}
-                  label="Estado"
-                  colorValue={
-                    datas?.titular ? "var(--cSuccess)" : "var(--cWhite)"
-                  }
-                />
-                <LabelValue
-                  value={datas?.data?.expense_amount}
-                  label="Expensa"
-                />
-                <LabelValue
-                  value={datas?.data?.dimension + " m²"}
-                  label="Dimensiones"
-                />
-              </div>
-
-              <Br />
-
-              <div style={{ width: "100%" }}>
-                {/* Sección Titular */}
-                {!datas?.titular ? (
-                  <div className={styles.emptyTitular}>
-                    <EmptyData
-                      message="Sin inquilino asignado. Para asignar"
-                      line2="un inquilino a esta unidad."
-                      icon={
-                        <IconHomePerson2 size={32} color="var(--cWhiteV1)" />
-                      }
-                      centered={true}
-                      fontSize={14}
-                    />
-                    {/* <Button className={styles.addButton} onClick={onTitular}>
-                      Agregar Titular
-                    </Button> */}
-                  </div>
-                ) : (
-                  <div>
-                    <ItemList
-                      title={getFullName(datas?.titular)}
-                      subtitle={"Titular"}
-                      left={
-                        <Avatar
-                          hasImage={datas?.titular?.has_image}
-                          src={
-                            datas?.titular?.id
-                              ? getUrlImages(
-                                  "/OWNER" +
-                                    "-" +
-                                    datas?.titular?.id +
-                                    ".webp" +
-                                    (datas?.titular?.updated_at
-                                      ? "?d=" + datas?.titular?.updated_at
-                                      : "")
-                                )
-                              : ""
-                          }
-                          name={getFullName(datas?.titular)}
-                          w={48}
-                          h={48}
-                        />
-                      }
-                      right={
-                        <div className={styles.SwitchContainer}>
-                          <Switch
-                            optionValue={["I", "P"]}
-                            name="isTitular"
-                            checked={formState?.isTitular == "I"}
-                            onChange={(e: any) => {
-                              setFormState({
-                                ...formState,
-                                isTitular:
-                                  formState.isTitular == "I" ? "P" : "I",
-                              });
-                            }}
-                            value={formState.isTitular}
-                            label="A cargo de la unidad"
-                          />
-                        </div>
-                      }
-                    />
-                    {/* <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Button
-                        onClick={() => setOpenTitular(true)}
-                        variant="terciary"
-                        style={{
-                          padding: 0,
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          width: "fit-content",
-                        }}
-                        small
-                      >
-                        Cambiar titular
-                      </Button> */}
-                    <Button
-                      onClick={() => setOpenDelTitular(true)}
-                      variant="terciary"
-                      style={{
-                        padding: 0,
-                        color: "var(--cError)",
-                        width: "fit-content",
-                      }}
-                      small
-                    >
-                      Eliminar titular
-                    </Button>
-                    {/* </div> */}
-
-                    {/* Dependientes */}
-                    {datas?.titular?.dependientes && (
-                      <div className={styles.dependentesSection}>
-                        <p>Dependientes</p>
-                        <div className={styles.dependentesGrid}>
-                          {datas.titular.dependientes.length > 0 ? (
-                            datas.titular.dependientes.map(
-                              (dependiente: any, index: number) => (
-                                <Tooltip
-                                  key={index}
-                                  title={getFullName(dependiente.owner)}
-                                  position="top"
-                                  className={styles.tooltip}
-                                >
-                                  <Avatar
-                                    hasImage={dependiente.owner?.has_image}
-                                    key={index}
-                                    src={
-                                      dependiente.owner?.id
-                                        ? getUrlImages(
-                                            "/OWNER" +
-                                              "-" +
-                                              dependiente.owner?.id +
-                                              ".webp" +
-                                              (datas?.titular?.updated_at
-                                                ? "?d=" +
-                                                  datas?.titular?.updated_at
-                                                : "")
-                                          )
-                                        : ""
-                                    }
-                                    name={getFullName(dependiente.owner)}
-                                    w={40}
-                                    h={40}
-                                    className={styles.dependentAvatar}
-                                    onClick={() =>
-                                      handleOpenPerfil(dependiente.owner_id)
-                                    }
-                                  />
-                                </Tooltip>
-                              )
-                            )
-                          ) : (
-                            <>
-                              <Br />
-                              <p className={styles.emptyMessage}>
-                                aquí verás a los dependientes que se vinculen a
-                                un propietario o un inquilino.
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Button
-              variant="terciary"
-              small
-              style={{
-                padding: 0,
-                display: "flex",
-                justifyContent: "flex-start",
-                width: "fit-content",
-              }}
-              onClick={() => setOpenTitularHist(true)}
-            >
-              Ver historial de titulares
-            </Button>
-          </div>
+          <UnitInfo
+            datas={datas}
+            onEdit={() => setOpenEdit(true)}
+            onDelete={() => setOpenDel(true)}
+            onTitular={onTitular}
+            onRemoveTitular={() => setOpenDelTitular(true)}
+            onOpenDependentProfile={handleOpenDependentProfile}
+            onOpenTitularHist={() => setOpenTitularHist(true)}
+          />
 
           <WidgetBase
             title={
               <TitleRender
                 title="Historial de pagos"
-                onClick={() => setOpenPaymentsHist(true)}
+                onClick={() => {
+                  setParamsCrud("payments", "searchBy", datas?.data?.nro);
+                  router.push("/payments");
+                }}
               />
             }
+            subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
+            style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              {!datas?.payments || datas.payments.length === 0 ? (
-                <EmptyData
-                  message="Sin pagos registrados. Cuando esta unidad comience a pagar"
-                  line2="expensas y otros conceptos, los verás aquí."
-                  centered={true}
-                  icon={<IconPagos size={80} color="var(--cWhiteV1)" />}
-                />
-              ) : (
-                <Table
-                  header={header}
-                  data={datas?.payments}
-                  className="striped"
-                />
-              )}
+              <PaymentsTable payments={datas?.payments} />
             </div>
           </WidgetBase>
         </div>
 
         <div className={styles.secondPanel}>
-          {/* Historial de Visitas Mini Lista */}
+          {/* Historial de Accesos - Tabla */}
           <WidgetBase
             subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
             title={
               <TitleRender
                 title="Historial de accesos"
-                onClick={() => setOpenAccesos(true)}
+                onClick={() => {
+                  setParamsCrud("accesses", "searchBy", datas?.data?.nro);
+                  router.push("/activities");
+                }}
+                // onClick={() =>
+                //   router.push(`/activities?search_by=${datas?.data?.nro}`)
+                // }
               />
             }
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
-                marginTop: 24,
-              }}
-            >
-              {datas?.access && datas.access.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                  }}
-                >
-                  {datas.access.map((acc: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: "1px solid var(--cWhiteV1)",
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={getFullName(acc.visit)}
-                          subtitle={renderSubtitle(acc)}
-                          left={leftAccess(acc)}
-                          right={
-                            <p
-                              style={{
-                                width: 80,
-                                fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
-                                color:
-                                  acc.in_at && acc.out_at
-                                    ? "var(--cSuccess)"
-                                    : "var(--cError)",
-                              }}
-                            >
-                              {acc.in_at && acc.out_at
-                                ? "Completado"
-                                : "Por salir"}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={"Tipo de visita"}
-                          value={
-                            acc.type === "P"
-                              ? "Pedido"
-                              : acc.type == "I"
-                              ? "Individual"
-                              : "Grupal"
-                          }
-                        />
-                        <KeyValue
-                          title={"Ingreso"}
-                          value={getDateTimeStrMes(acc.in_at) || "-/-"}
-                        />
-                        <KeyValue
-                          title={"Salida"}
-                          value={getDateTimeStrMes(acc.out_at) || "-/-"}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <EmptyData
-                  message="No existen accesos registrados. El historial de visitantes se mostrará"
-                  line2="aquí, una vez la unidad reciba visitas."
-                  centered={true}
-                  icon={<IconExitHome size={32} color="var(--cWhiteV1)" />}
-                />
-              )}
+            <div className={styles.accessContent}>
+              <AccessTable access={datas?.access} titular={datas?.titular} />
             </div>
           </WidgetBase>
+
+          {/* Historial de Reservas - Tabla */}
           <WidgetBase
             title={
               <TitleRender
                 title="Historial de reservas"
-                onClick={() => setOpenReservasHist(true)}
+                onClick={() => {
+                  setParamsCrud("reservations", "searchBy", datas?.data?.nro);
+                  router.push("/reservas");
+                }}
+                // onClick={() =>
+                //   router.push(`/reservas?search_by=${datas?.data?.nro}`)
+                // }
               />
             }
             subtitle={
               "+" + datas.reservationsCount + " reservas nuevas este mes"
             }
             variant="V1"
-            style={{ width: "48%" }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                width: "100%",
-                marginTop: 24,
-              }}
-            >
-              {datas?.reservations && datas?.reservations?.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                  }}
-                >
-                  {datas.reservations.map((res: any, index: any) => {
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: 468,
-                          border: "1px solid var(--cWhiteV1)",
-                          padding: 12,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <ItemList
-                          title={res?.area?.title}
-                          subtitle={res?.area?.description}
-                          left={
-                            <Avatar
-                              name={res?.area?.title}
-                              src={getUrlImages(
-                                "/AREA-" +
-                                  res?.area?.id +
-                                  "-" +
-                                  res?.area?.images?.[0]?.id +
-                                  ".webp" +
-                                  "?" +
-                                  res?.area?.updated_at
-                              )}
-                              w={40}
-                              h={40}
-                            />
-                          }
-                          right={
-                            <p
-                              style={{
-                                color:
-                                  res.status === "A"
-                                    ? "var(--cSuccess)"
-                                    : res.status === "W"
-                                    ? "var(--cWarning)"
-                                    : res.status === "X"
-                                    ? "var(--cError)"
-                                    : "var(--cError)",
-                                fontSize: 12,
-                                display: "flex",
-                                justifyContent: "end",
-                              }}
-                            >
-                              {res.status === "A"
-                                ? "Aprovada "
-                                : res.status === "W"
-                                ? "En espera"
-                                : res.status === "X"
-                                ? "Rechazado"
-                                : "Cancelado"}
-                            </p>
-                          }
-                        />
-                        <KeyValue
-                          title={"Fecha y hora de reserva"}
-                          value={
-                            res.start_time.slice(0, 5) + " - " + res.date_at ||
-                            "Sin fecha"
-                          }
-                        />
-                        <KeyValue
-                          title={"Cantidad de personas"}
-                          value={
-                            res.people_count + " personas" || "Sin cantidad"
-                          }
-                        />
-                        <KeyValue
-                          title={"Cantidad de horas"}
-                          value={
-                            getHourPeriod(res.start_time, res?.end_time) ||
-                            "Sin fecha"
-                          }
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <EmptyData
-                  message="No hay solicitudes de reserva. Una vez los residentes"
-                  line2="comiencen a reservar áreas sociales se mostrarán aquí."
-                  icon={<IconReservedAreas size={32} color="var(--cWhiteV1)" />}
-                  h={120}
-                  centered={true}
-                />
-              )}
+            <div className={styles.reservationsContent}>
+              <ReservationsTable
+                reservations={datas?.reservations}
+                titular={datas?.titular}
+              />
             </div>
           </WidgetBase>
         </div>
@@ -873,6 +245,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               }))}
               optionLabel="name"
               optionValue="id"
+              filter={true}
               iconRight={<IconArrowDown />}
             />
           </div>
@@ -883,29 +256,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
             ownershipData={datas?.titularHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
-          />
-        )}
-
-        {openPaymentsHist && (
-          <HistoryPayments
-            paymentsData={datas?.payments || []}
-            open={openPaymentsHist}
-            close={() => setOpenPaymentsHist(false)}
-          />
-        )}
-
-        {openAccesos && (
-          <HistoryAccess
-            accessData={datas?.access || []}
-            open={openAccesos}
-            close={() => setOpenAccesos(false)}
-          />
-        )}
-        {openReservasHist && (
-          <HistoryReservations
-            open={openReservasHist}
-            onClose={() => setOpenReservasHist(false)}
-            id={datas?.data?.id}
           />
         )}
 
@@ -957,6 +307,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar unidad"
             open={openDel}
             onSave={onDel}
+            variant={"mini"}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
           >
@@ -973,11 +324,27 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar titular"
             open={openDelTitular}
             onSave={removeTitular}
+            variant={"mini"}
             onClose={() => setOpenDelTitular(false)}
             buttonText="Eliminar"
           >
             <p>¿Estás seguro de que quieres eliminar este titular?</p>
           </DataModal>
+        )}
+
+        {openProfileModal && selectedDependentId && (
+          <ProfileModal
+            open={openProfileModal}
+            onClose={() => {
+              setOpenProfileModal(false);
+              setSelectedDependentId(null);
+            }}
+            dataID={selectedDependentId}
+            title="Perfil del Dependiente"
+            titleBack="Volver a la Unidad"
+            type="owner"
+            reLoad={reLoad}
+          />
         )}
       </section>
     </div>

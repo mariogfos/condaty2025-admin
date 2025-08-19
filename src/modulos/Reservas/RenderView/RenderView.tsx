@@ -21,25 +21,28 @@ import {
 // Eliminado import de TextArea si no se usa directamente en ReservationDetailModal
 import Input from "@/mk/components/forms/Input/Input";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
-// --- INICIO: Nuevo Componente Memoizado ---
-
-// 1. Define las props que este componente necesita
 interface ReservationDetailsViewProps {
   details: any; // El objeto displayedData
   isActionLoading: boolean;
   actionError: string | null;
   onAcceptClick: () => void; // Función para manejar el clic en Aceptar
   onRejectClick: () => void; // Función para manejar el clic en Rechazar
-  // Funciones auxiliares pasadas como props
+  onCancel: () => void;
   getFormattedRequestTime: (isoDate: string) => string;
   getFormattedReservationDate: (dateStr: string) => string;
   getFormattedReservationTime: (periods: any[] | undefined | null) => string;
-  getPriceDetails: (
-    area: any | undefined | null,
-    totalAmount: string
-  ) => string;
+  getPriceDetails: (area: any, totalAmount: string) => string;
 }
+const statusMap: any = {
+  W: { label: "Por confirmar", class: styles.statusW },
+  A: { label: "Reservado", class: styles.statusA },
+  X: { label: "Rechazado", class: styles.statusX },
+  C: { label: "Cancelado", class: styles.statusC },
+  F: { label: "Completado", class: styles.statusF },
+};
 
 // 2. El componente funcional que contiene la vista de detalles
 const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
@@ -52,10 +55,34 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
   getFormattedReservationDate,
   getFormattedReservationTime,
   getPriceDetails,
+  onCancel,
 }) => {
-  // El JSX es el mismo que tenías dentro de renderContent()
+  if (!details) return;
+  let status = details?.status as "W" | "A" | "X" | "C" | "F" | undefined;
+  let dateEnd = new Date(details?.date_end + "T" + details?.end_time)
+    .toISOString()
+    .split(".")[0];
+
+  if (status === "A" && dateEnd < new Date().toISOString().split(".")[0]) {
+    status = "F";
+  }
+  const currentStatus = status ? statusMap[status] : null;
+
   return (
     <>
+      {status == "A" && (
+        <p
+          onClick={onCancel}
+          style={{
+            color: "var(--cError)",
+            textAlign: "right",
+            textDecorationLine: "underline",
+            cursor: "pointer",
+          }}
+        >
+          Cancelar reserva
+        </p>
+      )}
       <div className={styles.reservationBlock}>
         <div className={styles.requesterSection}>
           <div className={styles.requesterInfoContainer}>
@@ -81,48 +108,35 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
           </div>
           {/* Usa la función pasada por props */}
           <span className={styles.requestTime}>
+            Solicitado:{" "}
             {details.created_at
               ? getFormattedRequestTime(details.created_at)
               : ""}
           </span>
         </div>
-        <div className={styles.divider}></div>
+        <hr className={styles.areaSeparator} />
 
         <div className={styles.mainDetailsContainer}>
-          <div className={styles.imageWrapper}>
-            {details.area?.images?.length > 0 ? (
-              <img
-                // Asegúrate de tener getUrlImages disponible (ya está importado globalmente)
-                src={getUrlImages(
-                  `/AREA-${details.area.id}-${details.area.images[0].id}.${
-                    details.area.images[0].ext
-                  }?d=${details.area.updated_at || Date.now()}`
-                )}
-                alt={`Imagen de ${details.area.title}`}
-                className={styles.areaImage}
-                onError={(e: any) => {
-                  e.currentTarget.src = "/placeholder-image.png";
-                }} // Considera un placeholder local
-              />
-            ) : (
-              <div className={`${styles.areaImage} ${styles.imagePlaceholder}`}>
-                <span className={styles.imagePlaceholderText}>Sin Imagen</span>
-              </div>
-            )}
-          </div>
           <div className={styles.detailsColumn}>
-            <div className={styles.areaTextInfo}>
-              <span className={styles.areaTitle}>
-                {details.area?.title ?? "Área desconocida"}
-              </span>
-              <span className={styles.areaDescription}>
-                {details.area?.description ?? "Sin descripción"}
-              </span>
-            </div>
             <div className={styles.specificDetails}>
-              <span className={styles.detailsHeader}>
-                Detalles de la Reserva
-              </span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span className={styles.detailsHeader}>
+                  Área social: {details?.area?.title}
+                </span>
+                <div
+                  className={`${styles.statusBadge} ${
+                    currentStatus ? currentStatus.class : styles.statusUnknown
+                  }`}
+                >
+                  {currentStatus ? currentStatus.label : "Estado desconocido"}
+                </div>
+              </div>
               <div className={styles.detailsList}>
                 <div className={styles.detailItem}>
                   <IconCalendar size={18} className={styles.detailIcon} />
@@ -149,27 +163,16 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
                 </div>
                 <div className={styles.detailItem}>
                   <IconCash size={18} className={styles.detailIcon} />
-                  {/* Usa la función pasada por props */}
                   <span className={styles.priceDetailText}>
                     {getPriceDetails(details.area, details.amount)}
                   </span>
                 </div>
-                {details.obs && (
-                  <div className={styles.detailItem}>
-                    {/* Podrías usar un ícono aquí también si tienes uno para notas/observaciones */}
-                    <span className={styles.detailIcon}>📝</span>
-                    <span className={styles.detailText}>
-                      Obs: {details.obs}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Muestra el error de acción */}
       {actionError && (
         <div
           className={styles.errorText}
@@ -195,7 +198,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             // --- USA ESTA NUEVA CLASE ---
             className={styles.rejectButtonProportional} // Para 3 partes
           >
-            Cancelar solicitud
+            Rechazar solicitud
           </Button>
           <Button
             onClick={onAcceptClick}
@@ -204,7 +207,7 @@ const ReservationDetailsView: React.FC<ReservationDetailsViewProps> = ({
             // --- USA ESTA NUEVA CLASE ---
             className={styles.approveButtonProportional} // Para 5 partes
           >
-            Aprobar Solicitud
+            Aprobar solicitud
           </Button>
         </div>
       )}
@@ -222,16 +225,20 @@ const ReservationDetailModal = ({
 }: {
   open: boolean;
   onClose: () => void;
-  item?: any | null;
+  item?: any;
   reservationId?: string | number | null;
   reLoad?: () => void;
 }) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [displayedData, setDisplayedData] = useState<any | null>(null);
+  const [displayedData, setDisplayedData] = useState<any>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectErrors, setRejectErrors] = useState<any>({});
+  const [openModalCancel, setOpenModalCancel] = useState(false);
+  const [formState, setFormState]: any = useState({});
+  const { showToast } = useAuth();
+  const [errors, setErrors] = useState({});
   const {
     execute: fetchDetails,
     data: fetchedData,
@@ -247,7 +254,7 @@ const ReservationDetailModal = ({
       setRejectErrors({}); // Limpiar errores de rechazo
       setRejectionReason(""); // Limpiar razón de rechazo
 
-      if (item && item.id) {
+      if (item?.id) {
         setDisplayedData(item);
       } else if (reservationId) {
         setDisplayedData(null);
@@ -291,7 +298,6 @@ const ReservationDetailModal = ({
     }
   }, [fetchedData, detailsLoaded, detailsError, item]); // Dependencias clave
 
-  // --- Funciones Auxiliares (se quedan en el padre y se pasan como props) ---
   const getFormattedRequestTime = (isoDate: string): string => {
     if (!isoDate) return "Fecha inválida";
     try {
@@ -364,8 +370,6 @@ const ReservationDetailModal = ({
         return "Gratis";
       }
     } else {
-      // Si tiene precio > 0
-      const mode = area.booking_mode === "hour" ? "/h" : "/día"; // O '/reserva' si no es por hora/día
       return `Bs ${price.toFixed(2)}`;
     }
   };
@@ -391,9 +395,8 @@ const ReservationDetailModal = ({
         false
       );
       if (reLoad) reLoad();
-      onClose(); // Cierra el modal principal al tener éxito
+      onClose();
     } catch (error: any) {
-      console.error("Error al aprobar reserva:", error);
       setActionError(
         error?.response?.data?.message ||
           error?.message ||
@@ -434,86 +437,120 @@ const ReservationDetailModal = ({
         false,
         false
       );
-      // Éxito: cerrar ambos modales y recargar
+
       setIsRejectModalOpen(false);
       onClose(); // Cierra el modal principal
       if (reLoad) reLoad();
     } catch (error: any) {
-      console.error("Error al confirmar rechazo:", error);
-      // Mostrar error en el modal principal después de cerrar el de rechazo
       setActionError(
         error?.response?.data?.message ||
           error?.message ||
           "Ocurrió un error al rechazar."
       );
-      setIsRejectModalOpen(false); // Asegurarse de cerrar el modal de rechazo incluso si hay error
+      setIsRejectModalOpen(false);
     } finally {
       setIsActionLoading(false);
     }
   };
+  const handleChangeInput = (e: any) => {
+    let value = e.target.value;
 
-  const isLoadingDetails = !item && !detailsLoaded && !detailsError;
+    setFormState({ ...formState, [e.target.name]: value });
+  };
+  const validateReason = () => {
+    let errs: any = {};
+    errs = checkRules({
+      value: formState.reason,
+      rules: ["required"],
+      key: "reason",
+      errors: errs,
+    });
 
+    setErrors(errs);
+    return errs;
+  };
+  const onSaveCancel = async () => {
+    if (hasErrors(validateReason())) return;
+    const { data } = await executeAction(
+      "/reservations/" + displayedData?.id,
+      "PUT",
+      {
+        status: "C",
+        reason: formState?.reason,
+      }
+    );
+    if (data?.success) {
+      setOpenModalCancel(false);
+      showToast(data?.message || "Reserva cancelada", "success");
+      onClose();
+      if (reLoad) reLoad();
+    } else {
+      showToast(data?.message || "Ocurrió un error", "error");
+    }
+  };
   return (
     <>
       <DataModal
         open={open}
         onClose={onClose}
-        title="Detalle de la Reserva"
+        title="Detalle de la reserva"
         buttonText=""
         buttonCancel=""
         style={{ width: "739px", maxWidth: "80%" }}
       >
-        <div className={styles.divider}></div>
         <div className={styles.modalContent}>
-          {/* Renderizado condicional principal */}
-          {isLoadingDetails ? (
-            <div className={styles.loadingContainer}>Cargando detalles...</div>
-          ) : !displayedData ? (
-            // Esto cubre tanto el error de carga como el caso de no encontrar datos
-            <div className={styles.loadingContainer}>
-              {detailsError
-                ? `Error al cargar: ${
-                    detailsError.message || "Error desconocido"
-                  }`
-                : "No hay datos de reserva para mostrar."}
-            </div>
-          ) : (
-            <MemoizedReservationDetailsView
-              details={displayedData}
-              isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
-              actionError={actionError} // Error de las *acciones*
-              onAcceptClick={handleAcceptClick}
-              onRejectClick={handleRejectClick}
-              // Pasa las funciones auxiliares
-              getFormattedRequestTime={getFormattedRequestTime}
-              getFormattedReservationDate={getFormattedReservationDate}
-              getFormattedReservationTime={getFormattedReservationTime}
-              getPriceDetails={getPriceDetails}
-            />
-          )}
+          <MemoizedReservationDetailsView
+            details={displayedData}
+            isActionLoading={isActionLoading} // Estado de carga de las *acciones* (Aprobar/Rechazar)
+            actionError={actionError} // Error de las *acciones*
+            onAcceptClick={handleAcceptClick}
+            onRejectClick={handleRejectClick}
+            getFormattedRequestTime={getFormattedRequestTime}
+            getFormattedReservationDate={getFormattedReservationDate}
+            getFormattedReservationTime={getFormattedReservationTime}
+            onCancel={() => setOpenModalCancel(true)}
+            getPriceDetails={getPriceDetails}
+          />
         </div>
       </DataModal>
-
-      {/* --- SEGUNDO MODAL (RECHAZO) --- */}
-      {/* Este modal solo se renderiza si isRejectModalOpen es true */}
+      {openModalCancel && (
+        <DataModal
+          title="Cancelar reserva"
+          open={openModalCancel}
+          buttonText="Cancelar reserva"
+          buttonCancel="Salir"
+          onClose={() => setOpenModalCancel(false)}
+          style={{ width: "686px" }}
+          onSave={onSaveCancel}
+        >
+          <p style={{ marginBottom: 16 }}>
+            Por favor, indica el motivo por el cual quieres cancelar esta
+            reserva.
+          </p>
+          <Input
+            label="Motivo"
+            name="reason"
+            value={formState?.reason}
+            onChange={handleChangeInput}
+            required
+            error={errors}
+          />
+        </DataModal>
+      )}
       {isRejectModalOpen && (
         <DataModal
           open={isRejectModalOpen}
           onClose={() => {
-            // Solo cierra el modal de rechazo, no el principal
             setIsRejectModalOpen(false);
-            // Opcional: limpiar errores si el usuario cierra sin confirmar
             setRejectErrors({});
           }}
-          title="Cancelar solicitud"
+          title="Rechazar solicitud"
           buttonText="" // Sin botones por defecto
           buttonCancel="" // Sin botones por defecto
           style={{ width: "486px", maxWidth: "80%" }}
         >
           <div className={styles.divider}></div>
           <div className={styles.modalContentContainer}>
-            {" "}
             {/* Contenedor para padding/gap interno */}
             <p>
               Por favor indica el motivo para que el residente pueda comprender
@@ -558,9 +595,6 @@ const ReservationDetailModal = ({
             className={styles.actionButtonsContainer}
             style={{ marginTop: "var(--spL, 16px)" }}
           >
-            {" "}
-            {/* Añadir margen superior si es necesario */}
-            {/* Botón secundario (Salir/Cancelar) */}
             <Button
               className={styles.secondaryActionButton} // Clase para estilo (flex-grow: 1)
               onClick={() => setIsRejectModalOpen(false)} // Solo cierra este modal
@@ -576,7 +610,7 @@ const ReservationDetailModal = ({
               variant="primary" // O el variant que corresponda al botón de confirmación
               disabled={isActionLoading} // Deshabilitar durante la acción
             >
-              Confirmar cancelación
+              Confirmar Rechazo
             </Button>
           </div>
         </DataModal>

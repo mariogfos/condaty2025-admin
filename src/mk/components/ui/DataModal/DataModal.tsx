@@ -21,7 +21,8 @@ type PropsType = {
   iconClose?: boolean;
   disabled?: boolean;
   style?: CSSProperties;
-  variant?: string;
+  colorTitle?: string;
+  variant?: string | null;
 };
 
 const DataModal = ({
@@ -40,7 +41,8 @@ const DataModal = ({
   fullScreen = false,
   iconClose = true,
   disabled = false,
-  variant = "V1",
+  colorTitle = "var(--cWhite)",
+  variant = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -73,7 +75,7 @@ const DataModal = ({
           "  " +
           (fullScreen ? styles["full"] : "") +
           " " +
-          (variant === "V2" ? styles["V2"] : "")
+          (variant ? styles[variant] : "")
         }
       >
         <HeadTitle
@@ -82,10 +84,18 @@ const DataModal = ({
           onBack={() => _close(false)}
           right={
             iconClose &&
-            !fullScreen && <IconX className="" size={32} onClick={() => _close(false)} />
+            !fullScreen && (
+              <IconX
+                className=""
+                size={40}
+                onClick={() => _close(false)}
+                circle
+                style={{ backgroundColor: "transparent", padding: "0px" }}
+              />
+            )
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorTitle={colorTitle}
         />
         <div className={styles.headerDivider} />
         <section className={className}>{children}</section>

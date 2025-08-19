@@ -12,56 +12,46 @@
   border: 1px solid var(--cWhiteV1);
   min-width: 600px;
 }
-
 .notFoundContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
   color: var(--cWhiteV1);
 }
-
 .notFoundText {
   font-size: var(--sL);
   color: var(--cWhite);
   font-weight: var(--bMedium);
   margin-bottom: var(--spS);
 }
-
 .notFoundSuggestion {
   font-size: var(--sM);
   color: var(--cWhiteV1);
 }
-
 .headerSection {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spXs);
-
   text-align: center;
 }
-
 .amountDisplay {
   color: var(--cWhite);
   font-size: 36px;
   font-weight: var(--bBold);
   line-height: 1.1;
 }
-
 .dateDisplay {
   color: var(--cWhiteV1);
   font-size: var(--sL);
   line-height: 1.5;
   font-weight: var(--bRegular);
 }
-
 .sectionDivider {
   width: 100%;
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spS) 0;
 }
-
 .detailsSection {
   display: flex;
   flex-direction: row;
@@ -71,13 +61,11 @@
   width: 100%;
   box-sizing: border-box;
 }
-
 .detailsColumn {
   display: flex;
   flex-direction: column;
   gap: var(--spL);
 }
-
 .infoBlock {
   display: flex;
   flex-direction: column;
@@ -85,7 +73,6 @@
   text-align: left;
   max-width: 280px;
 }
-
 .infoLabel {
   color: var(--cWhiteV1);
   font-size: var(--sL);
@@ -93,7 +80,6 @@
   font-family: Roboto, sans-serif;
   text-align: left;
 }
-
 .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
@@ -104,13 +90,11 @@
   text-align: left;
   font-family: Roboto, sans-serif;
 }
-
 .infoValue div {
   line-height: 1.4;
   min-width: 0;
   text-align: right;
 }
-
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
@@ -121,20 +105,36 @@
 }
 .statusRejected {
   color: var(--cError) !important;
+  color: var(--cMediumAlert) !important;
   font-weight: var(--bSemibold);
 }
 .statusCanceled {
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
 }
+.statusVoucher {
+  color: var(--cInfo) !important;
+  font-weight: var(--bSemibold);
+}
+.statusApproval {
+  color: var(--cWarning) !important;
+  font-weight: var(--bSemibold);
+}
 
+.canceledReason {
+  font-style: italic;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--cError);
+}
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
   width: 100%;
   position: relative;
+  row-gap: 1rem;
 }
-
 .voucherButton {
   background-color: transparent;
   color: var(--cWhite);
@@ -144,33 +144,28 @@
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bSemibold);
-  transition: background-color 0.2s ease, color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
   max-width: 100%;
   font-family: Roboto, sans-serif;
 }
-
 .voucherButton:hover {
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
-
 .periodsDetailsSection {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spM);
 }
-
 .periodsDetailsHeader {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   width: 100%;
 }
-
 .periodsDetailsTitle {
   color: var(--cWhiteV1);
   font-size: var(--sM);
@@ -178,18 +173,17 @@
   margin: 0;
   padding-left: var(--spXs);
 }
-
 .periodsTableWrapper {
   width: 100%;
   border: 0.5px solid var(--cWhiteV1);
   border-radius: var(--bRadiusM);
   overflow: hidden;
 }
-
 .periodsTable {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
-
 .periodsTableHeader,
 .periodsTableRow {
   display: grid;
@@ -198,61 +192,87 @@
   align-items: stretch;
 }
 
-.periodsTableRow {
-  border-bottom: 1px solid var(--cBlackV3);
+.periodsTableHeaderReservations,
+.periodsTableRowReservations {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 100%;
+  align-items: stretch;
 }
 
-.periodsTableBody .periodsTableRow:last-child {
-  border-bottom: none;
-}
-
-.periodsTableHeader {
+.periodsTableHeader,
+.periodsTableHeaderReservations {
   background-color: var(--cBlackV2);
-  border-bottom: 1px solid var(--cWhiteV1);
   color: var(--cWhite);
-  font-size: var(--sM);
-  font-weight: var(--bSemibold);
+  font-family: Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.periodsTableBody .periodsTableRow:not(:last-child),
+.periodsTableBody .periodsTableRowReservations:not(:last-child) {
+  border-bottom: 0.5px solid var(--cWhiteV2);
 }
 
 .periodsTableCell {
-  padding: var(--spM);
-  text-align: left;
-  font-size: var(--sS);
-  color: var(--cWhiteV1); 
-  line-height: 1.4;
   display: flex;
   align-items: center;
-  min-height: 44px;
-  overflow-wrap: break-word;
-  min-width: 0;
+  height: 55px;
+  padding: 0 1rem;
+  text-align: left;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid var(--cWhiteV2);
 }
 
-.periodsTableRow:nth-child(odd) .periodsTableCell {
-  background-color: var(--cHoverCompl1);
-}
-.periodsTableRow:nth-child(even) .periodsTableCell {
-  background-color: var(--cWhiteV2);
+.periodsTableBody .periodsTableCell {
+  height: 63px;
+  font-size: 14px;
 }
 
-.periodsTableHeader .periodsTableCell {
+.periodsTableHeader .periodsTableCell,
+.periodsTableHeaderReservations .periodsTableCell {
   color: var(--cWhite);
-  font-size: var(--sL);
-  font-weight: var(--bSemibold);
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
   background-color: var(--cBlackV2);
+  height: 55px;
 }
 
-.periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'] {
+.periodsTableBody .periodsTableRow,
+.periodsTableBody .periodsTableRowReservations {
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell,
+.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell {
+  background-color: var(--cWhiteV2);
+  color: var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell,
+.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhiteV1);
+}
+.periodsTableBody .periodsTableRow .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRowReservations .periodsTableCell[data-label='Total'] {
+  font-weight: 500;
+}
+
+.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell[data-label='Subtotal'],
+.periodsTableBody .periodsTableRowReservations:nth-child(odd) .periodsTableCell[data-label='Total'],
+.periodsTableBody .periodsTableRowReservations:nth-child(even) .periodsTableCell[data-label='Total'] {
   color: var(--cWhite);
-  font-weight: var(--bMedium);
 }
-
 .periodsTableCell:last-child {
   border-right: none;
 }
-
 .periodsTableCell[data-label='Monto'],
 .periodsTableCell[data-label='Multa'],
-.periodsTableCell[data-label='Subtotal'] {
+.periodsTableCell[data-label='Subtotal'],
+.periodsTableCell[data-label='Total'] {
   justify-content: flex-end;
   text-align: right;
 }
@@ -263,6 +283,10 @@
   text-align: right;
 }
 
+.periodsTableHeaderReservations .periodsTableCell:nth-child(3) {
+  justify-content: flex-end;
+  text-align: right;
+}
 .periodsDetailsFooter {
   display: flex;
   justify-content: flex-end;
@@ -270,19 +294,16 @@
   width: 100%;
   padding-top: var(--spM);
 }
-
 .periodsDetailsTotal {
   color: var(--cWhiteV1);
   font-size: var(--sM);
   font-weight: var(--bRegular);
   white-space: nowrap;
 }
-
 .totalAmountValue {
   color: var(--cWhite);
   font-weight: var(--bRegular);
 }
-
 .actionButtonsContainer {
   display: flex;
   gap: var(--spM);
@@ -291,7 +312,6 @@
   padding-top: var(--spL);
   border-top: 1px solid var(--cBlackV2);
 }
-
 .actionButton {
   flex: 1;
   padding: var(--spM) var(--spL);
@@ -342,13 +362,11 @@
     gap: var(--spL);
     padding: var(--spM) 0;
   }
-
   .detailsColumn {
     width: 100%;
     align-items: center;
     gap: var(--spM);
   }
-
   .infoBlock {
     max-width: 90%;
     align-items: center;
@@ -427,19 +445,16 @@
     font-size: var(--sS);
   }
 }
-
 .headerActionContainer {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   padding-bottom: var(--spL);
 }
-
 .textButtonDanger {
   background-color: transparent;
   border: none;
   color: var(--cError);
-
   cursor: pointer;
   font-family: var(--fPrimary);
   font-size: var(--sM);
@@ -449,14 +464,12 @@
   transition: color 0.2s ease, background-color 0.2s ease;
   text-decoration: underline;
 }
-
 .textButtonDanger:hover,
 .textButtonDanger:focus {
   text-decoration: underline;
   background-color: rgba(255, 0, 0, 0.05);
   outline: none;
 }
-
 .textButtonDanger:disabled {
   color: var(--cWhiteV3, #999999);
   cursor: not-allowed;

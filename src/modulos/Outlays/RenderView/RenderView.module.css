@@ -1,32 +1,28 @@
-/* RenderView.module.css (PARA EGRESOS) */
-
 .container {
   background-color: var(--cBlackV2);
-  width: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--spL); /* Padding general del modal. Puede ser var(--spXl) si quieres más aire en los bordes. */
-  gap: var(--spM);
+  padding: var(--spL);
+  gap: var(--spL);
   font-family: var(--fPrimary);
   box-sizing: border-box;
   color: var(--cWhite);
-  border-radius: var(--bRadiusS);
-  /* border: 1px solid var(--cWhiteV1); Quitado si DataModal ya lo tiene */
+  border-radius: var(--bRadiusM);
+  border: 0.5px solid var(--cWhiteV1);
+  margin-top: var(--spM);
 }
 
 .headerActionContainer {
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  padding-bottom: var(--spM);
   box-sizing: border-box;
 }
-
 .textButtonDanger {
   background-color: transparent;
   border: none;
   color: var(--cError);
-  padding: 8px 12px;
+
   cursor: pointer;
   font-family: var(--fPrimary);
   font-size: var(--sM);
@@ -34,22 +30,19 @@
   text-align: center;
   border-radius: var(--bRadiusXs, 4px);
   transition: color 0.2s ease, background-color 0.2s ease;
+  text-decoration: underline;
 }
-
 .textButtonDanger:hover,
 .textButtonDanger:focus {
   text-decoration: underline;
   background-color: rgba(255, 0, 0, 0.05);
   outline: none;
 }
-
-.headerSection { /* Para Monto y Fecha */
+.headerSection {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spXs);
-  padding-top: var(--spS);
-  padding-bottom: var(--spM);
   text-align: center;
 }
 
@@ -59,89 +52,81 @@
   font-weight: var(--bBold);
   line-height: 1.1;
 }
-
 .dateDisplay {
   color: var(--cWhiteV1);
   font-size: var(--sM);
   line-height: 1.5;
 }
-
 .sectionDivider {
   width: 100%;
   border: none;
   height: 0;
   border-top: 0.5px solid var(--cWhiteV1);
-  margin: var(--spM) 0;
-}
 
-/* NUEVA LÓGICA DE CENTRADO (inspirada en Accesos) */
-.detailsSection { /* Reemplaza a .mainInfoGridContainer y .mainInfoGrid */
-  display: flex;            /* Usa Flexbox para los hijos (las columnas) */
-  flex-direction: row;      /* Columnas una al lado de la otra */
-  justify-content: center;  /* CENTRA el conjunto de columnas si no ocupan todo el ancho */
-  align-items: flex-start;  /* Alinea las columnas en la parte superior si tienen alturas diferentes */
-  gap: var(--spXl, 48px);   /* Espacio ENTRE las columnas. AJUSTA ESTE VALOR. (Accesos usa 32px) */
-  width: 100%;              /* La sección ocupa el ancho disponible */
-  padding: var(--spL) 0;    /* Padding vertical para esta sección */
+}
+.detailsSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spXl, 48px);
+  width: 100%;
   box-sizing: border-box;
 }
-
-.detailsColumn { /* Cada una de las dos columnas (los divs hijos de .detailsSection) */
+.detailsColumn {
   display: flex;
   flex-direction: column;
-  gap: var(--spL); /* Espacio entre los infoBlock dentro de una columna */
-  /* El ancho de la columna será determinado por el max-width de sus .infoBlock hijos.
-     Opcionalmente, puedes dar un flex-basis o width aquí a .detailsColumn si lo prefieres.
-     Ej: flex-basis: 280px; o max-width: 280px; */
+  gap: var(--spXl);
 }
-
-.infoBlock { /* Cada par label/value */
+.infoBlock {
   display: flex;
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  max-width: 280px; /* IMPORTANTE: Esto limita el ancho de cada bloque de información.
-                       AJUSTA ESTE VALOR. (Accesos usa 250px para textsDiv)
-                       Si los .infoBlock son angostos, y el .detailsSection los centra,
-                       se crearán los márgenes laterales que buscas. */
+  max-width: 280px;
 }
-
 .infoLabel {
   color: var(--cWhiteV1);
-  font-size: var(--sS);
+  font-size: var(--sL);
   font-weight: var(--bRegular);
-  line-height: 1.4;
+  line-height: 1;
 }
-
 .infoValue {
   color: var(--cWhite);
-  font-size: var(--sM);
+  font-size: var(--sL);
   font-weight: var(--bMedium);
-  line-height: 1.5;
+  line-height: 1;
   word-break: break-word;
   overflow-wrap: break-word;
 }
-
+.infoValue span {
+  display: block;
+}
 .statusPaid {
   color: var(--cSuccess) !important;
   font-weight: var(--bSemibold);
 }
-
 .statusCancelled {
   color: var(--cError) !important;
   font-weight: var(--bSemibold);
 }
 
+.canceledReason {
+  color: var(--cError) !important;
+  font-style: italic;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--cError);
+}
 .voucherButtonContainer {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding-top: var(--spM);
   padding-bottom: var(--spS);
 }
-
 .voucherButton {
-  background-color: transparent;
+  background-color: var(--cHoveTablePdf);
   color: var(--cWhite);
   border: 1px solid var(--cWhiteV1);
   font-size: var(--sM);
@@ -149,20 +134,16 @@
   border-radius: var(--bRadiusS);
   text-align: center;
   font-weight: var(--bMedium);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,border-color 0.2s ease;
   cursor: pointer;
   min-width: 220px;
-  max-width: 100%;
+  max-width: 40%;
 }
-
 .voucherButton:hover {
   background-color: var(--cWhiteV3);
   border-color: var(--cWhite);
 }
 
-.messageContainer, .messageText, .messageSuggestion { /* Estilos de mensaje que ya tenías */
-  /* ... (mantenlos como estaban) ... */
-}
 .messageContainer {
   padding: var(--spXl) var(--spL);
   text-align: center;
@@ -184,9 +165,7 @@
   color: var(--cWhiteV1);
 }
 
-
-/* Media Query para responsividad */
-@media (max-width: 768px) { /* O 600px como en Accesos */
+@media (max-width: 768px) {
   .container {
     padding: var(--spM);
     gap: var(--spS);
@@ -206,31 +185,27 @@
   .sectionDivider {
     margin: var(--spM) 0;
   }
-
   .detailsSection {
-    flex-direction: column; /* Apila las columnas */
-    align-items: center;   /* Centra las columnas (ahora filas) */
-    gap: var(--spL);       /* Espacio entre las columnas apiladas */
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spL);
     padding: var(--spM) 0;
   }
-
   .detailsColumn {
-    width: 100%; /* Cada columna (ahora una fila) ocupa el ancho */
-    align-items: center; /* Centra los infoBlock dentro de la columna/fila */
+    width: 100%;
+    align-items: center;
     gap: var(--spM);
   }
-
   .infoBlock {
-    max-width: 90%; /* Permite que el infoBlock ocupe más ancho en móviles */
-                     /* O podrías usar width: 100%; y controlar el padding del padre */
-    align-items: center; /* Centra el label y el value si quieres que estén centrados en móvil */
-    text-align: center; /* Opcional: centrar el texto de label/value en móviles */
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
   }
-
   .voucherButtonContainer {
     padding-top: var(--spM);
   }
   .voucherButton {
+    background-color: var(--cHoveTablePdf);
     padding: var(--spS) var(--spM);
     font-size: var(--sS);
     width: 100%;
