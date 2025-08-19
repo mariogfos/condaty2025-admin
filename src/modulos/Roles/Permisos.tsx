@@ -4,6 +4,7 @@ import Switch from "@/mk/components/forms/Switch/Switch";
 import { Card } from "@/mk/components/ui/Card/Card";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { useEffect, useState } from "react";
+import Check from "@/mk/components/forms/Check/Check";
 
 const Permisos = ({
   field = "",
@@ -96,13 +97,14 @@ const Permisos = ({
       {/* <legend>Permisos</legend> */}
 
       {extraData?.ability_categories?.map((cat: any) => (
-        <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)" }}>
+        <Card key={cat.id} style={{ backgroundColor: "var(--cBlackV2)", marginBottom: "16px", gap:"12px" }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               color: "var(--cWhite)",
-              fontWeight: "bold",
+              fontWeight: "500",
+              fontSize: "16px",
             }}
           >
             <div>{cat.name}</div>
@@ -124,8 +126,8 @@ const Permisos = ({
               <Card
                 key={item.id}
                 style={{
-                  backgroundColor: "var(--cBlackV4",
-                  border: "1px solid var(--cWhiteV3)",
+                  backgroundColor: "var(--cWhiteV2)",
+                  border: "1px solid var(--cWhiteV1)",
                 }}
               >
                 <div
@@ -137,7 +139,7 @@ const Permisos = ({
                 >
                   <div>
                     <div
-                      style={{ color: "var(--cWhite)", marginBottom: "8px" }}
+                      style={{ color: "var(--cWhite)", marginBottom: "8px", fontWeight: "400" }}
                     >
                       {item.description}
                     </div>
@@ -148,66 +150,42 @@ const Permisos = ({
                         color: "var(cWhiteV2)",
                       }}
                     >
-                      <span>
-                        <input
-                          type="checkbox"
-                          name={item.name + "_R"}
-                          checked={(permisos[item.name] + "").indexOf("R") > -1}
-                          onClick={onSelItem}
-                          value={
-                            (permisos[item.name] + "").indexOf("R") > -1
-                              ? "Y"
-                              : "N"
-                          }
-                          disabled={!setItem}
-                        />{" "}
-                        Ver
-                      </span>
-                      <span>
-                        <input
-                          type="checkbox"
-                          name={item.name + "_C"}
-                          checked={(permisos[item.name] + "").indexOf("C") > -1}
-                          onClick={onSelItem}
-                          value={
-                            (permisos[item.name] + "").indexOf("C") > -1
-                              ? "Y"
-                              : "N"
-                          }
-                          disabled={!setItem}
-                        />{" "}
-                        Crear
-                      </span>
-                      <span>
-                        <input
-                          type="checkbox"
-                          name={item.name + "_U"}
-                          checked={(permisos[item.name] + "").indexOf("U") > -1}
-                          onClick={onSelItem}
-                          value={
-                            (permisos[item.name] + "").indexOf("U") > -1
-                              ? "Y"
-                              : "N"
-                          }
-                          disabled={!setItem}
-                        />{" "}
-                        Editar
-                      </span>
-                      <span>
-                        <input
-                          type="checkbox"
-                          name={item.name + "_D"}
-                          checked={(permisos[item.name] + "").indexOf("D") > -1}
-                          onClick={onSelItem}
-                          value={
-                            (permisos[item.name] + "").indexOf("D") > -1
-                              ? "Y"
-                              : "N"
-                          }
-                          disabled={!setItem}
-                        />{" "}
-                        Eliminar
-                      </span>
+                      <Check
+                        name={item.name + "_R"}
+                        checked={(permisos[item.name] + "").indexOf("R") > -1}
+                        value={(permisos[item.name] + "").indexOf("R") > -1 ? "Y" : "N"}
+                        onChange={onSelItem}
+                        disabled={!setItem}
+                        label="Ver"
+                        reverse={true}
+                      />
+                      <Check
+                        name={item.name + "_C"}
+                        checked={(permisos[item.name] + "").indexOf("C") > -1}
+                        value={(permisos[item.name] + "").indexOf("C") > -1 ? "Y" : "N"}
+                        onChange={onSelItem}
+                        disabled={!setItem}
+                        label="Crear"
+                        reverse={true}
+                      />
+                      <Check
+                        name={item.name + "_U"}
+                        checked={(permisos[item.name] + "").indexOf("U") > -1}
+                        value={(permisos[item.name] + "").indexOf("U") > -1 ? "Y" : "N"}
+                        onChange={onSelItem}
+                        disabled={!setItem}
+                        label="Editar"
+                        reverse={true}
+                      />
+                      <Check
+                        name={item.name + "_D"}
+                        checked={(permisos[item.name] + "").indexOf("D") > -1}
+                        value={(permisos[item.name] + "").indexOf("D") > -1 ? "Y" : "N"}
+                        onChange={onSelItem}
+                        disabled={!setItem}
+                        label="Eliminar"
+                        reverse={true}
+                      />
                     </div>
                   </div>
 
