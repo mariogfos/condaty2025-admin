@@ -44,7 +44,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Categoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || '-/-';
+        return item?.category?.padre?.name || '-/-';
       },
     },
     {
@@ -52,7 +52,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Subcategoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || '-/-';
+        return item?.category?.name || '-/-';
       },
     },
     {
