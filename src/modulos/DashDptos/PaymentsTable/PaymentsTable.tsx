@@ -18,7 +18,7 @@ const statusCell = ({ item }: { item: any }) => {
 };
 
 const amountCell = ({ item }: { item: any }) => {
-  return item?.amount && item?.penalty_amount ? (
+  return item?.amount || item?.penalty_amount ? (
     <FormatBsAlign value={item.amount + item.penalty_amount} alignRight={true} />
   ) : (
     '-/-'
