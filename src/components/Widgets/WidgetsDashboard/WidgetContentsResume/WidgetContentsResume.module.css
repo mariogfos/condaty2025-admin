@@ -19,9 +19,8 @@
   }
 }
 .widgetContentsResume {
-  overflow: scroll;
-  /* height: calc(100vh - 477px); */
-  height: 960px;
+  overflow-y: auto;
+  height: 966px;
 }
 
 .descriptionArea {
