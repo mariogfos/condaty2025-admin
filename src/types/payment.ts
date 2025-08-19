@@ -7,18 +7,18 @@ export interface PaymentStatusConfig {
 export const PAYMENT_STATUS_MAP = {
   A: {
     label: "Por Pagar",
-    color: "var(--cWarning)",
-    backgroundColor: "var(--cHoverWarning)",
+    color: "var(--cInfo)",
+    backgroundColor: "var(--cHoverCompl3)",
   },
   P: {
     label: "Pagado",
     color: "var(--cSuccess)",
-    backgroundColor: "var(--cHoverSuccess)",
+    backgroundColor: "var(--cHoverCompl2)",
   },
   S: {
     label: "Por confirmar",
     color: "var(--cWarning)",
-    backgroundColor: "var(--cHoverWarning)",
+    backgroundColor: "var(--cHoverCompl4)",
   },
   M: {
     label: "Moroso",
@@ -27,13 +27,13 @@ export const PAYMENT_STATUS_MAP = {
   },
   R: {
     label: "Rechazado",
-    color: "var(--cError)",
-    backgroundColor: "var(--cHoverError)",
+    color: "var(--cMediumAlert)",
+    backgroundColor: "var(--cHoverCompl5)",
   },
   X: {
     label: "Anulado",
-    color: "var(--cMediumAlert)",
-    backgroundColor: "var(--cHoverCompl5)",
+    color: "var(--cError)",
+    backgroundColor: "var(--cHoverError)",
   },
 } as const;
 
