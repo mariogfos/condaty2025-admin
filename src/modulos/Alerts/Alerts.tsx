@@ -286,7 +286,7 @@ const Alerts = () => {
                     !data?.extraData?.low_level ||
                     data?.extraData?.low_level === 0
                       ? "var(--cHover)"
-                      : "var(--cHoverSuccess)",
+                      : "var(--cHoverCompl2)",
                 }}
                 circle
                 size={18}
@@ -311,7 +311,7 @@ const Alerts = () => {
                     !data?.extraData?.medium_level ||
                     data?.extraData?.medium_level === 0
                       ? "var(--cHover)"
-                      : "var(--cHoverWarning)",
+                      : "var(--cHoverCompl4)",
                 }}
                 circle
                 size={18}
@@ -328,14 +328,14 @@ const Alerts = () => {
                   !data?.extraData?.high_level ||
                   data?.extraData?.high_level === 0
                     ? "var(--cWhiteV1)"
-                    : "#da5d5d"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.high_level ||
                     data?.extraData?.high_level === 0
                       ? "var(--cHover)"
-                      : "var(--errorBg)",
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
@@ -352,14 +352,14 @@ const Alerts = () => {
                   !data?.extraData?.emergency_buttons ||
                   data?.extraData?.emergency_buttons === 0
                     ? "var(--cWhiteV1)"
-                    : "#da5d5d"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.emergency_buttons ||
                     data?.extraData?.emergency_buttons === 0
                       ? "var(--cHover)"
-                      : "var(--errorBg)",
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
