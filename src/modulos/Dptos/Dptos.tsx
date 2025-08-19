@@ -220,13 +220,10 @@ const Dptos = () => {
 
         form: {
           type: 'select',
-          // optionsExtra: "homeowner",
-          // optionLabel:`lastMotherName` ,
 
           options: (items: any) => {
             let data: any = [];
             items?.extraData?.homeowners?.map((c: any) => {
-              // console.log(c,'c')
               data.push({
                 id: c.id,
                 name: getFullName(c),
@@ -264,18 +261,14 @@ const Dptos = () => {
       titular: {
         rules: [''],
         api: '',
-        label: 'Titular',
-        // form: { type: "text" },
+        label: 'Residente',
         list: {
           onRender: (props: any) => {
-            // Verificar si titular existe antes de intentar acceder a sus propiedades
             if (!props?.item?.titular) {
-              return <div className={styles.noTitular}>Sin titular</div>;
+              return <div className={styles.noTitular}>Sin residente</div>;
             }
-
-            // También verificar si titular.owner existe
             if (!props?.item?.titular?.owner) {
-              return <div className={styles.noTitular}>Titular sin datos</div>;
+              return <div className={styles.noTitular}>Residente sin datos</div>;
             }
 
             return (
