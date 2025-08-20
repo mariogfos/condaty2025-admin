@@ -841,7 +841,7 @@ const useCrud = ({
             display: "flex",
             width: "100%",
             flexWrap: "wrap",
-            gap: 8,
+
             justifyContent: "space-between",
           }}
         >

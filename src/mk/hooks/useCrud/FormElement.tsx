@@ -90,6 +90,7 @@ const LeftRigthElement = memo(
           display: "flex",
           flexDirection: "column",
           gap: "var(--spM)",
+          width: "100%",
         }}
       >
         {field.onTop?.(props)}
@@ -99,6 +100,7 @@ const LeftRigthElement = memo(
             gap: "var(--spM)",
             justifyContent: "space-between",
             alignItems: "center",
+            width: "100%",
           }}
         >
           {field.onLeft?.(props)}
