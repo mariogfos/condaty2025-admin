@@ -89,12 +89,12 @@ const ProfileModal = ({
 
   const profileRole =
     type === "admin"
-      ? "Administrador"
+      ? "administrador"
       : type === "owner"
-      ? "Residente"
+      ? "residente"
       : type === "homeOwner"
-      ? "Propietario"
-      : "Guardia";
+      ? "propietario"
+      : "guardia";
   const { data, reLoad: reLoadDet } = useAxios(
     url,
     "GET",
@@ -400,7 +400,7 @@ const ProfileModal = ({
               <p style={{ fontSize: "var(--sL)" }}>
                 ¿Estás seguro de que quieres eliminar este registro?
               </p>
-              <p>Esta acción no se puede deshacer.</p>
+              <p style={{ fontSize: "var(--sL)" }}>Esta acción no se puede deshacer.</p>
             </div>
           </DataModal>
         )}

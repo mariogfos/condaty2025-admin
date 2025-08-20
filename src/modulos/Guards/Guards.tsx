@@ -33,11 +33,12 @@ const paramsInitial = {
 const Guards = () => {
   const mod: ModCrudType = {
     modulo: "guards",
-    singular: "Guardia",
+    singular: "guardia",
     plural: "Guardias",
     filter: true,
     permiso: "",
     export: true,
+    titleAdd: "Nuevo",
     import: true,
     hideActions: {
       edit: true,
@@ -186,7 +187,7 @@ const Guards = () => {
       fullName: {
         // rules: ["required"],
         api: "ae",
-        label: "Nombre del guardia",
+        label: "Nombre",
         form: false,
         onRender: (item: any) => {
           // Asegúrate que 'item.item' contiene los datos del residente
@@ -223,7 +224,7 @@ const Guards = () => {
                 {cedulaIdentidad && (
                   <span
                     style={{
-                      fontSize: "11px",
+                      fontSize: "14px",
                       color: "var(--cWhiteV1, #a7a7a7)",
                       display: "block",
                       marginBottom: "4px",
@@ -376,7 +377,7 @@ const Guards = () => {
           //   );
           // },
         },
-        list: false,
+        list: {},
       },
 
       address: {
@@ -451,7 +452,7 @@ const Guards = () => {
     <div className={styles.users}>
       <div style={{ marginBottom: "20px" }}>
         <WidgetDashCard
-          title="Total de Guardias"
+          title="Guardias totales"
           data={String(data?.message?.total || 0)}
           icon={
             <IconGuardShield
