@@ -19,12 +19,11 @@ interface OwnerFormState {
   email?: string;
   phone?: string;
   dpto_id?: string | number;
-  // Nuevo: soportar múltiples unidades (propietario) y flag por unidad
   dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string }>;
   will_live_in_unit?: boolean;
   _disabled?: boolean;
   _emailDisabled?: boolean;
-  [key: string]: any; // For any additional dynamic properties
+  [key: string]: any; 
 }
 
 interface OwnerFormErrors {
@@ -47,7 +46,6 @@ const TYPE_OWNERS = [
   },
 ];
 
-// helper: buscar nro en la lista de unidades (extraData usa "id" para la unidad)
 const getUnitNro = (unitsList: any[] = [], id?: string | number) => {
   if (id === undefined || id === null) return undefined;
   const match = unitsList.find(
@@ -62,7 +60,6 @@ const getUnitNro = (unitsList: any[] = [], id?: string | number) => {
 interface UnitModalProps {
   open: boolean;
   onClose: () => void;
-  // extraData ahora entrega unidades con "id" y "nro"
   units: Array<{ id: string | number; nro: string }>;
   initialData: {
     dpto_id?: string | number;
@@ -91,16 +88,13 @@ const UnitModal: React.FC<UnitModalProps> = ({
   }, [open, initialData]);
 
   const handleSelectChange = (valueOrEvent: any) => {
-    // Soporta tanto e.target.value como { value } o el valor directo
     const val = valueOrEvent?.target?.value ?? valueOrEvent?.value ?? valueOrEvent;
     setSelectedUnit(val);
   };
 
   const handleSave = () => {
-    // No permitir guardar sin unidad seleccionada
+   
     if (selectedUnit === '' || selectedUnit === null || selectedUnit === undefined) return;
-
-    // Normalizar a number cuando sea posible
     const parsed =
       typeof selectedUnit === 'string' && /^\d+$/.test(selectedUnit)
         ? Number(selectedUnit)
@@ -129,7 +123,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
           value={selectedUnit}
           options={units}
           optionLabel="nro"
-          optionValue="id" // usa "id" que viene en extraData
+          optionValue="id"
           onChange={handleSelectChange}
           required
 
@@ -177,7 +171,6 @@ const RenderForm = ({
   reLoad: () => void;
 }) => {
   const [formState, setFormState] = useState<OwnerFormState>(() => {
-    // Create initial state with default values
     const initialState: OwnerFormState = {
       ci: '',
       name: '',
@@ -187,8 +180,6 @@ const RenderForm = ({
       _disabled: false,
       _emailDisabled: false,
     };
-
-    // Merge with item props, ensuring required fields are not empty
     return {
       ...initialState,
       ...item,
@@ -204,7 +195,6 @@ const RenderForm = ({
 
   const selectedUnitDisplay = useMemo(() => {
     if (!formState.dptos || formState.dptos.length === 0) return 'Ninguna asignada';
-    // Mostrar la primera (o todas) — para display genérico devolvemos la primera
     const unitsList =
       formState.type_owner === 'Propietario'
         ? extraData?.dptosForH || []
@@ -225,8 +215,6 @@ const RenderForm = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    // Si cambia el tipo de residente, limpiar selección de unidad(s)
     if (name === 'type_owner') {
       setFormState((prev: OwnerFormState) => ({
         ...prev,
@@ -235,7 +223,6 @@ const RenderForm = ({
         dpto_id: undefined,
         will_live_in_unit: true,
       }));
-      // Limpia error de unidad si existía
       if (errors.dpto_id) {
         setErrors(prev => ({ ...prev, dpto_id: undefined }));
       }
@@ -247,7 +234,6 @@ const RenderForm = ({
       [name]: value,
     }));
 
-    // Clear error when user types
     if (errors[name as keyof OwnerFormErrors]) {
       setErrors(prev => ({
         ...prev,
@@ -258,10 +244,7 @@ const RenderForm = ({
 
   const validate = () => {
     let errors: any = {};
-
-    // Required fields
     const requiredFields = ['ci', 'name', 'last_name'];
-
     requiredFields.forEach(field => {
       errors = checkRules({
         value: formState[field],
@@ -271,12 +254,10 @@ const RenderForm = ({
       });
     });
 
-    // dptos required: al menos una unidad seleccionada
     if (!formState.dptos || formState.dptos.length === 0) {
       errors.dpto_id = 'required';
     }
 
-    // CI validation
     errors = checkRules({
       value: formState.ci,
       rules: ['ci'],
@@ -284,7 +265,6 @@ const RenderForm = ({
       errors,
     });
 
-    // Email validation if provided
     if (formState.email) {
       errors = checkRules({
         value: formState.email,
@@ -423,7 +403,7 @@ const RenderForm = ({
         endpoint,
         method,
         payload,
-        true // Show loader
+        true 
       );
 
       if (response?.success) {
@@ -437,18 +417,6 @@ const RenderForm = ({
     } catch (error) {
       console.error('Error al guardar el residente:', error);
       showToast('Error al guardar el residente', 'error');
-    }
-  };
-
-  const clearUnitSelection = () => {
-    setFormState(prev => ({
-      ...prev,
-      dptos: [],
-      dpto_id: undefined,
-      will_live_in_unit: true,
-    }));
-    if (errors.dpto_id) {
-      setErrors(prev => ({ ...prev, dpto_id: undefined }));
     }
   };
 
@@ -528,7 +496,7 @@ const RenderForm = ({
           onClick={() => {
             setIsUnitModalOpen(true);
           }}
-          disabled={!formState.type_owner} // disabled until tipo seleccionado
+          disabled={!formState.type_owner}
         >
           <IconAdd size={12} />
           <p style={{ textDecoration: 'underline' }}>Asignar Unidad</p>
@@ -542,7 +510,7 @@ const RenderForm = ({
                 formState.type_owner === 'Propietario'
                   ? extraData?.dptosForH || []
                   : extraData?.dptosForT || [];
-              // usar helper para obtener nro (extraData usa "id")
+            
               const nro = getUnitNro(unitsList, d.dpto_id);
               return (
                 <div key={String(d.dpto_id) + '_' + idx} className={styles.unitCard}>
@@ -592,7 +560,6 @@ const RenderForm = ({
               ? Number(data.dpto_id)
               : data.dpto_id;
 
-          // buscar unidad usando "id" como clave
           const unitsList =
             formState.type_owner === 'Propietario'
               ? extraData?.dptosForH || []
@@ -632,12 +599,10 @@ const RenderForm = ({
             };
           });
 
-          // Limpia error si existía
           if (errors.dpto_id) {
             setErrors(prev => ({ ...prev, dpto_id: undefined }));
           }
 
-          // Cerrar modal (por seguridad, aunque UnitModal ya llama onClose)
           setIsUnitModalOpen(false);
         }}
       />
