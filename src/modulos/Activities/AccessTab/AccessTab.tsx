@@ -1,3 +1,4 @@
+// esto? revisar todo las funciones que estan como props para sacar a fuera
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -31,7 +32,7 @@ const periodOptions = [
 const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
-  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false); // Para el modal
+  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -94,7 +95,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       try {
         const { data } = await execute("/accesses/exit", "POST", {
           id: access.id,
-          obs_out: "", // Puedes añadir un campo para esto si lo necesitas
+          obs_out: "",
         });
 
         if (data?.success === true) {
@@ -146,7 +147,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         <RenderView {...props} onConfirm={handleAccessAction} />
       ),
     };
-  }, []);
+  }, [handleAccessAction]);
 
   // Definición de campos para los accesos
   const fieldsAccess = useMemo(() => {

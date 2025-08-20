@@ -39,6 +39,7 @@ import RenderForm from "../Dptos/RenderForm";
 import HeaderBack from "@/mk/components/ui/HeaderBack/HeaderBack";
 import HistoryReservations from "./HistoryReservations/HistoryReservations";
 import { Calendar } from "@/mk/components/Calendar";
+import Br from "@/components/Detail/Br";
 
 interface DashDptosProps {
   id: string | number;
@@ -184,10 +185,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
       },
     },
   ];
-
-  const Br = () => {
-    return <div className={styles.br} />;
-  };
 
   type LabelValueProps = {
     value: string;

@@ -18,13 +18,25 @@ type LabelValueProps = {
   label: string;
   colorValue?: string;
 };
+
+const getStatusText = (status?: string) => {
+  switch (status) {
+    case "I":
+      return "Ingresado";
+    case "O":
+      return "Completado";
+    default:
+      return "";
+  }
+};
+
 const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
   return (
     <div className={styles.LabelValue}>
       <p>{label}</p>
       <p
         style={{
-          color: colorValue ? colorValue : "var(--cWhite)",
+          color: colorValue || "var(--cWhite)",
         }}
       >
         {value}
@@ -33,17 +45,6 @@ const LabelValue = ({ value, label, colorValue }: LabelValueProps) => {
   );
 };
 const PedidosDetail = ({ item, open, onClose }: Props) => {
-  const getStatusText = (status?: string) => {
-    switch (status) {
-      case "I":
-        return "Ingresado";
-      case "O":
-        return "Completado";
-      default:
-        return "";
-    }
-  };
-
   return (
     <DataModal
       open={open}
@@ -91,7 +92,6 @@ const PedidosDetail = ({ item, open, onClose }: Props) => {
               label="Fecha y hora de notificación"
               value={getDateTimeStrMes(item?.updated_at)}
             />
-
             <LabelValue value={item?.other?.descrip} label="Observación" />
           </div>
         </div>
