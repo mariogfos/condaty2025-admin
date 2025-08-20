@@ -9,9 +9,6 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import Input from "@/mk/components/forms/Input/Input";
-
-import RenderView from "./RenderView/RenderView";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import {
@@ -137,7 +134,6 @@ const Owners = () => {
         />
       );
     },
-    // extraData: true,
   };
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
@@ -188,33 +184,6 @@ const Owners = () => {
     }
   }, []);
 
-  const onBlurEmail = useCallback(async (e: any, props: any) => {
-    if (
-      e.target.value.trim() == "" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
-    )
-      return;
-
-    const { data, error } = await execute(
-      "/owners",
-      "GET",
-      {
-        fullType: "EXIST",
-        type: "email",
-        searchBy: e.target.value,
-      },
-      false,
-      true
-    );
-
-    if (data?.success && data.data?.data?.id) {
-      console.log("email", props);
-      showToast("El email ya esta en uso", "warning");
-      props.setError({ email: "El email ya esta en uso" });
-      props.setItem({ ...props.item, email: "" });
-    }
-  }, []);
-
   const onDisbled = ({ item, field }: any) => {
     if (field?.name === "email") {
       return item._emailDisabled;
@@ -236,32 +205,17 @@ const Owners = () => {
         },
         list: false,
       },
-      dpto: {
-        // Campo para seleccionar una única unidad (singular)
-        rules: ["required"],
-        api: "ae",
-        label: "Unidad", // Cambiado a singular para consistencia con el nombre del campo
-        form: {
-          type: "select",
-          optionsExtra: "dptos",
-          optionLabel: "nro",
-          optionValue: "dpto_id",
-          required: true,
-        },
-        list: false, // No se muestra en la lista principal
-      },
+
+
 
       fullName: {
-        // rules: ["required"],
         api: "ae",
         label: "Nombre",
         form: false,
-        // list: true, // Asegúrate que esta línea esté presente o descomentada si la quitaste
         onRender: (item: any) => {
-          // Asegúrate que 'item.item' contiene los datos del residente
           const residente = item?.item;
           const nombreCompleto = getFullName(residente);
-          const cedulaIdentidad = residente?.ci; // Obtener el CI
+          const cedulaIdentidad = residente?.ci;
 
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -269,16 +223,14 @@ const Owners = () => {
                 hasImage={residente?.has_image}
                 src={getUrlImages(
                   "/OWNER-" +
-                    residente?.id + // Usar residente?.id
+                    residente?.id +
                     ".webp?d=" +
-                    residente?.updated_at // Usar residente?.updated_at
+                    residente?.updated_at
                 )}
-                name={nombreCompleto} // Usar nombreCompleto
+                name={nombreCompleto}
               />
               <div>
                 {" "}
-                {/* Contenedor para Nombre, CI y Estado Admin */}
-                {/* Nombre */}
                 <p
                   style={{
                     marginBottom: "2px",
@@ -307,10 +259,10 @@ const Owners = () => {
                     style={{
                       color: "var(--cSuccess)",
                       fontSize: 10,
-                      backgroundColor: "#00af900D", // Fondo verde muy transparente
-                      padding: "2px 4px", // Ajustar padding si es necesario
+                      backgroundColor: "#00af900D",
+                      padding: "2px 4px",
                       borderRadius: 4,
-                      display: "inline-block", // Para que el padding/fondo funcione bien
+                      display: "inline-block",
                     }}
                   >
                     Administrador principal
@@ -373,72 +325,12 @@ const Owners = () => {
         },
         list: false,
       },
-      units: {
-        rules: [""],
-        api: "",
-        label: "Unidad",
-        form: false,
 
-        list: {
-          width: "170px",
-          onRender: (props: any) => {
-            return (
-              "Unidad: " +
-              (props?.item?.dpto[0]?.nro
-                ? props?.item?.dpto[0]?.nro
-                : "Sin datos")
-            );
-          },
-        },
-      },
-
-      // rep_email: {
-
-      //   api: "",
-      //   label: "Repita el correo electrónico",
-      //   form: { type: "text" },
-      //   list: false,
-      //   style: { width: "500px" },
-      // },
       email: {
         rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
-        form: {
-          type: "text",
-          label: "Correo electrónico",
-          disabled: onDisbled,
-          required: true,
-          onBlur: onBlurEmail,
-          // onRender: (props: any) => {
-          //   return (
-          //     <div className={styles.fieldSet}>
-          //       <div>
-          //         <div>Información de acceso</div>
-          //         <div>
-          //           La contraseña sera enviada al correo que indiques en este
-          //           campo
-          //         </div>
-          //       </div>
-          //       <div>
-          //         <Input
-          //           name="email"
-          //           value={props?.item?.email}
-          //           onChange={props.onChange}
-          //           label="Correo electrónico"
-          //           error={props.error}
-          //           disabled={
-          //             props?.field?.action === "edit" || onDisbled(props)
-          //           }
-          //           required={true}
-          //           onBlur={(e) => onBlurEmail(e, props)}
-          //         />
-          //       </div>
-          //     </div>
-          //   );
-          // },
-        },
-        list: { width: "220px" },
+        list: {},
       },
       phone: {
         rules: ["number", "max:10"],
@@ -448,59 +340,22 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: { width: "100px" },
+        list: { },
       },
       type_owner: {
         rules: [""],
         api: "",
         label: "Tipo",
         list: {
-          width: "120px",
-          onRender: (props: any) => {
-            // const clientOwnerData = props?.item?.client_owner;
-            // let esTitularPrincipal = true; // Asumir Titular por defecto
 
-            // // Verificar si client_owner existe y es un objeto
-            // if (clientOwnerData && typeof clientOwnerData === "object") {
-            //   // Si client_owner existe y tiene un titular_id (no es null ni undefined),
-            //   // entonces esta persona es un Dependiente.
-            //   if (
-            //     clientOwnerData.titular_id !== null &&
-            //     clientOwnerData.titular_id !== undefined
-            //   ) {
-            //     esTitularPrincipal = false;
-            //   }
-            //   // Si client_owner.titular_id es null o undefined, se mantiene esTitularPrincipal = true,
-            //   // lo que significa que es un Titular.
-            // }
-            // Si clientOwnerData es null o undefined (no existe el objeto client_owner),
-            // se mantiene la presunción de que esTitularPrincipal = true (Titular).
-
-            // const texto = esTitularPrincipal ? "Titular" : "Dependiente";
-            const texto =
-              props?.item?.dpto[0]?.pivot.is_titular === "Y"
-                ? "Titular"
-                : "Dependiente";
-
-            const badgeClass =
-              props?.item?.dpto[0]?.pivot.is_titular === "Y"
-                ? styles.isTitular
-                : styles.isDependiente;
-
-            return (
-              <div className={`${styles.residentTypeBadge} ${badgeClass}`}>
-                <span>{texto}</span>
-              </div>
-            );
-          },
         },
         filter: {
           label: "Tipo de residente",
           width: "180px",
-          // Usa la función actualizada para las opciones del filtro
+
           options: getTypefilter,
         },
-        // form: false, // Descomenta si no quieres que aparezca en el formulario
+
       },
     };
   }, []);
@@ -533,23 +388,6 @@ const Owners = () => {
     onEdit,
     onDel,
   });
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (

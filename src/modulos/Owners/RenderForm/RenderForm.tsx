@@ -23,7 +23,7 @@ interface OwnerFormState {
   will_live_in_unit?: boolean;
   _disabled?: boolean;
   _emailDisabled?: boolean;
-  [key: string]: any; 
+  [key: string]: any;
 }
 
 interface OwnerFormErrors {
@@ -93,7 +93,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
   };
 
   const handleSave = () => {
-   
+
     if (selectedUnit === '' || selectedUnit === null || selectedUnit === undefined) return;
     const parsed =
       typeof selectedUnit === 'string' && /^\d+$/.test(selectedUnit)
@@ -119,6 +119,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <Select
           name="dpto_id"
+          filter = {true}
           label="Seleccionar Unidad"
           value={selectedUnit}
           options={units}
@@ -126,6 +127,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
           optionValue="id"
           onChange={handleSelectChange}
           required
+
 
         />
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -403,7 +405,7 @@ const RenderForm = ({
         endpoint,
         method,
         payload,
-        true 
+        true
       );
 
       if (response?.success) {
@@ -510,7 +512,7 @@ const RenderForm = ({
                 formState.type_owner === 'Propietario'
                   ? extraData?.dptosForH || []
                   : extraData?.dptosForT || [];
-            
+
               const nro = getUnitNro(unitsList, d.dpto_id);
               return (
                 <div key={String(d.dpto_id) + '_' + idx} className={styles.unitCard}>

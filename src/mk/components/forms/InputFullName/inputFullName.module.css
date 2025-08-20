@@ -6,7 +6,4 @@
   @media (width > 480px) {
     grid-template-columns: 1fr 1fr;
   }
-  .inputFullNameContainer {
-    flex-direction: row;
-  }
 }
