@@ -1,5 +1,6 @@
 import { IconDownload } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
+import InputFullName from "@/mk/components/forms/InputFullName/InputFullName";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
@@ -385,6 +386,34 @@ const FormElement = memo(
             />
           </LeftRigthElement>
         );
+      case "fullName":
+        return (
+          <LeftRigthElement {...props}>
+            <InputFullName
+              name={_field.key}
+              value={item}
+              onChange={onChange}
+              label={_field.label}
+              disabled={
+                typeof _field.disabled == "function"
+                  ? _field.disabled({ field: _field, val, item })
+                  : _field.disabled
+              }
+              onBlur={onBlur}
+              errors={error}
+              onFocus={_field.onFocus}
+              iconLeft={_field.iconLeft}
+              iconRight={_field.iconRight}
+              placeholder={_field.placeholder}
+              className={_field.className}
+              style={_field.style}
+              readOnly={_field.readOnly}
+              required={_field.required}
+              prefix={_field.prefix}
+            />
+          </LeftRigthElement>
+        );
+
       default:
         return (
           <div>
