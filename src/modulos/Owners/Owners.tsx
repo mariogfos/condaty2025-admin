@@ -566,13 +566,13 @@ const Owners = () => {
               color={
                 !data?.extraData?.totals || data?.extraData?.totals === 0
                   ? "var(--cWhiteV1)"
-                  : "var(--cInfo)"
+                  : "var(--cWhite)"
               }
               style={{
                 backgroundColor:
                   !data?.extraData?.totals || data?.extraData?.totals === 0
                     ? "var(--cHover)"
-                    : "var(--cHoverCompl3)",
+                    : "var(--cHoverCompl1)",
               }}
               circle
               size={18}
@@ -595,6 +595,28 @@ const Owners = () => {
                   !data?.extraData?.holders || data?.extraData?.holders === 0
                     ? "var(--cHover)"
                     : "var(--cHoverSuccess)",
+              }}
+              circle
+              size={18}
+            />
+          }
+        />
+        <WidgetDashCard
+          title="Residentes"
+          data={String(data?.extraData?.totals || 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={
+                !data?.extraData?.totals || data?.extraData?.totals === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
+              }
+              style={{
+                backgroundColor:
+                  !data?.extraData?.totals || data?.extraData?.totals === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl3)",
               }}
               circle
               size={18}
