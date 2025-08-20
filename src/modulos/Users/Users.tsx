@@ -178,6 +178,18 @@ const Users = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      avatar: {
+        api: "a*e*",
+        label: "Suba una Imagen",
+        list: false,
+        form: {
+          type: "imageUpload",
+          prefix: "GUARD",
+          style: { width: "100%" },
+          // onRigth: rigthAvatar,
+        },
+      },
+
       ci: {
         rules: ["required", "ci"],
         api: "ae",
@@ -265,12 +277,7 @@ const Users = () => {
             </div>
           );
         },
-        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
-      },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
+        list: true,
       },
 
       name: {
