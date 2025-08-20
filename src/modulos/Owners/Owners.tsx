@@ -192,13 +192,13 @@ const Owners = () => {
   };
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       ci: {
-        rules: ["required", "ci"],
-        api: "ae",
-        label: "Carnet de identidad",
+        rules: ['required', 'ci'],
+        api: 'ae',
+        label: 'Carnet de identidad',
         form: {
-          type: "text",
+          type: 'text',
           onBlur: onBlurCi,
           disabled: onDisbled,
           required: true,
@@ -206,11 +206,9 @@ const Owners = () => {
         list: false,
       },
 
-
-
       fullName: {
-        api: "ae",
-        label: "Nombre",
+        api: 'ae',
+        label: 'Nombre',
         form: false,
         onRender: (item: any) => {
           const residente = item?.item;
@@ -218,24 +216,19 @@ const Owners = () => {
           const cedulaIdentidad = residente?.ci;
 
           return (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Avatar
                 hasImage={residente?.has_image}
-                src={getUrlImages(
-                  "/OWNER-" +
-                    residente?.id +
-                    ".webp?d=" +
-                    residente?.updated_at
-                )}
+                src={getUrlImages('/OWNER-' + residente?.id + '.webp?d=' + residente?.updated_at)}
                 name={nombreCompleto}
               />
               <div>
-                {" "}
+                {' '}
                 <p
                   style={{
-                    marginBottom: "2px",
+                    marginBottom: '2px',
                     fontWeight: 500,
-                    color: "var(--cWhite, #fafafa)",
+                    color: 'var(--cWhite, #fafafa)',
                   }}
                 >
                   {nombreCompleto}
@@ -244,25 +237,25 @@ const Owners = () => {
                 {cedulaIdentidad && (
                   <span
                     style={{
-                      fontSize: "11px",
-                      color: "var(--cWhiteV1, #a7a7a7)",
-                      display: "block",
-                      marginBottom: "4px",
+                      fontSize: '11px',
+                      color: 'var(--cWhiteV1, #a7a7a7)',
+                      display: 'block',
+                      marginBottom: '4px',
                     }}
                   >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
                 {/* Estado de Administrador Principal (si aplica) */}
-                {residente?.is_main == "M" && (
+                {residente?.is_main == 'M' && (
                   <span
                     style={{
-                      color: "var(--cSuccess)",
+                      color: 'var(--cSuccess)',
                       fontSize: 10,
-                      backgroundColor: "#00af900D",
-                      padding: "2px 4px",
+                      backgroundColor: '#00af900D',
+                      padding: '2px 4px',
                       borderRadius: 4,
-                      display: "inline-block",
+                      display: 'inline-block',
                     }}
                   >
                     Administrador principal
@@ -276,12 +269,12 @@ const Owners = () => {
       },
 
       name: {
-        openTag: { style: { display: "flex" } },
-        rules: ["required", "alpha"],
-        api: "ae",
-        label: "Primer nombre",
+        openTag: { style: { display: 'flex' } },
+        rules: ['required', 'alpha'],
+        api: 'ae',
+        label: 'Primer nombre',
         form: {
-          type: "text",
+          type: 'text',
           disabled: onDisbled,
           required: true,
         },
@@ -290,10 +283,10 @@ const Owners = () => {
       middle_name: {
         closeTag: true,
         rules: [],
-        api: "ae",
-        label: "Segundo nombre",
+        api: 'ae',
+        label: 'Segundo nombre',
         form: {
-          type: "text",
+          type: 'text',
           disabled: onDisbled,
         },
         list: false,
@@ -301,14 +294,14 @@ const Owners = () => {
       last_name: {
         openTag: {
           style: {
-            display: "flex",
+            display: 'flex',
           },
         },
-        rules: ["required", "alpha"],
-        api: "ae",
-        label: "Apellido paterno",
+        rules: ['required', 'alpha'],
+        api: 'ae',
+        label: 'Apellido paterno',
         form: {
-          type: "text",
+          type: 'text',
           disabled: onDisbled,
           required: true,
         },
@@ -316,46 +309,43 @@ const Owners = () => {
       },
       mother_last_name: {
         closeTag: true,
-        rules: [""],
-        api: "ae",
-        label: "Apellido materno",
+        rules: [''],
+        api: 'ae',
+        label: 'Apellido materno',
         form: {
-          type: "text",
+          type: 'text',
           disabled: onDisbled,
         },
         list: false,
       },
-
-      email: {
-        rules: ["required", "email"],
-        api: "a",
-        label: "Correo electrónico",
+      type_name: {
+        rules: [''],
+        api: '',
+        label: 'Tipo',
         list: {},
-      },
-      phone: {
-        rules: ["number", "max:10"],
-        api: "ae",
-        label: "Celular",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-        },
-        list: { },
-      },
-      type_owner: {
-        rules: [""],
-        api: "",
-        label: "Tipo",
-        list: {
-
-        },
         filter: {
-          label: "Tipo de residente",
-          width: "180px",
+          label: 'Tipo de residente',
+          width: '180px',
 
           options: getTypefilter,
         },
+      },
 
+      email: {
+        rules: ['required', 'email'],
+        api: 'a',
+        label: 'Correo electrónico',
+        list: {},
+      },
+      phone: {
+        rules: ['number', 'max:10'],
+        api: 'ae',
+        label: 'Celular',
+        form: {
+          type: 'text',
+          disabled: onDisbled,
+        },
+        list: {},
       },
     };
   }, []);
