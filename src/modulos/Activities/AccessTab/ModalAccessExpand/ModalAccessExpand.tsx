@@ -1,3 +1,4 @@
+import Br from "@/components/Detail/Br";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -26,19 +27,6 @@ const typeText: any = {
   T: "taxista",
   I: "invitación",
   V: "visitante",
-};
-
-const Br = () => {
-  return (
-    <div
-      style={{
-        height: 0.5,
-        backgroundColor: "var(--cWhiteV1)",
-        margin: "8px 0px",
-        width: "100%",
-      }}
-    />
-  );
 };
 
 const ModalAccessExpand = ({
@@ -92,6 +80,7 @@ const ModalAccessExpand = ({
     return "I";
   };
   const RendeAccess = () => {
+    //esto puedo estar fuera del componente
     return (
       <>
         <ItemList
@@ -103,12 +92,12 @@ const ModalAccessExpand = ({
               name={getFullName(data?.visit)}
               hasImage={data?.visit?.has_image}
               src={
-                data?.visit?.has_image
+                data?.visit?.has_image // esto? ya no es necesario hacer esta pregunta ya que ya el componente avatar tiene la propiedad hasImage que hace la consulta de nomostar la imagen si es false, quitar este if
                   ? getUrlImages(
                       "/VISIT-" +
-                        (data?.visit?.id || data?.visit?.id) +
+                        (data?.visit?.id || data?.visit?.id) + // esto? las dos opciones sonn iguale sno tiene sentido hace un or ||
                         ".webp?" +
-                        (data?.visit?.updated_at || data?.visit?.updated_at)
+                        (data?.visit?.updated_at || data?.visit?.updated_at) // esto? las dos opciones sonn iguale sno tiene sentido hace un or ||
                     )
                   : ""
               }
@@ -166,6 +155,7 @@ const ModalAccessExpand = ({
   }
 
   const RenderInvitation = () => {
+    // esto? podrias acralo fuera del compoennte
     return (
       <>
         <ItemList
@@ -258,6 +248,7 @@ const ModalAccessExpand = ({
     );
   };
   const RenderPedido = () => {
+    // esto? podrias sacralo fuera del compnente
     return (
       <>
         <ItemList
