@@ -8,17 +8,13 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
-  IconAccess,
-  IconAdd,
   IconGuardShield,
   IconSecurity,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import RenderView from "./RenderView/RenderView";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
@@ -43,8 +39,6 @@ const Guards = () => {
       edit: true,
       del: true,
     },
-    // noWaiting: true,
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -52,7 +46,6 @@ const Guards = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-      // noWaiting?: boolean;
     }) => {
       return (
         <ProfileModal
@@ -62,6 +55,7 @@ const Guards = () => {
           type={"guard"}
           title="Perfil de Guardia"
           reLoad={props?.reLoad}
+          titleBack="Volver a lista de guardias"
         />
       );
     },
@@ -83,17 +77,6 @@ const Guards = () => {
         />
       );
     },
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
-    // extraData: true,
-    // hideActions: { add: true },
   };
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
