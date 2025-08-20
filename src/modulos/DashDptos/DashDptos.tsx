@@ -44,6 +44,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [currentRemovalType, setCurrentRemovalType] = useState<'H' | 'T' | null>(null);
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
     null
@@ -115,16 +116,35 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setOpenTitular(true);
   };
 
+  const handleRemoveTitularClick = (type: 'H' | 'T') => {
+    setCurrentRemovalType(type);
+    setOpenDelTitular(true);
+  };
+
   const removeTitular = async () => {
-    const { data } = await execute("/dptos-remove-titular", "POST", {
-      dpto_id: datas?.data?.id,
-    });
-    if (data?.success) {
-      showToast("Titular eliminado", "success");
-      reLoad();
-      setOpenDelTitular(false);
-    } else {
-      showToast(data?.message || "Error al eliminar titular", "error");
+    try {
+      if (!currentRemovalType) return;
+      
+      const isHomeowner = currentRemovalType === 'H';
+      const payload = {
+        owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.titular?.id,
+        dpto_id: datas?.data?.id,
+        type: currentRemovalType
+      };
+
+      const { data } = await execute("/dptos-release-owner", "POST", payload);
+      
+      if (data?.success) {
+        showToast(isHomeowner ? "Propietario liberado" : "Inquilino desvinculado", "success");
+        reLoad();
+        setOpenDelTitular(false);
+        setCurrentRemovalType(null);
+      } else {
+        showToast(data?.message || `Error al ${isHomeowner ? 'liberar propietario' : 'desvincular inquilino'}`, "error");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast("Error al procesar la solicitud", "error");
     }
   };
 
@@ -144,7 +164,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               onEdit={() => setOpenEdit(true)}
               onDelete={() => setOpenDel(true)}
               onTitular={onTitular}
-              onRemoveTitular={() => setOpenDelTitular(true)}
+              onRemoveTitular={handleRemoveTitularClick}
               onOpenDependentProfile={handleOpenDependentProfile}
               onOpenTitularHist={() => setOpenTitularHist(true)}
             />
@@ -331,14 +351,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
         )}
         {openDelTitular && (
           <DataModal
-            title="Eliminar titular"
+            title={currentRemovalType === 'H' ? "Liberar residencia" : "Desvincular inquilino"}
             open={openDelTitular}
             onSave={removeTitular}
             variant={"mini"}
-            onClose={() => setOpenDelTitular(false)}
-            buttonText="Eliminar"
+            onClose={() => {
+              setOpenDelTitular(false);
+              setCurrentRemovalType(null);
+            }}
+            buttonText={currentRemovalType === 'H' ? "Liberar" : "Desvincular"}
           >
-            <p>¿Estás seguro de que quieres eliminar este titular?</p>
+            <p>
+              {currentRemovalType === 'H' 
+                ? "¿Estás seguro de que quieres liberar este propietario de la residencia?" 
+                : "¿Estás seguro de que quieres desvincular este inquilino?"}
+            </p>
           </DataModal>
         )}
 

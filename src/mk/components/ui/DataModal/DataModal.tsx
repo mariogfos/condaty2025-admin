@@ -30,18 +30,19 @@ const DataModal = ({
   onClose,
   open,
   onSave = (e: any) => {},
-  title = "",
-  className = "",
-  buttonText = "Guardar",
-  buttonCancel = "Cancelar",
+  title = '',
+  className = '',
+  buttonText = 'Guardar',
+  buttonCancel = 'Cancelar',
   buttonExtra = null,
-  id = "",
+  id = '',
   style = {},
   duration = 300,
   fullScreen = false,
   iconClose = true,
   disabled = false,
-  colorTitle = "var(--cWhite)",
+  colorTitle = 'var(--cAccent)',
+  //colorTitle = 'var(--cWhite)',
   variant = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
@@ -64,18 +65,18 @@ const DataModal = ({
   }, [open]);
   return (
     <div
-      style={{ visibility: open ? "visible" : "hidden" }}
+      style={{ visibility: open ? 'visible' : 'hidden' }}
       className={styles.dataModal}
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
     >
       <main
         style={style}
         className={
-          (openModal ? styles["open"] : "") +
-          "  " +
-          (fullScreen ? styles["full"] : "") +
-          " " +
-          (variant ? styles[variant] : "")
+          (openModal ? styles['open'] : '') +
+          '  ' +
+          (fullScreen ? styles['full'] : '') +
+          ' ' +
+          (variant ? styles[variant] : '')
         }
       >
         <HeadTitle
@@ -90,28 +91,24 @@ const DataModal = ({
                 size={40}
                 onClick={() => _close(false)}
                 circle
-                style={{ backgroundColor: "transparent", padding: "0px" }}
+                style={{ backgroundColor: 'transparent', padding: '0px' }}
               />
             )
           }
-          colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorBack={variant === 'V2' ? 'var(--cAccent)' : 'var(--cWhite)'}
           colorTitle={colorTitle}
         />
         <div className={styles.headerDivider} />
         <section className={className}>{children}</section>
-        {(buttonText != "" || buttonCancel != "") && (
+        {(buttonText != '' || buttonCancel != '') && (
           <footer>
-            {buttonText != "" && (
-              <Button
-                variant="primary"
-                disabled={disabled}
-                onClick={() => onSave("save")}
-              >
+            {buttonText != '' && (
+              <Button variant="primary" disabled={disabled} onClick={() => onSave('save')}>
                 {buttonText}
               </Button>
             )}
-            {buttonCancel != "" && (
-              <Button variant="secondary" onClick={() => _close("cancel")}>
+            {buttonCancel != '' && (
+              <Button variant="secondary" onClick={() => _close('cancel')}>
                 {buttonCancel}
               </Button>
             )}

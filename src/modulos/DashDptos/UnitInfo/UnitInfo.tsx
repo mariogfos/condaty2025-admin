@@ -19,7 +19,7 @@ interface UnitInfoProps {
   onEdit: () => void;
   onDelete: () => void;
   onTitular: () => void;
-  onRemoveTitular: () => void;
+  onRemoveTitular: (type: 'H' | 'T') => void;
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
@@ -205,6 +205,7 @@ const UnitInfo = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
+                        onRemoveTitular('H'); // Marcamos que viene de Propietario
                       }}
                     >
                       Liberar residencia
@@ -299,7 +300,7 @@ const UnitInfo = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onRemoveTitular();
+                        onRemoveTitular('T'); // Marcamos que viene de Inquilino
                       }}
                     >
                       Desvincular
