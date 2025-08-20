@@ -1,11 +1,10 @@
 "use client";
-import Button from "@/mk/components/forms/Button/Button";
 import Input from "@/mk/components/forms/Input/Input";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./RenderForm.module.css";
 import { IconTrash } from "@/components/layout/icons/IconsBiblioteca";
-import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
+import { checkRules } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface ExtraField {
@@ -53,14 +52,32 @@ const RenderForm = ({
       }));
   });
   const [formState, setFormState] = useState({ ...item });
+  const [currentErrors, setCurrentErrors] = useState<Record<string, string>>(
+    {}
+  );
   const { showToast } = useAuth();
 
-  // console.log(extraData,'extraaa')
+  // Limpiar errores cuando se cierre el modal
+  useEffect(() => {
+    if (!open) {
+      setCurrentErrors({});
+    }
+  }, [open]);
 
   const handleChange = (e: any) => {
     let value = e.target.value;
+    const fieldName = e.target.name;
 
-    setFormState({ ...formState, [e.target.name]: value });
+    setFormState({ ...formState, [fieldName]: value });
+
+    // Limpiar error del campo específico si existe
+    if (currentErrors[fieldName]) {
+      setCurrentErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
   };
 
   const handleAddField = () => {
@@ -80,26 +97,51 @@ const RenderForm = ({
     const newFields = [...extraFields];
     newFields[index] = { ...newFields[index], [field]: value };
     setExtraFields(newFields);
+
+    // Limpiar error del campo específico si existe
+    const fieldKey = `extra_field_name_${index}`;
+    if (currentErrors[fieldKey]) {
+      setCurrentErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldKey];
+        return newErrors;
+      });
+    }
   };
 
-  const validate = (field: any = "") => {
-    let errors: any = {};
+  const validate = () => {
+    let errs: Record<string, string> = {};
 
-    errors = checkRules({
+    // Validar nombre
+    const nameError = checkRules({
       value: formState.name,
       rules: ["required"],
       key: "name",
-      errors,
+      errors: errs,
     });
 
-    setErrors(errors);
-    return errors;
+    if (typeof nameError === "string" && nameError) {
+      errs.name = nameError;
+    } else if (nameError && typeof nameError === "object") {
+      Object.entries(nameError).forEach(([k, v]) => {
+        if (v) errs[k] = v;
+      });
+    }
+
+    // Validar campos extras
+    extraFields.forEach((field, index) => {
+      if (!field.name.trim()) {
+        errs[`extra_field_name_${index}`] = "Este campo es requerido";
+      }
+    });
+
+    setCurrentErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (hasErrors(validate())) return;
+    if (!validate()) return;
     const formData = {
-      // ...formState,
       name: formState.name,
       description: formState.description || "",
       fields: extraFields.map((field) => {
@@ -107,7 +149,7 @@ const RenderForm = ({
           name: field.name,
           type: field.value,
         };
-        // Incluir el ID del campo si existe, independientemente de la acción
+
         if (field.id) {
           fieldData.id = field.id;
         }
@@ -122,7 +164,6 @@ const RenderForm = ({
 
     if (response?.success === true) {
       reLoad();
-      // setItem(formData);
       showToast(response?.message, "success");
       onClose();
     }
@@ -142,16 +183,9 @@ const RenderForm = ({
         label="Nombre de la unidad"
         value={formState?.name || ""}
         onChange={handleChange}
-        error={errors}
+        error={currentErrors}
         disabled={action !== "add" && item.is_fixed === "A"}
         required
-      />
-      <Input
-        name="description"
-        label="Descripción"
-        value={formState?.description ?? ""}
-        onChange={handleChange}
-        required={false}
       />
       <div className={styles.textContainer}>
         <div>Campos adicionales</div>
@@ -161,15 +195,7 @@ const RenderForm = ({
         </div>
       </div>
       {extraFields.map((field, index) => (
-        <div
-          key={index}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "10px",
-          }}
-        >
+        <div key={field.id || `extra-field-${index}`} className={styles.extraFieldRow}>
           <Input
             name={`extra_field_name_${index}`}
             label="Nombre del Campo"
@@ -179,24 +205,19 @@ const RenderForm = ({
             }
             style={{ flex: 1 }}
             iconRight={<IconTrash onClick={() => handleRemoveField(index)} />}
+            error={currentErrors}
+            required
           />
-
-          {/* <Button
-            onClick={() => handleRemoveField(index)}>a
-            <Button /> */}
         </div>
       ))}
 
-      <div
+      <button
+        type="button"
         onClick={handleAddField}
-        style={{
-          marginTop: "10px",
-          color: "var(--cAccent)",
-          cursor: "pointer",
-        }}
+        className={styles.addFieldButton}
       >
         Agregar Campo Extra
-      </div>
+      </button>
     </DataModal>
   );
 };

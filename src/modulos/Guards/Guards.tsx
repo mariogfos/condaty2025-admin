@@ -288,16 +288,23 @@ const Guards = () => {
 
         list: false,
       },
+      fullname: {
+        // rules: ["required", "alpha", "max:20"],
+        api: "",
+        // label: "Nombres",
+        form: {
+          type: "fullName",
+          // style: { width: "49%" },
+          disabled: onDisbled,
+          required: true,
+        },
+        list: false,
+      },
       name: {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Primer nombre",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
 
         list: false,
       },
@@ -305,26 +312,21 @@ const Guards = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       last_name: {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       phone: {

@@ -145,8 +145,11 @@ const MainMenu = ({
             icon={<IconGroup />}
             items={[
               { href: "/owners", label: "Residentes" },
+              { href: "/users", label: "Personal Administrativo" },
+              { href: "/roles", label: "Roles y permisos" },
+              { href: "/rolesabilities", label: "Permisos" },
+              { href: "/rolescategories", label: "Categorías de rol" },
               { href: "/homeowners", label: "Propietarios" },
-              { href: "/users", label: "Administradores" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}

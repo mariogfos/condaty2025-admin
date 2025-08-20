@@ -1,21 +1,12 @@
 import styles from "./Alerts.module.css";
-import RenderItem from "../shared/RenderItem";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { useMemo } from "react";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import {
-  IconAlert,
-  IconAlert2,
-  IconAlert3,
-  IconAmbulance,
-  IconFlame,
-  IconGuardShield,
-  IconTheft,
-} from "@/components/layout/icons/IconsBiblioteca";
+import { IconAlert2, IconAlert3 } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -53,8 +44,8 @@ const Alerts = () => {
   const mod = {
     modulo: "alerts",
     singular: "alerta",
-    plural: "alertas",
-    permiso: "",
+    plural: "",
+    permiso: "alerts",
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
@@ -67,35 +58,113 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={reLoad} />,
   };
   const { setStore } = useAuth();
-  const getAlertLevelClass = (level: any) => {
+  const getAlertLevelInfo = (level: number) => {
     switch (level) {
-      case 4:
-        // return styles.nivelPanico;
-        return styles.nivelAlto;
-      case 3:
-        return styles.nivelAlto;
-      case 2:
-        return styles.nivelMedio;
-      case 1:
-        return styles.nivelBajo;
+      case 4: // Panic (treated as High)
+      case 3: // High
+        return { 
+          label: level === 4 ? 'Nivel pánico' : 'Nivel alto',
+          backgroundColor: 'var(--cHoverError)',
+          color: 'var(--cError)'
+        };
+      case 2: // Medium
+        return { 
+          label: 'Nivel medio',
+          backgroundColor: 'var(--cHoverWarning)',
+          color: 'var(--cWarning)'
+        };
+      case 1: // Low
+        return { 
+          label: 'Nivel bajo',
+          backgroundColor: 'var(--cHoverSuccess)',
+          color: 'var(--cSuccess)'
+        };
       default:
-        return styles.nivelMedio;
+        return { 
+          label: 'Nivel desconocido',
+          backgroundColor: 'var(--cHoverLight)',
+          color: 'var(--cLightDark)'
+        };
     }
   };
 
-  const getAlertLevelIcon = (type: any) => {
-    switch (type) {
-      case "E":
-        return <IconAmbulance />;
-      case "F":
-        return <IconFlame />;
-      case "T":
-        return <IconTheft />;
-      case "O":
-        return <IconAlert />;
-      default:
-        return <IconAlert />;
-    }
+  const renderGuardInfo = ({ item }: { item: any }) => {
+    let entityToDisplay = null;
+    let avatarTypePrefix = "";
+    const isPanic = item?.level === 4;
+
+    if (isPanic) {
+      if (item.owner) {
+        entityToDisplay = item.owner;
+        avatarTypePrefix = "OWNER-";
+      } else if (item.guardia) {
+        entityToDisplay = item.guardia;
+        avatarTypePrefix = "GUARD-";
+      }
+    } else if (item.guardia) {
+        entityToDisplay = item.guardia;
+        avatarTypePrefix = "GUARD-";
+      } else if (item.owner) {
+        entityToDisplay = item.owner;
+        avatarTypePrefix = "OWNER-";
+      }
+
+    const fullName = entityToDisplay
+      ? getFullName(entityToDisplay)
+      : "Información no disponible";
+    const ci = entityToDisplay?.ci;
+    const entityId = entityToDisplay?.id;
+    const updatedAt = entityToDisplay?.updated_at;
+
+    const avatarSrc =
+      entityId && avatarTypePrefix && updatedAt
+        ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`)
+        : null;
+
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {avatarSrc ? (
+          <Avatar
+            hasImage={entityToDisplay?.has_image}
+            src={avatarSrc}
+            name={fullName}
+          />
+        ) : (
+          <Avatar
+            name={
+              fullName && fullName !== "Información no disponible"
+                ? fullName.substring(0, 1)
+                : "?"
+            }
+          />
+        )}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <p style={{ margin: 0, fontWeight: 500, color: "var(--cWhite, #fafafa)" }}>
+            {fullName}
+          </p>
+          {ci && (
+            <span style={{ fontSize: "11px", color: "var(--cWhiteV1, #a7a7a7)" }}>
+              CI: {ci}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderAlertLevel = ({ item }: { item: any }) => {
+    const alertLevel = item?.level || 2;
+    const { backgroundColor, color, label } = getAlertLevelInfo(alertLevel);
+    
+    return (
+      <StatusBadge backgroundColor={backgroundColor} color={color}>
+        {label}
+      </StatusBadge>
+    );
+  };
+
+  const formatCreatedAt = ({ item }: { item: any }) => {
+    return getDateTimeStrMesShort(item.created_at);
   };
 
   const fields = useMemo(
@@ -106,122 +175,7 @@ const Alerts = () => {
         api: "ae",
         label: "Informador",
         list: {
-          onRender: ({ item }: any) => {
-            let entityToDisplay = null;
-            let avatarTypePrefix = ""; // "OWNER-" or "GUARD-"
-            const isPanic = item?.level === 4;
-
-            // Determinar la entidad a mostrar y el prefijo para el avatar
-            if (isPanic) {
-              // Para alertas de pánico, priorizar owner, fallback a guardia si owner no está
-              if (item.owner) {
-                entityToDisplay = item.owner;
-                avatarTypePrefix = "OWNER-";
-              } else if (item.guardia) {
-                // En tu data de ejemplo, guardia es siempre null
-                entityToDisplay = item.guardia;
-                avatarTypePrefix = "GUARD-";
-              }
-            } else {
-              // Para alertas no pánico, priorizar guardia, fallback a owner
-              if (item.guardia) {
-                // En tu data de ejemplo, guardia es siempre null
-                entityToDisplay = item.guardia;
-                avatarTypePrefix = "GUARD-";
-              } else if (item.owner) {
-                entityToDisplay = item.owner;
-                avatarTypePrefix = "OWNER-";
-              }
-            }
-            // Si después de esto entityToDisplay es null, se mostrará "Información no disponible"
-
-            const fullName = entityToDisplay
-              ? getFullName(entityToDisplay)
-              : "Información no disponible";
-            const ci = entityToDisplay?.ci;
-            const entityId = entityToDisplay?.id;
-            const updatedAt = entityToDisplay?.updated_at;
-
-            const avatarSrc =
-              entityId && avatarTypePrefix && updatedAt
-                ? getUrlImages(
-                    `/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`
-                  )
-                : null;
-
-            // Determinar si la entidad mostrada es un guardia para el estilo 'square' del Avatar
-            const isGuardBeingDisplayed = !!(
-              entityToDisplay &&
-              item.guardia &&
-              entityToDisplay.id === item.guardia.id &&
-              avatarTypePrefix === "GUARD-"
-            );
-
-            return (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {/* Sección del Avatar */}
-                {avatarSrc ? (
-                  <Avatar
-                    hasImage={entityToDisplay?.has_image}
-                    src={avatarSrc}
-                    name={fullName}
-                  />
-                ) : (
-                  // Avatar de fallback con la inicial del nombre o un "?"
-                  <Avatar
-                    name={
-                      fullName && fullName !== "Información no disponible"
-                        ? fullName.substring(0, 1)
-                        : "?"
-                    }
-                  />
-                )}
-
-                {/* Sección de Texto e Icono de Pánico */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    {/*  
-                    {isPanic && item.type && (
-                      <span>{getAlertLevelIcon(item.type)}</span>
-                    )} */}
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 500,
-                        color: "var(--cWhite, #fafafa)",
-                      }}
-                    >
-                      {fullName}
-                    </p>
-                  </div>
-                  {/* Mostrar CI si está disponible */}
-                  {ci && (
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--cWhiteV1, #a7a7a7)",
-                        display: "block",
-                      }}
-                    >
-                      CI: {ci}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          },
+          onRender: renderGuardInfo,
         },
         form: { type: "text" },
       },
@@ -236,31 +190,23 @@ const Alerts = () => {
         rules: [""],
         api: "",
         label: "Fecha y hora de creación",
-        list: {},
-        onRender: (props: any) => {
-          return getDateTimeStrMesShort(props.item.created_at);
+        list: {
+          width: "314px",
+          onRender: formatCreatedAt,
         },
       },
 
       level: {
         rules: ["required"],
         api: "ae",
-        label: "Categoría de alerta",
+        label: <span style={{display: "block", textAlign: "center", width: "100%"}}>Nivel de alerta</span>,
         list: {
-          onRender: (props: any) => {
-            const alertLevel = props?.item?.level || 2;
-            const levelClass = `${styles.statusBadge} ${getAlertLevelClass(
-              alertLevel
-            )}`;
-
-            return (
-              <div className={levelClass}>{getAlertLevelText(alertLevel)}</div>
-            );
-          },
+          width: "194px",
+          onRender: renderAlertLevel,
         },
         form: { type: "select", options: lLevels },
         filter: {
-          label: "Categoría",
+          label: "Nivel de alerta",
           width: "200px",
           options: () => [...lLevels],
           optionLabel: "name",
@@ -278,8 +224,6 @@ const Alerts = () => {
     searchs,
     onEdit,
     onDel,
-    showToast,
-    execute,
     reLoad,
     data,
   } = useCrud({
@@ -287,7 +231,7 @@ const Alerts = () => {
     mod,
     fields,
   });
-  const { onLongPress, selItem } = useCrudUtils({
+  useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -299,6 +243,7 @@ const Alerts = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
+      <h1 className={styles.dashboardTitle}>Alertas</h1>
       <div className={styles.dashboardContainer}>
         <div className={styles.allStatsRow}>
           <WidgetDashCard
@@ -317,7 +262,7 @@ const Alerts = () => {
                     !data?.extraData?.total_alerts ||
                     data?.extraData?.total_alerts === 0
                       ? "var(--cHover)"
-                      : "rgba(255, 255, 255, 0.1)",
+                      : "var(--cHoverCompl1)",
                 }}
                 circle
                 size={18}
@@ -325,7 +270,7 @@ const Alerts = () => {
             }
             className={styles.widgetResumeCard}
           />
-          <WidgetDashCard
+          {/* <WidgetDashCard
             title="Alertas Nivel Bajo"
             data={String(data?.extraData?.low_level || 0)}
             icon={
@@ -341,7 +286,7 @@ const Alerts = () => {
                     !data?.extraData?.low_level ||
                     data?.extraData?.low_level === 0
                       ? "var(--cHover)"
-                      : "var(--cHoverSuccess)",
+                      : "var(--cHoverCompl2)",
                 }}
                 circle
                 size={18}
@@ -349,7 +294,7 @@ const Alerts = () => {
             }
             className={styles.widgetResumeCard}
             style={{ maxWidth: "300px", width: "100%" }}
-          />
+          /> */}
           <WidgetDashCard
             title="Alertas Nivel Medio"
             data={String(data?.extraData?.medium_level || 0)}
@@ -366,7 +311,7 @@ const Alerts = () => {
                     !data?.extraData?.medium_level ||
                     data?.extraData?.medium_level === 0
                       ? "var(--cHover)"
-                      : "var(--cHoverWarning)",
+                      : "var(--cHoverCompl4)",
                 }}
                 circle
                 size={18}
@@ -383,14 +328,14 @@ const Alerts = () => {
                   !data?.extraData?.high_level ||
                   data?.extraData?.high_level === 0
                     ? "var(--cWhiteV1)"
-                    : "#da5d5d"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.high_level ||
                     data?.extraData?.high_level === 0
                       ? "var(--cHover)"
-                      : "var(--errorBg)",
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}
@@ -407,14 +352,14 @@ const Alerts = () => {
                   !data?.extraData?.emergency_buttons ||
                   data?.extraData?.emergency_buttons === 0
                     ? "var(--cWhiteV1)"
-                    : "#da5d5d"
+                    : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.emergency_buttons ||
                     data?.extraData?.emergency_buttons === 0
                       ? "var(--cHover)"
-                      : "var(--errorBg)",
+                      : "var(--cHoverError)",
                 }}
                 circle
                 size={18}

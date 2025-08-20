@@ -35,7 +35,7 @@
 
         & > div {
           font-size: var(--sM);
-          font-weight: var(--bBold);
+          font-weight: var(--bMedium);
 
           text-overflow: ellipsis;
           overflow: hidden;
@@ -63,7 +63,7 @@
     align-items: center;
     gap: var(--spS);
     /* padding-left: var(--spS); */
-    padding-right: var(--spS);
+    /* padding-right: var(--spS); */
 
     & > div {
       display: flex;

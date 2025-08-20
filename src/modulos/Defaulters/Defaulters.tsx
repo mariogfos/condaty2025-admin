@@ -254,7 +254,7 @@ const Defaulters = () => {
     ]
   );
   const handleRowClick = (item: any) => {
-    router.push(`/dashDpto/${item.dpto_id}`);
+    router.push(`/units/${item.dpto_id}`);
   };
 
   const renderRightPanel = useCallback(() => {
@@ -318,8 +318,8 @@ const Defaulters = () => {
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
               colors: [expensaColor, multaColor],
-              height: 310,
-              width: 310,
+              height: "380px",
+              width: "100%",
               centerText: "Total",
             }}
           />

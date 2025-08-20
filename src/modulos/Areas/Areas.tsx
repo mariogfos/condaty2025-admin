@@ -9,6 +9,7 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
@@ -18,7 +19,7 @@ const paramsInitial = {
   extraData: true,
 };
 const statusColor: any = {
-  A: { color: "var(--cSuccess)", background: "var(--cHoverSuccess)" },
+  A: { color: "var(--cSuccess)", background: "var(--cHoverCompl2)" },
   X: { color: "var(--cError)", background: "var(--cHoverError)" },
 };
 
@@ -286,7 +287,7 @@ const Areas = () => {
       status: {
         rules: [""],
         api: "",
-        label: "Estado",
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%'}}>Estado</span>,
         list: {
           width: "120px",
         },
@@ -296,19 +297,12 @@ const Areas = () => {
           if (props?.item?.status === "X") status = "Inactiva";
 
           return (
-            <p
-              style={{
-                color: statusColor[props?.item?.status]?.color,
-                background: statusColor[props?.item?.status]?.background,
-                padding: "6px 8px",
-                borderRadius: "4px",
-                fontSize: 14,
-                display: "flex",
-              }}
+            <StatusBadge
+              backgroundColor={statusColor[props?.item?.status]?.background}
+              color={statusColor[props?.item?.status]?.color}
             >
-              {" "}
               {status}
-            </p>
+            </StatusBadge>
           );
         },
         filter: {

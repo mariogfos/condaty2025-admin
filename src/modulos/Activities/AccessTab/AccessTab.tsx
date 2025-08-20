@@ -15,6 +15,7 @@ import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFil
 interface AccessesTabProps {
   paramsInitial: any;
   onRowClick?: (item: any) => void;
+  unitParam?: string | null;
 }
 
 const periodOptions = [
@@ -29,7 +30,11 @@ const periodOptions = [
   { id: "ly", name: "Año anterior" },
   { id: "custom", name: "Personalizado" },
 ];
-const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
+
+const AccessesTab: React.FC<AccessesTabProps> = ({
+  paramsInitial,
+  unitParam,
+}) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
   const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false);

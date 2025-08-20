@@ -161,7 +161,8 @@ const ProfileModal = ({
       is_canceled: "Y",
     });
     if (data?.success == true) {
-      showToast(profileRole + " eliminar con éxito", "success");
+      // getAreasM();
+      showToast(profileRole + " eliminado con éxito", "success");
       onClose();
       reLoad();
       reLoadDet();
