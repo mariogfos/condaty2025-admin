@@ -350,6 +350,7 @@ const Users = () => {
           type: "number",
           disabled: onDisbled,
         },
+        list: true
       },
       address: {
         rules: ["max:100"],
