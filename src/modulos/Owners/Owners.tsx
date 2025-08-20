@@ -361,10 +361,8 @@ const Owners = () => {
     reLoad,
     showToast,
     execute,
-    errors,
-    getExtraData,
-    extraData,
     data,
+    extraData,
   } = useCrud({
     paramsInitial,
     mod,
@@ -385,18 +383,18 @@ const Owners = () => {
       <div style={{ display: "flex", gap: "12px" }}>
         <WidgetDashCard
           title="Residentes Totales"
-          data={String(data?.extraData?.totals || 0)}
+          data={String(extraData?.totals || 0)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
               color={
-                !data?.extraData?.totals || data?.extraData?.totals === 0
+                !extraData?.totals || extraData?.totals === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cInfo)"
               }
               style={{
                 backgroundColor:
-                  !data?.extraData?.totals || data?.extraData?.totals === 0
+                  !extraData?.totals || extraData?.totals === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl3)",
               }}
@@ -407,18 +405,18 @@ const Owners = () => {
         />
         <WidgetDashCard
           title="Titulares"
-          data={String(data?.extraData?.holders || 0)}
+          data={String(extraData?.holders || 0)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
               color={
-                !data?.extraData?.holders || data?.extraData?.holders === 0
+                !extraData?.holders || extraData?.holders === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cSuccess)"
               }
               style={{
                 backgroundColor:
-                  !data?.extraData?.holders || data?.extraData?.holders === 0
+                  !extraData?.holders || extraData?.holders === 0
                     ? "var(--cHover)"
                     : "var(--cHoverSuccess)",
               }}
@@ -429,20 +427,18 @@ const Owners = () => {
         />
         <WidgetDashCard
           title="Dependientes"
-          data={String(data?.extraData?.dependents || 0)}
+          data={String(extraData?.dependents || 0)}
           style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
               color={
-                !data?.extraData?.dependents ||
-                data?.extraData?.dependents === 0
+                !extraData?.dependents || extraData?.dependents === 0
                   ? "var(--cWhiteV1)"
                   : "var(--cWarning)"
               }
               style={{
                 backgroundColor:
-                  !data?.extraData?.dependents ||
-                  data?.extraData?.dependents === 0
+                  !extraData?.dependents || extraData?.dependents === 0
                     ? "var(--cHover)"
                     : "var(--cHoverWarning)",
               }}

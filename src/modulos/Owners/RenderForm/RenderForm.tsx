@@ -491,20 +491,9 @@ const RenderForm = ({
           error={errors}
           required
         />
-        <button
-          className={styles.backButtonContent}
-          onClick={() => {
-            setIsUnitModalOpen(true);
-          }}
-          disabled={!formState.type_owner}
-        >
-          <IconAdd size={12} />
-          <p style={{ textDecoration: 'underline' }}>Asignar Unidad</p>
-        </button>
-
         {/* Cards de unidades seleccionadas (múltiples para Propietario) */}
         <div className={styles.unitCardsWrapper}>
-          {(formState.dptos || []).length > 0 ? (
+          {(formState.dptos || []).length > 0 &&
             (formState.dptos || []).map((d, idx) => {
               const unitsList =
                 formState.type_owner === 'Propietario'
@@ -535,11 +524,18 @@ const RenderForm = ({
                   </div>
                 </div>
               );
-            })
-          ) : (
-            <div className={styles.unitCardEmpty}>Ninguna unidad asignada</div>
-          )}
+            })}
         </div>
+        <button
+          className={styles.backButtonContent}
+          onClick={() => {
+            setIsUnitModalOpen(true);
+          }}
+          disabled={!formState.type_owner}
+        >
+          <IconAdd size={12} />
+          <p style={{ textDecoration: 'underline' }}>Asignar Unidad</p>
+        </button>
       </div>
       <UnitModal
         open={isUnitModalOpen}
@@ -568,11 +564,15 @@ const RenderForm = ({
           const nro = unit ? unit.nro : undefined;
 
           setFormState(prev => {
-            const existing = (prev.dptos || []).find(d => String(d.dpto_id) === String(normalizedId));
+            const existing = (prev.dptos || []).find(
+              d => String(d.dpto_id) === String(normalizedId)
+            );
             if (prev.type_owner === 'Inquilino') {
               return {
                 ...prev,
-                dptos: [{ dpto_id: normalizedId, will_live_in_unit: !!data.will_live_in_unit, nro }],
+                dptos: [
+                  { dpto_id: normalizedId, will_live_in_unit: !!data.will_live_in_unit, nro },
+                ],
               };
             }
 
@@ -584,7 +584,11 @@ const RenderForm = ({
                   : d
               );
             } else {
-              newDptos.push({ dpto_id: normalizedId, will_live_in_unit: !!data.will_live_in_unit, nro });
+              newDptos.push({
+                dpto_id: normalizedId,
+                will_live_in_unit: !!data.will_live_in_unit,
+                nro,
+              });
             }
 
             if (data.will_live_in_unit) {
