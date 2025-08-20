@@ -97,7 +97,7 @@ const DataModal = ({
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
           colorTitle={colorTitle}
         />
-        <div className={styles.headerDivider} />
+        {!fullScreen && <div className={styles.headerDivider} />}
         <section className={className}>{children}</section>
         {(buttonText != "" || buttonCancel != "") && (
           <footer>

@@ -21,6 +21,7 @@ import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import Input from "@/mk/components/forms/Input/Input";
 import EditProfile from "./EditProfile/EditProfile";
+import { resizeImage } from "../../mk/utils/images";
 
 interface ProfileModalProps {
   open: boolean;
@@ -76,7 +77,7 @@ const ProfileModal = ({
     ) : type === "owner" || type === "homeOwner" ? (
       <IconUser color={"var(--cAccent)"} size={18} />
     ) : (
-      <IconGuardShield color={"var(--cAccent)"} size={20} />
+      <IconGuardShield color={"var(--cSuccess)"} size={20} />
     );
   const url =
     type === "admin"
@@ -121,7 +122,6 @@ const ProfileModal = ({
   };
 
   const urlImages = imageUrl();
-  // console.log(data,'dadada',dataID,'did')
 
   useEffect(() => {
     if (data?.data[0]) {
@@ -166,19 +166,16 @@ const ProfileModal = ({
       onClose();
       reLoad();
       reLoadDet();
-      // setOpenConfirm({ open: false, id: null });
     }
   };
-  // console.log(data?.data);
 
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
-    if (!portadaError && client?.id && client?.updated_at) {
+    if (!portadaError) {
       return getUrlImages(
         "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
       );
     }
-    // fallback a la imagen vacía
     return "/assets/images/PortadaEmpty.png";
   };
 
@@ -192,44 +189,44 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-        // onSave={() => logout()}
       >
         <div className={styles.ProfileModal}>
           <section>
             <h1>{title}</h1>
             <div>
               {edit && (
-                <IconEdit
-                  className=""
-                  square
-                  size={32}
-                  color={"var(--cWhite)"}
+                <div
+                  onClick={() => setOpenEdit(true)}
                   style={{
                     backgroundColor: "var(--cWhiteV2)",
+                    padding: 8,
+                    borderRadius: "var(--bRadiusS)",
                     cursor: "pointer",
                   }}
-                  onClick={() => setOpenEdit(true)}
-                />
+                >
+                  <IconEdit className="" size={30} color={"var(--cWhite)"} />
+                </div>
               )}
               {del && (
-                <IconTrash
-                  className=""
-                  square
-                  size={32}
-                  color={"var(--cWhite)"}
+                <div
                   style={{
                     backgroundColor: "var(--cWhiteV2)",
+                    padding: 8,
+                    borderRadius: "var(--bRadiusS)",
                     cursor: "pointer",
                   }}
                   onClick={() => setOpenDel(true)}
-                />
+                >
+                  <IconTrash className="" size={30} color={"var(--cWhite)"} />
+                </div>
               )}
             </div>
           </section>
 
           <section>
-            <Avatar
-              hasImage={data?.data[0]?.has_image}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt="Foto de portada"
               src={getPortadaCliente()}
               onError={() => setPortadaError(true)}
               style={{
@@ -240,6 +237,7 @@ const ProfileModal = ({
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 borderBottom: "1px solid var(--cWhiteV2)",
+                objectFit: "cover",
                 background: "var(--cWhiteV2)",
               }}
             />
@@ -256,11 +254,6 @@ const ProfileModal = ({
                   <div>
                     <span> {getFullName(data?.data[0])}</span>
                     <span>{profileRole}</span>
-                    {/* <span>
-                      {data?.data[0]?.dpto[0]?.nro
-                        ? data?.data[0]?.dpto[0]?.nro
-                        : "-/-"}
-                    </span> */}
                   </div>
                 </div>
               </div>
@@ -275,11 +268,11 @@ const ProfileModal = ({
                     : profileRole}
                 </div>
                 <div>
-                  <IconPhone size={16} color={"var(--cWhiteV1)"} />
+                  <IconPhone size={20} color={"var(--cWhiteV1)"} />
                   {data?.data[0]?.phone || "-/-"}
                 </div>
                 <div>
-                  <IconEmail size={16} color={"var(--cWhiteV1)"} />
+                  <IconEmail size={20} color={"var(--cWhiteV1)"} />
                   {data?.data[0]?.email || "-/-"}
                 </div>
               </div>

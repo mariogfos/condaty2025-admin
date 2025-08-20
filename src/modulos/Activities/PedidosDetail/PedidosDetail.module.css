@@ -12,18 +12,18 @@
       gap: var(--spL);
     }
   }
-  .LabelValue {
-    flex-grow: 1;
-    & > p:nth-child(1) {
-      color: var(--cWhiteV1);
-      font-size: var(--sM);
-      font-weight: 300;
-    }
-    & > p:nth-child(2) {
-      color: var(--cWhite);
-      font-size: var(--sM);
-      font-weight: 600;
-      margin-top: 4px;
-    }
+}
+.LabelValue {
+  flex-grow: 1;
+  & > p:nth-child(1) {
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+    font-weight: 300;
+  }
+  & > p:nth-child(2) {
+    color: var(--cWhite);
+    font-size: var(--sM);
+    font-weight: 600;
+    margin-top: 4px;
   }
 }

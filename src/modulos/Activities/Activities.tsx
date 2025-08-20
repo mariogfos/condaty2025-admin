@@ -1,4 +1,3 @@
-// Activities.tsx - Componente principal
 "use client";
 import styles from "./Activities.module.css";
 import AccessesTab from "./AccessTab/AccessTab";
@@ -13,7 +12,6 @@ const paramsInitialAccess = {
 const Activities = () => {
   return (
     <div className={styles.container1}>
-      {/* Contenedor principal */}
       <AccessesTab paramsInitial={paramsInitialAccess} />
     </div>
   );

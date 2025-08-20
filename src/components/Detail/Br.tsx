@@ -1,14 +1,7 @@
-import React from "react";
-
-const Br = () => {
-  return (
-    <div
-      style={{
-        height: 0.5,
-        backgroundColor: "var(--cWhiteV1)",
-        margin: "16px 0px",
-      }}
-    />
-  );
+import { CSSProperties } from "react";
+import styles from "./Br.module.css";
+const Br = ({ style }: { style?: CSSProperties }) => {
+  return <div className={styles.br} style={style} />;
 };
+
 export default Br;

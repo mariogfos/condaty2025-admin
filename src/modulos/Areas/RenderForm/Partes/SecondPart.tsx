@@ -9,6 +9,7 @@ import { hours } from "@/mk/utils/utils";
 import Switch from "@/mk/components/forms/Switch/Switch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconOptions } from "@/components/layout/icons/IconsBiblioteca";
+import Br from "@/components/Detail/Br";
 
 interface PropsType {
   handleChange: any;
@@ -70,17 +71,6 @@ const SecondPart = ({
 
     setSelectedDays([]);
     setPeriods([]);
-  };
-  const Br = () => {
-    return (
-      <div
-        style={{
-          backgroundColor: "var(--cWhiteV1)",
-          height: 0.5,
-          margin: "16px 0px",
-        }}
-      />
-    );
   };
 
   const parseTimeToMinutes = (timeStr: string) => {

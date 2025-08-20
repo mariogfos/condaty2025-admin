@@ -422,12 +422,7 @@
     width: max-content;
   }
 }
-.br {
-  height: 1px;
-  width: 100%;
-  background-color: var(--cWhiteV1);
-  margin: 1rem 0;
-}
+
 .LabelValue {
   flex-grow: 1;
   & > p:nth-child(1) {

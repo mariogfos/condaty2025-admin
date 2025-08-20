@@ -26,7 +26,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   onClose,
   item,
 }) => {
-  const [openExpand, setOpenExpand] = useState({
+  const [openExpand, setOpenExpand]: any = useState({
     open: false,
     id: null,
     type: "",
@@ -381,7 +381,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
           onClose={() =>
             setOpenExpand({ open: false, id: null, type: "", invitation: null })
           }
-          // item={accessDetail}
           id={openExpand?.id}
           type={openExpand?.type}
         />
