@@ -26,6 +26,7 @@ const InputFullName = ({
 
   return (
     <div className={styles.inputFullName + " " + className}>
+      <div className={styles.inputFullNameContainer}>
       <Input
         label="Primer nombre"
         type="text"
@@ -52,6 +53,8 @@ const InputFullName = ({
         style={style}
         onBlur={() => onBlur("middle_name" + prefijo)}
       />
+      </div>
+      <div className={styles.inputFullNameContainer}>
       <Input
         label="Apellido paterno"
         type="text"
@@ -78,6 +81,7 @@ const InputFullName = ({
         error={errors}
         onBlur={() => onBlur("mother_last_name" + prefijo)}
       />
+      </div>
     </div>
   );
 };

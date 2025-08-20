@@ -23,6 +23,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Select from "@/mk/components/forms/Select/Select";
+import RenderForm from "../Owners/RenderForm/RenderForm";
 
 const paramsInitial = {
   perPage: 20,
@@ -94,18 +95,19 @@ const Owners = () => {
   };
 
   const mod: ModCrudType = {
-    modulo: "owners",
-    singular: "Residente",
-    plural: "Residentes",
+    modulo: 'owners',
+    singular: 'Residente',
+    plural: 'Residentes',
     filter: true,
     export: true,
     import: true,
-    permiso: "",
+    permiso: '',
     hideActions: {
       edit: true,
       del: true,
     },
     extraData: true,
+    renderForm: (props: any) => <RenderForm {...props} />,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -118,17 +120,13 @@ const Owners = () => {
         open={props?.open}
         onClose={props?.onClose}
         dataID={props?.item?.id}
-        type={"owner"}
+        type={'owner'}
         title="Perfil de Residente"
         edit={false}
         reLoad={props?.reLoad}
       />
     ),
-    renderDel: (props: {
-      open: boolean;
-      onClose: any;
-      item: Record<string, any>;
-    }) => {
+    renderDel: (props: { open: boolean; onClose: any; item: Record<string, any> }) => {
       return (
         <UnlinkModal
           open={props.open}
