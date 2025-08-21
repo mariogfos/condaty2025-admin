@@ -79,7 +79,11 @@ const DataModal = ({
         }
       >
         <HeadTitle
-          title={title}
+          style={{ padding: "0px" }}
+          title={fullScreen ? title : ""}
+          customTitle={
+            !fullScreen ? <p style={{ fontSize: 24 }}>{title}</p> : ""
+          }
           left={fullScreen && iconClose ? null : false}
           onBack={() => _close(false)}
           right={

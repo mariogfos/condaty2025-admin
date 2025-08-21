@@ -34,7 +34,7 @@ const Users = () => {
     filter: true,
     permiso: "",
     export: true,
-    // titleAdd: "",
+    titleAdd: "Nuevo",
     // import: true,
     // search: { hide: true },
     hideActions: {

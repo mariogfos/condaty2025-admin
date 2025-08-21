@@ -15,6 +15,7 @@ import {
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import Br from "@/components/Detail/Br";
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -94,9 +95,9 @@ const Guards = () => {
     if (data?.success && data.data?.data?.id) {
       const filteredData = data.data.data;
       if (filteredData.existCondo) {
-        showToast("El guardia ya existe en este Condominio", "warning");
+        showToast("El guardia ya existe en este condominio", "warning");
         props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        props.setError({ ci: " Ese CI ya esta en uso en este condominio." });
         return;
       }
       props.setError({ ci: "" });
@@ -114,7 +115,7 @@ const Guards = () => {
         _emailDisabled: true,
       });
       showToast(
-        "El guardia ya existe en Condaty, se va a vincular al Condominio",
+        "El guardia ya existe en condaty, se va a vincular al condominio",
         "warning"
       );
     } else {
@@ -281,42 +282,39 @@ const Guards = () => {
         form: { type: "number", disabled: onDisbled },
         list: {},
       },
-      email: {
-        rules: ["required", "email"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-          required: true,
-          onBlur: onBlurEmail,
-          // onRender: (props: any) => {
-          //   return (
-          //     <Input
-          //       name="email"
-          //       value={props?.item?.email}
-          //       onChange={props.onChange}
-          //       label="Correo electrónico"
-          //       error={props.error}
-          //       disabled={props?.field?.action === "edit" || onDisbled(props)}
-          //       required={true}
-          //       onBlur={(e) => onBlurEmail(e, props)}
-          //     />
-          //   );
-          // },
-        },
-        list: {},
-      },
 
       address: {
         rules: [""],
         api: "ae",
-        label: "Dirección",
+        label: "Dirección del domicilio",
         form: {
           type: "textArea",
           // disabled: onDisbled,
         },
         list: {},
+      },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+
+        form: {
+          type: "text",
+          disabled: onDisbled,
+          onBlur: onBlurEmail,
+          onTop: () => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Br style={{ marginBottom: "12px" }} />
+                <p>
+                  La contraseña será enviada al correo que indiques en este
+                  campo
+                </p>
+              </div>
+            );
+          },
+        },
+        list: false,
       },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
