@@ -118,7 +118,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
 
   const onTitular = (type: 'H' | 'T') => {
-    if (type === 'T' && !datas?.data?.homeowner) {
+    if (type === 'T' && !datas?.homeowner) {
       showToast(
         "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
         "error"
