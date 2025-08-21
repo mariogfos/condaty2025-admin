@@ -826,9 +826,10 @@ const useCrud = ({
         title={
           (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
         }
-        buttonText={
-          action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
-        }
+        // buttonText={
+        //   action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
+        // }
+        buttonText={action == "add" ? "Guardar" : "Actualizar"}
         // buttonCancel=""
         onSave={(e) =>
           onConfirm

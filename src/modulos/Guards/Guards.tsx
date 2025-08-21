@@ -20,6 +20,7 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 
 const Guards = () => {
