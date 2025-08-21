@@ -214,7 +214,6 @@ const Users = () => {
           type: "fullName",
           disabled: onDisbled,
         },
-
         list: {
           onRender: (item: any) => {
             const administrador = item?.item;

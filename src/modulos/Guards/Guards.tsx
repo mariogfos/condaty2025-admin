@@ -190,7 +190,10 @@ const Guards = () => {
         // rules: ["required"],
         api: "ae",
         label: "Nombre",
-        form: false,
+        form: {
+          type: "fullName",
+          disabled: onDisbled,
+        },
         onRender: (item: any) => {
           const guardia = item?.item;
           const nombreCompleto = getFullName(guardia);
