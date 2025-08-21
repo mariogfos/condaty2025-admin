@@ -33,7 +33,7 @@ const Guards = () => {
     permiso: "",
     export: true,
     titleAdd: "Nuevo",
-    import: true,
+    //import: true,
     hideActions: {
       edit: true,
       del: true,
@@ -277,24 +277,6 @@ const Guards = () => {
         form: false,
         list: false,
       },
-      phone: {
-        rules: ["number", "max:10"],
-        api: "ae",
-        label: "Celular",
-        form: { type: "number", disabled: onDisbled },
-        list: {},
-      },
-
-      address: {
-        rules: [""],
-        api: "ae",
-        label: "Dirección del domicilio",
-        form: {
-          type: "textArea",
-          // disabled: onDisbled,
-        },
-        list: {},
-      },
       email: {
         rules: ["required", "email"],
         api: "a",
@@ -316,7 +298,25 @@ const Guards = () => {
             );
           },
         },
-        list: false,
+        list: true,
+      },
+      phone: {
+        rules: ["number", "max:10"],
+        api: "ae",
+        label: "Celular",
+        form: { type: "number", disabled: onDisbled },
+        list: {},
+      },
+
+      address: {
+        rules: [""],
+        api: "ae",
+        label: "Dirección del domicilio",
+        form: {
+          type: "textArea",
+          // disabled: onDisbled,
+        },
+        list: {},
       },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
