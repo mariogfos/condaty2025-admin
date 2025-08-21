@@ -180,8 +180,9 @@ const ProfileModal = ({
   const clientUsers = data?.data[0]?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   );
-  const deletePerm = userCan("user", "D");
-  console.log(deletePerm);
+  const deletePerm = userCan("users", "D");
+  const editPerm = userCan("users", "U");
+
   return (
     open && (
       <DataModal
@@ -197,7 +198,7 @@ const ProfileModal = ({
           <section>
             <h1>{title}</h1>
             <div>
-              {edit && (
+              {edit && editPerm && (
                 <div
                   onClick={() => setOpenEdit(true)}
                   style={{
@@ -210,7 +211,7 @@ const ProfileModal = ({
                   <IconEdit className="" size={30} color={"var(--cWhite)"} />
                 </div>
               )}
-              {del && (
+              {del && deletePerm && (
                 <div
                   style={{
                     backgroundColor: "var(--cWhiteV2)",

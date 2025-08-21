@@ -26,7 +26,7 @@ const paramsInitial = {
 };
 
 const Users = () => {
-  const { user } = useAuth();
+  const { user, userCan } = useAuth();
   const mod: ModCrudType = {
     modulo: "users",
     singular: "personal",
@@ -40,6 +40,7 @@ const Users = () => {
     hideActions: {
       edit: true,
       del: true,
+      add: !userCan("users", "C"),
     },
     renderView: (props: {
       open: boolean;
@@ -392,7 +393,6 @@ const Users = () => {
   };
 
   const {
-    userCan,
     List,
     setStore,
     onSearch,
@@ -440,8 +440,7 @@ const Users = () => {
       </RenderItem>
     );
   };
-
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan("users", "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
       <WidgetDashCard
