@@ -88,11 +88,11 @@ const ProfileModal = ({
 
   const profileRole =
     type === "admin"
-      ? "administrador"
+      ? "Administrador"
       : type === "owner"
-      ? "residente"
+      ? "Residente"
       : type === "homeOwner"
-      ? "propietario"
+      ? "Propietario"
       : "Guardia";
   const { data, reLoad: reLoadDet } = useAxios(
     url,
@@ -386,7 +386,7 @@ const ProfileModal = ({
         )}
         {openDel && (
           <DataModal
-            title={`Eliminar ${profileRole}`}
+            title={`Eliminar ${profileRole.toLocaleLowerCase()}`}
             open={openDel}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
