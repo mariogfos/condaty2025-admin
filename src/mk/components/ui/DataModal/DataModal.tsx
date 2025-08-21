@@ -95,7 +95,7 @@ const DataModal = ({
             )
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={colorTitle}
+          colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
         />
         {!fullScreen && <div className={styles.headerDivider} />}
         <section className={className}>{children}</section>
