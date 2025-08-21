@@ -131,7 +131,7 @@ const Users = () => {
       if (filteredData.existCondo) {
         showToast("El administrador ya existe en este Condominio", "warning");
         props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        props.setError({ ci: "Ese CI ya esta en uso en este condominio" });
         return;
       }
       props.setError({ ci: "" });
@@ -233,7 +233,7 @@ const Users = () => {
         },
       },
       fullName: {
-        rules: [],
+        // rules: [],
         api: "",
         label: "Nombre ",
         form: {
@@ -350,7 +350,7 @@ const Users = () => {
           type: "number",
           disabled: onDisbled,
         },
-        list: true
+        list: true,
       },
       address: {
         rules: ["max:100"],
