@@ -58,7 +58,7 @@ const ProfileModal = ({
   del = true,
   type,
 }: ProfileModalProps) => {
-  const { user, getUser, showToast } = useAuth();
+  const { user, getUser, showToast, userCan } = useAuth();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<any>({});
@@ -180,7 +180,8 @@ const ProfileModal = ({
   const clientUsers = data?.data[0]?.clients?.filter(
     (item: any) => item?.id === user?.client_id
   );
-
+  const deletePerm = userCan("user", "D");
+  console.log(deletePerm);
   return (
     open && (
       <DataModal

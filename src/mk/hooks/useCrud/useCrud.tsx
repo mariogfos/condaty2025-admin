@@ -936,7 +936,6 @@ const useCrud = ({
       span.style.whiteSpace = "nowrap";
       document.body.appendChild(span);
       filters.forEach((f: any) => {
-        console.log(parseFloat(f?.width));
         span.innerText = f.label;
         if (span.offsetWidth > maxLabelWidth) {
           maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
