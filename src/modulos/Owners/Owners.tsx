@@ -36,12 +36,9 @@ const Owners = () => {
   const getTypefilter = () => [
     { id: "ALL", name: "Todos" },
     { id: "D", name: "Dependientes" },
-    { id: "T", name: "Titulares" },
+    { id: "T", name: "Residentes" },
+    { id: "H", name: "Propietarios" },
   ];
-  const openUnitsModal = (homeowner: any) => {
-    setSelectedHomeowner(homeowner);
-    setUnitsModalOpen(true);
-  };
 
   const closeUnitsModal = () => {
     setUnitsModalOpen(false);
@@ -97,7 +94,7 @@ const Owners = () => {
     plural: 'Residentes',
     filter: true,
     export: true,
-    import: true,
+    import: false,
     permiso: '',
     hideActions: {
       edit: true,
@@ -318,7 +315,7 @@ const Owners = () => {
         },
         list: false,
       },
-      type_name: {
+      type_owner: {
         rules: [''],
         api: '',
         label: 'Tipo',
@@ -380,67 +377,64 @@ const Owners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-      <div style={{ display: "flex", gap: "12px" }}>
+      <div style={{ display: 'flex', gap: '12px' }}>
         <WidgetDashCard
-          title="Residentes Totales"
-          data={String(extraData?.totals || 0)}
-          style={{ maxWidth: "250px" }}
+          title="Totales"
+          data={String(extraData?.totals ?? 0)}
+          style={{ maxWidth: '250px' }}
           icon={
             <IconHomePerson
-              color={
-                !extraData?.totals || extraData?.totals === 0
-                  ? "var(--cWhiteV1)"
-                  : "var(--cInfo)"
-              }
+              color={!extraData?.totals || extraData?.totals === 0 ? 'var(--cWhiteV1)' : 'var(--cInfo)'}
               style={{
-                backgroundColor:
-                  !extraData?.totals || extraData?.totals === 0
-                    ? "var(--cHover)"
-                    : "var(--cHoverCompl3)",
+                backgroundColor: !extraData?.totals || extraData?.totals === 0 ? 'var(--cHover)' : 'var(--cHoverCompl3)',
               }}
               circle
               size={18}
             />
           }
         />
+
         <WidgetDashCard
-          title="Titulares"
-          data={String(extraData?.holders || 0)}
-          style={{ maxWidth: "250px" }}
+          title="Residentes"
+          data={String(extraData?.tenants ?? 0)}
+          style={{ maxWidth: '250px' }}
           icon={
-            <IconHomePerson
-              color={
-                !extraData?.holders || extraData?.holders === 0
-                  ? "var(--cWhiteV1)"
-                  : "var(--cSuccess)"
-              }
+            <IconHomePerson2
+              color={!extraData?.tenants || extraData?.tenants === 0 ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
               style={{
-                backgroundColor:
-                  !extraData?.holders || extraData?.holders === 0
-                    ? "var(--cHover)"
-                    : "var(--cHoverSuccess)",
+                backgroundColor: !extraData?.tenants || extraData?.tenants === 0 ? 'var(--cHover)' : 'var(--cHoverCompl4)',
               }}
               circle
               size={18}
             />
           }
         />
+
+        <WidgetDashCard
+          title="Propietarios"
+          data={String(extraData?.homeowners ?? extraData?.owners ?? 0)}
+          style={{ maxWidth: '250px' }}
+          icon={
+            <IconHome
+              color={!extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+              style={{
+                backgroundColor: !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+              }}
+              circle
+              size={18}
+            />
+          }
+        />
+
         <WidgetDashCard
           title="Dependientes"
-          data={String(extraData?.dependents || 0)}
-          style={{ maxWidth: "250px" }}
+          data={String(extraData?.dependents ?? 0)}
+          style={{ maxWidth: '250px' }}
           icon={
             <IconHomePerson
-              color={
-                !extraData?.dependents || extraData?.dependents === 0
-                  ? "var(--cWhiteV1)"
-                  : "var(--cWarning)"
-              }
+              color={!extraData?.dependents || extraData?.dependents === 0 ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
               style={{
-                backgroundColor:
-                  !extraData?.dependents || extraData?.dependents === 0
-                    ? "var(--cHover)"
-                    : "var(--cHoverWarning)",
+                backgroundColor: !extraData?.dependents || extraData?.dependents === 0 ? 'var(--cHover)' : 'var(--cHoverWarning)',
               }}
               circle
               size={18}

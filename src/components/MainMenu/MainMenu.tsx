@@ -149,7 +149,7 @@ const MainMenu = ({
               { href: "/roles", label: "Roles y permisos" },
               { href: "/rolescategories", label: "Permisos" },
               { href: "/rolescategories", label: "Categorías de rol" },
-              { href: "/homeowners", label: "Propietarios" },
+              //{ href: "/homeowners", label: "Propietarios" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}

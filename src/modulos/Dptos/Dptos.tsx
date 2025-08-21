@@ -268,37 +268,31 @@ const Dptos = () => {
         // form: { type: "text" },
         list: {
           onRender: (props: any) => {
-            // Verificar si titular existe antes de intentar acceder a sus propiedades
-            if (!props?.item?.titular) {
-              return <div className={styles.noTitular}>Sin titular</div>;
-            }
+              // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
+              const holder = props?.item?.holder;
+              const person = holder === 'T' ? props?.item?.tenant : props?.item?.homeowner;
 
-            // También verificar si titular.owner existe
-            if (!props?.item?.titular?.owner) {
-              return <div className={styles.noTitular}>Titular sin datos</div>;
-            }
+              if (!person) {
+                return <div className={styles.noTitular}>Sin titular</div>;
+              }
 
-            return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Avatar
-                  hasImage={props?.item?.titular?.owner?.has_image}
-                  src={getUrlImages(
-                    '/OWNER-' +
-                      props?.item?.titular?.owner_id +
-                      '.webp?d=' +
-                      props?.item?.titular?.owner?.updated_at
-                  )}
-                  name={getFullName(props?.item?.titular?.owner)}
-                />
-                <div>
-                  <p style={{ color: 'var(--cWhite)' }}>
-                    {getFullName(props?.item?.titular?.owner)}
-                  </p>
-                  <p>CI: {props?.item?.titular?.owner?.ci || 'Sin registro'}</p>
+              const personId = person?.id;
+              const updatedAt = person?.updated_at || person?.updatedAt || '';
+
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Avatar
+                    hasImage={person?.has_image}
+                    src={getUrlImages('/OWNER-' + personId + '.webp?d=' + updatedAt)}
+                    name={getFullName(person)}
+                  />
+                  <div>
+                    <p style={{ color: 'var(--cWhite)' }}>{getFullName(person)}</p>
+                    <p>CI: {person?.ci || 'Sin registro'}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          },
+              );
+            },
         },
         filter: {
           label: 'Estado',
@@ -317,9 +311,11 @@ const Dptos = () => {
         list: {
           width: '160px',
           onRender: (props: any) => {
+            const holder = props?.item?.holder;
+            const isOccupied = holder === 'H' || holder === 'T';
             return (
               <div className={styles.statusCellCenter}>
-                {props?.item?.titular ? (
+                {isOccupied ? (
                   <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
                     Habitada
                   </StatusBadge>
