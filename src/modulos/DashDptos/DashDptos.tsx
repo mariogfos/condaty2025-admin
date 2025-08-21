@@ -44,7 +44,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
-  const [currentRemovalType, setCurrentRemovalType] = useState<'H' | 'T' | null>(null);
+  const [currentRemovalType, setCurrentRemovalType] = useState<
+    "H" | "T" | null
+  >(null);
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
     null
@@ -62,9 +64,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
-    const [currentChangeType, setCurrentChangeType] = useState<'H' | 'T' | null>(null);
+  const [currentChangeType, setCurrentChangeType] = useState<"H" | "T" | null>(
+    null
+  );
 
-  const handleChangeOwnerClick = (type: 'H' | 'T') => {
+  const handleChangeOwnerClick = (type: "H" | "T") => {
     setCurrentChangeType(type);
     setOpenTitular(true);
   };
@@ -80,26 +84,42 @@ const DashDptos = ({ id }: DashDptosProps) => {
         owner_id: formState.owner_id,
         dpto_id: id,
         type: currentChangeType,
-        ...(currentChangeType === 'H' ? { is_resident: "N" } : {})
+        ...(currentChangeType === "H" ? { is_resident: "N" } : {}),
       };
 
       const { data: response } = await execute(
         "/dptos-change-owner",
         "POST",
-        payload,
+        payload
       );
 
       if (response?.success) {
-        showToast(`${currentChangeType === 'H' ? 'Propietario' : 'Residente'} actualizado`, "success");
+        showToast(
+          `${
+            currentChangeType === "H" ? "Propietario" : "Residente"
+          } actualizado`,
+          "success"
+        );
         setOpenTitular(false);
         setErrorsT({});
         setCurrentChangeType(null);
-        reLoad();
+        reLoad({ extraData: true });
       } else {
-        showToast(response?.message || `Error al actualizar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`, "error");
+        showToast(
+          response?.message ||
+            `Error al actualizar ${
+              currentChangeType === "H" ? "propietario" : "residente"
+            }`,
+          "error"
+        );
       }
     } catch (error) {
-      showToast(`Error al actualizar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`, error);
+      showToast(
+        `Error al actualizar ${
+          currentChangeType === "H" ? "propietario" : "residente"
+        }`,
+        error
+      );
     }
   };
 
@@ -117,8 +137,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const onTitular = (type: 'H' | 'T') => {
-    if (type === 'T' && !datas?.homeowner) {
+  const onTitular = (type: "H" | "T") => {
+    if (type === "T" && !datas?.homeowner) {
       showToast(
         "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
         "error"
@@ -129,7 +149,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setOpenTitular(true);
   };
 
-  const handleRemoveTitularClick = (type: 'H' | 'T') => {
+  const handleRemoveTitularClick = (type: "H" | "T") => {
     setCurrentRemovalType(type);
     setOpenDelTitular(true);
   };
@@ -138,32 +158,44 @@ const DashDptos = ({ id }: DashDptosProps) => {
     try {
       if (!currentRemovalType) return;
 
-      const isHomeowner = currentRemovalType === 'H';
+      const isHomeowner = currentRemovalType === "H";
       const payload = {
         owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.tenant?.id,
         dpto_id: datas?.data?.id,
-        type: currentRemovalType
+        type: currentRemovalType,
       };
 
       const { data } = await execute("/dptos-release-owner", "POST", payload);
 
       if (data?.success) {
-        showToast(isHomeowner ? "Propietario liberado" : "Inquilino desvinculado", "success");
+        showToast(
+          isHomeowner ? "Propietario liberado" : "Inquilino desvinculado",
+          "success"
+        );
         reLoad();
         setOpenDelTitular(false);
         setCurrentRemovalType(null);
       } else {
-        showToast(data?.message || `Error al ${isHomeowner ? 'liberar propietario' : 'desvincular inquilino'}`, "error");
+        showToast(
+          data?.message ||
+            `Error al ${
+              isHomeowner ? "liberar propietario" : "desvincular inquilino"
+            }`,
+          "error"
+        );
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       showToast("Error al procesar la solicitud", "error");
     }
   };
 
   return (
     <div className={styles.container}>
-      <HeaderBack label="Volver a lista de unidades" onClick={() => router.push('/units')} />
+      <HeaderBack
+        label="Volver a lista de unidades"
+        onClick={() => router.push("/units")}
+      />
       <section>
         <div className={styles.firtsPanel}>
           {!loaded ? (
@@ -185,17 +217,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de pagos"
                 onClick={() => {
-                  setParamsCrud('payments', 'searchBy', datas?.data?.nro);
-                  router.push('/payments');
+                  setParamsCrud("payments", "searchBy", datas?.data?.nro);
+                  router.push("/payments");
                 }}
               />
             }
             subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
-            style={{ flex: 1, minWidth: '300px' }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              {!loaded ? <TableSkeleton /> : <PaymentsTable payments={datas?.payments} />}
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <PaymentsTable payments={datas?.payments} />
+              )}
             </div>
           </WidgetBase>
         </div>
@@ -203,21 +239,29 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={loaded ? '+' + datas.accessCount + ' accesos nuevos este mes' : 'Cargando...'}
+            subtitle={
+              loaded
+                ? "+" + datas.accessCount + " accesos nuevos este mes"
+                : "Cargando..."
+            }
             title={
               <TitleRender
                 title="Historial de accesos"
                 onClick={() => {
-                  setParamsCrud('accesses', 'searchBy', datas?.data?.nro);
-                  router.push('/activities');
+                  setParamsCrud("accesses", "searchBy", datas?.data?.nro);
+                  router.push("/activities");
                 }}
               />
             }
             variant="V1"
-            style={{ flex: 1, minWidth: '300px' }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accessContent}>
-              {!loaded ? <TableSkeleton /> : <AccessTable access={datas?.access} />}
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <AccessTable access={datas?.access} />
+              )}
             </div>
           </WidgetBase>
 
@@ -227,16 +271,18 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de reservas"
                 onClick={() => {
-                  setParamsCrud('reservations', 'searchBy', datas?.data?.nro);
-                  router.push('/reservas');
+                  setParamsCrud("reservations", "searchBy", datas?.data?.nro);
+                  router.push("/reservas");
                 }}
               />
             }
             subtitle={
-              loaded ? '+' + datas.reservationsCount + ' reservas nuevas este mes' : 'Cargando...'
+              loaded
+                ? "+" + datas.reservationsCount + " reservas nuevas este mes"
+                : "Cargando..."
             }
             variant="V1"
-            style={{ flex: 1, minWidth: '300px' }}
+            style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.reservationsContent}>
               {!loaded ? (
@@ -250,25 +296,37 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
         {/* Modales */}
         <DataModal
-          title={`Seleccionar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`}
+          title={`Seleccionar ${
+            currentChangeType === "H" ? "propietario" : "residente"
+          }`}
           open={openTitular}
           onSave={onSave}
           onClose={() => {
             setOpenTitular(false);
             setCurrentChangeType(null);
-            setFormState((prev: { owner_id?: string }) => ({ ...prev, owner_id: '' }));
+            setFormState((prev: { owner_id?: string }) => ({
+              ...prev,
+              owner_id: "",
+            }));
           }}
           buttonText="Guardar"
         >
           <div className={styles.modalContent}>
             <Select
-              placeholder={`Selecciona al nuevo ${currentChangeType === 'H' ? 'propietario' : 'residente'}`}
+              placeholder={`Selecciona al nuevo ${
+                currentChangeType === "H" ? "propietario" : "residente"
+              }`}
               name="owner_id"
               error={errorsT.owner_id}
               required={true}
-              value={formState.owner_id || ''}
-              onChange={e => setFormState({ ...formState, owner_id: e.target.value })}
-              options={(currentChangeType === 'H' ? dashData?.extraData?.homeowners : dashData?.extraData?.tenants || []).map((owner: any) => ({
+              value={formState.owner_id || ""}
+              onChange={(e) =>
+                setFormState({ ...formState, owner_id: e.target.value })
+              }
+              options={(currentChangeType === "H"
+                ? dashData?.extraData?.homeowners
+                : dashData?.extraData?.tenants || []
+              ).map((owner: any) => ({
                 ...owner,
                 name: `${getFullName(owner)}`,
               }))}
@@ -310,8 +368,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
             item={
               idPerfil === datas?.tenant?.id
                 ? datas?.tenant
-                : datas?.tenant?.dependientes?.find((dep: any) => dep.owner_id === idPerfil)
-                    ?.owner || {}
+                : datas?.tenant?.dependientes?.find(
+                    (dep: any) => dep.owner_id === idPerfil
+                  )?.owner || {}
             }
             reLoad={reLoad}
           />
@@ -331,33 +390,38 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar unidad"
             open={openDel}
             onSave={onDel}
-            variant={'mini'}
+            variant={"mini"}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
           >
             <div className={styles.modalContent}>
               <p>
-                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción no se puede deshacer.
+                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción
+                no se puede deshacer.
               </p>
             </div>
           </DataModal>
         )}
         {openDelTitular && (
           <DataModal
-            title={currentRemovalType === 'H' ? 'Liberar residencia' : 'Desvincular residente'}
+            title={
+              currentRemovalType === "H"
+                ? "Liberar residencia"
+                : "Desvincular residente"
+            }
             open={openDelTitular}
             onSave={removeTitular}
-            variant={'mini'}
+            variant={"mini"}
             onClose={() => {
               setOpenDelTitular(false);
               setCurrentRemovalType(null);
             }}
-            buttonText={currentRemovalType === 'H' ? 'Liberar' : 'Desvincular'}
+            buttonText={currentRemovalType === "H" ? "Liberar" : "Desvincular"}
           >
             <p>
-              {currentRemovalType === 'H'
-                ? '¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?'
-                : '¿Estás seguro que quieres desvincular al inquilino? Recuerda que si realizas esta acción la unidad quedará sin inquilino?'}
+              {currentRemovalType === "H"
+                ? "¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?"
+                : "¿Estás seguro que quieres desvincular al inquilino? Recuerda que si realizas esta acción la unidad quedará sin inquilino?"}
             </p>
           </DataModal>
         )}

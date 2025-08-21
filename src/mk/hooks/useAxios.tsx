@@ -45,8 +45,8 @@ const useAxios = (
   ) => {
     if (prevent && countAxios == 0) return;
     const pay = {
-      ...(_payload || payload),
-      ...(_payload ? {} : { extraData: false }),
+      ...payload,
+      ...(_payload || { extraData: false }),
     };
     await execute(url, method, pay, true, noWaiting);
   };
