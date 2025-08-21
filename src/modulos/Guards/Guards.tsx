@@ -179,7 +179,7 @@ const Guards = () => {
         api: "ae",
         label: "Carnet de Identidad",
         form: {
-          type: "text",
+          type: "number",
           disabled: onDisbled,
           onBlur: onBlurCi,
           required: true,
@@ -274,7 +274,7 @@ const Guards = () => {
         rules: ["number", "max:10"],
         api: "ae",
         label: "Celular",
-        form: { type: "text", disabled: onDisbled },
+        form: { type: "number", disabled: onDisbled },
         list: {},
       },
       email: {

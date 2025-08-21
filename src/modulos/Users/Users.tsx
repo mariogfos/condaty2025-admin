@@ -187,7 +187,7 @@ const Users = () => {
         api: "ae",
         label: "Carnet de Identidad",
         form: {
-          type: "text",
+          type: "number",
           disabled: onDisbled,
           onBlur: onBlurCi,
           required: true,
@@ -322,7 +322,7 @@ const Users = () => {
         api: "ae",
         label: "Celular",
         form: {
-          type: "text",
+          type: "number",
           disabled: onDisbled,
         },
       },
