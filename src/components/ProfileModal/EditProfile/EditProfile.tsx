@@ -105,7 +105,7 @@ const EditProfile = ({
     });
     errs = checkRules({
       value: formState.phone,
-      rules: ["required", "numeric", "min:8"],
+      rules: ["numeric", "min:8"],
       key: "phone",
       errors: errs,
     });
@@ -246,6 +246,7 @@ const EditProfile = ({
               label="Teléfono"
               name="phone"
               type="number"
+              required={false}
               value={formState.phone}
               onChange={onChange}
               error={errors}
