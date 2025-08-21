@@ -249,7 +249,7 @@ const ProfileModal = ({
               <div>
                 <div>
                   <Avatar
-                    hasImage={data?.data[0]?.has_image}
+                    hasImage={1}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
                     w={191}

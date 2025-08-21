@@ -203,12 +203,9 @@ const Guards = () => {
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                hasImage={guardia?.has_image}
+                hasImage={1}
                 src={getUrlImages(
-                  "/GUARD-" +
-                    guardia?.id +
-                    ".webp?d=" +
-                    (guardia?.updated_at || new Date().toISOString())
+                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at
                 )}
                 name={nombreCompleto}
               />
