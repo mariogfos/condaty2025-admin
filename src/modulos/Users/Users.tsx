@@ -56,7 +56,7 @@ const Users = () => {
         onClose={props?.onClose}
         dataID={props?.item?.id}
         type={"admin"}
-        title="Perfil de "
+        title="Perfil de personal"
         titleBack="Volver a lista de personal administrativo"
         reLoad={reLoad}
         del={user.id === props?.item?.id ? false : true}
