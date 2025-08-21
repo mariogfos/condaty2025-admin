@@ -200,13 +200,15 @@ const Guards = () => {
           const guardia = item?.item;
           const nombreCompleto = getFullName(guardia);
           const cedulaIdentidad = guardia?.ci;
-
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 hasImage={guardia?.has_image}
                 src={getUrlImages(
-                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at
+                  "/GUARD-" +
+                    guardia?.id +
+                    ".webp?d=" +
+                    (guardia?.updated_at || new Date().toISOString())
                 )}
                 name={nombreCompleto}
               />
