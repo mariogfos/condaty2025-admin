@@ -30,7 +30,7 @@ const Users = () => {
   const mod: ModCrudType = {
     modulo: "users",
     singular: "personal",
-    plural: "Administradores",
+    plural: "personal administrativo",
     filter: true,
     permiso: "",
     export: true,
@@ -56,7 +56,8 @@ const Users = () => {
         onClose={props?.onClose}
         dataID={props?.item?.id}
         type={"admin"}
-        title="Perfil de administrador"
+        title="Perfil de "
+        titleBack="Volver a lista de personal administrativo"
         reLoad={reLoad}
         del={user.id === props?.item?.id ? false : true}
         edit={user.id === props?.item?.id ? false : true}
