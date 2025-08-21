@@ -205,6 +205,13 @@ const Users = () => {
           optionValue: "id",
           required: true,
         },
+        filter: {
+          label: "Rol",
+          width: "150px",
+          extraData: "roles",
+          optionLabel: "name",
+          optionValue: "id",
+        },
       },
       fullName: {
         rules: [],

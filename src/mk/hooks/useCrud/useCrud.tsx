@@ -936,14 +936,15 @@ const useCrud = ({
       span.style.whiteSpace = "nowrap";
       document.body.appendChild(span);
       filters.forEach((f: any) => {
+        console.log(parseFloat(f?.width));
         span.innerText = f.label;
         if (span.offsetWidth > maxLabelWidth) {
-          maxLabelWidth = span.offsetWidth;
+          maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
         }
       });
       document.body.removeChild(span);
     }
-    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
+    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -1290,7 +1291,7 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list.width ?? "300px",
+            width: field.filter?.width ?? field.list?.width ?? "200px",
             order:
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
@@ -1306,7 +1307,7 @@ const useCrud = ({
           responsive: "",
           label: field.list.label ?? field.label,
           className: field.list.className ?? "",
-          width: field.list.width,
+          width: field.list?.width,
           onRender: _onRender(field, true),
           order: field.list.order ?? field.order ?? 1000,
           style: field.list.style ?? field.style ?? {},
