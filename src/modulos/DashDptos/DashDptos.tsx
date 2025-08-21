@@ -31,7 +31,7 @@ interface DashDptosProps {
 }
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { showToast } = useAuth(); 
+  const { showToast } = useAuth();
   const router = useRouter();
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
@@ -62,32 +62,44 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
+    const [currentChangeType, setCurrentChangeType] = useState<'H' | 'T' | null>(null);
+
+  const handleChangeOwnerClick = (type: 'H' | 'T') => {
+    setCurrentChangeType(type);
+    setOpenTitular(true);
+  };
+
   const onSave = async () => {
-    if (!formState.owner_id) {
+    if (!formState.owner_id || !currentChangeType) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
       return;
     }
 
     try {
+      const payload = {
+        owner_id: formState.owner_id,
+        dpto_id: id,
+        type: currentChangeType,
+        ...(currentChangeType === 'H' ? { is_resident: "N" } : {})
+      };
+
       const { data: response } = await execute(
-        "/dptos-change-titular",
+        "/dptos-change-owner",
         "POST",
-        {
-          owner_id: formState.owner_id,
-          dpto_id: id,
-        }
+        payload,
       );
 
       if (response?.success) {
-        showToast("Titular actualizado", "success");
+        showToast(`${currentChangeType === 'H' ? 'Propietario' : 'Residente'} actualizado`, "success");
         setOpenTitular(false);
         setErrorsT({});
+        setCurrentChangeType(null);
         reLoad();
       } else {
-        showToast(response?.message || "Error al actualizar titular", "error");
+        showToast(response?.message || `Error al actualizar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`, "error");
       }
     } catch (error) {
-      showToast("Error al actualizar titular", error);
+      showToast(`Error al actualizar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`, error);
     }
   };
 
@@ -105,14 +117,15 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const onTitular = () => {
-    if (!datas?.data?.homeowner) {
+  const onTitular = (type: 'H' | 'T') => {
+    if (type === 'T' && !datas?.data?.homeowner) {
       showToast(
-        "No se puede asignar un titular a esta casa porque no existe un propietario registrado.",
+        "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
         "error"
       );
       return;
     }
+    setCurrentChangeType(type);
     setOpenTitular(true);
   };
 
@@ -124,16 +137,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const removeTitular = async () => {
     try {
       if (!currentRemovalType) return;
-      
+
       const isHomeowner = currentRemovalType === 'H';
       const payload = {
-        owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.titular?.id,
+        owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.tenant?.id,
         dpto_id: datas?.data?.id,
         type: currentRemovalType
       };
 
       const { data } = await execute("/dptos-release-owner", "POST", payload);
-      
+
       if (data?.success) {
         showToast(isHomeowner ? "Propietario liberado" : "Inquilino desvinculado", "success");
         reLoad();
@@ -150,10 +163,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   return (
     <div className={styles.container}>
-      <HeaderBack
-        label="Volver a lista de unidades"
-        onClick={() => router.push("/units")}
-      />
+      <HeaderBack label="Volver a lista de unidades" onClick={() => router.push('/units')} />
       <section>
         <div className={styles.firtsPanel}>
           {!loaded ? (
@@ -175,21 +185,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de pagos"
                 onClick={() => {
-                  setParamsCrud("payments", "searchBy", datas?.data?.nro);
-                  router.push("/payments");
+                  setParamsCrud('payments', 'searchBy', datas?.data?.nro);
+                  router.push('/payments');
                 }}
               />
             }
             subtitle={`Últimos ${datas?.payments?.length || 0} pagos`}
             variant="V1"
-            style={{ flex: 1, minWidth: "300px" }}
+            style={{ flex: 1, minWidth: '300px' }}
           >
             <div className={styles.accountContent}>
-              {!loaded ? (
-                <TableSkeleton />
-              ) : (
-                <PaymentsTable payments={datas?.payments} />
-              )}
+              {!loaded ? <TableSkeleton /> : <PaymentsTable payments={datas?.payments} />}
             </div>
           </WidgetBase>
         </div>
@@ -197,29 +203,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={
-              loaded
-                ? "+" + datas.accessCount + " accesos nuevos este mes"
-                : "Cargando..."
-            }
+            subtitle={loaded ? '+' + datas.accessCount + ' accesos nuevos este mes' : 'Cargando...'}
             title={
               <TitleRender
                 title="Historial de accesos"
                 onClick={() => {
-                  setParamsCrud("accesses", "searchBy", datas?.data?.nro);
-                  router.push("/activities");
+                  setParamsCrud('accesses', 'searchBy', datas?.data?.nro);
+                  router.push('/activities');
                 }}
               />
             }
             variant="V1"
-            style={{ flex: 1, minWidth: "300px" }}
+            style={{ flex: 1, minWidth: '300px' }}
           >
             <div className={styles.accessContent}>
-              {!loaded ? (
-                <TableSkeleton />
-              ) : (
-                <AccessTable access={datas?.access} titular={datas?.titular} />
-              )}
+              {!loaded ? <TableSkeleton /> : <AccessTable access={datas?.access} />}
             </div>
           </WidgetBase>
 
@@ -229,27 +227,22 @@ const DashDptos = ({ id }: DashDptosProps) => {
               <TitleRender
                 title="Historial de reservas"
                 onClick={() => {
-                  setParamsCrud("reservations", "searchBy", datas?.data?.nro);
-                  router.push("/reservas");
+                  setParamsCrud('reservations', 'searchBy', datas?.data?.nro);
+                  router.push('/reservas');
                 }}
               />
             }
             subtitle={
-              loaded
-                ? "+" + datas.reservationsCount + " reservas nuevas este mes"
-                : "Cargando..."
+              loaded ? '+' + datas.reservationsCount + ' reservas nuevas este mes' : 'Cargando...'
             }
             variant="V1"
-            style={{ flex: 1, minWidth: "300px" }}
+            style={{ flex: 1, minWidth: '300px' }}
           >
             <div className={styles.reservationsContent}>
               {!loaded ? (
                 <TableSkeleton />
               ) : (
-                <ReservationsTable
-                  reservations={datas?.reservations}
-                  titular={datas?.titular}
-                />
+                <ReservationsTable reservations={datas?.reservations} />
               )}
             </div>
           </WidgetBase>
@@ -257,23 +250,25 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
         {/* Modales */}
         <DataModal
-          title="Cambiar de titular"
+          title={`Seleccionar ${currentChangeType === 'H' ? 'propietario' : 'residente'}`}
           open={openTitular}
           onSave={onSave}
-          onClose={() => setOpenTitular(false)}
+          onClose={() => {
+            setOpenTitular(false);
+            setCurrentChangeType(null);
+            setFormState((prev: { owner_id?: string }) => ({ ...prev, owner_id: '' }));
+          }}
           buttonText="Guardar"
         >
           <div className={styles.modalContent}>
             <Select
-              placeholder="Selecciona al nuevo titular"
+              placeholder={`Selecciona al nuevo ${currentChangeType === 'H' ? 'propietario' : 'residente'}`}
               name="owner_id"
               error={errorsT.owner_id}
               required={true}
-              value={formState.owner_id || ""}
-              onChange={(e) =>
-                setFormState({ ...formState, owner_id: e.target.value })
-              }
-              options={(datas?.owners || []).map((owner: any) => ({
+              value={formState.owner_id || ''}
+              onChange={e => setFormState({ ...formState, owner_id: e.target.value })}
+              options={(currentChangeType === 'H' ? dashData?.extraData?.homeowners : dashData?.extraData?.tenants || []).map((owner: any) => ({
                 ...owner,
                 name: `${getFullName(owner)}`,
               }))}
@@ -287,7 +282,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Modales de Historial */}
         {openTitularHist && (
           <HistoryOwnership
-            ownershipData={datas?.titularHist || []}
+            ownershipData={datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
           />
@@ -313,11 +308,10 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setIdPerfil(null);
             }}
             item={
-              idPerfil === datas?.titular?.id
-                ? datas?.titular
-                : datas?.titular?.dependientes?.find(
-                    (dep: any) => dep.owner_id === idPerfil
-                  )?.owner || {}
+              idPerfil === datas?.tenant?.id
+                ? datas?.tenant
+                : datas?.tenant?.dependientes?.find((dep: any) => dep.owner_id === idPerfil)
+                    ?.owner || {}
             }
             reLoad={reLoad}
           />
@@ -337,34 +331,33 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Eliminar unidad"
             open={openDel}
             onSave={onDel}
-            variant={"mini"}
+            variant={'mini'}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
           >
             <div className={styles.modalContent}>
               <p>
-                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción
-                no se puede deshacer.
+                ¿Estás seguro de que quieres eliminar esta unidad? Esta acción no se puede deshacer.
               </p>
             </div>
           </DataModal>
         )}
         {openDelTitular && (
           <DataModal
-            title={currentRemovalType === 'H' ? "Liberar residencia" : "Desvincular inquilino"}
+            title={currentRemovalType === 'H' ? 'Liberar residencia' : 'Desvincular residente'}
             open={openDelTitular}
             onSave={removeTitular}
-            variant={"mini"}
+            variant={'mini'}
             onClose={() => {
               setOpenDelTitular(false);
               setCurrentRemovalType(null);
             }}
-            buttonText={currentRemovalType === 'H' ? "Liberar" : "Desvincular"}
+            buttonText={currentRemovalType === 'H' ? 'Liberar' : 'Desvincular'}
           >
             <p>
-              {currentRemovalType === 'H' 
-                ? "¿Estás seguro de que quieres liberar este propietario de la residencia?" 
-                : "¿Estás seguro de que quieres desvincular este inquilino?"}
+              {currentRemovalType === 'H'
+                ? '¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?'
+                : '¿Estás seguro que quieres desvincular al inquilino? Recuerda que si realizas esta acción la unidad quedará sin inquilino?'}
             </p>
           </DataModal>
         )}
