@@ -168,6 +168,25 @@ const Users = () => {
     return item._disabled;
   };
 
+  const getListRoles = (extraData: any) => {
+    const roles = extraData?.roles?.map((item: any) => {
+      return {
+        name: item.name,
+        id: item.id,
+      };
+    });
+    if (roles?.length) {
+      return [
+        {
+          name: "Todos",
+          id: "ALL",
+        },
+        ...roles,
+      ];
+    }
+    return [];
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -208,9 +227,8 @@ const Users = () => {
         filter: {
           label: "Rol",
           width: "150px",
-          extraData: "roles",
-          optionLabel: "name",
-          optionValue: "id",
+
+          options: getListRoles,
         },
       },
       fullName: {
