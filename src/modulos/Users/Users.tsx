@@ -249,6 +249,7 @@ const Users = () => {
             return (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
+                  hasImage={1}
                   src={getUrlImages(
                     "/ADM-" +
                       administrador?.id +
