@@ -86,14 +86,6 @@ const ProfileModal = ({
       ? `/homeowners`
       : `/guards`;
 
-  const profileRole =
-    type === "admin"
-      ? "Administrador"
-      : type === "owner"
-      ? "Residente"
-      : type === "homeOwner"
-      ? "Propietario"
-      : "Guardia";
   const { data, reLoad: reLoadDet } = useAxios(
     url,
     "GET",
@@ -103,6 +95,14 @@ const ProfileModal = ({
     },
     true
   );
+  const profileRole =
+    type === "admin"
+      ? data?.data[0]?.role[0]?.name
+      : type === "owner"
+      ? "Residente"
+      : type === "homeOwner"
+      ? "Propietario"
+      : "Guardia";
   const imageUrl = () => {
     const userId = data?.data[0]?.id;
     const timestamp = data?.data[0]?.updated_at;
