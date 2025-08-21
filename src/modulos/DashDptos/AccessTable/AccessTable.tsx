@@ -16,7 +16,7 @@ import styles from './AccessTable.module.css';
 
 interface AccessTableProps {
   access: any[];
-  titular: any;
+
 }
 const renderSubtitle = (item: any) => {
   let subtitle = 'CI: ' + item.visit?.ci;
@@ -107,7 +107,7 @@ const typeCell = ({ item }: { item: any }) => {
   return 'Grupal';
 };
 
-const AccessTable = ({ access, titular }: AccessTableProps) => {
+const AccessTable = ({ access }: AccessTableProps) => {
 
   const accessHeader = [
     {
@@ -121,7 +121,7 @@ const AccessTable = ({ access, titular }: AccessTableProps) => {
       key: 'visited_to',
       label: 'Visitó a',
       responsive: 'desktop',
-      onRender: () => visitedToCell({ titular }),
+
     },
     {
       key: 'type',

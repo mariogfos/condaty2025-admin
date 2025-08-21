@@ -1,29 +1,28 @@
-"use client";
-import { useState, useEffect } from "react";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import EmptyData from "@/components/NoData/EmptyData";
-import Button from "@/mk/components/forms/Button/Button";
-import Tooltip from "@/mk/components/ui/Tooltip/Tooltip";
+'use client';
+import { useState, useEffect } from 'react';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import EmptyData from '@/components/NoData/EmptyData';
+import Button from '@/mk/components/forms/Button/Button';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import {
   IconArrowDown,
   IconEdit,
   IconTrash,
   IconHomePerson2,
-} from "@/components/layout/icons/IconsBiblioteca";
-import styles from "../DashDptos.module.css";
-import Br from "@/components/Detail/Br";
+} from '@/components/layout/icons/IconsBiblioteca';
+import styles from '../DashDptos.module.css';
+import Br from '@/components/Detail/Br';
 
 interface UnitInfoProps {
   datas: any;
   onEdit: () => void;
   onDelete: () => void;
-  onTitular: () => void;
-  onRemoveTitular: () => void;
+  onTitular: (type: 'H' | 'T') => void;
+  onRemoveTitular: (type: 'H' | 'T') => void;
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
-
 
 const UnitInfo = ({
   datas,
@@ -45,7 +44,7 @@ const UnitInfo = ({
       if (
         !target.closest(`.${styles.menuDots}`) &&
         !target.closest(`.${styles.dropdownMenu}`) &&
-        !target.closest(`.${styles.titularDropdown}`)
+        !target.closest(`.${styles.tenantDropdown}`)
       ) {
         setOpenOwnerMenu(false);
         setOpenTenantMenu(false);
@@ -54,35 +53,34 @@ const UnitInfo = ({
     };
 
     if (openOwnerMenu || openTenantMenu || openTitularSelector) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
   const owner = datas?.data?.homeowner;
-  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
+  const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : '';
   const ownerAvatarSrc = owner?.id
     ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
-    : "";
-
-  const tenant = datas?.titular;
-  const tenantUpdatedAtQuery = tenant?.updated_at
-    ? `?d=${tenant.updated_at}`
-    : "";
+    : '';
+  console.log(datas);
+  console.log(datas.tenant);
+  const tenant = datas?.tenant;
+  const tenantUpdatedAtQuery = tenant?.updated_at ? `?d=${tenant.updated_at}` : '';
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
-    : "";
+    : '';
   const HandleTitular = () => {
-    if (datas?.titular) {
-      return "Residente";
+    if (datas?.tenant) {
+      return 'Residente';
     }
     if (datas?.data?.homeowner) {
-      return "Propietario";
+      return 'Propietario';
     }
-    return "Sin asignar";
+    return 'Sin asignar';
   };
   return (
     <div className={styles.infoCard}>
@@ -93,11 +91,11 @@ const UnitInfo = ({
           </p>
           <p className={styles.subtitle}>{datas?.data?.description}</p>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12 }}>
           <div className={styles.iconActions}>
             <IconEdit size={30} onClick={onEdit} />
           </div>
-          {!datas?.titular && !datas?.data?.homeowner && (
+          {!datas?.tenant && !datas?.data?.homeowner && (
             <div className={styles.iconActions}>
               <IconTrash size={30} onClick={onDelete} />
             </div>
@@ -112,22 +110,18 @@ const UnitInfo = ({
         <div className={styles.unitInfoGrid}>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Estado</span>
-            <span className={styles.infoValue}>
-              {datas?.titular ? "Habitada" : "Disponible"}
-            </span>
+            <span className={styles.infoValue}>{datas?.tenant ? 'Habitada' : 'Disponible'}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>
-              Bs {datas?.data?.expense_amount || "0"}
-            </span>
+            <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
             <button
               type="button"
               className={styles.titularDropdown}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
               }}
@@ -135,16 +129,14 @@ const UnitInfo = ({
               <span className={styles.infoValue}>{HandleTitular()}</span>
               <IconArrowDown
                 size={16}
-                className={
-                  openTitularSelector ? styles.arrowUp : styles.arrowDown
-                }
+                className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
               />
               {openTitularSelector && (
                 <div className={styles.dropdownMenu}>
                   <button
                     type="button"
                     className={styles.menuItem}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       setOpenTitularSelector(false);
                     }}
@@ -154,7 +146,7 @@ const UnitInfo = ({
                   <button
                     type="button"
                     className={styles.menuItem}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       setOpenTitularSelector(false);
                     }}
@@ -178,7 +170,7 @@ const UnitInfo = ({
                 <button
                   type="button"
                   className={styles.menuDots}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     setOpenOwnerMenu(!openOwnerMenu);
                   }}
@@ -192,23 +184,27 @@ const UnitInfo = ({
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
+                        onTitular('H');
                       }}
                     >
                       Cambiar/Nuevo
                     </button>
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenOwnerMenu(false);
-                      }}
-                    >
-                      Liberar residencia
-                    </button>
+                    {owner?.is_resident && (
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={e => {
+                          e.stopPropagation();
+                          setOpenOwnerMenu(false);
+                          onRemoveTitular('H'); // Marcamos que viene de Propietario
+                        }}
+                      >
+                        Liberar residencia
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -224,24 +220,18 @@ const UnitInfo = ({
               />
               <div className={styles.personInfo}>
                 <h4 className={styles.personName}>{getFullName(owner)}</h4>
-                <p className={styles.personId}>
-                  C.I. {owner?.ci || "Sin registro"}
-                </p>
+                <p className={styles.personId}>C.I. {owner?.ci || 'Sin registro'}</p>
               </div>
             </div>
 
             <div className={styles.contactGrid}>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.contactValue}>
-                  {owner?.email || "Sin email"}
-                </span>
+                <span className={styles.contactValue}>{owner?.email || 'Sin email'}</span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.contactValue}>
-                  {owner?.phone || "Sin teléfono"}
-                </span>
+                <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
               </div>
             </div>
           </div>
@@ -263,7 +253,7 @@ const UnitInfo = ({
         <Br />
 
         {/* Sección Residente/Titular */}
-        {datas?.titular && (
+        {datas?.tenant && (
           <div className={styles.residentSection}>
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Residente</h3>
@@ -271,7 +261,7 @@ const UnitInfo = ({
                 <button
                   type="button"
                   className={styles.menuDots}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     setOpenTenantMenu(!openTenantMenu);
                   }}
@@ -285,10 +275,10 @@ const UnitInfo = ({
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onTitular();
+                        onTitular('T');
                       }}
                     >
                       Cambiar/Nuevo
@@ -296,10 +286,10 @@ const UnitInfo = ({
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onRemoveTitular();
+                        onRemoveTitular('T'); // Marcamos que viene de Inquilino
                       }}
                     >
                       Desvincular
@@ -319,76 +309,58 @@ const UnitInfo = ({
               />
               <div className={styles.personInfo}>
                 <h4 className={styles.personName}>{getFullName(tenant)}</h4>
-                <p className={styles.personId}>
-                  C.I. {tenant?.ci || "Sin registro"}
-                </p>
+                <p className={styles.personId}>C.I. {tenant?.ci || 'Sin registro'}</p>
               </div>
             </div>
 
             <div className={styles.contactGrid}>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.infoValue}>
-                  {tenant?.email || "Sin email"}
-                </span>
+                <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.infoValue}>
-                  {tenant?.phone || "Sin teléfono"}
-                </span>
+                <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
               </div>
             </div>
 
             {/* Dependientes */}
-            {datas?.titular?.dependientes &&
-              datas.titular.dependientes.length > 0 && (
-                <div className={styles.dependentsSection}>
-                  <div className={styles.dependentsHeader}>
-                    <h4 className={styles.dependentsTitle}>Dependientes</h4>
-                  </div>
-                  <div className={styles.dependentsGrid}>
-                    {datas.titular.dependientes
-                      .slice(0, 3)
-                      .map((dependiente: any, index: number) => {
-                        const dependentOwner = dependiente.owner;
-                        const dependentUpdatedAtQuery =
-                          dependentOwner?.updated_at
-                            ? `?d=${dependentOwner.updated_at}`
-                            : "";
-                        const dependentAvatarSrc = dependentOwner?.id
-                          ? getUrlImages(
-                              `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
-                            )
-                          : "";
-                        return (
-                          <Tooltip
-                            key={index}
-                            title={getFullName(dependentOwner)}
-                            position="top-left"
-                          >
-                            <Avatar
-                              hasImage={dependentOwner?.has_image}
-                              className={styles.dependentAvatar}
-                              src={dependentAvatarSrc}
-                              name={getFullName(dependentOwner)}
-                              w={40}
-                              h={40}
-                              onClick={() =>
-                                onOpenDependentProfile(dependiente.owner_id)
-                              }
-                            />
-                          </Tooltip>
-                        );
-                      })}
-                  </div>
+            {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
+              <div className={styles.dependentsSection}>
+                <div className={styles.dependentsHeader}>
+                  <h4 className={styles.dependentsTitle}>Dependientes</h4>
                 </div>
-              )}
+                <div className={styles.dependentsGrid}>
+                  {datas.tenant.dependientes.slice(0, 3).map((dependiente: any, index: number) => {
+                    const dependentOwner = dependiente.owner;
+                    const dependentUpdatedAtQuery = dependentOwner?.updated_at
+                      ? `?d=${dependentOwner.updated_at}`
+                      : '';
+                    const dependentAvatarSrc = dependentOwner?.id
+                      ? getUrlImages(`/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`)
+                      : '';
+                    return (
+                      <Tooltip key={index} title={getFullName(dependentOwner)} position="top-left">
+                        <Avatar
+                          hasImage={dependentOwner?.has_image}
+                          className={styles.dependentAvatar}
+                          src={dependentAvatarSrc}
+                          name={getFullName(dependentOwner)}
+                          w={40}
+                          h={40}
+                          onClick={() => onOpenDependentProfile(dependiente.owner_id)}
+                        />
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Estado sin titular */}
-        {!datas?.titular && (
+        {/* Estado sin tenant */}
+        {!datas?.tenant && (
           <div className={styles.emptyState}>
             <EmptyData
               message="Sin Residente asignado. Para asignar"
@@ -406,13 +378,13 @@ const UnitInfo = ({
         small
         style={{
           padding: 0,
-          display: "flex",
-          justifyContent: "flex-start",
-          width: "fit-content",
+          display: 'flex',
+          justifyContent: 'flex-start',
+          width: 'fit-content',
         }}
         onClick={onOpenTitularHist}
       >
-        Ver historial de titulares
+        Ver historial de tenantes
       </Button>
     </div>
   );

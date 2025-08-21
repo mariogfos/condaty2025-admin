@@ -10,7 +10,7 @@ import { formatToDayDDMMYYYY } from '@/mk/utils/date';
 
 interface ReservationsTableProps {
   reservations: any[];
-  titular: any;
+
 }
 const getReservationStatus = (status: string) => {
   switch (status) {
@@ -46,27 +46,6 @@ const getReservationStatus = (status: string) => {
       };
   }
 };
-const titularInfoCell = ({ titular }: { titular: any }) => {
-  const updatedAtQuery = titular?.updated_at ? `?d=${titular.updated_at}` : '';
-  const avatarSrc = titular?.id
-    ? getUrlImages(`/OWNER-${titular.id}.webp${updatedAtQuery}`)
-    : '';
-  return (
-    <div className={styles.areaInfo}>
-      <Avatar
-        hasImage={titular?.has_image}
-        src={avatarSrc}
-        name={getFullName(titular)}
-        w={32}
-        h={32}
-      />
-      <div>
-        <p className={styles.areaTitle}>{getFullName(titular)}</p>
-        <p className={styles.areaDescription}>C.I. {titular?.ci || 'Sin registro'}</p>
-      </div>
-    </div>
-  );
-}
 const areaInfoCell = ({ item }: { item: any }) => (
     <div className={styles.areaInfo}>
       <Avatar
@@ -105,7 +84,7 @@ const statusCell = ({ item }: { item: any }) => {
   );
 };
 
-const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) => {
+const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
   const reservationsHeader = [
     {
       key: 'area',
@@ -117,7 +96,7 @@ const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) =>
       key: 'reserved_by',
       label: 'Reservado por',
       responsive: 'desktop',
-      onRender: ({ item }: any) => titularInfoCell({ titular })
+
     },
     {
       key: 'reservation_date',
