@@ -61,7 +61,7 @@ const UnitInfo = ({
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
-  const owner = datas?.data?.homeowner;
+  const owner = datas?.homeowner;
   const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : '';
   const ownerAvatarSrc = owner?.id
     ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
@@ -87,15 +87,15 @@ const UnitInfo = ({
       <div className={styles.cardHeader}>
         <div>
           <p className={styles.title}>
-            {datas?.data?.type.name} {datas?.data?.nro}
+            {datas?.data.type.name} {datas?.nro}
           </p>
-          <p className={styles.subtitle}>{datas?.data?.description}</p>
+          <p className={styles.subtitle}>{datas?.description}</p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <div className={styles.iconActions}>
             <IconEdit size={30} onClick={onEdit} />
           </div>
-          {!datas?.tenant && !datas?.data?.homeowner && (
+          {!datas?.tenant && !datas?.homeowner && (
             <div className={styles.iconActions}>
               <IconTrash size={30} onClick={onDelete} />
             </div>
@@ -114,7 +114,7 @@ const UnitInfo = ({
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
+            <span className={styles.infoValue}>Bs {datas?.expense_amount || '0'}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
@@ -162,7 +162,7 @@ const UnitInfo = ({
         <Br />
 
         {/* Sección Propietario */}
-        {datas?.data?.homeowner && (
+        {datas?.homeowner && (
           <div className={styles.ownerSection}>
             <div className={styles.sectionHeader}>
               <h3 className={styles.sectionTitle}>Propietario</h3>
@@ -238,7 +238,7 @@ const UnitInfo = ({
         )}
 
         {/* Estado sin propietario */}
-        {!datas?.data?.homeowner && (
+        {!datas?.homeowner && (
           <div className={styles.emptyState}>
             <EmptyData
               message="Sin propietario asignado. Para asignar"
