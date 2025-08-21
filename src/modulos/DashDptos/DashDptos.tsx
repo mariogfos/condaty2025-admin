@@ -68,11 +68,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
     null
   );
 
-  const handleChangeOwnerClick = (type: "H" | "T") => {
-    setCurrentChangeType(type);
-    setOpenTitular(true);
-  };
-
   const onSave = async () => {
     if (!formState.owner_id || !currentChangeType) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
@@ -323,13 +318,16 @@ const DashDptos = ({ id }: DashDptosProps) => {
               onChange={(e) =>
                 setFormState({ ...formState, owner_id: e.target.value })
               }
-              options={(currentChangeType === "H"
-                ? dashData?.extraData?.homeowners
-                : dashData?.extraData?.tenants || []
-              ).map((owner: any) => ({
-                ...owner,
-                name: `${getFullName(owner)}`,
-              }))}
+              options={(() => {
+                const extra = dashData?.extraData ?? {};
+                const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
+                const currentId = currentChangeType === "H" ? (datas?.homeowner?.id || datas?.data?.homeowner?.id) : (datas?.tenant?.id || datas?.data?.tenant?.id);
+                const filtered = currentId ? list.filter((o: any) => String(o.id) !== String(currentId)) : list;
+                return filtered.map((owner: any) => ({
+                  ...owner,
+                  name: `${getFullName(owner)}`,
+                }));
+              })()}
               optionLabel="name"
               optionValue="id"
               filter={true}

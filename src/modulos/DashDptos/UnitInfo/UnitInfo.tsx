@@ -13,6 +13,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "../DashDptos.module.css";
 import Br from "@/components/Detail/Br";
+import useAxios from "@/mk/hooks/useAxios";
 
 interface UnitInfoProps {
   datas: any;
@@ -75,14 +76,41 @@ const UnitInfo = ({
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
     : "";
+  // Determinar titular por el campo holder que llega en datas.data
+  const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
-    if (datas?.tenant) {
-      return "Residente";
-    }
-    if (datas?.data?.homeowner) {
-      return "Propietario";
-    }
+    if (currentHolder === "H") return "Propietario";
+    if (currentHolder === "T") return "Residente";
+    if (datas?.tenant) return "Residente";
+    if (datas?.data?.homeowner) return "Propietario";
     return "Sin asignar";
+  };
+
+  // Cambiar titular directamente desde el dropdown: usa execute de useAxios y recarga
+  const { execute } = useAxios();
+
+  const changeTitular = async (holder: "H" | "T") => {
+    setOpenTitularSelector(false);
+    const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
+    if (!dptoId) {
+      console.error("Falta dpto_id para cambiar titular", { dptoId });
+      return;
+    }
+
+    try {
+      const { data } = await execute("/dptos-change-titular", "POST", {
+        dpto_id: dptoId,
+        holder,
+      });
+      if (data?.success) {
+        // recargar para obtener datos actualizados
+        window.location.reload();
+      } else {
+        console.error("Error al cambiar titular", data?.message || data);
+      }
+    } catch (error) {
+      console.error("Error al llamar a /dptos-change-titular", error);
+    }
   };
   return (
     <div className={styles.infoCard}>
@@ -119,7 +147,7 @@ const UnitInfo = ({
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
             <span className={styles.infoValue}>
-              Bs {datas?.expense_amount || "0"}
+              Bs {datas?.data?.expense_amount || "0"}
             </span>
           </div>
           <div className={styles.infoItem}>
@@ -146,20 +174,22 @@ const UnitInfo = ({
                     className={styles.menuItem}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpenTitularSelector(false);
+                      // enviar holder 'H' para Propietario
+                      changeTitular("H");
                     }}
                   >
-                    Propietario
+                    Propietario{currentHolder === "H" ? " (actual)" : ""}
                   </button>
                   <button
                     type="button"
                     className={styles.menuItem}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpenTitularSelector(false);
+                      // enviar holder 'T' para Residente
+                      changeTitular("T");
                     }}
                   >
-                    Residente
+                    Residente{currentHolder === "T" ? " (actual)" : ""}
                   </button>
                 </div>
               )}
@@ -354,7 +384,7 @@ const UnitInfo = ({
                   <div className={styles.dependentsGrid}>
                     {datas.tenant.dependientes
                       .slice(0, 3)
-                      .map((dependiente: any, index: number) => {
+                      .map((dependiente: any) => {
                         const dependentOwner = dependiente.owner;
                         const dependentUpdatedAtQuery =
                           dependentOwner?.updated_at
@@ -367,7 +397,7 @@ const UnitInfo = ({
                           : "";
                         return (
                           <Tooltip
-                            key={index}
+                            key={dependiente.owner_id || dependiente.id}
                             title={getFullName(dependentOwner)}
                             position="top-left"
                           >
@@ -416,7 +446,7 @@ const UnitInfo = ({
         }}
         onClick={onOpenTitularHist}
       >
-        Ver historial de tenantes
+        Ver historial de titulares
       </Button>
     </div>
   );
