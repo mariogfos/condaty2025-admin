@@ -518,6 +518,7 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+    // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
   };
   // useEffect(() => {
