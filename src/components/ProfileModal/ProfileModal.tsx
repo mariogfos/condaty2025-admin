@@ -177,6 +177,10 @@ const ProfileModal = ({
     return "/assets/images/PortadaEmpty.png";
   };
 
+  const clientUsers = data?.data[0]?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
+  );
+
   return (
     open && (
       <DataModal
@@ -292,8 +296,8 @@ const ProfileModal = ({
                   <div className="bottomLine" />
                   <div>
                     <div>Condominio</div>
-                    {data?.data[0]?.clients.map((item: any) => (
-                      <div key={item.id}>- {item.name}</div>
+                    {clientUsers?.map((item: any) => (
+                      <div key={item.id}>{item.name}</div>
                     ))}
                   </div>
                 </>
