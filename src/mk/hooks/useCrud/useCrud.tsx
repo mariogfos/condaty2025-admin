@@ -829,7 +829,7 @@ const useCrud = ({
         buttonText={
           action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
         }
-        buttonCancel=""
+        // buttonCancel=""
         onSave={(e) =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)
