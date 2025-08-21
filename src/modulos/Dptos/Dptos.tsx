@@ -311,8 +311,9 @@ const Dptos = () => {
         list: {
           width: '160px',
           onRender: (props: any) => {
-            const holder = props?.item?.holder;
-            const isOccupied = holder === 'H' || holder === 'T';
+            // Use dpto_owners relationship: if it has items -> Habitada, else Disponible
+            const owners = props?.item?.dpto_owners;
+            const isOccupied = Array.isArray(owners) ? owners.length > 0 : !!owners;
             return (
               <div className={styles.statusCellCenter}>
                 {isOccupied ? (
