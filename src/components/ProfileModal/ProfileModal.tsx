@@ -19,9 +19,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
-import Input from "@/mk/components/forms/Input/Input";
 import EditProfile from "./EditProfile/EditProfile";
-import { resizeImage } from "../../mk/utils/images";
 
 interface ProfileModalProps {
   open: boolean;
@@ -95,7 +93,7 @@ const ProfileModal = ({
       ? "residente"
       : type === "homeOwner"
       ? "propietario"
-      : "guardia";
+      : "Guardia";
   const { data, reLoad: reLoadDet } = useAxios(
     url,
     "GET",
@@ -393,7 +391,9 @@ const ProfileModal = ({
               <p style={{ fontSize: "var(--sL)" }}>
                 ¿Estás seguro de que quieres eliminar este registro?
               </p>
-              <p style={{ fontSize: "var(--sL)" }}>Esta acción no se puede deshacer.</p>
+              <p style={{ fontSize: "var(--sL)" }}>
+                Esta acción no se puede deshacer.
+              </p>
             </div>
           </DataModal>
         )}

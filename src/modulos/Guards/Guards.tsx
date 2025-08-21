@@ -50,7 +50,7 @@ const Guards = () => {
           onClose={props?.onClose}
           dataID={props?.item?.id}
           type={"guard"}
-          title="Perfil de Guardia"
+          title="Perfil de guardia"
           reLoad={props?.reLoad}
           titleBack="Volver a lista de guardias"
         />
@@ -124,6 +124,7 @@ const Guards = () => {
         _emailDisabled: false,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onBlurEmail = useCallback(async (e: any, props: any) => {
@@ -150,6 +151,7 @@ const Guards = () => {
       props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
@@ -313,6 +315,7 @@ const Guards = () => {
         list: {},
       },
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onImport = () => {
