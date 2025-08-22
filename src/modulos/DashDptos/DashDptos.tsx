@@ -83,7 +83,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
       };
 
       const { data: response } = await execute(
-        "/dptos-change-owner", 
+        "/dptos-change-owner",
         "POST",
         payload
       );
@@ -167,7 +167,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           isHomeowner ? "Propietario liberado" : "Inquilino desvinculado",
           "success"
         );
-        reLoad();
+        reLoad({extradata: true});
         setOpenDelTitular(false);
         setCurrentRemovalType(null);
       } else {
