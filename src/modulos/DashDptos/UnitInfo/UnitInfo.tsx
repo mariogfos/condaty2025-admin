@@ -117,9 +117,9 @@ const UnitInfo = ({
       <div className={styles.cardHeader}>
         <div>
           <p className={styles.title}>
-            {datas?.data?.type.name} {datas?.nro}
+            {datas?.data?.type.name} {datas?.data?.nro}
           </p>
-          <p className={styles.subtitle}>{datas?.description}</p>
+          <p className={styles.subtitle}>{datas?.data?.description}</p>
         </div>
         <div style={{ display: "flex", gap: 12 }}>
           <div className={styles.iconActions}>

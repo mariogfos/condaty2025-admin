@@ -15,6 +15,7 @@ import {
   IconHome,
   IconHomePerson,
   IconHomePerson2,
+  IconOwner,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
@@ -379,30 +380,14 @@ const Owners = () => {
     <div className={styles.style}>
       <div style={{ display: 'flex', gap: '12px' }}>
         <WidgetDashCard
-          title="Totales"
+          title="Residentes Totales"
           data={String(extraData?.totals ?? 0)}
           style={{ maxWidth: '250px' }}
           icon={
-            <IconHomePerson
-              color={!extraData?.totals || extraData?.totals === 0 ? 'var(--cWhiteV1)' : 'var(--cInfo)'}
-              style={{
-                backgroundColor: !extraData?.totals || extraData?.totals === 0 ? 'var(--cHover)' : 'var(--cHoverCompl3)',
-              }}
-              circle
-              size={18}
-            />
-          }
-        />
-
-        <WidgetDashCard
-          title="Residentes"
-          data={String(extraData?.tenants ?? 0)}
-          style={{ maxWidth: '250px' }}
-          icon={
             <IconHomePerson2
-              color={!extraData?.tenants || extraData?.tenants === 0 ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
+              color={!extraData?.totals || extraData?.totals === 0 ? 'var(--cWhiteV1)' : 'var(--cWhite)'}
               style={{
-                backgroundColor: !extraData?.tenants || extraData?.tenants === 0 ? 'var(--cHover)' : 'var(--cHoverCompl4)',
+                backgroundColor: !extraData?.totals || extraData?.totals === 0 ? 'var(--cHover)' : 'var(--cHoverCompl1)',
               }}
               circle
               size={18}
@@ -415,10 +400,26 @@ const Owners = () => {
           data={String(extraData?.homeowners ?? extraData?.owners ?? 0)}
           style={{ maxWidth: '250px' }}
           icon={
-            <IconHome
+            <IconOwner
               color={!extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
               style={{
                 backgroundColor: !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+              }}
+              circle
+              size={18}
+            />
+          }
+        />
+
+        <WidgetDashCard
+          title="Inquilinos"
+          data={String(extraData?.tenants ?? 0)}
+          style={{ maxWidth: '250px' }}
+          icon={
+            <IconHomePerson
+              color={!extraData?.tenants || extraData?.tenants === 0 ? 'var(--cWhiteV1)' : 'var(--cInfo)'}
+              style={{
+                backgroundColor: !extraData?.tenants || extraData?.tenants === 0 ? 'var(--cHover)' : 'var(--cHoverCompl3)',
               }}
               circle
               size={18}
@@ -434,7 +435,7 @@ const Owners = () => {
             <IconHomePerson
               color={!extraData?.dependents || extraData?.dependents === 0 ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
               style={{
-                backgroundColor: !extraData?.dependents || extraData?.dependents === 0 ? 'var(--cHover)' : 'var(--cHoverWarning)',
+                backgroundColor: !extraData?.dependents || extraData?.dependents === 0 ? 'var(--cHover)' : 'var(--cHoverCompl4)',
               }}
               circle
               size={18}
