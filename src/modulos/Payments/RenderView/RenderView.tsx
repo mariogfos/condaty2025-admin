@@ -36,8 +36,8 @@ interface DetailPaymentProps {
   onClose: () => void;
   extraData?: { dptos?: any[] };
   reLoad?: () => void;
-  payment_id?: string | number;
   item?: PaymentDetail;
+  payment_id?: string | number;
   onDel?: (item?: PaymentDetail) => void;
   style?: CSSProperties;
   noWaiting?: boolean;
@@ -58,34 +58,45 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const [formState, setFormState] = useState<{ confirm_obs?: string }>({});
   const [onRechazar, setOnRechazar] = useState(false);
   const [errors, setErrors] = useState<{ confirm_obs?: string }>({});
-  const [item, setItem] = useState<PaymentDetail | null>(null);
+  const [item, setItem] = useState<PaymentDetail | null>(propItem || null);
   const { execute } = useAxios();
   const { showToast } = useAuth();
 
-  const fetchPaymentData = useCallback(async () => {
-    if (payment_id && open) {
-      const { data } = await execute(
-        '/payments',
-        'GET',
-        {
-          fullType: 'DET',
-          searchBy: payment_id,
-          page: 1,
-          perPage: 1,
-        },
-        false,
-        true
-      );
-      setItem(data?.data);
+  useEffect(() => {
+    if (open) {
+      setItem(propItem || null);
     }
-  }, [payment_id, open, execute]);
+  }, [propItem, open]);
 
   useEffect(() => {
-    fetchPaymentData();
-  }, [fetchPaymentData, payment_id]);
+    // A detailed item should have a `details` property. A list item won't.
+    const isDetailed = !!item?.details;
 
-  // Usar el item que viene de useCrud en lugar de hacer una llamada manual
-  //const item = propItem;
+    const fetchPaymentData = async () => {
+      const idToFetch = item?.id || payment_id;
+      if (idToFetch && open) {
+        const { data } = await execute(
+          '/payments',
+          'GET',
+          {
+            fullType: 'DET',
+            searchBy: idToFetch,
+            page: 1,
+            perPage: 1,
+          },
+          false,
+          true
+        );
+        if (data?.data) {
+          setItem(data.data);
+        }
+      }
+    };
+
+    if (open && !isDetailed) {
+      fetchPaymentData();
+    }
+  }, [open, item, payment_id, execute]);
 
   const handleGenerateReceipt = async () => {
     showToast('Generando recibo...', 'info');
