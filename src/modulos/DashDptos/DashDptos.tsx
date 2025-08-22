@@ -320,10 +320,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
               }
               options={(() => {
                 const extra = dashData?.extraData ?? {};
-                const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
-                const currentId = currentChangeType === "H" ? (datas?.homeowner?.id || datas?.data?.homeowner?.id) : (datas?.tenant?.id || datas?.data?.tenant?.id);
-                const filtered = currentId ? list.filter((o: any) => String(o.id) !== String(currentId)) : list;
-                return filtered.map((owner: any) => ({
+                const list: any[] =
+                  currentChangeType === "H"
+                    ? extra.homeowners || []
+                    : extra.tenants || [];
+                return list.map((owner: any) => ({
                   ...owner,
                   name: `${getFullName(owner)}`,
                 }));
