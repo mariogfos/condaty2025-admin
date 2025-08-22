@@ -14,6 +14,7 @@ import {
 import styles from "../DashDptos.module.css";
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 interface UnitInfoProps {
   datas: any;
@@ -37,6 +38,7 @@ const UnitInfo = ({
   const [openOwnerMenu, setOpenOwnerMenu] = useState(false);
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
   const [openTitularSelector, setOpenTitularSelector] = useState(false);
+  const { showToast } = useAuth();
 
   // Cerrar menús cuando se hace clic fuera
   useEffect(() => {
@@ -104,9 +106,11 @@ const UnitInfo = ({
       });
       if (data?.success) {
         // recargar para obtener datos actualizados
+        showToast("Titular cambiado", "success");
         window.location.reload();
       } else {
         console.error("Error al cambiar titular", data?.message || data);
+        showToast(data?.message || "Error al cambiar titular", "error");
       }
     } catch (error) {
       console.error("Error al llamar a /dptos-change-titular", error);
@@ -158,6 +162,8 @@ const UnitInfo = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
+                setOpenOwnerMenu(false);
+                setOpenTenantMenu(false);
               }}
             >
               <span className={styles.infoValue}>{HandleTitular()}</span>
@@ -210,6 +216,8 @@ const UnitInfo = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   setOpenOwnerMenu(!openOwnerMenu);
+                  setOpenTenantMenu(false);
+                  setOpenTitularSelector(false);
                 }}
               >
                 <div className={styles.dot}></div>
@@ -306,6 +314,8 @@ const UnitInfo = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   setOpenTenantMenu(!openTenantMenu);
+                  setOpenOwnerMenu(false);
+                  setOpenTitularSelector(false);
                 }}
               >
                 <div className={styles.dot}></div>
