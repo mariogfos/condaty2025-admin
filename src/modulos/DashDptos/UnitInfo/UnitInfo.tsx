@@ -424,7 +424,7 @@ const UnitInfo = ({
           ) : (
             <div className={styles.emptyState}>
               <EmptyData
-                message="Sin Residente asignado. Para asignar"
+                message="Sin residente asignado. Para asignar"
                 line2="un residente a esta unidad."
                 icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                 centered={true}
