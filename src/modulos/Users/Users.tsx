@@ -28,11 +28,12 @@ const Users = () => {
   const { user } = useAuth();
   const mod: ModCrudType = {
     modulo: "users",
-    singular: "Administrador",
+    singular: "personal",
     plural: "Administradores",
     filter: true,
     permiso: "",
     export: true,
+    titleAdd: "Nuevo",
     // import: true,
     // search: { hide: true },
     hideActions: {

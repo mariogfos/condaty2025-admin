@@ -193,7 +193,7 @@ const useCrud = ({
   const [searchs, setSearchs]: any = useState(extraParams || {});
   const [action, setAction] = useState<ActionType>("add");
   const [openCard, setOpenCard] = useState(false);
-
+  // console.log("paramsInitialCrud", extraParams);
   if (mod) {
     mod.titleAdd = mod.titleAdd ?? "Agregar";
     mod.titleEdit = mod.titleEdit ?? "Editar";

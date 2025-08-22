@@ -220,13 +220,10 @@ const Dptos = () => {
 
         form: {
           type: 'select',
-          // optionsExtra: "homeowner",
-          // optionLabel:`lastMotherName` ,
 
           options: (items: any) => {
             let data: any = [];
             items?.extraData?.homeowners?.map((c: any) => {
-              // console.log(c,'c')
               data.push({
                 id: c.id,
                 name: getFullName(c),
@@ -264,8 +261,7 @@ const Dptos = () => {
       titular: {
         rules: [''],
         api: '',
-        label: 'Titular',
-        // form: { type: "text" },
+        label: 'Residente',
         list: {
           onRender: (props: any) => {
               // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
@@ -368,7 +364,7 @@ const Dptos = () => {
   });
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch,   
+    onSearch,
     searchs,
     setStore,
     mod,
@@ -384,7 +380,7 @@ const Dptos = () => {
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
         <ItemList
           title={`Departamento Nº ${item?.numero}`}
-          subtitle={item?.descripcion} 
+          subtitle={item?.descripcion}
           variant="V1"
           active={selItem && selItem.id === item.id}
         />
@@ -430,9 +426,9 @@ const Dptos = () => {
       <h1 className={styles.dashboardTitle}>Unidades</h1>
       <div className={styles.allStatsRow}>
         <WidgetDashCard
-          title={'Unidades totales'}
-          data={data?.message?.total}
-          style={{ minWidth: '160px', maxWidth: '268px' }}
+          title={"Unidades totales"}
+          data={data?.message?.total || 0}
+          style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <IconUnidades
               color={

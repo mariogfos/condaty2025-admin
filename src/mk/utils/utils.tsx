@@ -6,7 +6,8 @@ export const setParamsCrud = (
   let params = localStorage.getItem(modulo + "Params");
   params = { ...(params ? JSON.parse(params) : {}), [param]: value };
   localStorage.setItem(modulo + "Params", JSON.stringify(params));
-  console.log("se grabo", modulo, param, value);
+  params = localStorage.getItem(modulo + "Params");
+  // console.log("se grabo", modulo, param, value, params);
 };
 export const throttle = (func: Function, delay: number) => {
   let lastCall: number = 0;

@@ -5,7 +5,6 @@ import styles from "./InvitationsDetail.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import {
   getDateStrMes,
-  getDateTimeStrMes,
   formatDateRange,
   getDateTimeStrMesShort,
 } from "@/mk/utils/date";
@@ -32,23 +31,16 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   const owner = item?.owner;
   const visit = item?.visit;
   const invitation = item?.invitation;
-
   const getStatusInfo = () => {
     let statusText = "Desconocido";
     let statusClass = "";
 
     if (invitation?.status == "O") {
       statusText = "Finalizado";
-      statusClass = styles.statusActive;
-      // } else if (invitation?.status == "A") {
-      //   statusText = "Por salir";
-      //   statusClass = styles.statusActive;
+      statusClass = styles.statusCompleted;
     } else if (invitation?.status == "A" || invitation?.status == "I") {
       statusText = "Activo";
       statusClass = styles.statusActive;
-      // } else if (item?.confirm == "N") {
-      //   statusText = "Denegado";
-      //   statusClass = styles.statusDenied;
     } else if (invitation?.status == "X") {
       statusText = "Anulado";
       statusClass = styles.statusDenied;
@@ -81,7 +73,6 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
   }
 
   const statusInfo = getStatusInfo();
-  console.log(item);
 
   return (
     <DataModal
@@ -119,9 +110,13 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               </span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Invitado</span>
+              <span className={styles.infoLabel}>
+                {invitation?.type !== "G" ? "Invitado" : "Evento"}
+              </span>
               <span className={styles.infoValue}>
-                {getFullName(visit) || invitation?.title || "-/-"}
+                {invitation?.type !== "G"
+                  ? getFullName(visit) || "-/-"
+                  : invitation?.title || "-/-"}
               </span>
             </div>
             <div className={styles.infoBlock}>
@@ -133,6 +128,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
               </span>
             </div>
           </div>
+
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
@@ -140,10 +136,14 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
                 {statusInfo.text}
               </span>
             </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Teléfono</span>
-              <span className={styles.infoValue}>{visit?.phone || "-/-"}</span>
-            </div>
+            {invitation.type == "G" && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}>Cantidad de invitados</span>
+                <span className={styles.infoValue}>
+                  {invitation?.guests?.length || "-/-"}
+                </span>
+              </div>
+            )}
             {item?.type !== "C" && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>
@@ -202,7 +202,7 @@ const InvitationsDetail = ({ item, open, onClose }: Props) => {
           <>
             <p className={styles.sectionTitle}>
               {item?.type == "F" ? "Accesos" : "Asistieron"}{" "}
-              {invitation?.access?.length || getAccess().length}
+              {getAccess().length}
               <span style={{ color: "var(--cWhiteV1)" }}>
                 /
                 {item?.type === "F"
