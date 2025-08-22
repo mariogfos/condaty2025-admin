@@ -167,7 +167,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           isHomeowner ? "Propietario liberado" : "Inquilino desvinculado",
           "success"
         );
-        reLoad();
+        reLoad({ extraData: true });
         setOpenDelTitular(false);
         setCurrentRemovalType(null);
       } else {
