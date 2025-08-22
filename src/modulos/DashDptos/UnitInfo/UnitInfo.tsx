@@ -200,133 +200,132 @@ const UnitInfo = ({
         <Br />
 
         {/* Sección Propietario */}
-        {datas?.homeowner && (
-          <div className={styles.ownerSection}>
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Propietario</h3>
-              <div className={styles.sectionActions}>
-                <button
-                  type="button"
-                  className={styles.menuDots}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenOwnerMenu(!openOwnerMenu);
-                  }}
-                >
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                </button>
-                {openOwnerMenu && (
-                  <div className={styles.dropdownMenu}>
+        <div className={styles.ownerSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Propietario</h3>
+            <div className={styles.sectionActions}>
+              <button
+                type="button"
+                className={styles.menuDots}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenOwnerMenu(!openOwnerMenu);
+                }}
+              >
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+              </button>
+              {openOwnerMenu && (
+                <div className={styles.dropdownMenu}>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenOwnerMenu(false);
+                      onTitular("H");
+                    }}
+                  >
+                    Cambiar/Nuevo
+                  </button>
+                  {datas?.homeowner && owner?.is_resident && (
                     <button
                       type="button"
                       className={styles.menuItem}
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
-                        onTitular("H");
+                        onRemoveTitular("H"); // Marcamos que viene de Propietario
                       }}
                     >
-                      Cambiar/Nuevo
+                      Liberar residencia
                     </button>
-                    {owner?.is_resident && (
-                      <button
-                        type="button"
-                        className={styles.menuItem}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenOwnerMenu(false);
-                          onRemoveTitular("H"); // Marcamos que viene de Propietario
-                        }}
-                      >
-                        Liberar residencia
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className={styles.personCard}>
-              <Avatar
-                hasImage={owner?.has_image}
-                src={ownerAvatarSrc}
-                name={getFullName(owner)}
-                w={48}
-                h={48}
+          {datas?.homeowner ? (
+            <>
+              <div className={styles.personCard}>
+                <Avatar
+                  hasImage={owner?.has_image}
+                  src={ownerAvatarSrc}
+                  name={getFullName(owner)}
+                  w={48}
+                  h={48}
+                />
+                <div className={styles.personInfo}>
+                  <h4 className={styles.personName}>{getFullName(owner)}</h4>
+                  <p className={styles.personId}>
+                    C.I. {owner?.ci || "Sin registro"}
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.contactGrid}>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>E-mail</span>
+                  <span className={styles.contactValue}>
+                    {owner?.email || "Sin email"}
+                  </span>
+                </div>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>Celular</span>
+                  <span className={styles.contactValue}>
+                    {owner?.phone || "Sin teléfono"}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <EmptyData
+                message="Sin propietario asignado. Para asignar"
+                line2="un propietario a esta unidad."
+                icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+                centered={true}
+                fontSize={14}
               />
-              <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(owner)}</h4>
-                <p className={styles.personId}>
-                  C.I. {owner?.ci || "Sin registro"}
-                </p>
-              </div>
             </div>
-
-            <div className={styles.contactGrid}>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.contactValue}>
-                  {owner?.email || "Sin email"}
-                </span>
-              </div>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.contactValue}>
-                  {owner?.phone || "Sin teléfono"}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Estado sin propietario */}
-        {!datas?.homeowner && (
-          <div className={styles.emptyState}>
-            <EmptyData
-              message="Sin propietario asignado. Para asignar"
-              line2="un propietario a esta unidad."
-              icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-              centered={true}
-              fontSize={14}
-            />
-          </div>
-        )}
+          )}
+        </div>
 
         <Br />
 
         {/* Sección Residente/Titular */}
-        {datas?.tenant && (
-          <div className={styles.residentSection}>
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Residente</h3>
-              <div className={styles.sectionActions}>
-                <button
-                  type="button"
-                  className={styles.menuDots}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenTenantMenu(!openTenantMenu);
-                  }}
-                >
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                </button>
-                {openTenantMenu && (
-                  <div className={styles.dropdownMenu}>
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenTenantMenu(false);
-                        onTitular("T");
-                      }}
-                    >
-                      Cambiar/Nuevo
-                    </button>
+        <div className={styles.residentSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Residente</h3>
+            <div className={styles.sectionActions}>
+              <button
+                type="button"
+                className={styles.menuDots}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenTenantMenu(!openTenantMenu);
+                }}
+              >
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+              </button>
+              {openTenantMenu && (
+                <div className={styles.dropdownMenu}>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenTenantMenu(false);
+                      onTitular("T");
+                    }}
+                  >
+                    Cambiar/Nuevo
+                  </button>
+                  {datas?.tenant && (
                     <button
                       type="button"
                       className={styles.menuItem}
@@ -338,101 +337,102 @@ const UnitInfo = ({
                     >
                       Desvincular
                     </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className={styles.personCard}>
-              <Avatar
-                hasImage={tenant?.has_image}
-                src={tenantAvatarSrc}
-                name={getFullName(tenant)}
-                w={48}
-                h={48}
-              />
-              <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(tenant)}</h4>
-                <p className={styles.personId}>
-                  C.I. {tenant?.ci || "Sin registro"}
-                </p>
-              </div>
-            </div>
-
-            <div className={styles.contactGrid}>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.infoValue}>
-                  {tenant?.email || "Sin email"}
-                </span>
-              </div>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.infoValue}>
-                  {tenant?.phone || "Sin teléfono"}
-                </span>
-              </div>
-            </div>
-
-            {/* Dependientes */}
-            {datas?.tenant?.dependientes &&
-              datas.tenant.dependientes.length > 0 && (
-                <div className={styles.dependentsSection}>
-                  <div className={styles.dependentsHeader}>
-                    <h4 className={styles.dependentsTitle}>Dependientes</h4>
-                  </div>
-                  <div className={styles.dependentsGrid}>
-                    {datas.tenant.dependientes
-                      .slice(0, 3)
-                      .map((dependiente: any) => {
-                        const dependentOwner = dependiente.owner;
-                        const dependentUpdatedAtQuery =
-                          dependentOwner?.updated_at
-                            ? `?d=${dependentOwner.updated_at}`
-                            : "";
-                        const dependentAvatarSrc = dependentOwner?.id
-                          ? getUrlImages(
-                              `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
-                            )
-                          : "";
-                        return (
-                          <Tooltip
-                            key={dependiente.owner_id || dependiente.id}
-                            title={getFullName(dependentOwner)}
-                            position="top-left"
-                          >
-                            <Avatar
-                              hasImage={dependentOwner?.has_image}
-                              className={styles.dependentAvatar}
-                              src={dependentAvatarSrc}
-                              name={getFullName(dependentOwner)}
-                              w={40}
-                              h={40}
-                              onClick={() =>
-                                onOpenDependentProfile(dependiente.owner_id)
-                              }
-                            />
-                          </Tooltip>
-                        );
-                      })}
-                  </div>
+                  )}
                 </div>
               )}
+            </div>
           </div>
-        )}
 
-        {/* Estado sin tenant */}
-        {!datas?.tenant && (
-          <div className={styles.emptyState}>
-            <EmptyData
-              message="Sin Residente asignado. Para asignar"
-              line2="un residente a esta unidad."
-              icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-              centered={true}
-              fontSize={14}
-            />
-          </div>
-        )}
+          {datas?.tenant ? (
+            <>
+              <div className={styles.personCard}>
+                <Avatar
+                  hasImage={tenant?.has_image}
+                  src={tenantAvatarSrc}
+                  name={getFullName(tenant)}
+                  w={48}
+                  h={48}
+                />
+                <div className={styles.personInfo}>
+                  <h4 className={styles.personName}>{getFullName(tenant)}</h4>
+                  <p className={styles.personId}>
+                    C.I. {tenant?.ci || "Sin registro"}
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.contactGrid}>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>E-mail</span>
+                  <span className={styles.infoValue}>
+                    {tenant?.email || "Sin email"}
+                  </span>
+                </div>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>Celular</span>
+                  <span className={styles.infoValue}>
+                    {tenant?.phone || "Sin teléfono"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Dependientes */}
+              {datas?.tenant?.dependientes &&
+                datas.tenant.dependientes.length > 0 && (
+                  <div className={styles.dependentsSection}>
+                    <div className={styles.dependentsHeader}>
+                      <h4 className={styles.dependentsTitle}>Dependientes</h4>
+                    </div>
+                    <div className={styles.dependentsGrid}>
+                      {datas.tenant.dependientes
+                        .slice(0, 3)
+                        .map((dependiente: any) => {
+                          const dependentOwner = dependiente.owner;
+                          const dependentUpdatedAtQuery =
+                            dependentOwner?.updated_at
+                              ? `?d=${dependentOwner.updated_at}`
+                              : "";
+                          const dependentAvatarSrc = dependentOwner?.id
+                            ? getUrlImages(
+                                `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
+                              )
+                            : "";
+                          return (
+                            <Tooltip
+                              key={dependiente.owner_id || dependiente.id}
+                              title={getFullName(dependentOwner)}
+                              position="top-left"
+                            >
+                              <Avatar
+                                hasImage={dependentOwner?.has_image}
+                                className={styles.dependentAvatar}
+                                src={dependentAvatarSrc}
+                                name={getFullName(dependentOwner)}
+                                w={40}
+                                h={40}
+                                onClick={() =>
+                                  onOpenDependentProfile(dependiente.owner_id)
+                                }
+                              />
+                            </Tooltip>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <EmptyData
+                message="Sin Residente asignado. Para asignar"
+                line2="un residente a esta unidad."
+                icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+                centered={true}
+                fontSize={14}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <Button

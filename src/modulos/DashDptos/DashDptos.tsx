@@ -83,7 +83,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
       };
 
       const { data: response } = await execute(
-        "/dptos-change-owner",
+        "/dptos-change-owner", 
         "POST",
         payload
       );

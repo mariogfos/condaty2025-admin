@@ -368,7 +368,7 @@ const Dptos = () => {
   });
 
   const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
+    onSearch,   
     searchs,
     setStore,
     mod,
@@ -384,7 +384,7 @@ const Dptos = () => {
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
         <ItemList
           title={`Departamento Nº ${item?.numero}`}
-          subtitle={item?.descripcion}
+          subtitle={item?.descripcion} 
           variant="V1"
           active={selItem && selItem.id === item.id}
         />
