@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import styles from "./Guards.module.css";
 import RenderItem from "../shared/RenderItem";
@@ -8,26 +7,21 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
-  IconAccess,
-  IconAdd,
   IconGuardShield,
   IconSecurity,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Input from "@/mk/components/forms/Input/Input";
-import InputPassword from "@/mk/components/forms/InputPassword/InputPassword";
-import RenderView from "./RenderView/RenderView";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-
+import Br from "@/components/Detail/Br";
 const paramsInitial = {
   perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 
 const Guards = () => {
@@ -39,13 +33,11 @@ const Guards = () => {
     permiso: "",
     export: true,
     titleAdd: "Nuevo",
-    import: true,
+    //import: true,
     hideActions: {
       edit: true,
       del: true,
     },
-    // noWaiting: true,
-    // import: true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -53,7 +45,6 @@ const Guards = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-      // noWaiting?: boolean;
     }) => {
       return (
         <ProfileModal
@@ -61,8 +52,9 @@ const Guards = () => {
           onClose={props?.onClose}
           dataID={props?.item?.id}
           type={"guard"}
-          title="Perfil de Guardia"
+          title="Perfil de guardia"
           reLoad={props?.reLoad}
+          titleBack="Volver a lista de guardias"
         />
       );
     },
@@ -84,17 +76,6 @@ const Guards = () => {
         />
       );
     },
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
-    // extraData: true,
-    // hideActions: { add: true },
   };
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
@@ -114,9 +95,9 @@ const Guards = () => {
     if (data?.success && data.data?.data?.id) {
       const filteredData = data.data.data;
       if (filteredData.existCondo) {
-        showToast("El guardia ya existe en este Condominio", "warning");
+        showToast("El guardia ya existe en este condominio", "warning");
         props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        props.setError({ ci: " Ese CI ya esta en uso en este condominio." });
         return;
       }
       props.setError({ ci: "" });
@@ -134,7 +115,7 @@ const Guards = () => {
         _emailDisabled: true,
       });
       showToast(
-        "El guardia ya existe en Condaty, se va a vincular al Condominio",
+        "El guardia ya existe en condaty, se va a vincular al condominio",
         "warning"
       );
     } else {
@@ -145,6 +126,7 @@ const Guards = () => {
         _emailDisabled: false,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onBlurEmail = useCallback(async (e: any, props: any) => {
@@ -171,6 +153,7 @@ const Guards = () => {
       props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
@@ -183,44 +166,59 @@ const Guards = () => {
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
-
+      avatar: {
+        api: "a*e*",
+        label: "Suba una Imagen",
+        list: false,
+        form: {
+          type: "imageUpload",
+          prefix: "GUARD",
+          style: { width: "100%" },
+        },
+      },
+      ci: {
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de Identidad",
+        form: {
+          type: "number",
+          disabled: onDisbled,
+          onBlur: onBlurCi,
+          required: true,
+        },
+        list: false,
+      },
       fullName: {
         // rules: ["required"],
         api: "ae",
         label: "Nombre",
-        form: false,
+        form: {
+          type: "fullName",
+          disabled: onDisbled,
+        },
         onRender: (item: any) => {
-          // Asegúrate que 'item.item' contiene los datos del residente
           const guardia = item?.item;
           const nombreCompleto = getFullName(guardia);
-          const cedulaIdentidad = guardia?.ci; // Obtener el CI
-
+          const cedulaIdentidad = guardia?.ci;
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
-                hasImage={guardia?.has_image}
+                hasImage={1}
                 src={getUrlImages(
-                  "/GUARD-" +
-                    guardia?.id + // Usar residente?.id
-                    ".webp?d=" +
-                    guardia?.updated_at // Usar residente?.updated_at
+                  "/GUARD-" + guardia?.id + ".webp?d=" + guardia?.updated_at
                 )}
-                name={nombreCompleto} // Usar nombreCompleto
+                name={nombreCompleto}
               />
               <div>
-                {" "}
-                {/* Contenedor para Nombre, CI y Estado Admin */}
-                {/* Nombre */}
                 <p
                   style={{
                     marginBottom: "2px",
                     fontWeight: 500,
-                    color: "var(--cWhite, #fafafa)",
+                    color: "var(--cWhite)",
                   }}
                 >
                   {nombreCompleto}
                 </p>
-                {/* CI (si existe) */}
                 {cedulaIdentidad && (
                   <span
                     style={{
@@ -240,83 +238,18 @@ const Guards = () => {
 
         list: true,
       },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
-        form: {
-          type: "imageUpload",
-          prefix: "GUARD",
-          style: { width: "100%" },
-          // onRigth: rigthAvatar,
-        },
-      },
-      password: {
-        rules: ["required*add"],
-        api: "a",
-        label: "Contraseña",
-        form: false,
-        list: false,
-      },
-      ci: {
-        rules: ["required", "ci"],
-        api: "a",
-        label: "Cédula de identidad",
-        // form: { type: "text", disabled: true, label: "2222" },
-        form: {
-          type: "number",
-          label: "Cédula de identidad",
-          onRender: (props: any) => {
-            console.log(props, "propsval");
-            return (
-              <fieldset className={styles.fieldSet}>
-                <div>
-                  <div>Información de acceso</div>
-                  <div>
-                    Ingrese el número de carnet y haga click fuera del campo
-                    para que el sistema busque automáticamente al guardia si el
-                    carnet no existe ,continúa con el proceso de registro
-                  </div>
-                </div>
-                <div>
-                  <Input
-                    name="ci"
-                    value={props?.item?.ci}
-                    onChange={props.onChange}
-                    label="Carnet de Identidad"
-                    error={props.error}
-                    disabled={props?.field?.action === "edit"}
-                    onBlur={(e: any) => onBlurCi(e, props)}
-                    required={true}
-                  />
-                  {props?.field?.action === "add" && !props.item._disabled && (
-                    <InputPassword
-                      name="password"
-                      value={props?.item?.password}
-                      onChange={props.onChange}
-                      label="Contraseña"
-                      error={props.error}
-                      required={true}
-                    />
-                  )}
-                </div>
-              </fieldset>
-            );
-          },
-        },
-
-        list: false,
-      },
+      // password: {
+      //   rules: ["required*add"],
+      //   api: "a",
+      //   label: "Contraseña",
+      //   form: false,
+      //   list: false,
+      // },
       name: {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Primer nombre",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
 
         list: false,
       },
@@ -324,73 +257,67 @@ const Guards = () => {
         rules: [""],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       last_name: {
         rules: ["required", "alpha", "max:20"],
         api: "ae",
         label: "Apellido paterno",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
         list: false,
       },
       mother_last_name: {
         rules: [""],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
+
       phone: {
         rules: ["number", "max:10"],
         api: "ae",
         label: "Celular",
-        form: { type: "text", disabled: onDisbled },
-        list: {},
-      },
-      email: {
-        rules: ["required", "email"],
-        api: "ae",
-        label: "Correo electrónico",
-        form: {
-          type: "text",
-          disabled: onDisbled,
-          required: true,
-          onBlur: onBlurEmail,
-          // onRender: (props: any) => {
-          //   return (
-          //     <Input
-          //       name="email"
-          //       value={props?.item?.email}
-          //       onChange={props.onChange}
-          //       label="Correo electrónico"
-          //       error={props.error}
-          //       disabled={props?.field?.action === "edit" || onDisbled(props)}
-          //       required={true}
-          //       onBlur={(e) => onBlurEmail(e, props)}
-          //     />
-          //   );
-          // },
-        },
+        form: { type: "number", disabled: onDisbled },
         list: {},
       },
 
       address: {
         rules: [""],
         api: "ae",
-        label: "Dirección",
+        label: "Dirección del domicilio",
         form: {
-          type: "text",
-          disabled: onDisbled,
+          type: "textArea",
+          // disabled: onDisbled,
         },
         list: {},
       },
+      email: {
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
+
+        form: {
+          type: "text",
+          disabled: onDisbled,
+          onBlur: onBlurEmail,
+          onTop: () => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Br style={{ marginBottom: "12px" }} />
+                <p>
+                  La contraseña será enviada al correo que indiques en este
+                  campo
+                </p>
+              </div>
+            );
+          },
+        },
+        list: true,
+      },
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onImport = () => {
@@ -405,10 +332,10 @@ const Guards = () => {
     searchs,
     onEdit,
     onDel,
+    errors,
     showToast,
     execute,
     reLoad,
-    getExtraData,
     data,
   } = useCrud({
     paramsInitial,
@@ -429,7 +356,7 @@ const Guards = () => {
   useEffect(() => {
     setOpenImport(searchState == 3);
   }, [searchState]);
-
+  console.log(errors);
   const renderItem = (
     item: Record<string, any>,
     i: number,

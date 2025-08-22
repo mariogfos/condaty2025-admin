@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+// esto? revisar todo las funciones que estan como props para sacar a fuera
 import React, { useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -10,7 +10,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import useAxios from "@/mk/hooks/useAxios";
 import RenderView from "./RenderView/RenderView";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import useCrudUtils from "@/modulos/shared/useCrudUtils";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 interface AccessesTabProps {
@@ -19,8 +18,7 @@ interface AccessesTabProps {
   unitParam?: string | null;
 }
 
-// Función actualizada para obtener las opciones de período
-const getPeriodOptions = () => [
+const periodOptions = [
   { id: "ALL", name: "Todos" },
   { id: "d", name: "Hoy" },
   { id: "ld", name: "Ayer" },
@@ -32,10 +30,14 @@ const getPeriodOptions = () => [
   { id: "ly", name: "Año anterior" },
   { id: "custom", name: "Personalizado" },
 ];
-const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
+
+const AccessesTab: React.FC<AccessesTabProps> = ({
+  paramsInitial,
+  unitParam,
+}) => {
   const { showToast } = useAuth();
   const { execute } = useAxios("", "GET", {});
-  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false); // Para el modal
+  const [openCustomFilterModal, setOpenCustomFilterModal] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -98,7 +100,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       try {
         const { data } = await execute("/accesses/exit", "POST", {
           id: access.id,
-          obs_out: "", // Puedes añadir un campo para esto si lo necesitas
+          obs_out: "",
         });
 
         if (data?.success === true) {
@@ -137,7 +139,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       singular: "Acceso",
       plural: "Accesos",
       filter: true,
-      permiso: "",
+      permiso: "accesses",
       export: true,
       extraData: false,
       hideActions: {
@@ -150,7 +152,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         <RenderView {...props} onConfirm={handleAccessAction} />
       ),
     };
-  }, []);
+  }, [handleAccessAction]);
 
   // Definición de campos para los accesos
   const fieldsAccess = useMemo(() => {
@@ -236,7 +238,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
         filter: {
           label: "Periodo",
           width: "180px",
-          options: getPeriodOptions,
+          options: () => periodOptions,
         },
       },
 
@@ -292,35 +294,14 @@ const AccessesTab: React.FC<AccessesTabProps> = ({ paramsInitial }) => {
       },
     };
   }, []);
-
-  // Instancia de useCrud para Accesos
-  const {
-    userCan,
-    List,
-    reLoad,
-    onSearch,
-    searchs,
-    setStore,
-    onFilter,
-    onEdit,
-    onDel,
-  } = useCrud({
+  const { userCan, List, reLoad, onFilter } = useCrud({
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
     getFilter: handleGetFilter,
   });
 
-  // Validación de permisos
   const canAccess = userCan(modAccess.permiso, "R");
-  const { onLongPress, selItem } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod: modAccess,
-    onEdit,
-    onDel,
-  });
 
   if (!canAccess) return <NotAccess />;
 

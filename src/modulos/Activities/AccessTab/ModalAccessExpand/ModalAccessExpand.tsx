@@ -1,3 +1,4 @@
+import Br from "@/components/Detail/Br";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
@@ -12,22 +13,22 @@ interface PropsType {
   id: string | number | null;
   open: boolean;
   onClose: () => void;
-  type: "A" | "T" | "I" | "V" | "P" | string;
+  type: "A" | "T" | "I" | "V" | "P";
   invitation?: any;
 }
-// const typeInvitation: any = {
-//   G: "QR grupal",
-//   I: "QR individual",
-//   F: "QR frecuente",
-//   O: "Llave QR",
-//   P: "Pedido",
-//   C: "Sin QR",
-// };
+
 const statusAccess = {
   S: "Por salir",
   C: "Completado",
   I: "Por ingresar",
 };
+const typeText: any = {
+  A: "acompañante",
+  T: "taxista",
+  I: "invitación",
+  V: "visitante",
+};
+
 const ModalAccessExpand = ({
   id,
   open,
@@ -54,33 +55,19 @@ const ModalAccessExpand = ({
       true
     );
     setLoading(false);
-    if (data?.success == true) {
+    if (data?.success) {
       setData(data?.data?.[0]);
     }
   };
+
   useEffect(() => {
     if (type != "I" && type != "P") {
       getAccess();
     }
-  }, []);
-
-  const Br = () => {
-    return (
-      <div
-        style={{
-          height: 0.5,
-          backgroundColor: "var(--cWhiteV1)",
-          margin: "8px 0px",
-          width: "100%",
-        }}
-      />
-    );
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
 
   const getStatus = () => {
-    // if (condition) {
-
-    // }
     if (!data?.in_at) {
       return "I";
     }
@@ -92,7 +79,8 @@ const ModalAccessExpand = ({
     }
     return "I";
   };
-  const rendeAccess = () => {
+  const RendeAccess = () => {
+    //esto puedo estar fuera del componente
     return (
       <>
         <ItemList
@@ -104,12 +92,12 @@ const ModalAccessExpand = ({
               name={getFullName(data?.visit)}
               hasImage={data?.visit?.has_image}
               src={
-                data?.visit?.has_image
+                data?.visit?.has_image // esto? ya no es necesario hacer esta pregunta ya que ya el componente avatar tiene la propiedad hasImage que hace la consulta de nomostar la imagen si es false, quitar este if
                   ? getUrlImages(
                       "/VISIT-" +
-                        (data?.visit?.id || data?.visit?.id) +
+                        (data?.visit?.id || data?.visit?.id) + // esto? las dos opciones sonn iguale sno tiene sentido hace un or ||
                         ".webp?" +
-                        (data?.visit?.updated_at || data?.visit?.updated_at)
+                        (data?.visit?.updated_at || data?.visit?.updated_at) // esto? las dos opciones sonn iguale sno tiene sentido hace un or ||
                     )
                   : ""
               }
@@ -166,12 +154,12 @@ const ModalAccessExpand = ({
     return result;
   }
 
-  const renderInvitation = () => {
+  const RenderInvitation = () => {
+    // esto? podrias acralo fuera del compoennte
     return (
       <>
         <ItemList
           title={getFullName(invitation?.owner)}
-          // subtitle={'C.I.' + data?.owner?.ci}
           subtitle={
             "Unidad: " +
             invitation?.owner?.dptos?.[0]?.nro +
@@ -197,10 +185,6 @@ const ModalAccessExpand = ({
             value={invitation?.title || "-/-"}
           />
         )}
-        {/* <KeyValue
-          title="Tipo de invitación"
-          value={typeInvitation[invitation.type]}
-        /> */}
         {invitation.type != "F" && (
           <>
             <KeyValue
@@ -213,16 +197,14 @@ const ModalAccessExpand = ({
         {invitation.type == "F" && (
           <>
             {invitation?.start_date && (
-              <>
-                <KeyValue
-                  title="Periodo de validez"
-                  value={
-                    getDateStrMes(invitation?.start_date) +
-                    " a " +
-                    getDateStrMes(invitation?.end_date)
-                  }
-                />
-              </>
+              <KeyValue
+                title="Periodo de validez"
+                value={
+                  getDateStrMes(invitation?.start_date) +
+                  " a " +
+                  getDateStrMes(invitation?.end_date)
+                }
+              />
             )}
             <KeyValue title="Indicaciones" value={invitation?.obs || "-/-"} />
             {invitation?.is_advanced == "Y" && (
@@ -265,12 +247,12 @@ const ModalAccessExpand = ({
       </>
     );
   };
-  const renderPedido = () => {
+  const RenderPedido = () => {
+    // esto? podrias sacralo fuera del compnente
     return (
       <>
         <ItemList
           title={getFullName(invitation?.owner)}
-          // subtitle={'C.I.' + data?.owner?.ci}
           subtitle={
             "Unidad: " +
             invitation?.owner?.dpto?.nro +
@@ -290,10 +272,7 @@ const ModalAccessExpand = ({
           }
           style={{ marginBottom: 8 }}
         />
-        {/* <KeyValue
-          keys="Tipo de invitación"
-          value={typeInvitation[invitation.type]}
-        /> */}
+
         <KeyValue title="Tipo de pedido" value={invitation?.other_type?.name} />
         <KeyValue
           title="Fecha de notificación"
@@ -303,34 +282,33 @@ const ModalAccessExpand = ({
       </>
     );
   };
+
+  const renderData = () => {
+    switch (type) {
+      case "A":
+        return <RendeAccess />;
+      case "T":
+        return <RendeAccess />;
+      case "I":
+        return <RenderInvitation />;
+      case "P":
+        return <RenderPedido />;
+      case "V":
+        return <RendeAccess />;
+      default:
+        break;
+    }
+  };
   return (
     <DataModal
       style={{ width: 600 }}
       buttonText=""
       buttonCancel=""
-      title={
-        type === "A"
-          ? "Detalle del acompañante"
-          : type === "T"
-          ? "Detalle del taxista"
-          : type === "I" || type === "P"
-          ? "Detalle de la invitación"
-          : type === "V"
-          ? "Detalle del visitante"
-          : ""
-      }
+      title={"Detalle del " + typeText[type]}
       open={open}
       onClose={onClose}
     >
-      {loading ? (
-        <LoadingScreen onlyLoading />
-      ) : type === "I" ? (
-        renderInvitation()
-      ) : type == "P" ? (
-        renderPedido()
-      ) : (
-        rendeAccess()
-      )}
+      {loading ? <LoadingScreen onlyLoading /> : renderData()}
     </DataModal>
   );
 };

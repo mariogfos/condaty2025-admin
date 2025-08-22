@@ -80,7 +80,11 @@ const DataModal = ({
         }
       >
         <HeadTitle
-          title={title}
+          style={{ padding: "0px" }}
+          title={fullScreen ? title : ""}
+          customTitle={
+            !fullScreen ? <p style={{ fontSize: 24 }}>{title}</p> : ""
+          }
           left={fullScreen && iconClose ? null : false}
           onBack={() => _close(false)}
           right={
@@ -95,10 +99,10 @@ const DataModal = ({
               />
             )
           }
-          colorBack={variant === 'V2' ? 'var(--cAccent)' : 'var(--cWhite)'}
-          colorTitle={colorTitle}
+          colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
         />
-        <div className={styles.headerDivider} />
+        {!fullScreen && <div className={styles.headerDivider} />}
         <section className={className}>{children}</section>
         {(buttonText != '' || buttonCancel != '') && (
           <footer>

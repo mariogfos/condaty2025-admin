@@ -19,7 +19,6 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
-import Input from "@/mk/components/forms/Input/Input";
 import EditProfile from "./EditProfile/EditProfile";
 
 interface ProfileModalProps {
@@ -59,7 +58,7 @@ const ProfileModal = ({
   del = true,
   type,
 }: ProfileModalProps) => {
-  const { user, getUser, showToast } = useAuth();
+  const { user, getUser, showToast, userCan } = useAuth();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<any>({});
@@ -76,7 +75,7 @@ const ProfileModal = ({
     ) : type === "owner" || type === "homeOwner" ? (
       <IconUser color={"var(--cAccent)"} size={18} />
     ) : (
-      <IconGuardShield color={"var(--cAccent)"} size={20} />
+      <IconGuardShield color={"var(--cSuccess)"} size={20} />
     );
   const url =
     type === "admin"
@@ -87,14 +86,6 @@ const ProfileModal = ({
       ? `/homeowners`
       : `/guards`;
 
-  const profileRole =
-    type === "admin"
-      ? "administrador"
-      : type === "owner"
-      ? "residente"
-      : type === "homeOwner"
-      ? "propietario"
-      : "guardia";
   const { data, reLoad: reLoadDet } = useAxios(
     url,
     "GET",
@@ -104,6 +95,14 @@ const ProfileModal = ({
     },
     true
   );
+  const profileRole =
+    type === "admin"
+      ? data?.data[0]?.role[0]?.name
+      : type === "owner"
+      ? "Residente"
+      : type === "homeOwner"
+      ? "Propietario"
+      : "Guardia";
   const imageUrl = () => {
     const userId = data?.data[0]?.id;
     const timestamp = data?.data[0]?.updated_at;
@@ -121,7 +120,6 @@ const ProfileModal = ({
   };
 
   const urlImages = imageUrl();
-  // console.log(data,'dadada',dataID,'did')
 
   useEffect(() => {
     if (data?.data[0]) {
@@ -166,21 +164,24 @@ const ProfileModal = ({
       onClose();
       reLoad();
       reLoadDet();
-      // setOpenConfirm({ open: false, id: null });
     }
   };
-  // console.log(data?.data);
 
   const [portadaError, setPortadaError] = useState(false);
   const getPortadaCliente = () => {
-    if (!portadaError && client?.id && client?.updated_at) {
+    if (!portadaError) {
       return getUrlImages(
         "/CLIENT-" + client?.id + ".webp?d=" + client?.updated_at
       );
     }
-    // fallback a la imagen vacía
     return "/assets/images/PortadaEmpty.png";
   };
+
+  const clientUsers = data?.data[0]?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
+  );
+  const deletePerm = userCan("users", "D");
+  const editPerm = userCan("users", "U");
 
   return (
     open && (
@@ -192,44 +193,44 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-        // onSave={() => logout()}
       >
         <div className={styles.ProfileModal}>
           <section>
             <h1>{title}</h1>
             <div>
-              {edit && (
-                <IconEdit
-                  className=""
-                  square
-                  size={32}
-                  color={"var(--cWhite)"}
+              {edit && editPerm && (
+                <div
+                  onClick={() => setOpenEdit(true)}
                   style={{
                     backgroundColor: "var(--cWhiteV2)",
+                    padding: 8,
+                    borderRadius: "var(--bRadiusS)",
                     cursor: "pointer",
                   }}
-                  onClick={() => setOpenEdit(true)}
-                />
+                >
+                  <IconEdit className="" size={30} color={"var(--cWhite)"} />
+                </div>
               )}
-              {del && (
-                <IconTrash
-                  className=""
-                  square
-                  size={32}
-                  color={"var(--cWhite)"}
+              {del && deletePerm && (
+                <div
                   style={{
                     backgroundColor: "var(--cWhiteV2)",
+                    padding: 8,
+                    borderRadius: "var(--bRadiusS)",
                     cursor: "pointer",
                   }}
                   onClick={() => setOpenDel(true)}
-                />
+                >
+                  <IconTrash className="" size={30} color={"var(--cWhite)"} />
+                </div>
               )}
             </div>
           </section>
 
           <section>
-            <Avatar
-              hasImage={data?.data[0]?.has_image}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt="Foto de portada"
               src={getPortadaCliente()}
               onError={() => setPortadaError(true)}
               style={{
@@ -240,6 +241,7 @@ const ProfileModal = ({
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 borderBottom: "1px solid var(--cWhiteV2)",
+                objectFit: "cover",
                 background: "var(--cWhiteV2)",
               }}
             />
@@ -247,7 +249,7 @@ const ProfileModal = ({
               <div>
                 <div>
                   <Avatar
-                    hasImage={data?.data[0]?.has_image}
+                    hasImage={1}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
                     w={191}
@@ -256,11 +258,6 @@ const ProfileModal = ({
                   <div>
                     <span> {getFullName(data?.data[0])}</span>
                     <span>{profileRole}</span>
-                    {/* <span>
-                      {data?.data[0]?.dpto[0]?.nro
-                        ? data?.data[0]?.dpto[0]?.nro
-                        : "-/-"}
-                    </span> */}
                   </div>
                 </div>
               </div>
@@ -275,11 +272,11 @@ const ProfileModal = ({
                     : profileRole}
                 </div>
                 <div>
-                  <IconPhone size={16} color={"var(--cWhiteV1)"} />
+                  <IconPhone size={20} color={"var(--cWhiteV1)"} />
                   {data?.data[0]?.phone || "-/-"}
                 </div>
                 <div>
-                  <IconEmail size={16} color={"var(--cWhiteV1)"} />
+                  <IconEmail size={20} color={"var(--cWhiteV1)"} />
                   {data?.data[0]?.email || "-/-"}
                 </div>
               </div>
@@ -301,8 +298,8 @@ const ProfileModal = ({
                   <div className="bottomLine" />
                   <div>
                     <div>Condominio</div>
-                    {data?.data[0]?.clients.map((item: any) => (
-                      <div key={item.id}>- {item.name}</div>
+                    {clientUsers?.map((item: any) => (
+                      <div key={item.id}>{item.name}</div>
                     ))}
                   </div>
                 </>
@@ -389,7 +386,7 @@ const ProfileModal = ({
         )}
         {openDel && (
           <DataModal
-            title={`Eliminar ${profileRole}`}
+            title={`Eliminar ${profileRole.toLocaleLowerCase()}`}
             open={openDel}
             onClose={() => setOpenDel(false)}
             buttonText="Eliminar"
@@ -400,7 +397,9 @@ const ProfileModal = ({
               <p style={{ fontSize: "var(--sL)" }}>
                 ¿Estás seguro de que quieres eliminar este registro?
               </p>
-              <p style={{ fontSize: "var(--sL)" }}>Esta acción no se puede deshacer.</p>
+              <p style={{ fontSize: "var(--sL)" }}>
+                Esta acción no se puede deshacer.
+              </p>
             </div>
           </DataModal>
         )}

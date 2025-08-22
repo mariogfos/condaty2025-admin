@@ -16,6 +16,7 @@ import {
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import Br from "@/components/Detail/Br";
 
 const paramsInitial = {
   perPage: 20,
@@ -25,11 +26,11 @@ const paramsInitial = {
 };
 
 const Users = () => {
-  const { user } = useAuth();
+  const { user, userCan } = useAuth();
   const mod: ModCrudType = {
     modulo: "users",
     singular: "personal",
-    plural: "Administradores",
+    plural: "personal administrativo",
     filter: true,
     permiso: "",
     export: true,
@@ -39,10 +40,8 @@ const Users = () => {
     hideActions: {
       edit: true,
       del: true,
+      add: !userCan("users", "C"),
     },
-    //export: true,
-    // import: true,
-    // noWaiting:true,
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -57,7 +56,8 @@ const Users = () => {
         onClose={props?.onClose}
         dataID={props?.item?.id}
         type={"admin"}
-        title="Perfil de Administrador"
+        title="Perfil de personal"
+        titleBack="Volver a lista de personal administrativo"
         reLoad={reLoad}
         del={user.id === props?.item?.id ? false : true}
         edit={user.id === props?.item?.id ? false : true}
@@ -82,17 +82,8 @@ const Users = () => {
         />
       );
     },
-    // renderForm: (props: {
-    //   item: any;
-    //   setItem: any;
-    //   extraData: any;
-    //   open: boolean;
-    //   onClose: any;
-    //   user: any;
-    //   execute: any;
-    // }) => <RenderForm {...props} />,
+
     extraData: true,
-    // hideActions: { add: true },
   };
   const onBlurEmail = useCallback(async (e: any, props: any) => {
     if (
@@ -118,7 +109,9 @@ const Users = () => {
       props.setError({ email: "El email ya esta en uso" });
       props.setItem({ ...props.item, email: "" });
     }
-  }, []); // Agrega las dependencias del hook
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onBlurCi = useCallback(async (e: any, props: any) => {
     if (e.target.value.trim() == "") return;
@@ -139,7 +132,7 @@ const Users = () => {
       if (filteredData.existCondo) {
         showToast("El administrador ya existe en este Condominio", "warning");
         props.setItem({});
-        props.setError({ ci: "Ese CI ya esta en uso en este Condominio" });
+        props.setError({ ci: "Ese CI ya esta en uso en este condominio" });
         return;
       }
       props.setError({ ci: "" });
@@ -167,6 +160,7 @@ const Users = () => {
         _emailDisabled: false,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onDisbled = ({ item, field }: any) => {
@@ -176,180 +170,175 @@ const Users = () => {
     return item._disabled;
   };
 
+  const getListRoles = (extraData: any) => {
+    const roles = extraData?.roles?.map((item: any) => {
+      return {
+        name: item.name,
+        id: item.id,
+      };
+    });
+    if (roles?.length) {
+      return [
+        {
+          name: "Todos",
+          id: "ALL",
+        },
+        ...roles,
+      ];
+    }
+    return [];
+  };
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
+      avatar: {
+        api: "a*e*",
+        label: "Suba una Imagen",
+        list: false,
+        form: {
+          type: "imageUpload",
+          prefix: "ADM",
+          style: { width: "100%" },
+        },
+      },
+
       ci: {
         rules: ["required", "ci"],
         api: "ae",
         label: "Carnet de Identidad",
         form: {
-          type: "text",
+          type: "number",
           disabled: onDisbled,
           onBlur: onBlurCi,
           required: true,
-          // onTop: () => (
-          //   <div style={{ display: "flex" }}>
-          //     <div style={{ flexGrow: 1 }}>Información de acceso</div>
-          //     <div>
-          //       La contraseña sera enviada al correo que indiques en este campo
-          //     </div>
-          //   </div>
-          // ),
         },
         list: false,
       },
       role_id: {
-        rules: ["required"], // Reglas para el formulario
-        api: "ae", // Se envía a la API al agregar/editar
-        label: "Rol", // Etiqueta general
+        rules: ["required"],
+        api: "ae",
+        label: "Rol",
         form: {
-          // Configuración para el formulario
           type: "select",
-          optionsExtra: "roles", // Usa los datos extra 'roles' para las opciones
-          optionLabel: "name", // Muestra el campo 'name' del rol
-          optionValue: "id", // Usa el campo 'id' del rol como valor
+          optionsExtra: "roles",
+          optionLabel: "name",
+          optionValue: "id",
           required: true,
         },
+        filter: {
+          label: "Rol",
+          width: "150px",
 
-        // filter: { ... } // Tu configuración de filtro (comentada en tu código)
+          options: getListRoles,
+        },
       },
       fullName: {
-        rules: [],
-        api: "ae",
-        label: "Nombre del administrador",
-        form: false,
-        onRender: (item: any) => {
-          // Asegúrate que 'item.item' contiene los datos del residente
-          const administrador = item?.item;
-          const nombreCompleto = getFullName(administrador);
-          const cedulaIdentidad = administrador?.ci; // Obtener el CI
+        // rules: [],
+        api: "",
+        label: "Nombre ",
+        form: {
+          type: "fullName",
+          disabled: onDisbled,
+        },
+        list: {
+          onRender: (item: any) => {
+            const administrador = item?.item;
+            const nombreCompleto = getFullName(administrador);
+            const cedulaIdentidad = administrador?.ci;
 
-          return (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={getUrlImages(
-                  "/ADM-" +
-                    administrador?.id + // Usar administrador?.id
-                    ".webp?d=" +
-                    administrador?.updated_at // Usar administrador?.updated_at
-                )}
-                name={nombreCompleto} // Usar nombreCompleto
-              />
-              <div>
-                {" "}
-                {/* Contenedor para Nombre, CI y Estado Admin */}
-                {/* Nombre */}
-                <p
-                  style={{
-                    marginBottom: "2px",
-                    fontWeight: 500,
-                    color: "var(--cWhite, #fafafa)",
-                  }}
-                >
-                  {nombreCompleto}
-                </p>
-                {/* CI (si existe) */}
-                {cedulaIdentidad && (
-                  <span
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  hasImage={1}
+                  src={getUrlImages(
+                    "/ADM-" +
+                      administrador?.id +
+                      ".webp?d=" +
+                      administrador?.updated_at
+                  )}
+                  name={nombreCompleto}
+                />
+                <div>
+                  <p
                     style={{
-                      fontSize: "11px",
-                      color: "var(--cWhiteV1, #a7a7a7)",
-                      display: "block",
-                      marginBottom: "4px",
+                      marginBottom: "2px",
+                      fontWeight: 500,
+                      color: "var(--cWhite)",
                     }}
                   >
-                    CI: {cedulaIdentidad}
-                  </span>
-                )}
+                    {nombreCompleto}
+                  </p>
+                  {cedulaIdentidad && (
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--cWhiteV1)",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      CI: {cedulaIdentidad}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          );
+            );
+          },
         },
-        list: true, // <-- Importante: Asegúrate que 'list: true' esté aquí para que se muestre en la lista
-      },
-      avatar: {
-        api: "a*e*",
-        label: "Suba una Imagen",
-        list: false,
       },
 
       name: {
         rules: ["required", "max:50", "alpha", "noSpaces"],
         api: "ae",
         label: "Primer nombre",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
 
         list: false,
       },
       middle_name: {
-        rules: [""],
+        rules: ["alpha"],
         api: "ae",
         label: "Segundo nombre",
-        form: { type: "text", style: { maxWidth: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
       last_name: {
         rules: ["required", "max:50", "alpha"],
         api: "ae",
         label: "Apellido paterno",
-        form: {
-          type: "text",
-          style: { width: "49%" },
-          disabled: onDisbled,
-          required: true,
-        },
+        form: false,
         list: false,
       },
       mother_last_name: {
-        rules: [""],
+        rules: ["alpha"],
         api: "ae",
         label: "Apellido materno",
-        form: { type: "text", style: { width: "49%" }, disabled: onDisbled },
+        form: false,
         list: false,
       },
 
-      // rep_email: {
-
-      //   api: "",
-      //   label: "Repita el correo electrónico",
-      //   form: { type: "text" },
-      //   list: false,
-      //   style: { width: "500px" },
-      // },
       rol: {
         rules: [""],
         api: "",
         label: "Rol",
         form: false,
         list: {
-          // Configuración para la lista/tabla
-
           onRender: (props: any) => {
-            // Encontrar el objeto rol correspondiente al role_id del item
             const role = props?.extraData?.roles?.find(
               (r: any) => r.id === props?.item?.role_id
             );
-            // Obtener el nombre del rol o un texto por defecto
-            const roleName = role?.name || "Sin Rol";
 
-            // Verificar si el rol es 'Administrador' (ignorando mayúsculas/minúsculas)
+            const roleName = role?.name || "Sin rol";
+
             const isAdmin = roleName.toLowerCase() === "administrador";
-
-            // Asignar la clase CSS correspondiente
             const badgeClass = isAdmin
               ? styles.isAdminRole
               : styles.isDefaultRole;
 
             return (
-              // Renderizar el div con la clase base y la clase específica
               <div className={`${styles.roleBadge} ${badgeClass}`}>
-                <span>{roleName}</span> {/* Mostrar el nombre del rol */}
+                <span>{roleName}</span>
               </div>
             );
           },
@@ -360,9 +349,10 @@ const Users = () => {
         api: "ae",
         label: "Celular",
         form: {
-          type: "text",
+          type: "number",
           disabled: onDisbled,
         },
+        list: true,
       },
       address: {
         rules: ["max:100"],
@@ -377,45 +367,28 @@ const Users = () => {
         rules: ["required", "email"],
         api: "a",
         label: "Correo electrónico",
+
         form: {
-          type: "text", // Se recomienda 'text' en lugar de 'number' para emails
+          type: "text",
           disabled: onDisbled,
           onBlur: onBlurEmail,
-
-          // required: true,
-          // onRender: (props: any) => {
-          //   return (
-          //     <div className={styles.fieldSet}>
-          //       <div>
-          //         <div>Información de acceso</div>
-          //         <div>
-          //           La contraseña sera enviada al correo que indiques en este
-          //           campo
-          //         </div>
-          //       </div>
-          //       <div>
-          //         <Input
-          //           name="email"
-          //           value={props?.item?.email || ""}
-          //           onChange={props.onChange}
-          //           label="Correo electrónico"
-          //           error={props.error}
-          //           disabled={onDisbled({
-          //             item: props?.item,
-          //             field: { name: "email" },
-          //           })}
-          //           // Línea que debes agregar/modificar
-          //           onBlur={(e) => onBlurEmail(e, props)}
-          //           required={true}
-          //         />
-          //       </div>
-          //     </div>
-          //   );
-          // },
+          onTop: () => {
+            return (
+              <div style={{ width: "100%" }}>
+                <Br style={{ marginBottom: "12px" }} />
+                <p>
+                  La contraseña será enviada al correo que indiques en este
+                  campo
+                </p>
+              </div>
+            );
+          },
         },
         list: true,
       },
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onImport = () => {
@@ -423,7 +396,6 @@ const Users = () => {
   };
 
   const {
-    userCan,
     List,
     setStore,
     onSearch,
@@ -433,7 +405,7 @@ const Users = () => {
     showToast,
     execute,
     reLoad,
-    getExtraData,
+
     data,
   } = useCrud({
     paramsInitial,
@@ -441,7 +413,7 @@ const Users = () => {
     fields,
     _onImport: onImport,
   });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
+  const { onLongPress, selItem, searchState } = useCrudUtils({
     onSearch,
     searchs,
     setStore,
@@ -471,12 +443,11 @@ const Users = () => {
       </RenderItem>
     );
   };
-
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan("users", "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
       <WidgetDashCard
-        title="Total de Administradores"
+        title="Cantidad de personal"
         data={data?.message?.total || 0}
         icon={
           <IconAdmin
@@ -487,7 +458,6 @@ const Users = () => {
           />
         }
         style={{ width: "290px" }}
-        // className={styles.widgetResumeCard}
       />
 
       <List
