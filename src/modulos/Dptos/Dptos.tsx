@@ -266,9 +266,11 @@ const Dptos = () => {
           onRender: (props: any) => {
               // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
               const holder = props?.item?.holder;
-              const person = holder === 'T' ? props?.item?.tenant : props?.item?.homeowner;
+              const tenant = props?.item?.tenant;
+              const homeowner = props?.item?.homeowner;
+              const person = holder === 'T' ? tenant : homeowner;
 
-              if (!person) {
+              if (!person || !tenant) {
                 return <div className={styles.noTitular}>Sin titular</div>;
               }
 
