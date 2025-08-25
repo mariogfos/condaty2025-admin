@@ -998,7 +998,7 @@ const useCrud = ({
         </>
       );
     };
-
+    console.log(filters);
     return (
       <>
         {isBreak ? (
@@ -1013,6 +1013,8 @@ const useCrud = ({
                 onChange={onChange}
                 options={f.options || []}
                 value={filterSel[f.key] || ""}
+                optionLabel={f.optionLabel}
+                optionValue={f.optionValue}
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
@@ -1297,6 +1299,8 @@ const useCrud = ({
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
               : field.filter?.options(extraData) ?? field.form.options ?? [],
+            optionLabel: field?.filter?.optionLabel,
+            optionValue: field?.filter?.optionValue,
           };
           lFilter.push(colF);
           lFilter.sort((a: any, b: any) => a.order - b.order);

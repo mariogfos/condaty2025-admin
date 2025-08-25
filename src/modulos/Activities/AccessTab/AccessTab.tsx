@@ -301,6 +301,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
           label: "Departamento",
           width: "180px",
           extraData: "units",
+          optionLabel: "nro",
         },
       },
     };
