@@ -80,42 +80,6 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
     setCustomDateErrors({});
   };
 
-  // Función para manejar las acciones del RenderView
-  const handleAccessAction = async (access: any, action: string) => {
-    if (action === "entrada" && access?.confirm === "Y" && !access?.in_at) {
-      try {
-        const { data } = await execute("/accesses/enter", "POST", access.id);
-
-        if (data?.success === true) {
-          reLoad();
-          showToast("Visitante ingresó exitosamente", "success");
-        } else {
-          showToast(data?.message || "Error al registrar entrada", "error");
-        }
-      } catch (error) {
-        console.error("Error al registrar entrada:", error);
-        showToast("Error al registrar entrada", "error");
-      }
-    } else if (action === "salida" && access?.in_at && !access?.out_at) {
-      try {
-        const { data } = await execute("/accesses/exit", "POST", {
-          id: access.id,
-          obs_out: "",
-        });
-
-        if (data?.success === true) {
-          reLoad();
-          showToast("Visitante salió exitosamente", "success");
-        } else {
-          showToast(data?.message || "Error al registrar salida", "error");
-        }
-      } catch (error) {
-        console.error("Error al registrar salida:", error);
-        showToast("Error al registrar salida", "error");
-      }
-    }
-  };
-
   const getTypeAccess = (type: string, param: any) => {
     if (type === "P") {
       return "Pedido:" + param?.other?.other_type?.name;
@@ -148,11 +112,9 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         del: true,
       },
       search: true,
-      renderView: (props: any) => (
-        <RenderView {...props} onConfirm={handleAccessAction} />
-      ),
+      renderView: (props: any) => <RenderView {...props} />,
     };
-  }, [handleAccessAction]);
+  }, []);
 
   // Definición de campos para los accesos
   const fieldsAccess = useMemo(() => {
@@ -305,6 +267,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         },
       },
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const { userCan, List, reLoad, onFilter, setStore, store } = useCrud({
     paramsInitial,
@@ -315,6 +278,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
 
   useEffect(() => {
     setStore({ ...store, title: "Accesos" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const canAccess = userCan(modAccess.permiso, "R");

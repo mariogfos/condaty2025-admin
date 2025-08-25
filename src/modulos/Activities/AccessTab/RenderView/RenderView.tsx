@@ -17,7 +17,6 @@ interface AccessRenderViewProps {
   open: boolean;
   onClose: () => void;
   item: Record<string, any>;
-  onConfirm?: Function;
   extraData?: any;
 }
 
