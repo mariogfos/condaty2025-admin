@@ -292,6 +292,17 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
           ],
         },
       },
+      dpto_id: {
+        rules: [],
+        api: "",
+        label: "",
+        list: false,
+        filter: {
+          label: "Departamento",
+          width: "180px",
+          extraData: "units",
+        },
+      },
     };
   }, []);
   const { userCan, List, reLoad, onFilter, setStore, store } = useCrud({
