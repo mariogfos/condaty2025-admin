@@ -199,7 +199,9 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 </div>
                 {item?.type !== "O" && (
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Visitó a</span>
+                    <span className={styles.infoLabel}>
+                      {item?.type != "P" ? "Visitó a" : "Entregó a"}
+                    </span>
                     <span className={styles.infoValue}>
                       {getFullName(item?.owner) || "-/-"}
                     </span>
@@ -356,7 +358,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
               </>
             )}
 
-            {item.type !== "O" && item?.type !== "C" && (
+            {/* {item.type !== "O" && item?.type !== "C" && (
               <>
                 <Br />
                 <div
@@ -370,7 +372,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   Ver detalles de la invitación
                 </div>
               </>
-            )}
+            )} */}
           </div>
         </LoadingScreen>
       </DataModal>
