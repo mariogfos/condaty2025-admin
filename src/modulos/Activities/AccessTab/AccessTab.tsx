@@ -1,5 +1,5 @@
 // esto? revisar todo las funciones que estan como props para sacar a fuera
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "../Activities.module.css";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -294,12 +294,16 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
       },
     };
   }, []);
-  const { userCan, List, reLoad, onFilter } = useCrud({
+  const { userCan, List, reLoad, onFilter, setStore, store } = useCrud({
     paramsInitial,
     mod: modAccess,
     fields: fieldsAccess,
     getFilter: handleGetFilter,
   });
+
+  useEffect(() => {
+    setStore({ ...store, title: "Accesos" });
+  }, []);
 
   const canAccess = userCan(modAccess.permiso, "R");
 
