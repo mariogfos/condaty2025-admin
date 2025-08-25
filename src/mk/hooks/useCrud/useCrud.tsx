@@ -1000,7 +1000,6 @@ const useCrud = ({
         </>
       );
     };
-    console.log(filters);
     return (
       <>
         {isBreak ? (
