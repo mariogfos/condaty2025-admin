@@ -25,6 +25,8 @@ import {
   TableSkeleton,
   WidgetSkeleton,
 } from "@/mk/components/ui/Skeleton/Skeleton";
+import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
+
 
 interface DashDptosProps {
   id: string | number;
@@ -74,6 +76,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
       return;
     }
 
+    // Buscar el owner seleccionado en la lista
+    const extra = dashData?.extraData ?? {};
+    const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
+    const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
+
+    // Verificar si el owner ya tiene una unidad asignada
+    if (selectedOwner?.dpto && selectedOwner.dpto !== null) {
+      setSelectedOwnerForTransfer(selectedOwner);
+      setPendingTransferType(currentChangeType);
+      setOpenTransferModal(true);
+      return;
+    }
+
+    // Si no tiene unidad asignada, proceder normalmente
+    await executeOwnerChange();
+  };
+
+  const executeOwnerChange = async () => {
     try {
       const payload = {
         owner_id: formState.owner_id,
@@ -118,6 +138,13 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
+  const confirmTransfer = async () => {
+    setOpenTransferModal(false);
+    await executeOwnerChange();
+    setSelectedOwnerForTransfer(null);
+    setPendingTransferType(null);
+  };
+
   const handleOpenDependentProfile = (owner_id: string) => {
     setSelectedDependentId(owner_id);
     setOpenProfileModal(true);
@@ -132,7 +159,21 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const onTitular = (type: "H" | "T") => {
+  const [openOwnerForm, setOpenOwnerForm] = useState(false);
+  const [newOwnerType, setNewOwnerType] = useState<'Propietario' | 'Inquilino'>('Propietario');
+  const [newIsResident, setNewIsResident] = useState<boolean>(false);
+  const [openTransferModal, setOpenTransferModal] = useState(false);
+  const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
+  const [pendingTransferType, setPendingTransferType] = useState<"H" | "T" | null>(null);
+
+  const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
+    if (action === 'new') {
+      setNewOwnerType(type === 'H' ? 'Propietario' : 'Inquilino');
+      setNewIsResident(type === 'T');
+      setOpenOwnerForm(true);
+      return;
+    }
+
     if (type === "T" && !datas?.homeowner) {
       showToast(
         "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
@@ -384,6 +425,40 @@ const DashDptos = ({ id }: DashDptosProps) => {
             extraData={dashData?.extraData}
           />
         )}
+        {openOwnerForm && (
+          <OwnersRenderForm
+            open={openOwnerForm}
+            onClose={() => setOpenOwnerForm(false)}
+            item={{
+              ci: '',
+              name: '',
+              last_name: '',
+              type_owner: newOwnerType,
+              dptos: datas?.data?.id ? [{
+                dpto_id: datas.data.id,
+                will_live_in_unit: newIsResident
+              }] : [],
+              will_live_in_unit: newIsResident,
+              _disabled: false,
+              _emailDisabled: false
+            }}
+            setItem={(newItem: any) => {
+            }}
+            execute={execute as (endpoint: string, method: string, data: any, showLoader?: boolean, silent?: boolean) => Promise<{ data?: any }>}
+            extraData={{
+              ...dashData?.extraData,
+              dptosForH: dashData?.extraData?.dptosForH || [],
+              dptosForT: dashData?.extraData?.dptosForT || []
+            }}
+            reLoad={() => {
+              reLoad({ extraData: true });
+              setOpenOwnerForm(false);
+            }}
+            defaultIsResident={newIsResident}
+            disableUnitEditing={true}
+            disableTypeEditing={true}
+          />
+        )}
         {openDel && (
           <DataModal
             title="Eliminar unidad"
@@ -417,7 +492,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
             }}
             buttonText={currentRemovalType === "H" ? "Liberar" : "Desvincular"}
           >
-            <p>
+            <p style={{
+
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
               {currentRemovalType === "H"
                 ? "¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?"
                 : "¿Estás seguro que quieres desvincular al inquilino? Recuerda que si realizas esta acción la unidad quedará sin inquilino?"}
@@ -438,6 +518,29 @@ const DashDptos = ({ id }: DashDptosProps) => {
             type="owner"
             reLoad={reLoad}
           />
+        )}
+        {openTransferModal && selectedOwnerForTransfer && (
+          <DataModal
+            title="Confirmar transferencia"
+            open={openTransferModal}
+            onSave={confirmTransfer}
+            variant={"mini"}
+            onClose={() => {
+              setOpenTransferModal(false);
+              setSelectedOwnerForTransfer(null);
+              setPendingTransferType(null);
+            }}
+            buttonText="Transferir"
+          >
+            <p style={{
+              textAlign: 'center',
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
+              Se quitará a este {pendingTransferType === "H" ? "propietario" : "residente"} {getFullName(selectedOwnerForTransfer)} de la unidad {selectedOwnerForTransfer.dpto} y será transferido a la unidad actual.
+            </p>
+          </DataModal>
         )}
       </section>
     </div>
