@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
@@ -405,7 +405,7 @@ const Users = () => {
     showToast,
     execute,
     reLoad,
-
+    extraData,
     data,
   } = useCrud({
     paramsInitial,
@@ -443,23 +443,57 @@ const Users = () => {
       </RenderItem>
     );
   };
+  const getFormatTypeUnit = () => {
+    let rolesU: any = [];
+    Object?.keys(extraData?.users || {}).map((c: any, i: number) => {
+      if (i !== 0) {
+        rolesU.push({ id: c, name: c, value: extraData?.users[c] });
+      }
+    });
+
+    return rolesU;
+  };
+
   if (!userCan("users", "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
-      <WidgetDashCard
-        title="Cantidad de personal"
-        data={data?.message?.total || 0}
-        icon={
-          <IconAdmin
-            color={"var(--cWhite)"}
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-            circle
-            size={18}
-          />
-        }
-        style={{ width: "290px" }}
-      />
-
+      <div className={styles.allStatsRow}>
+        <WidgetDashCard
+          title="Cantidad de personal"
+          data={data?.message?.total || 0}
+          icon={
+            <IconAdmin
+              color={"var(--cWhite)"}
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              circle
+              size={18}
+            />
+          }
+          style={{ minWidth: "160px", maxWidth: "268px" }}
+        />
+        {getFormatTypeUnit().map((item: any, i: number) => {
+          const isEmpty = !item?.value || item?.value === 0;
+          const pluralizedTitle =
+            pluralize(item.name, item.value || 0)
+              .charAt(0)
+              .toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
+          return (
+            <WidgetDashCard
+              key={i}
+              title={pluralizedTitle}
+              data={item.value}
+              style={{ minWidth: "160px", maxWidth: "268px" }}
+              icon={
+                <IconAdmin
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                  circle
+                  size={18}
+                />
+              }
+            />
+          );
+        })}
+      </div>
       <List
         height={"calc(100vh - 465px)"}
         onTabletRow={renderItem}

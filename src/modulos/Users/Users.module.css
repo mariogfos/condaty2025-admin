@@ -4,6 +4,13 @@
   flex-direction: column;
   gap: var(--spM);
   width: 100%;
+  .allStatsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spM);
+    width: 100%;
+    margin-bottom: var(--spL);
+  }
 
   .title {
     font-size: var(--sXl);
