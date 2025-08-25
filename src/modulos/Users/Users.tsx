@@ -1,9 +1,6 @@
 "use client";
 import styles from "./Users.module.css";
-import RenderItem from "../shared/RenderItem";
-import useCrudUtils from "../shared/useCrudUtils";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import { useCallback, useEffect, useMemo } from "react";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
@@ -23,6 +20,7 @@ const paramsInitial = {
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
 };
 
 const Users = () => {
@@ -352,7 +350,9 @@ const Users = () => {
           type: "number",
           disabled: onDisbled,
         },
-        list: true,
+        list: {
+          onRender: ({ value }: any) => value || "-/-",
+        },
       },
       address: {
         rules: ["max:100"],
@@ -391,58 +391,13 @@ const Users = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
+  const { List, setStore, store, showToast, execute, reLoad, extraData, data } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
 
-  const {
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    showToast,
-    execute,
-    reLoad,
-    extraData,
-    data,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    _onImport: onImport,
-  });
-  const { onLongPress, selItem, searchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const [openImport, setOpenImport] = useState(false);
-  useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
   const getFormatTypeUnit = () => {
     let rolesU: any = [];
     Object?.keys(extraData?.users || {}).map((c: any, i: number) => {
@@ -453,10 +408,15 @@ const Users = () => {
 
     return rolesU;
   };
+  useEffect(() => {
+    setStore({ ...store, title: "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!userCan("users", "R")) return <NotAccess />;
   return (
     <div className={styles.users}>
+      <h1 className={styles.title}>Personal administrativo</h1>
       <div className={styles.allStatsRow}>
         <WidgetDashCard
           title="Cantidad de personal"
@@ -496,7 +456,7 @@ const Users = () => {
       </div>
       <List
         height={"calc(100vh - 465px)"}
-        onTabletRow={renderItem}
+        // onTabletRow={renderItem}
         emptyMsg="¡Sin personal registrados! Aquí verás la lista de todo"
         emptyLine2="tu personal administrativo."
         emptyIcon={<IconPersonElegant size={80} color="var(--cWhiteV1)" />}

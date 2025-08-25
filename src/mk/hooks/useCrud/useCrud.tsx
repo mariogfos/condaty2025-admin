@@ -400,7 +400,7 @@ const useCrud = ({
     if (response?.success) {
       onCloseCrud();
       setOpenDel(false);
-      reLoad(null, mod?.noWaiting);
+      reLoad(params, mod?.noWaiting);
       showToast(mod.saveMsg?.[action] || response?.message, "success");
     } else {
       showToast(response?.message, "error");

@@ -11,12 +11,11 @@
     width: 100%;
     margin-bottom: var(--spL);
   }
-
   .title {
-    font-size: var(--sXl);
-    font-weight: 600;
+    font-size: var(--sXxl);
+    font-weight: var(--bSemibold);
+    margin-bottom: var(--spL);
     color: var(--cWhite);
-    margin-bottom: 4px;
   }
   .subtitle {
     font-size: var(--sL);
