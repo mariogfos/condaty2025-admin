@@ -276,7 +276,7 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "",
         list: false,
         filter: {
-          label: "Departamento",
+          label: "Unidad",
           width: "180px",
           options: getListUnits,
           // extraData: "units",
