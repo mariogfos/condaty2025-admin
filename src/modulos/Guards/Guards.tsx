@@ -320,63 +320,22 @@ const Guards = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onImport = () => {
-    setOpenImport(true);
-  };
+  const { userCan, List, setStore, store, showToast, execute, reLoad, data } =
+    useCrud({
+      paramsInitial,
+      mod,
+      fields,
+    });
 
-  const {
-    userCan,
-    List,
-    setStore,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    errors,
-    showToast,
-    execute,
-    reLoad,
-    data,
-  } = useCrud({
-    paramsInitial,
-    mod,
-    fields,
-    _onImport: onImport,
-  });
-  const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
-    onSearch,
-    searchs,
-    setStore,
-    mod,
-    onEdit,
-    onDel,
-  });
-
-  const [openImport, setOpenImport] = useState(false);
   useEffect(() => {
-    setOpenImport(searchState == 3);
-  }, [searchState]);
-  console.log(errors);
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.name}
-          subtitle={item?.description}
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-        />
-      </RenderItem>
-    );
-  };
+    setStore({ ...store, title: "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div className={styles.users}>
+    <div className={styles.Guards}>
+      <h1 className={styles.title}>Guardias</h1>
       <div style={{ marginBottom: "20px" }}>
         <WidgetDashCard
           title="Guardias totales"
@@ -402,7 +361,7 @@ const Guards = () => {
         />
       </div>
       <List
-        onTabletRow={renderItem}
+        // onTabletRow={renderItem}
         height={"calc(100vh - 430px)"}
         emptyMsg="Lista de guardias vacía. Aquí verás a todos los guardias"
         emptyLine2="del condominio una vez los registres."

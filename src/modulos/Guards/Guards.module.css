@@ -1,5 +1,10 @@
-.Guards{
-
+.Guards {
+  .title {
+    font-size: var(--sXxl);
+    font-weight: var(--bSemibold);
+    margin-bottom: var(--spL);
+    color: var(--cWhite);
+  }
 }
 
 .widgetResumeCard {
@@ -21,66 +26,62 @@
 }
 
 .fieldSet {
-    width: 100%;
-    /* background-color: aqua !important; */
-    padding: var(--spM);
-    display: flex;
-    flex-direction: column;
-    border-radius: var(--bRadiusS);
+  width: 100%;
+  /* background-color: aqua !important; */
+  padding: var(--spM);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  gap: var(--spL);
+  & > div {
     gap: var(--spL);
-    & > div {
-      gap:var(--spL)
-    }
-    & > div:nth-child(1) > div:nth-child(1){
-      color:var(--cWhite);
-      font-size: var(--sL);
-      font-weight: var(--bBold);
-      margin-bottom: var(--spL);
-  
-    }
   }
+  & > div:nth-child(1) > div:nth-child(1) {
+    color: var(--cWhite);
+    font-size: var(--sL);
+    font-weight: var(--bBold);
+    margin-bottom: var(--spL);
+  }
+}
 
-  .renderView {
-   & > div  {
-        display: flex; 
-        padding: var(--spL); 
-        gap:var(--spL);
-        align-items: center;
-        @media (max-width: 750px) {
-            flex-direction: column;
-          };
-        & > div {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: var(--spL);
-          
+.renderView {
+  & > div {
+    display: flex;
+    padding: var(--spL);
+    gap: var(--spL);
+    align-items: center;
+    @media (max-width: 750px) {
+      flex-direction: column;
+    }
+    & > div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spL);
+    }
+    & > section {
+      padding: var(--spM);
+      background-color: var(--cBlackV1);
+      border-radius: 8px;
+
+      width: 500px;
+
+      & > div {
+        display: flex;
+        margin-bottom: 16px;
+        font-size: var(--sL);
+        font-size: var(--sM);
+        & > p:nth-child(odd) {
+          flex: 1;
+          color: var(--cWhiteV1);
         }
-        & > section {
-          padding: var(--spM);
-          background-color: var(--cBlackV1);
-          border-radius: 8px;
-          
-          width:500px;
-
-          
-          & > div {
-            display: flex;
-            margin-bottom: 16px;
-            font-size: var(--sL);
-            font-size: var(--sM);
-            & > p:nth-child(odd) {
-              flex: 1;
-              color: var(--cWhiteV1);
-              
-            }
-            & > p:nth-child(even) {
-              flex: 1;
-              text-align: right;
-              color: var(--cWhite);
-            }
-          }
+        & > p:nth-child(even) {
+          flex: 1;
+          text-align: right;
+          color: var(--cWhite);
         }
       }
+    }
   }
+}
