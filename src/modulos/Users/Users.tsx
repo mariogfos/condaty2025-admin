@@ -227,7 +227,6 @@ const Users = () => {
         filter: {
           label: "Rol",
           width: "150px",
-
           options: getListRoles,
         },
       },

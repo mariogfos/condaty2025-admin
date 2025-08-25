@@ -115,8 +115,24 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
       renderView: (props: any) => <RenderView {...props} />,
     };
   }, []);
-
-  // Definición de campos para los accesos
+  const getListUnits = (extraData: any) => {
+    const units = extraData?.units?.map((item: any) => {
+      return {
+        name: item.nro,
+        id: item.id,
+      };
+    });
+    if (units?.length) {
+      return [
+        {
+          name: "Todos",
+          id: "ALL",
+        },
+        ...units,
+      ];
+    }
+    return [];
+  };
   const fieldsAccess = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -262,8 +278,9 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         filter: {
           label: "Departamento",
           width: "180px",
-          extraData: "units",
-          optionLabel: "nro",
+          options: getListUnits,
+          // extraData: "units",
+          // optionLabel: "nro",
         },
       },
     };
