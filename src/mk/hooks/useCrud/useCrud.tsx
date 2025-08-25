@@ -981,6 +981,8 @@ const useCrud = ({
                   onChange={onChange}
                   options={f.options || []}
                   value={filterSel[f.key] || ""}
+                  optionLabel={f?.optionLabel}
+                  optionValue={f?.optionValue}
                   error={false}
                   style={{
                     ...(filterSel[f.key] &&
@@ -1013,8 +1015,8 @@ const useCrud = ({
                 onChange={onChange}
                 options={f.options || []}
                 value={filterSel[f.key] || ""}
-                optionLabel={f.optionLabel}
-                optionValue={f.optionValue}
+                optionLabel={f?.optionLabel}
+                optionValue={f?.optionValue}
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
