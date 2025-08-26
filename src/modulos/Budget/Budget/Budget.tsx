@@ -44,8 +44,8 @@ const renderStatusCell = (props: any) => {
   const statusConfig: Record<string, StatusConfig> = {
     D: {
       label: 'Borrador',
-      color: 'var(--cWarning)',
-      bgColor: 'var(--cHoverCompl4)',
+      color: 'var(--cInfo)',
+      bgColor: 'var(--cHoverCompl3)',
     },
     P: {
       label: 'Pendiente por aprobar',
@@ -69,7 +69,7 @@ const renderStatusCell = (props: any) => {
     },
     X: {
       label: 'Cancelado',
-      color: 'var(--cDarkGray)',
+      color: 'var(--cWhite)',
       bgColor: 'var(--cHoverCompl1)',
     },
   };
