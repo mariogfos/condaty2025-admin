@@ -10,153 +10,106 @@ import { formatToDayDDMMYYYY } from '@/mk/utils/date';
 
 interface ReservationsTableProps {
   reservations: any[];
-  titular: any;
+
 }
+const getReservationStatus = (status: string) => {
+  switch (status) {
+    case 'A':
+      return {
+        label: 'Aprobada',
+        backgroundColor: 'var(--cHoverSuccess)',
+        color: 'var(--cSuccess)',
+      };
+    case 'W':
+      return {
+        label: 'En espera',
+        backgroundColor: 'var(--cHoverWarning)',
+        color: 'var(--cWarning)',
+      };
+    case 'X':
+      return {
+        label: 'Rechazada',
+        backgroundColor: 'var(--cHoverError)',
+        color: 'var(--cError)',
+      };
+    case 'C':
+      return {
+        label: 'Cancelada',
+        backgroundColor: 'var(--cHoverError)',
+        color: 'var(--cError)',
+      };
+    default:
+      return {
+        label: 'Desconocido',
+        backgroundColor: 'var(--cHoverLight)',
+        color: 'var(--cLightDark)',
+      };
+  }
+};
+const areaInfoCell = ({ item }: { item: any }) => (
+    <div className={styles.areaInfo}>
+      <Avatar
+        name={item?.area?.title}
+        src={getUrlImages(
+          '/AREA-' +
+            item?.area?.id +
+            '-' +
+            item?.area?.images?.[0]?.id +
+            '.webp' +
+            '?' +
+            item?.area?.updated_at
+        )}
+        w={32}
+        h={32}
+      />
+      <div>
+        <p className={styles.areaTitle}>{item?.area?.title}</p>
+        <p className={styles.areaDescription}>{item?.area?.description}</p>
+      </div>
+    </div>
+);
+const dateReserveCell = ({ item }: { item: any }) => (
+    <div>
+      <p className={styles.reservationDate}>
+        {formatToDayDDMMYYYY(item.date_at) || 'Sin fecha'}
+      </p>
+    </div>
+);
+const statusCell = ({ item }: { item: any }) => {
+  const statusInfo = getReservationStatus(item.status);
+  return (
+    <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
+      {statusInfo.label}
+    </StatusBadge>
+  );
+};
 
-const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) => {
-  const getHourPeriod = (start_time: any, end_time: any) => {
-    const start =
-      typeof start_time === 'string' ? new Date(`1970-01-01T${start_time}`) : new Date(start_time);
-    const end =
-      typeof end_time === 'string' ? new Date(`1970-01-01T${end_time}`) : new Date(end_time);
-
-    const diff = end.getTime() - start.getTime();
-    const hours = Math.floor(diff / 1000 / 60 / 60);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
-
-    if (hours === 0 && minutes > 0) {
-      return `${minutes}m`;
-    } else if (hours > 0 && minutes > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    }
-    return '0m';
-  };
-
-  const getReservationStatus = (status: string) => {
-    switch (status) {
-      case 'A':
-        return {
-          label: 'Aprobada',
-          backgroundColor: 'var(--cHoverSuccess)',
-          color: 'var(--cSuccess)',
-        };
-      case 'W':
-        return {
-          label: 'En espera',
-          backgroundColor: 'var(--cHoverWarning)',
-          color: 'var(--cWarning)',
-        };
-      case 'X':
-        return {
-          label: 'Rechazada',
-          backgroundColor: 'var(--cHoverError)',
-          color: 'var(--cError)',
-        };
-      case 'C':
-        return {
-          label: 'Cancelada',
-          backgroundColor: 'var(--cHoverError)',
-          color: 'var(--cError)',
-        };
-      default:
-        return {
-          label: 'Desconocido',
-          backgroundColor: 'var(--cHoverLight)',
-          color: 'var(--cLightDark)',
-        };
-    }
-  };
-
+const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
   const reservationsHeader = [
     {
       key: 'area',
       label: 'Área social',
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return (
-          <div className={styles.areaInfo}>
-            <Avatar
-              name={item?.area?.title}
-              src={getUrlImages(
-                '/AREA-' +
-                  item?.area?.id +
-                  '-' +
-                  item?.area?.images?.[0]?.id +
-                  '.webp' +
-                  '?' +
-                  item?.area?.updated_at
-              )}
-              w={32}
-              h={32}
-            />
-            <div>
-              <p className={styles.areaTitle}>{item?.area?.title}</p>
-              <p className={styles.areaDescription}>{item?.area?.description}</p>
-            </div>
-          </div>
-        );
-      },
+      onRender:areaInfoCell
     },
     {
       key: 'reserved_by',
       label: 'Reservado por',
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return (
-          <div className={styles.areaInfo}>
-            <Avatar
-              hasImage={titular?.has_image}
-              src={
-                titular?.id
-                  ? getUrlImages(
-                      '/OWNER-' +
-                        titular?.id +
-                        '.webp' +
-                        (titular?.updated_at ? '?d=' + titular?.updated_at : '')
-                    )
-                  : ''
-              }
-              name={getFullName(titular)}
-              w={32}
-              h={32}
-            />
-            <div>
-              <p className={styles.areaTitle}>{getFullName(titular)}</p>
-              <p className={styles.areaDescription}>C.I. {titular?.ci || 'Sin registro'}</p>
-            </div>
-          </div>
-        );
-      },
+
     },
     {
       key: 'reservation_date',
       label: 'Fecha de reserva',
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return (
-          <div>
-            <p className={styles.reservationDate}>
-              {formatToDayDDMMYYYY(item.date_at) || 'Sin fecha'}
-            </p>
-          </div>
-        );
-      },
+      onRender: dateReserveCell
     },
     {
       key: 'status',
       label: 'Estado',
       responsive: 'desktop',
       style: { textAlign: 'center', justifyContent: 'center' },
-      onRender: ({ item }: any) => {
-        const statusInfo = getReservationStatus(item.status);
-        return (
-          <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
-            {statusInfo.label}
-          </StatusBadge>
-        );
-      },
+      onRender: statusCell,
     },
   ];
 
@@ -172,7 +125,7 @@ const ReservationsTable = ({ reservations, titular }: ReservationsTableProps) =>
     );
   }
 
-  return <Table header={reservationsHeader} data={reservations.slice(0, 5)} className="striped" style={{ width: '100%', minWidth: '800px' }} />;
+  return <Table header={reservationsHeader} data={reservations.slice(0, 5)} className="striped" style={{ width: '100%', height:'100%'}} />;
 };
 
 export default ReservationsTable;

@@ -11,6 +11,12 @@ export default function GraphAdapterBar(
       type: 'bar',
       stacked: options.stacked || false,
     },
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        borderRadiusApplication: 'end',
+      },
+    },
     xaxis: {
       categories: xLabels,
       labels: {

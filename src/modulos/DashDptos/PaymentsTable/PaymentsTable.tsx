@@ -4,25 +4,24 @@ import Table from '@/mk/components/ui/Table/Table';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import EmptyData from '@/components/NoData/EmptyData';
 import { IconPagos } from '@/components/layout/icons/IconsBiblioteca';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import { PaymentStatus, getPaymentStatusConfig } from '@/types/payment';
 
-const PAYMENT_STATUS_MAP = {
-  A: { label: 'Por Pagar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
-  P: { label: 'Pagado', backgroundColor: 'var(--cHoverSuccess)', color: 'var(--cSuccess)' },
-  S: { label: 'Por confirmar', backgroundColor: 'var(--cHoverWarning)', color: 'var(--cWarning)' },
-  M: { label: 'Moroso', backgroundColor: 'var(--cHoverError)', color: 'var(--cError)' },
-  R: { label: 'Rechazado', backgroundColor: 'var(--cHoverError)', color: 'var(--cError)' },
-  X: { label: 'Anulado', backgroundColor: 'var(--cHoverCompl5)', color: 'var(--cMediumAlert)' },
-} as const;
-
-type PaymentStatus = keyof typeof PAYMENT_STATUS_MAP;
-
-const getPaymentStatus = (status: PaymentStatus) => {
+const statusCell = ({ item }: { item: any }) => {
+  const status = item?.status as PaymentStatus;
+  const statusInfo = getPaymentStatusConfig(status);
   return (
-    PAYMENT_STATUS_MAP[status] || {
-      label: status,
-      backgroundColor: 'var(--cHoverLight)',
-      color: 'var(--cLightDark)',
-    }
+    <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
+      {statusInfo.label}
+    </StatusBadge>
+  );
+};
+
+const amountCell = ({ item }: { item: any }) => {
+  return item?.amount || item?.penalty_amount ? (
+    <FormatBsAlign value={item.amount + item.penalty_amount} alignRight={true} />
+  ) : (
+    '-/-'
   );
 };
 
@@ -37,49 +36,38 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       label: 'Fecha de pago',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return getDateStrMes(item?.paid_at) || '-';
+        return getDateStrMes(item?.paid_at) || '-/-';
       },
     },
     {
-      key: 'categorie',
+      key: 'category',
       label: 'Categoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.categoryP?.name || '-';
+        return item?.category?.padre?.name || '-/-';
       },
     },
     {
-      key: 'sub_categorie',
-      label: 'Sub Categoría',
+      key: 'subcategory',
+      label: 'Subcategoría',
       responsive: 'desktop',
       onRender: ({ item }: any) => {
-        return item?.payment?.category?.name || '-';
+        return item?.category?.name || '-/-';
       },
     },
     {
       key: 'amount',
       label: 'Monto',
+      style: { textAlign: 'right', justifyContent: 'flex-end' },
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return item?.amount && item?.penalty_amount
-          ? `Bs ${parseFloat(item?.amount) + parseFloat(item?.penalty_amount)}`
-          : '-';
-      },
+      onRender: amountCell,
     },
     {
       key: 'status',
       label: 'Estado',
       style: { textAlign: 'center', justifyContent: 'center' },
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        const status = item?.status as PaymentStatus;
-        const statusInfo = getPaymentStatus(status);
-        return (
-          <StatusBadge backgroundColor={statusInfo.backgroundColor} color={statusInfo.color}>
-            {statusInfo.label}
-          </StatusBadge>
-        );
-      },
+      onRender: statusCell,
     },
   ];
 

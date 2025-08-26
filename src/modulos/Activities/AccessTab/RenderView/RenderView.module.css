@@ -50,7 +50,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  gap: var(--spXl, 48px);
+  gap: 68px;
   width: 100%;
   padding: var(--spL) 0;
   box-sizing: border-box;
@@ -67,23 +67,23 @@
   flex-direction: column;
   gap: var(--spXs);
   text-align: left;
-  min-width: 280px;
-  max-width: 380px; /* IMPORTANTE: Esto limita el ancho */
+  /* min-width: 280px; */
+  /* max-width: 380px; IMPORTANTE: Esto limita el ancho */
+  flex: 1;
 }
 
 .infoLabel {
   color: var(--cWhiteV1);
-  font-size: var(--sS);
+  font-size: var(--sL);
   font-weight: var(--bRegular);
-  line-height: 1.4;
+  font-weight: 400;
   text-align: left;
 }
 
 .infoValue {
   color: var(--cWhite);
-  font-size: var(--sM);
-  font-weight: var(--bMedium);
-  line-height: 1.5;
+  font-size: var(--sL);
+  font-weight: 500;
   word-break: break-word;
   overflow-wrap: break-word;
   min-width: 0;
@@ -140,4 +140,10 @@
   .infoValue span {
     text-align: center;
   }
+}
+.listContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spM);
+  width: 100%;
 }

@@ -17,17 +17,12 @@
 }
 .allStatsRow {
   display: flex;
-  flex-wrap: wrap; /* Permite que las tarjetas salten de línea */
-  /* NUEVO: gap controla el espacio horizontal Y vertical entre tarjetas */
-  /* Ajusta este valor para aumentar/disminuir el margen general */
-  gap: var(
-    --spM
-  ); /* Ejemplo: 16px. Puedes usar var(--spL) si quieres más espacio */
+  flex-wrap: wrap;
+  gap: var(--spM);
   width: 100%;
-  /* align-items: stretch; */ /* Puedes descomentar si quieres que las tarjetas tengan la misma altura si su contenido varía */
 }
 
 .widgetResumeCard {
-  max-width: 267px; /* o el tamaño que prefieras */
+  max-width: 267px;
   width: 100%;
 }

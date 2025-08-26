@@ -10,6 +10,7 @@ import Header from "../Header/Header";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
+  getDateTimeAgo,
   getDateTimeStrMes,
   getDateTimeStrMesShort,
   getFormattedDate,
@@ -256,8 +257,9 @@ const Layout = ({ children }: any) => {
             title={openAlert?.item?.owner_name}
             subtitle={"Unidad: " + openAlert?.item?.unit}
             right={
-              <p style={{ width: 160, textAlign: "right" }}>
-                {getDateTimeStrMesShort(openAlert?.item?.created_at)}
+              // <p style={{ width: 160, textAlign: "right" }}>
+              <p style={{ width: 110, textAlign: "right" }}>
+                {getDateTimeAgo(openAlert?.item?.created_at)}
               </p>
             }
             left={

@@ -1,15 +1,33 @@
 .textContainer {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.textContainer > div:first-child {
+  font-weight: 500;
+  color: var(--cWhite);
+  margin-bottom: 4px;
+}
+
+.textContainer > div:last-child {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+}
+
+.extraFieldRow {
   display: flex;
-  flex-direction: column;
-  gap: 12;
-  /* align-items: center; */
-  margin-bottom: var(--spS);
-   & > div:nth-child(1){
-    color:var(--cWhite);
-    font-size: var(--sL);
-   }
-   & > div:nth-child(2){
-    color:var(--cWhiteV1);
-    font-size: var(--sM);
-   }
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.addFieldButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  margin-top: 10px;
+  color: var(--cAccent);
+  cursor: pointer;
+  width: fit-content;
 }

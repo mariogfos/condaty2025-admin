@@ -103,16 +103,29 @@ const Header = ({
   };
 
   const Round = ({ icon, href, onClick, bage }: any) => {
+    if (href)
+      return (
+        <div className={styles.notificationContainer}>
+          <Link onClick={onClick} href={href || "#"}>
+            <div className={styles.notificationIcon}>
+              {icon}
+              {bage > 0 && href == "/notifications" && (
+                <div className={styles.notificationBadge}>{bage || 0}</div>
+              )}
+            </div>
+          </Link>
+        </div>
+      );
     return (
       <div className={styles.notificationContainer}>
-        <Link onClick={onClick} href={href || "#"}>
+        <div onClick={onClick}>
           <div className={styles.notificationIcon}>
             {icon}
             {bage > 0 && href == "/notifications" && (
               <div className={styles.notificationBadge}>{bage || 0}</div>
             )}
           </div>
-        </Link>
+        </div>
       </div>
     );
   };

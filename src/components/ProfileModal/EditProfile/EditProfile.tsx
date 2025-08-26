@@ -81,42 +81,42 @@ const EditProfile = ({
     let errs: any = {};
     errs = checkRules({
       value: formState.name,
-      rules: ["required", "alpha"],
+      rules: ["required", "alpha", "noSpaces"],
       key: "name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.middle_name,
-      rules: ["alpha"],
+      rules: ["alpha", "noSpaces"],
       key: "middle_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.last_name,
-      rules: ["required", "alpha"],
+      rules: ["required", "alpha", "noSpaces"],
       key: "last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.mother_last_name,
-      rules: ["alpha"],
+      rules: ["alpha", "noSpaces"],
       key: "mother_last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.phone,
-      rules: ["required", "numeric", "min:8"],
+      rules: ["numeric", "min:8"],
       key: "phone",
       errors: errs,
     });
-    if (type !== "homeOwner" && type !== "owner") {
-      errs = checkRules({
-        value: formState.address,
-        rules: ["required", "min:5"],
-        key: "address",
-        errors: errs,
-      });
-    }
+    // if (type !== "homeOwner" && type !== "owner") {
+    //   errs = checkRules({
+    //     value: formState.address,
+    //     rules: ["alpha"],
+    //     key: "address",
+    //     errors: errs,
+    //   });
+    // }
     setErrors(errs);
     return errs;
   };
@@ -214,6 +214,7 @@ const EditProfile = ({
               value={formState.middle_name}
               required={false}
               onChange={onChange}
+              error={errors}
             />
             <Input
               label="Apellido paterno"
@@ -230,6 +231,7 @@ const EditProfile = ({
               value={formState.mother_last_name}
               required={false}
               onChange={onChange}
+              error={errors}
             />
             <Input
               label="Carnet de identidad"
@@ -243,7 +245,8 @@ const EditProfile = ({
             <Input
               label="Teléfono"
               name="phone"
-              type="text"
+              type="number"
+              required={false}
               value={formState.phone}
               onChange={onChange}
               error={errors}
@@ -253,6 +256,7 @@ const EditProfile = ({
             <Input
               label="Dirección"
               name="address"
+              required={false}
               type="text"
               value={formState.address}
               onChange={onChange}

@@ -119,9 +119,9 @@ const MainMenu = ({
                 bage: store?.paymentsBage,
               },
               { href: "/outlays", label: "Egresos" },
-            { href: "/expenses", label: "Expensas" },  
+              { href: "/budget", label: "Presupuestos" },
+              { href: "/expenses", label: "Expensas" },
               { href: "/defaulters", label: "Morosos" },
-              // { href: "/budget", label: "Presupuestos" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -145,8 +145,11 @@ const MainMenu = ({
             icon={<IconGroup />}
             items={[
               { href: "/owners", label: "Residentes" },
-              { href: "/homeowners", label: "Propietarios" },
-              { href: "/users", label: "Administradores" },
+              { href: "/users", label: "Personal Administrativo" },
+              { href: "/roles", label: "Roles y permisos" },
+              // { href: "/rolescategories", label: "Permisos" },
+              // { href: "/rolescategories", label: "Categorías de rol" },
+              //{ href: "/homeowners", label: "Propietarios" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}

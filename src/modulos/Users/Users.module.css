@@ -4,12 +4,18 @@
   flex-direction: column;
   gap: var(--spM);
   width: 100%;
-
+  .allStatsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spM);
+    width: 100%;
+    margin-bottom: var(--spL);
+  }
   .title {
-    font-size: var(--sXl);
-    font-weight: 600;
+    font-size: var(--sXxl);
+    font-weight: var(--bSemibold);
+    margin-bottom: var(--spL);
     color: var(--cWhite);
-    margin-bottom: 4px;
   }
   .subtitle {
     font-size: var(--sL);
@@ -44,7 +50,6 @@
         & > p:nth-child(odd) {
           flex: 1;
           color: var(--cWhiteV1);
-
         }
         & > p:nth-child(even) {
           flex: 1;
@@ -56,30 +61,28 @@
   }
 }
 .renderView {
- & > div {
-  /* background-color: blue;  */
+  & > div {
+    /* background-color: blue;  */
     display: flex;
     padding: 16px;
-    gap:var(--spL);
+    gap: var(--spL);
     align-items: center;
     @media (max-width: 750px) {
       flex-direction: column;
-    };
+    }
     & > div {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       gap: var(--spL);
-
     }
     & > section {
       padding: var(--spM);
       background-color: var(--cBlackV1);
       border-radius: 8px;
 
-      width:100%;
-
+      width: 100%;
 
       & > div {
         display: flex;
@@ -89,7 +92,6 @@
         & > p:nth-child(odd) {
           flex: 1;
           color: var(--cWhiteV1);
-
         }
         & > p:nth-child(even) {
           flex: 1;
@@ -99,7 +101,6 @@
       }
     }
   }
-
 }
 .fieldSet {
   width: 100%;
@@ -112,14 +113,13 @@
 
   gap: var(--spL);
   & > div {
-    gap:var(--spL)
+    gap: var(--spL);
   }
-  & > div:nth-child(1) > div:nth-child(1){
-    color:var(--cWhite);
+  & > div:nth-child(1) > div:nth-child(1) {
+    color: var(--cWhite);
     font-size: var(--sL);
     font-weight: var(--bBold);
     margin-bottom: var(--spL);
-
   }
 }
 /* Estilo base para la etiqueta del rol */
@@ -127,11 +127,11 @@
   display: inline-flex; /* Ajusta el tamaño al contenido */
   padding: 0.375rem 0.6rem; /* Espaciado interno vertical y horizontal */
   border-radius: 0.25rem; /* Bordes redondeados */
-  font-size: 13px;        /* Tamaño de fuente */
-  font-weight: 500;       /* Peso de fuente (semi-bold) */
-  text-align: center;    /* Ocultar texto que desborde */
+  font-size: 13px; /* Tamaño de fuente */
+  font-weight: 500; /* Peso de fuente (semi-bold) */
+  text-align: center; /* Ocultar texto que desborde */
   text-overflow: ellipsis; /* Mostrar '...' si el texto se corta */
-  white-space: nowrap;     /* Evitar que el texto se parta en varias líneas */
+  white-space: nowrap; /* Evitar que el texto se parta en varias líneas */
 }
 
 .roleBadge span {

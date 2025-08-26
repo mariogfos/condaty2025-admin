@@ -101,7 +101,7 @@ const RenderForm = ({ item, setItem, data, open, onClose }: PropsType) => {
   const paymentMethods = [
     { id: "T", name: "Transferencia" },
     { id: "O", name: "Pago en oficina" },
-    { id: "Q", name: "Qr" },
+    { id: "Q", name: "QR" },
     { id: "E", name: "Efectivo" },
     { id: "C", name: "Cheque" },
   ];

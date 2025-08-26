@@ -15,6 +15,7 @@ import styles from "./RenderView.module.css";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import Br from "@/components/Detail/Br";
 
 const status: any = {
   A: "Activa",
@@ -48,17 +49,6 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
   const prevIndex = () => {
     setIndexVisible((prevIndex) =>
       prevIndex === 0 ? item?.images?.length - 1 : prevIndex - 1
-    );
-  };
-  const Br = () => {
-    return (
-      <div
-        style={{
-          height: 0.5,
-          backgroundColor: "var(--cWhiteV1)",
-          margin: "16px 0px",
-        }}
-      />
     );
   };
   const sortedDays = () => {

@@ -19,11 +19,15 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import styles from './RenderForm.module.css';
 import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
 import { formatBs, formatNumber } from '@/mk/utils/numbers';
+import { getTitular } from '@/mk/utils/adapters';
 
 interface Dpto {
   id: string | number;
   nro: string;
   description: string;
+  holder?: 'H' | 'T';
+  homeowner?: any;
+  tenant?: any;
   titular?: {
     owner?: {
       id?: string | number;
@@ -197,6 +201,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const lDptos = useMemo(
     () =>
       extraData?.dptos.map((dpto: Dpto) => {
+        const titular = getTitular(dpto);
         return {
           id: dpto.nro,
           name:
@@ -206,7 +211,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
             ' - ' +
             dpto.description +
             ' - ' +
-            getFullName(dpto.titular?.owner ?? {}),
+            getFullName(titular ?? {}),
           dpto_id: dpto.id,
         };
       }),
@@ -505,7 +510,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const selectedDpto = extraData?.dptos.find(
       (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
     );
-    const owner_id = selectedDpto?.titular?.owner?.id;
+    const titular = getTitular(selectedDpto);
+    const owner_id = titular?.id;
 
     let params: any = {
       paid_at: formState.paid_at,

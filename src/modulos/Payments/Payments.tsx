@@ -132,9 +132,7 @@ const Payments = () => {
     extraData: true,
     renderForm: RenderForm,
 
-    renderView: (props: any) => (
-      <RenderView {...props} payment_id={props?.item?.id} />
-    ),
+    renderView: (props: any) => <RenderView {...props} />,
     renderDel: (props: any) => <RenderDel {...props} />,
     loadView: { fullType: "DET" },
     hideActions: {

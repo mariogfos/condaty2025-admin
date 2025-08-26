@@ -19,6 +19,7 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useRouter } from "next/navigation";
+import { getTitular } from "@/mk/utils/adapters";
 
 const Defaulters = () => {
   const router = useRouter();
@@ -26,15 +27,8 @@ const Defaulters = () => {
     const d: any[] = [];
 
     items.map((item) => {
-      const name =
-        item.titular?.owner?.name +
-        " " +
-        item.titular?.owner?.second_name +
-        " " +
-        item.titular?.owner?.last_name +
-        " " +
-        item.titular?.owner?.mother_last_name;
-      console.log("****search", search, item);
+      const titular = getTitular(item);
+      const name = getFullName(titular);
       if (
         item.dpto?.toLowerCase().includes(search.searchBy?.toLowerCase()) ||
         name.toLowerCase().includes(search.searchBy?.toLowerCase())
@@ -93,8 +87,8 @@ const Defaulters = () => {
         api: "ae",
         label: "Titular",
         list: {
-          onRender: (props: { item: { titular: { owner: any } } }) => {
-            const titular = props?.item?.titular?.owner;
+          onRender: (props: { item: any }) => {
+            const titular = getTitular(props.item);
             const titularId = titular?.id;
 
             return (
@@ -254,7 +248,7 @@ const Defaulters = () => {
     ]
   );
   const handleRowClick = (item: any) => {
-    router.push(`/dashDpto/${item.dpto_id}`);
+    router.push(`/units/${item.dpto_id}`);
   };
 
   const renderRightPanel = useCallback(() => {

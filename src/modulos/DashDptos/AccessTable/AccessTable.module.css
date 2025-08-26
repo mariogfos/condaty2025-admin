@@ -24,9 +24,6 @@
   justify-content: center;
 }
 
-.visitorAvatar {
-  /* Estilos específicos para el avatar del visitante si es necesario */
-}
 
 .entryExit {
   display: flex;
