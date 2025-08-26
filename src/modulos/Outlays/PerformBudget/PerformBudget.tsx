@@ -2,11 +2,12 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Table from "@/mk/components/ui/Table/Table";
 import useAxios from "@/mk/hooks/useAxios";
 import React, { useEffect, useState } from "react";
-import { formatNumber } from "../../../mk/utils/numbers";
+import { formatBs } from "../../../mk/utils/numbers";
 import Check from "@/mk/components/forms/Check/Check";
 import RenderForm from "./RenderForm/RenderForm";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { IconEdit } from "@/components/layout/icons/IconsBiblioteca";
+import { formatNumber } from '../../../mk/utils/numbers';
 
 interface Props {
   open: boolean;
@@ -141,10 +142,12 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "flex-end", // <- Agregar para alinear a la derecha
               gap: 4,
+              width: "100%", // <- Asegurar que ocupe todo el ancho
             }}
           >
-            <p>{"Bs " + formatNumber(item?.amount, 0)}</p>
+            <p style={{ textAlign: "right" }}>{formatBs(item?.amount || 0)}</p> {/* <- Alinear texto a la derecha */}
             {formState?.find((f: any) => f?.budget_id === item?.id) && (
               <IconEdit onClick={() => onEdit(item)} />
             )}
@@ -158,12 +161,14 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
       width: "150px",
       onRender: ({ item }: any) => {
         return (
-          <Check
-            name={"selected" + item?.id || ""}
-            value={item?.id}
-            onChange={() => handleToggle(item)}
-            checked={!!formState?.find((f: any) => f?.budget_id === item?.id)}
-          />
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Check
+              name={"selected" + item?.id || ""}
+              value={item?.id}
+              onChange={() => handleToggle(item)}
+              checked={!!formState?.find((f: any) => f?.budget_id === item?.id)}
+            />
+          </div>
         );
       },
     },

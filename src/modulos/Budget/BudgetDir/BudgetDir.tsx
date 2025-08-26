@@ -247,6 +247,11 @@ const BudgetDir = () => {
     }),
     []
   );
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Presupuestos' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { List, extraData, data, loaded, showToast, userCan } = useCrud({
     paramsInitial,
