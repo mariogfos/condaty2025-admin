@@ -43,45 +43,46 @@ interface StatusConfig {
 const renderStatusCell = (props: any) => {
   const statusConfig: Record<string, StatusConfig> = {
     D: {
-      label: 'Borrador',
-      color: 'var(--cInfo)',
-      bgColor: 'var(--cHoverCompl3)',
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
     },
     P: {
-      label: 'Pendiente por aprobar',
-      color: 'var(--cWarning)',
-      bgColor: 'var(--cHoverCompl4)',
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
     },
     A: {
-      label: 'Aprobado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     R: {
-      label: 'Rechazado',
-      color: 'var(--cError)',
-      bgColor: 'var(--cHoverError)',
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
     },
     C: {
-      label: 'Completado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     X: {
-      label: 'Cancelado',
-      color: 'var(--cWhite)',
-      bgColor: 'var(--cHoverCompl1)',
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
     },
   };
 
   const defaultConfig: StatusConfig = {
-    label: 'No disponible',
-    color: 'var(--cWhite)',
-    bgColor: 'var(--cHoverCompl1)',
+    label: "No disponible",
+    color: "var(--cWhite)",
+    bgColor: "var(--cHoverCompl1)",
   };
 
   const { label, color, bgColor } =
-    statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
+    statusConfig[props.item.status as keyof typeof statusConfig] ||
+    defaultConfig;
 
   return (
     <StatusBadge color={color} backgroundColor={bgColor}>
@@ -124,9 +125,9 @@ const Budget = () => {
 
   const handleHideActions = (item: any) => {
     if (item?.status === "X") {
-      return { hideEdit: false, hideDel: false };
+      return { hideEdit: false, hideDel: false, hideAdd: false };
     } else {
-      return { hideEdit: true, hideDel: true };
+      return { hideEdit: true, hideDel: true, hideAdd: false };
     }
   };
 
