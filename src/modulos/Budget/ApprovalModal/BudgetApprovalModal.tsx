@@ -42,7 +42,7 @@ const BudgetApprovalModal: React.FC<BudgetApprovalModalProps> = ({
       {/* Contenedor para los botones de acción personalizados */}
       <div className={styles.actionButtonsContainer}>
         <Button
-          onClick={onClose} // Botón Cancelar simplemente cierra el modal
+          onClick={onClose} // Botón Cancelar simplemente cierra el mod
           variant="secondary"
           disabled={isLoading}
           className={styles.cancelButton} // Clase opcional para estilos

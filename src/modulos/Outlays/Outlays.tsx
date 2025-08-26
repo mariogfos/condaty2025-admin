@@ -108,6 +108,13 @@ const Outlays = () => {
     { id: "X", name: "Anulado" },
   ];
 
+  // <- Agregar función para opciones de tipo
+  const getTypeOptions = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "E", name: "Egreso" },
+    { id: "P", name: "Presupuesto" },
+  ];
+
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: "e" },
@@ -124,6 +131,18 @@ const Outlays = () => {
         filter: {
           label: "Periodo",
           options: getPeriodOptions,
+        },
+      },
+      // <- Agregar campo de tipo después de date_at
+      expense_type: {
+        rules: [],
+        api: "e",
+        label: "Tipo",
+        list: false,
+        filter: {
+          label: "Tipo",
+          width: "150px",
+          options: getTypeOptions,
         },
       },
       user: {
