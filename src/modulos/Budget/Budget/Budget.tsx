@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud"; // Asegúrate que ModCrudType incluya onHideActions? : Function
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Budget.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
-// import { useAuth } from "@/mk/contexts/AuthProvider"; // No es necesario aquí si usas useCrud
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
@@ -15,26 +14,27 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
-  perPage: 20,
+  perPage: -1, // <- Cambiado de 20 a -1 para cargar todos los registros
   page: 1,
   fullType: "L",
   searchBy: "",
 };
 
-// --- Funciones de formato y opciones (sin cambios) ---
 const formatPeriod = (periodCode: string): string => {
   const map: Record<string, string> = {
     M: "Mensual",
     Q: "Trimestral",
     B: "Semestral",
     Y: "Anual",
-  }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
+  };
   return map[periodCode] || periodCode;
 };
+
 const formatType = (typeCode: string): string => {
   const map: Record<string, string> = { F: "Fijo", V: "Variable" };
   return map[typeCode] || "Fijo";
 };
+
 interface StatusConfig {
   label: string;
   color: string;
@@ -90,6 +90,7 @@ const renderStatusCell = (props: any) => {
     </StatusBadge>
   );
 };
+
 const getPeriodOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "M", name: "Mensual" },
@@ -97,11 +98,13 @@ const getPeriodOptions = (addDefault = false) => [
   { id: "Q", name: "Trimestral" },
   { id: "Y", name: "Anual" },
 ];
+
 const getTypeOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "F", name: "Fijo" },
   { id: "V", name: "Variable" },
 ];
+
 const getStatusOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "D", name: "Borrador" },
@@ -111,6 +114,7 @@ const getStatusOptions = (addDefault = false) => [
   { id: "C", name: "Completado" },
   { id: "X", name: "Cancelado" },
 ];
+
 const getCategoryOptionsForFilter = (extraData: any) => [
   { id: "ALL", name: "Todos" },
   ...(extraData?.categories || []).map((cat: any) => ({
@@ -139,15 +143,15 @@ const Budget = () => {
       permiso: "",
       extraData: true,
       filter: true,
-      export: true,  // <- Corregido: agregado espacio después de los dos puntos
+      export: true,
+      titleAdd: 'Nuevo',
       saveMsg: {
         add: "Presupuesto creado con éxito",
         edit: "Presupuesto actualizado con éxito",
         del: "Presupuesto eliminado con éxito",
       },
-      /* renderForm: (props: any) => <RenderForm {...props} />, */
+      renderForm: (props: any) => <RenderForm {...props} />,
       onHideActions: handleHideActions,
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     []
   );
@@ -165,8 +169,7 @@ const Budget = () => {
     []
   );
 
-  // En Budget.tsx
-
+  // Mantener los fields para la lista - ESTO ES IMPORTANTE
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
@@ -174,40 +177,28 @@ const Budget = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Nombre',
-        form: { type: 'text' },
-        list: {}, // Muestra el valor directo en la lista (Correcto)
+        list: {}, // Para mostrar en la lista
       },
       start_date: {
         rules: ['required'],
         api: 'ae',
         label: 'Fecha Inicio',
-        form: { type: 'date' },
-        // Mantenemos la definición específica para la lista
-        list: false,
-        /*  list: {
+        list: {
           onRender: (props: any) => getDateStrMes(props.item.start_date),
-        }, */
+        },
       },
       end_date: {
         rules: ['required'],
         api: 'ae',
         label: 'Fecha Fin',
-        form: { type: 'date' },
-        // Mantenemos la definición específica para la lista
-        list: false,
-        /*  list: { onRender: (props: any) => getDateStrMes(props.item.end_date) }, */
+        list: {
+          onRender: (props: any) => getDateStrMes(props.item.end_date),
+        },
       },
-
       category_id: {
         rules: ['required'],
         api: 'ae',
         label: 'Categoría',
-        form: {
-          type: 'select',
-          optionsExtra: 'categories',
-          placeholder: 'Seleccione categoría',
-        },
-        // Mantenemos la definición específica para la lista
         list: { onRender: (props: any) => props.item.category?.name || 'N/A' },
         filter: {
           label: 'Categoría',
@@ -219,8 +210,6 @@ const Budget = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Periodo',
-        form: { type: 'select', options: getPeriodOptions() },
-        // Mantenemos la definición específica para la lista
         list: { onRender: (props: any) => formatPeriod(props.item.period) },
         filter: {
           label: 'Periodo',
@@ -228,11 +217,10 @@ const Budget = () => {
           width: '150px',
         },
       },
-
       status: {
         rules: [],
-        api: "ae*",
-        label: "Estado",
+        api: 'ae*',
+        label: 'Estado',
         list: { onRender: renderStatusCell },
         filter: {
           label: 'Estado',
@@ -244,42 +232,26 @@ const Budget = () => {
         rules: ['required', 'number'],
         api: 'ae',
         label: 'Monto',
-        form: { type: 'number', placeholder: 'Ej: 5000.00' },
         list: {
           onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
         },
       },
-
       user_id: {
         api: 'e',
         label: 'Creado por',
-        // Mantenemos la definición específica para la lista
         list: false,
-        /* list: {
-          onRender: (props: any) => getFullName(props.item.user) || 'Sistema',
-        }, */
-        // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
         onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
-        // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
       },
       approved: {
         api: 'e',
         label: 'Aprobado por',
-        // Mantenemos la definición específica para la lista
         list: false,
-        /* list: {
-          onRender: (props: any) => getFullName(props.item.approved) || 'Pendiente',
-        }, */
-        // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
         onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
-        // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
       },
     }),
-    // Dependencias del useMemo - asegúrate que las funciones externas sean estables
-    // o inclúyelas aquí si cambian (ej: [getFullName, getDateStrMes, ...])
-    // Si son importaciones estables, [] está bien.
     []
   );
+
   const handleConfirmSendToApproval = async () => {
     setIsSending(true);
     try {
@@ -312,9 +284,10 @@ const Budget = () => {
       setIsSending(false);
     }
   };
+
   const sendToApprovalButton = (
     <Button
-      key="send-approval-btn" // Añadir key única si está en un array
+      key="send-approval-btn"
       onClick={() => setIsConfirmModalOpen(true)}
       variant="secondary"
       style={{ minWidth: "180px" }}
@@ -322,20 +295,17 @@ const Budget = () => {
       Enviar a Aprobación
     </Button>
   );
-  // --- Fin lógica para enviar a aprobación ---
 
   const { List, extraData, data, loaded, showToast, userCan, execute, reLoad } =
     useCrud({
       paramsInitial,
-      mod, // Pasamos el mod actualizado con la nueva onHideActions
-      fields,
+      mod,
+      fields, // ← CORREGIDO: Pasar los fields en lugar de objeto vacío
       getFilter: handleGetFilter,
-      extraButtons: [sendToApprovalButton], // Botones extras se mantienen
+      extraButtons: [sendToApprovalButton],
     });
 
-  // --- useEffect para mostrar errores (sin cambios) ---
   useEffect(() => {
-    // ... (código sin cambios)
     if (loaded && data) {
       if (
         data.success === true &&
@@ -354,15 +324,14 @@ const Budget = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- Renderizado del componente (sin cambios) ---
   return (
     <div className={styles.container}>
-      {/* Renderiza la lista que ahora usará onHideActions para los botones */}
       <List
         height={"calc(100vh - 360px)"}
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        paginationHide={true} // <- Agregar esta línea para ocultar la paginación
       />
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
