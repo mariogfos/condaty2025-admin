@@ -164,6 +164,8 @@ const UnitInfo = ({
                     onClick={e => {
                       e.stopPropagation();
                       changeTitular('H');
+                      setOpenOwnerMenu(false);
+                      setOpenTenantMenu(false);
                     }}
                   >
                     Propietario{currentHolder === 'H' ? ' (actual)' : ''}
@@ -197,6 +199,8 @@ const UnitInfo = ({
                 onClick={e => {
                   e.stopPropagation();
                   setOpenOwnerMenu(!openOwnerMenu);
+                  setOpenTenantMenu(false);
+                  setOpenTitularSelector(false);
                 }}
               >
                 <div className={styles.dot}></div>
@@ -298,6 +302,8 @@ const UnitInfo = ({
                 onClick={e => {
                   e.stopPropagation();
                   setOpenTenantMenu(!openTenantMenu);
+                  setOpenOwnerMenu(false);
+                  setOpenTitularSelector(false);
                 }}
               >
                 <div className={styles.dot}></div>
