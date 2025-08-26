@@ -232,12 +232,12 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
                 09:00 - {getDateStrMes(item?.start_date)}
               </span>
             </div>
-            <div className={styles.infoBlock}>
+            {/* <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Subcategoría</span>
               <span className={styles.infoValue}>
                 {item?.category?.name || "N/A"}
               </span>
-            </div>
+            </div> */}
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Período</span>
               <span className={styles.infoValue}>
