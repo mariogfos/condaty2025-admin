@@ -26,42 +26,44 @@ interface StatusConfig {
 const getStatusConfig = (status: string): StatusConfig => {
   const statusConfig: Record<string, StatusConfig> = {
     D: {
-      label: 'Borrador',
-      color: 'var(--cInfo)',
-      bgColor: 'var(--cHoverCompl3)',
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
     },
     P: {
-      label: 'Pendiente por aprobar',
-      color: 'var(--cWarning)',
-      bgColor: 'var(--cHoverCompl4)',
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
     },
     A: {
-      label: 'Aprobado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     R: {
-      label: 'Rechazado',
-      color: 'var(--cError)',
-      bgColor: 'var(--cHoverError)',
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
     },
     C: {
-      label: 'Completado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     X: {
-      label: 'Cancelado',
-      color: 'var(--cWhite)',
-      bgColor: 'var(--cHoverCompl1)',
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
     },
   };
 
-  return statusConfig[status] || {
-    label: 'No disponible',
-    color: 'var(--cWhite)',
-    bgColor: 'var(--cHoverCompl1)',
-  };
+  return (
+    statusConfig[status] || {
+      label: "No disponible",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
+    }
+  );
 };
 
 const RenderView = (props: any) => {
@@ -111,7 +113,7 @@ const RenderView = (props: any) => {
             name={getFullName(item?.user)}
           />
           <div className={styles.createdBy}>
-            Creado por: {getFullName(item?.user) || 'Sistema'}
+            Creado por: {getFullName(item?.user) || "Sistema"}
             <div className={styles.userRole}>Administrador principal</div>
           </div>
         </div>
@@ -127,37 +129,52 @@ const RenderView = (props: any) => {
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Monto presupuestado</span>
-              <span className={styles.infoValue}>Bs {formatNumber(item?.amount)}</span>
+              <span className={styles.infoValue}>
+                Bs {formatNumber(item?.amount)}
+              </span>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Fecha inicio</span>
-              <span className={styles.infoValue}>{getDateStrMes(item?.start_date) || "No disponible"}</span>
+              <span className={styles.infoValue}>
+                {getDateStrMes(item?.start_date) || "No disponible"}
+              </span>
             </div>
             <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}>Categoría</span>
-              <span className={styles.infoValue}>{item?.category?.name || "No disponible"}</span>
+              <span className={styles.infoLabel}>Subcategoría</span>
+              <span className={styles.infoValue}>
+                {item?.category?.name || "No disponible"}
+              </span>
             </div>
           </div>
 
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
-              <StatusBadge color={statusConfig.color} backgroundColor={statusConfig.bgColor}>
+              <StatusBadge
+                color={statusConfig.color}
+                backgroundColor={statusConfig.bgColor}
+              >
                 {statusConfig.label}
               </StatusBadge>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Período</span>
-              <span className={styles.infoValue}>{formatPeriod(item?.period)}</span>
+              <span className={styles.infoValue}>
+                {formatPeriod(item?.period)}
+              </span>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Fecha fin</span>
-              <span className={styles.infoValue}>{getDateStrMes(item?.end_date) || "No disponible"}</span>
+              <span className={styles.infoValue}>
+                {getDateStrMes(item?.end_date) || "No disponible"}
+              </span>
             </div>
             {item?.approved && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Aprobado por</span>
-                <span className={styles.infoValue}>{getFullName(item?.approved)}</span>
+                <span className={styles.infoValue}>
+                  {getFullName(item?.approved)}
+                </span>
               </div>
             )}
           </div>
