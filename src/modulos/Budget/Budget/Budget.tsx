@@ -11,6 +11,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
@@ -33,17 +34,60 @@ const formatType = (typeCode: string): string => {
   const map: Record<string, string> = { F: "Fijo", V: "Variable" };
   return map[typeCode] || "Fijo";
 };
-const formatStatus = (statusCode: string): string => {
-  // Mapa de estados: D=Borrador, P=Pendiente, A=Aprobado, R=Rechazado, C=Completado, X=Cancelado
-  const map: Record<string, string> = {
-    D: "Borrador",
-    P: "Pendiente Aprobación",
-    A: "Aprobado",
-    R: "Rechazado",
-    C: "Completado",
-    X: "Cancelado",
+interface StatusConfig {
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
+const renderStatusCell = (props: any) => {
+  const statusConfig: Record<string, StatusConfig> = {
+    D: {
+      label: 'Borrador',
+      color: 'var(--cInfo)',
+      bgColor: 'var(--cHoverCompl3)',
+    },
+    P: {
+      label: 'Pendiente por aprobar',
+      color: 'var(--cWarning)',
+      bgColor: 'var(--cHoverCompl4)',
+    },
+    A: {
+      label: 'Aprobado',
+      color: 'var(--cSuccess)',
+      bgColor: 'var(--cHoverCompl2)',
+    },
+    R: {
+      label: 'Rechazado',
+      color: 'var(--cError)',
+      bgColor: 'var(--cHoverError)',
+    },
+    C: {
+      label: 'Completado',
+      color: 'var(--cSuccess)',
+      bgColor: 'var(--cHoverCompl2)',
+    },
+    X: {
+      label: 'Cancelado',
+      color: 'var(--cWhite)',
+      bgColor: 'var(--cHoverCompl1)',
+    },
   };
-  return map[statusCode] || statusCode;
+
+  const defaultConfig: StatusConfig = {
+    label: 'No disponible',
+    color: 'var(--cWhite)',
+    bgColor: 'var(--cHoverCompl1)',
+  };
+
+  const { label, color, bgColor } =
+    statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
+
+  return (
+    <StatusBadge color={color} backgroundColor={bgColor}>
+      {label}
+    </StatusBadge>
+  );
 };
 const getPeriodOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
@@ -60,7 +104,7 @@ const getTypeOptions = (addDefault = false) => [
 const getStatusOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
   { id: "D", name: "Borrador" },
-  { id: "P", name: "Pendiente Aprobación" },
+  { id: "P", name: "Pendiente por aprobar" },
   { id: "A", name: "Aprobado" },
   { id: "R", name: "Rechazado" },
   { id: "C", name: "Completado" },
@@ -176,21 +220,7 @@ const Budget = () => {
         rules: [],
         api: "ae*",
         label: "Estado",
-        // Mantenemos la definición específica para la lista
-        list: {
-          onRender: (props: any) => {
-            const statusText = formatStatus(props.item.status);
-            return (
-              <div
-                className={`${styles.statusBadge} ${
-                  styles[`status${props.item.status}`] || ""
-                }`}
-              >
-                {statusText}
-              </div>
-            );
-          },
-        },
+        list: { onRender: renderStatusCell },
         filter: {
           label: "Estado",
           options: () => getStatusOptions(true),
