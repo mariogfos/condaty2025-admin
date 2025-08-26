@@ -9,12 +9,13 @@ import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
+import RenderView from "./RenderView/RenderView"; // <- Agregar import
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
-  perPage: -1, // <- Cambiado de 20 a -1 para cargar todos los registros
+  perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -123,10 +124,12 @@ const Budget = () => {
   const [isSending, setIsSending] = useState(false);
 
   const handleHideActions = (item: any) => {
-    if (item?.status === "X") {
+    if (item?.status === "D") {
+      // Borrador: mostrar tanto editar como eliminar
       return { hideEdit: false, hideDel: false };
     } else {
-      return { hideEdit: true, hideDel: true };
+      // Todos los demás estados: solo eliminar
+      return { hideEdit: true, hideDel: false };
     }
   };
 
@@ -146,6 +149,7 @@ const Budget = () => {
         del: "Presupuesto eliminado con éxito",
       },
       renderForm: (props: any) => <RenderForm {...props} />,
+      renderView: (props: any) => <RenderView {...props} />, // <- Agregar renderView
       onHideActions: handleHideActions,
     }),
     []
@@ -280,13 +284,24 @@ const Budget = () => {
     }
   };
 
+  const sendToApprovalButton = (
+    <Button
+      key="send-approval-btn"
+      onClick={() => setIsConfirmModalOpen(true)}
+      variant="secondary"
+      style={{ minWidth: "180px" }}
+    >
+      Enviar a Aprobación
+    </Button>
+  );
+
   const { List, extraData, data, loaded, showToast, userCan, execute, reLoad } =
     useCrud({
       paramsInitial,
       mod,
       fields,
       getFilter: handleGetFilter,
-      extraButtons: [], // <- Quitar el sendToApprovalButton de aquí
+      extraButtons: [sendToApprovalButton], // <- Mover el botón de vuelta aquí
     });
 
   useEffect(() => {
@@ -311,23 +326,14 @@ const Budget = () => {
   return (
     <div className={styles.container}>
       <List
-        //height={"calc(100vh - 360px)"}
+        height={"calc(100vh - 360px)"}
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
-        paginationHide={true}
+
       />
 
-      {/* Botón movido debajo de la lista */}
-      <div style={{ marginTop: 'var(--spM)', display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          onClick={() => setIsConfirmModalOpen(true)}
-          variant="secondary"
-          style={{ width: "186px" }}
-        >
-          Enviar a Aprobación
-        </Button>
-      </div>
+      {/* Eliminar el botón de aquí */}
 
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}

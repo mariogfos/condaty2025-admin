@@ -13,9 +13,12 @@ interface Props {
   onClose: () => void;
   reLoad: any;
 }
+
 const PerformBudget = ({ open, onClose, reLoad }: Props) => {
   const [formState, setFormState]: any = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [errorModal, setErrorModal] = useState(false); // <- Agregar estado para modal de errores
+  const [failedRecords, setFailedRecords] = useState([]); // <- Estado para registros fallidos
   const { showToast } = useAuth();
   const [item, setItem]: any = useState(null);
   const [approvedBudgets, setApprovedBudgets]: any = useState([]);
@@ -51,28 +54,53 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
 
   const onSave = async () => {
     const { data } = await execute("/execute-budget", "POST", formState);
-    if (data?.data?.failed_count == 0 && data?.data?.success_count > 0) {
+
+    // Debug: Ver toda la respuesta
+    console.log('🔍 Respuesta completa del API:', data);
+
+    // Acceder correctamente a los datos anidados
+    const responseData = data?.data;
+
+    // Debug: Ver los datos específicos
+    console.log('📊 Response Data:', responseData);
+    console.log('✅ Success Count:', responseData?.success_count);
+    console.log('❌ Failed Count:', responseData?.failed_count);
+    console.log('📋 Failed Records:', responseData?.failed_records);
+
+    if (responseData?.failed_count == 0 && responseData?.success_count > 0) {
+      console.log('✅ Caso: Solo éxitos');
       onClose();
       showToast(
-        `Se completaron ${data?.data?.success_count} registros con éxito`,
+        `Se completaron ${responseData?.success_count} registros con éxito`,
         "success",
         10000
       );
       reLoad();
-    } else if (data?.data?.failed_count > 0 && data?.data?.success_count == 0) {
+    } else if (responseData?.failed_count > 0 && responseData?.success_count == 0) {
+      console.log('❌ Caso: Solo errores');
+      console.log('🔧 Setting failed records:', responseData?.failed_records);
+
+      // Solo errores - mostrar modal con detalles
+      setFailedRecords(responseData?.failed_records || []);
+      setErrorModal(true);
       showToast(
-        `Hay ${data?.data?.failed_count} registros con errores`,
+        `Hay ${responseData?.failed_count} registros con errores. Revisa los detalles.`,
         "error",
         10000
       );
     } else if (
-      data?.data?.failed_count >= 0 &&
-      data?.data?.success_count >= 0
+      responseData?.failed_count >= 0 &&
+      responseData?.success_count >= 0
     ) {
-      onClose();
+      console.log('⚠️ Caso: Éxitos y errores mixtos');
+      console.log('🔧 Setting failed records:', responseData?.failed_records);
+
+      // Éxitos y errores - mostrar modal con detalles de errores
+      setFailedRecords(responseData?.failed_records || []);
+      setErrorModal(true);
       showToast(
-        `Se completaron ${data?.data?.success_count} registros con éxito y ${data?.data?.failed_count} registros con errores`,
-        "error",
+        `Se completaron ${responseData?.success_count} registros con éxito y ${responseData?.failed_count} registros con errores`,
+        "warning",
         10000
       );
       reLoad();
@@ -87,6 +115,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
     }
     setOpenModal(true);
   };
+
   const onEdit = (item: any) => {
     setItem({ ...item, action: "edit" });
     setOpenModal(true);
@@ -126,7 +155,7 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
     {
       key: "selected",
       label: "Seleccionar",
-      width: "100px",
+      width: "150px",
       onRender: ({ item }: any) => {
         return (
           <Check
@@ -153,12 +182,26 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
       },
     },
   ];
+
   const calculateTotalPagado = () => {
     return formState.reduce(
       (acc: number, curr: any) => acc + (Number(curr?.amount) || 0),
       0
     );
   };
+
+  // Header para la tabla de errores
+  const errorHeader = [
+    {
+      key: "item",
+      label: "Presupuesto",
+    },
+    {
+      key: "error",
+      label: "Error",
+      style: { color: "var(--cError)" },
+    },
+  ];
 
   return (
     <>
@@ -184,6 +227,43 @@ const PerformBudget = ({ open, onClose, reLoad }: Props) => {
           <p>Por pagar: {formatNumber(calculateTotalPagado(), 0)}</p>
         </div>
       </DataModal>
+
+      {/* Modal para mostrar errores detallados */}
+      {errorModal && (
+        <DataModal
+          title="Errores en la ejecución del presupuesto"
+          open={errorModal}
+          buttonText=""
+          buttonCancel=""
+          onClose={() => {
+            console.log('🚪 Cerrando modal de errores');
+            setErrorModal(false);
+          }}
+        >
+          <div style={{ marginBottom: "16px", color: "var(--cError)" }}>
+            <p>Los siguientes presupuestos no pudieron ser ejecutados:</p>
+            {/* Debug info */}
+
+          </div>
+          <Table
+            data={failedRecords}
+            header={[
+              {
+                key: "item",
+                label: "Presupuesto",
+                responsive: "all"
+              },
+              {
+                key: "error",
+                label: "Error",
+                responsive: "all",
+                style: { color: "var(--cError)" }
+              }
+            ]}
+          />
+        </DataModal>
+      )}
+
       {openModal && (
         <RenderForm
           item={formState}
