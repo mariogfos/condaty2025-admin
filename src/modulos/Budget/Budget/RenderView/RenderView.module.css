@@ -1,0 +1,115 @@
+.container {
+  background-color: var(--cBlackV2);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spXl);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV1);
+  min-width: 600px;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spM); /* <- Cambiar de spXs a spM para más espacio */
+  text-align: center;
+}
+
+.createdBy {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  line-height: 1.1;
+}
+
+.userRole {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.5;
+  font-weight: var(--bRegular);
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.detailsSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spXl, 48px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  text-align: left;
+  max-width: 280px;
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  font-weight: var(--bRegular);
+  font-family: Roboto, sans-serif;
+  text-align: left;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-align: left;
+  font-family: Roboto, sans-serif;
+}
+
+.renderView {
+  /* Estilos específicos para el modal si es necesario */
+}
+
+/* Responsive */
+@media (max-width: var(--responsive-tablet)) {
+  .container {
+    padding: var(--spL);
+    gap: var(--spM);
+  }
+
+  .detailsSection {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spL);
+  }
+
+  .detailsColumn {
+    width: 100%;
+    align-items: center;
+  }
+
+  .infoBlock {
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
+  }
+}
