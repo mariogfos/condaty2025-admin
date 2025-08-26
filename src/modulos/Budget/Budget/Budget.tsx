@@ -127,10 +127,10 @@ const Budget = () => {
   const handleHideActions = (item: any) => {
     if (item?.status === "D") {
       // Borrador: mostrar tanto editar como eliminar
-      return { hideEdit: false, hideDel: false };
+      return { hideEdit: false, hideDel: false, hideAdd: false };
     } else {
       // Todos los demás estados: solo eliminar
-      return { hideEdit: true, hideDel: false };
+      return { hideEdit: true, hideDel: false, hideAdd: false };
     }
   };
 
