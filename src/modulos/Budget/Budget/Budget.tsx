@@ -30,11 +30,6 @@ const formatPeriod = (periodCode: string): string => {
   return map[periodCode] || periodCode;
 };
 
-const formatType = (typeCode: string): string => {
-  const map: Record<string, string> = { F: "Fijo", V: "Variable" };
-  return map[typeCode] || "Fijo";
-};
-
 interface StatusConfig {
   label: string;
   color: string;
@@ -285,24 +280,13 @@ const Budget = () => {
     }
   };
 
-  const sendToApprovalButton = (
-    <Button
-      key="send-approval-btn"
-      onClick={() => setIsConfirmModalOpen(true)}
-      variant="secondary"
-      style={{ minWidth: "180px" }}
-    >
-      Enviar a Aprobación
-    </Button>
-  );
-
   const { List, extraData, data, loaded, showToast, userCan, execute, reLoad } =
     useCrud({
       paramsInitial,
       mod,
-      fields, // ← CORREGIDO: Pasar los fields en lugar de objeto vacío
+      fields,
       getFilter: handleGetFilter,
-      extraButtons: [sendToApprovalButton],
+      extraButtons: [], // <- Quitar el sendToApprovalButton de aquí
     });
 
   useEffect(() => {
@@ -327,12 +311,24 @@ const Budget = () => {
   return (
     <div className={styles.container}>
       <List
-        height={"calc(100vh - 360px)"}
+        //height={"calc(100vh - 360px)"}
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
-        paginationHide={true} // <- Agregar esta línea para ocultar la paginación
+        paginationHide={true}
       />
+
+      {/* Botón movido debajo de la lista */}
+      <div style={{ marginTop: 'var(--spM)', display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          onClick={() => setIsConfirmModalOpen(true)}
+          variant="secondary"
+          style={{ width: "186px" }}
+        >
+          Enviar a Aprobación
+        </Button>
+      </div>
+
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
