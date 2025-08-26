@@ -198,10 +198,10 @@ const Budget = () => {
       category_id: {
         rules: ["required"],
         api: "ae",
-        label: "Categoría",
+        label: "SubCategoría",
         list: { onRender: (props: any) => props.item.category?.name || "N/A" },
         filter: {
-          label: "Categoría",
+          label: "SubCategoría",
           options: getCategoryOptionsForFilter,
           width: "200px",
         },

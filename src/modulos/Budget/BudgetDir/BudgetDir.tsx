@@ -42,45 +42,46 @@ interface StatusConfig {
 const renderStatusCell = (props: any) => {
   const statusConfig: Record<string, StatusConfig> = {
     D: {
-      label: 'Borrador',
-      color: 'var(--cInfo)',
-      bgColor: 'var(--cHoverCompl3)',
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
     },
     P: {
-      label: 'Pendiente por aprobar',
-      color: 'var(--cWarning)',
-      bgColor: 'var(--cHoverCompl4)',
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
     },
     A: {
-      label: 'Aprobado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     R: {
-      label: 'Rechazado',
-      color: 'var(--cError)',
-      bgColor: 'var(--cHoverError)',
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
     },
     C: {
-      label: 'Completado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     X: {
-      label: 'Cancelado',
-      color: 'var(--cWhite)',
-      bgColor: 'var(--cHoverCompl1)',
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
     },
   };
 
   const defaultConfig: StatusConfig = {
-    label: 'No disponible',
-    color: 'var(--cWhite)',
-    bgColor: 'var(--cHoverCompl1)',
+    label: "No disponible",
+    color: "var(--cWhite)",
+    bgColor: "var(--cHoverCompl1)",
   };
 
   const { label, color, bgColor } =
-    statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
+    statusConfig[props.item.status as keyof typeof statusConfig] ||
+    defaultConfig;
 
   return (
     <StatusBadge color={color} backgroundColor={bgColor}>
@@ -204,7 +205,7 @@ const BudgetDir = () => {
         label: "Estado",
         list: {
           onRender: renderStatusCell, // Usar la nueva lógica de estados
-          order: 4 // Cuarta columna
+          order: 4, // Cuarta columna
         },
         filter: {
           label: "Estado",
@@ -215,15 +216,15 @@ const BudgetDir = () => {
       category_id: {
         rules: ["required"],
         api: "ae",
-        label: "Categoría",
+        label: "Subcategoría",
         form: {
           type: "select",
           optionsExtra: "categories",
-          placeholder: "Seleccione categoría",
+          placeholder: "Seleccione Subcategoría",
         },
         list: {
           onRender: (props: any) => props.item.category?.name || "N/A",
-          order: 2 // Segunda columna
+          order: 2, // Segunda columna
         },
         /* filter: {
           label: "Categoría",
@@ -236,7 +237,7 @@ const BudgetDir = () => {
         label: "Creado por",
         list: {
           onRender: (props: any) => getFullName(props.item.user) || "Sistema",
-          order: 3 // Tercera columna
+          order: 3, // Tercera columna
         },
       },
       approved: {
@@ -249,7 +250,7 @@ const BudgetDir = () => {
   );
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Presupuestos' });
+    setStore({ ...store, title: "Presupuestos" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -275,7 +276,7 @@ const BudgetDir = () => {
 
   return (
     <div className={styles.container}>
-      <List height={'calc(100vh - 360px)'} />
+      <List height={"calc(100vh - 360px)"} />
     </div>
   );
 };
