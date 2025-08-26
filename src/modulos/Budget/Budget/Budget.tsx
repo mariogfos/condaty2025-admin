@@ -11,6 +11,7 @@ import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
 import RenderForm from "./RenderForm/RenderForm";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const paramsInitial = {
   perPage: 20,
@@ -46,19 +47,19 @@ const formatStatus = (statusCode: string): string => {
   return map[statusCode] || statusCode;
 };
 const getPeriodOptions = (addDefault = false) => [
-  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "M", name: "Mensual" },
   { id: "B", name: "Semestral" },
   { id: "Q", name: "Trimestral" },
   { id: "Y", name: "Anual" },
 ];
 const getTypeOptions = (addDefault = false) => [
-  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "F", name: "Fijo" },
   { id: "V", name: "Variable" },
 ];
 const getStatusOptions = (addDefault = false) => [
-  ...(addDefault ? [{ id: "T", name: "Todos" }] : []),
+  ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "D", name: "Borrador" },
   { id: "P", name: "Pendiente Aprobación" },
   { id: "A", name: "Aprobado" },
@@ -67,7 +68,7 @@ const getStatusOptions = (addDefault = false) => [
   { id: "X", name: "Cancelado" },
 ];
 const getCategoryOptionsForFilter = (extraData: any) => [
-  { id: "T", name: "Todos" },
+  { id: "ALL", name: "Todos" },
   ...(extraData?.categories || []).map((cat: any) => ({
     id: cat.id,
     name: cat.name,
@@ -94,13 +95,14 @@ const Budget = () => {
       permiso: "",
       extraData: true,
       filter: true,
+      export: true,  // <- Corregido: agregado espacio después de los dos puntos
       saveMsg: {
         add: "Presupuesto creado con éxito",
         edit: "Presupuesto actualizado con éxito",
         del: "Presupuesto eliminado con éxito",
       },
       /* renderForm: (props: any) => <RenderForm {...props} />, */
-      onHideActions: handleHideActions, // <-- Se usa la función actualizada
+      onHideActions: handleHideActions,
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     []
@@ -123,68 +125,77 @@ const Budget = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Nombre",
-        form: { type: "text" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Nombre',
+        form: { type: 'text' },
         list: {}, // Muestra el valor directo en la lista (Correcto)
       },
       start_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha Inicio",
-        form: { type: "date" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Fecha Inicio',
+        form: { type: 'date' },
         // Mantenemos la definición específica para la lista
-        list: {
+        list: false,
+        /*  list: {
           onRender: (props: any) => getDateStrMes(props.item.start_date),
-        },
+        }, */
       },
       end_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha Fin",
-        form: { type: "date" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Fecha Fin',
+        form: { type: 'date' },
         // Mantenemos la definición específica para la lista
-        list: { onRender: (props: any) => getDateStrMes(props.item.end_date) },
+        list: false,
+        /*  list: { onRender: (props: any) => getDateStrMes(props.item.end_date) }, */
       },
-      amount: {
-        rules: ["required", "number"],
-        api: "ae",
-        label: "Monto",
-        form: { type: "number", placeholder: "Ej: 5000.00" },
+
+      category_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Categoría',
+        form: {
+          type: 'select',
+          optionsExtra: 'categories',
+          placeholder: 'Seleccione categoría',
+        },
         // Mantenemos la definición específica para la lista
-        list: {
-          onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
+        list: { onRender: (props: any) => props.item.category?.name || 'N/A' },
+        filter: {
+          label: 'Categoría',
+          options: getCategoryOptionsForFilter,
+          width: '200px',
         },
       },
       period: {
-        rules: ["required"],
-        api: "ae",
-        label: "Periodo",
-        form: { type: "select", options: getPeriodOptions() },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Periodo',
+        form: { type: 'select', options: getPeriodOptions() },
         // Mantenemos la definición específica para la lista
         list: { onRender: (props: any) => formatPeriod(props.item.period) },
         filter: {
-          label: "Periodo",
+          label: 'Periodo',
           options: () => getPeriodOptions(true),
-          width: "150px",
+          width: '150px',
         },
       },
+
       status: {
         rules: [],
-        api: "ae*",
-        label: "Estado",
+        api: 'ae*',
+        label: 'Estado',
         // Mantenemos la definición específica para la lista
         list: {
           onRender: (props: any) => {
             const statusText = formatStatus(props.item.status);
             return (
               <div
-                className={`${styles.statusBadge} ${
-                  styles[`status${props.item.status}`] || ""
-                }`}
+                className={`${styles.statusBadge} ${styles[`status${props.item.status}`] || ''}`}
               >
                 {statusText}
               </div>
@@ -192,50 +203,43 @@ const Budget = () => {
           },
         },
         filter: {
-          label: "Estado",
+          label: 'Estado',
           options: () => getStatusOptions(true),
-          width: "150px",
+          width: '150px',
         },
       },
-      category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione categoría",
-        },
-        // Mantenemos la definición específica para la lista
-        list: { onRender: (props: any) => props.item.category?.name || "N/A" },
-        filter: {
-          label: "Categoría",
-          options: getCategoryOptionsForFilter,
-          width: "200px",
-        },
-      },
-      user_id: {
-        api: "e",
-        label: "Creado por",
-        // Mantenemos la definición específica para la lista
+      amount: {
+        rules: ['required', 'number'],
+        api: 'ae',
+        label: 'Monto',
+        form: { type: 'number', placeholder: 'Ej: 5000.00' },
         list: {
-          onRender: (props: any) => getFullName(props.item.user) || "Sistema",
+          onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
         },
+      },
+
+      user_id: {
+        api: 'e',
+        label: 'Creado por',
+        // Mantenemos la definición específica para la lista
+        list: false,
+        /* list: {
+          onRender: (props: any) => getFullName(props.item.user) || 'Sistema',
+        }, */
         // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
-        onRender: (props: any) => getFullName(props.item?.user) || "Sistema",
+        onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
         // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
       },
       approved: {
-        api: "e",
-        label: "Aprobado por",
+        api: 'e',
+        label: 'Aprobado por',
         // Mantenemos la definición específica para la lista
-        list: {
-          onRender: (props: any) =>
-            getFullName(props.item.approved) || "Pendiente",
-        },
+        list: false,
+        /* list: {
+          onRender: (props: any) => getFullName(props.item.approved) || 'Pendiente',
+        }, */
         // --- 👇 AÑADE SOLO ESTA LÍNEA para la vista de detalle 👇 ---
-        onRender: (props: any) =>
-          getFullName(props.item?.approved) || "Pendiente",
+        onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
         // --- 👆 FIN LÍNEA AÑADIDA 👆 ---
       },
     }),
@@ -311,6 +315,12 @@ const Budget = () => {
       }
     }
   }, [data, loaded, showToast]);
+
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Presupuestos' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- Renderizado del componente (sin cambios) ---
   return (
