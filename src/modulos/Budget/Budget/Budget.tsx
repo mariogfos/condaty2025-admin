@@ -13,6 +13,7 @@ import RenderView from "./RenderView/RenderView"; // <- Agregar import
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 
 const paramsInitial = {
   perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
@@ -29,6 +30,13 @@ const formatPeriod = (periodCode: string): string => {
     Y: "Anual",
   };
   return map[periodCode] || periodCode;
+};
+const amountCell = ({ item }: { item: any }) => {
+  return item?.amount || item?.penalty_amount ? (
+    <FormatBsAlign value={item.amount} alignRight={true} />
+  ) : (
+    '-/-'
+  );
 };
 
 interface StatusConfig {
@@ -172,82 +180,83 @@ const Budget = () => {
   // Mantener los fields para la lista - ESTO ES IMPORTANTE
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       name: {
-        rules: ["required"],
-        api: "ae",
-        label: "Nombre",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Nombre',
         list: {}, // Para mostrar en la lista
       },
       start_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha Inicio",
-        list: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Fecha Inicio',
+        /* list: {
           onRender: (props: any) => getDateStrMes(props.item.start_date),
-        },
+        }, */
       },
       end_date: {
-        rules: ["required"],
-        api: "ae",
-        label: "Fecha Fin",
-        list: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Fecha Fin',
+        /* list: {
           onRender: (props: any) => getDateStrMes(props.item.end_date),
-        },
+        }, */
       },
       category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "SubCategoría",
-        list: { onRender: (props: any) => props.item.category?.name || "N/A" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'SubCategoría',
+        list: { onRender: (props: any) => props.item.category?.name || 'N/A' },
         filter: {
-          label: "SubCategoría",
+          label: 'SubCategoría',
           options: getCategoryOptionsForFilter,
-          width: "200px",
+          width: '200px',
         },
       },
       period: {
-        rules: ["required"],
-        api: "ae",
-        label: "Periodo",
+        rules: ['required'],
+        api: 'ae',
+        label: 'Periodo',
         list: { onRender: (props: any) => formatPeriod(props.item.period) },
         filter: {
-          label: "Periodo",
+          label: 'Periodo',
           options: () => getPeriodOptions(true),
-          width: "150px",
+          width: '150px',
         },
       },
       status: {
         rules: [],
-        api: "ae*",
-        label: "Estado",
+        api: 'ae*',
+        label: 'Estado',
+        style: { textAlign: 'center', justifyContent: 'center' },
         list: { onRender: renderStatusCell },
         filter: {
-          label: "Estado",
+          label: 'Estado',
           options: () => getStatusOptions(true),
-          width: "150px",
+          width: '150px',
         },
       },
       amount: {
-        rules: ["required", "number"],
-        api: "ae",
-        label: "Monto",
+        rules: ['required', 'number'],
+        api: 'ae',
+        label: 'Monto',
+        style: { textAlign: 'right', justifyContent: 'flex-end' },
         list: {
-          onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
+          onRender: amountCell,
         },
       },
       user_id: {
-        api: "e",
-        label: "Creado por",
+        api: 'e',
+        label: 'Creado por',
         list: false,
-        onRender: (props: any) => getFullName(props.item?.user) || "Sistema",
+        onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
       },
       approved: {
-        api: "e",
-        label: "Aprobado por",
+        api: 'e',
+        label: 'Aprobado por',
         list: false,
-        onRender: (props: any) =>
-          getFullName(props.item?.approved) || "Pendiente",
+        onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
       },
     }),
     []
