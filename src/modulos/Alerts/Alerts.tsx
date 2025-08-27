@@ -20,10 +20,11 @@ const paramsInitial = {
 };
 
 const lLevels = [
-  { id: "T", name: "Todos" },
-  { id: 4, name: "Nivel pánico" },
-  { id: 3, name: "Nivel alto" },
-  { id: 2, name: "Nivel medio" },
+  { id: 'T', name: 'Todos' },
+  { id: 4, name: 'Nivel pánico' },
+  { id: 3, name: 'Nivel alto' },
+  { id: 2, name: 'Nivel medio' },
+  { id: 1, name: 'Nivel bajo' },
 ];
 export const getAlertLevelText = (level: any) => {
   switch (level) {
@@ -62,25 +63,25 @@ const Alerts = () => {
     switch (level) {
       case 4: // Panic (treated as High)
       case 3: // High
-        return { 
+        return {
           label: level === 4 ? 'Nivel pánico' : 'Nivel alto',
           backgroundColor: 'var(--cHoverError)',
           color: 'var(--cError)'
         };
       case 2: // Medium
-        return { 
+        return {
           label: 'Nivel medio',
           backgroundColor: 'var(--cHoverWarning)',
           color: 'var(--cWarning)'
         };
       case 1: // Low
-        return { 
+        return {
           label: 'Nivel bajo',
           backgroundColor: 'var(--cHoverSuccess)',
           color: 'var(--cSuccess)'
         };
       default:
-        return { 
+        return {
           label: 'Nivel desconocido',
           backgroundColor: 'var(--cHoverLight)',
           color: 'var(--cLightDark)'
@@ -155,7 +156,7 @@ const Alerts = () => {
   const renderAlertLevel = ({ item }: { item: any }) => {
     const alertLevel = item?.level || 2;
     const { backgroundColor, color, label } = getAlertLevelInfo(alertLevel);
-    
+
     return (
       <StatusBadge backgroundColor={backgroundColor} color={color}>
         {label}
