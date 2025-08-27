@@ -336,6 +336,7 @@ const Budget = () => {
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={1700}
       />
 
       {/* Eliminar el botón de aquí */}
