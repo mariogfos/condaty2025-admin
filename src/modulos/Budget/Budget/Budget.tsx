@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Budget.module.css";
-import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
@@ -16,7 +13,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 
 const paramsInitial = {
-  perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
+  perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -104,12 +101,6 @@ const getPeriodOptions = (addDefault = false) => [
   { id: "Y", name: "Anual" },
 ];
 
-const getTypeOptions = (addDefault = false) => [
-  ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
-  { id: "F", name: "Fijo" },
-  { id: "V", name: "Variable" },
-];
-
 const getStatusOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "D", name: "Borrador" },
@@ -134,10 +125,8 @@ const Budget = () => {
 
   const handleHideActions = (item: any) => {
     if (item?.status === "D") {
-      // Borrador: mostrar tanto editar como eliminar
       return { hideEdit: false, hideDel: false, hideAdd: false };
     } else {
-      // Todos los demás estados: solo eliminar
       return { hideEdit: true, hideDel: false, hideAdd: false };
     }
   };
@@ -158,7 +147,7 @@ const Budget = () => {
         del: "Presupuesto eliminado con éxito",
       },
       renderForm: (props: any) => <RenderForm {...props} />,
-      renderView: (props: any) => <RenderView {...props} />, // <- Agregar renderView
+      renderView: (props: any) => <RenderView {...props} />,
       onHideActions: handleHideActions,
     }),
     []
@@ -177,7 +166,6 @@ const Budget = () => {
     []
   );
 
-  // Mantener los fields para la lista - ESTO ES IMPORTANTE
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
@@ -185,23 +173,18 @@ const Budget = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Nombre',
-        list: {}, // Para mostrar en la lista
+        list: {},
       },
       start_date: {
         rules: ['required'],
         api: 'ae',
         label: 'Fecha Inicio',
-        /* list: {
-          onRender: (props: any) => getDateStrMes(props.item.start_date),
-        }, */
+
       },
       end_date: {
         rules: ['required'],
         api: 'ae',
         label: 'Fecha Fin',
-        /* list: {
-          onRender: (props: any) => getDateStrMes(props.item.end_date),
-        }, */
       },
       category_id: {
         rules: ['required'],
@@ -312,7 +295,7 @@ const Budget = () => {
       mod,
       fields,
       getFilter: handleGetFilter,
-      extraButtons: [sendToApprovalButton], // <- Mover el botón de vuelta aquí
+      extraButtons: [sendToApprovalButton],
     });
 
   useEffect(() => {
@@ -342,9 +325,6 @@ const Budget = () => {
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
       />
-
-      {/* Eliminar el botón de aquí */}
-
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

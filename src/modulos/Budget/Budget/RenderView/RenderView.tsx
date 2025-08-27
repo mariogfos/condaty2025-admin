@@ -4,7 +4,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar"; // <- Agregar import
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import styles from "./RenderView.module.css";
 
 const formatPeriod = (periodCode: string): string => {
@@ -100,7 +100,6 @@ const RenderView = (props: any) => {
       className={styles.renderView}
     >
       <div className={styles.container}>
-        {/* Header Section - Centrado con Avatar */}
         <div className={styles.headerSection}>
           <Avatar
             hasImage={item?.user?.has_image}
@@ -109,7 +108,6 @@ const RenderView = (props: any) => {
             )}
             h={120}
             w={120}
-            // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente
             name={getFullName(item?.user)}
           />
           <div className={styles.createdBy}>
@@ -117,10 +115,7 @@ const RenderView = (props: any) => {
             <div className={styles.userRole}>Administrador principal</div>
           </div>
         </div>
-
         <hr className={styles.sectionDivider} />
-
-        {/* Details Section - Dos columnas como en BudgetDir */}
         <section className={styles.detailsSection}>
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
