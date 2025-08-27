@@ -67,6 +67,8 @@
   & > a {
     text-decoration: none;
     color: var(--cWhiteV1);
+    font-weight: var(--bMedium);
+    font-size: var(--sL);
     display: flex;
     align-items: center;
     gap: var(--spS);
@@ -94,6 +96,8 @@
 .menuDropdown {
   position: relative;
   color: var(--cWhiteV1);
+  font-weight: var(--bMedium);
+  font-size: var(--sM);
   cursor: pointer;
   border-radius: var(--bRadiusS);
   padding: 0px;
@@ -195,6 +199,8 @@
       text-decoration: none;
       color: var(--cWhiteV1);
       padding: var(--spS) var(--spM);
+      font-weight: var(--bRegular);
+      font-size: var(--sM);
       border-radius: var(--bRadiusS);
     }
 
