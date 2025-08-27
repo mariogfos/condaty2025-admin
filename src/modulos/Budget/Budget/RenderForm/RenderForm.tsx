@@ -1,152 +1,209 @@
-// BudgetApprovalView.tsx
-import React, { useState, useEffect } from 'react';
+'use client';
+import React, { useState, useEffect, useCallback } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Button from '@/mk/components/forms/Button/Button';
-import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
-import TextArea from '@/mk/components/forms/TextArea/TextArea'; // Asegúrate de tener este componente
-import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName } from "@/mk/utils/string";
-import styles from "./RenderForm.module.css"; // O los estilos apropiados
+import Input from '@/mk/components/forms/Input/Input';
+import Select from '@/mk/components/forms/Select/Select';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import { checkRulesFields, hasErrors } from '@/mk/utils/validate/Rules';
+import styles from './RenderForm.module.css';
 
-// Funciones de formato
-const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { M: "Mensual", Q: "Trimestral", B: "Bimestral", Y: "Anual" }; // M: monthly | Q: quaterly | B: biannual | Y: yearly
-    return map[periodCode] || periodCode;
-};
-const formatStatus = (statusCode: string): string => {
-    const map: Record<string, string> = { D: "Borrador", P: "Pendiente Aprobación", A: "Aprobado", R: "Rechazado", C: "Completado", X: "Cancelado" };
-    return map[statusCode] || statusCode;
-};
+interface RenderFormProps {
+  open: boolean;
+  onClose: () => void;
+  item?: any;
+  onSave?: () => void;
+  extraData: any;
+  execute: (...args: any[]) => Promise<any>;
+  errors: any;
+  setErrors: (errors: any) => void;
+  reLoad: () => void;
+  action: string;
+}
 
+const getPeriodOptions = () => [
+  { id: "M", name: "Mensual" },
+  { id: "B", name: "Semestral" },
+  { id: "Q", name: "Trimestral" },
+  { id: "Y", name: "Anual" },
+];
 
-type BudgetApprovalViewProps = {
-    open: boolean;
-    onClose: () => void;
-    item: any;
-    execute: (url: string, method: string, payload: any, noWaiting?: boolean, noGenericError?: boolean) => Promise<{ data?: any, error?: any }>;
-    reLoad: () => void;
-    showToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
-    extraData?: any;
-};
-
-const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
-    open,
-    onClose,
-    item,
-    execute,
-    reLoad,
-    showToast,
-    extraData
+const RenderForm: React.FC<RenderFormProps> = ({
+  open,
+  onClose,
+  item,
+  extraData,
+  execute,
+  errors,
+  setErrors,
+  reLoad,
+  action,
 }) => {
-    const [isApproving, setIsApproving] = useState(false);
-    const [isRejecting, setIsRejecting] = useState(false);
-    const [comment, setComment] = useState("");
+  const [formState, setFormState] = useState({
+    name: '',
+    start_date: '',
+    end_date: '',
+    amount: '',
+    period: '',
+    category_id: '',
+    ...item,
+  });
 
-    useEffect(() => {
-        if (open) {
-            setComment("");
-        }
-    }, [open, item]);
+  const { showToast } = useAuth();
 
-    // --- Función handleAction (Usa POST y Query Params) ---
-    const handleAction = async (newStatus: 'A' | 'R') => {
-        const isLoadingSetter = newStatus === 'A' ? setIsApproving : setIsRejecting;
-        const actionText = newStatus === 'A' ? 'aprobado' : 'rechazado';
+  useEffect(() => {
+    if (item) {
+      setFormState({
+        name: item.name || '',
+        start_date: item.start_date ? item.start_date.split(' ')[0] : '',
+        end_date: item.end_date ? item.end_date.split(' ')[0] : '',
+        amount: item.amount || '',
+        period: item.period || '',
+        category_id: item.category_id || '',
+        ...item,
+      });
+    }
+  }, [item]);
 
-        isLoadingSetter(true);
-        try {
-            const method = 'POST'; // Método es POST
-            const budgetId = item?.id;
-            if (!budgetId) {
-                throw new Error("ID del presupuesto no encontrado.");
-            }
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormState((prev: typeof formState) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }, []);
 
-            // Construye Query Params
-            const params = new URLSearchParams({
-                status: newStatus,
-                id: budgetId.toString(),
-                comment: comment || ""
-            });
-            // AJUSTA "/change-budget-status" a tu endpoint real
-            const url = `/change-budget-status?${params.toString()}`;
-            const payload = {}; // Payload vacío
-
-            console.log("Enviando (Approve/Reject):", { url, method, payload });
-
-            const { data: response, error } = await execute(url, method, payload, false, true);
-
-            if (response?.success) {
-                showToast(`Presupuesto ${actionText} correctamente.`, 'success');
-                reLoad();
-                onClose();
-            } else {
-                throw new Error(response?.message || error?.message || `Error al ${actionText} el presupuesto.`);
-            }
-
-        } catch (err: any) {
-            showToast(err.message || `Ocurrió un error al ${actionText}.`, 'error');
-            console.error(`Error on budget ${actionText}:`, err);
-        } finally {
-            isLoadingSetter(false);
-        }
+  const validateForm = useCallback(() => {
+    const fields = {
+      name: { rules: ['required'] },
+      start_date: { rules: ['required'] },
+      end_date: { rules: ['required'] },
+      amount: { rules: ['required', 'number'] },
+      period: { rules: ['required'] },
+      category_id: { rules: ['required'] },
     };
-    // --- Fin handleAction ---
 
-    const handleApprove = () => handleAction('A');
-    const handleReject = () => handleAction('R');
+    const validationErrors = checkRulesFields(fields, formState, action as 'add' | 'edit', execute);
+    setErrors(validationErrors);
+    return !hasErrors(validationErrors);
+  }, [formState, action, execute, setErrors]);
 
-    const handleCloseModal = () => {
-        if (!isApproving && !isRejecting) {
-            onClose();
-        }
+  const handleSave = useCallback(async () => {
+    if (!validateForm()) {
+      showToast('Por favor revise los campos marcados', 'warning');
+      return;
     }
 
-    return (
-        <DataModal
-            open={open}
-            onClose={handleCloseModal}
-            title="Aprobar / Rechazar Presupuesto"
-            buttonText=""
-            buttonCancel=""
-            
-        >
-            {/* Detalles del Presupuesto */}
-            <div className={styles.viewDetailsContainer}>
-                 <KeyValue title="ID" value={item?.id} />
-                 <KeyValue title="Nombre" value={item?.name} />
-                 <KeyValue title="Categoría" value={item?.category?.name || 'N/A'} />
-                 <KeyValue title="Monto" value={`Bs ${formatNumber(item?.amount)}`} />
-                 <KeyValue title="Periodo" value={formatPeriod(item?.period)} />
-                 <KeyValue title="Fecha Inicio" value={getDateStrMes(item?.start_date)} />
-                 <KeyValue title="Fecha Fin" value={getDateStrMes(item?.end_date)} />
-                 <KeyValue title="Estado Actual" value={
-                     <div className={`${styles.statusBadge} ${styles[`status${item?.status}`] || ''}`}>
-                         {formatStatus(item?.status)}
-                     </div>
-                 } />
-                 <KeyValue title="Creado por" value={getFullName(item?.user) || 'Sistema'} />
-            </div>
+    const url = "/budgets" + (formState.id ? "/" + formState.id : "");
+    const method = formState.id ? "PUT" : "POST";
 
-            {/* Campo de Comentario */}
-            <div style={{ marginTop: '15px', marginBottom: '15px' }}>
-                <TextArea
-                    label="Comentario"
-                    name="comment"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Ingrese un comentario..."
-                 
-                />
-            </div>
+    try {
+      const { data: response, error } = await execute(url, method, formState);
 
-            {/* Footer con Botones de Acción */}
-            <div className={styles.viewActionsFooter}>
-                <Button onClick={handleReject} variant="cancel" disabled={isApproving || isRejecting}> Rechazar </Button>
-                <Button onClick={handleApprove} variant="primary" disabled={isApproving || isRejecting}> Aprobar </Button>
+      if (response?.success) {
+        showToast(
+          action === 'add'
+            ? 'Presupuesto creado con éxito'
+            : 'Presupuesto actualizado con éxito',
+          'success'
+        );
+        reLoad();
+        onClose();
+      } else {
+        showToast(response?.message || 'Error al guardar el presupuesto', 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      showToast('Error al guardar el presupuesto', 'error');
+    }
+  }, [formState, validateForm, execute, action, showToast, reLoad, onClose]);
+
+  return (
+    <DataModal
+      open={open}
+      onClose={onClose}
+      title={`${action === 'add' ? 'Nuevo' : 'Editar'} Presupuesto`}
+      buttonText={action === 'add' ? 'Guardar' : 'Actualizar'}
+      onSave={handleSave}
+    >
+      <div className={styles.container}>
+        <div className={styles.field}>
+          <Input
+            type="text"
+            name="name"
+            value={formState.name}
+            onChange={handleChange}
+            label="Nombre"
+            error={errors}
+            required
+          />
+        </div>
+
+        <div className={styles.dateRow}>
+          <div className={styles.dateField}>
+            <Input
+              type="date"
+              name="start_date"
+              value={formState.start_date}
+              onChange={handleChange}
+              label="Fecha Inicio"
+              error={errors}
+              required
+            />
+          </div>
+          <div className={styles.dateField}>
+            <Input
+              type="date"
+              name="end_date"
+              value={formState.end_date}
+              onChange={handleChange}
+              label="Fecha Fin"
+              error={errors}
+              required
+            />
+          </div>
+        </div>
+        <div className={styles.dateRow}>
+          <div className={styles.field}>
+            <Select
+              name="period"
+              value={formState.period}
+              onChange={handleChange}
+              label="Periodo"
+              options={getPeriodOptions()}
+              error={errors}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <Select
+              name="category_id"
+              value={formState.category_id}
+              onChange={handleChange}
+              label="Categoría"
+              options={extraData?.categories || []}
+              placeholder="Seleccione categoría"
+              error={errors}
+              required
+            />
             </div>
-        </DataModal>
-    );
+          </div>
+
+        <div className={styles.field}>
+          <Input
+            type="number"
+            name="amount"
+            value={formState.amount}
+            onChange={handleChange}
+            label="Monto"
+            placeholder="Ej: 5000.00"
+            error={errors}
+            required
+          />
+        </div>
+      </div>
+    </DataModal>
+  );
 };
 
-export default BudgetApprovalView;
+export default RenderForm;
