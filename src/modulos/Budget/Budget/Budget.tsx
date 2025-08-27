@@ -198,10 +198,10 @@ const Budget = () => {
       category_id: {
         rules: ["required"],
         api: "ae",
-        label: "SubCategoría",
+        label: "Subcategoría",
         list: { onRender: (props: any) => props.item.category?.name || "N/A" },
         filter: {
-          label: "SubCategoría",
+          label: "Subcategoría",
           options: getCategoryOptionsForFilter,
           width: "200px",
         },
@@ -220,7 +220,11 @@ const Budget = () => {
       status: {
         rules: [],
         api: "ae*",
-        label: "Estado",
+        label: (
+          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+            Estado
+          </span>
+        ),
         list: { onRender: renderStatusCell },
         filter: {
           label: "Estado",

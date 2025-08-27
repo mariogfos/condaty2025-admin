@@ -150,12 +150,9 @@ const RenderView = (props: any) => {
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
-              <StatusBadge
-                color={statusConfig.color}
-                backgroundColor={statusConfig.bgColor}
-              >
+              <div style={{color: statusConfig.color}}>
                 {statusConfig.label}
-              </StatusBadge>
+              </div>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Período</span>
