@@ -9,6 +9,7 @@ import { getFullName } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import BudgetApprovalView from "./RenderView/BudgetDirApprovalModal";
+import { span } from "motion/react-client";
 
 const paramsInitial = {
   perPage: 20,
@@ -202,7 +203,11 @@ const BudgetDir = () => {
       status: {
         rules: [],
         api: "ae*",
-        label: "Estado",
+        label: (
+          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+            Estado
+          </span>
+        ),
         list: {
           onRender: renderStatusCell, // Usar la nueva lógica de estados
           order: 4, // Cuarta columna
@@ -276,7 +281,7 @@ const BudgetDir = () => {
 
   return (
     <div className={styles.container}>
-      <List height={"calc(100vh - 360px)"} />
+      <List height={"calc(100vh - 360px)"} filterBreakPoint={1700} />
     </div>
   );
 };

@@ -187,12 +187,12 @@ const Budget = () => {
         label: 'Fecha Fin',
       },
       category_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'SubCategoría',
-        list: { onRender: (props: any) => props.item.category?.name || 'N/A' },
+        rules: ["required"],
+        api: "ae",
+        label: "Subcategoría",
+        list: { onRender: (props: any) => props.item.category?.name || "N/A" },
         filter: {
-          label: 'SubCategoría',
+          label: "Subcategoría",
           options: getCategoryOptionsForFilter,
           width: '200px',
         },
@@ -210,9 +210,12 @@ const Budget = () => {
       },
       status: {
         rules: [],
-        api: 'ae*',
-        label: 'Estado',
-        style: { textAlign: 'center', justifyContent: 'center' },
+        api: "ae*",
+        label: (
+          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+            Estado
+          </span>
+        ),
         list: { onRender: renderStatusCell },
         filter: {
           label: 'Estado',
@@ -324,6 +327,7 @@ const Budget = () => {
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={1700}
       />
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
