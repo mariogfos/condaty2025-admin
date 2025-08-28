@@ -538,7 +538,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
               lineHeight: '1.5',
               padding: '0 10px'
             }}>
-              Se quitará a este {pendingTransferType === "H" ? "propietario" : "residente"} {getFullName(selectedOwnerForTransfer)} de la unidad {selectedOwnerForTransfer.dpto} y será transferido a la unidad actual.
+              Se quitará a este {pendingTransferType === "H" ? "propietario" : "residente"} {getFullName(selectedOwnerForTransfer)} de la unidad {selectedOwnerForTransfer.dpto?.[0]?.nro || selectedOwnerForTransfer.dpto?.[0]?.description || 'N/A'} y será transferido a la unidad actual.
             </p>
           </DataModal>
         )}
