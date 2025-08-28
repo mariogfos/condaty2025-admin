@@ -20,7 +20,7 @@ const paramsInitial = {
 };
 
 const lLevels = [
-  { id: 'T', name: 'Todos' },
+  { id: 'ALL', name: 'Todos' },
   { id: 4, name: 'Nivel pánico' },
   { id: 3, name: 'Nivel alto' },
   { id: 2, name: 'Nivel medio' },
