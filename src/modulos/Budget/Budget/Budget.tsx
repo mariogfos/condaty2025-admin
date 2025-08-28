@@ -40,45 +40,46 @@ interface StatusConfig {
 const renderStatusCell = (props: any) => {
   const statusConfig: Record<string, StatusConfig> = {
     D: {
-      label: 'Borrador',
-      color: 'var(--cInfo)',
-      bgColor: 'var(--cHoverCompl3)',
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
     },
     P: {
-      label: 'Pendiente por aprobar',
-      color: 'var(--cWarning)',
-      bgColor: 'var(--cHoverCompl4)',
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
     },
     A: {
-      label: 'Aprobado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     R: {
-      label: 'Rechazado',
-      color: 'var(--cError)',
-      bgColor: 'var(--cHoverError)',
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
     },
     C: {
-      label: 'Completado',
-      color: 'var(--cSuccess)',
-      bgColor: 'var(--cHoverCompl2)',
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
     },
     X: {
-      label: 'Cancelado',
-      color: 'var(--cWhite)',
-      bgColor: 'var(--cHoverCompl1)',
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
     },
   };
 
   const defaultConfig: StatusConfig = {
-    label: 'No disponible',
-    color: 'var(--cWhite)',
-    bgColor: 'var(--cHoverCompl1)',
+    label: "No disponible",
+    color: "var(--cWhite)",
+    bgColor: "var(--cHoverCompl1)",
   };
 
   const { label, color, bgColor } =
-    statusConfig[props.item.status as keyof typeof statusConfig] || defaultConfig;
+    statusConfig[props.item.status as keyof typeof statusConfig] ||
+    defaultConfig;
 
   return (
     <StatusBadge color={color} backgroundColor={bgColor}>
@@ -126,10 +127,10 @@ const Budget = () => {
   const handleHideActions = (item: any) => {
     if (item?.status === "D") {
       // Borrador: mostrar tanto editar como eliminar
-      return { hideEdit: false, hideDel: false };
+      return { hideEdit: false, hideDel: false, hideAdd: false };
     } else {
       // Todos los demás estados: solo eliminar
-      return { hideEdit: true, hideDel: false };
+      return { hideEdit: true, hideDel: false, hideAdd: false };
     }
   };
 
@@ -142,7 +143,7 @@ const Budget = () => {
       extraData: true,
       filter: true,
       export: true,
-      titleAdd: 'Nuevo',
+      titleAdd: "Nuevo",
       saveMsg: {
         add: "Presupuesto creado con éxito",
         edit: "Presupuesto actualizado con éxito",
@@ -171,81 +172,82 @@ const Budget = () => {
   // Mantener los fields para la lista - ESTO ES IMPORTANTE
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       name: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Nombre',
+        rules: ["required"],
+        api: "ae",
+        label: "Nombre",
         list: {}, // Para mostrar en la lista
       },
       start_date: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha Inicio',
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Inicio",
         list: {
           onRender: (props: any) => getDateStrMes(props.item.start_date),
         },
       },
       end_date: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha Fin',
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Fin",
         list: {
           onRender: (props: any) => getDateStrMes(props.item.end_date),
         },
       },
       category_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Categoría',
-        list: { onRender: (props: any) => props.item.category?.name || 'N/A' },
+        rules: ["required"],
+        api: "ae",
+        label: "SubCategoría",
+        list: { onRender: (props: any) => props.item.category?.name || "N/A" },
         filter: {
-          label: 'Categoría',
+          label: "SubCategoría",
           options: getCategoryOptionsForFilter,
-          width: '200px',
+          width: "200px",
         },
       },
       period: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Periodo',
+        rules: ["required"],
+        api: "ae",
+        label: "Periodo",
         list: { onRender: (props: any) => formatPeriod(props.item.period) },
         filter: {
-          label: 'Periodo',
+          label: "Periodo",
           options: () => getPeriodOptions(true),
-          width: '150px',
+          width: "150px",
         },
       },
       status: {
         rules: [],
-        api: 'ae*',
-        label: 'Estado',
+        api: "ae*",
+        label: "Estado",
         list: { onRender: renderStatusCell },
         filter: {
-          label: 'Estado',
+          label: "Estado",
           options: () => getStatusOptions(true),
-          width: '150px',
+          width: "150px",
         },
       },
       amount: {
-        rules: ['required', 'number'],
-        api: 'ae',
-        label: 'Monto',
+        rules: ["required", "number"],
+        api: "ae",
+        label: "Monto",
         list: {
           onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
         },
       },
       user_id: {
-        api: 'e',
-        label: 'Creado por',
+        api: "e",
+        label: "Creado por",
         list: false,
-        onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
+        onRender: (props: any) => getFullName(props.item?.user) || "Sistema",
       },
       approved: {
-        api: 'e',
-        label: 'Aprobado por',
+        api: "e",
+        label: "Aprobado por",
         list: false,
-        onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
+        onRender: (props: any) =>
+          getFullName(props.item?.approved) || "Pendiente",
       },
     }),
     []
@@ -319,7 +321,7 @@ const Budget = () => {
 
   const { setStore, store } = useAuth();
   useEffect(() => {
-    setStore({ ...store, title: 'Presupuestos' });
+    setStore({ ...store, title: "Presupuestos" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -330,7 +332,6 @@ const Budget = () => {
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
-
       />
 
       {/* Eliminar el botón de aquí */}
