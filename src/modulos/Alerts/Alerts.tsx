@@ -170,49 +170,56 @@ const Alerts = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
-      guard_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Informador",
-        list: {
-          onRender: renderGuardInfo,
-        },
-        form: { type: "text" },
-      },
-      descrip: {
-        rules: ["required"],
-        api: "ae",
-        label: "Descripción",
-        list: true,
-        form: { type: "text" },
-      },
+      id: { rules: [], api: 'e' },
       created_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha y hora de creación",
+        rules: [''],
+        api: '',
+        label: 'Fecha de creación',
         list: {
-          width: "314px",
+          width: '314px',
           onRender: formatCreatedAt,
         },
       },
+      guard_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Informador',
+        list: {
+          width: '405px',
+          onRender: renderGuardInfo,
+        },
+        form: { type: 'text' },
+      },
 
       level: {
-        rules: ["required"],
-        api: "ae",
-        label: <span style={{display: "block", textAlign: "center", width: "100%"}}>Nivel de alerta</span>,
+        rules: ['required'],
+        api: 'ae',
+        label: (
+          <span style={{ display: 'block',  width: '100%' }}>
+            Nivel de alerta
+          </span>
+        ),
         list: {
-          width: "194px",
+
           onRender: renderAlertLevel,
         },
-        form: { type: "select", options: lLevels },
+        form: { type: 'select', options: lLevels },
         filter: {
-          label: "Nivel de alerta",
-          width: "200px",
+          label: 'Nivel de alerta',
+          width: '200px',
           options: () => [...lLevels],
-          optionLabel: "name",
-          optionValue: "id",
+          optionLabel: 'name',
+          optionValue: 'id',
         },
+      },
+      descrip: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Descripción',
+        list: {
+          width: '800px',
+        },
+        form: { type: 'text' },
       },
     }),
     []
