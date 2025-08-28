@@ -408,7 +408,7 @@ const Outlays = () => {
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
-        filterBreakPoint={1435}
+        filterBreakPoint={1700}
       />
 
       {/* Modal para ejecutar presupuesto omentado para cuando se implmente la funcionalidad*/}
