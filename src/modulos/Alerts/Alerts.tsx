@@ -271,7 +271,7 @@ const Alerts = () => {
             }
             className={styles.widgetResumeCard}
           />
-          {/* <WidgetDashCard
+          <WidgetDashCard
             title="Alertas Nivel Bajo"
             data={String(data?.extraData?.low_level || 0)}
             icon={
@@ -295,7 +295,7 @@ const Alerts = () => {
             }
             className={styles.widgetResumeCard}
             style={{ maxWidth: "300px", width: "100%" }}
-          /> */}
+          />
           <WidgetDashCard
             title="Alertas Nivel Medio"
             data={String(data?.extraData?.medium_level || 0)}
