@@ -32,7 +32,6 @@ const ReservationsTabs = () => {
 
       <div
         className={styles.tabContent || "tab-content"}
-        style={{ marginTop: "20px" }}
       >
         {activeTab === "ALL" && <Budget />}
         {activeTab === "DIR" && <BudgetDir />}

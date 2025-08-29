@@ -1,6 +1,6 @@
 .fieldSet {
   width: 100%;
-  padding: var(--spM);
+
   display: flex;
   flex-direction: column;
 
@@ -32,6 +32,7 @@
   text-align: inherit;
   align-items: center;
   gap: var(--spM);
+  margin-bottom: 24px;
   &:hover {
     opacity: 0.8;
     & p {
@@ -46,6 +47,7 @@
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
   align-items: flex-start;
 }

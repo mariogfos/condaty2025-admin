@@ -121,7 +121,6 @@
 
 .modalContent {
   width: 100%;
-  padding: 1rem;
 }
 
 .titleContainer {
@@ -735,4 +734,10 @@
 .menuItem:hover {
   background-color: var(--cFillSidebar);
   color: var(--cWhite);
+}
+.text-center-del{
+  margin-top: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+  
 }

@@ -271,7 +271,7 @@ const Dptos = () => {
               const person = holder === 'T' ? tenant : homeowner;
 
               if (!person || !tenant) {
-                return <div className={styles.noTitular}>Sin titular</div>;
+                return <div className={styles.noTitular}>Sin residente</div>;
               }
 
               const personId = person?.id;

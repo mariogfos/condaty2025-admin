@@ -1,162 +1,327 @@
-import React, { useState } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
-import Button from '@/mk/components/forms/Button/Button';
-import KeyValue from '@/mk/components/ui/KeyValue/KeyValue';
+import React, { useState } from "react";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Button from "@/mk/components/forms/Button/Button";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getDateStrMes } from "@/mk/utils/date";
-import { getFullName } from "@/mk/utils/string";
-import styles from "./BudgetDirApprovalModal.module.css"; // Ajusta el nombre si es diferente
-import TextArea from '@/mk/components/forms/TextArea/TextArea';
+import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import styles from "./BudgetDirApprovalModal.module.css";
+import TextArea from "@/mk/components/forms/TextArea/TextArea";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar"; // <- Agregar import
 
 const formatPeriod = (periodCode: string): string => {
-    const map: Record<string, string> = { D: "Diario", W: "Semanal", F: "Quincenal", M: "Mensual", B: "Bimestral", Q: "Trimestral", S: "Semestral", Y: "Anual" };
-    return map[periodCode] || periodCode;
+  const map: Record<string, string> = {
+    M: "Mensual",
+    Q: "Trimestral",
+    B: "Semestral",
+    Y: "Anual",
+  };
+  return map[periodCode] || periodCode;
 };
-const formatStatus = (statusCode: string): string => {
-    const map: Record<string, string> = { D: "Borrador", P: "Pendiente Aprobación", A: "Aprobado", R: "Rechazado", C: "Completado", X: "Cancelado" };
-    return map[statusCode] || statusCode;
+
+interface StatusConfig {
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
+const getStatusConfig = (status: string): StatusConfig => {
+  const statusConfig: Record<string, StatusConfig> = {
+    D: {
+      label: "Borrador",
+      color: "var(--cInfo)",
+      bgColor: "var(--cHoverCompl3)",
+    },
+    P: {
+      label: "Pendiente por aprobar",
+      color: "var(--cWarning)",
+      bgColor: "var(--cHoverCompl4)",
+    },
+    A: {
+      label: "Aprobado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
+    },
+    R: {
+      label: "Rechazado",
+      color: "var(--cError)",
+      bgColor: "var(--cHoverError)",
+    },
+    C: {
+      label: "Completado",
+      color: "var(--cSuccess)",
+      bgColor: "var(--cHoverCompl2)",
+    },
+    X: {
+      label: "Cancelado",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
+    },
+  };
+
+  return (
+    statusConfig[status] || {
+      label: "No disponible",
+      color: "var(--cWhite)",
+      bgColor: "var(--cHoverCompl1)",
+    }
+  );
 };
 
 type BudgetApprovalViewProps = {
-    open: boolean;
-    onClose: () => void;
-    item: any;
-    execute: (url: string, method: string, payload: any, noWaiting?: boolean, noGenericError?: boolean) => Promise<{ data?: any, error?: any }>;
-    reLoad: () => void;
-    showToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
-    extraData?: any;
+  open: boolean;
+  onClose: () => void;
+  item: any;
+  execute: (
+    url: string,
+    method: string,
+    payload: any,
+    noWaiting?: boolean,
+    noGenericError?: boolean
+  ) => Promise<{ data?: any; error?: any }>;
+  reLoad: () => void;
+  showToast: (
+    message: string,
+    type: "success" | "error" | "warning" | "info"
+  ) => void;
+  extraData?: any;
 };
 
 const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
-    open,
-    onClose,
-    item,
-    execute,
-    reLoad,
-    showToast,
-    extraData
+  open,
+  onClose,
+  item,
+  execute,
+  reLoad,
+  showToast,
+  extraData,
 }) => {
-    const [isApproving, setIsApproving] = useState(false);
-    const [isRejecting, setIsRejecting] = useState(false);
-    const [comment, setComment] = useState("");
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState(""); // <- Agregar estado para error
 
-// Dentro del componente BudgetApprovalView
+  const handleAction = async (newStatus: "A" | "R") => {
+    const isLoadingSetter = newStatus === "A" ? setIsApproving : setIsRejecting;
+    const actionText = newStatus === "A" ? "aprobado" : "rechazado";
 
-    const handleAction = async (newStatus: 'A' | 'R') => {
-        const isLoadingSetter = newStatus === 'A' ? setIsApproving : setIsRejecting;
-        // Mantenemos el texto descriptivo de la acción
-        const actionText = newStatus === 'A' ? 'aprobado' : 'rechazado';
+    // <- Validación del comentario
+    if (newStatus === "R" && (!comment || comment.trim() === "")) {
+      setCommentError(
+        "El comentario es obligatorio para rechazar un presupuesto"
+      );
+      showToast("El comentario es obligatorio para rechazar", "warning");
+      return;
+    }
 
-        const budgetId = item?.id;
-        if (!budgetId) {
-            showToast("Error: No se encontró el ID del presupuesto.", "error");
-            return;
-        }
+    // Limpiar error si la validación pasa
+    setCommentError("");
 
-        isLoadingSetter(true);
-        try {
-            const payload = {
-                status: newStatus,
-                id: budgetId,
-                comment: comment || ""
-            };
-            const url = '/change-budget'; // Ajusta si es necesario
+    const budgetId = item?.id;
+    if (!budgetId) {
+      showToast("Error: No se encontró el ID del presupuesto.", "error");
+      return;
+    }
 
-            console.log("Enviando (Approve/Reject):", { url, method: 'POST', payload });
+    isLoadingSetter(true);
+    try {
+      const payload = {
+        status: newStatus,
+        id: budgetId,
+        comment: comment || "",
+      };
+      const url = "/change-budget";
 
-            const { data: response } = await execute(
-                url,
-                'POST',
-                payload,
-                false, // noWaiting = false
-                true   // noGenericError = true
-            );
+      const { data: response } = await execute(
+        url,
+        "POST",
+        payload,
+        false,
+        true
+      );
 
-            // --- INICIO: Modificación del Tipo de Toast ---
+      const toastType: "success" | "info" =
+        newStatus === "A" ? "success" : "info";
+      showToast(
+        response?.message || `Presupuesto ${actionText} correctamente.`,
+        toastType
+      );
 
-            // 1. Determina el tipo de toast basado en newStatus
-            const toastType: 'success' | 'info' | 'warning' = newStatus === 'A'
-                ? 'success' // Éxito si es Aprobado
-                : 'info';   // Información (o 'warning') si es Rechazado
+      reLoad();
+      onClose();
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        `Ocurrió un error al ${actionText}.`;
+      showToast(errorMessage, "error");
+      console.error(`Error on budget ${actionText}:`, err);
+    } finally {
+      isLoadingSetter(false);
+    }
+  };
 
-            // 2. Llama a showToast con el tipo determinado
-            showToast(
-                response?.message || `Presupuesto ${actionText} correctamente.`, // El mensaje puede seguir siendo el mismo o personalizado
-                toastType // Usa la variable para el tipo
-            );
+  const handleApprove = () => handleAction("A");
+  const handleReject = () => handleAction("R");
+  const handleCloseModal = () => {
+    onClose();
+  };
 
-            // --- FIN: Modificación del Tipo de Toast ---
+  // <- Función para manejar cambios en el comentario y limpiar errores
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+    if (commentError) {
+      setCommentError(""); // Limpiar error cuando el usuario empiece a escribir
+    }
+  };
 
-            reLoad(); // Recarga la lista
-            onClose(); // Cierra el modal
+  const statusConfig = getStatusConfig(item?.status);
 
-        } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || err?.message || `Ocurrió un error al ${actionText}.`;
-            showToast(errorMessage, 'error');
-            console.error(`Error on budget ${actionText}:`, err);
-        } finally {
-            isLoadingSetter(false);
-        }
-    };
-
-    const handleApprove = () => handleAction('A');
-    const handleReject = () => handleAction('R');
-
-    const handleCloseModal = () => { onClose() };
-
-    return (
-        <DataModal
-            open={open}
-            onClose={handleCloseModal}
-            title="Aprobar / Rechazar Presupuesto"
-            buttonText=""
-            buttonCancel=""
+  return (
+    <DataModal
+      open={open}
+      onClose={handleCloseModal}
+      title="Detalle del presupuesto"
+      buttonText="Aprobar"
+      buttonCancel=""
+      onSave={handleApprove}
+      disabled={isApproving || isRejecting} // <- Deshabilitar botón mientras se procesa
+      buttonExtra={
+        <Button
+          variant="secondary"
+          onClick={handleReject}
+          disabled={isApproving || isRejecting}
         >
-            <div className={styles.divider}></div>
-            <div className={styles.viewDetailsContainer}>
-                <KeyValue title="Nombre" value={item?.name} />
-                <KeyValue title="Categoría" value={item?.category?.name || 'N/A'} />
-                <KeyValue title="Monto" value={`Bs ${formatNumber(item?.amount)}`} />
-                <KeyValue title="Periodo" value={formatPeriod(item?.period)} />
-                <KeyValue title="Fecha Inicio" value={getDateStrMes(item?.start_date)} />
-                <KeyValue title="Fecha Fin" value={getDateStrMes(item?.end_date)} />
-                <KeyValue title="Estado Actual" value={
-                    <div className={`${styles.statusBadge} ${styles[`status${item?.status}`] || ''}`}>
-                        {formatStatus(item?.status)}
-                    </div>
-                } />
-                <KeyValue title="Creado por" value={getFullName(item?.user) || 'Sistema'} />
-            </div>
+          Rechazar
+        </Button>
+      }
+    >
+      <div className={styles.container}>
+        {/* Header Section - Centrado con Avatar */}
+        <div className={styles.headerSection}>
+          <Avatar
+            hasImage={item?.user?.has_image}
+            src={getUrlImages(
+              "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
+            )}
+            h={120}
+            w={120}
+            // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente
+            name={getFullName(item?.user)}
+          />
+          <div className={styles.createdBy}>
+            Creado por: {getFullName(item?.user) || "Sistema"}
+            <div className={styles.userRole}>Administrador principal</div>
+          </div>
+        </div>
 
-            <div style={{ marginTop: '15px', marginBottom: '15px' }}>
-                <TextArea
-                    label="Comentario"
-                    name="comment"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Ingrese un comentario..."
-                />
+        <hr className={styles.sectionDivider} />
+
+        {/* Details Section - Dos columnas como en Payments */}
+        <section className={styles.detailsSection}>
+          <div className={styles.detailsColumn}>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Monto presupuestado</span>
+              <span className={styles.infoValue}>
+                {formatNumber(item?.amount)}
+              </span>
             </div>
-            <div className={styles.actionButtonsContainer}>
-                <Button
-                    className={styles.secondaryActionButton}
-                    onClick={handleReject}
-                    variant="cancel"
-                    disabled={isApproving || isRejecting}
-                >
-                    Rechazar
-                </Button>
-                <Button
-                    className={styles.primaryActionButton}
-                    onClick={handleApprove}
-                    variant="primary"
-                    disabled={isApproving || isRejecting}
-                >
-                    Aprobar
-                </Button>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Fecha inicio</span>
+              <span className={styles.infoValue}>
+                09:00 - {getDateStrMes(item?.start_date)}
+              </span>
             </div>
-        </DataModal>
-    );
+            {/* <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Subcategoría</span>
+              <span className={styles.infoValue}>
+                {item?.category?.name || "N/A"}
+              </span>
+            </div> */}
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Período</span>
+              <span className={styles.infoValue}>
+                {formatPeriod(item?.period)}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.detailsColumn}>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Estado</span>
+              <StatusBadge
+                color={statusConfig.color}
+                backgroundColor={statusConfig.bgColor}
+              >
+                {statusConfig.label}
+              </StatusBadge>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Fecha fin</span>
+              <span className={styles.infoValue}>
+                {getDateStrMes(item?.end_date)}
+              </span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Subcategoría</span>
+              <span className={styles.infoValue}>{item.category?.name}</span>
+            </div>
+          </div>
+        </section>
+
+        <hr className={styles.sectionDivider} />
+
+        {/* Resumen Section - Tabla como en la imagen */}
+        <div className={styles.periodsDetailsSection}>
+          <div className={styles.periodsDetailsHeader}>
+            <h3 className={styles.periodsDetailsTitle}>Resumen</h3>
+          </div>
+
+          <div className={styles.periodsTableWrapper}>
+            <div className={styles.periodsTable}>
+              <div className={styles.periodsTableHeader}>
+                <div className={styles.periodsTableCell}>Item</div>
+                <div className={styles.periodsTableCell}>Subcategoría</div>
+                <div className={styles.periodsTableCell}>Subtotal</div>
+              </div>
+              <div className={styles.periodsTableBody}>
+                <div className={styles.periodsTableRow}>
+                  <div className={styles.periodsTableCell} data-label="Item">
+                    {item.name}
+                  </div>
+                  <div
+                    className={styles.periodsTableCell}
+                    data-label="Categoría"
+                  >
+                    {item.category?.name}
+                  </div>
+                  <div
+                    className={styles.periodsTableCell}
+                    data-label="Subtotal"
+                  >
+                    Bs {formatNumber(item?.amount)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Comentario con validación */}
+        <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+          <TextArea
+            label="Comentario"
+            name="comment"
+            value={comment}
+            onChange={handleCommentChange} // <- Usar la nueva función
+            placeholder="Ingrese un comentario..."
+            error={commentError ? { comment: commentError } : {}} // <- Mostrar error
+            required={false} // Opcional por defecto
+          />
+        </div>
+      </div>
+    </DataModal>
+  );
 };
 
 export default BudgetApprovalView;

@@ -157,6 +157,11 @@ const RenderForm = ({
   execute,
   extraData,
   reLoad,
+  defaultUnitId,
+  defaultOwnerType,
+  defaultIsResident,
+  disableUnitEditing = false,
+  disableTypeEditing = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -171,14 +176,23 @@ const RenderForm = ({
   ) => Promise<{ data?: any }>;
   extraData: any;
   reLoad: () => void;
+  defaultUnitId?: string | number;
+  defaultOwnerType?: 'Propietario' | 'Inquilino';
+  defaultIsResident?: boolean;
+  disableUnitEditing?: boolean;
+  disableTypeEditing?: boolean;
 }) => {
   const [formState, setFormState] = useState<OwnerFormState>(() => {
     const initialState: OwnerFormState = {
       ci: '',
       name: '',
       last_name: '',
-      will_live_in_unit: true,
-      dptos: [],
+      will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true,
+      dptos: defaultUnitId ? [{
+        dpto_id: defaultUnitId,
+        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true
+      }] : [],
+      type_owner: defaultOwnerType || undefined,
       _disabled: false,
       _emailDisabled: false,
     };
@@ -188,7 +202,12 @@ const RenderForm = ({
       ci: item?.ci || '',
       name: item?.name || '',
       last_name: item?.last_name || '',
-      dptos: item?.dptos || (item?.dpto_id ? [{ dpto_id: item.dpto_id, will_live_in_unit: !!item.will_live_in_unit }] : []),
+      dptos: item?.dptos || (defaultUnitId ? [{
+        dpto_id: defaultUnitId,
+        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true
+      }] : []),
+      type_owner: item?.type_owner || defaultOwnerType || undefined,
+      will_live_in_unit: item?.will_live_in_unit !== undefined ? item.will_live_in_unit : (defaultIsResident !== undefined ? defaultIsResident : true),
     };
   });
   const [errors, setErrors] = useState<OwnerFormErrors>({});
@@ -383,7 +402,7 @@ const RenderForm = ({
       const dptoIds = (formState.dptos || []).map(d => d.dpto_id);
       const residentUnit = (formState.dptos || []).find(d => d.will_live_in_unit);
 
-      const payload = {
+      const payload: any = {
         ci: formState.ci,
         name: formState.name,
         middle_name: formState.middle_name || '',
@@ -393,8 +412,11 @@ const RenderForm = ({
         email: formState.email || '',
         dpto: dptoIds,
         is_homeowner: formState.type_owner === 'Propietario' ? 'Y' : 'N',
-        dpto_resident: residentUnit ? residentUnit.dpto_id : null,
       };
+
+      if (residentUnit) {
+        payload.dpto_resident = residentUnit.dpto_id;
+      }
 
       const endpoint = formState.id ? `/owners/${formState.id}` : '/owners';
       const method = formState.id ? 'PUT' : 'POST';
@@ -467,7 +489,7 @@ const RenderForm = ({
         />
 
         <div className={styles.sectionHeader}>
-          <p>La contraseña será enviada al correo que indiques en este campo </p>
+          <p>La contraseña será enviada al correo que indique en este campo </p>
         </div>
 
         <Input
@@ -490,11 +512,12 @@ const RenderForm = ({
           onChange={handleChange}
           error={errors}
           required
+          disabled={disableTypeEditing}
         />
         {/* Cards de unidades seleccionadas (múltiples para Propietario) */}
-        <div className={styles.unitCardsWrapper}>
-          {(formState.dptos || []).length > 0 &&
-            (formState.dptos || []).map((d, idx) => {
+        {(formState.dptos || []).length > 0 && (
+          <div className={styles.unitCardsWrapper}>
+            {(formState.dptos || []).map((d, idx) => {
               const unitsList =
                 formState.type_owner === 'Propietario'
                   ? extraData?.dptosForH || []
@@ -513,29 +536,35 @@ const RenderForm = ({
                     </div>
                   </div>
                   <div className={styles.unitCardRight}>
-                    <button
-                      type="button"
-                      className={styles.trashButton}
-                      onClick={() => removeUnit(d.dpto_id)}
-                      aria-label="Quitar unidad"
-                    >
-                      <IconTrash size={14} />
-                    </button>
+                    {!disableUnitEditing && (
+                      <button
+                        type="button"
+                        className={styles.trashButton}
+                        onClick={() => removeUnit(d.dpto_id)}
+                        aria-label="Quitar unidad"
+                      >
+                        <IconTrash size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               );
             })}
-        </div>
-        <button
-          className={styles.backButtonContent}
-          onClick={() => {
-            setIsUnitModalOpen(true);
-          }}
-          disabled={!formState.type_owner}
-        >
-          <IconAdd size={12} />
-          <p style={{ textDecoration: 'underline' }}>Asignar Unidad</p>
-        </button>
+          </div>
+        )}
+
+        {!disableUnitEditing && (
+          <button
+            className={styles.backButtonContent}
+            onClick={() => {
+              setIsUnitModalOpen(true);
+            }}
+            disabled={!formState.type_owner}
+          >
+            <IconAdd size={12} />
+            <p style={{ textDecoration: 'underline' }}>Asignar Unidad</p>
+          </button>
+        )}
       </div>
       <UnitModal
         open={isUnitModalOpen}
