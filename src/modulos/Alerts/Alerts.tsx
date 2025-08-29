@@ -6,7 +6,7 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAlert2, IconAlert3 } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAdmin, IconAlert2, IconAlert3, IconGroup, IconGuard, IconUser } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -113,6 +113,7 @@ const Alerts = () => {
         ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`)
         : null;
 
+
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {avatarSrc ? (
@@ -190,7 +191,7 @@ const Alerts = () => {
       level: {
         rules: ['required'],
         api: 'ae',
-        label: <span style={{ display: 'block', width: '100%' }}>Nivel de alerta</span>,
+        label: <span style={{ display: 'block', width: '100%' }}>Grupo de alerta</span>,
         list: {
           width: '12%',
           onRender: renderAlertLevel,
@@ -254,17 +255,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.total_alerts ||
-                  data?.extraData?.total_alerts === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cWhite)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts ||
-                    data?.extraData?.total_alerts === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl1)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -273,47 +272,43 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
             data={String(data?.extraData?.low_level || 0)}
             icon={
-              <IconAlert2
+              <IconGuard
                 color={
-                  !data?.extraData?.low_level ||
-                  data?.extraData?.low_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cSuccess)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.low_level ||
-                    data?.extraData?.low_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl2)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: "18%", width: "100%" }}
+            style={{ maxWidth: '18%', width: '100%' }}
           />
           <WidgetDashCard
-            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
             data={String(data?.extraData?.medium_level || 0)}
             icon={
-              <IconAlert2
+              <IconAdmin
                 color={
-                  !data?.extraData?.medium_level ||
-                  data?.extraData?.medium_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cWarning)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.medium_level ||
-                    data?.extraData?.medium_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl4)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -322,22 +317,20 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
             data={String(data?.extraData?.high_level || 0)}
             icon={
-              <IconAlert2
+              <IconGroup
                 color={
-                  !data?.extraData?.high_level ||
-                  data?.extraData?.high_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cError)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.high_level ||
-                    data?.extraData?.high_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverError)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -346,22 +339,20 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Categoria de panico"
+            title="Emergencias"
             data={String(data?.extraData?.emergency_buttons || 0)}
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.emergency_buttons ||
-                  data?.extraData?.emergency_buttons === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cError)"
+                  !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cError)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.emergency_buttons ||
-                    data?.extraData?.emergency_buttons === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverError)",
+                    !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverError)',
                 }}
                 circle
                 size={18}
@@ -373,7 +364,7 @@ const Alerts = () => {
       </div>
 
       <List
-        height={"calc(100vh - 460px)"}
+        height={'calc(100vh - 460px)'}
         emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
         emptyLine2="registre una, se mostrará aquí."
         emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
@@ -387,26 +378,20 @@ const Alerts = () => {
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
           if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
+            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("created_at", customDateFilterString);
+          onFilter('created_at', customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

@@ -6,14 +6,14 @@ export const ALERT_LEVELS = {
 } as const;
 
 export const ALERT_LEVEL_LABELS = {
-  [ALERT_LEVELS.PANIC]: 'Nivel pánico',
-  [ALERT_LEVELS.HIGH]: 'Nivel alto',
-  [ALERT_LEVELS.MEDIUM]: 'Nivel medio',
-  [ALERT_LEVELS.LOW]: 'Nivel bajo',
+  [ALERT_LEVELS.PANIC]: 'Emergencias',
+  [ALERT_LEVELS.HIGH]: 'Para todo el condominio',
+  [ALERT_LEVELS.MEDIUM]: 'Para admins y guardias',
+  [ALERT_LEVELS.LOW]: 'Para guardias',
 } as const;
 
 export const ALERT_LEVEL_OPTIONS = [
-  { id: 'T', name: 'Todos' },
+  { id: 'ALL', name: 'Todos' },
   { id: ALERT_LEVELS.PANIC, name: ALERT_LEVEL_LABELS[ALERT_LEVELS.PANIC] },
   { id: ALERT_LEVELS.HIGH, name: ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH] },
   { id: ALERT_LEVELS.MEDIUM, name: ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM] },
@@ -27,29 +27,34 @@ export const getAlertLevelText = (level: number): string => {
 export const getAlertLevelInfo = (level: number) => {
   switch (level) {
     case ALERT_LEVELS.PANIC:
-    case ALERT_LEVELS.HIGH:
       return {
         label: ALERT_LEVEL_LABELS[level as keyof typeof ALERT_LEVEL_LABELS],
         backgroundColor: 'var(--cHoverError)',
         color: 'var(--cError)'
       };
+    case ALERT_LEVELS.HIGH:
+      return {
+        label: ALERT_LEVEL_LABELS[level as keyof typeof ALERT_LEVEL_LABELS],
+        backgroundColor: 'var(--cHoverCompl1)',
+        color: 'var(--cWhite)'
+      };
     case ALERT_LEVELS.MEDIUM:
       return {
         label: ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM],
-        backgroundColor: 'var(--cHoverWarning)',
-        color: 'var(--cWarning)'
+        backgroundColor: 'var(--cHoverCompl1)',
+        color: 'var(--cWhite)'
       };
     case ALERT_LEVELS.LOW:
       return {
         label: ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW],
-        backgroundColor: 'var(--cHoverSuccess)',
-        color: 'var(--cSuccess)'
+        backgroundColor: 'var(--cHoverCompl1)',
+        color: 'var(--cWhite)'
       };
     default:
       return {
         label: 'Nivel desconocido',
-        backgroundColor: 'var(--cHoverLight)',
-        color: 'var(--cLightDark)'
+        backgroundColor: 'var(--cHoverCompl1)',
+        color: 'var(--cWhite)'
       };
   }
 };
@@ -60,10 +65,10 @@ export const getAlertLevelFigmaColor = (level: number): string => {
     case ALERT_LEVELS.HIGH:
       return "#e46055";
     case ALERT_LEVELS.MEDIUM:
-      return "#e9b01e";
+      return "var(--cWhite)";
     case ALERT_LEVELS.LOW:
-      return "#34a853";
+      return "var(--cWhite)";
     default:
-      return "#a7a7a7";
+      return "var(--cWhite)";
   }
 };
