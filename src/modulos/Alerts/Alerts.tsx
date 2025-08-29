@@ -1,16 +1,18 @@
 import styles from "./Alerts.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAlert2, IconAlert3 } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAdmin, IconAlert2, IconAlert3, IconGroup, IconGuard, IconUser } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { getAlertLevelText, ALERT_LEVELS, getAlertLevelInfo, ALERT_LEVEL_OPTIONS, ALERT_LEVEL_LABELS } from "./alertConstants";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -19,29 +21,16 @@ const paramsInitial = {
   searchBy: "",
 };
 
-const lLevels = [
-  { id: 'ALL', name: 'Todos' },
-  { id: 4, name: 'Nivel pánico' },
-  { id: 3, name: 'Nivel alto' },
-  { id: 2, name: 'Nivel medio' },
-  { id: 1, name: 'Nivel bajo' },
-];
-export const getAlertLevelText = (level: any) => {
-  switch (level) {
-    case 4:
-      return "Nivel pánico";
-    case 3:
-      return "Nivel alto";
-    case 2:
-      return "Nivel medio";
-    case 1:
-      return "Nivel bajo";
-    default:
-      return "Nivel medio";
-  }
-};
+// Exportamos la función para mantener compatibilidad
+export { getAlertLevelText };
 
 const Alerts = () => {
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
   const mod = {
     modulo: "alerts",
     singular: "alerta",
@@ -59,40 +48,42 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={reLoad} />,
   };
   const { setStore } = useAuth();
-  const getAlertLevelInfo = (level: number) => {
-    switch (level) {
-      case 4: // Panic (treated as High)
-      case 3: // High
-        return {
-          label: level === 4 ? 'Nivel pánico' : 'Nivel alto',
-          backgroundColor: 'var(--cHoverError)',
-          color: 'var(--cError)'
-        };
-      case 2: // Medium
-        return {
-          label: 'Nivel medio',
-          backgroundColor: 'var(--cHoverWarning)',
-          color: 'var(--cWarning)'
-        };
-      case 1: // Low
-        return {
-          label: 'Nivel bajo',
-          backgroundColor: 'var(--cHoverSuccess)',
-          color: 'var(--cSuccess)'
-        };
-      default:
-        return {
-          label: 'Nivel desconocido',
-          backgroundColor: 'var(--cHoverLight)',
-          color: 'var(--cLightDark)'
-        };
+
+  const getPeriodOptions = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "created_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
     }
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
   };
 
   const renderGuardInfo = ({ item }: { item: any }) => {
     let entityToDisplay = null;
     let avatarTypePrefix = "";
-    const isPanic = item?.level === 4;
+    const isPanic = item?.level === ALERT_LEVELS.PANIC;
 
     if (isPanic) {
       if (item.owner) {
@@ -121,6 +112,7 @@ const Alerts = () => {
       entityId && avatarTypePrefix && updatedAt
         ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`)
         : null;
+
 
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -154,7 +146,7 @@ const Alerts = () => {
   };
 
   const renderAlertLevel = ({ item }: { item: any }) => {
-    const alertLevel = item?.level || 2;
+    const alertLevel = item?.level || ALERT_LEVELS.MEDIUM;
     const { backgroundColor, color, label } = getAlertLevelInfo(alertLevel);
 
     return (
@@ -170,49 +162,57 @@ const Alerts = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
-      guard_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Informador",
-        list: {
-          onRender: renderGuardInfo,
-        },
-        form: { type: "text" },
-      },
-      descrip: {
-        rules: ["required"],
-        api: "ae",
-        label: "Descripción",
-        list: true,
-        form: { type: "text" },
-      },
+      id: { rules: [], api: 'e' },
       created_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha y hora de creación",
+        rules: [''],
+        api: '',
+        label: 'Fecha de creación',
         list: {
-          width: "314px",
+          width: '20%',
           onRender: formatCreatedAt,
         },
+        filter: {
+          key: "created_at",
+          label: "Periodo",
+          options: getPeriodOptions,
+        },
+      },
+      guard_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Informador',
+        list: {
+          width: '26%',
+          onRender: renderGuardInfo,
+        },
+        form: { type: 'text' },
       },
 
       level: {
-        rules: ["required"],
-        api: "ae",
-        label: <span style={{display: "block", textAlign: "center", width: "100%"}}>Nivel de alerta</span>,
+        rules: ['required'],
+        api: 'ae',
+        label: <span style={{ display: 'block', width: '100%' }}>Grupo de alerta</span>,
         list: {
-          width: "194px",
+          width: '12%',
           onRender: renderAlertLevel,
         },
-        form: { type: "select", options: lLevels },
+        form: { type: 'select', options: ALERT_LEVEL_OPTIONS },
         filter: {
-          label: "Nivel de alerta",
-          width: "200px",
-          options: () => [...lLevels],
-          optionLabel: "name",
-          optionValue: "id",
+          label: 'Nivel de alerta',
+          width: '100%',
+          options: () => [...ALERT_LEVEL_OPTIONS],
+          optionLabel: 'name',
+          optionValue: 'id',
         },
+      },
+      descrip: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Descripción',
+        list: {
+          width: '42%',
+        },
+        form: { type: 'text' },
       },
     }),
     []
@@ -227,10 +227,12 @@ const Alerts = () => {
     onDel,
     reLoad,
     data,
+    onFilter,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
+    getFilter: handleGetFilter,
   });
   useCrudUtils({
     onSearch,
@@ -253,17 +255,15 @@ const Alerts = () => {
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.total_alerts ||
-                  data?.extraData?.total_alerts === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cWhite)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.total_alerts ||
-                    data?.extraData?.total_alerts === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl1)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -272,47 +272,43 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Alertas Nivel Bajo"
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
             data={String(data?.extraData?.low_level || 0)}
             icon={
-              <IconAlert2
+              <IconGuard
                 color={
-                  !data?.extraData?.low_level ||
-                  data?.extraData?.low_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cSuccess)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.low_level ||
-                    data?.extraData?.low_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl2)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: "300px", width: "100%" }}
+            style={{ maxWidth: '18%', width: '100%' }}
           />
           <WidgetDashCard
-            title="Alertas Nivel Medio"
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
             data={String(data?.extraData?.medium_level || 0)}
             icon={
-              <IconAlert2
+              <IconAdmin
                 color={
-                  !data?.extraData?.medium_level ||
-                  data?.extraData?.medium_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cWarning)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.medium_level ||
-                    data?.extraData?.medium_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl4)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -321,22 +317,20 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Alertas Nivel Alto"
+            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
             data={String(data?.extraData?.high_level || 0)}
             icon={
-              <IconAlert2
+              <IconGroup
                 color={
-                  !data?.extraData?.high_level ||
-                  data?.extraData?.high_level === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cError)"
+                  !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cWhite)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.high_level ||
-                    data?.extraData?.high_level === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverError)",
+                    !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverCompl1)',
                 }}
                 circle
                 size={18}
@@ -345,22 +339,20 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Categoria de panico"
+            title="Emergencias"
             data={String(data?.extraData?.emergency_buttons || 0)}
             icon={
               <IconAlert2
                 color={
-                  !data?.extraData?.emergency_buttons ||
-                  data?.extraData?.emergency_buttons === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cError)"
+                  !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                    ? 'var(--cWhiteV1)'
+                    : 'var(--cError)'
                 }
                 style={{
                   backgroundColor:
-                    !data?.extraData?.emergency_buttons ||
-                    data?.extraData?.emergency_buttons === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverError)",
+                    !data?.extraData?.emergency_buttons || data?.extraData?.emergency_buttons === 0
+                      ? 'var(--cHover)'
+                      : 'var(--cHoverError)',
                 }}
                 circle
                 size={18}
@@ -372,10 +364,39 @@ const Alerts = () => {
       </div>
 
       <List
-        height={"calc(100vh - 460px)"}
+        height={'calc(100vh - 460px)'}
         emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
         emptyLine2="registre una, se mostrará aquí."
         emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
+      />
+
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter('created_at', customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
       />
     </div>
   );
