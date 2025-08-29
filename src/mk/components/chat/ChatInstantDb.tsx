@@ -90,12 +90,24 @@ export default function ChatInstantDb() {
 
     const abrir =
       lastMsg &&
-      chats?.messages?.length > lastMsg &&
-      (chats?.messages[chats?.messages?.length - 1].sender != user.id ||
-        open === false) &&
-      typeSearch != chats.messages[chats.messages.length - 1].roomId;
+      chats.messages[chats.messages.length - 1].created_at > lastMsg &&
+      chats?.messages[chats?.messages?.length - 1].sender != user.id &&
+      (typeSearch != chats.messages[chats.messages.length - 1].roomId || !open);
+
+    // const abrir =
+    //   lastMsg &&
+    //   chats?.messages?.length > lastMsg &&
+    //   chats?.messages[chats?.messages?.length - 1].sender != user.id &&
+    //   (typeSearch != chats.messages[chats.messages.length - 1].roomId || !open);
 
     if (abrir) {
+      console.log(
+        "abrir chatnbotif",
+        lastMsg,
+        chats?.messages?.length,
+        user?.id,
+        open
+      );
       cM = {
         ...cM,
         [roomGral]: {
@@ -137,7 +149,8 @@ export default function ChatInstantDb() {
     }
 
     setCountMsg(cM);
-    setLastMsg(chats?.messages?.length);
+    setLastMsg(chats.messages[chats.messages.length - 1].created_at);
+    // setLastMsg(chats?.messages?.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats?.messages]);
 
@@ -156,6 +169,7 @@ export default function ChatInstantDb() {
   };
 
   const onNotif = useCallback((e: any) => {
+    if (!user?.id) return;
     if (notifAudio)
       soundBell
         .play()
