@@ -4,33 +4,17 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
   getDateTimeStrMesShort,
-  // getDateStrMes, // Usaremos getDateTimeStrMesShort para consistencia en el nuevo diseño
 } from "@/mk/utils/date";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
-import { getAlertLevelText } from "../Alerts";
+import { getAlertLevelText, getAlertLevelFigmaColor, ALERT_LEVELS, ALERT_LEVEL_LABELS } from "../alertConstants";
 import {
   IconAlert,
   IconAmbulance,
   IconFlame,
   IconTheft,
   IconClock,
-} from "@/components/layout/icons/IconsBiblioteca"; // Añadido IconClock
-
-const getAlertLevelFigmaColor = (level: any) => {
-  switch (level) {
-    case 4:
-      return "#e46055";
-    case 3:
-      return "#e46055";
-    case 2:
-      return "#e9b01e";
-    case 1:
-      return "#34a853";
-    default:
-      return "#a7a7a7";
-  }
-};
+} from "@/components/layout/icons/IconsBiblioteca";
 
 const getAlertTypeBoxDetails = (item: any) => {
   let details = {
@@ -38,7 +22,7 @@ const getAlertTypeBoxDetails = (item: any) => {
     borderColor: "var(--cGrayDark, #404244)",
     textColor: "var(--cWhite, #fafafa)",
     icon: <IconAlert size={36} color={"var(--cWhite, #fafafa)"} />,
-    title: item.descrip || "Alerta de Nivel Alto",
+    title: item.descrip || `Alerta de ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`,
   };
 
   if (item.type === "E") {
@@ -66,7 +50,7 @@ const getAlertTypeBoxDetails = (item: any) => {
       item.descrip?.toLowerCase().includes("intrusi")
         ? item.descrip
         : "Robo o Intrusión";
-  } else if (item.level >= 3 && item.descrip) {
+  } else if (item.level >= ALERT_LEVELS.HIGH && item.descrip) {
     details.title = item.descrip;
   }
   return details;
@@ -97,7 +81,7 @@ const RenderView = (props: {
     }
   };
 
-  const isHighLevelAlert = props.item.level === 4 || props.item.level === 3;
+  const isHighLevelAlert = props.item.level === ALERT_LEVELS.PANIC || props.item.level === ALERT_LEVELS.HIGH;
   const isAttended = !!props.item.date_at;
 
   const informer =

@@ -1,6 +1,6 @@
 import styles from "./Alerts.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
@@ -11,6 +11,8 @@ import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDash
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import RenderView from "./RenderView/RenderView";
+import { getAlertLevelText, ALERT_LEVELS, getAlertLevelInfo, ALERT_LEVEL_OPTIONS, ALERT_LEVEL_LABELS } from "./alertConstants";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -19,29 +21,16 @@ const paramsInitial = {
   searchBy: "",
 };
 
-const lLevels = [
-  { id: 'T', name: 'Todos' },
-  { id: 4, name: 'Nivel pánico' },
-  { id: 3, name: 'Nivel alto' },
-  { id: 2, name: 'Nivel medio' },
-  { id: 1, name: 'Nivel bajo' },
-];
-export const getAlertLevelText = (level: any) => {
-  switch (level) {
-    case 4:
-      return "Nivel pánico";
-    case 3:
-      return "Nivel alto";
-    case 2:
-      return "Nivel medio";
-    case 1:
-      return "Nivel bajo";
-    default:
-      return "Nivel medio";
-  }
-};
+// Exportamos la función para mantener compatibilidad
+export { getAlertLevelText };
 
 const Alerts = () => {
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
   const mod = {
     modulo: "alerts",
     singular: "alerta",
@@ -59,40 +48,42 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={reLoad} />,
   };
   const { setStore } = useAuth();
-  const getAlertLevelInfo = (level: number) => {
-    switch (level) {
-      case 4: // Panic (treated as High)
-      case 3: // High
-        return {
-          label: level === 4 ? 'Nivel pánico' : 'Nivel alto',
-          backgroundColor: 'var(--cHoverError)',
-          color: 'var(--cError)'
-        };
-      case 2: // Medium
-        return {
-          label: 'Nivel medio',
-          backgroundColor: 'var(--cHoverWarning)',
-          color: 'var(--cWarning)'
-        };
-      case 1: // Low
-        return {
-          label: 'Nivel bajo',
-          backgroundColor: 'var(--cHoverSuccess)',
-          color: 'var(--cSuccess)'
-        };
-      default:
-        return {
-          label: 'Nivel desconocido',
-          backgroundColor: 'var(--cHoverLight)',
-          color: 'var(--cLightDark)'
-        };
+
+  const getPeriodOptions = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "created_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
     }
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
   };
 
   const renderGuardInfo = ({ item }: { item: any }) => {
     let entityToDisplay = null;
     let avatarTypePrefix = "";
-    const isPanic = item?.level === 4;
+    const isPanic = item?.level === ALERT_LEVELS.PANIC;
 
     if (isPanic) {
       if (item.owner) {
@@ -154,7 +145,7 @@ const Alerts = () => {
   };
 
   const renderAlertLevel = ({ item }: { item: any }) => {
-    const alertLevel = item?.level || 2;
+    const alertLevel = item?.level || ALERT_LEVELS.MEDIUM;
     const { backgroundColor, color, label } = getAlertLevelInfo(alertLevel);
 
     return (
@@ -176,8 +167,13 @@ const Alerts = () => {
         api: '',
         label: 'Fecha de creación',
         list: {
-          width: '314px',
+          width: '20%',
           onRender: formatCreatedAt,
+        },
+        filter: {
+          key: "created_at",
+          label: "Periodo",
+          options: getPeriodOptions,
         },
       },
       guard_id: {
@@ -185,7 +181,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Informador',
         list: {
-          width: '405px',
+          width: '26%',
           onRender: renderGuardInfo,
         },
         form: { type: 'text' },
@@ -194,20 +190,16 @@ const Alerts = () => {
       level: {
         rules: ['required'],
         api: 'ae',
-        label: (
-          <span style={{ display: 'block',  width: '100%' }}>
-            Nivel de alerta
-          </span>
-        ),
+        label: <span style={{ display: 'block', width: '100%' }}>Nivel de alerta</span>,
         list: {
-
+          width: '12%',
           onRender: renderAlertLevel,
         },
-        form: { type: 'select', options: lLevels },
+        form: { type: 'select', options: ALERT_LEVEL_OPTIONS },
         filter: {
           label: 'Nivel de alerta',
-          width: '200px',
-          options: () => [...lLevels],
+          width: '100%',
+          options: () => [...ALERT_LEVEL_OPTIONS],
           optionLabel: 'name',
           optionValue: 'id',
         },
@@ -217,7 +209,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Descripción',
         list: {
-          width: '800px',
+          width: '42%',
         },
         form: { type: 'text' },
       },
@@ -234,10 +226,12 @@ const Alerts = () => {
     onDel,
     reLoad,
     data,
+    onFilter,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
+    getFilter: handleGetFilter,
   });
   useCrudUtils({
     onSearch,
@@ -279,7 +273,7 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Alertas Nivel Bajo"
+            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
             data={String(data?.extraData?.low_level || 0)}
             icon={
               <IconAlert2
@@ -301,10 +295,10 @@ const Alerts = () => {
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: "300px", width: "100%" }}
+            style={{ maxWidth: "18%", width: "100%" }}
           />
           <WidgetDashCard
-            title="Alertas Nivel Medio"
+            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
             data={String(data?.extraData?.medium_level || 0)}
             icon={
               <IconAlert2
@@ -328,7 +322,7 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title="Alertas Nivel Alto"
+            title={`Alertas ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
             data={String(data?.extraData?.high_level || 0)}
             icon={
               <IconAlert2
@@ -383,6 +377,41 @@ const Alerts = () => {
         emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
         emptyLine2="registre una, se mostrará aquí."
         emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
+      />
+
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("created_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
       />
     </div>
   );
