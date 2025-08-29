@@ -42,6 +42,7 @@ export async function POST(request) {
         channel,
         event,
         created_at: Date.now(),
+        client_id: _id,
       }),
     ]);
 

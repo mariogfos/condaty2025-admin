@@ -112,7 +112,7 @@ export default function ChatInstantDb() {
         <>
           <div>
             {chats?.messages[chats?.messages?.length - 1].roomId == roomGral &&
-              "(Grupo General) "}
+              "(Grupo Admin) "}
             {
               usersChat?.find(
                 (e: any) =>
