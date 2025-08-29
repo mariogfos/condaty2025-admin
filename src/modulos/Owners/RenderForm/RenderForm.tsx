@@ -41,8 +41,8 @@ const TYPE_OWNERS = [
     name: 'Propietario',
   },
   {
-    type_owner: 'Inquilino',
-    name: 'Inquilino',
+    type_owner: 'Residente',
+    name: 'Residente',
   },
 ];
 
@@ -131,7 +131,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
 
         />
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-           ¿Este {typeOwner === 'Propietario' ? 'propietario' : 'inquilino'} vivirá en la unidad?
+           ¿Este {typeOwner === 'Propietario' ? 'propietario' : 'residente'} vivirá en la unidad?
           <input
           style={{
               accentColor: 'var(--cAccent)',
@@ -177,7 +177,7 @@ const RenderForm = ({
   extraData: any;
   reLoad: () => void;
   defaultUnitId?: string | number;
-  defaultOwnerType?: 'Propietario' | 'Inquilino';
+  defaultOwnerType?: 'Propietario' | 'Residente';
   defaultIsResident?: boolean;
   disableUnitEditing?: boolean;
   disableTypeEditing?: boolean;
@@ -596,7 +596,7 @@ const RenderForm = ({
             const existing = (prev.dptos || []).find(
               d => String(d.dpto_id) === String(normalizedId)
             );
-            if (prev.type_owner === 'Inquilino') {
+            if (prev.type_owner === 'Residente') {
               return {
                 ...prev,
                 dptos: [
