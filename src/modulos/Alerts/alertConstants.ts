@@ -7,9 +7,9 @@ export const ALERT_LEVELS = {
 
 export const ALERT_LEVEL_LABELS = {
   [ALERT_LEVELS.PANIC]: 'Emergencias',
-  [ALERT_LEVELS.HIGH]: 'Para todo el condominio',
-  [ALERT_LEVELS.MEDIUM]: 'Para admins y guardias',
-  [ALERT_LEVELS.LOW]: 'Para guardias',
+  [ALERT_LEVELS.HIGH]: 'Todo el condominio',
+  [ALERT_LEVELS.MEDIUM]: 'Admins y guardias',
+  [ALERT_LEVELS.LOW]: 'Guardias',
 } as const;
 
 export const ALERT_LEVEL_OPTIONS = [

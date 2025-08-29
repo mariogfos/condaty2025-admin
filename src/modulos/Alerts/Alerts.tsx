@@ -6,7 +6,7 @@ import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAdmin, IconAlert2, IconAlert3, IconGroup, IconGuard, IconUser } from "@/components/layout/icons/IconsBiblioteca";
+import { IconAdmin, IconAlert2, IconAlert3, IconGroup, IconGuard } from "@/components/layout/icons/IconsBiblioteca";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -21,7 +21,6 @@ const paramsInitial = {
   searchBy: "",
 };
 
-// Exportamos la función para mantener compatibilidad
 export { getAlertLevelText };
 
 const Alerts = () => {
@@ -45,7 +44,7 @@ const Alerts = () => {
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
-    }) => <RenderView {...props} reLoad={reLoad} />,
+    }) => <RenderView {...props} reLoad={() => reLoad()} />,
   };
   const { setStore } = useAuth();
 
@@ -272,7 +271,7 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
+            title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
             data={String(data?.extraData?.low_level || 0)}
             icon={
               <IconGuard
@@ -295,7 +294,7 @@ const Alerts = () => {
             style={{ maxWidth: '18%', width: '100%' }}
           />
           <WidgetDashCard
-            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
+            title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
             data={String(data?.extraData?.medium_level || 0)}
             icon={
               <IconAdmin
@@ -317,7 +316,7 @@ const Alerts = () => {
             className={styles.widgetResumeCard}
           />
           <WidgetDashCard
-            title={` ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
+            title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
             data={String(data?.extraData?.high_level || 0)}
             icon={
               <IconGroup
