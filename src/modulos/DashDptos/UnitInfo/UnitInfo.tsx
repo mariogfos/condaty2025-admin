@@ -233,19 +233,6 @@ const UnitInfo = ({
                   >
                     Cambiar
                   </button>
-                  {datas?.homeowner && owner?.is_resident && (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={e => {
-                        e.stopPropagation();
-                        setOpenOwnerMenu(false);
-                        onRemoveTitular('H');
-                      }}
-                    >
-                      Liberar residencia
-                    </button>
-                  )}
                 </div>
               )}
             </div>
