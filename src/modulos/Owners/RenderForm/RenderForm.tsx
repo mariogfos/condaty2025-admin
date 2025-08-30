@@ -19,7 +19,7 @@ interface OwnerFormState {
   email?: string;
   phone?: string;
   dpto_id?: string | number;
-  dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string }>;
+  dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string; dpto_nro?: string }>;
   will_live_in_unit?: boolean;
   _disabled?: boolean;
   _emailDisabled?: boolean;
@@ -204,7 +204,8 @@ const RenderForm = ({
       last_name: item?.last_name || '',
       dptos: item?.dptos || (defaultUnitId ? [{
         dpto_id: defaultUnitId,
-        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true
+        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true,
+        dpto_nro: item?.dptos?.[0]?.dpto_nro,
       }] : []),
       type_owner: item?.type_owner || defaultOwnerType || undefined,
       will_live_in_unit: item?.will_live_in_unit !== undefined ? item.will_live_in_unit : (defaultIsResident !== undefined ? defaultIsResident : true),
@@ -523,7 +524,7 @@ const RenderForm = ({
                   ? extraData?.dptosForH || []
                   : extraData?.dptosForT || [];
 
-              const nro = getUnitNro(unitsList, d.dpto_id);
+              const nro = getUnitNro(unitsList, d.dpto_nro);
               return (
                 <div key={String(d.dpto_id) + '_' + idx} className={styles.unitCard}>
                   <div className={styles.unitCardLeft}>

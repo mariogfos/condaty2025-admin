@@ -436,7 +436,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               type_owner: newOwnerType,
               dptos: datas?.data?.id ? [{
                 dpto_id: datas.data.id,
-                will_live_in_unit: newIsResident
+                will_live_in_unit: newIsResident,
+                dpto_nro: datas.data.nro,
               }] : [],
               will_live_in_unit: newIsResident,
               _disabled: false,
@@ -533,7 +534,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             buttonText="Transferir"
           >
             <p style={{
-              textAlign: 'center',
+              textAlign: 'start',
               margin: '16px 0',
               lineHeight: '1.5',
               padding: '0 10px'
