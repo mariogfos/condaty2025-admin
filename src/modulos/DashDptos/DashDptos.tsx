@@ -160,7 +160,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   };
 
   const [openOwnerForm, setOpenOwnerForm] = useState(false);
-  const [newOwnerType, setNewOwnerType] = useState<'Propietario' | 'Inquilino'>('Propietario');
+  const [newOwnerType, setNewOwnerType] = useState<'Propietario' | 'Residente'>('Propietario');
   const [newIsResident, setNewIsResident] = useState<boolean>(false);
   const [openTransferModal, setOpenTransferModal] = useState(false);
   const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
@@ -168,7 +168,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
     if (action === 'new') {
-      setNewOwnerType(type === 'H' ? 'Propietario' : 'Inquilino');
+      setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
       setNewIsResident(type === 'T');
       setOpenOwnerForm(true);
       return;
@@ -205,7 +205,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
       if (data?.success) {
         showToast(
-          isHomeowner ? "Propietario liberado" : "Inquilino desvinculado",
+          isHomeowner ? "Propietario liberado" : "Residente desvinculado",
           "success"
         );
         reLoad({extradata: true});
@@ -215,7 +215,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         showToast(
           data?.message ||
             `Error al ${
-              isHomeowner ? "liberar propietario" : "desvincular inquilino"
+              isHomeowner ? "liberar propietario" : "desvincular residente"
             }`,
           "error"
         );
@@ -436,7 +436,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               type_owner: newOwnerType,
               dptos: datas?.data?.id ? [{
                 dpto_id: datas.data.id,
-                will_live_in_unit: newIsResident
+                will_live_in_unit: newIsResident,
+                dpto_nro: datas.data.nro,
               }] : [],
               will_live_in_unit: newIsResident,
               _disabled: false,
@@ -500,7 +501,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             }}>
               {currentRemovalType === "H"
                 ? "¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?"
-                : "¿Estás seguro que quieres desvincular al inquilino? Recuerda que si realizas esta acción la unidad quedará sin inquilino?"}
+                : "¿Estás seguro que quieres desvincular al residente? Recuerda que si realizas esta acción la unidad quedará sin residente?"}
             </p>
           </DataModal>
         )}
@@ -533,7 +534,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             buttonText="Transferir"
           >
             <p style={{
-              textAlign: 'center',
+              textAlign: 'start',
               margin: '16px 0',
               lineHeight: '1.5',
               padding: '0 10px'

@@ -57,12 +57,13 @@ const HeadTitle = ({
         style={{
           marginLeft: left === false ? undefined : "var(--spM)",
           marginRight: left === false ? undefined : "var(--spM)",
+          color: colorTitle
         }}
       >
         {customTitle ? (
           customTitle
         ) : (
-          <p style={{ color: colorTitle }}>{title}</p>
+          <p style={{ color: 'inherit' }}>{title}</p>
         )}
       </div>
       <span>{right}</span>
