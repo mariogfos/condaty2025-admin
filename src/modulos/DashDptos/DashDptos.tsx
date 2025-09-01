@@ -81,8 +81,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
     const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
     const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
 
-    // Verificar si el owner ya tiene una unidad asignada
-    if (selectedOwner?.dpto && selectedOwner.dpto !== null) {
+    // Verificar si el owner ya tiene una unidad asignada (array con elementos)
+    if (selectedOwner?.dpto && Array.isArray(selectedOwner.dpto) && selectedOwner.dpto.length > 0) {
       setSelectedOwnerForTransfer(selectedOwner);
       setPendingTransferType(currentChangeType);
       setOpenTransferModal(true);
@@ -95,10 +95,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const executeOwnerChange = async () => {
     try {
+      // Determinar current_dpto_id basado en selectedOwnerForTransfer
+      let currentDptoId = null;
+      if (selectedOwnerForTransfer && pendingTransferType === "T" && selectedOwnerForTransfer.dpto?.[0]?.id ) {
+        currentDptoId = selectedOwnerForTransfer.dpto[0].id;
+      }
+
       const payload = {
         owner_id: formState.owner_id,
         dpto_id: id,
         type: currentChangeType,
+        ...(selectedOwnerForTransfer?.dpto?.length > 0 && { current_dpto_id: currentDptoId }),
         ...(currentChangeType === "H" ? { is_resident: "N" } : {}),
       };
 
