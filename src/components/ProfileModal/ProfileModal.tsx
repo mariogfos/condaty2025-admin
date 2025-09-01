@@ -221,7 +221,7 @@ const ProfileModal = ({
                   }}
                   onClick={() => setOpenDel(true)}
                 >
-                  <IconTrash className="" size={30} color={"var(--cWhite)"} />
+                  <IconTrash  size={24} color={"var(--cWhite)"} />
                 </div>
               )}
             </div>
