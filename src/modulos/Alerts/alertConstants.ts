@@ -8,7 +8,7 @@ export const ALERT_LEVELS = {
 export const ALERT_LEVEL_LABELS = {
   [ALERT_LEVELS.PANIC]: 'Emergencias',
   [ALERT_LEVELS.HIGH]: 'Todo el condominio',
-  [ALERT_LEVELS.MEDIUM]: 'Admins y guardias',
+  [ALERT_LEVELS.MEDIUM]: 'Administradores y guardias',
   [ALERT_LEVELS.LOW]: 'Guardias',
 } as const;
 
@@ -35,20 +35,20 @@ export const getAlertLevelInfo = (level: number) => {
     case ALERT_LEVELS.HIGH:
       return {
         label: ALERT_LEVEL_LABELS[level as keyof typeof ALERT_LEVEL_LABELS],
-        backgroundColor: 'var(--cHoverCompl1)',
-        color: 'var(--cWhite)'
+        backgroundColor: 'var(--cHoverError)',
+        color: 'var(--cError)'
       };
     case ALERT_LEVELS.MEDIUM:
       return {
         label: ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM],
-        backgroundColor: 'var(--cHoverCompl1)',
-        color: 'var(--cWhite)'
+        backgroundColor: 'var(--cHoverCompl4)',
+        color: 'var(--cWarning)'
       };
     case ALERT_LEVELS.LOW:
       return {
         label: ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW],
-        backgroundColor: 'var(--cHoverCompl1)',
-        color: 'var(--cWhite)'
+        backgroundColor: 'var(--cHoverCompl2)',
+        color: 'var(--cSuccess)'
       };
     default:
       return {
@@ -63,11 +63,11 @@ export const getAlertLevelFigmaColor = (level: number): string => {
   switch (level) {
     case ALERT_LEVELS.PANIC:
     case ALERT_LEVELS.HIGH:
-      return "#e46055";
+      return "var(--cError) ";
     case ALERT_LEVELS.MEDIUM:
-      return "var(--cWhite)";
+      return "var(--cWarning)";
     case ALERT_LEVELS.LOW:
-      return "var(--cWhite)";
+      return "var(--cSuccess)";
     default:
       return "var(--cWhite)";
   }

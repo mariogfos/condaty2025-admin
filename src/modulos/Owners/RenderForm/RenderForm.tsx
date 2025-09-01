@@ -524,7 +524,7 @@ const RenderForm = ({
                   ? extraData?.dptosForH || []
                   : extraData?.dptosForT || [];
 
-              const nro = getUnitNro(unitsList, d.dpto_nro);
+              const nro = d.dpto_nro ? getUnitNro(unitsList, d.dpto_nro) : getUnitNro(unitsList, d.dpto_id);
               return (
                 <div key={String(d.dpto_id) + '_' + idx} className={styles.unitCard}>
                   <div className={styles.unitCardLeft}>

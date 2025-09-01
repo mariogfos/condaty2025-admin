@@ -117,7 +117,7 @@ const Alerts = () => {
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {avatarSrc ? (
           <Avatar
-            hasImage={entityToDisplay?.has_image}
+            hasImage={1}
             src={avatarSrc}
             name={fullName}
           />
@@ -278,20 +278,20 @@ const Alerts = () => {
                 color={
                   !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                     ? 'var(--cWhiteV1)'
-                    : 'var(--cWhite)'
+                    : 'var(--cSuccess)'
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                       ? 'var(--cHover)'
-                      : 'var(--cHoverCompl1)',
+                      : 'var(--cHoverCompl2)',
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
-            style={{ maxWidth: '18%', width: '100%' }}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.MEDIUM]}`}
@@ -301,19 +301,20 @@ const Alerts = () => {
                 color={
                   !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                     ? 'var(--cWhiteV1)'
-                    : 'var(--cWhite)'
+                    : 'var(--cWarning)'
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                       ? 'var(--cHover)'
-                      : 'var(--cHoverCompl1)',
+                      : 'var(--cHoverCompl4)',
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.HIGH]}`}
@@ -323,19 +324,20 @@ const Alerts = () => {
                 color={
                   !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                     ? 'var(--cWhiteV1)'
-                    : 'var(--cWhite)'
+                    : 'var(--cError)'
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                       ? 'var(--cHover)'
-                      : 'var(--cHoverCompl1)',
+                      : 'var(--cHoverError)',
                 }}
                 circle
                 size={18}
               />
             }
             className={styles.widgetResumeCard}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
           <WidgetDashCard
             title="Emergencias"
@@ -358,6 +360,7 @@ const Alerts = () => {
               />
             }
             className={styles.widgetResumeCard}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
         </div>
       </div>
