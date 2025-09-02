@@ -135,7 +135,7 @@ const Header = ({
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
-            hasImage={user.has_image}
+            hasImage={1}
             name={getFullName(user)}
             h={40}
             w={40}
