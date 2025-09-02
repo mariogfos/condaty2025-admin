@@ -524,7 +524,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Perfil del Dependiente"
             titleBack="Volver a la Unidad"
             type="owner"
-            reLoad={reLoad}
+            reLoad={() => reLoad({ extraData: true })}
           />
         )}
         {openTransferModal && selectedOwnerForTransfer && (
