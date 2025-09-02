@@ -47,8 +47,8 @@ export const getAlertLevelInfo = (level: number) => {
     case ALERT_LEVELS.LOW:
       return {
         label: ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW],
-        backgroundColor: 'var(--cHoverCompl2)',
-        color: 'var(--cSuccess)'
+        backgroundColor: 'var(--cHoverCompl3)',
+        color: 'var(--cInfo)'
       };
     default:
       return {
@@ -67,7 +67,7 @@ export const getAlertLevelFigmaColor = (level: number): string => {
     case ALERT_LEVELS.MEDIUM:
       return "var(--cWarning)";
     case ALERT_LEVELS.LOW:
-      return "var(--cSuccess)";
+      return "var(--cInfo)";
     default:
       return "var(--cWhite)";
   }
