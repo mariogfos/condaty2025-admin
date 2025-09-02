@@ -251,26 +251,98 @@ const Authentication = ({
       buttonText={modalButtonText}
       buttonCancel=""
       disabled={isDisabled}
+      variant={"mini"}
+
     >
       {formState?.pinned === 0 ? (
         <div>Se enviará un código de verificación a tu correo electrónico.</div>
       ) : formState?.pinned === 1 ? (
-        <div>
-          <div style={{ marginBottom: 16, marginTop: 16 }}>
-            Ingresa el código de 4 dígitos que te enviamos a tu correo
-            electrónico. Una vez validado, se actualizará tu{" "}
-            {type == "M" ? "correo" : "contraseña"}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '20px 0',
+          gap: '24px'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            maxWidth: '400px',
+            lineHeight: '1.5',
+            fontSize: '16px',
+            color: 'var(--cWhite)'
+          }}>
+            <h3 style={{
+              margin: '0 0 16px 0',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: 'var(--cWhite)'
+            }}>
+              Código de verificación
+            </h3>
+            <p style={{ margin: 0, color: 'var(--cWhiteV1)' }}>
+              Ingresa el código de 4 dígitos que te enviamos a tu correo
+              electrónico. Una vez validado, se actualizará tu{" "}
+              {type == "M" ? "correo" : "contraseña"}
+            </p>
           </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <InputCode
-              label=""
-              type="text"
-              name="code"
-              error={errors}
-              required={true}
-              value={formState?.code}
-              setCode={setCode}
-            ></InputCode>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%'
+          }}>
+            <div style={{
+              background: 'var(--cBlackV1)',
+              padding: '24px',
+              borderRadius: '12px',
+              border: '1px solid var(--cWhiteV2)',
+              minWidth: '280px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                color: 'var(--cWhiteV1)',
+                textAlign: 'center',
+                marginBottom: '8px'
+              }}>
+                Código de verificación
+              </div>
+
+              <InputCode
+                label=""
+                type="text"
+                name="code"
+                error={errors}
+                required={true}
+                value={formState?.code}
+                setCode={setCode}
+              />
+
+
+
+              {errors?.code && (
+                <div style={{
+                  color: 'var(--cError)',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }}>
+                  {errors.code}
+                </div>
+              )}
+
+              <div style={{
+                fontSize: '12px',
+                color: 'var(--cWhiteV1)',
+                textAlign: 'center',
+                marginTop: '8px'
+              }}>
+                ¿No recibiste el código? Revisa tu bandeja de spam
+              </div>
+            </div>
           </div>
         </div>
       ) : (

@@ -20,17 +20,49 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
+import GuardEditForm from "./GuardEditForm/GuardEditForm";
 
 interface ProfileModalProps {
   open: boolean;
-  onClose: any;
-  reLoad?: any;
+  onClose: () => void;
+  reLoad?: () => void;
   dataID?: string | number;
   titleBack?: string;
   title?: string;
   edit?: boolean;
   del?: boolean;
   type?: string;
+}
+interface FormState {
+  id?: string | number;
+  ci?: string;
+  name?: string;
+  middle_name?: string;
+  last_name?: string;
+  mother_last_name?: string;
+  phone?: string;
+  avatar?: string;
+  address?: string;
+  email?: string;
+  password?: string;
+  pinned?: number;
+  code?: string;
+}
+interface ErrorState {
+  [key: string]: string;
+}
+
+interface ClientItem {
+  id: string | number;
+  name: string;
+  updated_at: string;
+}
+
+interface ChangeEvent {
+  target: {
+    name: string;
+    value: string;
+  };
 }
 interface FormState {
   id?: string | number;
@@ -61,19 +93,19 @@ const ProfileModal = ({
   const { user, getUser, showToast, userCan } = useAuth();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<ErrorState>({});
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [authType, setAuthType] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
   const [openDel, setOpenDel] = useState(false);
   const client = user?.clients?.filter(
-    (item: any) => item?.id === user?.client_id
+    (item: ClientItem) => item?.id === user?.client_id
   )[0];
   const IconType =
     type === "admin" ? (
-      <IconAdmin color={"var(--cAccent)"} size={16} />
+      <IconAdmin color={"var(--cSuccess)"} size={16} />
     ) : type === "owner" || type === "homeOwner" ? (
-      <IconUser color={"var(--cAccent)"} size={18} />
+      <IconUser color={"var(--cSuccess)"} size={18} />
     ) : (
       <IconGuardShield color={"var(--cSuccess)"} size={20} />
     );
@@ -138,7 +170,7 @@ const ProfileModal = ({
     }
   }, [openEdit, data]);
 
-  const onChange = (e: any) => {
+  const onChange = (e: ChangeEvent) => {
     setFormState({
       ...formState,
       [e.target.name]: e.target.value,
@@ -159,10 +191,9 @@ const ProfileModal = ({
       is_canceled: "Y",
     });
     if (data?.success == true) {
-      // getAreasM();
       showToast(profileRole + " eliminado con éxito", "success");
       onClose();
-      reLoad();
+      if (reLoad) reLoad();
       reLoadDet();
     }
   };
@@ -178,7 +209,7 @@ const ProfileModal = ({
   };
 
   const clientUsers = data?.data[0]?.clients?.filter(
-    (item: any) => item?.id === user?.client_id
+    (item: ClientItem) => item?.id === user?.client_id
   );
   const deletePerm = userCan("users", "D");
   const editPerm = userCan("users", "U");
@@ -202,47 +233,46 @@ const ProfileModal = ({
                 <div
                   onClick={() => setOpenEdit(true)}
                   style={{
-                    backgroundColor: "var(--cWhiteV2)",
+                    backgroundColor: 'var(--cWhiteV2)',
                     padding: 8,
-                    borderRadius: "var(--bRadiusS)",
-                    cursor: "pointer",
+                    borderRadius: 'var(--bRadiusS)',
+                    cursor: 'pointer',
                   }}
                 >
-                  <IconEdit className="" size={30} color={"var(--cWhite)"} />
+                  <IconEdit className="" size={30} color={'var(--cWhite)'} />
                 </div>
               )}
               {del && deletePerm && (
                 <div
                   style={{
-                    backgroundColor: "var(--cWhiteV2)",
+                    backgroundColor: 'var(--cWhiteV2)',
                     padding: 8,
-                    borderRadius: "var(--bRadiusS)",
-                    cursor: "pointer",
+                    borderRadius: 'var(--bRadiusS)',
+                    cursor: 'pointer',
                   }}
                   onClick={() => setOpenDel(true)}
                 >
-                  <IconTrash  size={24} color={"var(--cWhite)"} />
+                  <IconTrash size={24} color={'var(--cWhite)'} />
                 </div>
               )}
             </div>
           </section>
 
           <section>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt="Foto de portada"
               src={getPortadaCliente()}
               onError={() => setPortadaError(true)}
               style={{
-                width: "100%",
+                width: '100%',
                 height: 300,
-                borderTopLeftRadius: "var(--bRadiusS)",
-                borderTopRightRadius: "var(--bRadiusS)",
+                borderTopLeftRadius: 'var(--bRadiusS)',
+                borderTopRightRadius: 'var(--bRadiusS)',
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
-                borderBottom: "1px solid var(--cWhiteV2)",
-                objectFit: "cover",
-                background: "var(--cWhiteV2)",
+                borderBottom: '1px solid var(--cWhiteV2)',
+                objectFit: 'cover',
+                background: 'var(--cWhiteV2)',
               }}
             />
             <div>
@@ -265,40 +295,36 @@ const ProfileModal = ({
               <div>
                 <div>
                   {IconType}
-                  {data?.data[0]?.dpto?.[0]?.nro && type === "owner"
+                  {data?.data[0]?.dpto?.[0]?.nro && type === 'owner'
                     ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
-                        data?.data[0]?.dpto?.[0]?.nro || "-/-"
+                        data?.data[0]?.dpto?.[0]?.nro || '-/-'
                       }`
                     : profileRole}
                 </div>
                 <div>
-                  <IconPhone size={20} color={"var(--cWhiteV1)"} />
-                  {data?.data[0]?.phone || "-/-"}
+                  <IconPhone size={20} color={'var(--cWhiteV1)'} />
+                  {data?.data[0]?.phone || '-/-'}
                 </div>
                 <div>
-                  <IconEmail size={20} color={"var(--cWhiteV1)"} />
-                  {data?.data[0]?.email || "-/-"}
+                  <IconEmail size={20} color={'var(--cWhiteV1)'} />
+                  {data?.data[0]?.email || '-/-'}
                 </div>
               </div>
             </div>
           </section>
           <section>
-            <WidgetBase
-              title={"Datos Personales"}
-              variant={"V1"}
-              titleStyle={{ fontSize: 16 }}
-            >
+            <WidgetBase title={'Datos Personales'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
               <div className="bottomLine" />
               <div>
                 <div>Carnet de identidad</div>
                 <div>{data?.data[0]?.ci}</div>
               </div>
-              {type !== "homeOwner" && (
+              {type !== 'homeOwner' && (
                 <>
                   <div className="bottomLine" />
                   <div>
                     <div>Condominio</div>
-                    {clientUsers?.map((item: any) => (
+                    {clientUsers?.map((item: ClientItem) => (
                       <div key={item.id}>{item.name}</div>
                     ))}
                   </div>
@@ -310,20 +336,19 @@ const ProfileModal = ({
               <div>
                 <div>Dirección</div>
                 <div>
-                  {type === "owner"
-                    ? !data?.data[0]?.dpto[0]?.description ||
-                      !data?.data[0]?.dpto[0]?.nro
-                      ? "-/-"
+                  {type === 'owner'
+                    ? !data?.data[0]?.dpto[0]?.description || !data?.data[0]?.dpto[0]?.nro
+                      ? '-/-'
                       : `${data?.data[0]?.dpto[0]?.description}`
-                    : data?.data[0]?.address || "-/-"}
+                    : data?.data[0]?.address || '-/-'}
                 </div>
               </div>
 
               <div className="bottomLine" />
             </WidgetBase>
             <WidgetBase
-              title={"Documentos Personales"}
-              variant={"V1"}
+              title={'Documentos Personales'}
+              variant={'V1'}
               titleStyle={{ fontSize: 16 }}
             >
               <div className="bottomLine"></div>
@@ -331,21 +356,23 @@ const ProfileModal = ({
             </WidgetBase>
 
             {user.id === data?.data[0]?.id && (
-              <WidgetBase
-                title={"Datos de acceso"}
-                variant={"V1"}
-                titleStyle={{ fontSize: 16 }}
-              >
+              <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
                 <div className="bottomLine" />
 
                 <div className={styles.buttonChange} onClick={onChangeEmail}>
-                  <IconLockEmail reverse />{" "}
-                  <div>Cambiar correo electrónico</div> <IconArrowRight />
+                  <IconLockEmail reverse />
+                  <div className={styles.accessChange}>
+                    <p>Cambiar correo electrónico</p>
+                    <IconArrowRight className={styles.iconArrow} />
+                  </div>
                 </div>
                 <div className="bottomLine" />
                 <div className={styles.buttonChange} onClick={onChangePassword}>
-                  <IconLook reverse /> <div>Cambiar contraseña</div>{" "}
-                  <IconArrowRight />
+                  <IconLook reverse />
+                  <div className={styles.accessChange}>
+                    <p>Cambiar contraseña</p>
+                    <IconArrowRight className={styles.iconArrow} />
+                  </div>
                 </div>
                 <div className="bottomLine" />
               </WidgetBase>
@@ -369,20 +396,35 @@ const ProfileModal = ({
         )}
 
         {openEdit && (
-          <EditProfile
-            open={openEdit}
-            onClose={() => setOpenEdit(false)}
-            formState={formState}
-            onChange={onChange}
-            errors={errors}
-            urlImages={urlImages}
-            setErrors={setErrors}
-            setFormState={setFormState}
-            url={url}
-            reLoad={reLoadDet}
-            reLoadList={reLoad}
-            type={type}
-          />
+          <>
+            {type === 'guard' ? (
+              <GuardEditForm
+                open={openEdit}
+                onClose={() => setOpenEdit(false)}
+                formState={formState}
+                setFormState={setFormState}
+                errors={errors}
+                setErrors={setErrors}
+                reLoad={() => reLoadDet()}
+                reLoadList={reLoad}
+              />
+            ) : (
+              <EditProfile
+                open={openEdit}
+                onClose={() => setOpenEdit(false)}
+                formState={formState}
+                onChange={onChange}
+                errors={errors}
+                urlImages={urlImages}
+                setErrors={setErrors}
+                setFormState={setFormState}
+                url={url}
+                reLoad={() => reLoadDet()}
+                reLoadList={reLoad}
+                type={type}
+              />
+            )}
+          </>
         )}
         {openDel && (
           <DataModal
@@ -394,12 +436,10 @@ const ProfileModal = ({
             onSave={onDel}
           >
             <div>
-              <p style={{ fontSize: "var(--sL)" }}>
+              <p style={{ fontSize: 'var(--sL)' }}>
                 ¿Estás seguro de que quieres eliminar este registro?
               </p>
-              <p style={{ fontSize: "var(--sL)" }}>
-                Esta acción no se puede deshacer.
-              </p>
+              <p style={{ fontSize: 'var(--sL)' }}>Esta acción no se puede deshacer.</p>
             </div>
           </DataModal>
         )}
