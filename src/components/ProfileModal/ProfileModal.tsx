@@ -21,6 +21,7 @@ import Authentication from "@/modulos/Profile/Authentication";
 import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
 import GuardEditForm from "./GuardEditForm/GuardEditForm";
+import Button from "@/mk/components/forms/Button/Button";
 
 interface ProfileModalProps {
   open: boolean;
@@ -224,6 +225,7 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
+
       >
         <div className={styles.ProfileModal}>
           <section>
@@ -239,7 +241,7 @@ const ProfileModal = ({
                     cursor: 'pointer',
                   }}
                 >
-                  <IconEdit className="" size={30} color={'var(--cWhite)'} />
+                  <IconEdit className="" size={24} color={'var(--cWhite)'} />
                 </div>
               )}
               {del && deletePerm && (
@@ -378,6 +380,25 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
+          <div style={{display: 'flex', justifyContent: 'flex-start'}}>
+            <Button
+              onClick={() => {
+                setOpenAuthModal(true);
+                setAuthType('logout');
+              }}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--cError)',
+                border: 'none',
+                padding: '0px 0px',
+                width: 'auto',
+                minWidth: 'auto',
+                textDecorationLine: 'underline',
+              }}
+            >
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
         {openAuthModal && (
           <Authentication
