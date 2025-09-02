@@ -351,13 +351,13 @@ const ProfileModal = ({
               variant={'V1'}
               titleStyle={{ fontSize: 16 }}
             >
-              <div className="bottomLine"></div>
+              <div style={{ marginTop: 10 }} className="bottomLine" />
               <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
             </WidgetBase>
 
             {user.id === data?.data[0]?.id && (
               <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
-                <div className="bottomLine" />
+                <div style={{ marginTop: 10 }} className="bottomLine" />
 
                 <div className={styles.buttonChange} onClick={onChangeEmail}>
                   <IconLockEmail reverse />
