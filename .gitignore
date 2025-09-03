@@ -48,3 +48,4 @@ next-env.d.ts
 .devdbrc
 .env.development
 package-lock.json
+.env.development
