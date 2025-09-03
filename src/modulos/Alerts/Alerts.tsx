@@ -278,13 +278,13 @@ const Alerts = () => {
                 color={
                   !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                     ? 'var(--cWhiteV1)'
-                    : 'var(--cSuccess)'
+                    : 'var(--cInfo)'
                 }
                 style={{
                   backgroundColor:
                     !data?.extraData?.total_alerts || data?.extraData?.total_alerts === 0
                       ? 'var(--cHover)'
-                      : 'var(--cHoverCompl2)',
+                      : 'var(--cHoverCompl3)',
                 }}
                 circle
                 size={18}

@@ -27,7 +27,7 @@ import Image from 'next/image';
 interface ProfileModalProps {
   open: boolean;
   onClose: () => void;
-  reLoad?: () => void;
+  reLoad?: Function;
   dataID?: string | number;
   titleBack?: string;
   title?: string;

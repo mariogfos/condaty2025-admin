@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useEffect } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
@@ -16,7 +17,7 @@ interface GuardEditFormProps {
   errors: any;
   setErrors: (errors: any) => void;
   reLoad: () => void;
-  reLoadList?: () => void;
+  reLoadList?: Function;
 }
 
 interface FormState {
