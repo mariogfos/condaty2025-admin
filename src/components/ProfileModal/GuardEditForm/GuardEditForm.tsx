@@ -66,8 +66,6 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
         ...prev,
         [name]: value,
       }));
-
-      // Limpiar error del campo cuando el usuario empiece a escribir
       if (localErrors[name]) {
         setLocalErrors(prev => ({ ...prev, [name]: '' }));
       }
@@ -85,6 +83,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
         fullType: 'EXIST',
         type: 'ci',
         searchBy: e.target.value,
+        value: formState.id,
       },
       false,
       true
@@ -139,6 +138,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
         fullType: 'EXIST',
         type: 'email',
         searchBy: e.target.value,
+        value: formState.id,
       },
       false,
       true
@@ -287,7 +287,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
               required={true}
               value={formState.ci || ''}
               onChange={handleChangeInput}
-             /*  onBlur={onBlurCi} */
+              onBlur={onBlurCi}
               error={localErrors}
               disabled={true}
               maxLength={8}
@@ -407,7 +407,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
               required={true}
               value={formState.email || ''}
               onChange={handleChangeInput}
-             /*  onBlur={onBlurEmail} */
+              onBlur={onBlurEmail}
               error={localErrors}
               disabled={formState._emailDisabled}
             />

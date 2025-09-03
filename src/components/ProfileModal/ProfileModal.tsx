@@ -22,6 +22,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
 import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Button from "@/mk/components/forms/Button/Button";
+import Image from 'next/image';
 
 interface ProfileModalProps {
   open: boolean;
@@ -102,22 +103,26 @@ const ProfileModal = ({
   const client = user?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id
   )[0];
-  const IconType =
-    type === "admin" ? (
-      <IconAdmin color={"var(--cSuccess)"} size={16} />
-    ) : type === "owner" || type === "homeOwner" ? (
-      <IconUser color={"var(--cSuccess)"} size={18} />
-    ) : (
-      <IconGuardShield color={"var(--cSuccess)"} size={20} />
-    );
-  const url =
-    type === "admin"
-      ? `/users`
-      : type === "owner"
-      ? `/owners`
-      : type === "homeOwner"
-      ? `/homeowners`
-      : `/guards`;
+  const getIconType = () => {
+    if (type === "admin") {
+      return <IconAdmin color={"var(--cSuccess)"} size={16} />;
+    }
+    if (type === "owner" || type === "homeOwner") {
+      return <IconUser color={"var(--cSuccess)"} size={18} />;
+    }
+    return <IconGuardShield color={"var(--cSuccess)"} size={20} />;
+  };
+
+  const IconType = getIconType();
+
+  const getUrl = () => {
+    if (type === "admin") return `/users`;
+    if (type === "owner") return `/owners`;
+    if (type === "homeOwner") return `/homeowners`;
+    return `/guards`;
+  };
+
+  const url = getUrl();
 
   const { data, reLoad: reLoadDet } = useAxios(
     url,
@@ -128,14 +133,14 @@ const ProfileModal = ({
     },
     true
   );
-  const profileRole =
-    type === "admin"
-      ? data?.data[0]?.role[0]?.name
-      : type === "owner"
-      ? "Residente"
-      : type === "homeOwner"
-      ? "Propietario"
-      : "Guardia";
+  const getProfileRole = () => {
+    if (type === "admin") return data?.data[0]?.role[0]?.name;
+    if (type === "owner") return "Residente";
+    if (type === "homeOwner") return "Propietario";
+    return "Guardia";
+  };
+
+  const profileRole = getProfileRole();
   const imageUrl = () => {
     const userId = data?.data[0]?.id;
     const timestamp = data?.data[0]?.updated_at;
@@ -232,38 +237,52 @@ const ProfileModal = ({
             <h1>{title}</h1>
             <div>
               {edit && editPerm && (
-                <div
+                <button
+                  type="button"
                   onClick={() => setOpenEdit(true)}
                   style={{
                     backgroundColor: 'var(--cWhiteV2)',
                     padding: 8,
                     borderRadius: 'var(--bRadiusS)',
                     cursor: 'pointer',
+                    border: 'none',
+                    color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   <IconEdit className="" size={24} color={'var(--cWhite)'} />
-                </div>
+                </button>
               )}
               {del && deletePerm && (
-                <div
+                <button
+                  type="button"
                   style={{
                     backgroundColor: 'var(--cWhiteV2)',
                     padding: 8,
                     borderRadius: 'var(--bRadiusS)',
                     cursor: 'pointer',
+                    border: 'none',
+                    color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                   onClick={() => setOpenDel(true)}
                 >
                   <IconTrash size={24} color={'var(--cWhite)'} />
-                </div>
+                </button>
               )}
             </div>
           </section>
 
           <section>
-            <img
+            <Image
               alt="Foto de portada"
               src={getPortadaCliente()}
+              width={800}
+              height={300}
               onError={() => setPortadaError(true)}
               style={{
                 width: '100%',
@@ -276,6 +295,7 @@ const ProfileModal = ({
                 objectFit: 'cover',
                 background: 'var(--cWhiteV2)',
               }}
+              unoptimized
             />
             <div>
               <div>
@@ -338,11 +358,17 @@ const ProfileModal = ({
               <div>
                 <div>Dirección</div>
                 <div>
-                  {type === 'owner'
-                    ? !data?.data[0]?.dpto[0]?.description || !data?.data[0]?.dpto[0]?.nro
-                      ? '-/-'
-                      : `${data?.data[0]?.dpto[0]?.description}`
-                    : data?.data[0]?.address || '-/-'}
+                  {(() => {
+                    if (type === 'owner') {
+                      const hasDescription = data?.data[0]?.dpto[0]?.description;
+                      const hasNro = data?.data[0]?.dpto[0]?.nro;
+                      if (!hasDescription || !hasNro) {
+                        return '-/-';
+                      }
+                      return data.data[0].dpto[0].description;
+                    }
+                    return data?.data[0]?.address || '-/-';
+                  })()}
                 </div>
               </div>
 
@@ -361,21 +387,51 @@ const ProfileModal = ({
               <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
                 <div style={{ marginTop: 10 }} className="bottomLine" />
 
-                <div className={styles.buttonChange} onClick={onChangeEmail}>
+                <button
+                  type="button"
+                  className={styles.buttonChange}
+                  onClick={onChangeEmail}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
                   <IconLockEmail reverse />
                   <div className={styles.accessChange}>
                     <p>Cambiar correo electrónico</p>
                     <IconArrowRight className={styles.iconArrow} />
                   </div>
-                </div>
+                </button>
                 <div className="bottomLine" />
-                <div className={styles.buttonChange} onClick={onChangePassword}>
+                <button
+                  type="button"
+                  className={styles.buttonChange}
+                  onClick={onChangePassword}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
                   <IconLook reverse />
                   <div className={styles.accessChange}>
                     <p>Cambiar contraseña</p>
                     <IconArrowRight className={styles.iconArrow} />
                   </div>
-                </div>
+                </button>
                 <div className="bottomLine" />
               </WidgetBase>
             )}
