@@ -17,14 +17,15 @@
     color: var(--cWhite);
     background-color: var(--cBlack);
     border-radius: var(--bRadius);
-    margin: var(--spM);
-    box-shadow: 2px 6px 20px 4px rgba(0, 0, 0, 0.15);
+    /* box-shadow: 2px 6px 20px 4px rgba(0, 0, 0, 0.15); */
     overflow: hidden;
     opacity: 0;
     transform: translateY(100%);
     transition: all 0.3s;
     width: 85%;
     max-height: calc(100% - 50px);
+    padding: var(--spL);
+    gap: var(--spS);
     @media (width>768px) {
       width: 50%;
     }
@@ -40,7 +41,6 @@
       max-height: 100%;
     }
     &.V2 {
-      /* background-color: aquamarine; */
       padding-left: 20%;
       padding-right: 20%;
     }
@@ -61,24 +61,18 @@
       height: 0.5px; /* Grosor de la línea, similar a borderWidth */
       background-color: var(--cWhiteV1); /* Color del borde (#a7a7a7) */
       width: 100%;
-
-      width: calc(100% - (var(--spM) * 2));
-      margin-left: var(--spM);
-      margin-right: var(--spM);
     }
     & > section {
       overflow-y: auto;
       flex-grow: 1;
       color: var(--cWhiteV1);
-      padding: var(--spM);
-      padding-top: var(--spL);
+      margin-top: var(--spS);
+      margin-bottom: var(--spS);
     }
     & > footer {
       display: flex;
       /* flex-direction: column;  Mantenemos esto para el móvil inicialmente */
       gap: 8px; /* Espacio entre botones si están en columna o si hay más de dos */
-      padding: var(--spM);
-      padding-top: 0;
 
       /* Para pantallas móviles (botones en columna, ocupan todo el ancho por defecto) */
       & > button {

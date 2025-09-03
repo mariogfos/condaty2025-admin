@@ -47,3 +47,4 @@ next-env.d.ts
 #custom
 .devdbrc
 .env.development
+package-lock.json

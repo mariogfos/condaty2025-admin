@@ -28,7 +28,7 @@ const HeadTitle = ({
   right = null,
   customTitle = null,
   colorBack = "var(--cWhite)",
-  colorTitle = "var(--cWhite)", 
+  colorTitle = "var(--cWhite)",
 }: PropsType) => {
   const router = useRouter();
   const goBack = () => {
@@ -49,7 +49,7 @@ const HeadTitle = ({
           {left !== null ? (
             left
           ) : (
-            <IconArrowLeft onClick={goBack} color={colorBack} size={32} />
+            <IconArrowLeft onClick={goBack} color={colorBack} size={24} />
           )}
         </span>
       )}
@@ -59,7 +59,11 @@ const HeadTitle = ({
           marginRight: left === false ? undefined : "var(--spM)",
         }}
       >
-        {customTitle ? customTitle : <h1 style={{color:colorTitle}}>{title}</h1>}
+        {customTitle ? (
+          customTitle
+        ) : (
+          <p style={{ color: colorTitle }}>{title}</p>
+        )}
       </div>
       <span>{right}</span>
     </div>

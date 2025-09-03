@@ -1,9 +1,9 @@
 
 
 .renderView {
-    & > div  {  
-         display: flex; 
-         padding:var(--spL); 
+    & > div  {
+         display: flex;
+         padding:var(--spL);
          gap: var(--spL);
          align-items: center;
          @media (max-width: 750px) {
@@ -15,16 +15,16 @@
            justify-content: center;
            align-items: center;
            gap: var(--spL);
-           
+
          }
          & > section {
            padding: var(--spM);
            background-color: var(--cBlackV1);
            border-radius: 8px;
-           
+
            width:500px;
- 
-           
+
+
            & > div {
              display: flex;
              margin-bottom: 16px;
@@ -33,7 +33,7 @@
              & > p:nth-child(odd) {
                flex: 1;
                color: var(--cWhiteV1);
-               
+
              }
              & > p:nth-child(even) {
                flex: 1;
@@ -44,27 +44,6 @@
          }
        }
    }
-
-   .fieldSet {
-    width: 100%;
-    /* background-color: aqua !important; */
-    padding: var(--spM);
-    display: flex;
-    flex-direction: column;
-    border-bottom: 0.5px solid var(--cWhiteV1);
-    border-top: 0.5px solid var(--cWhiteV1);
-    gap: var(--spL);
-    & > div {
-      gap:var(--spL)
-    }
-    & > div:nth-child(1) > div:nth-child(1){
-      color:var(--cWhite);
-      font-size: var(--sL);
-      font-weight: var(--bBold);
-      margin-bottom: var(--spL);
-  
-    }
-  }
 
 /* Estilos para la "etiqueta" de Titular/Dependiente */
 .residentTypeBadge {
@@ -157,4 +136,3 @@
   font-size: 14px;
   color: var(--cWhite);
 }
-

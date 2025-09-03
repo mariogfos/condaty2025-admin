@@ -121,7 +121,6 @@
 
 .modalContent {
   width: 100%;
-  padding: 1rem;
 }
 
 .titleContainer {
@@ -422,12 +421,7 @@
     width: max-content;
   }
 }
-.br {
-  height: 1px;
-  width: 100%;
-  background-color: var(--cWhiteV1);
-  margin: 1rem 0;
-}
+
 .LabelValue {
   flex-grow: 1;
   & > p:nth-child(1) {
@@ -740,4 +734,10 @@
 .menuItem:hover {
   background-color: var(--cFillSidebar);
   color: var(--cWhite);
+}
+.text-center-del{
+  margin-top: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+  
 }

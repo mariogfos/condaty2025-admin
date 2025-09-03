@@ -3,8 +3,8 @@ import styles from "../RenderForm.module.css";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import Switch from "@/mk/components/forms/Switch/Switch";
 import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMultiple";
+import Br from "@/components/Detail/Br";
 interface PropsType {
   handleChange: any;
   errors: any;
@@ -18,17 +18,6 @@ const FirstPart = ({
   setErrors,
   formState,
 }: PropsType) => {
-  const Br = () => {
-    return (
-      <div
-        style={{
-          backgroundColor: "var(--cWhiteV1)",
-          height: 0.5,
-          margin: "12px 0px",
-        }}
-      />
-    );
-  };
   return (
     <>
       {/* <p className={styles.title}>Fotografía del área social</p> */}

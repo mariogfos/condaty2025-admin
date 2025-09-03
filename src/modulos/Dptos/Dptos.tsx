@@ -264,34 +264,33 @@ const Dptos = () => {
         label: 'Residente',
         list: {
           onRender: (props: any) => {
-            if (!props?.item?.titular) {
-              return <div className={styles.noTitular}>Sin residente</div>;
-            }
-            if (!props?.item?.titular?.owner) {
-              return <div className={styles.noTitular}>Residente sin datos</div>;
-            }
+              // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
+              const holder = props?.item?.holder;
+              const tenant = props?.item?.tenant;
+              const homeowner = props?.item?.homeowner;
+              const person = holder === 'T' ? tenant : homeowner;
 
-            return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Avatar
-                  hasImage={props?.item?.titular?.owner?.has_image}
-                  src={getUrlImages(
-                    '/OWNER-' +
-                      props?.item?.titular?.owner_id +
-                      '.webp?d=' +
-                      props?.item?.titular?.owner?.updated_at
-                  )}
-                  name={getFullName(props?.item?.titular?.owner)}
-                />
-                <div>
-                  <p style={{ color: 'var(--cWhite)' }}>
-                    {getFullName(props?.item?.titular?.owner)}
-                  </p>
-                  <p>CI: {props?.item?.titular?.owner?.ci || 'Sin registro'}</p>
+              if (!person || !tenant) {
+                return <div className={styles.noTitular}>Sin residente</div>;
+              }
+
+              const personId = person?.id;
+              const updatedAt = person?.updated_at || person?.updatedAt || '';
+
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Avatar
+                    hasImage={person?.has_image}
+                    src={getUrlImages('/OWNER-' + personId + '.webp?d=' + updatedAt)}
+                    name={getFullName(person)}
+                  />
+                  <div>
+                    <p style={{ color: 'var(--cWhite)' }}>{getFullName(person)}</p>
+                    <p>CI: {person?.ci || 'Sin registro'}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          },
+              );
+            },
         },
         filter: {
           label: 'Estado',
@@ -310,9 +309,12 @@ const Dptos = () => {
         list: {
           width: '160px',
           onRender: (props: any) => {
+            // Use dpto_owners relationship: if it has items -> Habitada, else Disponible
+            const owners = props?.item?.dpto_owners;
+            const isOccupied = Array.isArray(owners) ? owners.length > 0 : !!owners;
             return (
               <div className={styles.statusCellCenter}>
-                {props?.item?.titular ? (
+                {isOccupied ? (
                   <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
                     Habitada
                   </StatusBadge>
@@ -426,9 +428,9 @@ const Dptos = () => {
       <h1 className={styles.dashboardTitle}>Unidades</h1>
       <div className={styles.allStatsRow}>
         <WidgetDashCard
-          title={'Unidades totales'}
-          data={data?.message?.total}
-          style={{ minWidth: '160px', maxWidth: '268px' }}
+          title={"Unidades totales"}
+          data={data?.message?.total || 0}
+          style={{ minWidth: "280px", maxWidth: "260px" }}
           icon={
             <IconUnidades
               color={

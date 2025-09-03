@@ -13,17 +13,17 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import styles from "../DashDptos.module.css";
 import Br from "@/components/Detail/Br";
+import useAxios from "@/mk/hooks/useAxios";
 
 interface UnitInfoProps {
   datas: any;
   onEdit: () => void;
   onDelete: () => void;
-  onTitular: () => void;
-  onRemoveTitular: () => void;
+  onTitular: (type: "H" | "T", action?: 'new' | 'change') => void;
+  onRemoveTitular: (type: "H" | "T") => void;
   onOpenDependentProfile: (ownerId: string) => void;
   onOpenTitularHist: () => void;
 }
-
 
 const UnitInfo = ({
   datas,
@@ -38,14 +38,13 @@ const UnitInfo = ({
   const [openTenantMenu, setOpenTenantMenu] = useState(false);
   const [openTitularSelector, setOpenTitularSelector] = useState(false);
 
-  // Cerrar menús cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (
         !target.closest(`.${styles.menuDots}`) &&
         !target.closest(`.${styles.dropdownMenu}`) &&
-        !target.closest(`.${styles.titularDropdown}`)
+        !target.closest(`.${styles.tenantDropdown}`)
       ) {
         setOpenOwnerMenu(false);
         setOpenTenantMenu(false);
@@ -62,27 +61,51 @@ const UnitInfo = ({
     };
   }, [openOwnerMenu, openTenantMenu, openTitularSelector]);
 
-  const owner = datas?.data?.homeowner;
+  const owner = datas?.homeowner;
   const ownerUpdatedAtQuery = owner?.updated_at ? `?d=${owner.updated_at}` : "";
   const ownerAvatarSrc = owner?.id
     ? getUrlImages(`/OWNER-${owner.id}.webp${ownerUpdatedAtQuery}`)
     : "";
-
-  const tenant = datas?.titular;
+  const tenant = datas?.tenant;
   const tenantUpdatedAtQuery = tenant?.updated_at
     ? `?d=${tenant.updated_at}`
     : "";
   const tenantAvatarSrc = tenant?.id
     ? getUrlImages(`/OWNER-${tenant.id}.webp${tenantUpdatedAtQuery}`)
     : "";
+
+  const currentHolder = datas?.data?.holder;
   const HandleTitular = () => {
-    if (datas?.titular) {
-      return "Residente";
-    }
-    if (datas?.data?.homeowner) {
-      return "Propietario";
-    }
+    if (currentHolder === "H") return "Propietario";
+    if (currentHolder === "T") return "Residente";
+    if (datas?.tenant) return "Residente";
+    if (datas?.data?.homeowner) return "Propietario";
     return "Sin asignar";
+  };
+
+  const { execute } = useAxios();
+
+  const changeTitular = async (holder: "H" | "T") => {
+    setOpenTitularSelector(false);
+    const dptoId = datas?.data?.id || datas?.data?.dpto_id || null;
+    if (!dptoId) {
+      console.error("Falta dpto_id para cambiar titular", { dptoId });
+      return;
+    }
+
+    try {
+      const { data } = await execute("/dptos-change-titular", "POST", {
+        dpto_id: dptoId,
+        holder,
+      });
+      if (data?.success) {
+        window.location.reload();
+      } else {
+        console.error("Error al cambiar titular", data?.message || data);
+      }
+    } catch (error) {
+      console.error("Error al llamar a /dptos-change-titular", error);
+    }
   };
   return (
     <div className={styles.infoCard}>
@@ -93,11 +116,11 @@ const UnitInfo = ({
           </p>
           <p className={styles.subtitle}>{datas?.data?.description}</p>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12 }}>
           <div className={styles.iconActions}>
             <IconEdit size={30} onClick={onEdit} />
           </div>
-          {!datas?.titular && !datas?.data?.homeowner && (
+          {!datas?.tenant && !datas?.homeowner && (
             <div className={styles.iconActions}>
               <IconTrash size={30} onClick={onDelete} />
             </div>
@@ -105,29 +128,25 @@ const UnitInfo = ({
         </div>
       </div>
 
-      <Br />
+      <Br style={{ marginTop: 16, marginBottom: 16 }} />
 
       {/* Sección de información de la unidad */}
       <div className={styles.unitInfoSection}>
         <div className={styles.unitInfoGrid}>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Estado</span>
-            <span className={styles.infoValue}>
-              {datas?.titular ? "Habitada" : "Disponible"}
-            </span>
+            <span className={styles.infoValue}>{datas?.tenant ? 'Habitada' : 'Disponible'}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>
-              Bs {datas?.data?.expense_amount || "0"}
-            </span>
+            <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
             <button
               type="button"
               className={styles.titularDropdown}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
               }}
@@ -135,31 +154,31 @@ const UnitInfo = ({
               <span className={styles.infoValue}>{HandleTitular()}</span>
               <IconArrowDown
                 size={16}
-                className={
-                  openTitularSelector ? styles.arrowUp : styles.arrowDown
-                }
+                className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
               />
               {openTitularSelector && (
                 <div className={styles.dropdownMenu}>
                   <button
                     type="button"
                     className={styles.menuItem}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
-                      setOpenTitularSelector(false);
+                      changeTitular('H');
+                      setOpenOwnerMenu(false);
+                      setOpenTenantMenu(false);
                     }}
                   >
-                    Propietario
+                    Propietario{currentHolder === 'H' ? ' (actual)' : ''}
                   </button>
                   <button
                     type="button"
                     className={styles.menuItem}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
-                      setOpenTitularSelector(false);
+                      changeTitular('T');
                     }}
                   >
-                    Residente
+                    Residente{currentHolder === 'T' ? ' (actual)' : ''}
                   </button>
                 </div>
               )}
@@ -167,238 +186,251 @@ const UnitInfo = ({
           </div>
         </div>
 
-        <Br />
+        <Br style={{ marginTop: 16, marginBottom: 16 }} />
 
         {/* Sección Propietario */}
-        {datas?.data?.homeowner && (
-          <div className={styles.ownerSection}>
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Propietario</h3>
-              <div className={styles.sectionActions}>
-                <button
-                  type="button"
-                  className={styles.menuDots}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenOwnerMenu(!openOwnerMenu);
-                  }}
-                >
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                </button>
-                {openOwnerMenu && (
-                  <div className={styles.dropdownMenu}>
+        <div className={styles.ownerSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Propietario</h3>
+            <div className={styles.sectionActions}>
+              <button
+                type="button"
+                className={styles.menuDots}
+                onClick={e => {
+                  e.stopPropagation();
+                  setOpenOwnerMenu(!openOwnerMenu);
+                  setOpenTenantMenu(false);
+                  setOpenTitularSelector(false);
+                }}
+              >
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+              </button>
+              {openOwnerMenu && (
+                <div className={styles.dropdownMenu}>
+                  {!datas?.homeowner && (
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
+                        onTitular('H', 'new');
                       }}
                     >
-                      Cambiar/Nuevo
+                      Nuevo
                     </button>
+                  )}
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setOpenOwnerMenu(false);
+                      onTitular('H', 'change');
+                    }}
+                  >
+                    Cambiar
+                  </button>
+                  {datas?.homeowner && owner?.is_resident && (
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenOwnerMenu(false);
+                        onRemoveTitular('H');
                       }}
                     >
                       Liberar residencia
                     </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className={styles.personCard}>
-              <Avatar
-                hasImage={owner?.has_image}
-                src={ownerAvatarSrc}
-                name={getFullName(owner)}
-                w={48}
-                h={48}
+          {datas?.homeowner ? (
+            <>
+              <div className={styles.personCard}>
+                <Avatar
+                  hasImage={owner?.has_image}
+                  src={ownerAvatarSrc}
+                  name={getFullName(owner)}
+                  w={48}
+                  h={48}
+                />
+                <div className={styles.personInfo}>
+                  <h4 className={styles.personName}>{getFullName(owner)}</h4>
+                  <p className={styles.personId}>C.I. {owner?.ci || 'Sin registro'}</p>
+                </div>
+              </div>
+
+              <div className={styles.contactGrid}>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>E-mail</span>
+                  <span className={styles.contactValue}>{owner?.email || 'Sin email'}</span>
+                </div>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>Celular</span>
+                  <span className={styles.contactValue}>{owner?.phone || 'Sin teléfono'}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <EmptyData
+                message="Sin propietario asignado. Para asignar"
+                line2="un propietario a esta unidad."
+                icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+                centered={true}
+                fontSize={14}
               />
-              <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(owner)}</h4>
-                <p className={styles.personId}>
-                  C.I. {owner?.ci || "Sin registro"}
-                </p>
-              </div>
             </div>
-
-            <div className={styles.contactGrid}>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.contactValue}>
-                  {owner?.email || "Sin email"}
-                </span>
-              </div>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.contactValue}>
-                  {owner?.phone || "Sin teléfono"}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Estado sin propietario */}
-        {!datas?.data?.homeowner && (
-          <div className={styles.emptyState}>
-            <EmptyData
-              message="Sin propietario asignado. Para asignar"
-              line2="un propietario a esta unidad."
-              icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-              centered={true}
-              fontSize={14}
-            />
-          </div>
-        )}
-
-        <Br />
-
+          )}
+        </div>
+        <Br style={{ marginTop: 16, marginBottom: 16 }} />
         {/* Sección Residente/Titular */}
-        {datas?.titular && (
-          <div className={styles.residentSection}>
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>Residente</h3>
-              <div className={styles.sectionActions}>
-                <button
-                  type="button"
-                  className={styles.menuDots}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenTenantMenu(!openTenantMenu);
-                  }}
-                >
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                  <div className={styles.dot}></div>
-                </button>
-                {openTenantMenu && (
-                  <div className={styles.dropdownMenu}>
+        <div className={styles.residentSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>Residente</h3>
+            <div className={styles.sectionActions}>
+              <button
+                type="button"
+                className={styles.menuDots}
+                onClick={e => {
+                  e.stopPropagation();
+                  setOpenTenantMenu(!openTenantMenu);
+                  setOpenOwnerMenu(false);
+                  setOpenTitularSelector(false);
+                }}
+              >
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+                <div className={styles.dot}></div>
+              </button>
+              {openTenantMenu && (
+                <div className={styles.dropdownMenu}>
+                  {!datas?.tenant && (
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onTitular();
+                        onTitular('T',"new");
                       }}
                     >
-                      Cambiar/Nuevo
+                      Nuevo
                     </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setOpenTenantMenu(false);
+                      onTitular('T',"change");
+                    }}
+                  >
+                    Cambiar
+                  </button>
+                  {datas?.tenant && (
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setOpenTenantMenu(false);
-                        onRemoveTitular();
+                        onRemoveTitular('T');
                       }}
                     >
                       Desvincular
                     </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className={styles.personCard}>
-              <Avatar
-                hasImage={tenant?.has_image}
-                src={tenantAvatarSrc}
-                name={getFullName(tenant)}
-                w={48}
-                h={48}
-              />
-              <div className={styles.personInfo}>
-                <h4 className={styles.personName}>{getFullName(tenant)}</h4>
-                <p className={styles.personId}>
-                  C.I. {tenant?.ci || "Sin registro"}
-                </p>
+          {datas?.tenant ? (
+            <>
+              <div className={styles.personCard}>
+                <Avatar
+                  hasImage={tenant?.has_image}
+                  src={tenantAvatarSrc}
+                  name={getFullName(tenant)}
+                  w={48}
+                  h={48}
+                />
+                <div className={styles.personInfo}>
+                  <h4 className={styles.personName}>{getFullName(tenant)}</h4>
+                  <p className={styles.personId}>C.I. {tenant?.ci || 'Sin registro'}</p>
+                </div>
               </div>
-            </div>
 
-            <div className={styles.contactGrid}>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>E-mail</span>
-                <span className={styles.infoValue}>
-                  {tenant?.email || "Sin email"}
-                </span>
+              <div className={styles.contactGrid}>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>E-mail</span>
+                  <span className={styles.infoValue}>{tenant?.email || 'Sin email'}</span>
+                </div>
+                <div className={styles.contactItem}>
+                  <span className={styles.contactLabel}>Celular</span>
+                  <span className={styles.infoValue}>{tenant?.phone || 'Sin teléfono'}</span>
+                </div>
               </div>
-              <div className={styles.contactItem}>
-                <span className={styles.contactLabel}>Celular</span>
-                <span className={styles.infoValue}>
-                  {tenant?.phone || "Sin teléfono"}
-                </span>
-              </div>
-            </div>
 
-            {/* Dependientes */}
-            {datas?.titular?.dependientes &&
-              datas.titular.dependientes.length > 0 && (
+              {/* Dependientes */}
+              {datas?.tenant?.dependientes && datas.tenant.dependientes.length > 0 && (
                 <div className={styles.dependentsSection}>
                   <div className={styles.dependentsHeader}>
                     <h4 className={styles.dependentsTitle}>Dependientes</h4>
                   </div>
                   <div className={styles.dependentsGrid}>
-                    {datas.titular.dependientes
-                      .slice(0, 3)
-                      .map((dependiente: any, index: number) => {
-                        const dependentOwner = dependiente.owner;
-                        const dependentUpdatedAtQuery =
-                          dependentOwner?.updated_at
-                            ? `?d=${dependentOwner.updated_at}`
-                            : "";
-                        const dependentAvatarSrc = dependentOwner?.id
-                          ? getUrlImages(
-                              `/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`
-                            )
-                          : "";
-                        return (
-                          <Tooltip
-                            key={index}
-                            title={getFullName(dependentOwner)}
-                            position="top-left"
-                          >
-                            <Avatar
-                              hasImage={dependentOwner?.has_image}
-                              className={styles.dependentAvatar}
-                              src={dependentAvatarSrc}
-                              name={getFullName(dependentOwner)}
-                              w={40}
-                              h={40}
-                              onClick={() =>
-                                onOpenDependentProfile(dependiente.owner_id)
-                              }
-                            />
-                          </Tooltip>
-                        );
-                      })}
+                    {datas.tenant.dependientes.slice(0, 3).map((dependiente: any) => {
+                      const dependentOwner = dependiente.owner;
+                      const dependentUpdatedAtQuery = dependentOwner?.updated_at
+                        ? `?d=${dependentOwner.updated_at}`
+                        : '';
+                      const dependentAvatarSrc = dependentOwner?.id
+                        ? getUrlImages(`/OWNER-${dependentOwner.id}.webp${dependentUpdatedAtQuery}`)
+                        : '';
+                      return (
+                        <Tooltip
+                          key={dependiente.owner_id || dependiente.id}
+                          title={getFullName(dependentOwner)}
+                          position="top-left"
+                        >
+                          <Avatar
+                            hasImage={dependentOwner?.has_image}
+                            className={styles.dependentAvatar}
+                            src={dependentAvatarSrc}
+                            name={getFullName(dependentOwner)}
+                            w={40}
+                            h={40}
+                            onClick={() => onOpenDependentProfile(dependiente.owner_id)}
+                          />
+                        </Tooltip>
+                      );
+                    })}
                   </div>
                 </div>
               )}
-          </div>
-        )}
-
-        {/* Estado sin titular */}
-        {!datas?.titular && (
-          <div className={styles.emptyState}>
-            <EmptyData
-              message="Sin Residente asignado. Para asignar"
-              line2="un residente a esta unidad."
-              icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
-              centered={true}
-              fontSize={14}
-            />
-          </div>
-        )}
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <EmptyData
+                message="Sin residente asignado. Para asignar"
+                line2="un residente a esta unidad."
+                icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
+                centered={true}
+                fontSize={14}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <Button
@@ -406,9 +438,9 @@ const UnitInfo = ({
         small
         style={{
           padding: 0,
-          display: "flex",
-          justifyContent: "flex-start",
-          width: "fit-content",
+          display: 'flex',
+          justifyContent: 'flex-start',
+          width: 'fit-content',
         }}
         onClick={onOpenTitularHist}
       >

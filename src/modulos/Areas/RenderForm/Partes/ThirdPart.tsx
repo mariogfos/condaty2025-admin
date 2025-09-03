@@ -2,24 +2,13 @@ import React from "react";
 import styles from "../RenderForm.module.css";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import Switch from "@/mk/components/forms/Switch/Switch";
+import Br from "@/components/Detail/Br";
 interface PropsType {
   handleChange: any;
   errors: any;
   formState: any;
 }
 const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
-  const Br = () => {
-    return (
-      <div
-        style={{
-          backgroundColor: "var(--cWhiteV1)",
-          height: 0.5,
-          margin: "16px 0px",
-        }}
-      />
-    );
-  };
-
   return (
     <>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -99,7 +88,8 @@ const ThirdPart = ({ handleChange, errors, formState }: PropsType) => {
         <div>
           <p className={styles.title}>¿Aprobación de administración?</p>
           <p className={styles.subtitle}>
-            Si activas esta opción, cada solicitud de reserva pasará por tu gestión.
+            Si activas esta opción, cada solicitud de reserva pasará por tu
+            gestión.
           </p>
         </div>
         <Switch

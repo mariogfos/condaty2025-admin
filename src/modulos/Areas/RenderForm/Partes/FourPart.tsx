@@ -11,6 +11,7 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import { formatNumber } from "@/mk/utils/numbers";
 import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import Br from "@/components/Detail/Br";
 const status: any = {
   A: "Activa",
   X: "Inactiva",
@@ -80,17 +81,7 @@ const FourPart = ({ item }: { item: any }) => {
       prevIndex === 0 ? totalImages - 1 : prevIndex - 1
     );
   };
-  const Br = () => {
-    return (
-      <div
-        style={{
-          height: 0.5,
-          backgroundColor: "var(--cWhiteV1)",
-          margin: "16px 0px",
-        }}
-      />
-    );
-  };
+
   const sortedDays = () => {
     const dayOrder: any = {
       Lunes: 0,
