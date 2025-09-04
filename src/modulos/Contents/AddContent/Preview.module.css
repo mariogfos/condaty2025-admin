@@ -16,7 +16,7 @@
 .postCard {
   width: 100%;
   max-width: 550px;
-  background-color: var(--cBlackV1);
+  background-color: var(--cBlackV2);
   border-radius: 5px;
   padding: 10px;
   border: 1px solid var(--cWhiteV2);
