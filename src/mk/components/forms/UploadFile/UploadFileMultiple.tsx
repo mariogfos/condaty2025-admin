@@ -90,8 +90,8 @@ const UploadFileMultiple = ({
 
     let newE: any = {};
     if (id == 0) {
+      // Imagen nueva sin guardar
       act = "";
-
       const newI: any = [];
       imgs.map((it: any, i: number) => {
         if (i !== parseInt(indice) && (value[name + i] || it.id != 0)) {
@@ -99,11 +99,17 @@ const UploadFileMultiple = ({
           if (value[name + i]) newE[name + (newI.length - 1)] = value[name + i];
         }
       });
-      newI.push({ id: 0 });
+      if (newI.length < maxFiles) {
+        newI.push({ id: 0 });
+      }
       setValue(newE);
       setImgs(newI);
     } else {
-      if (value[name + indice]?.file == "delete") act = "";
+      // Imagen existente - marcar para eliminación
+      if (value[name + indice]?.file == "delete") {
+        // Si ya está marcada para eliminar, restaurar
+        act = "";
+      }
       newE = {
         ...value,
         [name + indice]: { file: act, ext: "webp", id },

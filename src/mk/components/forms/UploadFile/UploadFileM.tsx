@@ -63,8 +63,27 @@ export const UploadFileM = ({
   useEffect(() => {
     if (value == "" || value == "delete") {
       setSelectedFiles({});
+      setEditedImage(null);
     }
   }, [value]);
+
+  // Nuevo useEffect para manejar cambios en value
+  useEffect(() => {
+    if (value && value !== "delete" && value !== "") {
+      // Si hay un nuevo valor, actualizar editedImage
+      setEditedImage("data:image/webp;base64," + decodeURIComponent(value));
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (!selectedFiles?.name && autoOpen) {
+      const fileUpload = document.getElementById(props.name);
+      if (fileUpload) {
+        fileUpload.click();
+      }
+    }
+    console.log("carga imagen", value, fileName);
+  }, []);
 
   const deleteImg = (del = true) => {
     props.setError({ ...props.error, [props.name]: "" });
@@ -283,19 +302,20 @@ export const UploadFileM = ({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={
-                      value === "delete" || fileName
-                        ? fileName
-                        : (value && value != "delete"
-                            ? "data:image/webp;base64," + value
-                            : editedImage) ||
-                          (selectedFiles?.name
-                            ? URL.createObjectURL(selectedFiles)
-                            : fileName || "")
+                      // Priorizar la nueva imagen (value) sobre la imagen original (fileName)
+                      value && value !== "delete" && value !== ""
+                        ? "data:image/webp;base64," + decodeURIComponent(value)
+                        : editedImage
+                        ? editedImage
+                        : selectedFiles?.name
+                        ? URL.createObjectURL(selectedFiles)
+                        : fileName || ""
                     }
                     alt={selectedFiles?.name}
-                    // title={fileName}
                     style={{
                       objectFit: "cover",
+                      width: sizePreview?.width || "100px",
+                      height: sizePreview?.height || "100px",
                     }}
                   />
                 ) : selectedFiles.type === "application/pdf" ? (

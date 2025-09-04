@@ -65,7 +65,13 @@
       align-items: center;
     }
   }
+  /* Agregar esta clase si no existe */
   .Preview {
+    padding: 16px;
+    background-color: var(--cWhiteV2);
+    border-radius: var(--bRadiusS);
+    margin-bottom: 16px;
+  }
     background-color: var(--cBlackV1);
     width: 100%;
 
@@ -140,4 +146,4 @@
     gap: var(--spXs);
     cursor: pointer;
   }
-}
+

@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import styles from "./AddContent.module.css";
+
 type PropsType = {
   title: string;
   subtitle?: string;
@@ -7,6 +8,7 @@ type PropsType = {
   style?: CSSProperties;
   destinys?: any;
 };
+
 const CardContent = ({
   title,
   subtitle,
@@ -18,9 +20,9 @@ const CardContent = ({
     <div className={styles.card} style={style}>
       <div style={{ flexGrow: 1, marginBottom: 12 }}>
         <p className={styles.title}>{title}</p>
-        {destinys && (
+        {destinys && destinys.length > 0 && (
           <p className={styles.subtitle} style={{ color: "var(--cSuccess)" }}>
-            {destinys}
+            {Array.isArray(destinys) ? destinys.join(', ') : destinys}
           </p>
         )}
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
