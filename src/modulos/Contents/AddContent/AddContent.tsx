@@ -238,14 +238,14 @@ const AddContent = ({
         errors,
       });
     }
-    if (formState?.type == "D") {
+/*     if (formState?.type == "D") {
       errors = checkRules({
         value: formState?.file,
         rules: ["required"],
         key: "file",
         errors,
       });
-    }
+    } */
 
     setErrors(errors);
     return errors;

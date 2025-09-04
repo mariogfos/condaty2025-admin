@@ -65,7 +65,7 @@ export type ContentItem = {
   user_id: string;
   title: string | null;
   description: string;
-  url: string;
+  url: string | null;
   type: "V" | "D" | "I";
   views: number;
   status: string;
@@ -162,11 +162,11 @@ export const renderMedia = (
     let isInstagram = false;
 
     if (
-      item.url.includes("youtube.com/watch?v=") ||
-      item.url.includes("youtu.be/")
+      item.url?.includes("youtube.com/watch?v=") ||
+      item.url?.includes("youtu.be/")
     ) {
       let videoId = "";
-      if (item.url.includes("watch?v=")) {
+      if (item.url?.includes("watch?v=")) {
         const urlParams =
           typeof URL !== "undefined"
             ? new URLSearchParams(new URL(item.url).search)
@@ -178,18 +178,18 @@ export const renderMedia = (
           .split("?")[0];
       }
       if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (item.url.includes("youtube.com/shorts/")) {
+    } else if (item.url?.includes("youtube.com/shorts/")) {
       const videoId = item.url.split("shorts/")[1]?.split("?")[0];
       if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (item.url.includes("vimeo.com/")) {
+    } else if (item.url?.includes("vimeo.com/")) {
       const videoId = item.url.split("/").pop()?.split("?")[0];
       if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
-    } else if (item.url.includes("instagram.com/reel/")) {
+    } else if (item.url?.includes("instagram.com/reel/")) {
       const reelId = item.url.split("reel/")[1]?.split("/")[0];
       if (reelId) {
         isInstagram = true;
       }
-    } else if (item.url.includes("instagram.com/p/")) {
+    } else if (item.url?.includes("instagram.com/p/")) {
       const postId = item.url.split("p/")[1]?.split("/")[0];
       if (postId) {
         isInstagram = true;
@@ -256,9 +256,18 @@ export const renderMedia = (
       );
     }
   } else if (item.type === "D") {
+    // Verificar que item.url existe antes de usarlo
+    if (!item.url) {
+      return (
+        <div className={styles.contentMediaContainer}>
+          <p>Documento no disponible</p>
+        </div>
+      );
+    }
+
     const docUrlIsPlaceholder =
       item.url === "pdf" ||
-      (item.url.endsWith(".pdf") &&
+      (item.url.endsWith && item.url.endsWith(".pdf") &&
         !item.url.startsWith("http") &&
         !item.url.startsWith("/"));
     let docUrl = item.url;
@@ -267,7 +276,7 @@ export const renderMedia = (
     if (typeof window !== "undefined") {
       if (docUrlIsPlaceholder) {
         docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
-      } else if (!item.url.startsWith("http") && !item.url.startsWith("/")) {
+      } else if (item.url && !item.url.startsWith("http") && !item.url.startsWith("/")) {
         docUrl = getUrlImages(
           item.url.startsWith("/") ? item.url : `/${item.url}`
         );
