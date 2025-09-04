@@ -2,40 +2,25 @@
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Contents.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
   IconDownload,
-  IconEdit,
-  IconImage,
   IconLike,
-  IconOptions,
-  IconPDF,
   IconPublicacion,
-  IconTrash,
-  IconVideo,
-  IconWorld,
-  IconYoutube,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Check from "@/mk/components/forms/Check/Check";
 import RenderView from "./RenderView/RenderView";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import Button from "@/mk/components/forms/Button/Button";
 import AddContent from "./AddContent/AddContent";
-import { get } from "http";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import RenderCard from "./RenderCard/RenderCard";
-import { lComDestinies } from "@/mk/utils/utils";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
@@ -123,12 +108,12 @@ const Contents = () => {
     endDate?: string;
   }>({});
 
-  // Estados para el modal de comentarios
+
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
-  // Obtener setStore y store de useAuth
+
   const { user, showToast } = useAuth();
 
 
@@ -150,31 +135,28 @@ const Contents = () => {
     return { filterBy: currentFilters };
   };
 
-  // Función para abrir modal de comentarios
   const handleOpenComments = (contentId: number, contentData: any) => {
     setSelectedContentIdForComments(contentId);
     setSelectedContentData(contentData);
     setIsCommentModalOpen(true);
   };
 
-  // Función para cerrar modal de comentarios
   const handleCloseComments = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
     setSelectedContentData(null);
+    handleCommentAdded();
   };
 
-  // Función para actualizar contador de comentarios
+
   const handleCommentAdded = () => {
-    // Actualizar el contador en los datos locales
     if (selectedContentData) {
       const updatedData = {
         ...selectedContentData,
-        comments: [...(selectedContentData.comments || []), {}], // Agregar comentario dummy
+        comments: [...(selectedContentData.comments || []), {}],
       };
       setSelectedContentData(updatedData);
     }
-    // Recargar datos para mantener sincronización
     reLoad();
   };
 
@@ -198,7 +180,6 @@ const Contents = () => {
       del: true,
     },
 
-    // En la configuración del mod, actualizar renderView:
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -215,7 +196,7 @@ const Contents = () => {
         onDelete={(item: any) => onDel(item)}
         reLoad={() => reLoad()}
         onOpenComments={handleOpenComments}
-        selectedContentData={selectedContentData} // Pasar datos actualizados
+        selectedContentData={selectedContentData}
       />
     ),
     loadView: { fullType: "DET" },
@@ -317,6 +298,7 @@ const Contents = () => {
         api: 'e',
         label: 'Fecha',
         list: {
+          width: '220px',
           onRender: (props: any) => {
             return getDateTimeStrMesShort(props?.item?.updated_at);
           },
@@ -333,6 +315,7 @@ const Contents = () => {
         api: 'ae',
         label: 'Creador',
         list: {
+
           onRender: (item: any) => {
             const user = item?.item.user;
             const nombreCompleto = getFullName(user);
@@ -377,7 +360,9 @@ const Contents = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Tipo',
-        list: {},
+        list: {
+
+        },
         form: {
           type: 'select',
           options: lType,
@@ -399,7 +384,27 @@ const Contents = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Contenido',
-        list: true,
+        list: {
+          onRender: (item: any) => {
+            const title = item?.item?.title;
+            const description = item?.item?.description;
+
+            return (
+              <div className={styles.contentContainer}>
+                {title && (
+                  <div className={styles.contentTitle}>
+                    {title}
+                  </div>
+                )}
+                {description && (
+                  <div className={styles.contentDescription}>
+                    {description}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
         form: { type: 'textArea', lines: 6, isLimit: true, maxLength: 5000 },
       },
       reaction: {
