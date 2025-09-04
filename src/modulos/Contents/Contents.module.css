@@ -36,7 +36,7 @@
 
   & > div {
     font-size: 14px;
-    
+
     color: var(--cWhiteV1);
     border-radius: 16px;
     padding: 12px;
@@ -87,7 +87,7 @@
 }
 
 .reactionsSection {
-  
+
   margin-top: 12px;
   /* background-color: yellow;   */
   & > div:nth-child(1) {
@@ -117,4 +117,11 @@
     color: var(--cWhite);
     margin: var(--spM) 0px;
   }
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0 0 16px 0;
 }

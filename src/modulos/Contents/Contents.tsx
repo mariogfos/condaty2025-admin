@@ -128,6 +128,10 @@ const Contents = () => {
   const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
+  // Obtener setStore y store de useAuth
+  const { user, showToast } = useAuth();
+
+
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
@@ -177,7 +181,7 @@ const Contents = () => {
   const mod: ModCrudType = {
     modulo: "contents",
     singular: "publicación",
-    plural: "Publicaciones",
+    plural: "",
     permiso: "contents",
     titleAdd: "Nueva",
     export: false,
@@ -299,8 +303,12 @@ const Contents = () => {
       </div>
     );
   };
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: '' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const { user } = useAuth();
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
@@ -454,7 +462,6 @@ const Contents = () => {
           options: getTypeContentsfilter,
         },
       },
-
     }),
     []
   );
@@ -623,20 +630,20 @@ const Contents = () => {
   const {
     userCan,
     List,
-    setStore,
+    setStore: crudSetStore, // Renombrar para evitar conflicto
     onSearch,
     searchs,
     onEdit,
     onDel,
     extraData,
-    showToast,
+    showToast: crudShowToast, // Renombrar para evitar conflicto
     execute,
     reLoad,
     openCard,
     getExtraData,
     data,
     onFilter,
-    openList, // Agregar esta línea
+    openList,
   } = useCrud({
     paramsInitial,
     mod,
@@ -648,19 +655,22 @@ const Contents = () => {
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
-    setStore,
+    setStore: crudSetStore,
     mod,
     onEdit,
     onDel,
-    title: 'Publicaciones',
+    title: '', // Mantener vacío
   });
-
-
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.roles}>
+      {/* Agregar título hardcodeado como en Defaulters */}
+      {openList && (
+        <h1 className={styles.title}>Publicaciones</h1>
+      )}
+
       {/* Solo mostrar el WidgetDashCard cuando openList es true */}
       {openList && (
         <WidgetDashCard
@@ -674,7 +684,7 @@ const Contents = () => {
               size={18}
             />
           }
-          style={{ minWidth: '160px', maxWidth: '268px' }}
+          style={{ minWidth: '160px', maxWidth: '268px', marginBottom: "16px" }}
         />
       )}
       <List
