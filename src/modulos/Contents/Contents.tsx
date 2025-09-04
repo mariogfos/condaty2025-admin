@@ -575,7 +575,7 @@ const Contents = () => {
         normalizeText(d.name).includes(normalizeText(search))
       );
       setDestiniesFiltered(filtered);
-    }, [search]);
+    }, [search, selDestinies]);
 
     const _onSave = () => {
       if (sel <= 0) {
