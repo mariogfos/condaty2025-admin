@@ -1,22 +1,23 @@
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import styles from "../Contents.module.css";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconComment,
-  IconDocs,
-  IconLike,
-  IconPDF,
-} from "@/components/layout/icons/IconsBiblioteca";
-import { getDateStrMes } from "@/mk/utils/date";
-import List from "@/mk/components/ui/List/List";
+import { getDateStrMes, getDateStrMesShort, getDateTimeStrMesShort } from "@/mk/utils/date";
 import ReactPlayer from "react-player";
-import { useState } from "react";
-
+import { useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import styles from "./RenderView.module.css";
+import {
+  IconLike,
+  IconComment,
+  IconEdit,
+  IconTrash,
+  IconArrowLeft,
+  IconArrowRight
+} from "@/components/layout/icons/IconsBiblioteca";
+import Br from "@/components/Detail/Br";
+import Button from "@/mk/components/forms/Button/Button";
+import useAxios from "@/mk/hooks/useAxios";
+import CommentsModal from "@/components/CommentsModal/CommentsModal";
 
 const RenderView = (props: {
   open: boolean;
@@ -24,349 +25,235 @@ const RenderView = (props: {
   item: Record<string, any>;
   onConfirm?: Function;
   extraData?: any;
+  onEdit?: (item: any) => void;
+  onDelete?: (item: any) => void;
+  reLoad?: () => void;
+  onOpenComments?: (contentId: number, contentData: any) => void;
+  selectedContentData?: any; // Datos actualizados desde el padre
 }) => {
   const { data } = props?.item;
-  const extraData = props?.extraData;
-  const [idOpenAff, setIdOpenAff]: any = useState({ open: false, id: "" });
-  const entidad = [
-    "",
-    "",
-    "Organizacion",
-    "Departamento",
-    "Municipio",
-    "Barrio",
-  ];
-  const { user } = useAuth();
+  const { user, showToast } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-  console.log(data, "data 41 renderviewcontents");
-  const toggleExpanded = () => setIsExpanded(!isExpanded);
-
-  const commentList = (item: any) => {
-    if (item?.affiliate == null) {
-      return;
-    }
-    return (
-      <ItemList
-        title={getFullName(item.affiliate)}
-        subtitle={item?.comment}
-        left={
-          <Avatar
-            hasImage={item?.affiliate?.has_image}
-            onClick={() => setIdOpenAff({ open: true, id: item.affiliate.id })}
-            name={getFullName(item.affiliate)}
-            src={getUrlImages(
-              "/AFF-" +
-                item?.affiliate?.id +
-                ".webp?d=" +
-                item?.affiliate?.updated_at
-            )}
-          />
-        }
-      />
-    );
-  };
-
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
-  const nextIndex = () => {
-    setIndexVisible((prevIndex) => (prevIndex + 1) % data?.images?.length);
-  };
-  const prevIndex = () => {
+  const { execute } = useAxios();
+
+  // Usar datos actualizados si están disponibles, sino usar los originales
+  const currentData = props.selectedContentData || data;
+
+  // Memoizar el contador de comentarios para evitar re-renders innecesarios
+  const commentsCount = useMemo(() => {
+    return currentData?.comments?.length || 0;
+  }, [currentData?.comments]);
+
+  const toggleExpanded = useCallback(() => setIsExpanded(!isExpanded), [isExpanded]);
+
+  // Funciones para el carrusel
+  const nextIndex = useCallback(() => {
+    setIndexVisible((prevIndex) => (prevIndex + 1) % currentData?.images?.length);
+  }, [currentData?.images?.length]);
+
+  const prevIndex = useCallback(() => {
     setIndexVisible((prevIndex) =>
-      prevIndex === 0 ? data?.images?.length - 1 : prevIndex - 1
+      prevIndex === 0 ? currentData?.images?.length - 1 : prevIndex - 1
     );
-  };
-  // const getDestinys = () => {
-  //   let lEntidad: any = [];
-  //   data.cdestinies.map((item: any, index: number) => {
-  //     if (data.destiny == 2) {
-  //       lEntidad.push({
-  //         id: item.lista_id,
-  //         name: extraData.listas.find((lista: any) => lista.id == item.lista_id)
-  //           ?.name,
-  //       });
-  //     }
-  //     if (data.destiny == 3) {
-  //       lEntidad.push({
-  //         id: item.dpto_id,
-  //         name: extraData.dptos.find((dpto: any) => dpto.id == item.dpto_id)
-  //           ?.name,
-  //       });
-  //     }
-  //     if (data.destiny == 4) {
-  //       lEntidad.push({
-  //         id: item.mun_id,
-  //         name: extraData.muns.find((mun: any) => mun.id == item.mun_id)?.name,
-  //       });
-  //     }
-  //     if (data.destiny == 5) {
-  //       lEntidad.push({
-  //         id: item.barrio_id,
-  //         name: extraData.barrios?.find(
-  //           (barrio: any) => barrio.id == item.barrio_id
-  //         )?.name,
-  //       });
-  //     }
-  //   });
-  //   return lEntidad;
-  // };
+  }, [currentData?.images?.length]);
 
-  const getIconTypeFile = (item: any) => {
-    if (item === "pdf") {
-      return (
-        <div
-          style={{
-            cursor: "pointer",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--cBlackV2)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <IconPDF size={64} />
-            <div
-              style={{ color: "var(--cInfo)", textDecorationLine: "underline" }}
-            >
-              Abrir
-            </div>
-          </div>
-        </div>
-      );
+  const handleEdit = useCallback(() => {
+    props.onClose();
+    const itemForEdit = {
+      ...currentData,
+      id: currentData.id,
+      title: currentData.title || '',
+      description: currentData.description || '',
+      type: currentData.type,
+      url: currentData.url || '',
+      images: currentData.images || [],
+      user_id: currentData.user_id,
+      destiny: currentData.destiny,
+      client_id: currentData.client_id,
+      status: currentData.status,
+      created_at: currentData.created_at,
+      updated_at: currentData.updated_at,
+    };
+
+    if (props.onEdit) {
+      props.onEdit(itemForEdit);
     }
-    return (
-      <div
-        style={{
-          cursor: "pointer",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--cBlackV2)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "transparent";
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <IconDocs size={64} />
-          <div
-            style={{ color: "var(--cInfo)", textDecorationLine: "underline" }}
-          >
-            Abrir
-          </div>
-        </div>
-      </div>
-    );
-  };
+  }, [currentData, props]);
 
-  // console.log(user?.role.level, data?.destiny);
+  const handleDelete = useCallback(() => {
+    setOpenDeleteModal(true);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    try {
+      const response = await execute(`/contents/${currentData.id}`, 'DELETE');
+
+      if (response.data?.success) {
+        if (showToast) {
+          showToast('Publicación eliminada con éxito', 'success');
+        }
+        setOpenDeleteModal(false);
+        props.onClose();
+        if (props.reLoad) {
+          props.reLoad();
+        }
+      } else {
+        if (showToast) {
+          showToast(response.data?.message || 'Error al eliminar la publicación', 'error');
+        }
+      }
+    } catch (error) {
+      if (showToast) {
+        showToast('Error al eliminar la publicación', 'error');
+      }
+      console.error('Error deleting content:', error);
+    }
+  }, [currentData.id, execute, showToast, props]);
+
+  const handleOpenComments = useCallback(() => {
+    if (props.onOpenComments) {
+      props.onOpenComments(currentData?.id, currentData);
+    }
+  }, [props.onOpenComments, currentData]);
+
   return (
     <>
       <DataModal
         open={props.open}
         onClose={props?.onClose}
-        title={"Detalle de la noticia"}
+        title={'Detalle de la publicación'}
         buttonText=""
         buttonCancel=""
       >
         <div className={styles.container}>
+          <div className={styles.header}>
+            <div className={styles.headerLeft}>
+              <p className={styles.text}>Publicado: {getDateTimeStrMesShort(currentData?.created_at)}</p>
+              <p className={styles.text}>Para: Todos</p>
+            </div>
+            <div className={styles.headerRight}>
+              <button
+                className={styles.actionButton}
+                onClick={handleEdit}
+              >
+                <IconEdit size={24} />
+              </button>
+              <button
+                className={styles.actionButton}
+                onClick={handleDelete}
+              >
+                <IconTrash size={24} />
+              </button>
+            </div>
+          </div>
+          <Br />
           <div className={styles.content}>
-            {/* {data?.destiny != 0 && user?.role.level != data?.destiny && (
-              <p style={{ marginBottom: 12, color: "var(--cInfo)" }}>
-                Destino:{" "}
-                {entidad[data.destiny] +
-                  `${
-                    getDestinys().length > 1
-                      ? data.destiny == 2
-                        ? "es"
-                        : "s"
-                      : ""
-                  }`}{" "}
-                {getDestinys()
-                  .map((e: any) => e.name)
-                  .join(", ")}
-              </p>
-            )} */}
-            <ItemList
-              title={getFullName(user)}
-              subtitle={
+            <div className={styles.imageContainer}>
+              {currentData?.type === 'I' && currentData?.images?.[indexVisible]?.id ? (
                 <>
-                  {/* <div>{data?.user?.role1[0]?.name}</div>
-                  <div>{getDateStrMes(props?.item?.data?.created_at)}</div> */}
-                </>
-              }
-              left={
-                <Avatar
-                  hasImage={user?.has_image}
-                  name={getFullName(user)}
-                  src={getUrlImages(
-                    "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
-                  )}
-                />
-              }
-            />
-            <p className={isExpanded ? undefined : styles.truncatedText}>
-              {props?.item?.data?.description}
-            </p>
-            <p
-              style={{
-                color: "var(--cAccent)",
-                cursor: "pointer",
-                width: 100,
-                fontWeight: 600,
-              }}
-              onClick={toggleExpanded}
-            >
-              {isExpanded ? "Ver menos" : "Ver más"}
-            </p>
-            <section className={styles["renderViewImage"]}>
-              {props?.item?.data?.type == "I" && (
-                <>
-                  {data?.images?.length > 1 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        position: "absolute",
-                        justifyContent: "space-between",
-                        padding: "0px 16px",
-                        alignItems: "center",
-                        width: "100%",
-                        gap: 24,
-                      }}
-                    >
-                      <div
-                        style={{
-                          backgroundColor: "#11111166",
-                          padding: "6px",
-                          borderRadius: "100%",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        onClick={prevIndex}
-                      >
-                        <IconArrowLeft />
+                  <div className={styles.imageWrapper}>
+                    <img
+                      alt="Imagen de la publicación"
+                      className={styles.image}
+                      src={getUrlImages(
+                        '/CONT-' + currentData.id + '-' + currentData.images[indexVisible]?.id + '.webp' + '?' + currentData?.updated_at
+                      )}
+                    />
+                  </div>
+                  {currentData?.images?.length > 1 && (
+                    <div className={styles.containerButton}>
+                      <div className={styles.button} onClick={prevIndex}>
+                        <IconArrowLeft size={18} color="var(--cWhite)" />
                       </div>
-                      <div
-                        style={{
-                          backgroundColor: "#11111166",
-                          padding: "6px",
-                          borderRadius: "100%",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        onClick={nextIndex}
-                      >
-                        <IconArrowRight />
+                      <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
+                        {indexVisible + 1} / {currentData?.images?.length}
+                      </p>
+                      <div className={styles.button} onClick={nextIndex}>
+                        <IconArrowRight size={18} color="var(--cWhite)" />
                       </div>
                     </div>
                   )}
-
-                  {data.images[indexVisible]?.id ? (
-                    <img
-                      alt=""
-                      style={{
-                        resize: "inherit",
-                        objectFit: "contain",
-                        display: "block",
-                        width: "100%",
-                        height: "100%",
-                      }}
-                      src={getUrlImages(
-                        "/CONT-" +
-                          data.id +
-                          "-" +
-                          data.images[indexVisible]?.id +
-                          ".webp" +
-                          "?" +
-                          data?.updated_at
-                      )}
-                    />
-                  ) : (
-                    "Noticia sin imagen"
-                  )}
                 </>
+              ) : currentData?.type === 'V' ? (
+                <ReactPlayer url={currentData?.url} width="100%" height="100%" controls />
+              ) : (
+                <div className={styles.noImageText}>Sin imagen disponible</div>
               )}
+            </div>
 
-              {props?.item?.data?.type == "D" && (
-                <>
-                  <a
-                    style={{ color: "white" }}
-                    target="_blank"
-                    href={getUrlImages(
-                      "/CONT-" +
-                        data?.id +
-                        "." +
-                        data?.url +
-                        "?d=" +
-                        data?.updated_at
-                    )}
-                  >
-                    {getIconTypeFile(data?.url)}
-                  </a>
-                </>
-              )}
-              {props?.item?.data?.type == "V" && (
-                <ReactPlayer
-                  url={data?.url}
-                  width="100%"
-                  height={480}
-                  controls
+            <div className={styles.contentContainer}>
+              <div className={styles.userSection}>
+                <Avatar
+                  hasImage={1}
+                  name={getFullName(currentData?.user)}
+                  src={getUrlImages('/ADM-' + currentData?.user?.id + '.webp?d=' + currentData?.user?.updated_at)}
+                  w={48}
+                  h={48}
                 />
-              )}
-            </section>
-          </div>
-          <section className={styles["reactionsSection"]}>
-            <div>
-              <div>
-                <div>Apoyos</div>
-                <div>
-                  <IconLike color="var(--cAccent)" />
-                  {props?.item?.data?.likes}
+                <div className={styles.userInfo}>
+                  <div className={styles.userName}>{getFullName(currentData?.user)}</div>
+                  <div className={styles.userRole}>Administrador</div>
                 </div>
               </div>
-              <div>
-                <div>Comentarios</div>
-                <div>
-                  <IconComment />
-                  {props?.item?.data?.comments?.length}
+
+              {currentData?.title && <h2 className={styles.title}>{currentData.title}</h2>}
+
+              <div className={styles.descriptionContainer}>
+                <p
+                  className={`${styles.description} ${
+                    !isExpanded ? styles.descriptionTruncated : ''
+                  }`}
+                >
+                  {currentData?.description}
+                </p>
+
+                {currentData?.description && currentData.description.length > 200 && (
+                  <button type="button" onClick={toggleExpanded} className={styles.expandButton}>
+                    {isExpanded ? 'Ver menos' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+              <Br />
+
+              <div className={styles.statsContainer}>
+                <div className={styles.statItem}>
+                  <IconLike color={'var(--cAccent)'} size={24} />
+                  <span>{currentData?.likes || 0} Apoyos</span>
+                </div>
+                <div
+                  className={styles.statItem}
+                  onClick={handleOpenComments}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <IconComment color={'var(--cAccent)'} size={24} />
+                  <span>{commentsCount} Comentarios</span>
                 </div>
               </div>
             </div>
-            {props?.item?.data?.comments?.length > 0 && (
-              <>
-                <h2>Comentarios:</h2>
-                <List
-                  data={props?.item?.data?.comments}
-                  renderItem={commentList}
-                />
-              </>
-            )}
-          </section>
+          </div>
         </div>
       </DataModal>
-      {/* {idOpenAff.open && (
-        <DetailAffiliate
-          open={idOpenAff.open}
-          close={() => setIdOpenAff({ open: false, id: 0 })}
-          id={idOpenAff.id}
-        />
-      )} */}
+
+      <DataModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onSave={confirmDelete}
+        title="Eliminar publicación"
+        buttonText="Eliminar"
+        buttonCancel="Cancelar"
+        variant="mini"
+      >
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <p style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
+            ¿Estás seguro de que quieres eliminar esta publicación?
+          </p>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--cWhiteV1)' }}>
+            Esta acción no se puede deshacer.
+          </p>
+        </div>
+      </DataModal>
     </>
   );
 };
