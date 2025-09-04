@@ -9,19 +9,36 @@ type PropsType = {
   checked: boolean;
   label: string;
   subtitle?: string;
-  onChange: (checked: boolean) => void; // Prop para manejar el cambio
+  onChange: (checked: boolean) => void;
   disabled?: boolean;
+  className?: string; // Nueva prop para clases CSS personalizadas
+  style?: React.CSSProperties; // Nueva prop para estilos inline
+  containerStyle?: React.CSSProperties; // Nueva prop para estilos del contenedor
 };
-const Radio = ({ checked, label, subtitle, onChange, disabled }: PropsType) => {
+
+const Radio = ({
+  checked,
+  label,
+  subtitle,
+  onChange,
+  disabled,
+  className = "",
+  style: customStyle = {},
+  containerStyle = {}
+}: PropsType) => {
   const handleClick = () => {
     if (disabled) {
       return;
     }
     onChange(!checked);
   };
+
   return (
-    <div className={style.radio}>
-      <div>
+    <div
+      className={`${style.radio} ${className}`}
+      style={{ ...containerStyle }}
+    >
+      <div style={{ ...customStyle }}>
         {checked ? (
           <IconRatioOn
             onClick={handleClick}
