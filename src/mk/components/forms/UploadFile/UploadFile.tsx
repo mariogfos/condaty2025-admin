@@ -170,11 +170,11 @@ export const UploadFile = ({
     setSelectedFiles({});
     setEditedImage(null);
 
-    // Enviar valor "delete" para indicar eliminación
+    // Enviar objeto con formato correcto para eliminación
     onChange({
       target: {
         name: props.name,
-        value: "delete",
+        value: { ext: value?.ext || 'pdf', file: "delete" }, // Formato correcto
       },
     });
   };
@@ -188,8 +188,8 @@ export const UploadFile = ({
 
   // Verificar si hay contenido para mostrar (corregido)
   const hasContent = () => {
-    // Si value es "delete", no mostrar contenido
-    if (value === "delete") {
+    // Si value.file es "delete", no mostrar contenido
+    if (value && typeof value === 'object' && value.file === "delete") {
       return false;
     }
 
@@ -201,9 +201,9 @@ export const UploadFile = ({
     );
   };
 
-  // useEffect para manejar cuando value cambia a "delete"
+  // useEffect para manejar cuando value.file cambia a "delete"
   useEffect(() => {
-    if (value === "delete") {
+    if (value && typeof value === 'object' && value.file === "delete") {
       setSelectedFiles({});
       setEditedImage(null);
     }
@@ -287,7 +287,7 @@ export const UploadFile = ({
                 <IconPDF size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name}</span>
               </>
-            ) : hasExistingDocument() && value !== "delete" ? (
+            ) : hasExistingDocument() && !(value && typeof value === 'object' && value.file === "delete") ? (
               /* Mostrar documento existente solo si no está marcado para eliminar */
               <>
                 <IconPDF size={80} color={"var(--cWhite)"} />
