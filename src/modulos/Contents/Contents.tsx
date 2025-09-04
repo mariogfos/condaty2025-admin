@@ -2,40 +2,25 @@
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Contents.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
   IconDownload,
-  IconEdit,
-  IconImage,
   IconLike,
-  IconOptions,
-  IconPDF,
   IconPublicacion,
-  IconTrash,
-  IconVideo,
-  IconWorld,
-  IconYoutube,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Check from "@/mk/components/forms/Check/Check";
 import RenderView from "./RenderView/RenderView";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import Button from "@/mk/components/forms/Button/Button";
 import AddContent from "./AddContent/AddContent";
-import { get } from "http";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import RenderCard from "./RenderCard/RenderCard";
-import { lComDestinies } from "@/mk/utils/utils";
 import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import CommentsModal from "@/components/CommentsModal/CommentsModal";
@@ -123,10 +108,14 @@ const Contents = () => {
     endDate?: string;
   }>({});
 
-  // Estados para el modal de comentarios
+
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
+
+
+  const { user, showToast } = useAuth();
+
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
@@ -146,38 +135,35 @@ const Contents = () => {
     return { filterBy: currentFilters };
   };
 
-  // Función para abrir modal de comentarios
   const handleOpenComments = (contentId: number, contentData: any) => {
     setSelectedContentIdForComments(contentId);
     setSelectedContentData(contentData);
     setIsCommentModalOpen(true);
   };
 
-  // Función para cerrar modal de comentarios
   const handleCloseComments = () => {
     setIsCommentModalOpen(false);
     setSelectedContentIdForComments(null);
     setSelectedContentData(null);
+    handleCommentAdded();
   };
 
-  // Función para actualizar contador de comentarios
+
   const handleCommentAdded = () => {
-    // Actualizar el contador en los datos locales
     if (selectedContentData) {
       const updatedData = {
         ...selectedContentData,
-        comments: [...(selectedContentData.comments || []), {}], // Agregar comentario dummy
+        comments: [...(selectedContentData.comments || []), {}],
       };
       setSelectedContentData(updatedData);
     }
-    // Recargar datos para mantener sincronización
     reLoad();
   };
 
   const mod: ModCrudType = {
     modulo: "contents",
     singular: "publicación",
-    plural: "Publicaciones",
+    plural: "",
     permiso: "contents",
     titleAdd: "Nueva",
     export: false,
@@ -194,7 +180,6 @@ const Contents = () => {
       del: true,
     },
 
-    // En la configuración del mod, actualizar renderView:
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -211,7 +196,7 @@ const Contents = () => {
         onDelete={(item: any) => onDel(item)}
         reLoad={() => reLoad()}
         onOpenComments={handleOpenComments}
-        selectedContentData={selectedContentData} // Pasar datos actualizados
+        selectedContentData={selectedContentData}
       />
     ),
     loadView: { fullType: "DET" },
@@ -299,8 +284,12 @@ const Contents = () => {
       </div>
     );
   };
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: '' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const { user } = useAuth();
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
@@ -309,6 +298,7 @@ const Contents = () => {
         api: 'e',
         label: 'Fecha',
         list: {
+          width: '220px',
           onRender: (props: any) => {
             return getDateTimeStrMesShort(props?.item?.created_at);
           },
@@ -325,6 +315,7 @@ const Contents = () => {
         api: 'ae',
         label: 'Creador',
         list: {
+
           onRender: (item: any) => {
             const user = item?.item.user;
             const nombreCompleto = getFullName(user);
@@ -369,7 +360,9 @@ const Contents = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Tipo',
-        list: {},
+        list: {
+
+        },
         form: {
           type: 'select',
           options: lType,
@@ -391,7 +384,27 @@ const Contents = () => {
         rules: ['required'],
         api: 'ae',
         label: 'Contenido',
-        list: true,
+        list: {
+          onRender: (item: any) => {
+            const title = item?.item?.title;
+            const description = item?.item?.description;
+
+            return (
+              <div className={styles.contentContainer}>
+                {title && (
+                  <div className={styles.contentTitle}>
+                    {title}
+                  </div>
+                )}
+                {description && (
+                  <div className={styles.contentDescription}>
+                    {description}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
         form: { type: 'textArea', lines: 6, isLimit: true, maxLength: 5000 },
       },
       reaction: {
@@ -454,7 +467,6 @@ const Contents = () => {
           options: getTypeContentsfilter,
         },
       },
-
     }),
     []
   );
@@ -563,7 +575,7 @@ const Contents = () => {
         normalizeText(d.name).includes(normalizeText(search))
       );
       setDestiniesFiltered(filtered);
-    }, [search]);
+    }, [search, selDestinies]);
 
     const _onSave = () => {
       if (sel <= 0) {
@@ -623,20 +635,20 @@ const Contents = () => {
   const {
     userCan,
     List,
-    setStore,
+    setStore: crudSetStore, // Renombrar para evitar conflicto
     onSearch,
     searchs,
     onEdit,
     onDel,
     extraData,
-    showToast,
+    showToast: crudShowToast, // Renombrar para evitar conflicto
     execute,
     reLoad,
     openCard,
     getExtraData,
     data,
     onFilter,
-    openList, // Agregar esta línea
+    openList,
   } = useCrud({
     paramsInitial,
     mod,
@@ -648,19 +660,22 @@ const Contents = () => {
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
-    setStore,
+    setStore: crudSetStore,
     mod,
     onEdit,
     onDel,
-    title: 'Publicaciones',
+    title: '', // Mantener vacío
   });
-
-
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.roles}>
+      {/* Agregar título hardcodeado como en Defaulters */}
+      {openList && (
+        <h1 className={styles.title}>Publicaciones</h1>
+      )}
+
       {/* Solo mostrar el WidgetDashCard cuando openList es true */}
       {openList && (
         <WidgetDashCard
@@ -674,7 +689,7 @@ const Contents = () => {
               size={18}
             />
           }
-          style={{ minWidth: '160px', maxWidth: '268px' }}
+          style={{ minWidth: '160px', maxWidth: '268px', marginBottom: "16px" }}
         />
       )}
       <List
