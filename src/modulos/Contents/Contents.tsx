@@ -131,7 +131,7 @@ const Contents = () => {
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "updated_at" && value === "custom") {
+    if (opt === "created_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
@@ -304,18 +304,18 @@ const Contents = () => {
   const fields = useMemo(
     () => ({
       id: { rules: [], api: 'e' },
-      updated_at: {
+      created_at: {
         rules: [],
         api: 'e',
         label: 'Fecha',
         list: {
           onRender: (props: any) => {
-            return getDateTimeStrMesShort(props?.item?.updated_at);
+            return getDateTimeStrMesShort(props?.item?.created_at);
           },
           form: false,
         },
         filter: {
-          key: 'updated_at',
+          key: 'created_at',
           label: 'Periodo',
           options: getPeriodOptions,
         },
@@ -712,7 +712,7 @@ const Contents = () => {
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("updated_at", customDateFilterString);
+          onFilter("created_at", customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
