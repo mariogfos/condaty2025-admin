@@ -97,7 +97,7 @@ const UserInfoDisplay = ({ user, prefix, detailText, isHighLevel = true }: {
       <div className={isHighLevel ? styles.hlUserRow : styles.gUserRow}>
         <div className={isHighLevel ? styles.hlAvatarContainer : styles.gAvatarContainer}>
           <Avatar
-            hasImage={user.has_image}
+            hasImage={1}
             src={getUrlImages(prefix + user.id + ".webp?d=" + user.updated_at)}
             name={getFullName(user)}
             w={40}
