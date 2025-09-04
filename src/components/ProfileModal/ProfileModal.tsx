@@ -22,7 +22,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import EditProfile from "./EditProfile/EditProfile";
 import GuardEditForm from "./GuardEditForm/GuardEditForm";
 import Button from "@/mk/components/forms/Button/Button";
-import Image from 'next/image';
+import Image from "next/image";
 
 interface ProfileModalProps {
   open: boolean;
@@ -196,7 +196,7 @@ const ProfileModal = ({
     const { data } = await execute(url + "/" + formState.id, "DELETE", {
       is_canceled: "Y",
     });
-    if (data?.success == true) {
+    if (data?.success) {
       showToast(profileRole + " eliminado con éxito", "success");
       onClose();
       if (reLoad) reLoad();
@@ -230,7 +230,6 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-
       >
         <div className={styles.ProfileModal}>
           <section>
@@ -241,37 +240,37 @@ const ProfileModal = ({
                   type="button"
                   onClick={() => setOpenEdit(true)}
                   style={{
-                    backgroundColor: 'var(--cWhiteV2)',
+                    backgroundColor: "var(--cWhiteV2)",
                     padding: 8,
-                    borderRadius: 'var(--bRadiusS)',
-                    cursor: 'pointer',
-                    border: 'none',
-                    color: 'inherit',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    borderRadius: "var(--bRadiusS)",
+                    cursor: "pointer",
+                    border: "none",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <IconEdit className="" size={24} color={'var(--cWhite)'} />
+                  <IconEdit className="" size={24} color={"var(--cWhite)"} />
                 </button>
               )}
               {del && deletePerm && (
                 <button
                   type="button"
                   style={{
-                    backgroundColor: 'var(--cWhiteV2)',
+                    backgroundColor: "var(--cWhiteV2)",
                     padding: 8,
-                    borderRadius: 'var(--bRadiusS)',
-                    cursor: 'pointer',
-                    border: 'none',
-                    color: 'inherit',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    borderRadius: "var(--bRadiusS)",
+                    cursor: "pointer",
+                    border: "none",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                   onClick={() => setOpenDel(true)}
                 >
-                  <IconTrash size={24} color={'var(--cWhite)'} />
+                  <IconTrash size={24} color={"var(--cWhite)"} />
                 </button>
               )}
             </div>
@@ -285,15 +284,15 @@ const ProfileModal = ({
               height={300}
               onError={() => setPortadaError(true)}
               style={{
-                width: '100%',
+                width: "100%",
                 height: 300,
-                borderTopLeftRadius: 'var(--bRadiusS)',
-                borderTopRightRadius: 'var(--bRadiusS)',
+                borderTopLeftRadius: "var(--bRadiusS)",
+                borderTopRightRadius: "var(--bRadiusS)",
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
-                borderBottom: '1px solid var(--cWhiteV2)',
-                objectFit: 'cover',
-                background: 'var(--cWhiteV2)',
+                borderBottom: "1px solid var(--cWhiteV2)",
+                objectFit: "cover",
+                background: "var(--cWhiteV2)",
               }}
               unoptimized
             />
@@ -317,31 +316,35 @@ const ProfileModal = ({
               <div>
                 <div>
                   {IconType}
-                  {data?.data[0]?.dpto?.[0]?.nro && type === 'owner'
+                  {data?.data[0]?.dpto?.[0]?.nro && type === "owner"
                     ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
-                        data?.data[0]?.dpto?.[0]?.nro || '-/-'
+                        data?.data[0]?.dpto?.[0]?.nro || "-/-"
                       }`
                     : profileRole}
                 </div>
                 <div>
-                  <IconPhone size={20} color={'var(--cWhiteV1)'} />
-                  {data?.data[0]?.phone || '-/-'}
+                  <IconPhone size={20} color={"var(--cWhiteV1)"} />
+                  {data?.data[0]?.phone || "-/-"}
                 </div>
                 <div>
-                  <IconEmail size={20} color={'var(--cWhiteV1)'} />
-                  {data?.data[0]?.email || '-/-'}
+                  <IconEmail size={20} color={"var(--cWhiteV1)"} />
+                  {data?.data[0]?.email || "-/-"}
                 </div>
               </div>
             </div>
           </section>
           <section>
-            <WidgetBase title={'Datos Personales'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
+            <WidgetBase
+              title={"Datos Personales"}
+              variant={"V1"}
+              titleStyle={{ fontSize: 16 }}
+            >
               <div className="bottomLine" />
               <div>
                 <div>Carnet de identidad</div>
                 <div>{data?.data[0]?.ci}</div>
               </div>
-              {type !== 'homeOwner' && (
+              {type !== "homeOwner" && (
                 <>
                   <div className="bottomLine" />
                   <div>
@@ -359,15 +362,16 @@ const ProfileModal = ({
                 <div>Dirección</div>
                 <div>
                   {(() => {
-                    if (type === 'owner') {
-                      const hasDescription = data?.data[0]?.dpto[0]?.description;
+                    if (type === "owner") {
+                      const hasDescription =
+                        data?.data[0]?.dpto[0]?.description;
                       const hasNro = data?.data[0]?.dpto[0]?.nro;
                       if (!hasDescription || !hasNro) {
-                        return '-/-';
+                        return "-/-";
                       }
                       return data.data[0].dpto[0].description;
                     }
-                    return data?.data[0]?.address || '-/-';
+                    return data?.data[0]?.address || "-/-";
                   })()}
                 </div>
               </div>
@@ -375,8 +379,8 @@ const ProfileModal = ({
               <div className="bottomLine" />
             </WidgetBase>
             <WidgetBase
-              title={'Documentos Personales'}
-              variant={'V1'}
+              title={"Documentos Personales"}
+              variant={"V1"}
               titleStyle={{ fontSize: 16 }}
             >
               <div style={{ marginTop: 10 }} className="bottomLine" />
@@ -384,7 +388,11 @@ const ProfileModal = ({
             </WidgetBase>
 
             {user.id === data?.data[0]?.id && (
-              <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
+              <WidgetBase
+                title={"Datos de acceso"}
+                variant={"V1"}
+                titleStyle={{ fontSize: 16 }}
+              >
                 <div style={{ marginTop: 10 }} className="bottomLine" />
 
                 <button
@@ -392,15 +400,15 @@ const ProfileModal = ({
                   className={styles.buttonChange}
                   onClick={onChangeEmail}
                   style={{
-                    background: 'none',
-                    border: 'none',
+                    background: "none",
+                    border: "none",
                     padding: 0,
-                    width: '100%',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    color: 'inherit',
-                    display: 'flex',
-                    alignItems: 'center',
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   <IconLockEmail reverse />
@@ -415,15 +423,15 @@ const ProfileModal = ({
                   className={styles.buttonChange}
                   onClick={onChangePassword}
                   style={{
-                    background: 'none',
-                    border: 'none',
+                    background: "none",
+                    border: "none",
                     padding: 0,
-                    width: '100%',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    color: 'inherit',
-                    display: 'flex',
-                    alignItems: 'center',
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   <IconLook reverse />
@@ -436,20 +444,20 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          <div style={{display: 'flex', justifyContent: 'flex-start'}}>
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
             <Button
               onClick={() => {
                 setOpenAuthModal(true);
-                setAuthType('logout');
+                setAuthType("logout");
               }}
               style={{
-                backgroundColor: 'transparent',
-                color: 'var(--cError)',
-                border: 'none',
-                padding: '0px 0px',
-                width: 'auto',
-                minWidth: 'auto',
-                textDecorationLine: 'underline',
+                backgroundColor: "transparent",
+                color: "var(--cError)",
+                border: "none",
+                padding: "0px 0px",
+                width: "auto",
+                minWidth: "auto",
+                textDecorationLine: "underline",
               }}
             >
               Cerrar Sesión
@@ -474,7 +482,7 @@ const ProfileModal = ({
 
         {openEdit && (
           <>
-            {type === 'guard' ? (
+            {type === "guard" ? (
               <GuardEditForm
                 open={openEdit}
                 onClose={() => setOpenEdit(false)}
@@ -513,10 +521,12 @@ const ProfileModal = ({
             onSave={onDel}
           >
             <div>
-              <p style={{ fontSize: 'var(--sL)' }}>
+              <p style={{ fontSize: "var(--sL)" }}>
                 ¿Estás seguro de que quieres eliminar este registro?
               </p>
-              <p style={{ fontSize: 'var(--sL)' }}>Esta acción no se puede deshacer.</p>
+              <p style={{ fontSize: "var(--sL)" }}>
+                Esta acción no se puede deshacer.
+              </p>
             </div>
           </DataModal>
         )}
