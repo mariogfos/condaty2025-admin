@@ -12,12 +12,13 @@ import {
   IconEdit,
   IconTrash,
   IconArrowLeft,
-  IconArrowRight
+  IconArrowRight,
+  IconPDF,
+  IconDocs
 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
-import CommentsModal from "@/components/CommentsModal/CommentsModal";
 
 const RenderView = (props: {
   open: boolean;
@@ -29,7 +30,7 @@ const RenderView = (props: {
   onDelete?: (item: any) => void;
   reLoad?: () => void;
   onOpenComments?: (contentId: number, contentData: any) => void;
-  selectedContentData?: any; // Datos actualizados desde el padre
+  selectedContentData?: any;
 }) => {
   const { data } = props?.item;
   const { user, showToast } = useAuth();
@@ -38,17 +39,14 @@ const RenderView = (props: {
   const [indexVisible, setIndexVisible] = useState(0);
   const { execute } = useAxios();
 
-  // Usar datos actualizados si están disponibles, sino usar los originales
   const currentData = props.selectedContentData || data;
 
-  // Memoizar el contador de comentarios para evitar re-renders innecesarios
   const commentsCount = useMemo(() => {
     return currentData?.comments?.length || 0;
   }, [currentData?.comments]);
 
   const toggleExpanded = useCallback(() => setIsExpanded(!isExpanded), [isExpanded]);
 
-  // Funciones para el carrusel
   const nextIndex = useCallback(() => {
     setIndexVisible((prevIndex) => (prevIndex + 1) % currentData?.images?.length);
   }, [currentData?.images?.length]);
@@ -118,6 +116,14 @@ const RenderView = (props: {
     }
   }, [props.onOpenComments, currentData]);
 
+  // Función para obtener la URL del documento
+  const getDocumentUrl = () => {
+    if (currentData?.type === 'D' && currentData?.id) {
+      return getUrlImages(`/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`);
+    }
+    return null;
+  };
+
   return (
     <>
       <DataModal
@@ -178,8 +184,56 @@ const RenderView = (props: {
                 </>
               ) : currentData?.type === 'V' ? (
                 <ReactPlayer url={currentData?.url} width="100%" height="100%" controls />
+              ) : currentData?.type === 'D' ? (
+                /* Mostrar documento */
+                <div className={styles.imageWrapper} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '16px',
+                  padding: '40px'
+                }}>
+                  <IconPDF size={120} color="var(--cWhite)" />
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ color: 'var(--cWhite)', fontSize: '16px', margin: '0 0 8px 0' }}>
+                      {currentData?.title || 'Documento'}
+                    </p>
+                    <p style={{ color: 'var(--cWhiteV1)', fontSize: '14px', margin: '0 0 16px 0' }}>
+                      {currentData?.description?.substring(0, 100)}{currentData?.description?.length > 100 ? '...' : ''}
+                    </p>
+                    {getDocumentUrl() && (
+                      <a
+                        href={getDocumentUrl() || undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: 'var(--cAccent)',
+                          textDecoration: 'none',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          padding: '8px 16px',
+                          border: '1px solid var(--cAccent)',
+                          borderRadius: '6px',
+                          display: 'inline-block',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--cAccent)';
+                          e.currentTarget.style.color = 'var(--cWhite)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = 'var(--cAccent)';
+                        }}
+                      >
+                        Abrir documento
+                      </a>
+                    )}
+                  </div>
+                </div>
               ) : (
-                <div className={styles.noImageText}>Sin imagen disponible</div>
+                <div className={styles.noImageText}>Sin contenido disponible</div>
               )}
             </div>
 

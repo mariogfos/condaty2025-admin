@@ -636,6 +636,7 @@ const Contents = () => {
     getExtraData,
     data,
     onFilter,
+    openList, // Agregar esta línea
   } = useCrud({
     paramsInitial,
     mod,
@@ -654,68 +655,28 @@ const Contents = () => {
     title: 'Publicaciones',
   });
 
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    let icon = <IconImage size={48} circle color="var(--cWhite)" />;
-    if (item.type == "D")
-      icon = <IconDocs size={48} circle color="var(--cWhite)" />;
-    if (item.type == "V")
-      icon = <IconYoutube size={48} circle color="var(--cWhite" />;
 
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.description.substring(0, 80) + "..."}
-          subtitle={
-            "Creado por: " +
-            getFullName(item.user) +
-            ", en Fecha: " +
-            getDateTimeStrMesShort(item.created_at)
-          }
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-          left={icon}
-        />
-      </RenderItem>
-    );
-  };
-
-  const renderCard = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    return (
-      <RenderCard
-        item={item}
-        extraData={extraData}
-        onClick={onClick}
-        onDel={onDel}
-        onEdit={onEdit}
-      />
-    );
-  };
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.roles}>
-      <WidgetDashCard
-        title="Publicaciones"
-        data={data?.message?.total || 0}
-        icon={
-          <IconDocs
-            color={'var(--cWhite)'}
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-            circle
-            size={18}
-          />
-        }
-        style={{ minWidth: '160px', maxWidth: '268px' }}
-      />
+      {/* Solo mostrar el WidgetDashCard cuando openList es true */}
+      {openList && (
+        <WidgetDashCard
+          title="Publicaciones"
+          data={data?.message?.total || 0}
+          icon={
+            <IconDocs
+              color={'var(--cWhite)'}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              circle
+              size={18}
+            />
+          }
+          style={{ minWidth: '160px', maxWidth: '268px' }}
+        />
+      )}
       <List
         actionsWidth="140px"
         height={'calc(100vh - 410px)'}
@@ -765,7 +726,6 @@ const Contents = () => {
         onClose={handleCloseComments}
         contentId={selectedContentIdForComments}
         onCommentAdded={() => {
-          // Opcional: recargar datos si es necesario
           reLoad();
         }}
       />

@@ -495,6 +495,7 @@ const AddContent = ({
                 error={errors}
                 ext={["pdf"]}
                 setError={setErrors}
+                item={formState} // Pasar el formState como item
               />
             )}
           </CardContent>
