@@ -70,7 +70,7 @@ const useNotifInstandDB = (
           ],
           // created_at: { $gte: new Date(last).toISOString() },
         },
-        limit: 2,
+        limit: 1,
         order: {
           serverCreatedAt: "desc",
         },
