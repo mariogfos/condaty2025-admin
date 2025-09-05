@@ -944,7 +944,8 @@ const useCrud = ({
       });
       document.body.removeChild(span);
     }
-    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
+    // const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
+    const selectWidth = "auto";
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -1294,7 +1295,7 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list?.width ?? "200px",
+            width: field.filter?.width ?? field.list?.width ?? "auto",
             order:
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
