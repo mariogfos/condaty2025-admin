@@ -694,7 +694,7 @@ const Contents = () => {
       )}
       <List
         actionsWidth="140px"
-        height={'calc(100vh - 410px)'}
+        height={'calc(100vh - 440px)'}
         emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
         emptyLine2="noticias las verás aquí."
         emptyIcon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
