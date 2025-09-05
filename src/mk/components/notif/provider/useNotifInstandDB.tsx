@@ -54,18 +54,23 @@ const useNotifInstandDB = (
     notif: {
       $: {
         where: {
-          // created_at: { $gte: new Date(last).toISOString() },
-          or: [
-            { channel: channelGral },
-            { channel: channelGral + user?.client_id },
-            { channel: chiam },
-            { channel: channelGral + user?.client_id + "-admins" },
-            { channel: channelGral + user?.client_id + "-alert-2" },
-            { channel: channelGral + user?.client_id + "-alert-3" },
-            ...channels,
+          and: [
+            { client_id: user.client_id },
+            {
+              or: [
+                { channel: channelGral },
+                { channel: channelGral + user?.client_id },
+                { channel: chiam },
+                { channel: channelGral + user?.client_id + "-admins" },
+                { channel: channelGral + user?.client_id + "-alert-2" },
+                { channel: channelGral + user?.client_id + "-alert-3" },
+                ...channels,
+              ],
+            },
           ],
+          // created_at: { $gte: new Date(last).toISOString() },
         },
-        limit: 2,
+        limit: 1,
         order: {
           serverCreatedAt: "desc",
         },
@@ -108,6 +113,7 @@ const useNotifInstandDB = (
         channel,
         event,
         created_at: Date.now(),
+        client_id: user?.client_id,
       })
     );
   };
