@@ -3,7 +3,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStrMes, getDateStrMesShort, getDateTimeStrMesShort } from "@/mk/utils/date";
 import ReactPlayer from "react-player";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import styles from "./RenderView.module.css";
 import {
@@ -32,19 +32,68 @@ const RenderView = (props: {
   reLoad?: () => void;
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;
+  contentId?: number; // Nuevo prop para pasar solo el ID
 }) => {
-  const { data } = props?.item;
+  const { data } = props?.item || {};
   const { user, showToast } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
+  const [contentData, setContentData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
 
-  const currentData = props.selectedContentData || data;
+  // Determinar qué datos usar
+  const currentData = props.selectedContentData || contentData || data;
+
+  // Efecto para cargar detalles si solo se proporciona el ID
+  useEffect(() => {
+    const fetchContentDetails = async () => {
+      if (props.open && props.contentId && !props.selectedContentData && !data) {
+        setLoading(true);
+        try {
+          const response = await execute(
+            '/contents',
+            'GET',
+            {
+              fullType: 'DET',
+              searchBy: props.contentId,
+              page: 1,
+              perPage: 1,
+            },
+            false,
+            true
+          );
+
+          if (response?.data?.data) {
+            setContentData(response.data.data);
+          }
+        } catch (error) {
+          console.error('Error fetching content details:', error);
+          if (showToast) {
+            showToast('Error al cargar los detalles del contenido', 'error');
+          }
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchContentDetails();
+  }, [props.open, props.contentId, props.selectedContentData, data, execute, showToast]);
+
+  // Efecto para limpiar datos cuando se cierra el modal
+  useEffect(() => {
+    if (!props.open) {
+      setContentData(null);
+      setIndexVisible(0);
+      setIsExpanded(false);
+    }
+  }, [props.open]);
 
   const commentsCount = useMemo(() => {
-    return currentData?.comments?.length || 0;
-  }, [currentData?.comments]);
+    return currentData?.comments?.length || currentData?.comments_count || 0;
+  }, [currentData?.comments, currentData?.comments_count]);
 
   const toggleExpanded = useCallback(() => setIsExpanded(!isExpanded), [isExpanded]);
 
@@ -59,7 +108,6 @@ const RenderView = (props: {
   }, [currentData?.images?.length]);
 
   const handleEdit = useCallback(() => {
-    props.onClose();
     const itemForEdit = {
       ...currentData,
       id: currentData.id,
@@ -69,13 +117,20 @@ const RenderView = (props: {
       url: currentData.url || '',
       images: currentData.images || [],
       user_id: currentData.user_id,
-      destiny: currentData.destiny,
+      destiny: currentData.destiny || 0,
       client_id: currentData.client_id,
       status: currentData.status,
       created_at: currentData.created_at,
       updated_at: currentData.updated_at,
+      // Agregar campos adicionales que puedan ser necesarios
+      cdestinies: currentData.cdestinies || [],
+      lDestiny: currentData.lDestiny || [],
     };
 
+    // Cerrar el modal actual
+    props.onClose();
+
+    // Llamar a la función de edición del padre
     if (props.onEdit) {
       props.onEdit(itemForEdit);
     }
@@ -94,7 +149,16 @@ const RenderView = (props: {
           showToast('Publicación eliminada con éxito', 'success');
         }
         setOpenDeleteModal(false);
+
+        // Llamar a onDelete para actualizar la lista en el componente padre
+        if (props.onDelete) {
+          props.onDelete(currentData);
+        }
+
+        // Cerrar el modal principal
         props.onClose();
+
+        // Recargar la lista si se proporciona la función
         if (props.reLoad) {
           props.reLoad();
         }
@@ -337,7 +401,7 @@ const RenderView = (props: {
         buttonCancel="Cancelar"
         variant="mini"
       >
-        <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ padding: '20px', textAlign: 'left' }}>
           <p style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
             ¿Estás seguro de que quieres eliminar esta publicación?
           </p>

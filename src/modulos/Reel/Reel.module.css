@@ -1439,3 +1439,50 @@
 .contentCardCompact .mosaicOverlay {
   font-size: 16px;
 }
+
+/* Estilos para el modal de edición */
+.editModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.editModalContent {
+  background-color: var(--cBlack);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajustar el AddContent dentro del modal */
+.editModalContent .AddContent {
+  margin: 0;
+  padding: 0;
+  min-height: auto;
+  background: transparent;
+}
+
+/* Responsive para móviles */
+@media screen and (max-width: 768px) {
+  .editModalOverlay {
+    padding: 10px;
+  }
+
+  .editModalContent {
+    max-height: 95vh;
+    border-radius: 8px;
+  }
+}

@@ -18,6 +18,8 @@ import {
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import EmptyData from "@/components/NoData/EmptyData";
+import RenderView from "@/modulos/Contents/RenderView/RenderView";
+import AddContent from "@/modulos/Contents/AddContent/AddContent";
 
 type User = {
   has_image?: any;
@@ -379,7 +381,7 @@ export const renderMedia = (
 // --- FIN FUNCIÓN REUTILIZABLE ---
 
 const Reel = () => {
-  const { user } = useAuth();
+  const { user, showToast } = useAuth();
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [initialLoadingState, setInitialLoadingState] = useState(true);
   const [loadingMoreState, setLoadingMoreState] = useState(false);
@@ -392,6 +394,13 @@ const Reel = () => {
   const itemsPerPage = 20;
   const [selectedContentForModal, setSelectedContentForModal] =
     useState<ContentItem | null>(null);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+
+  // Estados para manejar la edición
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingContent, setEditingContent] = useState<any>(null);
+  const [editErrors, setEditErrors] = useState<any>({});
+  const [extraData, setExtraData] = useState<any>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -408,6 +417,7 @@ const Reel = () => {
       page: 1,
       fullType: "L",
       searchBy: "",
+      extraData:true,
     },
     false
   );
@@ -425,6 +435,10 @@ const Reel = () => {
   const [postingComment, setPostingComment] = useState(false);
   const { execute: executePostComment, error: postCommentError } = useAxios();
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Hooks adicionales para edición
+  const { execute: executeEdit } = useAxios();
+  const { execute: executeGetExtraData } = useAxios();
 
   useEffect(() => {
     reLoadInitial();
@@ -467,6 +481,22 @@ const Reel = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData, initialHookLoaded, initialError]);
+
+  // Función para cargar extraData cuando sea necesario
+  const loadExtraData = async () => {
+    if (!extraData) {
+      try {
+        const response = await executeGetExtraData('/contents', 'GET', {
+          fullType: 'EXTRA'
+        });
+        if (response?.data) {
+          setExtraData(response.data);
+        }
+      } catch (error) {
+        console.error('Error loading extra data:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     const loadMoreItems = async () => {
@@ -791,11 +821,92 @@ setContents((prevContents) =>
   };
   const handleOpenContentModal = (contentItem: ContentItem) => {
     setSelectedContentForModal(contentItem);
+    setIsContentModalOpen(true);
   };
 
   const handleCloseContentModal = () => {
     setSelectedContentForModal(null);
+    setIsContentModalOpen(false);
   };
+
+  // Función mejorada para manejar la edición
+  const handleEditContent = async (item: any) => {
+    console.log('Editando contenido:', item);
+
+    // Cargar extraData si no está disponible
+    await loadExtraData();
+
+    // Preparar el item para edición con todos los campos necesarios
+    const editItem = {
+      ...item,
+      // Asegurar que todos los campos necesarios estén presentes
+      title: item.title || '',
+      description: item.description || '',
+      type: item.type,
+      url: item.url || '',
+      images: item.images || [],
+      user_id: item.user_id,
+      destiny: item.destiny || 'T', // Valor por defecto
+      client_id: item.client_id,
+      status: item.status,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      // Campos adicionales para edición
+      cdestinies: item.cdestinies || [],
+      lDestiny: item.lDestiny || [],
+    };
+
+    console.log('Item preparado para edición:', editItem);
+
+    setEditingContent(editItem);
+    setEditErrors({}); // Limpiar errores
+    setIsEditModalOpen(true);
+    handleCloseContentModal(); // Cerrar el modal de detalle
+  };
+
+  // Función para cerrar el modal de edición
+  const handleCloseEditModal = () => {
+    console.log('Cerrando modal de edición');
+    setIsEditModalOpen(false);
+    setEditingContent(null);
+    setEditErrors({});
+  };
+
+  // Función para manejar el guardado de la edición
+  const handleSaveEdit = () => {
+    console.log('Guardando edición');
+    // Recargar el reel después de la edición
+    handleReloadReel();
+    handleCloseEditModal();
+  };
+
+  // Nueva función para manejar la eliminación
+  const handleDeleteContent = (item: any) => {
+    console.log('Contenido eliminado:', item);
+    // Actualizar la lista local removiendo el item eliminado
+    setContents(prevContents =>
+      prevContents.filter(content => content.id !== item.id)
+    );
+    // Actualizar el total de items
+    setTotalDBItems(prev => Math.max(0, prev - 1));
+    handleCloseContentModal(); // Cerrar el modal de detalle
+  };
+
+  // Nueva función para recargar completamente el reel
+  const handleReloadReel = () => {
+    setPage(1);
+    setHasMore(true);
+    reLoadInitial();
+  };
+
+  // Agregar este useEffect para debug
+  useEffect(() => {
+    console.log('Estados de edición:', {
+      isEditModalOpen,
+      editingContent: !!editingContent,
+      extraData: !!extraData
+    });
+  }, [isEditModalOpen, editingContent, extraData]);
 
   useEffect(() => {
     if (isCommentModalOpen && commentsEndRef.current) {
@@ -1024,96 +1135,40 @@ setContents((prevContents) =>
       )}
 
       {selectedContentForModal && (
-        <div className={styles.contentModalOverlay} onClick={handleCloseContentModal}>
-          <div className={styles.contentModalContent} onClick={e => e.stopPropagation()}>
-            <button
-              onClick={handleCloseContentModal}
-              className={styles.contentModalCloseButton}
-              aria-label="Cerrar detalle"
-            >
-              <IconX size={24} />
-            </button>
-            {renderMedia(selectedContentForModal, false, undefined, direction =>
-              handleImageNavigation(selectedContentForModal.id, direction)
-            )}
-            <article className={`${styles.contentCard} ${styles.contentCardInModal}`}>
-              <header className={styles.contentHeader}>
-                <div className={styles.userInfo}>
-                  <Avatar
-                    hasImage={1}
-                    name={getFullName(selectedContentForModal.user)}
-                    src={getUrlImages(
-                      `/ADM-${selectedContentForModal.user?.id}.webp?d=${selectedContentForModal.user?.updated_at}`
-                    )}
-                    w={44}
-                    h={44}
-                  />
-                  <div className={styles.userDetails}>
-                    <span className={styles.userName}>
-                      {getFullName(selectedContentForModal.user) || 'Usuario Desconocido'}
-                    </span>
-                    <span className={styles.userRole}>Administrador</span>
-                  </div>
-                </div>
-                <time dateTime={selectedContentForModal.created_at} className={styles.postDate}>
-                  {getDateTimeAgo(selectedContentForModal.created_at)}
-                </time>
-              </header>
-              <section className={styles.contentBody}>
-                {selectedContentForModal.title && (
-                  <h2 className={styles.contentTitle}>{selectedContentForModal.title}</h2>
-                )}
-                {selectedContentForModal.description && (
-                  <p className={styles.contentDescription}>{selectedContentForModal.description}</p>
-                )}
-              </section>
-              <footer className={styles.contentFooter}>
-                {/* Sección de estadísticas */}
-                <div className={styles.contentStats}>
-                  <div
-                    className={`${styles.statDisplay} ${
-                      selectedContentForModal.liked ? styles.liked : ''
-                    }`}
-                  >
-                    <IconLike
-                      color={selectedContentForModal.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'}
-                      size={20}
-                    />
-                    <span>{selectedContentForModal.likes}</span>
-                  </div>
-                  <div className={styles.statDisplay}>
-                    <IconComment color={'var(--cWhiteV1)'} size={20} />
-                    <span>{selectedContentForModal.comments_count}</span>
-                  </div>
-                </div>
+        <RenderView
+          open={isContentModalOpen}
+          onClose={handleCloseContentModal}
+          item={{ data: selectedContentForModal }}
+          selectedContentData={selectedContentForModal}
+          reLoad={handleReloadReel}
+          onEdit={handleEditContent}
+          onDelete={handleDeleteContent}
+          onOpenComments={(contentId, contentData) => {
+            handleCloseContentModal();
+            handleOpenComments(contentId);
+          }}
+        />
+      )}
 
-                {/* Divider */}
-                <div className={styles.contentDivider}></div>
-
-                {/* Sección de acciones */}
-                <div className={styles.contentActions}>
-                  <button
-                    className={`${styles.actionButton} ${
-                      selectedContentForModal.liked ? styles.liked : ''
-                    }`}
-                    onClick={() => handleLike(selectedContentForModal.id)}
-                  >
-                    <IconLike
-                      color={selectedContentForModal.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'}
-                      size={20}
-                    />
-                    <span>Apoyar</span>
-                  </button>
-                  <button
-                    className={styles.actionButton}
-                    onClick={() => handleOpenComments(selectedContentForModal.id)}
-                  >
-                    <IconComment color={'var(--cWhiteV1)'} size={20} />
-                    <span>Comentar</span>
-                  </button>
-                </div>
-              </footer>
-            </article>
+      {/* Modal de edición - WRAPPER MODAL PARA ADDCONTENT */}
+      {isEditModalOpen && editingContent && extraData && (
+        <div className={styles.editModalOverlay}>
+          <div className={styles.editModalContent}>
+            <AddContent
+              open={true}
+              onClose={handleCloseEditModal}
+              item={editingContent}
+              setItem={setEditingContent}
+              errors={editErrors}
+              extraData={extraData}
+              user={user}
+              execute={executeEdit}
+              setErrors={setEditErrors}
+              reLoad={handleSaveEdit}
+              action="edit"
+              openList={false}
+              setOpenList={() => {}}
+            />
           </div>
         </div>
       )}
