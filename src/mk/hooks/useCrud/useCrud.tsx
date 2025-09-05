@@ -926,24 +926,24 @@ const useCrud = ({
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
-    let maxLabelWidth = 0;
-    if (filters && filters.length > 0 && typeof document !== "undefined") {
-      const span = document.createElement("span");
-      span.style.visibility = "hidden";
-      span.style.position = "absolute";
-      span.style.fontSize = "var(--sL, 16px)";
-      span.style.fontWeight = "var(--bMedium, 500)";
-      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
-      span.style.whiteSpace = "nowrap";
-      document.body.appendChild(span);
-      filters.forEach((f: any) => {
-        span.innerText = f.label;
-        if (span.offsetWidth > maxLabelWidth) {
-          maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
-        }
-      });
-      document.body.removeChild(span);
-    }
+    // let maxLabelWidth = 0;
+    // if (filters && filters.length > 0 && typeof document !== "undefined") {
+    //   const span = document.createElement("span");
+    //   span.style.visibility = "hidden";
+    //   span.style.position = "absolute";
+    //   span.style.fontSize = "var(--sL, 16px)";
+    //   span.style.fontWeight = "var(--bMedium, 500)";
+    //   span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
+    //   span.style.whiteSpace = "nowrap";
+    //   document.body.appendChild(span);
+    //   filters.forEach((f: any) => {
+    //     span.innerText = f.label;
+    //     if (span.offsetWidth > maxLabelWidth) {
+    //       maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
+    //     }
+    //   });
+    //   document.body.removeChild(span);
+    // }
     // const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
     const selectWidth = "auto";
 
