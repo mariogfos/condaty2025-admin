@@ -73,6 +73,9 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
   const imageUrl = getFirstAvailableImage();
   console.log('Final imageUrl:', imageUrl); // Para debug
 
+  // Determinar si es tipo post (no noticia)
+  const isPost = formState?.isType === 'P';
+
   // Componente de publicación reutilizable
   const PostCard = ({ isBackground = false, opacity = 1, postData }: {
     isBackground?: boolean;
@@ -89,6 +92,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       likes: number;
       comments: number;
       shares: number;
+      isPost?: boolean;
     }
   }) => (
     <div
@@ -119,33 +123,34 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
         </div>
       </div>
 
-      {/* Contenido principal: Texto a la izquierda, imagen a la derecha */}
-      <div className={previewStyles.mainContent}>
-        {/* Contenido de texto - Izquierda */}
-        <div className={previewStyles.textContent}>
-          {/* Título */}
-          {postData.title && (
-            <h3 className={previewStyles.postTitle}>
-              {postData.title}
-            </h3>
-          )}
+      {/* Contenido principal - Cambia según el tipo */}
+      {postData.isPost ? (
+        /* Layout para POST: Texto arriba, imagen abajo en todo el ancho */
+        <div className={previewStyles.postContent}>
+          {/* Contenido de texto */}
+          <div className={previewStyles.textContentFull}>
+            {/* Título */}
+            {postData.title && (
+              <h3 className={previewStyles.postTitle}>
+                {postData.title}
+              </h3>
+            )}
 
-          {/* Descripción */}
-          <p className={previewStyles.postDescription}>
-            {postData.description}
-          </p>
-        </div>
+            {/* Descripción */}
+            <p className={previewStyles.postDescription}>
+              {postData.description}
+            </p>
+          </div>
 
-        {/* Imagen - Derecha - Posición fija */}
-        <div className={previewStyles.imageContainer}>
-          {postData.hasImage ? (
-            <>
+          {/* Imagen en todo el ancho */}
+          {postData.hasImage && (
+            <div className={previewStyles.imageContainerFull}>
               <Image
                 src={postData.imageUrl || imageUrl || '/images/default-post.jpg'}
                 alt="Preview de la publicación"
-                width={140}
-                height={140}
-                className={previewStyles.postImage}
+                width={400}
+                height={250}
+                className={previewStyles.postImageFull}
                 unoptimized
               />
               {/* Indicador de múltiples imágenes */}
@@ -154,15 +159,55 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
                   +{postData.imageCount - 1}
                 </div>
               )}
-            </>
-          ) : (
-            <div className={previewStyles.imagePlaceholder}>
-              <IconGallery size={32} />
-              <p className={previewStyles.imagePlaceholderText}>Imagen</p>
             </div>
           )}
         </div>
-      </div>
+      ) : (
+        /* Layout para NOTICIA: Texto a la izquierda, imagen a la derecha */
+        <div className={previewStyles.mainContent}>
+          {/* Contenido de texto - Izquierda */}
+          <div className={previewStyles.textContent}>
+            {/* Título */}
+            {postData.title && (
+              <h3 className={previewStyles.postTitle}>
+                {postData.title}
+              </h3>
+            )}
+
+            {/* Descripción */}
+            <p className={previewStyles.postDescription}>
+              {postData.description}
+            </p>
+          </div>
+
+          {/* Imagen - Derecha - Posición fija */}
+          <div className={previewStyles.imageContainer}>
+            {postData.hasImage ? (
+              <>
+                <Image
+                  src={postData.imageUrl || imageUrl || '/images/default-post.jpg'}
+                  alt="Preview de la publicación"
+                  width={140}
+                  height={140}
+                  className={previewStyles.postImage}
+                  unoptimized
+                />
+                {/* Indicador de múltiples imágenes */}
+                {postData.imageCount && postData.imageCount > 1 && (
+                  <div className={previewStyles.imageCounter}>
+                    +{postData.imageCount - 1}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={previewStyles.imagePlaceholder}>
+                <IconGallery size={32} />
+                <p className={previewStyles.imagePlaceholderText}>Imagen</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Estadísticas */}
       <div className={previewStyles.stats}>
@@ -214,7 +259,8 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       imageCount: 3,
       likes: 24,
       comments: 8,
-      shares: 3
+      shares: 3,
+      isPost: false
     },
     main: {
       userName: getFullName(user) || dataFake.name,
@@ -224,7 +270,6 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       description: formState?.description || dataFake.description,
       hasImage: formState?.type === 'I' && !!imageUrl,
       imageUrl: imageUrl,
- 
       imageCount: (() => {
         let count = 0;
 
@@ -246,7 +291,8 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       })(),
       likes: 36,
       comments: 12,
-      shares: 6
+      shares: 6,
+      isPost: isPost // Usar el valor determinado
     },
     bottom: {
       userName: 'Carlos Rodríguez',
@@ -259,7 +305,8 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       imageCount: 1,
       likes: 18,
       comments: 15,
-      shares: 2
+      shares: 2,
+      isPost: false
     }
   };
 
