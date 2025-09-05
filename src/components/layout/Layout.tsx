@@ -108,6 +108,7 @@ const Layout = ({ children }: any) => {
   const onNotif = useCallback(
     (e: any) => {
       // console.log("*******11111*****", e);
+      if (!user?.id) return;
       console.log(user, "user");
       if (e.event == "ping") {
         showToast("Llegó un PING", "info");
@@ -248,9 +249,16 @@ const Layout = ({ children }: any) => {
           buttonText="Cerrar"
           onClose={onCloseAlert}
           onSave={onCloseAlert}
-          
         >
-          <p style={{ color: "var(--cWhiteV1)", marginBottom: 8, fontSize: "14px" }}>Residente</p>
+          <p
+            style={{
+              color: "var(--cWhiteV1)",
+              marginBottom: 8,
+              fontSize: "14px",
+            }}
+          >
+            Residente
+          </p>
           {/* <p>{JSON.stringify(openAlert,null,4)}</p> */}
           <ItemList
             variant="V1"
