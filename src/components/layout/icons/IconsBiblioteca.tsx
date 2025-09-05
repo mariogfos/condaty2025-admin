@@ -1180,17 +1180,23 @@ export const IconLike = (props: IconType) => {
     </IconWrap>
   );
 };
+
 export const IconComment = (props: IconType) => {
   return (
     <IconWrap {...props} viewBox="0 0 24 24" reverse={true}>
       <path
         d="M12 17.5C10.9122 17.5 9.84884 17.1774 8.94437 16.5731C8.0399 15.9687 7.33495 15.1098 6.91867 14.1048C6.50238 13.0998 6.39347 11.9939 6.60568 10.927C6.8179 9.86011 7.34173 8.8801 8.11092 8.11091C8.8801 7.34173 9.86011 6.8179 10.927 6.60568C11.9939 6.39346 13.0998 6.50238 14.1048 6.91866C15.1098 7.33495 15.9687 8.0399 16.5731 8.94437C17.1774 9.84884 17.5 10.9122 17.5 12C17.5 12.9093 17.28 13.7661 16.8889 14.5221L17.5 17.5L14.5221 16.8889C13.7667 17.2794 12.9087 17.5 12 17.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     </IconWrap>
   );
 };
+
+
 
 export const IconConfirm = (props: IconType) => {
   return (

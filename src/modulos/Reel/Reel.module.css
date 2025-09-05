@@ -11,7 +11,7 @@
   box-sizing: border-box;
   background: var(--cBlackV2);
   border-radius: var(--bRadiusL);
-  padding: var(--spL);
+  padding: var(--spM);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid var(--cBlackV3);
   display: flex;
@@ -194,6 +194,7 @@
   background-color: var(--cBlackV1);
   position: relative;
   cursor: default;
+  max-height: 455px;
 }
 
 .contentMediaContainer:has(>.imageCard) {
@@ -203,7 +204,7 @@
 .imageCard {
   width: 100%;
   height: auto;
-  max-height: 400px;
+  max-height: 455px;
   object-fit: cover;
   display: block;
   border-radius: var(--bRadiusM);
@@ -231,11 +232,99 @@
   margin-top: var(--spL);
   padding-top: var(--spM);
   border-top: 1px solid var(--cBlackV3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
 }
 
+/* Sección de estadísticas (solo visualización) */
 .contentStats {
   display: flex;
-  gap: var(--spM);
+  gap: var(--spL);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.statDisplay {
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+}
+
+.statDisplay svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--cWhiteV1);
+}
+
+.statDisplay.liked svg {
+  fill: var(--cAccent);
+}
+
+/* Divider */
+.contentDivider {
+  height: 1px;
+  background: var(--cWhiteV1);
+  width: 100%;
+}
+
+/* Sección de acciones (botones interactivos) */
+.contentActions {
+  display: flex;
+  gap: var(--spS);
+  align-items: center;
+  width: 100%;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spS);
+  color: var(--cWhiteV1);
+  background: transparent;
+  border: none;
+  padding: var(--spM);
+  border-radius: var(--bRadiusS);
+  cursor: pointer;
+  font-size: var(--sM);
+  font-family: var(--fPrimary);
+  font-weight: var(--bMedium);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  outline: none;
+  flex: 1;
+  min-height: 44px;
+}
+
+.actionButton svg {
+  width: 20px;
+  height: 20px;
+  transition: fill 0.2s ease;
+  fill: var(--cWhiteV1);
+}
+
+.actionButton:hover {
+  background-color: var(--cHover);
+  color: var(--cWhite);
+}
+
+.actionButton:hover svg {
+  fill: var(--cWhite);
+}
+
+.actionButton.liked {
+  color: var(--cAccent);
+}
+
+.actionButton.liked svg {
+  fill: var(--cAccent);
+}
+
+.actionButton:active {
+  transform: scale(0.98);
 }
 
 .statItem {
@@ -764,6 +853,21 @@
       width: 18px;
       height: 18px;
   }
+  .statDisplay {
+      font-size: var(--sS);
+  }
+  .statDisplay svg {
+      width: 18px;
+      height: 18px;
+  }
+  .actionButton {
+      font-size: var(--sS);
+      padding: var(--spXs) var(--spS);
+  }
+  .actionButton svg {
+      width: 18px;
+      height: 18px;
+  }
   .carouselButton {
       width: 32px;
       height: 32px;
@@ -865,4 +969,473 @@
       top: 0px;
       right: 0px;
   }
+}
+
+/* Estilos para mosaico de imágenes */
+.imageMosaicContainer {
+  display: grid;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-height: 455px;
+  height: 455px;
+}
+
+.imageMosaicContainer.twoImages {
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: unset;
+}
+
+.imageMosaicContainer.threeImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: unset;
+}
+
+.imageMosaicContainer.fourOrMoreImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: unset;
+}
+
+.mosaicImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mosaicImage:hover {
+  opacity: 0.9;
+}
+
+.mosaicImageFirst {
+  grid-row: span 2;
+}
+
+.mosaicImageLast {
+  position: relative;
+}
+
+.mosaicOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mosaicOverlay:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Estilos para modo compacto */
+.contentCardCompact .contentFooter {
+  margin-top: 8px;
+  padding-top: 8px;
+  gap: 8px;
+}
+
+.contentCardCompact .statDisplay {
+  font-size: 13px;
+  gap: 4px;
+}
+
+.contentCardCompact .statDisplay svg {
+  width: 16px;
+  height: 16px;
+}
+
+.contentCardCompact .contentActions {
+  gap: 4px;
+}
+
+.contentCardCompact .actionButton {
+  font-size: 13px;
+  padding: 8px;
+  min-height: 36px;
+}
+
+.contentCardCompact .actionButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.documentTitlePreview {
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.documentInfoPreview {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  line-height: 1.5;
+}
+
+.documentLinkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spS);
+  padding: var(--spS) var(--spL);
+  background-color: var(--cAccent);
+  color: var(--cBlack);
+  border: none;
+  border-radius: var(--bRadiusS);
+  font-weight: var(--bMedium);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.documentLinkButton:hover {
+  background-color: var(--accentv1);
+}
+
+
+.externalMediaLink {
+  padding: var(--spL);
+  text-align: center;
+  border: 1px dashed var(--cBlackV3);
+}
+.externalMediaLink a {
+  color: var(--cAccent);
+  font-weight: var(--bMedium);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spXs);
+}
+.externalMediaLink a:hover {
+  text-decoration: underline;
+}
+.externalMediaUrl {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  margin-top: var(--spS);
+  word-break: break-all;
+}
+
+.commentPostError {
+  color: var(--cError);
+  font-size: var(--sS);
+  margin-top: var(--spS);
+  text-align: right;
+}
+
+.imageModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 0;
+}
+
+.imageModalContent {
+  position: relative;
+  background-color: var(--cBlack);
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.imageModalImage {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  border-radius: 0;
+  margin: 0;
+}
+
+.imageModalCloseButton {
+  position: absolute;
+  top: calc(var(--spM) * -1 - 10px);
+  right: calc(var(--spM) * -1 - 10px);
+  background: rgba(30,30,30,0.8);
+  border: none;
+  color: var(--cWhite);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  z-index: 1101;
+}
+.imageModalCloseButton:hover {
+  background-color: rgba(0,0,0,0.9);
+  transform: scale(1.1);
+}
+
+@media screen and (max-width: 768px) {
+  .reelContainer {
+      margin: var(--spL) auto;
+      padding: 0 var(--spS);
+      gap: var(--spL);
+  }
+
+  .contentCard {
+      padding: var(--spM);
+      border-radius: var(--bRadiusM);
+  }
+
+  .contentHeader {
+      padding-bottom: var(--spS);
+      margin-bottom: var(--spM);
+  }
+
+  .userInfo {
+      gap: var(--spS);
+  }
+
+  .contentTitle {
+      font-size: calc(var(--sL) * 0.9);
+  }
+
+  .contentDescription {
+      font-size: var(--sS);
+  }
+
+  .contentMediaContainer {
+      margin-top: var(--spS);
+      border-radius: var(--bRadiusS);
+  }
+  .imageCard {
+      border-radius: var(--bRadiusS);
+      max-height: 300px;
+  }
+
+  .contentFooter {
+      margin-top: var(--spM);
+      padding-top: var(--spS);
+  }
+
+  .contentStats {
+      gap: var(--spM);
+  }
+  .statItem {
+      font-size: var(--sS);
+      padding: var(--spS);
+  }
+  .statItem svg {
+      width: 18px;
+      height: 18px;
+  }
+  .carouselButton {
+      width: 32px;
+      height: 32px;
+  }
+  .carouselButton svg {
+      width: 18px;
+      height: 18px;
+  }
+
+  .documentPreviewContainer {
+      padding: var(--spL);
+      min-height: 150px;
+  }
+  .documentTitlePreview {
+      font-size: var(--sM);
+  }
+  .documentLinkButton {
+      padding: var(--spXs) var(--spM);
+      font-size: var(--sS);
+  }
+
+  .imageModalContent {
+      padding: var(--spXs);
+  }
+  .imageModalCloseButton {
+      width: 32px;
+      height: 32px;
+      top: calc(var(--spS) * -1 - 5px);
+      right: calc(var(--spS) * -1 - 5px);
+  }
+  .imageModalCloseButton svg {
+      width: 18px;
+      height: 18px;
+  }
+}
+
+.contentModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: var(--spL);
+}
+
+.contentModalContent {
+  position: relative;
+  background-color: transparent;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overflow-x: hidden;
+}
+
+.contentModalCloseButton {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: rgba(30,30,30,0.8);
+  border: 1px solid var(--cBlackV3);
+  color: var(--cWhite);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  z-index: 1101;
+}
+.contentModalCloseButton:hover {
+  background-color: rgba(0,0,0,0.9);
+  transform: scale(1.1);
+}
+
+/* Estilo para que la tarjeta dentro del modal no tenga sombra ni borde extra */
+.contentCardInModal {
+  border: none;
+  box-shadow: none;
+}
+
+/* Ajuste para que el scroll del modal no interfiera con el botón de cierre */
+@media screen and (max-width: 768px) {
+  .contentModalOverlay {
+      padding: var(--spS);
+  }
+  .contentModalContent {
+      max-height: 95vh;
+  }
+  .contentModalCloseButton {
+      top: 0px;
+      right: 0px;
+  }
+}
+
+/* Estilos para mosaico de imágenes */
+.imageMosaicContainer {
+  display: grid;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-height: 455px;
+}
+
+.imageMosaicContainer.twoImages {
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: 2/1;
+}
+
+.imageMosaicContainer.threeImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2/1;
+}
+
+.imageMosaicContainer.fourOrMoreImages {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2/1;
+}
+
+.mosaicImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mosaicImage:hover {
+  opacity: 0.9;
+}
+
+.mosaicImageFirst {
+  grid-row: span 2;
+}
+
+.mosaicImageLast {
+  position: relative;
+}
+
+.mosaicOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mosaicOverlay:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Estilos para modo compacto */
+.contentCardCompact .imageMosaicContainer {
+  max-height: 120px;
+  height: 120px;
+  margin-top: 8px;
+}
+
+.contentCardCompact .imageMosaicContainer.twoImages,
+.contentCardCompact .imageMosaicContainer.threeImages,
+.contentCardCompact .imageMosaicContainer.fourOrMoreImages {
+  aspect-ratio: unset;
+}
+
+.contentCardCompact .mosaicOverlay {
+  font-size: 16px;
 }
