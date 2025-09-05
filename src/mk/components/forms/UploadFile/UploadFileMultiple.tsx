@@ -157,16 +157,15 @@ const UploadFileMultiple = ({
           border: "1px solid var(--cWhiteV2)",
           backgroundColor: "var(--cWhiteV2)",
           padding: "var(--sM)",
+          paddingTop: "24px", // Agregar padding-top para el label
           borderRadius: "var(--bRadius)",
           position: "relative",
+          marginBottom: "var(--spL)",
         }}
       >
         <label>
           {props.label || "Puede subir hasta " + maxFiles + " imágenes"}
         </label>
-        {/* {JSON.stringify(imgs)}----
-        {JSON.stringify(Object.keys(value).length)}----
-        {images.length}---{maxFiles} */}
         {imgs.map((it: any, i: number) => (
           <div
             key={"img-" + i + it.id}
@@ -181,7 +180,6 @@ const UploadFileMultiple = ({
             <UploadFileM
               {...props}
               className="v2"
-              // autoOpen={imgs.length > 1 && !it.id}
               editor={editor}
               sizePreview={sizePreview}
               value={value[name + i]?.file || false}
