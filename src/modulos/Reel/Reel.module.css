@@ -9,7 +9,7 @@
 
 .contentCard {
   box-sizing: border-box;
-  background: var(--cDarkV2);
+  background: var(--cBlackV2);
   border-radius: var(--bRadiusL);
   padding: var(--spL);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
@@ -179,11 +179,11 @@
   word-wrap: break-word;
   white-space: pre-wrap;
   display: -webkit-box;
-  
+
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
- 
+
 }
 
 .contentMediaContainer {
@@ -210,8 +210,8 @@
   transition: transform 0.3s ease;
 }
 .contentModalContent .contentMediaContainer {
-  background-color: #000; 
-  max-height: 85vh;       
+  background-color: #000;
+  max-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,11 +219,11 @@
 
 /* Estilo para la imagen DENTRO DEL MODAL */
 .contentModalContent .imageCard {
-  object-fit: contain; 
-  max-height: 85vh;       
-  width: auto;           
-  max-width: 100%;      
-  border-radius: 0;       
+  object-fit: contain;
+  max-height: 85vh;
+  width: auto;
+  max-width: 100%;
+  border-radius: 0;
 }
 
 
@@ -772,7 +772,7 @@
       width: 18px;
       height: 18px;
   }
-  
+
   .documentPreviewContainer {
       padding: var(--spL);
       min-height: 150px;
@@ -821,7 +821,7 @@
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  scrollbar-gutter: stable; 
+  scrollbar-gutter: stable;
   overflow-x: hidden;
 }
 

@@ -114,11 +114,24 @@ const AddContent = ({
 
   useEffect(() => {
     if (formState?.isType == "P") {
-      setFormState({ ...formState, title: null });
+      setFormState({
+        ...formState,
+        title: null,
+        type: "I", // Resetear a contenido multimedia por defecto
+        url: null,
+        file: null,
+        avatar: formState?.avatar // Mantener las imágenes si las hay
+      });
     }
-    // if (formState?.isType == "N") {
-    //   setFormState({ ...formState, type: "I" });
-    // }
+    if (formState?.isType == "N") {
+      setFormState({
+        ...formState,
+        type: "I", // Resetear a contenido multimedia por defecto
+        url: null,
+        file: null,
+        avatar: formState?.avatar // Mantener las imágenes si las hay
+      });
+    }
   }, [formState?.isType]);
 
   // useEffect(() => {
