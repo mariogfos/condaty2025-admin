@@ -14,6 +14,7 @@ import {
   IconNewReserve,
   IconUser,
   IconNotification,
+  IconNewPublication,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -49,29 +50,39 @@ const Notifications = () => {
     search: false,
   };
 
-  const renderNotificationIcon = (info: any) => {
-    if (!info) return null;
-    console.log(info);
-
-    if (info.act === "alerts") {
-      return <IconAlertNotification className={styles.alertIcon} />;
-    }
-    if (info.act === "newPreregister") {
-      return <IconPreRegister className={styles.preregisterIcon} />;
-    }
-    if (info.act === "newVoucher" || info.act === "newPayment") {
-      return <IconPaymentCommitment className={styles.paymentIcon} />;
-    }
-    if (info.act === "newReservationAdm") {
-      return <IconNewReserve color="var(--cBlack)" />;
-    }
-    if (info.act === "newAdmin") {
-      return <IconUser color="var(--cBlack)" />;
-    }
-    return null;
-  };
-
   const fields = useMemo(() => {
+    const renderNotificationIcon = (messageData: any) => {
+      if (!messageData) return null;
+
+      // Buscar 'act' en el objeto principal o en 'info'
+      const actValue = messageData.act || messageData.info?.act;
+
+      console.log('messageData:', messageData);
+      console.log('actValue:', actValue);
+
+      if (actValue === 'newContent') {
+        return <IconNewPublication className={styles.publicationIcon} />;
+      }
+
+      if (actValue === "alerts") {
+        return <IconAlertNotification className={styles.alertIcon} />;
+      }
+      if (actValue === "newPreregister") {
+        return <IconPreRegister className={styles.preregisterIcon} />;
+      }
+      if (actValue === "newVoucher" || actValue === "newPayment") {
+        return <IconPaymentCommitment className={styles.paymentIcon} />;
+      }
+      if (actValue === "newReservationAdm") {
+        return <IconNewReserve color="var(--cBlack)" />;
+      }
+      if (actValue === "newAdmin") {
+        return <IconUser color="var(--cBlack)" />;
+      }
+
+      return null;
+    };
+
     return {
       id: { rules: [], api: "e" },
 
@@ -108,8 +119,7 @@ const Notifications = () => {
                   }}
                 >
                   <div className={styles.notificationIcon}>
-                    {parsedMessage.info &&
-                      renderNotificationIcon(parsedMessage.info)}
+                    {renderNotificationIcon(parsedMessage)}
                   </div>
                   <div className={styles.notificationContent}>
                     <div
@@ -139,13 +149,17 @@ const Notifications = () => {
         },
       },
     };
-  }, []);
+  }, [user?.id]);
 
-  const { userCan, List, setStore, onSearch, searchs } = useCrud({
+  // Usar useCrud normalmente SIN filtrar datos aquí
+  const { userCan, List, setStore, onSearch, searchs, data } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+
+  // ELIMINAR filteredData - no es necesario
+  // const filteredData = useMemo(() => { ... });
 
   const { onLongPress, selItem, searchState } = useCrudUtils({
     onSearch,
@@ -181,18 +195,6 @@ const Notifications = () => {
       const parsedMessage = JSON.parse(x);
 
       // Navegar según el tipo de notificación
-      // if (
-      //   parsedMessage?.info?.act === "newVoucher" ||
-      //   parsedMessage?.info?.act === "newPayment"
-      // ) {
-      //   if (parsedMessage.info?.id) {
-      //     router.push(`/payments/${parsedMessage.info.id}`);
-      //   }
-      // } else if (parsedMessage?.info?.act === "alerts") {
-      //   if (parsedMessage.info?.id) {
-      //     router.push(`/alerts/${parsedMessage.info.id}`);
-      //   }
-      // } else
       if (parsedMessage?.info?.act === "newPreregister") {
         router.push("/");
       }
@@ -208,23 +210,27 @@ const Notifications = () => {
       if (parsedMessage?.info?.act === "newReservationAdm") {
         router.push("/reservas");
       }
+      if (parsedMessage?.info?.act === "newContent") {
+        router.push("/contents");
+      }
     } catch (error) {
       console.error("Error processing notification:", error);
     }
   };
 
-  // Siguiendo el patrón de Dptos para renderItem
   const renderItem = (
     item: Record<string, any>,
     i: number,
     onClick: Function
   ) => {
     try {
-      let parsedMessage = { msg: { title: "", body: "" } };
+      let parsedMessage: { msg: { title: string; body: string }; info?: any } = {
+        msg: { title: "", body: "" },
+        info: null
+      };
       try {
-        // Mejor manejo de caracteres especiales
         let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
-        parsedMessage = JSON.parse(x);
+        parsedMessage = JSON.parse(x)
       } catch (error) {
         console.error("Error parsing message:", error);
       }
@@ -244,6 +250,7 @@ const Notifications = () => {
       return null;
     }
   };
+
   const { dispatch } = useEvent("onResetNotif");
 
   useEffect(() => {
@@ -261,6 +268,7 @@ const Notifications = () => {
         emptyMsg="Lista vacía. Una vez comiencen las interacciones"
         emptyLine2="con el sistema, verás las notificaciones aquí."
         emptyIcon={<IconNotification size={80} color="var(--cWhiteV1)" />}
+        // QUITAR data={filteredData} - usar los datos internos de useCrud
       />
       {openPayment.open && (
         <PaymentRender
