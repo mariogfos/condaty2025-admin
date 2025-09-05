@@ -316,7 +316,6 @@ const AddContent = ({
           <div className={styles.backButton} onClick={() => onClose()}>
             <IconArrowLeft size={20} />
             <span>Volver a lista de publicaciones</span>
-
           </div>
           <div className={styles.formHeader}>
             <p>Nueva publicación</p>
@@ -325,42 +324,40 @@ const AddContent = ({
 
         <div className={styles.mainContainer}>
           <div className={styles.containerForm}>
-
-            <CardContent title="Tipo de publicación">
-              <div className={styles.radioContainer}>
-                <Radio
-                  checked={formState?.isType == 'N'}
-                  label="Noticia"
-                  subtitle="Ideal para informar con mayor detalle sobre un acontecimiento importante."
-                  onChange={() => setFormState({ ...formState, isType: 'N' })}
-                  disabled={action == 'edit'}
-                  containerStyle={{ backgroundColor: 'transparent' }} // Sin fondo
-                  className={styles.customRadio} // Clase personalizada opcional
-                />
-                <Radio
-                  checked={formState?.isType == 'P'}
-                  label="Post"
-                  subtitle="Publicación más informal, ideal para publicar eventos cotidianos."
-                  onChange={() => setFormState({ ...formState, isType: 'P' })}
-                  disabled={action == 'edit'}
-                  containerStyle={{ backgroundColor: 'transparent' }} // Sin fondo
-                  className={styles.customRadio} // Clase personalizada opcional
-                />
-              </div>
-            </CardContent>
-
- 
-
-            {formState?.isType == 'N' && (
-                  <Input
-                    name="title"
-                    label="Titulo de la publicación"
-                    value={formState?.title}
-                    onChange={handleChangeInput}
-                    error={errors}
+            <div className={styles.formContent}>
+              <CardContent title="Tipo de publicación">
+                <div className={styles.radioContainer}>
+                  <Radio
+                    checked={formState?.isType == 'N'}
+                    label="Noticia"
+                    subtitle="Ideal para informar con mayor detalle sobre un acontecimiento importante."
+                    onChange={() => setFormState({ ...formState, isType: 'N' })}
+                    disabled={action == 'edit'}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    className={styles.customRadio}
                   />
-            )}
+                  <Radio
+                    checked={formState?.isType == 'P'}
+                    label="Post"
+                    subtitle="Publicación más informal, ideal para publicar eventos cotidianos."
+                    onChange={() => setFormState({ ...formState, isType: 'P' })}
+                    disabled={action == 'edit'}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    className={styles.customRadio}
+                  />
+                </div>
+                <Br />
+              </CardContent>
 
+              {formState?.isType == 'N' && (
+                <Input
+                  name="title"
+                  label="Titulo de la publicación"
+                  value={formState?.title}
+                  onChange={handleChangeInput}
+                  error={errors}
+                />
+              )}
 
               <TextArea
                 name="description"
@@ -370,107 +367,108 @@ const AddContent = ({
                 error={errors}
               />
 
+              <Br />
 
-            <Br />
+              <CardContent
+                title="Sube el tipo de contenido que quieras publicar"
+                subtitle="Selecciona el tipo de contenido que quieras publicar"
+              >
+                <div className={styles.contentTypeContainer}>
+                  <TagContents
+                    icon={<IconGallery size={16} />}
+                    isActive={formState.type == 'I'}
+                    text="Contenido multimedia"
+                    onClick={() =>
+                      setFormState({
+                        ...formState,
+                        type: 'I',
+                        url: null,
+                        file: null,
+                      })
+                    }
+                    disabled={action == 'edit'}
+                  />
+                  {formState.isType == 'P' && (
+                    <>
+                      <TagContents
+                        isActive={formState.type == 'V'}
+                        icon={<IconVideo size={16} />}
+                        text={'Video'}
+                        onClick={() =>
+                          setFormState({
+                            ...formState,
+                            type: 'V',
+                            file: null,
+                            avatar: null,
+                          })
+                        }
+                        disabled={action == 'edit'}
+                      />
+                      <TagContents
+                        isActive={formState.type == 'D'}
+                        icon={<IconDocs size={16} />}
+                        text="Documento"
+                        onClick={() =>
+                          setFormState({
+                            ...formState,
+                            type: 'D',
+                            url: null,
+                            avatar: null,
+                          })
+                        }
+                        disabled={action == 'edit'}
+                      />
+                    </>
+                  )}
+                </div>
 
-            <CardContent
-              title="Sube el tipo de contenido que quieras publicar"
-              subtitle="Selecciona el tipo de contenido que quieras publicar"
-            >
-              <div className={styles.contentTypeContainer}>
-                <TagContents
-                  icon={<IconGallery size={16} />}
-                  isActive={formState.type == 'I'}
-                  text="Contenido multimedia"
-                  onClick={() =>
-                    setFormState({
-                      ...formState,
-                      type: 'I',
-                      url: null,
-                      file: null,
-                    })
-                  }
-                  disabled={action == 'edit'}
-                />
-                {formState.isType == 'P' && (
-                  <>
-                    <TagContents
-                      isActive={formState.type == 'V'}
-                      icon={<IconVideo size={16} />}
-                      text={'Video'}
-                      onClick={() =>
-                        setFormState({
-                          ...formState,
-                          type: 'V',
-                          file: null,
-                          avatar: null,
-                        })
-                      }
-                      disabled={action == 'edit'}
+                {formState?.type == 'I' && (
+                  <div className={styles.uploadContainer}>
+                    <UploadFileMultiple
+                      name="avatar"
+                      value={formState?.avatar || {}}
+                      onChange={handleChangeInput}
+                      label={'Subir imagen, jpg, png o webp'}
+                      error={errors}
+                      ext={['jpg', 'png', 'jpeg', 'webp']}
+                      setError={setErrors}
+                      img={true}
+                      maxFiles={10}
+                      prefix={'CONT'}
+                      images={formState?.images || []}
+                      item={formState}
                     />
-                    <TagContents
-                      isActive={formState.type == 'D'}
-                      icon={<IconDocs size={16} />}
-                      text="Documento"
-                      onClick={() =>
-                        setFormState({
-                          ...formState,
-                          type: 'D',
-                          url: null,
-                          avatar: null,
-                        })
-                      }
-                      disabled={action == 'edit'}
-                    />
-                  </>
+                  </div>
                 )}
-              </div>
+                {formState?.type == 'V' && (
+                  <div className={styles.uploadContainer}>
+                    <Input
+                      name="url"
+                      label="Link del video"
+                      value={formState?.url}
+                      onChange={handleChangeInput}
+                      error={errors}
+                    />
+                  </div>
+                )}
+                {formState?.type == 'D' && (
+                  <div className={styles.uploadContainer}>
+                    <UploadFile
+                      name={'file'}
+                      value={formState?.file}
+                      onChange={handleChangeInput}
+                      label={'Subir documento'}
+                      error={errors}
+                      ext={['pdf']}
+                      setError={setErrors}
+                      item={formState}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </div>
 
-              {formState?.type == 'I' && (
-                <div className={styles.uploadContainer}>
-                  <UploadFileMultiple
-                    name="avatar"
-                    value={formState?.avatar || {}}
-                    onChange={handleChangeInput}
-                    label={'Subir imagen, jpg, png o webp'}
-                    error={errors}
-                    ext={['jpg', 'png', 'jpeg', 'webp']}
-                    setError={setErrors}
-                    img={true}
-                    maxFiles={10}
-                    prefix={'CONT'}
-                    images={formState?.images || []}
-                    item={formState}
-                  />
-                </div>
-              )}
-              {formState?.type == 'V' && (
-                <div className={styles.uploadContainer}>
-                  <Input
-                    name="url"
-                    label="Link del video"
-                    value={formState?.url}
-                    onChange={handleChangeInput}
-                    error={errors}
-                  />
-                </div>
-              )}
-              {formState?.type == 'D' && (
-                <div className={styles.uploadContainer}>
-                  <UploadFile
-                    name={'file'}
-                    value={formState?.file}
-                    onChange={handleChangeInput}
-                    label={'Subir documento'}
-                    error={errors}
-                    ext={['pdf']}
-                    setError={setErrors}
-                    item={formState}
-                  />
-                </div>
-              )}
-            </CardContent>
-
+            {/* Botones movidos fuera del formContent */}
             <div className={styles.actionButtons}>
               <Button variant="secondary" onClick={onClose}>
                 Cancelar

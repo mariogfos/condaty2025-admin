@@ -41,15 +41,16 @@
   border: 0.5px solid var(--cWhiteV1);
   border-radius: var(--bRadiusM);
   padding: 24px;
-  overflow-y: auto;
+  overflow: hidden;
   max-height: calc(100vh - 120px);
 }
 
 .formContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   flex: 1;
+  overflow-y: auto;
+  padding-right: 8px; /* Espacio para el scrollbar */
 }
 
 .actionButtons {
@@ -58,21 +59,26 @@
   gap: 12px;
   padding: 0;
   margin: 0;
-
   padding-top: 16px;
-  margin-top: 16px; /* Separación del contenido */
+  margin-top: 16px;
+  flex-shrink: 0; /* Evita que los botones se compriman */
+}
+
+.actionButtons button {
+  min-width: 120px;
 }
 
 /* Resetear margins y paddings de componentes internos */
-.containerForm > * {
+.formContent > * {
   margin: 0;
   padding: 0;
 }
 
 /* Excepciones para componentes que necesitan padding interno */
-.containerForm .card,
-.containerForm [class*="Card"] {
-  padding: 16px;
+.formContent .card,
+.formContent [class*="Card"] {
+  padding-top: var(--spL);
+  padding-bottom: var(--spL);
 }
 
 .formHeader p {
@@ -113,9 +119,8 @@
   display: flex;
   width: 100%;
   gap: 16px;
-  margin-bottom: 0;
+  margin: 0;
   padding: 0;
-
 }
 
 .customRadio {
@@ -128,28 +133,13 @@
   display: flex;
   gap: var(--spS);
   flex-wrap: wrap;
- margin-bottom: var(--spL);
+  margin-bottom: var(--spL);
   padding: 0;
-
 }
 
 .uploadContainer {
   margin: 0;
   padding: 0;
-}
-
-.actionButtons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 0;
-  margin: 0;
-
-  padding-top: 16px; /* Solo padding-top para separar del border */
-}
-
-.actionButtons button {
-  min-width: 120px;
 }
 
 .containerPreview {
@@ -219,15 +209,15 @@
 }
 
 /* Resetear estilos de inputs y textareas dentro del form */
-.containerForm input,
-.containerForm textarea,
-.containerForm select {
+.formContent input,
+.formContent textarea,
+.formContent select {
   margin: 0;
 }
 
 /* Resetear estilos de los componentes Br */
-.containerForm hr,
-.containerForm [class*="Br"] {
+.formContent hr,
+.formContent [class*="Br"] {
   margin: 0;
   padding: 0;
 }
