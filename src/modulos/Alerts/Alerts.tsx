@@ -370,6 +370,7 @@ const Alerts = () => {
         emptyMsg="No existe ningún tipo de alerta. Cuando un guardia o residente"
         emptyLine2="registre una, se mostrará aquí."
         emptyIcon={<IconAlert3 size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={900}
       />
 
       <DateRangeFilterModal

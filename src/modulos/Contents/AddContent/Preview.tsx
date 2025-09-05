@@ -222,9 +222,9 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       time: 'Hace un momento',
       title: formState?.title || null,
       description: formState?.description || dataFake.description,
-      hasImage: !!(imageUrl || formState?.type === 'I'),
+      hasImage: formState?.type === 'I' && !!imageUrl,
       imageUrl: imageUrl,
-      // Contar imágenes correctamente
+ 
       imageCount: (() => {
         let count = 0;
 
