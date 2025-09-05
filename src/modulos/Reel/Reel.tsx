@@ -14,6 +14,7 @@ import {
   IconX,
   IconDocs,
   IconPublicacion,
+  IconPdfPro,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -113,6 +114,8 @@ const renderImageMosaic = (
     return styles.fourOrMoreImages;
   };
 
+  // Para modo compacto, mostrar máximo 4 imágenes
+  // Para modo normal, mostrar máximo 4 imágenes también
   const imagesToShow = imageCount > 4 ? images.slice(0, 4) : images;
   const remainingCount = imageCount > 4 ? imageCount - 4 : 0;
 
@@ -122,6 +125,7 @@ const renderImageMosaic = (
       onClick={onImageClick}
     >
       {imagesToShow.map((image, index) => {
+        const isFirst = index === 0;
         const isLast = index === imagesToShow.length - 1;
         const showOverlay = remainingCount > 0 && isLast;
 
@@ -129,7 +133,7 @@ const renderImageMosaic = (
           <div
             key={image.id}
             className={`${
-              imageCount === 3 && index === 0 ? styles.mosaicImageFirst : ''
+              isFirst ? styles.mosaicImageFirst : ''
             } ${showOverlay ? styles.mosaicImageLast : ''}`}
             style={{
               position: 'relative'
@@ -307,7 +311,7 @@ export const renderMedia = (
     if (!item.url) {
       return (
         <div className={styles.contentMediaContainer}>
-          <p>Documento no disponible</p>
+          {/* <p>Documento no disponible</p> */}
         </div>
       );
     }
@@ -348,7 +352,7 @@ export const renderMedia = (
             : {}
         }
       >
-        <IconAdress size={32} color="var(--cWhiteV2)" />
+        <IconPdfPro size={42} color="var(--cWhiteV2)" />
         <h4
           className={styles.documentTitlePreview}
           style={modoCompacto ? { fontSize: 14, margin: 0 } : {}}

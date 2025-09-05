@@ -223,3 +223,50 @@
   right: 10px;
   z-index: 2;
 }
+
+/* Nuevo layout para POST */
+.postContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.textContentFull {
+  width: 100%;
+}
+
+.imageContainerFull {
+  width: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.postImageFull {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Mantener estilos existentes para NOTICIA */
+.mainContent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.textContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.imageContainer {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}

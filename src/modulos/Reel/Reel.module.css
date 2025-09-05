@@ -190,7 +190,6 @@
   width: 100%;
   border-radius: var(--bRadiusM);
   overflow: hidden;
-  margin-top: var(--spM);
   background-color: var(--cBlackV1);
   position: relative;
   cursor: default;
@@ -1362,24 +1361,26 @@
   overflow: hidden;
   position: relative;
   width: 100%;
+  min-height: 300px;
   max-height: 455px;
 }
 
 .imageMosaicContainer.twoImages {
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
   aspect-ratio: 2/1;
 }
 
 .imageMosaicContainer.threeImages {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  aspect-ratio: 2/1;
+  aspect-ratio: 2/1.5;
 }
 
 .imageMosaicContainer.fourOrMoreImages {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  aspect-ratio: 2/1;
+  grid-template-rows: 1fr 1fr 1fr;
+  aspect-ratio: 2/2;
 }
 
 .mosaicImage {
@@ -1388,6 +1389,7 @@
   object-fit: cover;
   cursor: pointer;
   transition: opacity 0.2s ease;
+  min-height: 0;
 }
 
 .mosaicImage:hover {
@@ -1396,6 +1398,16 @@
 
 .mosaicImageFirst {
   grid-row: span 2;
+}
+
+/* Para 4+ imágenes, la primera imagen debe ocupar 3 filas */
+.imageMosaicContainer.fourOrMoreImages .mosaicImageFirst {
+  grid-row: span 3;
+}
+
+/* Para 2 imágenes, la primera imagen no debe ocupar múltiples filas */
+.imageMosaicContainer.twoImages .mosaicImageFirst {
+  grid-row: span 1;
 }
 
 .mosaicImageLast {
@@ -1425,19 +1437,45 @@
 
 /* Estilos para modo compacto */
 .contentCardCompact .imageMosaicContainer {
+  min-height: 80px;
   max-height: 120px;
-  height: 120px;
   margin-top: 8px;
 }
 
-.contentCardCompact .imageMosaicContainer.twoImages,
-.contentCardCompact .imageMosaicContainer.threeImages,
+.contentCardCompact .imageMosaicContainer.twoImages {
+  grid-template-rows: 1fr;
+  aspect-ratio: 2/1;
+}
+
+.contentCardCompact .imageMosaicContainer.threeImages {
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2/1.2;
+}
+
 .contentCardCompact .imageMosaicContainer.fourOrMoreImages {
-  aspect-ratio: unset;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2/1.2;
+}
+
+/* En modo compacto, ajustar los spans */
+.contentCardCompact .imageMosaicContainer.twoImages .mosaicImageFirst {
+  grid-row: span 1;
+}
+
+.contentCardCompact .imageMosaicContainer.threeImages .mosaicImageFirst,
+.contentCardCompact .imageMosaicContainer.fourOrMoreImages .mosaicImageFirst {
+  grid-row: span 2;
 }
 
 .contentCardCompact .mosaicOverlay {
   font-size: 16px;
+}
+
+/* Asegurar que las imágenes en el grid se vean completas */
+.imageMosaicContainer > div {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Estilos para el modal de edición */
