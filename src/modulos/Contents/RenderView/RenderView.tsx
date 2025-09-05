@@ -14,7 +14,8 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconPDF,
-  IconDocs
+  IconDocs,
+  IconImage
 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
 import Button from "@/mk/components/forms/Button/Button";
@@ -118,10 +119,20 @@ const RenderView = (props: {
 
   // Función para obtener la URL del documento
   const getDocumentUrl = () => {
-    if (currentData?.type === 'D' && currentData?.id) {
+    if (currentData?.type === 'D' && currentData?.id && currentData?.url) {
       return getUrlImages(`/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`);
     }
     return null;
+  };
+
+  // Función para verificar si el documento existe
+  const hasDocument = () => {
+    return currentData?.type === 'D' && currentData?.url && currentData?.url !== 'null';
+  };
+
+  // Función para verificar si las imágenes existen
+  const hasImages = () => {
+    return currentData?.type === 'I' && currentData?.images && currentData?.images.length > 0 && currentData?.images[indexVisible]?.id;
   };
 
   return (
@@ -157,35 +168,58 @@ const RenderView = (props: {
           <Br />
           <div className={styles.content}>
             <div className={styles.imageContainer}>
-              {currentData?.type === 'I' && currentData?.images?.[indexVisible]?.id ? (
-                <>
-                  <div className={styles.imageWrapper}>
-                    <img
-                      alt="Imagen de la publicación"
-                      className={styles.image}
-                      src={getUrlImages(
-                        '/CONT-' + currentData.id + '-' + currentData.images[indexVisible]?.id + '.webp' + '?' + currentData?.updated_at
-                      )}
-                    />
-                  </div>
-                  {currentData?.images?.length > 1 && (
-                    <div className={styles.containerButton}>
-                      <div className={styles.button} onClick={prevIndex}>
-                        <IconArrowLeft size={18} color="var(--cWhite)" />
-                      </div>
-                      <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
-                        {indexVisible + 1} / {currentData?.images?.length}
-                      </p>
-                      <div className={styles.button} onClick={nextIndex}>
-                        <IconArrowRight size={18} color="var(--cWhite)" />
-                      </div>
+              {currentData?.type === 'I' ? (
+                hasImages() ? (
+                  /* Mostrar imágenes normalmente */
+                  <>
+                    <div className={styles.imageWrapper}>
+                      <img
+                        alt="Imagen de la publicación"
+                        className={styles.image}
+                        src={getUrlImages(
+                          '/CONT-' + currentData.id + '-' + currentData.images[indexVisible]?.id + '.webp' + '?' + currentData?.updated_at
+                        )}
+                      />
                     </div>
-                  )}
-                </>
+                    {currentData?.images?.length > 1 && (
+                      <div className={styles.containerButton}>
+                        <div className={styles.button} onClick={prevIndex}>
+                          <IconArrowLeft size={18} color="var(--cWhite)" />
+                        </div>
+                        <p style={{ color: "var(--cWhite)", fontSize: 10 }}>
+                          {indexVisible + 1} / {currentData?.images?.length}
+                        </p>
+                        <div className={styles.button} onClick={nextIndex}>
+                          <IconArrowRight size={18} color="var(--cWhite)" />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Mostrar mensaje de imagen no disponible */
+                  <div className={styles.imageWrapper} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    padding: '40px'
+                  }}>
+                    <IconImage size={120} color="var(--cWhiteV1)" />
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ color: 'var(--cWhite)', fontSize: '16px', margin: '0 0 8px 0' }}>
+                        Imagen no disponible
+                      </p>
+                      <p style={{ color: 'var(--cWhiteV1)', fontSize: '14px', margin: '0' }}>
+                        La imagen fue eliminada y no se pudo cargar.
+                      </p>
+                    </div>
+                  </div>
+                )
               ) : currentData?.type === 'V' ? (
                 <ReactPlayer url={currentData?.url} width="100%" height="100%" controls />
               ) : currentData?.type === 'D' ? (
-                /* Mostrar documento */
+                /* Mostrar documento o mensaje de no disponible */
                 <div className={styles.imageWrapper} style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -194,15 +228,19 @@ const RenderView = (props: {
                   gap: '16px',
                   padding: '40px'
                 }}>
-                  <IconPDF size={120} color="var(--cWhite)" />
+                  <IconPDF size={120} color={hasDocument() ? "var(--cWhite)" : "var(--cWhiteV1)"} />
                   <div style={{ textAlign: 'center' }}>
                     <p style={{ color: 'var(--cWhite)', fontSize: '16px', margin: '0 0 8px 0' }}>
-                      {currentData?.title || 'Documento'}
+                      {hasDocument() ? (currentData?.title || 'Documento') : 'Documento no disponible'}
                     </p>
                     <p style={{ color: 'var(--cWhiteV1)', fontSize: '14px', margin: '0 0 16px 0' }}>
-                      {currentData?.description?.substring(0, 100)}{currentData?.description?.length > 100 ? '...' : ''}
+                      {hasDocument()
+                        ? (currentData?.description?.substring(0, 100) + (currentData?.description?.length > 100 ? '...' : ''))
+                        : 'El documento fue eliminado y no se pudo cargar.'
+                      }
                     </p>
-                    {getDocumentUrl() && (
+                    {/* Solo mostrar el botón si el documento existe */}
+                    {hasDocument() && getDocumentUrl() && (
                       <a
                         href={getDocumentUrl() || undefined}
                         target="_blank"
