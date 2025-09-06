@@ -71,7 +71,12 @@ export default function ChatInstantDb() {
   const [lastMsg, setLastMsg] = useState(null);
   const [countMsg, setCountMsg]: any = useState({});
   useEffect(() => {
-    if (!chats?.messages) return;
+    if (
+      !chats?.messages ||
+      !chats?.messages.length ||
+      chats?.messages.length == 0
+    )
+      return;
 
     let cM: any = {};
     chats.messages?.map((m: any) => {
@@ -89,6 +94,7 @@ export default function ChatInstantDb() {
     });
 
     const abrir =
+      chats.messages.length &&
       lastMsg &&
       chats.messages[chats.messages.length - 1].created_at > lastMsg &&
       chats?.messages[chats?.messages?.length - 1].sender != user.id &&
