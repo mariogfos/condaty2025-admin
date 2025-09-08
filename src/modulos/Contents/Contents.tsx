@@ -186,6 +186,7 @@ const Contents = () => {
       item: Record<string, any>;
       onConfirm?: Function;
       extraData: any;
+      onDel?: (item: any) => void;
     }) => (
       <RenderView
         {...props}
@@ -193,12 +194,12 @@ const Contents = () => {
           console.log('Item para editar:', item);
           onEdit(item);
         }}
-        onDelete={(item: any) => onDel(item)}
-        reLoad={() => reLoad()}
+        onDelete={props.onDel}
         onOpenComments={handleOpenComments}
         selectedContentData={selectedContentData}
       />
     ),
+
     loadView: { fullType: "DET" },
     renderForm: (props: {
       item: any;
@@ -234,56 +235,6 @@ const Contents = () => {
     },
   };
 
-  const onTop = (data: {
-    user?: Record<string, any>;
-    item: Record<string, any>;
-    extraData: any;
-    action: any;
-  }) => {
-    const extraData = data?.extraData;
-    if (data?.item?.destiny == 0) {
-      return;
-    }
-    let selDestinies = [];
-    if (data?.item?.destiny == 2) selDestinies = extraData.listas;
-    if (data?.item?.destiny == 3) selDestinies = extraData.dptos;
-    if (data?.item?.destiny == 4) selDestinies = extraData.muns;
-    if (data?.item?.destiny == 5) selDestinies = extraData.barrios;
-    let lDestinies: any = data?.item?.lDestiny || [];
-
-    if (data?.action == "edit" && !data?.item?.lDestiny) {
-      data?.item?.cdestinies?.map((d: any) => {
-        if (data?.item?.destiny == 2) {
-          lDestinies.push(d.lista_id);
-        }
-        if (data?.item?.destiny == 3) {
-          lDestinies.push(d.dpto_id);
-        }
-        if (data?.item?.destiny == 4) {
-          lDestinies.push(d.mun_id);
-        }
-        if (data?.item?.destiny == 5) {
-          lDestinies.push(d.barrio_id);
-        }
-      });
-    }
-
-    return (
-      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-        {selDestinies
-          ?.filter((d: any) => lDestinies?.includes(d.id))
-          .map((d: any, index: number, array: any[]) => (
-            <p
-              key={d.id}
-              style={{ color: "var(--cInfo)", marginTop: 4 }}
-            >
-              {d.name}
-              {index < array.length - 1 ? "," : ""}
-            </p>
-          ))}
-      </div>
-    );
-  };
   const { setStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: '' });
@@ -635,17 +586,15 @@ const Contents = () => {
   const {
     userCan,
     List,
-    setStore: crudSetStore, // Renombrar para evitar conflicto
+    setStore: crudSetStore,
     onSearch,
     searchs,
     onEdit,
     onDel,
     extraData,
-    showToast: crudShowToast, // Renombrar para evitar conflicto
+    showToast: crudShowToast,
     execute,
     reLoad,
-    openCard,
-    getExtraData,
     data,
     onFilter,
     openList,
@@ -664,19 +613,16 @@ const Contents = () => {
     mod,
     onEdit,
     onDel,
-    title: '', // Mantener vacío
+    title: '',
   });
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
 
   return (
     <div className={styles.roles}>
-      {/* Agregar título hardcodeado como en Defaulters */}
       {openList && (
         <h1 className={styles.title}>Publicaciones</h1>
       )}
-
-      {/* Solo mostrar el WidgetDashCard cuando openList es true */}
       {openList && (
         <WidgetDashCard
           title="Publicaciones"
@@ -735,8 +681,6 @@ const Contents = () => {
         errorStart={customDateErrors.startDate}
         errorEnd={customDateErrors.endDate}
       />
-
-      {/* CommentsModal a nivel de Contents */}
       <CommentsModal
         isOpen={isCommentModalOpen}
         onClose={handleCloseComments}

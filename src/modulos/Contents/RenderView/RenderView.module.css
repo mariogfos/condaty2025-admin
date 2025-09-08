@@ -308,43 +308,6 @@
   }
 }
 
-/* Mantener los estilos existentes y agregar los nuevos */
-.container {
-  /* estilos existentes */
-}
-
-.header {
-  /* estilos existentes */
-}
-
-.headerLeft {
-  /* estilos existentes */
-}
-
-.headerRight {
-  /* estilos existentes */
-}
-
-.text {
-  /* estilos existentes */
-}
-
-.button {
-  /* estilos existentes */
-}
-
-.content {
-  /* estilos existentes */
-}
-
-.imageContainer {
-  /* estilos existentes - puede ser removido si no se usa */
-}
-
-.image {
-  /* ya definido arriba en .containerFirstSection .containerImage .image */
-}
-
 .noImageText {
   color: var(--cWhiteV1);
   text-align: center;
