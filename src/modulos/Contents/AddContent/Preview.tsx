@@ -29,6 +29,9 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       " Lorem ipsum dolor sit amet consectetur. Placerat augue id nulla risus ut ultrices. Vestibulum tristique commodo non proin dis.",
   };
 
+  // Imagen por defecto para las cards de fondo
+  const defaultBackgroundImage = "/assets/images/portadaLogin.webp"; // Usando la imagen que ya existe en el proyecto
+
   // Función para obtener la primera imagen disponible
   const getFirstAvailableImage = () => {
     console.log('formState en preview:', formState); // Para debug
@@ -255,7 +258,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       title: 'Reunión de consorcio',
       description: 'Recordamos a todos los propietarios que mañana tenemos reunión de consorcio a las 19:00 hs en el salón de usos múltiples...',
       hasImage: true,
-      imageUrl: null,
+      imageUrl: defaultBackgroundImage, // Imagen por defecto
       imageCount: 3,
       likes: 24,
       comments: 8,
@@ -269,7 +272,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       title: formState?.title || null,
       description: formState?.description || dataFake.description,
       hasImage: formState?.type === 'I' && !!imageUrl,
-      imageUrl: imageUrl,
+      imageUrl: imageUrl, // Esta sigue siendo dinámica
       imageCount: (() => {
         let count = 0;
 
@@ -301,7 +304,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
       title: 'Problema con ascensor',
       description: 'Buenos días vecinos, quería informar que el ascensor del edificio B está fuera de servicio desde ayer. Ya se contactó con el técnico...',
       hasImage: true,
-      imageUrl: null,
+      imageUrl: defaultBackgroundImage, // Imagen por defecto
       imageCount: 1,
       likes: 18,
       comments: 15,
