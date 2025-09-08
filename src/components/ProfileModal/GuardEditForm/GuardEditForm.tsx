@@ -8,6 +8,7 @@ import useAxios from '@/mk/hooks/useAxios';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import Br from '@/components/Detail/Br';
 import styles from './GuardEditForm.module.css';
+import { getUrlImages } from '@/mk/utils/string';
 
 interface GuardEditFormProps {
   open: boolean;
@@ -250,6 +251,15 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
     onClose();
   }, [onClose]);
 
+  // Función para obtener la URL de la imagen del guardia
+  const getGuardImageUrl = () => {
+    if (formState.id) {
+      // Para guardias existentes, construir la URL similar a ProfileModal
+      return getUrlImages(`/GUARD-${formState.id}.webp?d=${new Date().getTime()}`);
+    }
+    return '';
+  };
+
   return (
     <DataModal
       open={open}
@@ -266,7 +276,13 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
             <UploadFile
               name="avatar"
               ext={['jpg', 'png', 'jpeg', 'webp']}
-              value={formState.avatar ? { file: formState.avatar } : ''}
+              value={
+                formState.avatar && typeof formState.avatar === 'object'
+                  ? formState.avatar
+                  : formState.id
+                    ? getGuardImageUrl()
+                    : ''
+              }
               onChange={handleChangeInput}
               img={true}
               sizePreview={{ width: '150px', height: '150px' }}

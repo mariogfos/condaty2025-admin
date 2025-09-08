@@ -1,7 +1,7 @@
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { getDateStrMes, getDateStrMesShort, getDateTimeStrMesShort } from "@/mk/utils/date";
+import { getDateTimeStrMesShort } from "@/mk/utils/date";
 import ReactPlayer from "react-player";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
@@ -14,39 +14,32 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconPDF,
-  IconDocs,
   IconImage
 } from "@/components/layout/icons/IconsBiblioteca";
 import Br from "@/components/Detail/Br";
-import Button from "@/mk/components/forms/Button/Button";
 import useAxios from "@/mk/hooks/useAxios";
 
 const RenderView = (props: {
   open: boolean;
   onClose: any;
   item: Record<string, any>;
-  onConfirm?: Function;
-  extraData?: any;
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
-  reLoad?: () => void;
+
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;
-  contentId?: number; // Nuevo prop para pasar solo el ID
+  contentId?: number;
 }) => {
   const { data } = props?.item || {};
-  const { user, showToast } = useAuth();
+  const { showToast } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [indexVisible, setIndexVisible] = useState(0);
   const [contentData, setContentData] = useState(null);
   const [loading, setLoading] = useState(false);
   const { execute } = useAxios();
 
-  // Determinar qué datos usar
   const currentData = props.selectedContentData || contentData || data;
 
-  // Efecto para cargar detalles si solo se proporciona el ID
   useEffect(() => {
     const fetchContentDetails = async () => {
       if (props.open && props.contentId && !props.selectedContentData && !data) {
@@ -82,7 +75,6 @@ const RenderView = (props: {
     fetchContentDetails();
   }, [props.open, props.contentId, props.selectedContentData, data, execute, showToast]);
 
-  // Efecto para limpiar datos cuando se cierra el modal
   useEffect(() => {
     if (!props.open) {
       setContentData(null);
@@ -122,58 +114,21 @@ const RenderView = (props: {
       status: currentData.status,
       created_at: currentData.created_at,
       updated_at: currentData.updated_at,
-      // Agregar campos adicionales que puedan ser necesarios
       cdestinies: currentData.cdestinies || [],
       lDestiny: currentData.lDestiny || [],
     };
 
-    // Cerrar el modal actual
     props.onClose();
-
-    // Llamar a la función de edición del padre
     if (props.onEdit) {
       props.onEdit(itemForEdit);
     }
   }, [currentData, props]);
 
   const handleDelete = useCallback(() => {
-    setOpenDeleteModal(true);
-  }, []);
-
-  const confirmDelete = useCallback(async () => {
-    try {
-      const response = await execute(`/contents/${currentData.id}`, 'DELETE');
-
-      if (response.data?.success) {
-        if (showToast) {
-          showToast('Publicación eliminada con éxito', 'success');
-        }
-        setOpenDeleteModal(false);
-
-        // Llamar a onDelete para actualizar la lista en el componente padre
-        if (props.onDelete) {
-          props.onDelete(currentData);
-        }
-
-        // Cerrar el modal principal
-        props.onClose();
-
-        // Recargar la lista si se proporciona la función
-        if (props.reLoad) {
-          props.reLoad();
-        }
-      } else {
-        if (showToast) {
-          showToast(response.data?.message || 'Error al eliminar la publicación', 'error');
-        }
-      }
-    } catch (error) {
-      if (showToast) {
-        showToast('Error al eliminar la publicación', 'error');
-      }
-      console.error('Error deleting content:', error);
+    if (props.onDelete) {
+      props.onDelete(currentData);
     }
-  }, [currentData.id, execute, showToast, props]);
+  }, [currentData, props]);
 
   const handleOpenComments = useCallback(() => {
     if (props.onOpenComments) {
@@ -181,7 +136,6 @@ const RenderView = (props: {
     }
   }, [props.onOpenComments, currentData]);
 
-  // Función para obtener la URL del documento
   const getDocumentUrl = () => {
     if (currentData?.type === 'D' && currentData?.id && currentData?.url) {
       return getUrlImages(`/CONT-${currentData.id}.pdf?d=${currentData.updated_at}`);
@@ -189,18 +143,16 @@ const RenderView = (props: {
     return null;
   };
 
-  // Función para verificar si el documento existe
   const hasDocument = () => {
     return currentData?.type === 'D' && currentData?.url && currentData?.url !== 'null';
   };
 
-  // Función para verificar si las imágenes existen
   const hasImages = () => {
     return currentData?.type === 'I' && currentData?.images && currentData?.images.length > 0 && currentData?.images[indexVisible]?.id;
   };
 
   return (
-    <>
+
       <DataModal
         open={props.open}
         onClose={props?.onClose}
@@ -234,8 +186,7 @@ const RenderView = (props: {
             <div className={styles.imageContainer}>
               {currentData?.type === 'I' ? (
                 hasImages() ? (
-                  /* Mostrar imágenes normalmente */
-                  <>
+                  <div>
                     <div className={styles.imageWrapper}>
                       <img
                         alt="Imagen de la publicación"
@@ -258,7 +209,7 @@ const RenderView = (props: {
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 ) : (
                   /* Mostrar mensaje de imagen no disponible */
                   <div className={styles.imageWrapper} style={{
@@ -392,25 +343,6 @@ const RenderView = (props: {
         </div>
       </DataModal>
 
-      <DataModal
-        open={openDeleteModal}
-        onClose={() => setOpenDeleteModal(false)}
-        onSave={confirmDelete}
-        title="Eliminar publicación"
-        buttonText="Eliminar"
-        buttonCancel="Cancelar"
-        variant="mini"
-      >
-        <div style={{ padding: '20px', textAlign: 'left' }}>
-          <p style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
-            ¿Estás seguro de que quieres eliminar esta publicación?
-          </p>
-          <p style={{ margin: 0, fontSize: '14px', color: 'var(--cWhiteV1)' }}>
-            Esta acción no se puede deshacer.
-          </p>
-        </div>
-      </DataModal>
-    </>
   );
 };
 

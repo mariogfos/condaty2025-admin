@@ -266,14 +266,17 @@ export const UploadFile = ({
               (value &&
                 typeof value === 'object' &&
                 (value.ext == "webp" ||
-                  (value.indexOf && value.indexOf(".webp") > -1)))) &&
+                  (value.indexOf && value.indexOf(".webp") > -1))) ||
+              (value &&
+                typeof value === 'string' &&
+                (value.includes('.webp') || value.includes('.jpg') || value.includes('.jpeg') || value.includes('.png')))) &&
             img ? (
               <img
                 src={
                   editedImage ||
                   (selectedFiles?.name
                     ? URL.createObjectURL(selectedFiles)
-                    : value || "")
+                    : (typeof value === 'object' && value.url) || value || "")
                 }
                 alt={selectedFiles?.name}
                 style={{
