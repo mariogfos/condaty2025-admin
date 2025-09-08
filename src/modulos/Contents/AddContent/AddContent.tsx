@@ -55,6 +55,15 @@ const AddContent = ({
       initialState.avatar = avatarData;
     }
 
+    // Manejar documentos existentes
+    if (action === "edit" && item?.type === 'D' && item?.url) {
+      initialState.file = {
+        ext: item.url || 'pdf',
+        file: '', // Archivo existente
+        existing: true
+      };
+    }
+
     return initialState;
   });
 
@@ -65,6 +74,11 @@ const AddContent = ({
         setFormState((prev: any) => ({ ...prev, isType: "P" }));
       } else {
         setFormState((prev: any) => ({ ...prev, isType: "N" }));
+      }
+      // NO cambiar el tipo si ya está establecido en edición
+      // Mantener el tipo original del item
+      if (item?.type) {
+        setFormState((prev: any) => ({ ...prev, type: item.type }));
       }
     } else {
       setFormState((prev: any) => ({ ...prev, isType: "N", type: "I" }));
@@ -99,26 +113,29 @@ const AddContent = ({
   }, [action, formState.lDestiny]);
 
   useEffect(() => {
-    if (formState?.isType == "P") {
-      setFormState({
-        ...formState,
-        title: null,
-        type: "I",
-        url: null,
-        file: null,
-        avatar: formState?.avatar
-      });
+    // Solo cambiar el tipo si NO estamos en modo edición
+    if (action !== "edit") {
+      if (formState?.isType == "P") {
+        setFormState({
+          ...formState,
+          title: null,
+          type: "I",
+          url: null,
+          file: null,
+          avatar: formState?.avatar
+        });
+      }
+      if (formState?.isType == "N") {
+        setFormState({
+          ...formState,
+          type: "I",
+          url: null,
+          file: null,
+          avatar: formState?.avatar
+        });
+      }
     }
-    if (formState?.isType == "N") {
-      setFormState({
-        ...formState,
-        type: "I",
-        url: null,
-        file: null,
-        avatar: formState?.avatar
-      });
-    }
-  }, [formState?.isType]);
+  }, [formState?.isType, action]);
 
   useEffect(() => {
     if (formState?.destiny == 0 && action == "add") {
