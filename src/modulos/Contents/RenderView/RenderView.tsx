@@ -25,6 +25,7 @@ const RenderView = (props: {
   item: Record<string, any>;
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
+  reLoad?: () => void;
 
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;

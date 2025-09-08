@@ -15,6 +15,7 @@ import {
   IconUser,
   IconNotification,
   IconNewPublication,
+  IconAmbulance,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -54,30 +55,161 @@ const Notifications = () => {
     const renderNotificationIcon = (messageData: any) => {
       if (!messageData) return null;
 
-      // Buscar 'act' en el objeto principal o en 'info'
       const actValue = messageData.act || messageData.info?.act;
+      const level = messageData.level || messageData.info?.level;
 
       console.log('messageData:', messageData);
       console.log('actValue:', actValue);
+      console.log('level:', level);
 
       if (actValue === 'newContent') {
-        return <IconNewPublication className={styles.publicationIcon} />;
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: 'var(--cWhite)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <IconNewPublication color="var(--cWhite)" />
+          </div>
+        );
       }
 
       if (actValue === "alerts") {
-        return <IconAlertNotification className={styles.alertIcon} />;
+        switch (level) {
+          default:
+            return (
+              <div
+                style={{
+                  borderRadius: 50,
+                  padding: 8,
+                  backgroundColor: 'var(--cError)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconAmbulance color="var(--cWhite)" />
+              </div>
+            );
+          case 3:
+            return (
+              <div
+                style={{
+                  borderRadius: 50,
+                  padding: 8,
+                  backgroundColor: 'var(--cError)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconAlertNotification color="var(--cWhite)" />
+              </div>
+            );
+          case 2:
+            return (
+              <div
+                style={{
+                  borderRadius: 50,
+                  padding: 8,
+                  backgroundColor: 'var(--cWarning)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconAlertNotification color="var(--cWhite)" />
+              </div>
+            );
+          case 1:
+            return (
+              <div
+                style={{
+                  borderRadius: 50,
+                  padding: 8,
+                  backgroundColor: 'var(--cInfo)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconAlertNotification color="var(--cWhite)" />
+              </div>
+            );
+        }
       }
+
       if (actValue === "newPreregister") {
-        return <IconPreRegister className={styles.preregisterIcon} />;
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: 'var(--cInfo)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <IconPreRegister color="var(--cWhite)" />
+          </div>
+        );
       }
+
       if (actValue === "newVoucher" || actValue === "newPayment") {
-        return <IconPaymentCommitment className={styles.paymentIcon} />;
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: 'var(--cSuccess)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <IconPaymentCommitment color="var(--cWhite)" />
+          </div>
+        );
       }
+
       if (actValue === "newReservationAdm") {
-        return <IconNewReserve color="var(--cBlack)" />;
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: 'var(--cAccent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <IconNewReserve color="var(--cWhite)" />
+          </div>
+        );
       }
+
       if (actValue === "newAdmin") {
-        return <IconUser color="var(--cBlack)" />;
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: 'var(--cAccent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <IconUser color="var(--cWhite)" />
+          </div>
+        );
       }
 
       return null;
@@ -94,13 +226,11 @@ const Notifications = () => {
           width: "100%",
           onRender: (props: any) => {
             try {
-              // Mejor manejo de caracteres especiales
               let x = props.item.message
                 .replace(/\\"/g, '"')
                 .replace(/\\'/g, "'");
               const parsedMessage = JSON.parse(x);
 
-              // Verificar si la notificación está en localStorage
               const notificationsView = JSON.parse(
                 localStorage.getItem("notificationsView") || "[]"
               );

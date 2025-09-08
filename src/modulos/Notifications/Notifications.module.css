@@ -39,30 +39,8 @@
 }
 
 .notificationIcon {
-  background-color: white;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-right: 0.5rem;
   flex-shrink: 0;
-}
-
-.alertIcon {
-  color: var(--error, #ef4444);
-}
-
-.preregisterIcon {
-  color: var(--info, #3b82f6);
-}
-
-.paymentIcon {
-  color: var(--success, #10b981);
-}
-
-.publicationIcon {
-  color: var(--cWhite, #fff);
 }
 
 .notificationContent {
