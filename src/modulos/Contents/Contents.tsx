@@ -82,6 +82,7 @@ const getTypefilter = () => [
   { id: 'V', name: 'Video' },
   { id: 'I', name: 'Imagen' },
 ];
+
 const getTypeContentsfilter = () => [
   { id: 'ALL', name: 'Todos' },
   { id: 'P', name: 'Publicación' },
@@ -107,15 +108,11 @@ const Contents = () => {
     startDate?: string;
     endDate?: string;
   }>({});
-
-
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
-
   const { user, showToast } = useAuth();
-
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
@@ -148,7 +145,6 @@ const Contents = () => {
     handleCommentAdded();
   };
 
-
   const handleCommentAdded = () => {
     if (selectedContentData) {
       const updatedData = {
@@ -179,7 +175,6 @@ const Contents = () => {
       edit: true,
       del: true,
     },
-
     renderView: (props: {
       open: boolean;
       onClose: any;
@@ -190,16 +185,12 @@ const Contents = () => {
     }) => (
       <RenderView
         {...props}
-        onEdit={(item: any) => {
-          console.log('Item para editar:', item);
-          onEdit(item);
-        }}
+        onEdit={(item: any) => onEdit(item)}
         onDelete={props.onDel}
         onOpenComments={handleOpenComments}
         selectedContentData={selectedContentData}
       />
     ),
-
     loadView: { fullType: "DET" },
     renderForm: (props: {
       item: any;
@@ -214,31 +205,28 @@ const Contents = () => {
       action: any;
       openList: any;
       setOpenList: any;
-    }) => {
-      return (
-        <AddContent
-          onClose={props.onClose}
-          open={props.open}
-          item={props.item}
-          setItem={props.setItem}
-          errors={props.errors}
-          extraData={props.extraData}
-          user={props.user}
-          execute={props.execute}
-          setErrors={props.setErrors}
-          reLoad={reLoad}
-          action={props.action}
-          openList={props.openList}
-          setOpenList={props.setOpenList}
-        />
-      );
-    },
+    }) => (
+      <AddContent
+        onClose={props.onClose}
+        open={props.open}
+        item={props.item}
+        setItem={props.setItem}
+        errors={props.errors}
+        extraData={props.extraData}
+        user={props.user}
+        execute={props.execute}
+        setErrors={props.setErrors}
+        reLoad={reLoad}
+        action={props.action}
+        openList={props.openList}
+        setOpenList={props.setOpenList}
+      />
+    ),
   };
 
   const { setStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: '' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fields = useMemo(
@@ -250,9 +238,7 @@ const Contents = () => {
         label: 'Fecha',
         list: {
           width: '220px',
-          onRender: (props: any) => {
-            return getDateTimeStrMesShort(props?.item?.created_at);
-          },
+          onRender: (props: any) => getDateTimeStrMesShort(props?.item?.created_at),
           form: false,
         },
         filter: {
@@ -266,7 +252,7 @@ const Contents = () => {
         api: 'ae',
         label: 'Creador',
         list: {
-
+          width: '200px',
           onRender: (item: any) => {
             const user = item?.item.user;
             const nombreCompleto = getFullName(user);
@@ -280,13 +266,7 @@ const Contents = () => {
                   name={nombreCompleto}
                 />
                 <div>
-                  <p
-                    style={{
-                      marginBottom: '2px',
-                      fontWeight: 500,
-                      color: 'var(--cWhite)',
-                    }}
-                  >
+                  <p style={{ marginBottom: '2px', fontWeight: 500, color: 'var(--cWhite)' }}>
                     {nombreCompleto}
                   </p>
                   {cedulaIdentidad && (
@@ -312,7 +292,7 @@ const Contents = () => {
         api: 'ae',
         label: 'Tipo',
         list: {
-
+          width: '180px',
         },
         form: {
           type: 'select',
@@ -342,16 +322,8 @@ const Contents = () => {
 
             return (
               <div className={styles.contentContainer}>
-                {title && (
-                  <div className={styles.contentTitle}>
-                    {title}
-                  </div>
-                )}
-                {description && (
-                  <div className={styles.contentDescription}>
-                    {description}
-                  </div>
-                )}
+                {title && <div className={styles.contentTitle}>{title}</div>}
+                {description && <div className={styles.contentDescription}>{description}</div>}
               </div>
             );
           },
@@ -361,18 +333,16 @@ const Contents = () => {
       reaction: {
         api: 'ae',
         label: 'Interacciones',
-        list: { width: '120px' },
+        list: { width: '150px' },
         onHide: isType,
         form: {},
-        onRender: (item: any) => {
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
-              <IconLike color={'var(--cAccent)'} size={24} />
-              {formatNumber(item?.item?.likes, 0)} <IconComment size={24} />
-              {formatNumber(item?.item?.comments_count, 0)}
-            </div>
-          );
-        },
+        onRender: (item: any) => (
+          <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
+            <IconLike color={'var(--cAccent)'} size={24} />
+            {formatNumber(item?.item?.likes, 0)} <IconComment size={24} />
+            {formatNumber(item?.item?.comments_count, 0)}
+          </div>
+        ),
       },
       url: {
         rules: ['requiredIf:type,V'],
@@ -434,34 +404,19 @@ const Contents = () => {
     if (name.indexOf("destiny_") == 0) {
       const id = parseInt(name.replace("destiny_", ""));
       if (value) {
-        setItem({
-          ...item,
-          lDestiny: [...item.lDestiny, id],
-        });
+        setItem({ ...item, lDestiny: [...item.lDestiny, id] });
       } else {
-        setItem({
-          ...item,
-          lDestiny: item.lDestiny.filter((d: number) => d != id),
-        });
+        setItem({ ...item, lDestiny: item.lDestiny.filter((d: number) => d != id) });
       }
-
       return true;
     }
     let lDestiny = item.lDestiny || [];
     if (action == "edit") {
       item?.cdestinies?.map((d: any) => {
-        if (item?.destiny == 2) {
-          lDestiny.push(d.lista_id);
-        }
-        if (item?.destiny == 3) {
-          lDestiny.push(d.dpto_id);
-        }
-        if (item?.destiny == 4) {
-          lDestiny.push(d.mun_id);
-        }
-        if (item?.destiny == 5) {
-          lDestiny.push(d.barrio_id);
-        }
+        if (item?.destiny == 2) lDestiny.push(d.lista_id);
+        if (item?.destiny == 3) lDestiny.push(d.dpto_id);
+        if (item?.destiny == 4) lDestiny.push(d.mun_id);
+        if (item?.destiny == 5) lDestiny.push(d.barrio_id);
       });
     }
     if (name == "destiny") {
@@ -489,12 +444,7 @@ const Contents = () => {
     return false;
   };
 
-  const ModalDestiny = ({
-    item,
-    setItem,
-    selDestinies,
-    setShowExtraModal,
-  }: {
+  const ModalDestiny = ({ item, setItem, selDestinies, setShowExtraModal }: {
     item: any;
     setItem: Function;
     selDestinies: any;
@@ -504,18 +454,15 @@ const Contents = () => {
     const [sel, setSel]: any = useState([]);
     const [destiniesFiltered, setDestiniesFiltered]: any = useState([]);
     const [search, setSearch] = useState("");
+
     useEffect(() => {
       setSel(item?.lDestiny || []);
     }, [item]);
 
-    const setOnSearch = (e: any) => {
-      setSearch(e);
-    };
+    const setOnSearch = (e: any) => setSearch(e);
+
     const normalizeText = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase();
+      text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 
     useEffect(() => {
       if (search == "") {
@@ -537,6 +484,7 @@ const Contents = () => {
       setShowExtraModal(null);
       setOpenDestiny(false);
     };
+
     const _onClose = () => {
       if (item?.destiny && item?.lDestiny?.length <= 0) {
         setItem((old: any) => ({ ...old, destiny: null }));
@@ -544,20 +492,10 @@ const Contents = () => {
       setOpenDestiny(false);
       setShowExtraModal(null);
     };
+
     return (
-      <DataModal
-        title="Destino"
-        open={openDestiny}
-        onClose={_onClose}
-        onSave={() => {
-          _onSave();
-        }}
-      >
-        <DataSearch
-          name="searchDestiny"
-          setSearch={setOnSearch}
-          value={search}
-        />
+      <DataModal title="Destino" open={openDestiny} onClose={_onClose} onSave={_onSave}>
+        <DataSearch name="searchDestiny" setSearch={setOnSearch} value={search} />
         {destiniesFiltered.map((d: any, i: number) => (
           <Check
             key={"check" + i}
@@ -568,11 +506,8 @@ const Contents = () => {
             onChange={(e: any) => {
               const { name, checked } = e.target;
               const id: any = parseInt(name.replace("destiny_", ""));
-
               const il: any = sel?.filter((d: number) => d != id) || [];
-              if (checked) {
-                il.push(d.id);
-              }
+              if (checked) il.push(d.id);
               setSel(il);
             }}
             value={d.id}
@@ -592,8 +527,6 @@ const Contents = () => {
     onEdit,
     onDel,
     extraData,
-    showToast: crudShowToast,
-    execute,
     reLoad,
     data,
     onFilter,
@@ -620,9 +553,7 @@ const Contents = () => {
 
   return (
     <div className={styles.roles}>
-      {openList && (
-        <h1 className={styles.title}>Publicaciones</h1>
-      )}
+      {openList && <h1 className={styles.title}>Publicaciones</h1>}
       {openList && (
         <WidgetDashCard
           title="Publicaciones"
@@ -646,7 +577,6 @@ const Contents = () => {
         emptyIcon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={1530}
       />
-
       <DateRangeFilterModal
         open={openCustomFilter}
         onClose={() => {
@@ -659,15 +589,9 @@ const Contents = () => {
           if (!endDate) err.endDate = "La fecha de fin es obligatoria";
           if (startDate && endDate && startDate > endDate)
             err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            err.startDate = "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate = "El periodo personalizado debe estar dentro del mismo año";
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
@@ -685,9 +609,7 @@ const Contents = () => {
         isOpen={isCommentModalOpen}
         onClose={handleCloseComments}
         contentId={selectedContentIdForComments}
-        onCommentAdded={() => {
-          reLoad();
-        }}
+        onCommentAdded={() => reLoad()}
       />
     </div>
   );
