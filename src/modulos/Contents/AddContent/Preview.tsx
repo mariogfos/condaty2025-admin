@@ -50,6 +50,13 @@ const STATIC_BOTTOM_POST = {
   isPost: false
 };
 
+// Función para truncar texto
+const truncateText = (text: string, maxLength: number): string => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
 const PostCard = ({ isBackground = false, opacity = 1, postData, user, dataFake }: {
   isBackground?: boolean;
   opacity?: number;
@@ -100,11 +107,11 @@ const PostCard = ({ isBackground = false, opacity = 1, postData, user, dataFake 
         <div className={previewStyles.textContentFull}>
           {postData.title && (
             <h3 className={previewStyles.postTitle}>
-              {postData.title}
+              {truncateText(postData.title, 50)}
             </h3>
           )}
           <p className={previewStyles.postDescription}>
-            {postData.description}
+            {truncateText(postData.description, 289)}
           </p>
         </div>
 
@@ -131,11 +138,11 @@ const PostCard = ({ isBackground = false, opacity = 1, postData, user, dataFake 
         <div className={previewStyles.textContent}>
           {postData.title && (
             <h3 className={previewStyles.postTitle}>
-              {postData.title}
+              {truncateText(postData.title, 50)}
             </h3>
           )}
           <p className={previewStyles.postDescription}>
-            {postData.description}
+            {truncateText(postData.description, 239)}
           </p>
         </div>
 
