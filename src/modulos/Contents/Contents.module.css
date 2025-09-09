@@ -139,9 +139,9 @@
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   word-wrap: break-word;
-  max-width: 90%;
+  max-width: 99%;
   white-space: normal;
   min-width: 0;
-  width: 90%;
+  width: 99%;
   flex-shrink: 1;
 }
