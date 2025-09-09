@@ -1,0 +1,577 @@
+"use client";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import styles from "./ExpensesDetailsView.module.css";
+import { useMemo, useState, useEffect } from "react";
+import { getDateStrMes, MONTHS } from "@/mk/utils/date";
+import { formatNumber } from "@/mk/utils/numbers";
+import useCrudUtils from "@/modulos/shared/useCrudUtils";
+import {
+  IconArrowLeft,
+  IconHandcoin,
+  IconMonedas,
+  IconMultas,
+  IconUnidades,
+  IconWallet,
+} from '@/components/layout/icons/IconsBiblioteca';
+import RenderView from './RenderView/RenderView';
+import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
+import FormatBsAlign from '@/mk/utils/FormatBsAlign';
+import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+
+const renderUnitCell = ({ item }: { item: any }) => (
+  <div>{item?.dpto?.nro}</div>
+);
+
+const renderAddressCell = ({ item }: { item: any }) => (
+  <div>{item?.dpto?.description}</div>
+);
+
+const renderPaidAtCell = ({ item }: { item: any }) => (
+  <div>{getDateStrMes(item?.paid_at) || "-/-"}</div>
+);
+
+const renderDueAtCell = ({ item }: { item: any }) => (
+  <div>{getDateStrMes(item?.debt?.due_at) || "-/-"}</div>
+);
+
+const renderAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.amount} alignRight />
+);
+
+const renderPenaltyAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.penalty_amount} alignRight />
+);
+
+const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
+  const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
+    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
+    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
+    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
+    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
+    M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+  };
+
+  const displayStatus = getDisplayStatus(item);
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+
+  return (
+    <StatusBadge
+      color={color}
+      backgroundColor={bgColor}
+    >
+      {displayStatus.text}
+    </StatusBadge>
+  );
+};
+
+const ExpensesDetails = ({ data, setOpenDetail }: any) => {
+  const [statsData, setStatsData] = useState({
+    totalUnits: 0,
+    paidUnits: 0,
+    overdueUnits: 0,
+    totalAmount: 0,
+    paidAmount: 0,
+    penaltyAmount: 0,
+    pendingAmount: 0,
+  });
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+  const getDisplayStatus = (item: any) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (item.status === "A" && item.debt?.due_at) {
+      const dueDate = new Date(item.debt.due_at);
+      if (today > dueDate) {
+        return { text: "En mora", code: "M" };
+      }
+    }
+
+    switch (item.status) {
+      case 'A':
+        return { text: 'Por cobrar', code: 'A' };
+      case 'P':
+        return { text: 'Cobrado', code: 'P' };
+      case 'S':
+        return { text: 'Por confirmar', code: 'S' };
+      case 'M':
+        return { text: 'En mora', code: 'M' };
+      default:
+        return { text: item.status || "Desconocido", code: item.status || "" };
+    }
+  };
+
+  const getPeriodOptions = () => [
+    { id: "ALL", name: "Todos" },
+    { id: "d", name: "Hoy" },
+    { id: "ld", name: "Ayer" },
+    { id: "w", name: "Esta semana" },
+    { id: "lw", name: "Semana anterior" },
+    { id: "m", name: "Este mes" },
+    { id: "lm", name: "Mes anterior" },
+    { id: "y", name: "Este año" },
+    { id: "ly", name: "Año anterior" },
+    { id: "custom", name: "Personalizado" },
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "paid_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "ALL") {
+      currentFilters[opt] = "ALL"; // Enviamos 'ALL' explícitamente // esto?
+    } else if (!value) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+
+  const mod: ModCrudType = {
+    modulo: "debt-dptos",
+    singular: "",
+    plural: "",
+    filter: true,
+    export: true,
+    permiso: "expenses",
+    hideActions: {
+      add: true,
+      edit: true,
+      del: true,
+    },
+    loadView: {},
+    renderView: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+      onConfirm?: Function;
+      execute: Function;
+      reLoad: Function;
+    }) => {
+      const handleClose = () => {
+        props.reLoad(null, mod?.noWaiting); // Recargar datos antes de cerrar // esto?
+        props.onClose(); // Cerrar la vista // esto?
+      };
+      return <RenderView {...props} onClose={handleClose} />;
+    },
+    extraData: true,
+  };
+
+  const paramsInitial = {
+    fullType: "L",
+    page: 1,
+    perPage: 20,
+    debt_id: data.id,
+  };
+
+  const fields = useMemo(() => {
+    return {
+      id: { rules: [], api: "e" },
+      unit: {
+        rules: [""],
+        api: "",
+        label: "Unidad",
+        list: {
+          onRender: renderUnitCell,
+        },
+      },
+      address: {
+        rules: [""],
+        api: "",
+        label: "Dirección",
+        list: {
+          onRender: renderAddressCell,
+        },
+      },
+      paid_at: {
+        rules: [""],
+        api: "",
+        label: "Fecha de pago",
+        list: {
+          onRender: renderPaidAtCell,
+        },
+        filter: {
+          key: "paid_at",
+          label: "Periodo",
+          options: getPeriodOptions,
+        },
+      },
+      due_at: {
+        rules: [""],
+        api: "",
+        label: "Fecha de plazo",
+        list: {
+          onRender: renderDueAtCell,
+        },
+      },
+      amount: {
+        rules: ["required"],
+        api: "e",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Expensa
+          </span>
+        ),
+        list: {
+          onRender: renderAmountCell,
+        },
+        form: {
+          type: "text",
+          label: "Monto",
+        },
+      },
+      obs: {
+        rules: ["required"],
+        api: "e",
+        label: "Motivo del cambio",
+        form: {
+          type: "text",
+          label: "Motivo del cambio",
+        },
+      },
+      penalty_amount: {
+        rules: [""],
+        api: "",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Multa
+          </span>
+        ),
+        list: {
+          onRender: renderPenaltyAmountCell,
+        },
+      },
+      status: {
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
+        list: {
+          onRender: (props: any) => renderStatusCell(props, getDisplayStatus),
+        },
+        filter: {
+          label: "Estado",
+          width: "278px",
+          options: () => {
+            return [
+              { id: 'ALL', name: 'Todos' },
+              { id: 'A', name: 'Por cobrar' },
+              { id: 'P', name: 'Cobrado' },
+              { id: 'S', name: 'Por confirmar' },
+              { id: 'M', name: 'En mora' },
+            ];
+          },
+          optionLabel: "name",
+        },
+      },
+    };
+  }, []);
+
+  const {
+    userCan,
+    List,
+    setStore,
+    onSearch,
+    searchs,
+    onEdit,
+    onDel,
+    extraData,
+    onFilter,
+  } = useCrud({
+    paramsInitial,
+    mod,
+    fields,
+    getFilter: handleGetFilter,
+  });
+
+  useEffect(() => {
+    if (extraData) {
+      setStatsData({
+        totalUnits: extraData.assignedUnits || 0,
+        paidUnits: extraData.paidUnits || 0,
+        overdueUnits: extraData.overdueUnits || 0,
+        totalAmount: extraData.expenseAmount || 0,
+        paidAmount: extraData.paidAmount || 0,
+        penaltyAmount: extraData.penaltyAmount || 0,
+        pendingAmount: extraData.pendingAmount || 0,
+      });
+    }
+  }, [extraData]);
+
+  useCrudUtils({
+    onSearch,
+    searchs,
+    setStore,
+    mod,
+    onEdit,
+    onDel,
+  });
+
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+
+  return (
+    <div className={styles.ExpensesDetailsView}>
+      <div className={styles.backButton}>
+        <button
+          type="button"
+          className={styles.backButtonContent}
+          onClick={() => setOpenDetail(false)}
+        >
+          <IconArrowLeft />
+          <p>Volver a sección expensas</p>
+        </button>
+      </div>
+
+      <LoadingScreen>
+        <h1 className={styles.dashboardTitle}>
+          Expensas de {MONTHS[data?.month]} {data?.year}
+        </h1>
+        <div className={styles.allStatsRow}>
+          {/* Tarjeta 1 (antes en grupo izquierdo)  */}
+          <WidgetDashCard
+            data={statsData.totalUnits}
+            title="Total"
+            tooltip={true}
+            tooltipTitle="Total de unidades asignadas"
+            tooltipPosition="right"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.totalUnits || statsData.totalUnits === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWhite)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.totalUnits || statsData.totalUnits === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl1)",
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 2 (antes en grupo izquierdo) */}
+          <WidgetDashCard
+            data={statsData.paidUnits}
+            title="Al día"
+            tooltip={true}
+            tooltipTitle="Unidades que han pagado a tiempo"
+            tooltipPosition="right"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.paidUnits || statsData.paidUnits === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cSuccess)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.paidUnits || statsData.paidUnits === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl2)",
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 3 (antes en grupo izquierdo) */}
+          <WidgetDashCard
+            data={statsData.overdueUnits}
+            title="Morosas"
+            tooltip={true}
+            tooltipTitle="Unidades con pagos vencidos"
+            tooltipPosition="right"
+            icon={
+              <IconUnidades
+                color={
+                  !statsData.overdueUnits || statsData.overdueUnits === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.overdueUnits || statsData.overdueUnits === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.totalAmount)}
+            title="Expensa"
+            tooltip={true}
+            tooltipTitle="Monto total de expensas del período"
+            tooltipPosition="left"
+            icon={
+              <IconMonedas
+                color={
+                  !statsData.totalAmount || statsData.totalAmount === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cCompl4)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.totalAmount || statsData.totalAmount === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl7)",
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.paidAmount)}
+            title="Cobrado"
+            tooltip={true}
+            tooltipTitle="Monto total cobrado hasta la fecha"
+            tooltipPosition="left"
+            icon={
+              <IconWallet
+                color={
+                  !statsData.paidAmount || statsData.paidAmount === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cSuccess)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.paidAmount || statsData.paidAmount === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl2)",
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
+          {/* Tarjeta 6 (antes en grupo derecho) */}
+
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.penaltyAmount)}
+            title="Multas"
+            tooltip={true}
+            tooltipTitle="Monto total de multas aplicadas"
+            tooltipPosition="left"
+            icon={
+              <IconMultas
+                color={
+                  !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cAlert)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl9)",
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+          {/* Tarjeta 7 (antes en grupo derecho) */}
+
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.pendingAmount)}
+            title="Pendiente"
+            tooltip={true}
+            tooltipTitle="Monto pendiente por cobrar"
+            tooltipPosition="left"
+            icon={
+              <IconHandcoin
+                color={
+                  !statsData.pendingAmount || statsData.pendingAmount === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cError)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.pendingAmount || statsData.pendingAmount === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverError)",
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+          {/* Fin de las tarjetas */}
+        </div>
+        <List height={"calc(100vh - 480px)"} />
+      </LoadingScreen>
+
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          const errors: { startDate?: string; endDate?: string } = {};
+
+          if (!startDate) {
+            errors.startDate = "La fecha de inicio es obligatoria";
+          }
+          if (!endDate) {
+            errors.endDate = "La fecha de fin es obligatoria";
+          }
+          if (startDate && endDate && startDate > endDate) {
+            errors.startDate =
+              "La fecha de inicio no puede ser mayor a la de fin";
+          }
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            errors.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            errors.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+
+          if (Object.keys(errors).length > 0) {
+            setCustomDateErrors(errors);
+            return;
+          }
+
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("paid_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
+    </div>
+  );
+};
+
+export default ExpensesDetails;

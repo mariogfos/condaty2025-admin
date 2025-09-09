@@ -1,0 +1,175 @@
+.ExpensesDetailsView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spM);
+  color: var(--accent);
+}
+
+.backButtonContent {
+  display: flex;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  align-items: center;
+  gap: var(--spM);
+  &:hover {
+    opacity: 0.8;
+    & p {
+      opacity: 0.8;
+    }
+  }
+}
+
+.backButton p {
+  color: var(--accent);
+  font-size: var(--sM);
+  margin: 0;
+}
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  background-color: var(--cBlackV2);
+  padding: var(--spL);
+  border-radius: var(--bRadiusL);
+  border: 0.5px solid var(--cWhiteV1);
+}
+
+.dashboardTitle {
+  font-size: var(--sXxl);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.allStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.statIconContainer {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: var(--bRadiusL);
+  margin-left: var(--spS);
+  flex-shrink: 0;
+}
+
+.iconDefault {
+  color: rgba(255, 255, 255, 0.8);
+}
+.iconPaid {
+  background-color: rgba(0, 175, 144, 0.2);
+}
+.iconPaidColor {
+  color: rgb(0, 175, 144);
+}
+.iconOverdue {
+  background-color: rgba(218, 93, 93, 0.2);
+}
+.iconOverdueColor {
+  color: rgb(218, 93, 93);
+}
+.iconPenalty {
+  background-color: rgba(243, 127, 61, 0.2);
+}
+.iconPenaltyColor {
+  color: rgb(243, 127, 61);
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    padding: var(--spM);
+  }
+  .dashboardTitle {
+    font-size: var(--sXl);
+  }
+}
+
+@media (max-width: 480px) {
+  .statCard {
+    padding: var(--spS);
+  }
+  .statValue {
+    font-size: var(--sL);
+  }
+  .statLabel {
+    font-size: var(--sM);
+  }
+  .dashboardContainer {
+    padding: var(--spS);
+  }
+  .dashboardTitle {
+    font-size: var(--sL);
+  }
+}
+
+.header {
+  background-color: var(--cBlackV2) !important;
+  display: flex;
+  justify-content: space-between;
+  min-height: 124px;
+}
+.header > section > div:nth-child(1) {
+  font-size: var(--sL);
+}
+.header > section > div:nth-child(2) {
+  color: var(--cWhiteV1);
+}
+
+.renderView > div {
+  display: flex;
+  padding: var(--spL);
+  gap: var(--spL);
+  align-items: center;
+}
+@media (max-width: 750px) {
+  .renderView > div {
+    flex-direction: column;
+  }
+}
+.renderView > div > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spL);
+}
+.renderView > div > section {
+  padding: var(--spM);
+  background-color: var(--cBlackV1);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+.renderView > div > section > div {
+  display: flex;
+  margin-bottom: 16px;
+  font-size: var(--sM);
+}
+.renderView > div > section > div > p:nth-child(odd) {
+  flex: 1;
+  color: var(--cWhiteV1);
+}
+.renderView > div > section > div > p:nth-child(even) {
+  flex: 1;
+  text-align: right;
+  color: var(--cWhite);
+}
