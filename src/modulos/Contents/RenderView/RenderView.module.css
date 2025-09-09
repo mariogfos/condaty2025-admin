@@ -161,6 +161,19 @@
   color: var(--cWhite);
   line-height: 1.5;
   font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  width: 100%;
+}
+
+.descriptionContainer {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .descriptionTruncated {
