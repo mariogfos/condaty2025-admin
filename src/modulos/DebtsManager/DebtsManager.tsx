@@ -15,11 +15,56 @@ import {
   sumPenalty,
   unitsPayable,
 } from '@/mk/utils/utils';
-import ExpensesDetails from './ExpensesDetails/ExpensesDetailsView';
+
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import styles from './Expenses.module.css';
+import styles from './DebtsManager.module.css';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import DebtsManagerDetail from './ExpensesDetails/DebtsManagerDetailView';
+
+// Datos mockeados temporales
+const mockData = {
+  data: [
+    {
+      id: 1,
+      month: 3, // Marzo
+      year: 2025,
+      unitsUpToDate: 2,
+      unitsToPay: 1,
+      totalDebt: 4300.00,
+      totalCollected: 0.00,
+      totalPenalty: 350000.00,
+      totalToPay: 1500.00,
+      asignados: []
+    },
+    {
+      id: 2,
+      month: 2, // Febrero
+      year: 2025,
+      unitsUpToDate: 3,
+      unitsToPay: 0,
+      totalDebt: 3200.00,
+      totalCollected: 3200.00,
+      totalPenalty: 0.00,
+      totalToPay: 0.00,
+      asignados: []
+    },
+    {
+      id: 3,
+      month: 1, // Enero
+      year: 2025,
+      unitsUpToDate: 2,
+      unitsToPay: 1,
+      totalDebt: 5100.00,
+      totalCollected: 3400.00,
+      totalPenalty: 200.00,
+      totalToPay: 1900.00,
+      asignados: []
+    }
+  ],
+  total: 3,
+  message: { total: 3 }
+};
 
 const renderPeriodCell = (props: any) => {
   const month = props?.item?.month;
@@ -32,46 +77,44 @@ const renderPeriodCell = (props: any) => {
   );
 };
 
-const renderTotalExpensesCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumExpenses(item?.asignados)} alignRight />
+const renderTotalDebtCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.totalDebt || 0} alignRight />
 );
 
-const renderPaidUnitsCell = ({ item }: { item: any }) => (
-  <div className={styles.PaidUnitsCell}>{paidUnits(item?.asignados)}</div>
+const renderUnitsUpToDateCell = ({ item }: { item: any }) => (
+  <div className={styles.UnitsCell}>{item?.unitsUpToDate || 0}</div>
 );
 
-const renderUnitsPayableCell = ({ item }: { item: any }) => (
+const renderUnitsToPayCell = ({ item }: { item: any }) => (
   <div
-    className={styles.UnitsPayableCell}
+    className={styles.UnitsCell}
     style={{
-      color: isUnitInDefault(item) ? 'var(--cError)' : 'var(--cWhiteV1)',
+      color: (item?.unitsToPay || 0) > 0 ? 'var(--cError)' : 'var(--cWhiteV1)',
     }}
   >
-    {unitsPayable(item?.asignados)}
+    {item?.unitsToPay || 0}
   </div>
 );
 
-const renderAmountsCollectedCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumPaidUnits(item?.asignados)} alignRight />
+const renderTotalCollectedCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.totalCollected || 0} alignRight />
 );
 
-const renderSumPenaltyCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={sumPenalty(item?.asignados)} alignRight />
+const renderTotalPenaltyCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.totalPenalty || 0} alignRight />
 );
 
-const renderTotalAmountCollectedCell = ({ item }: { item: any }) => (
+const renderTotalToPayCell = ({ item }: { item: any }) => (
   <FormatBsAlign
-    value={
-      sumExpenses(item?.asignados) + sumPenalty(item?.asignados) - sumPaidUnits(item?.asignados)
-    }
+    value={item?.totalToPay || 0}
     alignRight
   />
 );
 
 const mod: ModCrudType = {
   modulo: 'debts',
-  singular: 'Expensa',
-  plural: 'Expensas',
+  singular: 'Deuda',
+  plural: 'Deudas',
   export: true,
   filter: true,
   permiso: 'expense',
@@ -84,8 +127,8 @@ const mod: ModCrudType = {
   },
   onHideActions: (item: any) => {
     return {
-      hideEdit: paidUnits(item?.asignados) > 0,
-      hideDel: paidUnits(item?.asignados) > 0,
+      hideEdit: (item?.unitsUpToDate || 0) > 0,
+      hideDel: (item?.unitsUpToDate || 0) > 0,
     };
   },
   renderForm: (props: {
@@ -127,8 +170,12 @@ const DebtsManager = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
   const { setStore: setAuthStore, store } = useAuth();
+
+  // Estado para datos mockeados
+  const [mockDataState, setMockDataState] = useState(mockData);
+
   useEffect(() => {
-    setStore({ ...store, title: 'Expensas' });
+    setStore({ ...store, title: 'Gestor de Deudas' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -153,68 +200,68 @@ const DebtsManager = () => {
       period: {
         rules: [''],
         api: '',
-        label: 'Periodo',
+        label: 'Fecha',
         list: {
           width: '150px',
           onRender: renderPeriodCell,
           order: 1,
         },
       },
-      paidUnits: {
+      unitsUpToDate: {
         rules: [''],
         api: '',
         label: <span className={styles.SpanLabel}>Unidades al día</span>,
         list: {
-          onRender: renderPaidUnitsCell,
+          onRender: renderUnitsUpToDateCell,
           order: 2,
         },
       },
-      unitsPayable: {
+      unitsToPay: {
         rules: [''],
         api: '',
         label: <span className={styles.SpanLabel}>Unidades por pagar</span>,
         list: {
-          onRender: renderUnitsPayableCell,
+          onRender: renderUnitsToPayCell,
           order: 3,
         },
       },
-      totalExpensesSum: {
+      totalDebt: {
         rules: [''],
         api: '',
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Total de expensas
+            Monto total de deuda
           </label>
         ),
         list: {
-          onRender: renderTotalExpensesCell,
+          onRender: renderTotalDebtCell,
           order: 4,
         },
       },
-      sumPenalty: {
-        rules: [''],
-        api: '',
-        label: <label className={styles.SpanLabel}>Total de multa</label>,
-        list: {
-          onRender: renderSumPenaltyCell,
-          order: 5,
-        },
-      },
-      ammountsCollected: {
+      totalCollected: {
         rules: [''],
         api: '',
         label: <label className={styles.SpanLabel}>Total cobrado</label>,
         list: {
-          onRender: renderAmountsCollectedCell,
+          onRender: renderTotalCollectedCell,
+          order: 5,
+        },
+      },
+      totalPenalty: {
+        rules: [''],
+        api: '',
+        label: <label className={styles.SpanLabel}>Total de mora</label>,
+        list: {
+          onRender: renderTotalPenaltyCell,
           order: 6,
         },
       },
-      totalAmmountCollected: {
+      totalToPay: {
         rules: [''],
         api: '',
-        label: <label className={styles.SpanLabel}>Saldo a cobrar</label>,
+        label: <label className={styles.SpanLabel}>Total a cobrar</label>,
         list: {
-          onRender: renderTotalAmountCollectedCell,
+          onRender: renderTotalToPayCell,
           order: 7,
         },
       },
@@ -251,22 +298,25 @@ const DebtsManager = () => {
             })),
         },
       },
-
       category_id: {
         rules: ['required'],
         api: 'ae',
         label: 'Categoría',
         form: {
           type: 'select',
-          options: [{ id: 1, name: 'Expensas' }],
+          options: [{ id: 1, name: 'Gestión de Deudas' }],
         },
       },
     };
   }, []);
 
+  // Modificamos useCrud para usar datos mockeados
   const { userCan, List, setStore, onEdit, onDel } = useCrud({
     paramsInitial,
-    mod,
+    mod: {
+      ...mod,
+      noWaiting: true, // Evita llamadas al backend
+    },
     fields,
   });
 
@@ -283,14 +333,15 @@ const DebtsManager = () => {
     return (
       <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
         <ItemList
-          title={item?.name}
-          subtitle={item?.description}
+          title={`${MONTHS[item?.month]} ${item?.year}`}
+          subtitle={`Total a cobrar: Bs ${item?.totalToPay?.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />
       </RenderItem>
     );
   };
+
   const onClickDetail = (row: any) => {
     setDetailItem(row);
     setOpenDetail(true);
@@ -300,11 +351,11 @@ const DebtsManager = () => {
 
   if (openDetail)
     return (
-      <ExpensesDetails
+      <DebtsManagerDetail
         data={detailItem}
         setOpenDetail={(e: any) => {
           setStore({ title: mod?.plural });
-          setOpenDetail();
+          setOpenDetail(false);
         }}
       />
     );
@@ -315,10 +366,12 @@ const DebtsManager = () => {
           height={'calc(100vh - 350px)'}
           onTabletRow={renderItem}
           onRowClick={onClickDetail}
-          emptyMsg="Lista de expensas vacía. Una vez generes las cuotas"
+          emptyMsg="Lista del gestor de deudas vacía. Una vez generes las cuotas"
           emptyLine2="de los residentes las verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
           filterBreakPoint={800}
+          // Pasamos los datos mockeados directamente
+          mockData={mockDataState}
         />
       </div>
     );

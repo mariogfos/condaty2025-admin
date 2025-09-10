@@ -1,7 +1,7 @@
 "use client";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import styles from "./ExpensesDetailsView.module.css";
+import styles from "./DebtsManagerDetailView.module.css";
 import { useMemo, useState, useEffect } from "react";
 import { getDateStrMes, MONTHS } from "@/mk/utils/date";
 import { formatNumber } from "@/mk/utils/numbers";
@@ -21,42 +21,136 @@ import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFil
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
 
+// Datos mockeados para el detalle
+const mockDetailData = {
+  data: [
+    {
+      id: 1,
+      unit: "2-B",
+      description: "Monto fijo por unidad",
+      subcategory: "Daños y perjuicios",
+      dueDate: "2025-04-18",
+      debt: 500.00,
+      penalty: 50.00,
+      totalAmount: 550.00,
+      status: "M", // En mora
+      dpto: { nro: "2-B", description: "Apartamento 2-B" },
+
+      amount: 500.00,
+      penalty_amount: 50.00
+    },
+    {
+      id: 2,
+      unit: "3-B",
+      description: "Dividido por igual",
+      subcategory: "Servicios básicos",
+      dueDate: "2025-04-18",
+      debt: 100.00,
+      penalty: 0.00,
+      totalAmount: 100.00,
+      status: "P", // Por cobrar
+      dpto: { nro: "3-B", description: "Apartamento 3-B" },
+
+      amount: 100.00,
+      penalty_amount: 0.00
+    },
+    {
+      id: 3,
+      unit: "4-B",
+      description: "Dividido por igual",
+      subcategory: "Servicios básicos",
+      dueDate: "2025-04-18",
+      debt: 80.00,
+      penalty: 0.00,
+      totalAmount: 30.00,
+      status: "PP", // Parcialmente pagado
+      dpto: { nro: "4-B", description: "Apartamento 4-B" },
+
+      amount: 80.00,
+      penalty_amount: 0.00
+    },
+    {
+      id: 4,
+      unit: "5-B",
+      description: "Monto fijo por unidad",
+      subcategory: "Daños y perjuicios",
+      dueDate: "2025-04-18",
+      debt: 1800.00,
+      penalty: 0.00,
+      totalAmount: 0.00,
+      status: "C", // Cobrado
+      dpto: { nro: "5-B", description: "Apartamento 5-B" },
+
+      amount: 1800.00,
+      penalty_amount: 0.00
+    },
+    {
+      id: 5,
+      unit: "6-B",
+      description: "Monto fijo por unidad",
+      subcategory: "Daños y perjuicios",
+      dueDate: "2025-04-18",
+      debt: 500.00,
+      penalty: 0.00,
+      totalAmount: 0.00,
+      status: "C", // Cobrado
+      dpto: { nro: "6-B", description: "Apartamento 6-B" },
+
+      amount: 500.00,
+      penalty_amount: 0.00
+    }
+  ],
+  total: 5,
+  message: { total: 5 },
+  extraData: {
+    totalDebts: 6,
+    totalRegisteredAmount: 6490.00,
+    paidDebts: 2550.00,
+    overdueDebts: 580.00,
+    currentDebts: 1210.00,
+    delinquentDebts: 550.00,
+    partiallyPaid: 1110.00
+  }
+};
+
 const renderUnitCell = ({ item }: { item: any }) => (
-  <div>{item?.dpto?.nro}</div>
+  <div>{item?.unit || item?.dpto?.nro}</div>
 );
 
-const renderAddressCell = ({ item }: { item: any }) => (
-  <div>{item?.dpto?.description}</div>
+const renderDescriptionCell = ({ item }: { item: any }) => (
+  <div>{item?.description}</div>
 );
 
-const renderPaidAtCell = ({ item }: { item: any }) => (
-  <div>{getDateStrMes(item?.paid_at) || "-/-"}</div>
+const renderSubcategoryCell = ({ item }: { item: any }) => (
+  <div>{item?.subcategory}</div>
 );
 
-const renderDueAtCell = ({ item }: { item: any }) => (
-  <div>{getDateStrMes(item?.debt?.due_at) || "-/-"}</div>
+const renderDueDateCell = ({ item }: { item: any }) => (
+  <div>{getDateStrMes(item?.dueDate || item?.debt?.due_at) || "-/-"}</div>
 );
 
-const renderAmountCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={item?.amount} alignRight />
+const renderDebtCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.debt || item?.amount || 0} alignRight />
 );
 
-const renderPenaltyAmountCell = ({ item }: { item: any }) => (
-  <FormatBsAlign value={item?.penalty_amount} alignRight />
+const renderPenaltyCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.penalty || item?.penalty_amount || 0} alignRight />
+);
+
+const renderTotalAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.totalAmount || (item?.debt + item?.penalty) || 0} alignRight />
 );
 
 const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-    A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
-    P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
-    S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
-    R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
-    E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
     M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+    P: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
+    C: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
+    PP: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Parcialmente pagado
   };
 
   const displayStatus = getDisplayStatus(item);
-  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.E;
+  const { color, bgColor } = statusConfig[displayStatus.code] || statusConfig.P;
 
   return (
     <StatusBadge
@@ -68,40 +162,32 @@ const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) =
   );
 };
 
-const ExpensesDetails = ({ data, setOpenDetail }: any) => {
+const DebtsManagerDetail = ({ data, setOpenDetail }: any) => {
   const [statsData, setStatsData] = useState({
-    totalUnits: 0,
-    paidUnits: 0,
-    overdueUnits: 0,
-    totalAmount: 0,
-    paidAmount: 0,
-    penaltyAmount: 0,
-    pendingAmount: 0,
+    totalDebts: 6,
+    totalRegisteredAmount: 6490.00,
+    paidDebts: 2550.00,
+    overdueDebts: 580.00,
+    currentDebts: 1210.00,
+    delinquentDebts: 550.00,
+    partiallyPaid: 1110.00,
   });
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
     endDate?: string;
   }>({});
-  const getDisplayStatus = (item: any) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (item.status === "A" && item.debt?.due_at) {
-      const dueDate = new Date(item.debt.due_at);
-      if (today > dueDate) {
-        return { text: "En mora", code: "M" };
-      }
-    }
 
+  const getDisplayStatus = (item: any) => {
     switch (item.status) {
-      case 'A':
-        return { text: 'Por cobrar', code: 'A' };
-      case 'P':
-        return { text: 'Cobrado', code: 'P' };
-      case 'S':
-        return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
+      case 'P':
+        return { text: 'Por cobrar', code: 'P' };
+      case 'C':
+        return { text: 'Cobrado', code: 'C' };
+      case 'PP':
+        return { text: 'Parcialmente pagado', code: 'PP' };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
@@ -131,7 +217,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     }
 
     if (value === "ALL") {
-      currentFilters[opt] = "ALL"; // Enviamos 'ALL' explícitamente // esto?
+      currentFilters[opt] = "ALL";
     } else if (!value) {
       delete currentFilters[opt];
     } else {
@@ -162,12 +248,13 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       reLoad: Function;
     }) => {
       const handleClose = () => {
-        props.reLoad(null, mod?.noWaiting); // Recargar datos antes de cerrar // esto?
-        props.onClose(); // Cerrar la vista // esto?
+        props.reLoad(null, mod?.noWaiting);
+        props.onClose();
       };
       return <RenderView {...props} onClose={handleClose} />;
     },
     extraData: true,
+    noWaiting: true, // Para usar datos mockeados
   };
 
   const paramsInitial = {
@@ -186,22 +273,34 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         label: "Unidad",
         list: {
           onRender: renderUnitCell,
+          order: 1,
         },
       },
-      address: {
+      description: {
         rules: [""],
         api: "",
-        label: "Dirección",
+        label: "Descripción",
         list: {
-          onRender: renderAddressCell,
+          onRender: renderDescriptionCell,
+          order: 2,
         },
       },
-      paid_at: {
+      subcategory: {
         rules: [""],
         api: "",
-        label: "Fecha de pago",
+        label: "Subcategoría",
         list: {
-          onRender: renderPaidAtCell,
+          onRender: renderSubcategoryCell,
+          order: 3,
+        },
+      },
+      dueDate: {
+        rules: [""],
+        api: "",
+        label: "Vencimiento",
+        list: {
+          onRender: renderDueDateCell,
+          order: 4,
         },
         filter: {
           key: "paid_at",
@@ -209,40 +308,20 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           options: getPeriodOptions,
         },
       },
-      due_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha de plazo",
-        list: {
-          onRender: renderDueAtCell,
-        },
-      },
-      amount: {
+      debt: {
         rules: ["required"],
         api: "e",
         label: (
           <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Expensa
+            Deuda
           </span>
         ),
         list: {
-          onRender: renderAmountCell,
-        },
-        form: {
-          type: "text",
-          label: "Monto",
+          onRender: renderDebtCell,
+          order: 5,
         },
       },
-      obs: {
-        rules: ["required"],
-        api: "e",
-        label: "Motivo del cambio",
-        form: {
-          type: "text",
-          label: "Motivo del cambio",
-        },
-      },
-      penalty_amount: {
+      penalty: {
         rules: [""],
         api: "",
         label: (
@@ -251,7 +330,21 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           </span>
         ),
         list: {
-          onRender: renderPenaltyAmountCell,
+          onRender: renderPenaltyCell,
+          order: 6,
+        },
+      },
+      totalAmount: {
+        rules: [""],
+        api: "",
+        label: (
+          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
+            Monto Total
+          </span>
+        ),
+        list: {
+          onRender: renderTotalAmountCell,
+          order: 7,
         },
       },
       status: {
@@ -266,6 +359,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         ),
         list: {
           onRender: (props: any) => renderStatusCell(props, getDisplayStatus),
+          order: 8,
         },
         filter: {
           label: "Estado",
@@ -273,10 +367,10 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           options: () => {
             return [
               { id: 'ALL', name: 'Todos' },
-              { id: 'A', name: 'Por cobrar' },
-              { id: 'P', name: 'Cobrado' },
-              { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },
+              { id: 'P', name: 'Por cobrar' },
+              { id: 'C', name: 'Cobrado' },
+              { id: 'PP', name: 'Parcialmente pagado' },
             ];
           },
           optionLabel: "name",
@@ -303,18 +397,17 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   });
 
   useEffect(() => {
-    if (extraData) {
-      setStatsData({
-        totalUnits: extraData.assignedUnits || 0,
-        paidUnits: extraData.paidUnits || 0,
-        overdueUnits: extraData.overdueUnits || 0,
-        totalAmount: extraData.expenseAmount || 0,
-        paidAmount: extraData.paidAmount || 0,
-        penaltyAmount: extraData.penaltyAmount || 0,
-        pendingAmount: extraData.pendingAmount || 0,
-      });
-    }
-  }, [extraData]);
+    // Usar datos mockeados
+    setStatsData({
+      totalDebts: mockDetailData.extraData.totalDebts,
+      totalRegisteredAmount: mockDetailData.extraData.totalRegisteredAmount,
+      paidDebts: mockDetailData.extraData.paidDebts,
+      overdueDebts: mockDetailData.extraData.overdueDebts,
+      currentDebts: mockDetailData.extraData.currentDebts,
+      delinquentDebts: mockDetailData.extraData.delinquentDebts,
+      partiallyPaid: mockDetailData.extraData.partiallyPaid,
+    });
+  }, []);
 
   useCrudUtils({
     onSearch,
@@ -336,32 +429,32 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
           onClick={() => setOpenDetail(false)}
         >
           <IconArrowLeft />
-          <p>Volver a sección expensas</p>
+          <p>Volver a gestor de deudas</p>
         </button>
       </div>
 
       <LoadingScreen>
         <h1 className={styles.dashboardTitle}>
-          Expensas de {MONTHS[data?.month]} {data?.year}
+          Deudas de {MONTHS[data?.month]} {data?.year}
         </h1>
         <div className={styles.allStatsRow}>
-          {/* Tarjeta 1 (antes en grupo izquierdo)  */}
+          {/* Total de deudas */}
           <WidgetDashCard
-            data={statsData.totalUnits}
-            title="Total"
+            data={statsData.totalDebts}
+            title="Total de deudas"
             tooltip={true}
-            tooltipTitle="Total de unidades asignadas"
+            tooltipTitle="Número total de deudas registradas"
             tooltipPosition="right"
             icon={
               <IconUnidades
                 color={
-                  !statsData.totalUnits || statsData.totalUnits === 0
+                  !statsData.totalDebts || statsData.totalDebts === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cWhite)"
                 }
                 style={{
                   backgroundColor:
-                    !statsData.totalUnits || statsData.totalUnits === 0
+                    !statsData.totalDebts || statsData.totalDebts === 0
                       ? "var(--cHover)"
                       : "var(--cHoverCompl1)",
                 }}
@@ -370,73 +463,24 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               />
             }
           />
-          {/* Tarjeta 2 (antes en grupo izquierdo) */}
-          <WidgetDashCard
-            data={statsData.paidUnits}
-            title="Al día"
-            tooltip={true}
-            tooltipTitle="Unidades que han pagado a tiempo"
-            tooltipPosition="right"
-            icon={
-              <IconUnidades
-                color={
-                  !statsData.paidUnits || statsData.paidUnits === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cSuccess)"
-                }
-                style={{
-                  backgroundColor:
-                    !statsData.paidUnits || statsData.paidUnits === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverCompl2)",
-                }}
-                circle
-                size={16}
-              />
-            }
-          />
-          {/* Tarjeta 3 (antes en grupo izquierdo) */}
-          <WidgetDashCard
-            data={statsData.overdueUnits}
-            title="Morosas"
-            tooltip={true}
-            tooltipTitle="Unidades con pagos vencidos"
-            tooltipPosition="right"
-            icon={
-              <IconUnidades
-                color={
-                  !statsData.overdueUnits || statsData.overdueUnits === 0
-                    ? "var(--cWhiteV1)"
-                    : "var(--cError)"
-                }
-                style={{
-                  backgroundColor:
-                    !statsData.overdueUnits || statsData.overdueUnits === 0
-                      ? "var(--cHover)"
-                      : "var(--cHoverError)",
-                }}
-                circle
-                size={16}
-              />
-            }
-          />
 
+          {/* Monto total registrado */}
           <WidgetDashCard
-            data={"Bs " + formatNumber(statsData.totalAmount)}
-            title="Expensa"
+            data={"Bs " + formatNumber(statsData.totalRegisteredAmount)}
+            title="Monto total registrado"
             tooltip={true}
-            tooltipTitle="Monto total de expensas del período"
-            tooltipPosition="left"
+            tooltipTitle="Monto total de todas las deudas registradas"
+            tooltipPosition="right"
             icon={
               <IconMonedas
                 color={
-                  !statsData.totalAmount || statsData.totalAmount === 0
+                  !statsData.totalRegisteredAmount || statsData.totalRegisteredAmount === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cCompl4)"
                 }
                 style={{
                   backgroundColor:
-                    !statsData.totalAmount || statsData.totalAmount === 0
+                    !statsData.totalRegisteredAmount || statsData.totalRegisteredAmount === 0
                       ? "var(--cHover)"
                       : "var(--cHoverCompl7)",
                 }}
@@ -446,22 +490,23 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             }
           />
 
+          {/* Deudas pagadas */}
           <WidgetDashCard
-            data={"Bs " + formatNumber(statsData.paidAmount)}
-            title="Cobrado"
+            data={"Bs " + formatNumber(statsData.paidDebts)}
+            title="Deudas pagadas"
             tooltip={true}
-            tooltipTitle="Monto total cobrado hasta la fecha"
-            tooltipPosition="left"
+            tooltipTitle="Monto total de deudas completamente pagadas"
+            tooltipPosition="right"
             icon={
               <IconWallet
                 color={
-                  !statsData.paidAmount || statsData.paidAmount === 0
+                  !statsData.paidDebts || statsData.paidDebts === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cSuccess)"
                 }
                 style={{
                   backgroundColor:
-                    !statsData.paidAmount || statsData.paidAmount === 0
+                    !statsData.paidDebts || statsData.paidDebts === 0
                       ? "var(--cHover)"
                       : "var(--cHoverCompl2)",
                 }}
@@ -470,24 +515,24 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               />
             }
           />
-          {/* Tarjeta 6 (antes en grupo derecho) */}
 
+          {/* Deudas vencidas */}
           <WidgetDashCard
-            data={"Bs " + formatNumber(statsData.penaltyAmount)}
-            title="Multas"
+            data={"Bs " + formatNumber(statsData.overdueDebts)}
+            title="Deudas vencidas"
             tooltip={true}
-            tooltipTitle="Monto total de multas aplicadas"
+            tooltipTitle="Monto de deudas que han vencido"
             tooltipPosition="left"
             icon={
               <IconMultas
                 color={
-                  !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                  !statsData.overdueDebts || statsData.overdueDebts === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cAlert)"
                 }
                 style={{
                   backgroundColor:
-                    !statsData.penaltyAmount || statsData.penaltyAmount === 0
+                    !statsData.overdueDebts || statsData.overdueDebts === 0
                       ? "var(--cHover)"
                       : "var(--cHoverCompl9)",
                 }}
@@ -496,24 +541,50 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               />
             }
           />
-          {/* Tarjeta 7 (antes en grupo derecho) */}
 
+          {/* Deudas vigentes */}
           <WidgetDashCard
-            data={"Bs " + formatNumber(statsData.pendingAmount)}
-            title="Pendiente"
+            data={"Bs " + formatNumber(statsData.currentDebts)}
+            title="Deudas vigentes"
             tooltip={true}
-            tooltipTitle="Monto pendiente por cobrar"
+            tooltipTitle="Monto de deudas aún vigentes"
+            tooltipPosition="left"
+            icon={
+              <IconMonedas
+                color={
+                  !statsData.currentDebts || statsData.currentDebts === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cInfo)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.currentDebts || statsData.currentDebts === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl3)",
+                }}
+                circle
+                size={18}
+              />
+            }
+          />
+
+          {/* Deudas en mora */}
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.delinquentDebts)}
+            title="Deudas en mora"
+            tooltip={true}
+            tooltipTitle="Monto de deudas en estado de mora"
             tooltipPosition="left"
             icon={
               <IconHandcoin
                 color={
-                  !statsData.pendingAmount || statsData.pendingAmount === 0
+                  !statsData.delinquentDebts || statsData.delinquentDebts === 0
                     ? "var(--cWhiteV1)"
                     : "var(--cError)"
                 }
                 style={{
                   backgroundColor:
-                    !statsData.pendingAmount || statsData.pendingAmount === 0
+                    !statsData.delinquentDebts || statsData.delinquentDebts === 0
                       ? "var(--cHover)"
                       : "var(--cHoverError)",
                 }}
@@ -522,9 +593,37 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               />
             }
           />
-          {/* Fin de las tarjetas */}
+
+          {/* Parcialmente pagadas */}
+          <WidgetDashCard
+            data={"Bs " + formatNumber(statsData.partiallyPaid)}
+            title="Parcialmente pagadas"
+            tooltip={true}
+            tooltipTitle="Monto de deudas parcialmente pagadas"
+            tooltipPosition="left"
+            icon={
+              <IconWallet
+                color={
+                  !statsData.partiallyPaid || statsData.partiallyPaid === 0
+                    ? "var(--cWhiteV1)"
+                    : "var(--cWarning)"
+                }
+                style={{
+                  backgroundColor:
+                    !statsData.partiallyPaid || statsData.partiallyPaid === 0
+                      ? "var(--cHover)"
+                      : "var(--cHoverCompl4)",
+                }}
+                circle
+                size={16}
+              />
+            }
+          />
         </div>
-        <List height={"calc(100vh - 480px)"} />
+        <List
+          height={"calc(100vh - 480px)"}
+          mockData={mockDetailData}
+        />
       </LoadingScreen>
 
       <DateRangeFilterModal
@@ -574,4 +673,4 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
   );
 };
 
-export default ExpensesDetails;
+export default DebtsManagerDetail;

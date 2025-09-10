@@ -17,6 +17,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     ...item,
     type: 1,
     dpto_id: item.dpto_id || [],
+    due_at: item.due_at || '',
+    amount: item.amount || '',
+    category_id: item.category_id || '',
+    subcategory_id: item.subcategory_id || '',
+    distribution: item.distribution || 'equal',
+    assignment: item.assignment || 'all',
+    description: item.description || '',
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -30,18 +37,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
 
   const validate = () => {
     let errs: any = {};
-    errs = checkRules({
-      value: formState.year,
-      rules: ['required'],
-      key: 'year',
-      errors: errs,
-    });
-    errs = checkRules({
-      value: formState.month,
-      rules: ['required'],
-      key: 'month',
-      errors: errs,
-    });
+
     errs = checkRules({
       value: formState.due_at,
       rules: ['required'],
@@ -49,27 +45,42 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       errors: errs,
     });
 
-    if (formState.year && formState.month !== undefined && formState.due_at) {
-      const dueDate = new Date(formState.due_at);
-      const expenseYear = parseInt(formState.year);
-      const expenseMonth = parseInt(formState.month); // Del array MONTHS (1-12, con 0 = "")
-
-      // Obtener año y mes de la fecha de vencimiento
-      const dueYear = dueDate.getFullYear();
-      const dueMonth = dueDate.getMonth() + 1; // JavaScript months (0-11) convertir a (1-12)
-
-      // La fecha de vencimiento debe ser del mismo mes/año o posterior
-      if (dueYear < expenseYear || (dueYear === expenseYear && dueMonth < expenseMonth)) {
-        errs.due_at = 'La fecha de vencimiento no puede ser anterior al período de la expensa';
-      }
-    }
     errs = checkRules({
-      value: formState.asignar,
+      value: formState.amount,
       rules: ['required'],
-      key: 'asignar',
+      key: 'amount',
       errors: errs,
     });
-    if (formState.asignar === 'S') {
+
+    errs = checkRules({
+      value: formState.category_id,
+      rules: ['required'],
+      key: 'category_id',
+      errors: errs,
+    });
+
+    errs = checkRules({
+      value: formState.subcategory_id,
+      rules: ['required'],
+      key: 'subcategory_id',
+      errors: errs,
+    });
+
+    errs = checkRules({
+      value: formState.distribution,
+      rules: ['required'],
+      key: 'distribution',
+      errors: errs,
+    });
+
+    errs = checkRules({
+      value: formState.assignment,
+      rules: ['required'],
+      key: 'assignment',
+      errors: errs,
+    });
+
+    if (formState.assignment === 'specific') {
       errs = checkRules({
         value: formState.dpto_id && formState.dpto_id.length > 0 ? formState.dpto_id : null,
         rules: ['required'],
@@ -77,26 +88,32 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         errors: errs,
       });
     }
+
     setErrors(errs);
     return errs;
   };
+
   const onSave = async () => {
     let method = formState.id ? 'PUT' : 'POST';
     if (hasErrors(validate())) return;
+
     const { data: response } = await execute(
       '/debts' + (formState.id ? '/' + formState.id : ''),
       method,
       {
-        year: formState.year,
-        month: formState.month,
         due_at: formState.due_at,
-        type: 1,
-        description: formState.description,
-        asignar: formState.asignar,
+        amount: formState.amount,
+        category_id: formState.category_id,
+        subcategory_id: formState.subcategory_id,
+        distribution: formState.distribution,
+        assignment: formState.assignment,
         dpto_id: formState.dpto_id,
+        description: formState.description,
+        type: 1,
       },
       false
     );
+
     if (response?.success === true) {
       reLoad();
       setItem(formState);
@@ -107,26 +124,55 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     }
   };
 
-  const getYearOptions = () => {
-    const years: yearProps = [];
-    const lastYear = new Date().getFullYear();
-    for (let i = lastYear; i >= 2000; i--) {
-      years.push({ id: i, name: i.toString() });
-    }
-    return years;
-  };
+  const getCategoryOptions = () => [
+    { id: 1, name: 'Servicios básicos' },
+    { id: 2, name: 'Mantenimiento' },
+    { id: 3, name: 'Daños y perjuicios' },
+    { id: 4, name: 'Gastos extraordinarios' },
+    { id: 5, name: 'Administración' },
+  ];
 
-  const monthOptions = MONTHS.map((month, index) => ({
-    id: index,
-    name: month,
-  })).filter(option => option.name !== "");
+  const getSubcategoryOptions = () => {
+    const subcategories: { [key: number]: { id: number; name: string }[] } = {
+      1: [ // Servicios básicos
+        { id: 11, name: 'Agua' },
+        { id: 12, name: 'Electricidad' },
+        { id: 13, name: 'Gas' },
+        { id: 14, name: 'Internet' },
+        { id: 15, name: 'Teléfono' },
+      ],
+      2: [ // Mantenimiento
+        { id: 21, name: 'Limpieza' },
+        { id: 22, name: 'Jardinería' },
+        { id: 23, name: 'Reparaciones menores' },
+        { id: 24, name: 'Pintura' },
+      ],
+      3: [ // Daños y perjuicios
+        { id: 31, name: 'Reparación de equipos' },
+        { id: 32, name: 'Daños a áreas comunes' },
+        { id: 33, name: 'Reposición de elementos' },
+      ],
+      4: [ // Gastos extraordinarios
+        { id: 41, name: 'Mejoras' },
+        { id: 42, name: 'Equipamiento' },
+        { id: 43, name: 'Emergencias' },
+      ],
+      5: [ // Administración
+        { id: 51, name: 'Honorarios administrador' },
+        { id: 52, name: 'Gastos legales' },
+        { id: 53, name: 'Seguros' },
+      ],
+    };
+
+    return subcategories[formState.category_id] || [];
+  };
 
   useEffect(() => {
     const lista: any = [];
     extraData?.dptos?.map((item: any, key: number) => {
       lista[key] = {
         id: item.id,
-        nro: item.nro, // Mantener el nro original
+        nro: item.nro,
         label:
           (getFullName(item?.titular) || 'Sin titular') +
           ' - ' +
@@ -138,70 +184,162 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       };
     });
     setLdpto(lista);
-  }, [client.type_dpto, extraData?.dptos]); //esto?
+  }, [client.type_dpto, extraData?.dptos]);
 
   return (
-    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave}>
-      <Select
-        label="Año"
-        name="year"
-        value={formState.year}
-        options={getYearOptions()}
-        onChange={handleChange}
-        error={errors}
-      />
-      <Select
-        label="Mes"
-        name="month"
-        value={formState.month}
-        options={monthOptions}
-        onChange={handleChange}
-        error={errors}
-      />
-      <Input
-        label="Fecha de vencimiento"
-        name="due_at"
-        value={formState.due_at}
-        onChange={handleChange}
-        type="date"
-        error={errors}
-      />
-      <Select
-        label="Asignar a"
-        name="asignar"
-        value={formState.asignar}
-        options={[
-          { id: 'T', name: 'Todas las unidades' },
-          { id: 'O', name: 'Unidades ocupadas' },
-          { id: 'L', name: 'Unidades no ocupadas' },
-          { id: 'S', name: 'Seleccionar unidades específicas' },
-        ]}
-        onChange={handleChange}
-        error={errors}
-      />
-      {formState.asignar === 'S' && (
-        <Select
-          label="Seleccionar Unidades"
-          name="dpto_id"
-          value={formState?.dpto_id || []}
-          options={ldpto}
-          optionLabel="label"
-          optionValue="id"
-          onChange={handleChange}
-          error={errors}
-          placeholder="Seleccione las unidades"
-          multiSelect={true}
-        />
-      )}
-      <TextArea
-        label="Descripción"
-        name="description"
-        value={formState.description}
-        onChange={handleChange}
-        maxLength={255}
-        required={false}
-        error={errors}
-      />
+    <DataModal
+      open={open}
+      onClose={onClose}
+      title="Crear deuda"
+      onSave={onSave}
+      buttonText="Guardar"
+      buttonCancel="Cancelar"
+    >
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        width: '100%'
+      }}>
+        {/* Primera fila - Fecha de vencimiento y Monto */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          width: '100%'
+        }}>
+          <div style={{ flex: 1 }}>
+            <Input
+              label="Fecha de vencimiento"
+              name="due_at"
+              value={formState.due_at}
+              onChange={handleChange}
+              type="date"
+              error={errors}
+              required
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Input
+              label="Monto (Bs)"
+              name="amount"
+              value={formState.amount}
+              onChange={handleChange}
+              type="number"
+
+              min="0"
+              error={errors}
+              required
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        {/* Segunda fila - Categoría y Subcategoría */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          width: '100%'
+        }}>
+          <div style={{ flex: 1 }}>
+            <Select
+              label="Categoría"
+              name="category_id"
+              value={formState.category_id}
+              options={getCategoryOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar categoría"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Select
+              label="Subcategoría"
+              name="subcategory_id"
+              value={formState.subcategory_id}
+              options={getSubcategoryOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar subcategoría"
+              disabled={!formState.category_id}
+            />
+          </div>
+        </div>
+
+        {/* Tercera fila - Distribución y Asignación */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          width: '100%'
+        }}>
+          <div style={{ flex: 1 }}>
+            <Select
+              label="Distribución"
+              name="distribution"
+              value={formState.distribution}
+              options={[
+                { id: 'fixed', name: 'Monto fijo por unidad' },
+                { id: 'equal', name: 'Dividido por igual' },
+                { id: 'proportional', name: 'Proporcional a mt2' },
+              ]}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Select
+              label="Asignación"
+              name="assignment"
+              value={formState.assignment}
+              options={[
+                { id: 'all', name: 'Todas las unidades' },
+                { id: 'occupied', name: 'Unidades ocupadas' },
+                { id: 'unoccupied', name: 'Unidades no ocupadas' },
+                { id: 'specific', name: 'Seleccionar unidades específicas' },
+              ]}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
+        </div>
+
+        {/* Selección específica de unidades */}
+        {formState.assignment === 'specific' && (
+          <div style={{ width: '100%' }}>
+            <Select
+              label="Seleccionar Unidades"
+              name="dpto_id"
+              value={formState?.dpto_id || []}
+              options={ldpto}
+              optionLabel="label"
+              optionValue="id"
+              onChange={handleChange}
+              error={errors}
+              placeholder="Seleccione las unidades"
+              multiSelect={true}
+              required
+            />
+          </div>
+        )}
+
+        {/* Campo de descripción */}
+        <div style={{ width: '100%' }}>
+          <TextArea
+            label="Descripción"
+            name="description"
+            value={formState.description}
+            onChange={handleChange}
+            maxLength={500}
+            required={false}
+            error={errors}
+            placeholder="Genera y asigna deudas para distintos conceptos como servicios, mantenimiento o gastos extraordinarios."
+           
+          />
+        </div>
+      </div>
     </DataModal>
   );
 };

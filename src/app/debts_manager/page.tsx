@@ -1,5 +1,5 @@
 
-import DebtsManager from '@/modulos/DebtsManager/Expenses'
+import DebtsManager from '@/modulos/DebtsManager/DebtsManager'
 import React from 'react'
 
 const debtsManager = () => {
