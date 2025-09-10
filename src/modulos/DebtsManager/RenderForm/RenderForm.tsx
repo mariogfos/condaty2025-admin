@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
 import Select from '@/mk/components/forms/Select/Select';
+import Check from '@/mk/components/forms/Check/Check';
 import { MONTHS } from '@/mk/utils/date';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
@@ -15,15 +16,24 @@ type yearProps = { id: string | number; name: string }[];
 const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, reLoad }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
-    type: 1,
-    dpto_id: item.dpto_id || [],
+    begin_at: item.begin_at || '',
     due_at: item.due_at || '',
-    amount: item.amount || '',
-    category_id: item.category_id || '',
-    subcategory_id: item.subcategory_id || '',
-    distribution: item.distribution || 'equal',
-    assignment: item.assignment || 'all',
+    type: item.type || 4,
     description: item.description || '',
+    subcategory_id: item.subcategory_id || '',
+    asignar: item.asignar || 'S',
+    dpto_id: item.dpto_id || 1,
+    amount_type: item.amount_type || 'F',
+    amount: item.amount || '',
+    is_advance: item.is_advance || 'Y',
+    interest: item.interest || 0,
+    // Checkbox principal para mostrar configuración avanzada
+    show_advanced: item.show_advanced || false,
+    // Checkboxes avanzados
+    has_mv: item.has_mv === 'Y' || item.has_mv === true,
+    is_forgivable: item.is_forgivable === 'Y' || item.is_forgivable === true,
+    has_pp: item.has_pp === 'Y' || item.has_pp === true || item.has_pp === undefined,
+    is_blocking: item.is_blocking === 'Y' || item.is_blocking === true,
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -31,12 +41,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const { showToast } = useAuth();
 
   const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormState((prev: any) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    setFormState((prev: any) => ({ ...prev, [name]: newValue }));
   };
 
   const validate = () => {
     let errs: any = {};
+
+    errs = checkRules({
+      value: formState.begin_at,
+      rules: ['required'],
+      key: 'begin_at',
+      errors: errs,
+    });
 
     errs = checkRules({
       value: formState.due_at,
@@ -53,13 +71,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     });
 
     errs = checkRules({
-      value: formState.category_id,
-      rules: ['required'],
-      key: 'category_id',
-      errors: errs,
-    });
-
-    errs = checkRules({
       value: formState.subcategory_id,
       rules: ['required'],
       key: 'subcategory_id',
@@ -67,27 +78,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     });
 
     errs = checkRules({
-      value: formState.distribution,
+      value: formState.dpto_id,
       rules: ['required'],
-      key: 'distribution',
+      key: 'dpto_id',
       errors: errs,
     });
-
-    errs = checkRules({
-      value: formState.assignment,
-      rules: ['required'],
-      key: 'assignment',
-      errors: errs,
-    });
-
-    if (formState.assignment === 'specific') {
-      errs = checkRules({
-        value: formState.dpto_id && formState.dpto_id.length > 0 ? formState.dpto_id : null,
-        rules: ['required'],
-        key: 'dpto_id',
-        errors: errs,
-      });
-    }
 
     setErrors(errs);
     return errs;
@@ -101,15 +96,21 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       '/debts' + (formState.id ? '/' + formState.id : ''),
       method,
       {
+        begin_at: formState.begin_at,
         due_at: formState.due_at,
-        amount: formState.amount,
-        category_id: formState.category_id,
-        subcategory_id: formState.subcategory_id,
-        distribution: formState.distribution,
-        assignment: formState.assignment,
-        dpto_id: formState.dpto_id,
+        type: formState.type,
         description: formState.description,
-        type: 1,
+        subcategory_id: formState.subcategory_id,
+        asignar: formState.asignar,
+        dpto_id: formState.dpto_id,
+        amount_type: formState.amount_type,
+        amount: formState.amount,
+        is_advance: formState.is_advance,
+        interest: formState.interest,
+        has_mv: formState.has_mv ? 'Y' : 'N',
+        is_forgivable: formState.is_forgivable ? 'Y' : 'N',
+        has_pp: formState.has_pp ? 'Y' : 'N',
+        is_blocking: formState.is_blocking ? 'Y' : 'N',
       },
       false
     );
@@ -124,48 +125,41 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     }
   };
 
-  const getCategoryOptions = () => [
-    { id: 1, name: 'Servicios básicos' },
-    { id: 2, name: 'Mantenimiento' },
-    { id: 3, name: 'Daños y perjuicios' },
-    { id: 4, name: 'Gastos extraordinarios' },
-    { id: 5, name: 'Administración' },
+  const getSubcategoryOptions = () => [
+    { id: 1, name: 'Agua' },
+    { id: 2, name: 'Electricidad' },
+    { id: 3, name: 'Gas' },
+    { id: 4, name: 'Internet' },
+    { id: 5, name: 'Teléfono' },
+    { id: 6, name: 'Limpieza' },
+    { id: 7, name: 'Jardinería' },
+    { id: 8, name: 'Reparaciones menores' },
+    { id: 9, name: 'Pintura' },
+    { id: 10, name: 'Reparación de equipos' },
   ];
 
-  const getSubcategoryOptions = () => {
-    const subcategories: { [key: number]: { id: number; name: string }[] } = {
-      1: [ // Servicios básicos
-        { id: 11, name: 'Agua' },
-        { id: 12, name: 'Electricidad' },
-        { id: 13, name: 'Gas' },
-        { id: 14, name: 'Internet' },
-        { id: 15, name: 'Teléfono' },
-      ],
-      2: [ // Mantenimiento
-        { id: 21, name: 'Limpieza' },
-        { id: 22, name: 'Jardinería' },
-        { id: 23, name: 'Reparaciones menores' },
-        { id: 24, name: 'Pintura' },
-      ],
-      3: [ // Daños y perjuicios
-        { id: 31, name: 'Reparación de equipos' },
-        { id: 32, name: 'Daños a áreas comunes' },
-        { id: 33, name: 'Reposición de elementos' },
-      ],
-      4: [ // Gastos extraordinarios
-        { id: 41, name: 'Mejoras' },
-        { id: 42, name: 'Equipamiento' },
-        { id: 43, name: 'Emergencias' },
-      ],
-      5: [ // Administración
-        { id: 51, name: 'Honorarios administrador' },
-        { id: 52, name: 'Gastos legales' },
-        { id: 53, name: 'Seguros' },
-      ],
-    };
+  const getTypeOptions = () => [
+    { id: 1, name: 'Tipo 1' },
+    { id: 2, name: 'Tipo 2' },
+    { id: 3, name: 'Tipo 3' },
+    { id: 4, name: 'Tipo 4' },
+  ];
 
-    return subcategories[formState.category_id] || [];
-  };
+  const getAsignarOptions = () => [
+    { id: 'S', name: 'Sí' },
+    { id: 'N', name: 'No' },
+  ];
+
+  const getAmountTypeOptions = () => [
+    { id: 'F', name: 'Fijo' },
+    { id: 'V', name: 'Variable' },
+    { id: 'P', name: 'Porcentual' },
+  ];
+
+  const getIsAdvanceOptions = () => [
+    { id: 'Y', name: 'Sí' },
+    { id: 'N', name: 'No' },
+  ];
 
   useEffect(() => {
     const lista: any = [];
@@ -201,12 +195,23 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         gap: '16px',
         width: '100%'
       }}>
-        {/* Primera fila - Fecha de vencimiento y Monto */}
+        {/* Primera fila - Fechas */}
         <div style={{
           display: 'flex',
           gap: '16px',
           width: '100%'
         }}>
+          <div style={{ flex: 1 }}>
+            <Input
+              label="Fecha de inicio"
+              name="begin_at"
+              value={formState.begin_at}
+              onChange={handleChange}
+              type="date"
+              error={errors}
+              required
+            />
+          </div>
           <div style={{ flex: 1 }}>
             <Input
               label="Fecha de vencimiento"
@@ -218,23 +223,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div style={{ flex: 1 }}>
-            <Input
-              label="Monto (Bs)"
-              name="amount"
-              value={formState.amount}
-              onChange={handleChange}
-              type="number"
-
-              min="0"
-              error={errors}
-              required
-              placeholder="0.00"
-            />
-          </div>
         </div>
 
-        {/* Segunda fila - Categoría y Subcategoría */}
+        {/* Segunda fila - Tipo y Subcategoría */}
         <div style={{
           display: 'flex',
           gap: '16px',
@@ -242,14 +233,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         }}>
           <div style={{ flex: 1 }}>
             <Select
-              label="Categoría"
-              name="category_id"
-              value={formState.category_id}
-              options={getCategoryOptions()}
+              label="Tipo"
+              name="type"
+              value={formState.type}
+              options={getTypeOptions()}
               onChange={handleChange}
               error={errors}
               required
-              placeholder="Seleccionar categoría"
             />
           </div>
           <div style={{ flex: 1 }}>
@@ -262,12 +252,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               error={errors}
               required
               placeholder="Seleccionar subcategoría"
-              disabled={!formState.category_id}
             />
           </div>
         </div>
 
-        {/* Tercera fila - Distribución y Asignación */}
+        {/* Tercera fila - Asignar y Departamento */}
         <div style={{
           display: 'flex',
           gap: '16px',
@@ -275,14 +264,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         }}>
           <div style={{ flex: 1 }}>
             <Select
-              label="Distribución"
-              name="distribution"
-              value={formState.distribution}
-              options={[
-                { id: 'fixed', name: 'Monto fijo por unidad' },
-                { id: 'equal', name: 'Dividido por igual' },
-                { id: 'proportional', name: 'Proporcional a mt2' },
-              ]}
+              label="Asignar"
+              name="asignar"
+              value={formState.asignar}
+              options={getAsignarOptions()}
               onChange={handleChange}
               error={errors}
               required
@@ -290,39 +275,142 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
           <div style={{ flex: 1 }}>
             <Select
-              label="Asignación"
-              name="assignment"
-              value={formState.assignment}
-              options={[
-                { id: 'all', name: 'Todas las unidades' },
-                { id: 'occupied', name: 'Unidades ocupadas' },
-                { id: 'unoccupied', name: 'Unidades no ocupadas' },
-                { id: 'specific', name: 'Seleccionar unidades específicas' },
-              ]}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
-        </div>
-
-        {/* Selección específica de unidades */}
-        {formState.assignment === 'specific' && (
-          <div style={{ width: '100%' }}>
-            <Select
-              label="Seleccionar Unidades"
+              label="Departamento"
               name="dpto_id"
-              value={formState?.dpto_id || []}
+              value={formState.dpto_id}
               options={ldpto}
               optionLabel="label"
               optionValue="id"
               onChange={handleChange}
               error={errors}
-              placeholder="Seleccione las unidades"
-              multiSelect={true}
+              required
+              placeholder="Seleccionar departamento"
+            />
+          </div>
+        </div>
+
+        {/* Cuarta fila - Tipo de monto y Monto */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          width: '100%'
+        }}>
+          <div style={{ flex: 1 }}>
+            <Select
+              label="Tipo de monto"
+              name="amount_type"
+              value={formState.amount_type}
+              options={getAmountTypeOptions()}
+              onChange={handleChange}
+              error={errors}
               required
             />
           </div>
+          <div style={{ flex: 1 }}>
+            <Input
+              label="Monto (Bs)"
+              name="amount"
+              value={formState.amount}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              error={errors}
+              required
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        {/* Quinta fila - Es anticipo y Configuración avanzada */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          width: '100%',
+          alignItems: 'center'
+        }}>
+        
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}>
+            <Check
+              label="Configuración avanzada"
+              name="show_advanced"
+              value={formState.show_advanced ? 'Y' : 'N'}
+              checked={formState.show_advanced}
+              onChange={handleChange}
+              error={errors}
+            />
+          </div>
+        </div>
+
+        {/* Configuración avanzada - Solo se muestra si show_advanced está activado */}
+        {formState.show_advanced && (
+          <>
+            {/* Campo de interés */}
+            <div style={{ width: '100%' }}>
+              <Input
+                label="Interés (%)"
+                name="interest"
+                value={formState.interest}
+                onChange={handleChange}
+                type="number"
+                min="0"
+                max="100"
+
+                error={errors}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Checkboxes avanzados */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px',
+              width: '100%',
+              padding: '16px',
+              border: '1px solid var(--cWhiteV3)',
+              borderRadius: 'var(--bRadiusS)',
+              backgroundColor: 'var(--cBlackV2)'
+            }}>
+              <Check
+                label="Tiene MV"
+                name="has_mv"
+                value={formState.has_mv ? 'Y' : 'N'}
+                checked={formState.has_mv}
+                onChange={handleChange}
+                error={errors}
+              />
+              <Check
+                label="Es perdonable"
+                name="is_forgivable"
+                value={formState.is_forgivable ? 'Y' : 'N'}
+                checked={formState.is_forgivable}
+                onChange={handleChange}
+                error={errors}
+              />
+              <Check
+                label="Tiene PP"
+                name="has_pp"
+                value={formState.has_pp ? 'Y' : 'N'}
+                checked={formState.has_pp}
+                onChange={handleChange}
+                error={errors}
+              />
+              <Check
+                label="Es bloqueante"
+                name="is_blocking"
+                value={formState.is_blocking ? 'Y' : 'N'}
+                checked={formState.is_blocking}
+                onChange={handleChange}
+                error={errors}
+              />
+            </div>
+          </>
         )}
 
         {/* Campo de descripción */}
@@ -335,8 +423,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
             maxLength={500}
             required={false}
             error={errors}
-            placeholder="Genera y asigna deudas para distintos conceptos como servicios, mantenimiento o gastos extraordinarios."
-           
+            placeholder="Descripción de la deuda..."
           />
         </div>
       </div>
