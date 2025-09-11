@@ -50,7 +50,7 @@ const ChatRoom = ({
   db,
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
-  const { sendMessageBot } = useChatProvider({ provider: "chatgpt" });
+  const { sendMessageBot } = useChatProvider({ provider: "kimi" });
 
   const cancelUpload = () => {
     if (selectedFile) {
