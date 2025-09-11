@@ -19,11 +19,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     ...item,
     begin_at: item.begin_at || '',
     due_at: item.due_at || '',
-    type: item.type || 4,
+    type: 4,
     description: item.description || '',
     subcategory_id: item.subcategory_id || '',
-    asignar: item.asignar || 'S',
-    dpto_id: item.dpto_id || 1,
+    asignar: item.asignar || 'T', // Cambiar default a 'T' (Todas las unidades)
+    dpto_id: item.dpto_id || [], // Cambiar a array para multiselect
     amount_type: item.amount_type || 'F',
     amount: item.amount || '',
     is_advance: item.is_advance || 'Y',
@@ -35,6 +35,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     is_forgivable: item.is_forgivable === 'Y' || item.is_forgivable === true,
     has_pp: item.has_pp === 'Y' || item.has_pp === true || item.has_pp === undefined,
     is_blocking: item.is_blocking === 'Y' || item.is_blocking === true,
+
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -44,7 +45,17 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
-    setFormState((prev: any) => ({ ...prev, [name]: newValue }));
+
+    // Si cambia el campo asignar y no es 'S', limpiar dpto_id
+    if (name === 'asignar' && value !== 'S') {
+      setFormState((prev: any) => ({
+        ...prev,
+        [name]: newValue,
+        dpto_id: [] // Limpiar selección de departamentos
+      }));
+    } else {
+      setFormState((prev: any) => ({ ...prev, [name]: newValue }));
+    }
   };
 
   const validate = () => {
@@ -78,12 +89,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       errors: errs,
     });
 
-    errs = checkRules({
-      value: formState.dpto_id,
-      rules: ['required'],
-      key: 'dpto_id',
-      errors: errs,
-    });
+    // Solo validar dpto_id si asignar es 'S' (Seleccionar Unidades)
+    if (formState.asignar === 'S') {
+      errs = checkRules({
+        value: formState.dpto_id,
+        rules: ['required'],
+        key: 'dpto_id',
+        errors: errs,
+      });
+    }
 
     setErrors(errs);
     return errs;
@@ -93,26 +107,33 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     let method = formState.id ? 'PUT' : 'POST';
     if (hasErrors(validate())) return;
 
+    // Preparar datos para envío con tipo explícito
+    const dataToSend: any = {
+      begin_at: formState.begin_at,
+      due_at: formState.due_at,
+      type: "4",
+      description: formState.description,
+      subcategory_id: formState.subcategory_id,
+      asignar: formState.asignar,
+      amount_type: formState.amount_type,
+      amount: formState.amount,
+      is_advance: formState.is_advance,
+      interest: formState.interest,
+      has_mv: formState.has_mv ? 'Y' : 'N',
+      is_forgivable: formState.is_forgivable ? 'Y' : 'N',
+      has_pp: formState.has_pp ? 'Y' : 'N',
+      is_blocking: formState.is_blocking ? 'Y' : 'N',
+    };
+
+    // Solo incluir dpto_id si asignar es 'S'
+    if (formState.asignar === 'S') {
+      dataToSend.dpto_id = formState.dpto_id;
+    }
+
     const { data: response } = await execute(
       '/debts' + (formState.id ? '/' + formState.id : ''),
       method,
-      {
-        begin_at: formState.begin_at,
-        due_at: formState.due_at,
-        type: formState.type,
-        description: formState.description,
-        subcategory_id: formState.subcategory_id,
-        asignar: formState.asignar,
-        dpto_id: formState.dpto_id,
-        amount_type: formState.amount_type,
-        amount: formState.amount,
-        is_advance: formState.is_advance,
-        interest: formState.interest,
-        has_mv: formState.has_mv ? 'Y' : 'N',
-        is_forgivable: formState.is_forgivable ? 'Y' : 'N',
-        has_pp: formState.has_pp ? 'Y' : 'N',
-        is_blocking: formState.is_blocking ? 'Y' : 'N',
-      },
+      dataToSend,
       false
     );
 
@@ -126,41 +147,60 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     }
   };
 
-  const getSubcategoryOptions = () => [
-    { id: 1, name: 'Agua' },
-    { id: 2, name: 'Electricidad' },
-    { id: 3, name: 'Gas' },
-    { id: 4, name: 'Internet' },
-    { id: 5, name: 'Teléfono' },
-    { id: 6, name: 'Limpieza' },
-    { id: 7, name: 'Jardinería' },
-    { id: 8, name: 'Reparaciones menores' },
-    { id: 9, name: 'Pintura' },
-    { id: 10, name: 'Reparación de equipos' },
-  ];
+  // Función actualizada para usar datos reales de extraData
+  const getSubcategoryOptions = () => {
+    // Si extraData tiene las categorías con subcategorías (hijos)
+    if (extraData?.categories) {
+      const subcategories: any[] = [];
 
-  const getTypeOptions = () => [
-    { id: 1, name: 'Cuota ordinaria' },
-    { id: 2, name: 'Cuota extraordinaria' },
-    { id: 3, name: 'Multa' },
-    { id: 4, name: 'Otros' },
-  ];
+      // Iterar sobre todas las categorías
+      extraData.categories.forEach((category: any) => {
+        // Si la categoría tiene hijos (subcategorías), agregarlos
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            subcategories.push({
+              id: subcategory.id,
+              name: subcategory.name,
+              category_name: category.name // Opcional: incluir el nombre de la categoría padre
+            });
+          });
+        }
+      });
+
+      return subcategories;
+    }
+
+    // Si extraData tiene una estructura directa con hijos
+    if (extraData?.hijos && Array.isArray(extraData.hijos)) {
+      return extraData.hijos.map((subcategory: any) => ({
+        id: subcategory.id,
+        name: subcategory.name
+      }));
+    }
+
+    // Fallback: devolver array vacío si no hay datos
+    return [];
+  };
+
+
 
   const getAsignarOptions = () => [
-    { id: 'S', name: 'Sí' },
-    { id: 'N', name: 'No' },
+    { id: 'T', name: 'Todas las unidades' },
+    { id: 'O', name: 'Unidades ocupadas' },
+    { id: 'L', name: 'Unidades libres' },
+    { id: 'S', name: 'Seleccionar Unidades' },
+
   ];
 
   const getAmountTypeOptions = () => [
     { id: 'F', name: 'Fijo' },
     { id: 'V', name: 'Variable' },
     { id: 'P', name: 'Porcentual' },
+    { id: 'M', name: 'Por m²' },
+    { id: 'A', name: 'Promedio' },
   ];
 
-  const getIsAdvanceOptions = () => [
-    { id: 'Y', name: 'Sí' },
-    { id: 'N', name: 'No' },
-  ];
+
 
   useEffect(() => {
     const lista: any = [];
@@ -219,17 +259,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
 
         {/* Segunda fila - Tipo y Subcategoría */}
         <div className={styles.formRow}>
-          <div className={styles.formField}>
-            <Select
-              label="Tipo"
-              name="type"
-              value={formState.type}
-              options={getTypeOptions()}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
+
           <div className={styles.formField}>
             <Select
               label="Subcategoría"
@@ -244,7 +274,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
-        {/* Tercera fila - Asignar y Departamento */}
+        {/* Tercera fila - Asignar y Departamento (condicional) */}
         <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
@@ -257,20 +287,24 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div className={styles.formField}>
-            <Select
-              label="Departamento"
-              name="dpto_id"
-              value={formState.dpto_id}
-              options={ldpto}
-              optionLabel="label"
-              optionValue="id"
-              onChange={handleChange}
-              error={errors}
-              required
-              placeholder="Seleccionar departamento"
-            />
-          </div>
+          {/* Campo de departamentos solo aparece cuando asignar es 'S' */}
+          {formState.asignar === 'S' && (
+            <div className={styles.formField}>
+              <Select
+                label="Departamentos"
+                name="dpto_id"
+                value={formState.dpto_id}
+                options={ldpto}
+                optionLabel="label"
+                optionValue="id"
+                onChange={handleChange}
+                error={errors}
+                required
+                placeholder="Seleccionar departamentos"
+                multiSelect={true} // Activar multiselect
+              />
+            </div>
+          )}
         </div>
 
         {/* Cuarta fila - Tipo de monto y Monto */}
@@ -301,6 +335,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
+        {/* Resto del formulario permanece igual */}
         {/* Sección de configuración avanzada centrada */}
         <div className={styles.advancedSectionCentered}>
           {/* Checkbox de configuración avanzada centrado */}

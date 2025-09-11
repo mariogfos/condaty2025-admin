@@ -23,6 +23,8 @@ import styles from './DebtsManager.module.css';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import DebtsManagerDetail from './ExpensesDetails/DebtsManagerDetailView';
 
+import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+
 const DebtsManager = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
@@ -65,47 +67,46 @@ const DebtsManager = () => {
   };
 
   const renderStatusCell = ({ item }: { item: any }) => {
+    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+      A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Por cobrar
+      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' }, // Cobrado
+      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' }, // Por confirmar
+      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
+      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
+      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Cancelada
+      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // Anulada
+    };
+
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Activa',
-        'P': 'Pagada',
+        'A': 'Por cobrar',
+        'P': 'Cobrado',
+        'S': 'Por confirmar',
+        'M': 'En mora',
         'C': 'Cancelada',
         'X': 'Anulada'
       };
       return statusMap[status] || status;
     };
 
-    const getStatusColor = (status: string) => {
-      const colorMap: { [key: string]: string } = {
-        'A': 'var(--cWarning)',
-        'P': 'var(--cSuccess)',
-        'C': 'var(--cInfo)',
-        'X': 'var(--cError)'
-      };
-      return colorMap[status] || 'var(--cWhiteV1)';
-    };
+    const statusText = getStatusText(item?.status);
+    const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
 
     return (
-      <div style={{ color: getStatusColor(item?.status) }}>
-        {getStatusText(item?.status)}
-      </div>
+      <StatusBadge
+        color={color}
+        backgroundColor={bgColor}
+      >
+        {statusText}
+      </StatusBadge>
     );
   };
 
-  const renderTypeCell = ({ item }: { item: any }) => {
-    const getTypeName = (type: number) => {
-      const types: { [key: number]: string } = {
-        1: 'Cuota ordinaria',
-        2: 'Cuota extraordinaria',
-        3: 'Multa',
-        4: 'Otros'
-      };
-      return types[type] || `Tipo ${type}`;
-    };
-
+  const renderSubcategoryCell = ({ item }: { item: any }) => {
     return (
       <div>
-        {getTypeName(item?.type)}
+        {item?.subcategory?.name}
       </div>
     );
   };
@@ -160,28 +161,26 @@ const DebtsManager = () => {
     fullType: 'L',
     page: 1,
     perPage: 20,
+    type: 4,
   };
 
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: 'e' },
-      period: {
+      begin_at: {
         rules: [''],
         api: '',
-        label: 'Período',
+        label: 'Fecha',
         list: {
-
-          onRender: renderPeriodCell,
           order: 1,
         },
       },
-      type: {
+      subcategory: {
         rules: [''],
         api: '',
-        label: 'Tipo',
+        label: 'Categoría',
         list: {
-
-          onRender: renderTypeCell,
+          onRender: renderSubcategoryCell,
           order: 2,
         },
       },
@@ -189,12 +188,9 @@ const DebtsManager = () => {
         rules: [''],
         api: '',
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto (Bs)
-          </label>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto (Bs)</label>
         ),
         list: {
-
           onRender: renderAmountCell,
           order: 3,
         },
@@ -204,7 +200,6 @@ const DebtsManager = () => {
         api: '',
         label: 'Fecha vencimiento',
         list: {
-
           onRender: renderDueDateCell,
           order: 4,
         },
@@ -214,7 +209,6 @@ const DebtsManager = () => {
         api: '',
         label: 'Interés',
         list: {
-
           onRender: renderInterestCell,
           order: 5,
         },
@@ -224,7 +218,6 @@ const DebtsManager = () => {
         api: '',
         label: 'Estado',
         list: {
-
           onRender: renderStatusCell,
           order: 6,
         },
@@ -237,7 +230,6 @@ const DebtsManager = () => {
         list: {
           onRender: renderShowCell,
           order: 7,
-
         },
       },
       // Campos para filtros - NO aparecen en la lista
@@ -276,14 +268,7 @@ const DebtsManager = () => {
             })),
         },
       },
-      // Campos del formulario - NO aparecen en la lista
-      begin_at: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha de inicio',
-        form: { type: 'date' },
-        list: false,
-      },
+
       subcategory_id: {
         rules: ['required'],
         api: 'ae',
@@ -396,7 +381,7 @@ const DebtsManager = () => {
     filter: true,
     permiso: 'expense',
     extraData: true,
-    search: { hide: true },
+
     hideActions: {
       view: true,
       edit: true,
@@ -462,7 +447,7 @@ const DebtsManager = () => {
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Activa',
+        'A': 'Por cobrar',
         'P': 'Pagada',
         'C': 'Cancelada',
         'X': 'Anulada'
