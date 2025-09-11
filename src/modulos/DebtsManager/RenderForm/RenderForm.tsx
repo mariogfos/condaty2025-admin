@@ -10,6 +10,7 @@ import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
 import { UnitsType } from '@/mk/utils/utils';
+import styles from './RenderForm.module.css';
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -139,10 +140,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   ];
 
   const getTypeOptions = () => [
-    { id: 1, name: 'Tipo 1' },
-    { id: 2, name: 'Tipo 2' },
-    { id: 3, name: 'Tipo 3' },
-    { id: 4, name: 'Tipo 4' },
+    { id: 1, name: 'Cuota ordinaria' },
+    { id: 2, name: 'Cuota extraordinaria' },
+    { id: 3, name: 'Multa' },
+    { id: 4, name: 'Otros' },
   ];
 
   const getAsignarOptions = () => [
@@ -184,24 +185,15 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     <DataModal
       open={open}
       onClose={onClose}
-      title="Crear deuda"
+      title={formState.id ? "Editar deuda" : "Crear deuda"}
       onSave={onSave}
       buttonText="Guardar"
       buttonCancel="Cancelar"
     >
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '100%'
-      }}>
+      <div className={styles.formContainer}>
         {/* Primera fila - Fechas */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          width: '100%'
-        }}>
-          <div style={{ flex: 1 }}>
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
             <Input
               label="Fecha de inicio"
               name="begin_at"
@@ -212,7 +204,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className={styles.formField}>
             <Input
               label="Fecha de vencimiento"
               name="due_at"
@@ -226,12 +218,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         </div>
 
         {/* Segunda fila - Tipo y Subcategoría */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          width: '100%'
-        }}>
-          <div style={{ flex: 1 }}>
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
             <Select
               label="Tipo"
               name="type"
@@ -242,7 +230,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className={styles.formField}>
             <Select
               label="Subcategoría"
               name="subcategory_id"
@@ -257,12 +245,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         </div>
 
         {/* Tercera fila - Asignar y Departamento */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          width: '100%'
-        }}>
-          <div style={{ flex: 1 }}>
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
             <Select
               label="Asignar"
               name="asignar"
@@ -273,7 +257,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className={styles.formField}>
             <Select
               label="Departamento"
               name="dpto_id"
@@ -290,12 +274,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         </div>
 
         {/* Cuarta fila - Tipo de monto y Monto */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          width: '100%'
-        }}>
-          <div style={{ flex: 1 }}>
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
             <Select
               label="Tipo de monto"
               name="amount_type"
@@ -306,7 +286,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               required
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className={styles.formField}>
             <Input
               label="Monto (Bs)"
               name="amount"
@@ -321,21 +301,10 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
-        {/* Quinta fila - Es anticipo y Configuración avanzada */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          width: '100%',
-          alignItems: 'center'
-        }}>
-        
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px'
-          }}>
+        {/* Sección de configuración avanzada centrada */}
+        <div className={styles.advancedSectionCentered}>
+          {/* Checkbox de configuración avanzada centrado */}
+          <div className={styles.advancedToggleCentered}>
             <Check
               label="Configuración avanzada"
               name="show_advanced"
@@ -344,77 +313,93 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               onChange={handleChange}
               error={errors}
             />
+            <p className={styles.advancedDescriptionCentered}>
+              Activa opciones adicionales para configurar parámetros específicos de la deuda
+            </p>
           </div>
+
+          {/* Opciones avanzadas centradas */}
+          {formState.show_advanced && (
+            <div className={styles.advancedOptionsCentered}>
+              {/* Campo de interés centrado */}
+              <div className={styles.interestFieldCentered}>
+                <Input
+                  label="Interés (%)"
+                  name="interest"
+                  value={formState.interest}
+                  onChange={handleChange}
+                  type="number"
+                  min="0"
+                  max="100"
+                  error={errors}
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Checkboxes organizados en cuadrícula 2x2 centrados */}
+              <div className={styles.checkboxGridCentered}>
+                <div className={styles.checkboxItemCentered}>
+                  <Check
+                    label="Tiene Mantenimiento de Valor"
+                    name="has_mv"
+                    value={formState.has_mv ? 'Y' : 'N'}
+                    checked={formState.has_mv}
+                    onChange={handleChange}
+                    error={errors}
+                  />
+                  <p className={styles.checkboxDescriptionCentered}>
+                    Mantenimiento de Valor: Ajusta el monto de la deuda según la inflación o índices económicos
+                  </p>
+                </div>
+
+                <div className={styles.checkboxItemCentered}>
+                  <Check
+                    label="Es perdonable"
+                    name="is_forgivable"
+                    value={formState.is_forgivable ? 'Y' : 'N'}
+                    checked={formState.is_forgivable}
+                    onChange={handleChange}
+                    error={errors}
+                  />
+                  <p className={styles.checkboxDescriptionCentered}>
+                    La deuda puede ser condonada o perdonada por la administración
+                  </p>
+                </div>
+
+                <div className={styles.checkboxItemCentered}>
+                  <Check
+                    label="Tiene Plan de Pago"
+                    name="has_pp"
+                    value={formState.has_pp ? 'Y' : 'N'}
+                    checked={formState.has_pp}
+                    onChange={handleChange}
+                    error={errors}
+                  />
+                  <p className={styles.checkboxDescriptionCentered}>
+                    Permite establecer un plan de pagos fraccionados para esta deuda
+                  </p>
+                </div>
+
+                <div className={styles.checkboxItemCentered}>
+                  <Check
+                    label="Es bloqueante"
+                    name="is_blocking"
+                    value={formState.is_blocking ? 'Y' : 'N'}
+                    checked={formState.is_blocking}
+                    onChange={handleChange}
+                    error={errors}
+                  />
+                  <p className={styles.checkboxDescriptionCentered}>
+                    Bloquea servicios o accesos hasta que la deuda sea cancelada
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Configuración avanzada - Solo se muestra si show_advanced está activado */}
-        {formState.show_advanced && (
-          <>
-            {/* Campo de interés */}
-            <div style={{ width: '100%' }}>
-              <Input
-                label="Interés (%)"
-                name="interest"
-                value={formState.interest}
-                onChange={handleChange}
-                type="number"
-                min="0"
-                max="100"
-
-                error={errors}
-                placeholder="0.00"
-              />
-            </div>
-
-            {/* Checkboxes avanzados */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px',
-              width: '100%',
-              padding: '16px',
-              border: '1px solid var(--cWhiteV3)',
-              borderRadius: 'var(--bRadiusS)',
-              backgroundColor: 'var(--cBlackV2)'
-            }}>
-              <Check
-                label="Tiene MV"
-                name="has_mv"
-                value={formState.has_mv ? 'Y' : 'N'}
-                checked={formState.has_mv}
-                onChange={handleChange}
-                error={errors}
-              />
-              <Check
-                label="Es perdonable"
-                name="is_forgivable"
-                value={formState.is_forgivable ? 'Y' : 'N'}
-                checked={formState.is_forgivable}
-                onChange={handleChange}
-                error={errors}
-              />
-              <Check
-                label="Tiene PP"
-                name="has_pp"
-                value={formState.has_pp ? 'Y' : 'N'}
-                checked={formState.has_pp}
-                onChange={handleChange}
-                error={errors}
-              />
-              <Check
-                label="Es bloqueante"
-                name="is_blocking"
-                value={formState.is_blocking ? 'Y' : 'N'}
-                checked={formState.is_blocking}
-                onChange={handleChange}
-                error={errors}
-              />
-            </div>
-          </>
-        )}
-
         {/* Campo de descripción */}
-        <div style={{ width: '100%' }}>
+        <div className={styles.descriptionField}>
           <TextArea
             label="Descripción"
             name="description"
@@ -423,7 +408,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
             maxLength={500}
             required={false}
             error={errors}
-            placeholder="Descripción de la deuda..."
+            placeholder="Descripción adicional de la deuda (opcional)..."
           />
         </div>
       </div>

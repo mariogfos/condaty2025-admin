@@ -23,141 +23,12 @@ import styles from './DebtsManager.module.css';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import DebtsManagerDetail from './ExpensesDetails/DebtsManagerDetailView';
 
-const mockData = {
-  data: [
-    {
-      id: 1,
-      month: 3, // Marzo
-      year: 2025,
-      unitsUpToDate: 2,
-      unitsToPay: 1,
-      totalDebt: 4300.00,
-      totalCollected: 0.00,
-      totalPenalty: 350000.00,
-      totalToPay: 1500.00,
-      asignados: [],
-      created_at: '2025-01-15T10:30:00Z',
-      updated_at: '2025-01-15T10:30:00Z',
-      status: 'Activa',
-      // Campos adicionales para el RenderView
-      begin_at: '2025-03-01',
-      due_at: '2025-03-31',
-      type: 4,
-      description: 'Deuda de servicios básicos del mes de marzo',
-      subcategory_id: 7,
-      asignar: 'S',
-      dpto_id: 1,
-      amount_type: 'F',
-      amount: 4300.00,
-      is_advance: 'Y',
-      interest: 0,
-      has_mv: 'N',
-      is_forgivable: 'N',
-      has_pp: 'Y',
-      is_blocking: 'N'
-    },
-    {
-      id: 2,
-      month: 2, // Febrero
-      year: 2025,
-      unitsUpToDate: 3,
-      unitsToPay: 0,
-      totalDebt: 3200.00,
-      totalCollected: 3200.00,
-      totalPenalty: 0.00,
-      totalToPay: 0.00,
-      asignados: [],
-      created_at: '2025-01-10T08:15:00Z',
-      updated_at: '2025-01-10T08:15:00Z',
-      status: 'Completada',
-      // Campos adicionales para el RenderView
-      begin_at: '2025-02-01',
-      due_at: '2025-02-28',
-      type: 4,
-      description: 'Deuda de servicios básicos del mes de febrero',
-      subcategory_id: 7,
-      asignar: 'S',
-      dpto_id: 1,
-      amount_type: 'F',
-      amount: 3200.00,
-      is_advance: 'Y',
-      interest: 0,
-      has_mv: 'N',
-      is_forgivable: 'N',
-      has_pp: 'Y',
-      is_blocking: 'N'
-    },
-    {
-      id: 3,
-      month: 1, // Enero
-      year: 2025,
-      unitsUpToDate: 2,
-      unitsToPay: 1,
-      totalDebt: 5100.00,
-      totalCollected: 3400.00,
-      totalPenalty: 200.00,
-      totalToPay: 1900.00,
-      asignados: [],
-      created_at: '2025-01-05T14:20:00Z',
-      updated_at: '2025-01-05T14:20:00Z',
-      status: 'Activa',
-      // Campos adicionales para el RenderView
-      begin_at: '2025-01-01',
-      due_at: '2025-01-31',
-      type: 4,
-      description: 'Deuda de servicios básicos del mes de enero',
-      subcategory_id: 7,
-      asignar: 'S',
-      dpto_id: 1,
-      amount_type: 'F',
-      amount: 5100.00,
-      is_advance: 'Y',
-      interest: 0,
-      has_mv: 'N',
-      is_forgivable: 'N',
-      has_pp: 'Y',
-      is_blocking: 'N'
-    }
-  ],
-  total: 3,
-  message: { total: 3 }
-};
-
-// Mock data para extraData
-const mockExtraData = {
-  dptos: [
-    {
-      id: 1,
-      nro: '101',
-      description: 'Departamento A',
-      titular: {
-        name: 'Juan',
-        last_name: 'Pérez',
-        middle_name: 'Carlos'
-      }
-    },
-    {
-      id: 2,
-      nro: '102',
-      description: 'Departamento B',
-      titular: {
-        name: 'María',
-        last_name: 'González',
-        middle_name: 'Elena'
-      }
-    }
-  ]
-};
-
 const DebtsManager = () => {
   const [openDetail, setOpenDetail]: any = useState(false);
   const [detailItem, setDetailItem]: any = useState({});
   const [openView, setOpenView] = useState(false);
   const [viewItem, setViewItem] = useState({});
   const { setStore: setAuthStore, store } = useAuth();
-
-  // Estado para datos mockeados
-  const [mockDataState, setMockDataState] = useState(mockData);
 
   useEffect(() => {
     setStore({ ...store, title: 'Gestor de Deudas' });
@@ -175,38 +46,74 @@ const DebtsManager = () => {
     );
   };
 
-  const renderTotalDebtCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={item?.totalDebt || 0} alignRight />
+  const renderAmountCell = ({ item }: { item: any }) => (
+    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  const renderUnitsUpToDateCell = ({ item }: { item: any }) => (
-    <div className={styles.UnitsCell}>{item?.unitsUpToDate || 0}</div>
-  );
+  const renderDueDateCell = ({ item }: { item: any }) => {
+    if (!item?.due_at) return <div>-</div>;
+    const date = new Date(item.due_at);
+    return (
+      <div>
+        {date.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        })}
+      </div>
+    );
+  };
 
-  const renderUnitsToPayCell = ({ item }: { item: any }) => (
-    <div
-      className={styles.UnitsCell}
-      style={{
-        color: (item?.unitsToPay || 0) > 0 ? 'var(--cError)' : 'var(--cWhiteV1)',
-      }}
-    >
-      {item?.unitsToPay || 0}
+  const renderStatusCell = ({ item }: { item: any }) => {
+    const getStatusText = (status: string) => {
+      const statusMap: { [key: string]: string } = {
+        'A': 'Activa',
+        'P': 'Pagada',
+        'C': 'Cancelada',
+        'X': 'Anulada'
+      };
+      return statusMap[status] || status;
+    };
+
+    const getStatusColor = (status: string) => {
+      const colorMap: { [key: string]: string } = {
+        'A': 'var(--cWarning)',
+        'P': 'var(--cSuccess)',
+        'C': 'var(--cInfo)',
+        'X': 'var(--cError)'
+      };
+      return colorMap[status] || 'var(--cWhiteV1)';
+    };
+
+    return (
+      <div style={{ color: getStatusColor(item?.status) }}>
+        {getStatusText(item?.status)}
+      </div>
+    );
+  };
+
+  const renderTypeCell = ({ item }: { item: any }) => {
+    const getTypeName = (type: number) => {
+      const types: { [key: number]: string } = {
+        1: 'Cuota ordinaria',
+        2: 'Cuota extraordinaria',
+        3: 'Multa',
+        4: 'Otros'
+      };
+      return types[type] || `Tipo ${type}`;
+    };
+
+    return (
+      <div>
+        {getTypeName(item?.type)}
+      </div>
+    );
+  };
+
+  const renderInterestCell = ({ item }: { item: any }) => (
+    <div>
+      {parseFloat(item?.interest) || 0}%
     </div>
-  );
-
-  const renderTotalCollectedCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={item?.totalCollected || 0} alignRight />
-  );
-
-  const renderTotalPenaltyCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={item?.totalPenalty || 0} alignRight />
-  );
-
-  const renderTotalToPayCell = ({ item }: { item: any }) => (
-    <FormatBsAlign
-      value={item?.totalToPay || 0}
-      alignRight
-    />
   );
 
   const renderShowCell = ({ item }: { item: any }) => (
@@ -261,69 +168,65 @@ const DebtsManager = () => {
       period: {
         rules: [''],
         api: '',
-        label: 'Fecha',
+        label: 'Período',
         list: {
-          width: '150px',
+
           onRender: renderPeriodCell,
           order: 1,
         },
       },
-      unitsUpToDate: {
+      type: {
         rules: [''],
         api: '',
-        label: <span className={styles.SpanLabel}>Unidades al día</span>,
+        label: 'Tipo',
         list: {
-          onRender: renderUnitsUpToDateCell,
+
+          onRender: renderTypeCell,
           order: 2,
         },
       },
-      unitsToPay: {
-        rules: [''],
-        api: '',
-        label: <span className={styles.SpanLabel}>Unidades por pagar</span>,
-        list: {
-          onRender: renderUnitsToPayCell,
-          order: 3,
-        },
-      },
-      totalDebt: {
+      amount: {
         rules: [''],
         api: '',
         label: (
           <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Monto total de deuda
+            Monto (Bs)
           </label>
         ),
         list: {
-          onRender: renderTotalDebtCell,
+
+          onRender: renderAmountCell,
+          order: 3,
+        },
+      },
+      due_at: {
+        rules: [''],
+        api: '',
+        label: 'Fecha vencimiento',
+        list: {
+
+          onRender: renderDueDateCell,
           order: 4,
         },
       },
-      totalCollected: {
+      interest: {
         rules: [''],
         api: '',
-        label: <label className={styles.SpanLabel}>Total cobrado</label>,
+        label: 'Interés',
         list: {
-          onRender: renderTotalCollectedCell,
+
+          onRender: renderInterestCell,
           order: 5,
         },
       },
-      totalPenalty: {
+      status: {
         rules: [''],
         api: '',
-        label: <label className={styles.SpanLabel}>Total de mora</label>,
+        label: 'Estado',
         list: {
-          onRender: renderTotalPenaltyCell,
+
+          onRender: renderStatusCell,
           order: 6,
-        },
-      },
-      totalToPay: {
-        rules: [''],
-        api: '',
-        label: <label className={styles.SpanLabel}>Total a cobrar</label>,
-        list: {
-          onRender: renderTotalToPayCell,
-          order: 7,
         },
       },
       show: {
@@ -333,15 +236,17 @@ const DebtsManager = () => {
         form: false,
         list: {
           onRender: renderShowCell,
-          order: 8,
-          width: '120px',
+          order: 7,
+
         },
       },
+      // Campos para filtros - NO aparecen en la lista
       year: {
         rules: ['required'],
         api: 'ae',
         label: 'Año',
         form: { type: 'text' },
+        list: false,
         filter: {
           label: 'Año',
           width: '100%',
@@ -360,6 +265,7 @@ const DebtsManager = () => {
             name: month,
           })),
         },
+        list: false,
         filter: {
           label: 'Meses',
           width: '100%',
@@ -370,14 +276,114 @@ const DebtsManager = () => {
             })),
         },
       },
-      category_id: {
+      // Campos del formulario - NO aparecen en la lista
+      begin_at: {
         rules: ['required'],
         api: 'ae',
-        label: 'Categoría',
+        label: 'Fecha de inicio',
+        form: { type: 'date' },
+        list: false,
+      },
+      subcategory_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Subcategoría',
         form: {
           type: 'select',
-          options: [{ id: 1, name: 'Gestión de Deudas' }],
+          options: [
+            { id: 1, name: 'Agua' },
+            { id: 2, name: 'Electricidad' },
+            { id: 3, name: 'Gas' },
+            { id: 4, name: 'Internet' },
+            { id: 5, name: 'Teléfono' },
+            { id: 6, name: 'Limpieza' },
+            { id: 7, name: 'Jardinería' },
+          ],
         },
+        list: false,
+      },
+      amount_type: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Tipo de monto',
+        form: {
+          type: 'select',
+          options: [
+            { id: 'F', name: 'Fijo' },
+            { id: 'V', name: 'Variable' },
+            { id: 'P', name: 'Porcentual' },
+          ],
+        },
+        list: false,
+      },
+      description: {
+        rules: [],
+        api: 'ae',
+        label: 'Descripción',
+        form: { type: 'textarea' },
+        list: false,
+      },
+      // Campos adicionales del formulario que no aparecen en la lista
+      asignar: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Asignar',
+        form: {
+          type: 'select',
+          options: [
+            { id: 'S', name: 'Sí' },
+            { id: 'N', name: 'No' },
+          ],
+        },
+        list: false,
+      },
+      dpto_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Departamento',
+        form: { type: 'select' },
+        list: false,
+      },
+      is_advance: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Es anticipo',
+        form: {
+          type: 'select',
+          options: [
+            { id: 'Y', name: 'Sí' },
+            { id: 'N', name: 'No' },
+          ],
+        },
+        list: false,
+      },
+      has_mv: {
+        rules: [],
+        api: 'ae',
+        label: 'Tiene MV',
+        form: { type: 'checkbox' },
+        list: false,
+      },
+      is_forgivable: {
+        rules: [],
+        api: 'ae',
+        label: 'Es perdonable',
+        form: { type: 'checkbox' },
+        list: false,
+      },
+      has_pp: {
+        rules: [],
+        api: 'ae',
+        label: 'Tiene PP',
+        form: { type: 'checkbox' },
+        list: false,
+      },
+      is_blocking: {
+        rules: [],
+        api: 'ae',
+        label: 'Es bloqueante',
+        form: { type: 'checkbox' },
+        list: false,
       },
     };
   }, []);
@@ -398,8 +404,8 @@ const DebtsManager = () => {
     },
     onHideActions: (item: any) => {
       return {
-        hideEdit: (item?.unitsUpToDate || 0) > 0,
-        hideDel: (item?.unitsUpToDate || 0) > 0,
+        hideEdit: item?.status === 'P' || item?.status === 'X', // No editar si está pagada o anulada
+        hideDel: item?.status === 'P' || item?.status === 'X',  // No eliminar si está pagada o anulada
       };
     },
     renderForm: (props: {
@@ -437,13 +443,10 @@ const DebtsManager = () => {
     },
   };
 
-  // Modificamos useCrud para usar datos mockeados
+  // Usamos useCrud normal sin datos mockeados
   const { userCan, List, setStore, onEdit, onDel } = useCrud({
     paramsInitial,
-    mod: {
-      ...mod,
-      noWaiting: true, // Evita llamadas al backend
-    },
+    mod,
     fields,
   });
 
@@ -457,11 +460,21 @@ const DebtsManager = () => {
   });
 
   const renderItem = (item: Record<string, any>) => {
+    const getStatusText = (status: string) => {
+      const statusMap: { [key: string]: string } = {
+        'A': 'Activa',
+        'P': 'Pagada',
+        'C': 'Cancelada',
+        'X': 'Anulada'
+      };
+      return statusMap[status] || status;
+    };
+
     return (
       <RenderItem item={item} onClick={onClickDetail} onLongPress={onLongPress}>
         <ItemList
-          title={`${MONTHS[item?.month]} ${item?.year}`}
-          subtitle={`Total a cobrar: Bs ${item?.totalToPay?.toFixed(2)}`}
+          title={`${MONTHS[item?.month]} ${item?.year} - ${getStatusText(item?.status)}`}
+          subtitle={`Monto: Bs ${parseFloat(item?.amount || 0).toFixed(2)} - Vence: ${item?.due_at ? new Date(item.due_at).toLocaleDateString('es-ES') : 'Sin fecha'}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />
@@ -497,8 +510,6 @@ const DebtsManager = () => {
           emptyLine2="de los residentes las verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
           filterBreakPoint={800}
-          // Pasamos los datos mockeados directamente
-          mockData={mockDataState}
         />
 
         {/* Modal de vista de detalle */}
@@ -506,7 +517,7 @@ const DebtsManager = () => {
           open={openView}
           onClose={() => setOpenView(false)}
           item={viewItem}
-          extraData={mockExtraData}
+          extraData={{}}
           user={store?.user}
           onEdit={(item) => {
             setViewItem(item);
