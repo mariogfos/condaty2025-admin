@@ -124,7 +124,7 @@ const Layout = ({ children }: any) => {
         showToast("¡Se registró una nueva alerta!", "warning");
       }
       if (e.event == "newContent") {
-        showToast("¡Revisa tu muro, tenemos nuevos comunicados!", "info");
+        showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
       }
 
       if (
