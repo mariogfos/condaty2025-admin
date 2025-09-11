@@ -37,16 +37,6 @@ const DebtsManager = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderPeriodCell = (props: any) => {
-    const month = props?.item?.month;
-    const year = props?.item?.year;
-    const monthName = MONTHS[month] || '';
-    return (
-      <div>
-        {monthName} {year}
-      </div>
-    );
-  };
 
   const renderAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
