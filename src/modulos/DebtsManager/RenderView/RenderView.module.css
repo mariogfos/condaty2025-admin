@@ -1,0 +1,199 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+}
+
+.headerActionContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 0 16px 16px 16px;
+  border-bottom: 1px solid var(--cWhiteV3);
+}
+
+.textButtonEdit {
+  background: none;
+  border: none;
+  color: var(--cAccent);
+  cursor: pointer;
+  font-size: var(--sS);
+  font-weight: var(--bMedium);
+  padding: 8px 12px;
+  border-radius: var(--bRadiusS);
+  transition: all 0.3s ease;
+}
+
+.textButtonEdit:hover {
+  background-color: var(--cAccent);
+  color: var(--cWhite);
+}
+
+.textButtonDanger {
+  background: none;
+  border: none;
+  color: var(--cError);
+  cursor: pointer;
+  font-size: var(--sS);
+  font-weight: var(--bMedium);
+  padding: 8px 12px;
+  border-radius: var(--bRadiusS);
+  transition: all 0.3s ease;
+}
+
+.textButtonDanger:hover {
+  background-color: var(--cError);
+  color: var(--cWhite);
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--cBlackV2), var(--cBlackV3));
+  border-radius: var(--bRadiusM);
+  border: 1px solid var(--cWhiteV3);
+}
+
+.amountDisplay {
+  font-size: 2.5rem;
+  font-weight: var(--bBold);
+  color: var(--cAccent);
+  text-align: center;
+}
+
+.dateDisplay {
+  font-size: var(--sM);
+  color: var(--cWhiteV2);
+  text-align: center;
+}
+
+.sectionDivider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cWhiteV3), transparent);
+  margin: 16px 0;
+}
+
+.detailsSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: var(--sS);
+  color: var(--cWhiteV2);
+  font-weight: var(--bMedium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+  font-weight: var(--bRegular);
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionTitle {
+  grid-column: 1 / -1;
+  font-size: var(--sL);
+  font-weight: var(--bSemiBold);
+  color: var(--cAccent);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cWhiteV3);
+}
+
+.advancedOptionsGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  background: var(--cBlackV2);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV3);
+}
+
+.descriptionSection {
+  width: 100%;
+}
+
+.statusActive {
+  color: var(--cSuccess) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.statusCompleted {
+  color: var(--cInfo) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.statusCancelled {
+  color: var(--cError) !important;
+  font-weight: var(--bSemiBold) !important;
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+}
+
+.messageText {
+  font-size: var(--sL);
+  color: var(--cWhiteV1);
+  font-weight: var(--bMedium);
+}
+
+.messageSuggestion {
+  font-size: var(--sM);
+  color: var(--cWhiteV2);
+  font-weight: var(--bRegular);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detailsSection {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .advancedOptionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .amountDisplay {
+    font-size: 2rem;
+  }
+
+  .headerActionContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

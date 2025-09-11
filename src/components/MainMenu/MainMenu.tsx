@@ -102,26 +102,22 @@ const MainMenu = ({
       </div>
       {!isMobile ? (
         <div>
-          <MainmenuItem
-            href="/"
-            label="Inicio"
-            icon={<IconHome />}
-            collapsed={collapsed}
-          />
+          <MainmenuItem href="/" label="Inicio" icon={<IconHome />} collapsed={collapsed} />
           <MainmenuDropdown
             label="Finanzas"
             icon={<IconPayments />}
             items={[
-              { href: "/balance", label: "Flujo de efectivo " },
+              { href: '/balance', label: 'Flujo de efectivo ' },
               {
-                href: "/payments",
-                label: "Ingresos",
+                href: '/payments',
+                label: 'Ingresos',
                 bage: store?.paymentsBage,
               },
-              { href: "/outlays", label: "Egresos" },
-              { href: "/budget", label: "Presupuestos" },
-              { href: "/expenses", label: "Expensas" },
-              { href: "/defaulters", label: "Morosos" },
+              { href: '/outlays', label: 'Egresos' },
+              { href: '/budget', label: 'Presupuestos' },
+              { href: '/expenses', label: 'Expensas' },
+              { href: '/defaulters', label: 'Morosos' },
+              { href: '/debts_manager', label: 'Deudas' },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -131,11 +127,11 @@ const MainMenu = ({
             icon={<IconMonitorLine />}
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
-              { href: "/units", label: "Unidades" },
-              { href: "/areas" , label: "Áreas sociales"},
-              { href: "/activities", label: "Accesos" },
-              { href: "/documents", label: "Documentos" },
-              { href: "/configs", label: "Configuración" },
+              { href: '/units', label: 'Unidades' },
+              { href: '/areas', label: 'Áreas sociales' },
+              { href: '/activities', label: 'Accesos' },
+              { href: '/documents', label: 'Documentos' },
+              { href: '/configs', label: 'Configuración' },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
@@ -144,9 +140,9 @@ const MainMenu = ({
             label="Usuarios"
             icon={<IconGroup />}
             items={[
-              { href: "/owners", label: "Residentes" },
-              { href: "/users", label: "Personal Administrativo" },
-              { href: "/roles", label: "Roles y permisos" },
+              { href: '/owners', label: 'Residentes' },
+              { href: '/users', label: 'Personal Administrativo' },
+              { href: '/roles', label: 'Roles y permisos' },
               // { href: "/rolescategories", label: "Permisos" },
               // { href: "/rolescategories", label: "Categorías de rol" },
               //{ href: "/homeowners", label: "Propietarios" },
@@ -159,8 +155,8 @@ const MainMenu = ({
             label="Comunicación"
             icon={<IconComunicationDialog />}
             items={[
-              { href: "/contents", label: "Publicaciones" },
-              { href: "/reels", label: "Muro publicaciones" },
+              { href: '/contents', label: 'Publicaciones' },
+              { href: '/reels', label: 'Muro publicaciones' },
               // { href: "/events", label: "Eventos" },
               // { href: "/surveys", label: "Encuestas" },
             ]}
@@ -194,9 +190,9 @@ const MainMenu = ({
             label="Vigilancia y seguridad"
             icon={<IconSecurity />}
             items={[
-              { href: "/guards", label: "Guardias" },
-              { href: "/alerts", label: "Alertas", bage: store?.alertsBage },
-              { href: "/binnacle", label: "Bitácora" },
+              { href: '/guards', label: 'Guardias' },
+              { href: '/alerts', label: 'Alertas', bage: store?.alertsBage },
+              { href: '/binnacle', label: 'Bitácora' },
               // { href: "/ev", label: "Soporte y ATC" },
             ]}
             collapsed={collapsed}
@@ -230,8 +226,8 @@ const MainMenu = ({
           href="#"
           onclick={() => setLogout(true)}
           label="Cerrar sesión"
-          labelColor={"var(--cError)"}
-          icon={<IconLogout color={"var(--cError)"} />}
+          labelColor={'var(--cError)'}
+          icon={<IconLogout color={'var(--cError)'} />}
           collapsed={collapsed}
         />
       </div>

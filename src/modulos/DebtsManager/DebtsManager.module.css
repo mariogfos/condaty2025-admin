@@ -1,0 +1,28 @@
+.UnitsCell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+.SpanLabel {
+  display: block;
+  text-align: right;
+  width: 100%;
+  font-weight: 500;
+}
+
+.DebtAmount {
+  font-weight: 600;
+}
+
+.PendingAmount {
+  color: var(--cError);
+  font-weight: 600;
+}
+
+.PaidAmount {
+  color: var(--cSuccess);
+  font-weight: 600;
+}
