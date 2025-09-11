@@ -121,6 +121,18 @@ const Toast = ({
             ¡Advertencia!
             </div>
           )}
+          {toast?.type === 'info' && (
+            <div
+              style={{
+                fontSize: 16,
+                color: 'var(--cWhite)',
+                fontFamily: 'Roboto, sans-serif',
+                fontWeight: 600,
+              }}
+            >
+            ¡Información!
+            </div>
+          )}
           <div>{toast?.msg}</div>
         </div>
         <div className={styles.close} onClick={() => _close()}>
