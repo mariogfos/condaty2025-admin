@@ -19,7 +19,7 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
 // Datos mockeados para el detalle
 const mockDetailData = {
