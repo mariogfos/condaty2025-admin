@@ -172,12 +172,12 @@ const RenderView: React.FC<RenderViewProps> = ({
             <Button
               onClick={() => onDel(item)}
               style={{
-                backgroundColor: 'transparent',
-                color: '#ef4444',
+                backgroundColor: 'var(--cBlackV2)',
+                color: 'var(--cWhite)',
                 flex: 1,
                 padding: '12px 24px',
                 borderRadius: '8px',
-                border: '1px solid #ef4444',
+                border: '1px solid var(--cWhiteV1)',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}
@@ -189,12 +189,12 @@ const RenderView: React.FC<RenderViewProps> = ({
             <Button
               onClick={() => onEdit(item)}
               style={{
-                backgroundColor: 'transparent',
-                color: '#6b7280',
+                backgroundColor: 'var(--cBlackV2)',
+                color: 'var(--cWhite)',
                 flex: 1,
                 padding: '12px 24px',
                 borderRadius: '8px',
-                border: '1px solid #6b7280',
+                border: '1px solid var(--cWhiteV1)',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}
@@ -210,7 +210,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             }}
             style={{
               backgroundColor: '#10b981',
-              color: 'white',
+              color: 'var(--cBlack)',
               flex: 1,
               padding: '12px 24px',
               borderRadius: '8px',
