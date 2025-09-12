@@ -9,13 +9,23 @@ interface StatusBadgeProps {
 export const StatusBadge = ({ children, backgroundColor, color }: StatusBadgeProps) => {
   return (
     <div
-      className={styles.statusBadge}
       style={{
-        backgroundColor: backgroundColor,
-        color: color,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
       }}
     >
-      {children}
+      <div
+        className={styles.statusBadge}
+        style={{
+          backgroundColor: backgroundColor,
+          color: color,
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 };
