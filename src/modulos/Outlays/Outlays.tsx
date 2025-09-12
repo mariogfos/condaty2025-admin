@@ -15,7 +15,7 @@ import RenderDel from "./RenderDel/RenderDel";
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import { getFullName } from "@/mk/utils/string";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
-import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import PerformBudget from "./PerformBudget/PerformBudget";
 
 const Outlays = () => {

@@ -123,6 +123,9 @@ const Layout = ({ children }: any) => {
       if (e.event =="alerts" && e.payload?.level >= 2) {
         showToast("¡Se registró una nueva alerta!", "warning");
       }
+      if (e.event == "newContent") {
+        showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
+      }
 
       if (
         e.event == "alerts" &&

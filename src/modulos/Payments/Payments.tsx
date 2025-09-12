@@ -10,7 +10,6 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import RenderDel from "./RenderDel/RenderDel";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
