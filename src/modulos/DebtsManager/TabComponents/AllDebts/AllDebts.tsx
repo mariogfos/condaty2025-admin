@@ -12,7 +12,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React from 'react';
-import RenderForm from '../IndividualDebts/RenderForm/RenderForm';
+
 
 
 interface AllDebtsProps {
@@ -400,9 +400,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-    renderForm: (props: any) => (
-      <RenderForm {...props} />
-    ),
+
   };
 
   const { userCan, List, onEdit, onDel, extraData } = useCrud({
