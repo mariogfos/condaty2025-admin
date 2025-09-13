@@ -146,7 +146,6 @@ const Expenses = () => {
     type: 1,
     page: 1,
     perPage: 20,
-    type: 1,
   };
 
   const fields = useMemo(() => {
