@@ -1,22 +1,24 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import useCrudUtils from '../../../shared/useCrudUtils'; // Corregido
+import useCrudUtils from '../../../shared/useCrudUtils';
 import { MONTHS } from '@/mk/utils/date';
-
+import RenderForm from './RenderForm/RenderForm';
+import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import RenderItem from '../../../shared/RenderItem'; // Corregido
+import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-import RenderForm from './RenderForm/RenderForm';
+import React from 'react';
 
 interface IndividualDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
   viewItem: any;
   setViewItem: (item: any) => void;
+  onExtraDataChange?: (extraData: any) => void;
 }
 
 const IndividualDebts: React.FC<IndividualDebtsProps> = ({
@@ -24,31 +26,53 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   setOpenView,
   viewItem,
   setViewItem,
+  onExtraDataChange,
 }) => {
   const { setStore, store } = useAuth();
 
-  // Reutilizar las mismas funciones render del componente AllDebts
-  const renderAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
+  // Renderizar columna Unidad
+  const renderUnitCell = ({ item }: { item: any }) => (
+    <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.due_at) return <div>-</div>;
-    const date = new Date(item.due_at);
-    return (
-      <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })}
-      </div>
-    );
+  // Renderizar columna Categoría
+  const renderCategoryCell = ({ item }: { item: any }) => (
+    <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
+  );
+
+  // Renderizar columna Subcategoría
+  const renderSubcategoryCell = ({ item }: { item: any }) => (
+    <div>{item?.debt?.subcategory?.name || '-'}</div>
+  );
+
+  // Renderizar columna Distribución
+  const renderDistributionCell = ({ item }: { item: any }) => {
+    switch (item?.debt?.amount_type) {
+      case "F": {
+        return <div>Fijo</div>;
+      }
+      case "V": {
+        return <div>Variable</div>;
+      }
+      case "P": {
+        return <div>Porcentual</div>;
+      }
+      case "M": {
+        return <div>Por m²</div>;
+      }
+      case "A": {
+        return <div>Promedio</div>;
+      }
+      default: {
+        return <div>-/-</div>;
+      }
+    }
   };
 
+  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
       P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
       S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
       R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
@@ -60,12 +84,12 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        A: 'Por cobrar',
-        P: 'Cobrado',
-        S: 'Por confirmar',
-        M: 'En mora',
-        C: 'Cancelada',
-        X: 'Anulada',
+        'A': 'Por cobrar',
+        'P': 'Cobrado',
+        'S': 'Por confirmar',
+        'M': 'En mora',
+        'C': 'Cancelada',
+        'X': 'Anulada'
       };
       return statusMap[status] || status;
     };
@@ -74,102 +98,148 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
 
     return (
-      <StatusBadge color={color} backgroundColor={bgColor}>
+      <StatusBadge
+        color={color}
+        backgroundColor={bgColor}
+      >
         {statusText}
       </StatusBadge>
     );
   };
 
-  const renderSubcategoryCell = ({ item }: { item: any }) => <div>{item?.subcategory?.name}</div>;
+  // Renderizar columna Vencimiento
+  const renderDueDateCell = ({ item }: { item: any }) => {
+    if (!item?.debt?.due_at) return <div>-</div>;
+    const date = new Date(item.debt.due_at);
+    return (
+      <div>
+        {date.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        })}
+      </div>
+    );
+  };
 
-  const renderInterestCell = ({ item }: { item: any }) => (
-    <div>{parseFloat(item?.interest) || 0}%</div>
+  // Renderizar columna Deuda
+  const renderDebtAmountCell = ({ item }: { item: any }) => (
+    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  const renderShowCell = ({ item }: { item: any }) => (
-    <button
-      onClick={e => {
-        e.stopPropagation();
-        setViewItem(item);
-        setOpenView(true);
-      }}
-      style={{
-        background: 'var(--cSuccess)',
-        color: 'var(--cWhite)',
-        border: 'none',
-        padding: '8px 16px',
-        borderRadius: 'var(--bRadiusS)',
-        cursor: 'pointer',
-        fontSize: 'var(--sS)',
-        fontWeight: 'var(--bMedium)',
-        transition: 'all 0.3s ease',
-      }}
-    >
-      Ver detalle
-    </button>
+  // Renderizar columna Multa
+  const renderPenaltyAmountCell = ({ item }: { item: any }) => (
+    <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
-  const getYearOptions = () => {
-    const lAnios: any = [{ id: 'ALL', name: 'Todos' }];
-    const lastYear = new Date().getFullYear();
-    for (let i = lastYear; i >= 2000; i--) {
-      lAnios.push({ id: i, name: i.toString() });
+  // Renderizar columna Saldo a cobrar
+  const renderBalanceDueCell = ({ item }: { item: any }) => {
+    const debtAmount = parseFloat(item?.amount) || 0;
+    const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
+    const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
+    const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
+    return <FormatBsAlign value={totalBalance} alignRight />;
+  };
+
+  // Opciones para filtros
+  const getStatusOptions = () => [
+    { id: 'ALL', name: 'Todos los estados' },
+    { id: 'A', name: 'Por cobrar' },
+    { id: 'P', name: 'Cobrado' },
+    { id: 'S', name: 'Por confirmar' },
+    { id: 'M', name: 'En mora' },
+    { id: 'C', name: 'Cancelada' },
+    { id: 'X', name: 'Anulada' }
+  ];
+
+  const getDistributionOptions = () => [
+    { id: 'ALL', name: 'Todas las distribuciones' },
+    { id: 'fixed_unit', name: 'Monto fijo por unidad' },
+    { id: 'fixed_group', name: 'Monto fijo grupal' },
+    { id: 'percentage', name: 'Porcentual' },
+    { id: 'variable', name: 'Variable' }
+  ];
+
+  const getCategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las categorías' },
+    { id: 'expense', name: 'Expensa' },
+    { id: 'reserve', name: 'Reserva' },
+    { id: 'other', name: 'Otro' }
+  ];
+
+  const getSubcategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las subcategorías' },
+    { id: 'water', name: 'Agua' },
+    { id: 'electricity', name: 'Electricidad' },
+    { id: 'gas', name: 'Gas' },
+    { id: 'internet', name: 'Internet' },
+    { id: 'cleaning', name: 'Limpieza' },
+    { id: 'maintenance', name: 'Mantenimiento' },
+    { id: 'security', name: 'Seguridad' }
+  ];
+
+  const getPeriodOptions = () => {
+    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
+    const currentYear = new Date().getFullYear();
+
+    // Generar periodos de los últimos 3 años
+    for (let year = currentYear; year >= currentYear - 2; year--) {
+      MONTHS.slice(1).forEach((month, index) => {
+        periods.push({
+          id: `${year}-${String(index + 1).padStart(2, '0')}`,
+          name: `${month} ${year}`
+        });
+      });
     }
-    return lAnios;
+
+    return periods;
   };
 
   const paramsInitial = {
     fullType: 'L',
     page: 1,
     perPage: 20,
-    type: '4',
+    type: '4', // Tipo para deudas individuales
   };
 
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: 'e' },
-      begin_at: {
+      unit: {
         rules: [''],
         api: '',
-        label: 'Fecha',
-        list: { order: 1 },
+        label: 'Unidad',
+        list: {
+          onRender: renderUnitCell,
+          order: 1,
+        },
       },
-      subcategory: {
+      category: {
         rules: [''],
         api: '',
         label: 'Categoría',
         list: {
-          onRender: renderSubcategoryCell,
+          onRender: renderCategoryCell,
           order: 2,
         },
       },
-      amount: {
+      subcategory: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto (Bs)</label>
-        ),
+        label: 'Subcategoría',
         list: {
-          onRender: renderAmountCell,
+          onRender: renderSubcategoryCell,
           order: 3,
         },
       },
-      due_at: {
+      distribution: {
         rules: [''],
         api: '',
-        label: 'Fecha vencimiento',
+        label: 'Distribución',
         list: {
-          onRender: renderDueDateCell,
+          onRender: renderDistributionCell,
           order: 4,
-        },
-      },
-      interest: {
-        rules: [''],
-        api: '',
-        label: 'Interés',
-        list: {
-          onRender: renderInterestCell,
-          order: 5,
         },
       },
       status: {
@@ -178,52 +248,120 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         label: 'Estado',
         list: {
           onRender: renderStatusCell,
+          order: 5,
+        },
+      },
+      due_at: {
+        rules: [''],
+        api: '',
+        label: 'Vencimiento',
+        list: {
+          onRender: renderDueDateCell,
           order: 6,
         },
       },
-      show: {
+      debt_amount: {
         rules: [''],
         api: '',
-        label: 'Detalle',
-        form: false,
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>
+        ),
         list: {
-          onRender: renderShowCell,
+          onRender: renderDebtAmountCell,
           order: 7,
         },
       },
-      year: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Año',
-        form: { type: 'text' },
-        list: false,
-        filter: {
-          label: 'Año',
-          width: '100%',
-          options: getYearOptions,
-          optionLabel: 'name',
+      penalty_amount: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>
+        ),
+        list: {
+          onRender: renderPenaltyAmountCell,
+          order: 8,
         },
       },
-      month: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Mes',
-        form: {
-          type: 'select',
-          options: MONTHS.map((month, index) => ({
-            id: index,
-            name: month,
-          })),
+      balance_due: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</label>
+        ),
+        list: {
+          onRender: renderBalanceDueCell,
+          order: 9,
         },
+      },
+      // FILTROS
+      status_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Estado',
+        form: { type: 'select' },
         list: false,
         filter: {
-          label: 'Meses',
+          label: 'Estado',
           width: '100%',
-          options: () =>
-            MONTHS.map((month, index) => ({
-              id: index == 0 ? 'ALL' : index,
-              name: index == 0 ? 'Todos' : month,
-            })),
+          options: getStatusOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      distribution_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Distribución',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Distribución',
+          width: '100%',
+          options: getDistributionOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      category_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Categoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Categoría',
+          width: '100%',
+          options: getCategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      subcategory_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Subcategoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Subcategoría',
+          width: '100%',
+          options: getSubcategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      period_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Periodo',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Periodo',
+          width: '100%',
+          options: getPeriodOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
     };
@@ -238,19 +376,52 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     permiso: 'expense',
     extraData: true,
     hideActions: {
-      view: true,
-      edit: true,
-      del: true,
+      view: false,
+      edit: false,
+      del: false,
     },
-    renderForm: (props: any) => <RenderForm {...props} />,
+    renderView: (props: any) => (
+      <RenderView
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        extraData={props.extraData}
+        user={props.user}
+        onEdit={props.onEdit}
+        onDel={props.onDel}
+      />
+    ),
+    renderForm: (props: any) => (
+      <RenderForm
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        setItem={props.setItem}
+        execute={props.execute}
+        extraData={props.extraData}
+        user={props.user}
+        reLoad={props.reLoad}
+        errors={props.errors}
+        setErrors={props.setErrors}
+        onSave={props.onSave}
+        action={props.action}
+      />
+    ),
     titleAdd: 'Nueva',
   };
 
-  const { userCan, List, onEdit, onDel } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+
+  // Pasar extraData al componente padre cuando cambie
+  useEffect(() => {
+    if (extraData && onExtraDataChange) {
+      onExtraDataChange(extraData);
+    }
+  }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
     onSearch: () => {},
@@ -264,21 +435,23 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        A: 'Por cobrar',
-        P: 'Pagada',
-        C: 'Cancelada',
-        X: 'Anulada',
+        'A': 'Por cobrar',
+        'P': 'Pagada',
+        'C': 'Cancelada',
+        'X': 'Anulada'
       };
       return statusMap[status] || status;
     };
 
+    const debtAmount = parseFloat(item?.amount) || 0;
+    const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
+    const totalBalance = debtAmount + penaltyAmount;
+
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`${MONTHS[item?.month]} ${item?.year} - ${getStatusText(item?.status)}`}
-          subtitle={`Monto: Bs ${parseFloat(item?.amount || 0).toFixed(2)} - Vence: ${
-            item?.due_at ? new Date(item.due_at).toLocaleDateString('es-ES') : 'Sin fecha'
-          }`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(item?.status)}`}
+          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />
