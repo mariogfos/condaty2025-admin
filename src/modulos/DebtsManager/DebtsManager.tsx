@@ -1,31 +1,32 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './DebtsManager.module.css';
-import { useAuth } from '@/mk/contexts/AuthProvider';
-import DebtSummaryCard from './DebtSummaryCard/DebtSummaryCard';
-import TabsButtons from '@/mk/components/ui/TabsButton/TabsButtons';
-import Button from '@/mk/components/forms/Button/Button';
-import RenderView from './RenderView/RenderView';
-import NotAccess from '@/components/auth/NotAccess/NotAccess';
-import { formatNumber } from '@/mk/utils/numbers';
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./DebtsManager.module.css";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import DebtSummaryCard from "./DebtSummaryCard/DebtSummaryCard";
+import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
+import Button from "@/mk/components/forms/Button/Button";
+import RenderView from "./RenderView/RenderView";
+import NotAccess from "@/components/auth/NotAccess/NotAccess";
+import { formatNumber } from "@/mk/utils/numbers";
 
 // Importar los componentes de tabs
-import AllDebts from './TabComponents/AllDebts/AllDebts';
-import IndividualDebts from './TabComponents/IndividualDebts/IndividualDebts';
-import SharedDebts from './TabComponents/SharedDebts/SharedDebts';
+import AllDebts from "./TabComponents/AllDebts/AllDebts";
+import IndividualDebts from "./TabComponents/IndividualDebts/IndividualDebts";
+import SharedDebts from "./TabComponents/SharedDebts/SharedDebts";
+import Forgiveness from "./TabComponents/Forgiveness/Forgiveness";
 
 const DebtsManager = () => {
   const router = useRouter();
   const [openView, setOpenView] = useState(false);
   const [viewItem, setViewItem] = useState({});
-  const [activeTab, setActiveTab] = useState('all');
-  const [activeSummaryCard, setActiveSummaryCard] = useState('por_cobrar');
+  const [activeTab, setActiveTab] = useState("all");
+  const [activeSummaryCard, setActiveSummaryCard] = useState("por_cobrar");
   const [currentExtraData, setCurrentExtraData] = useState<any>(null); // Estado para extraData
   const { setStore, store } = useAuth();
 
   useEffect(() => {
-    setStore({ ...store, title: '' });
+    setStore({ ...store, title: "" });
   }, []);
 
   // Función para recibir extraData de los componentes hijos
@@ -38,24 +39,24 @@ const DebtsManager = () => {
     if (!currentExtraData) {
       // Datos por defecto si no hay extraData
       return {
-        por_cobrar: { amount: 'Bs 0.00', count: '0 en total' },
-        cobradas: { amount: 'Bs 0.00', count: '0 en total' },
-        en_mora: { amount: 'Bs 0.00', count: '0 en total' },
+        por_cobrar: { amount: "Bs 0.00", count: "0 en total" },
+        cobradas: { amount: "Bs 0.00", count: "0 en total" },
+        en_mora: { amount: "Bs 0.00", count: "0 en total" },
       };
     }
 
     return {
       por_cobrar: {
         amount: `Bs ${formatNumber(currentExtraData.receivable || 0)}`,
-        count: `${currentExtraData.totalReceivable || 0} en total`
+        count: `${currentExtraData.totalReceivable || 0} en total`,
       },
       cobradas: {
         amount: `Bs ${formatNumber(currentExtraData.collected || 0)}`,
-        count: `${currentExtraData.totalCollected || 0} en total`
+        count: `${currentExtraData.totalCollected || 0} en total`,
       },
       en_mora: {
         amount: `Bs ${formatNumber(currentExtraData.arrears || 0)}`,
-        count: `${currentExtraData.totalArrears || 0} en total`
+        count: `${currentExtraData.totalArrears || 0} en total`,
       },
     };
   };
@@ -64,15 +65,15 @@ const DebtsManager = () => {
 
   // Configuración de tabs
   const tabs = [
-    { value: 'all', text: 'Todas las deudas' },
-    { value: 'individual', text: 'Deudas individuales' },
-    { value: 'shared', text: 'Deudas grupales' },
-    { value: 'payment_plans', text: 'Planes de pago' },
-    { value: 'forgiveness', text: 'Condonaciones' },
+    { value: "all", text: "Todas las deudas" },
+    { value: "individual", text: "Deudas individuales" },
+    { value: "shared", text: "Deudas grupales" },
+    { value: "payment_plans", text: "Planes de pago" },
+    { value: "forgiveness", text: "Condonaciones" },
   ];
 
   const goToCategories = () => {
-    router.push('/categories?type=D');
+    router.push("/categories?type=D");
   };
 
   const extraButtons = [
@@ -96,16 +97,16 @@ const DebtsManager = () => {
     };
 
     switch (activeTab) {
-      case 'all':
+      case "all":
         return <AllDebts {...commonProps} />;
-      case 'individual':
+      case "individual":
         return <IndividualDebts {...commonProps} />;
-      case 'shared':
+      case "shared":
         return <SharedDebts {...commonProps} />;
-      case 'payment_plans':
+      case "payment_plans":
         return <div>Componente de Planes de Pago (por implementar)</div>;
-      case 'forgiveness':
-        return <div>Componente de Condonaciones (por implementar)</div>;
+      case "forgiveness":
+        return <Forgiveness />;
       default:
         return <AllDebts {...commonProps} />;
     }
@@ -123,22 +124,22 @@ const DebtsManager = () => {
             title="DEUDAS POR COBRAR"
             amount={summaryData.por_cobrar.amount}
             count={summaryData.por_cobrar.count}
-            isActive={activeSummaryCard === 'por_cobrar'}
-            onClick={() => setActiveSummaryCard('por_cobrar')}
+            isActive={activeSummaryCard === "por_cobrar"}
+            onClick={() => setActiveSummaryCard("por_cobrar")}
           />
           <DebtSummaryCard
             title="DEUDAS COBRADAS"
             amount={summaryData.cobradas.amount}
             count={summaryData.cobradas.count}
-            isActive={activeSummaryCard === 'cobradas'}
-            onClick={() => setActiveSummaryCard('cobradas')}
+            isActive={activeSummaryCard === "cobradas"}
+            onClick={() => setActiveSummaryCard("cobradas")}
           />
           <DebtSummaryCard
             title="DEUDAS EN MORA"
             amount={summaryData.en_mora.amount}
             count={summaryData.en_mora.count}
-            isActive={activeSummaryCard === 'en_mora'}
-            onClick={() => setActiveSummaryCard('en_mora')}
+            isActive={activeSummaryCard === "en_mora"}
+            onClick={() => setActiveSummaryCard("en_mora")}
           />
         </div>
       </div>
