@@ -3,13 +3,14 @@ import { useMemo } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils'; // Corregido
 import { MONTHS } from '@/mk/utils/date';
-import RenderForm from '../SharedDebts/RenderForm/RenderForm'; // Corregido
+
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem'; // Corregido
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import RenderForm from './RenderForm/RenderForm';
 
 interface IndividualDebtsProps {
   openView: boolean;
@@ -230,7 +231,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   const mod: ModCrudType = {
     modulo: 'debts',
-    singular: 'Deuda',
+    singular: 'Deuda Individual',
     plural: '',
     export: true,
     filter: true,
@@ -242,6 +243,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       del: true,
     },
     renderForm: (props: any) => <RenderForm {...props} />,
+    titleAdd: 'Nueva',
   };
 
   const { userCan, List, onEdit, onDel } = useCrud({
