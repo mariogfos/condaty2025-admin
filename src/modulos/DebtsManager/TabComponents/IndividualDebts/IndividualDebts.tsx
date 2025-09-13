@@ -122,7 +122,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     fullType: 'L',
     page: 1,
     perPage: 20,
-    type: 'individual',
+    type: '4',
   };
 
   const fields = useMemo(() => {
@@ -230,7 +230,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   }, []);
 
   const mod: ModCrudType = {
-    modulo: 'debts',
+    modulo: 'debt-dptos',
     singular: 'Deuda Individual',
     plural: '',
     export: true,

@@ -9,7 +9,7 @@ import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
