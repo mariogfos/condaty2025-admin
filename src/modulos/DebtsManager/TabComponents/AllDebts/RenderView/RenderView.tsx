@@ -3,6 +3,7 @@ import React from 'react';
 import styles from './RenderView.module.css';
 import { formatNumber } from '@/mk/utils/numbers';
 import Button from '@/mk/components/forms/Button/Button';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
 interface RenderViewProps {
   open: boolean;
@@ -37,16 +38,19 @@ const RenderView: React.FC<RenderViewProps> = ({
     return statusMap[status] || status;
   };
 
-  const getStatusColor = (status: string) => {
-    const statusColors: { [key: string]: string } = {
-      'A': '#fbbf24', // Por cobrar - amarillo
-      'P': '#10b981', // Cobrado - verde
-      'S': '#f59e0b', // Por confirmar - naranja
-      'M': '#ef4444', // En mora - rojo
-      'C': '#6b7280', // Cancelada - gris
-      'X': '#ef4444'  // Anulada - rojo
+  // Usar la misma configuración de colores que AllDebts.tsx
+  const getStatusConfig = (status: string) => {
+    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
+      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
+      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
+      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
+      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
+      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
     };
-    return statusColors[status] || '#6b7280';
+    return statusConfig[status] || statusConfig.E;
   };
 
   const debtAmount = parseFloat(item?.amount) || 0;
@@ -63,6 +67,9 @@ const RenderView: React.FC<RenderViewProps> = ({
       year: 'numeric'
     });
   };
+
+  const statusText = getStatusText(item?.status);
+  const { color, bgColor } = getStatusConfig(item?.status);
 
   return (
     <div className={styles.overlay}>
@@ -86,12 +93,15 @@ const RenderView: React.FC<RenderViewProps> = ({
             <div className={styles.infoRow}>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Estado:</span>
-                <span
-                  className={styles.statusBadge}
-                  style={{ backgroundColor: getStatusColor(item?.status) }}
+                <StatusBadge
+                  color={color}
+                  backgroundColor={bgColor}
+                  containerStyle={{
+                    justifyContent: "flex-start" // Cambiar de center a flex-start
+                  }}
                 >
-                  {getStatusText(item?.status)}
-                </span>
+                  {statusText}
+                </StatusBadge>
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Fecha de inicio:</span>
@@ -159,10 +169,12 @@ const RenderView: React.FC<RenderViewProps> = ({
 
           {/* Detalles */}
           {item?.debt?.description && (
-            <div className={styles.detailsSection}>
+            <>
               <h3 className={styles.detailsTitle}>Detalles</h3>
-              <div className={styles.detailsContent}>{item.debt.description}</div>
-            </div>
+              <div className={styles.detailsSection}>
+                <div className={styles.detailsContent}>{item.debt.description}</div>
+              </div>
+            </>
           )}
         </div>
 

@@ -136,6 +136,7 @@
 }
 
 .detailsContent {
+  width: 100%;
   background: var(--cBlackV2);
   padding: 16px;
   border-radius: 8px;
@@ -268,7 +269,7 @@
 .detailsSection {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: var(--spXl, 48px);
   width: 100%;

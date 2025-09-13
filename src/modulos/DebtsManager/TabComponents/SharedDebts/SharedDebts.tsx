@@ -1,48 +1,68 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { MONTHS } from '@/mk/utils/date';
-import RenderForm from '../../RenderForm/RenderForm';
+import RenderForm from './RenderForm/RenderForm';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import React from 'react';
 
 interface SharedDebtsProps {
   openView: boolean;
   setOpenView: (open: boolean) => void;
   viewItem: any;
   setViewItem: (item: any) => void;
+  onExtraDataChange?: (extraData: any) => void;
 }
 
-const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewItem, setViewItem }) => {
+const SharedDebts: React.FC<SharedDebtsProps> = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+  onExtraDataChange,
+}) => {
   const { setStore, store } = useAuth();
 
-  // Mismas funciones render que el DebtsManager actual
-  const renderAmountCell = ({ item }: { item: any }) => (
-    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
+  // Renderizar columna Concepto (descripción)
+  const renderConceptCell = ({ item }: { item: any }) => (
+    <div>{item?.description || 'Sin descripción'}</div>
   );
 
-  const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.due_at) return <div>-</div>;
-    const date = new Date(item.due_at);
-    return (
-      <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })}
-      </div>
-    );
+  // Renderizar columna Categoría
+  const renderCategoryCell = ({ item }: { item: any }) => (
+    <div>{item?.subcategory?.category?.name || 'Sin categoría'}</div>
+  );
+
+  // Renderizar columna Subcategoría
+  const renderSubcategoryCell = ({ item }: { item: any }) => (
+    <div>{item?.subcategory?.name || 'Sin subcategoría'}</div>
+  );
+
+  // Renderizar columna Distribución
+  const renderDistributionCell = ({ item }: { item: any }) => {
+    const getDistributionText = (amountType: string) => {
+      const distributionMap: { [key: string]: string } = {
+        M: 'Monto fijo',
+        P: 'Porcentual',
+        V: 'Variable',
+        F: 'Fijo',
+      };
+      return distributionMap[amountType] || 'Sin distribución';
+    };
+
+    return <div>{getDistributionText(item?.amount_type)}</div>;
   };
 
+  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
       P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
       S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
       R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
@@ -54,12 +74,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Cobrado',
+        S: 'Por confirmar',
+        M: 'En mora',
+        C: 'Cancelada',
+        X: 'Anulada',
       };
       return statusMap[status] || status;
     };
@@ -68,53 +88,106 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
     const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
 
     return (
-      <StatusBadge
-        color={color}
-        backgroundColor={bgColor}
-      >
+      <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
       </StatusBadge>
     );
   };
 
-  const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.name}</div>
+  // Renderizar columna Vencimiento
+  const renderDueDateCell = ({ item }: { item: any }) => {
+    if (!item?.due_at) return <div>-</div>;
+    const date = new Date(item.due_at);
+    return (
+      <div>
+        {date.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })}
+      </div>
+    );
+  };
+
+  // Renderizar columna Deuda (monto principal)
+  const renderDebtAmountCell = ({ item }: { item: any }) => (
+    <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  const renderInterestCell = ({ item }: { item: any }) => (
-    <div>{parseFloat(item?.interest) || 0}%</div>
-  );
+  // Renderizar columna Multa (calcular desde asignados)
+  const renderPenaltyAmountCell = ({ item }: { item: any }) => {
+    const totalPenalty =
+      item?.asignados?.reduce((sum: number, asignado: any) => {
+        return sum + (parseFloat(asignado?.penalty_amount) || 0);
+      }, 0) || 0;
 
-  const renderShowCell = ({ item }: { item: any }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        setViewItem(item);
-        setOpenView(true);
-      }}
-      style={{
-        background: 'var(--cSuccess)',
-        color: 'var(--cWhite)',
-        border: 'none',
-        padding: '8px 16px',
-        borderRadius: 'var(--bRadiusS)',
-        cursor: 'pointer',
-        fontSize: 'var(--sS)',
-        fontWeight: 'var(--bMedium)',
-        transition: 'all 0.3s ease',
-      }}
-    >
-      Ver detalle
-    </button>
-  );
+    return <FormatBsAlign value={totalPenalty} alignRight />;
+  };
 
-  const getYearOptions = () => {
-    const lAnios: any = [{ id: 'ALL', name: 'Todos' }];
-    const lastYear = new Date().getFullYear();
-    for (let i = lastYear; i >= 2000; i--) {
-      lAnios.push({ id: i, name: i.toString() });
+  // Renderizar columna Saldo a cobrar (deuda + multas)
+  const renderBalanceDueCell = ({ item }: { item: any }) => {
+    const debtAmount = parseFloat(item?.amount) || 0;
+    const totalPenalty =
+      item?.asignados?.reduce((sum: number, asignado: any) => {
+        return sum + (parseFloat(asignado?.penalty_amount) || 0);
+      }, 0) || 0;
+    const totalBalance = debtAmount + totalPenalty;
+
+    return <FormatBsAlign value={totalBalance} alignRight />;
+  };
+
+  // Opciones para filtros
+  const getStatusOptions = () => [
+    { id: 'ALL', name: 'Todos los estados' },
+    { id: 'A', name: 'Por cobrar' },
+    { id: 'P', name: 'Cobrado' },
+    { id: 'S', name: 'Por confirmar' },
+    { id: 'M', name: 'En mora' },
+    { id: 'C', name: 'Cancelada' },
+    { id: 'X', name: 'Anulada' },
+  ];
+
+  const getDistributionOptions = () => [
+    { id: 'ALL', name: 'Todas las distribuciones' },
+    { id: 'M', name: 'Monto fijo' },
+    { id: 'P', name: 'Porcentual' },
+    { id: 'V', name: 'Variable' },
+    { id: 'F', name: 'Fijo' },
+  ];
+
+  const getCategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las categorías' },
+    { id: 'expense', name: 'Expensa' },
+    { id: 'reserve', name: 'Reserva' },
+    { id: 'other', name: 'Otro' },
+  ];
+
+  const getSubcategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las subcategorías' },
+    { id: 'water', name: 'Agua' },
+    { id: 'electricity', name: 'Electricidad' },
+    { id: 'gas', name: 'Gas' },
+    { id: 'internet', name: 'Internet' },
+    { id: 'cleaning', name: 'Limpieza' },
+    { id: 'maintenance', name: 'Mantenimiento' },
+    { id: 'security', name: 'Seguridad' },
+  ];
+
+  const getPeriodOptions = () => {
+    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
+    const currentYear = new Date().getFullYear();
+
+    // Generar periodos de los últimos 3 años
+    for (let year = currentYear; year >= currentYear - 2; year--) {
+      MONTHS.slice(1).forEach((month, index) => {
+        periods.push({
+          id: `${year}-${String(index + 1).padStart(2, '0')}`,
+          name: `${month} ${year}`,
+        });
+      });
     }
-    return lAnios;
+
+    return periods;
   };
 
   const paramsInitial = {
@@ -127,48 +200,40 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
   const fields = useMemo(() => {
     return {
       id: { rules: [], api: 'e' },
-      begin_at: {
+      concept: {
         rules: [''],
         api: '',
-        label: 'Fecha',
-        list: { order: 1 },
+        label: 'Concepto',
+        list: {
+          onRender: renderConceptCell,
+          order: 1,
+        },
       },
-      subcategory: {
+      category: {
         rules: [''],
         api: '',
         label: 'Categoría',
         list: {
-          onRender: renderSubcategoryCell,
+          onRender: renderCategoryCell,
           order: 2,
         },
       },
-      amount: {
+      subcategory: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto (Bs)</label>
-        ),
+        label: 'Subcategoría',
         list: {
-          onRender: renderAmountCell,
+          onRender: renderSubcategoryCell,
           order: 3,
         },
       },
-      due_at: {
+      distribution: {
         rules: [''],
         api: '',
-        label: 'Fecha vencimiento',
+        label: 'Distribución',
         list: {
-          onRender: renderDueDateCell,
+          onRender: renderDistributionCell,
           order: 4,
-        },
-      },
-      interest: {
-        rules: [''],
-        api: '',
-        label: 'Interés',
-        list: {
-          onRender: renderInterestCell,
-          order: 5,
         },
       },
       status: {
@@ -177,56 +242,121 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
         label: 'Estado',
         list: {
           onRender: renderStatusCell,
+          order: 5,
+        },
+      },
+      due_at: {
+        rules: [''],
+        api: '',
+        label: 'Vencimiento',
+        list: {
+          onRender: renderDueDateCell,
           order: 6,
         },
       },
-      show: {
+      debt_amount: {
         rules: [''],
         api: '',
-        label: 'Detalle',
-        form: false,
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
         list: {
-          onRender: renderShowCell,
+          onRender: renderDebtAmountCell,
           order: 7,
         },
       },
-      // Todos los campos adicionales del DebtsManager original
-      year: {
-        rules: ['required'],
+      penalty_amount: {
+        rules: [''],
+        api: '',
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        list: {
+          onRender: renderPenaltyAmountCell,
+          order: 8,
+        },
+      },
+      balance_due: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Saldo a cobrar
+          </label>
+        ),
+        list: {
+          onRender: renderBalanceDueCell,
+          order: 9,
+        },
+      },
+      // FILTROS
+      status_filter: {
+        rules: [],
         api: 'ae',
-        label: 'Año',
-        form: { type: 'text' },
+        label: 'Estado',
+        form: { type: 'select' },
         list: false,
         filter: {
-          label: 'Año',
+          label: 'Estado',
           width: '100%',
-          options: getYearOptions,
+          options: getStatusOptions,
           optionLabel: 'name',
+          optionValue: 'id',
         },
       },
-      month: {
-        rules: ['required'],
+      distribution_filter: {
+        rules: [],
         api: 'ae',
-        label: 'Mes',
-        form: {
-          type: 'select',
-          options: MONTHS.map((month, index) => ({
-            id: index,
-            name: month,
-          })),
-        },
+        label: 'Distribución',
+        form: { type: 'select' },
         list: false,
         filter: {
-          label: 'Meses',
+          label: 'Distribución',
           width: '100%',
-          options: () =>
-            MONTHS.map((month, index) => ({
-              id: index == 0 ? 'ALL' : index,
-              name: index == 0 ? 'Todos' : month,
-            })),
+          options: getDistributionOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
-      // Resto de campos del DebtsManager original...
+      category_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Categoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Categoría',
+          width: '100%',
+          options: getCategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      subcategory_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Subcategoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Subcategoría',
+          width: '100%',
+          options: getSubcategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      period_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Periodo',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Periodo',
+          width: '100%',
+          options: getPeriodOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      // Campos de formulario (mantener los existentes)
       subcategory_id: {
         rules: ['required'],
         api: 'ae',
@@ -255,6 +385,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
             { id: 'F', name: 'Fijo' },
             { id: 'V', name: 'Variable' },
             { id: 'P', name: 'Porcentual' },
+            { id: 'M', name: 'Monto fijo' },
           ],
         },
         list: false,
@@ -332,7 +463,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
 
   const mod: ModCrudType = {
     modulo: 'debts',
-    singular: 'Deuda',
+    singular: 'Deuda Grupal',
     plural: '',
     export: true,
     filter: true,
@@ -343,22 +474,28 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
       edit: true,
       del: true,
     },
+    titleAdd: 'Nueva',
     onHideActions: (item: any) => {
       return {
         hideEdit: item?.status === 'P' || item?.status === 'X',
         hideDel: item?.status === 'P' || item?.status === 'X',
       };
     },
-    renderForm: (props: any) => (
-      <RenderForm {...props} />
-    ),
+    renderForm: (props: any) => <RenderForm {...props} />,
   };
 
-  const { userCan, List, onEdit, onDel } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
+
+  // Pasar extraData al componente padre cuando cambie
+  useEffect(() => {
+    if (extraData && onExtraDataChange) {
+      onExtraDataChange(extraData);
+    }
+  }, [extraData, onExtraDataChange]);
 
   const { onLongPress, selItem } = useCrudUtils({
     onSearch: () => {},
@@ -372,19 +509,28 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({ openView, setOpenView, viewIt
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Pagada',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Pagada',
+        C: 'Cancelada',
+        X: 'Anulada',
       };
       return statusMap[status] || status;
     };
 
+    const debtAmount = parseFloat(item?.amount) || 0;
+    const totalPenalty =
+      item?.asignados?.reduce((sum: number, asignado: any) => {
+        return sum + (parseFloat(asignado?.penalty_amount) || 0);
+      }, 0) || 0;
+    const totalBalance = debtAmount + totalPenalty;
+
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`${MONTHS[item?.month]} ${item?.year} - ${getStatusText(item?.status)}`}
-          subtitle={`Monto: Bs ${parseFloat(item?.amount || 0).toFixed(2)} - Vence: ${item?.due_at ? new Date(item.due_at).toLocaleDateString('es-ES') : 'Sin fecha'}`}
+          title={`${item?.description || 'Sin concepto'} - ${getStatusText(item?.status)}`}
+          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${totalPenalty.toFixed(
+            2
+          )} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />

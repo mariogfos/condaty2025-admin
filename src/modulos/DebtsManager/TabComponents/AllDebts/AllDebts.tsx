@@ -3,7 +3,7 @@ import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { MONTHS } from '@/mk/utils/date';
-import RenderForm from '../../RenderForm/RenderForm';
+
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -12,6 +12,8 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React from 'react';
+import RenderForm from '../IndividualDebts/RenderForm/RenderForm';
+
 
 interface AllDebtsProps {
   openView: boolean;
@@ -22,10 +24,6 @@ interface AllDebtsProps {
 }
 
 const AllDebts: React.FC<AllDebtsProps> = ({
-  openView,
-  setOpenView,
-  viewItem,
-  setViewItem,
   onExtraDataChange
 }) => {
   const { setStore, store } = useAuth();
@@ -37,7 +35,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.category?.name || '-'}</div>
+    <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
   );
 
   // Renderizar columna Subcategoría
@@ -46,14 +44,42 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   );
 
   // Renderizar columna Distribución
-  const renderDistributionCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.distribution || 'Sin distribución'}</div>
-  );
+  const renderDistributionCell = ({ item }: { item: any }) => {
+
+    switch (item?.debt?.amount_type) {
+      case "F": {
+        return <div>Fijo</div>;
+        break;
+      }
+      case "V": {
+        return <div>Variable</div>
+        break;
+      }
+      case "P": {
+        return <div>Porcentual</div>
+        break;
+      }
+      case "M": {
+        return <div>Por m²</div>
+        break;
+      }
+      case "A": {
+        return <div>Promedio</div>
+        break;
+      }
+      default: {
+        return <div>-/-</div>
+        break;
+      }
+    }
+
+
+  };
 
   // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
-      A: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
       P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
       S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
       R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
@@ -123,13 +149,58 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
 
-  const getYearOptions = () => {
-    const lAnios: any = [{ id: 'ALL', name: 'Todos' }];
-    const lastYear = new Date().getFullYear();
-    for (let i = lastYear; i >= 2000; i--) {
-      lAnios.push({ id: i, name: i.toString() });
+  // Opciones para filtros
+  const getStatusOptions = () => [
+    { id: 'ALL', name: 'Todos los estados' },
+    { id: 'A', name: 'Por cobrar' },
+    { id: 'P', name: 'Cobrado' },
+    { id: 'S', name: 'Por confirmar' },
+    { id: 'M', name: 'En mora' },
+    { id: 'C', name: 'Cancelada' },
+    { id: 'X', name: 'Anulada' }
+  ];
+
+  const getDistributionOptions = () => [
+    { id: 'ALL', name: 'Todas las distribuciones' },
+    { id: 'fixed_unit', name: 'Monto fijo por unidad' },
+    { id: 'fixed_group', name: 'Monto fijo grupal' },
+    { id: 'percentage', name: 'Porcentual' },
+    { id: 'variable', name: 'Variable' }
+  ];
+
+  const getCategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las categorías' },
+    { id: 'expense', name: 'Expensa' },
+    { id: 'reserve', name: 'Reserva' },
+    { id: 'other', name: 'Otro' }
+  ];
+
+  const getSubcategoryOptions = () => [
+    { id: 'ALL', name: 'Todas las subcategorías' },
+    { id: 'water', name: 'Agua' },
+    { id: 'electricity', name: 'Electricidad' },
+    { id: 'gas', name: 'Gas' },
+    { id: 'internet', name: 'Internet' },
+    { id: 'cleaning', name: 'Limpieza' },
+    { id: 'maintenance', name: 'Mantenimiento' },
+    { id: 'security', name: 'Seguridad' }
+  ];
+
+  const getPeriodOptions = () => {
+    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
+    const currentYear = new Date().getFullYear();
+
+    // Generar periodos de los últimos 3 años
+    for (let year = currentYear; year >= currentYear - 2; year--) {
+      MONTHS.slice(1).forEach((month, index) => {
+        periods.push({
+          id: `${year}-${String(index + 1).padStart(2, '0')}`,
+          name: `${month} ${year}`
+        });
+      });
     }
-    return lAnios;
+
+    return periods;
   };
 
   const paramsInitial = {
@@ -228,40 +299,75 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 9,
         },
       },
-      // Campos de filtros
-      year: {
-        rules: ['required'],
+      // NUEVOS FILTROS
+      status_filter: {
+        rules: [],
         api: 'ae',
-        label: 'Año',
-        form: { type: 'text' },
+        label: 'Estado',
+        form: { type: 'select' },
         list: false,
         filter: {
-          label: 'Año',
+          label: 'Estado',
           width: '100%',
-          options: getYearOptions,
+          options: getStatusOptions,
           optionLabel: 'name',
+          optionValue: 'id',
         },
       },
-      month: {
-        rules: ['required'],
+      distribution_filter: {
+        rules: [],
         api: 'ae',
-        label: 'Mes',
-        form: {
-          type: 'select',
-          options: MONTHS.map((month, index) => ({
-            id: index,
-            name: month,
-          })),
-        },
+        label: 'Distribución',
+        form: { type: 'select' },
         list: false,
         filter: {
-          label: 'Meses',
+          label: 'Distribución',
           width: '100%',
-          options: () =>
-            MONTHS.map((month, index) => ({
-              id: index == 0 ? 'ALL' : index,
-              name: index == 0 ? 'Todos' : month,
-            })),
+          options: getDistributionOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      category_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Categoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Categoría',
+          width: '100%',
+          options: getCategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      subcategory_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Subcategoría',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Subcategoría',
+          width: '100%',
+          options: getSubcategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      period_filter: {
+        rules: [],
+        api: 'ae',
+        label: 'Periodo',
+        form: { type: 'select' },
+        list: false,
+        filter: {
+          label: 'Periodo',
+          width: '100%',
+          options: getPeriodOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
     };
@@ -276,10 +382,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     permiso: 'expense',
     extraData: true,
     hideActions: {
+      add:true,
       view: false,
       edit: true,
       del: true,
     },
+
+
     renderView: (props: any) => (
       <RenderView
         open={props.open}
@@ -356,7 +465,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
-        emptyLine2="de los residentes las verás aquí."
+        emptyLine2="de los esidentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
       />

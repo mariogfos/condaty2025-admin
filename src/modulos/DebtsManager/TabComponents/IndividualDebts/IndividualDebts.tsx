@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils'; // Corregido
 import { MONTHS } from '@/mk/utils/date';
-import RenderForm from '../../RenderForm/RenderForm'; // Corregido
+import RenderForm from '../SharedDebts/RenderForm/RenderForm'; // Corregido
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
@@ -18,7 +18,12 @@ interface IndividualDebtsProps {
   setViewItem: (item: any) => void;
 }
 
-const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView, viewItem, setViewItem }) => {
+const IndividualDebts: React.FC<IndividualDebtsProps> = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+}) => {
   const { setStore, store } = useAuth();
 
   // Reutilizar las mismas funciones render del componente AllDebts
@@ -34,7 +39,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
         {date.toLocaleDateString('es-ES', {
           day: '2-digit',
           month: '2-digit',
-          year: 'numeric'
+          year: 'numeric',
         })}
       </div>
     );
@@ -54,12 +59,12 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Cobrado',
+        S: 'Por confirmar',
+        M: 'En mora',
+        C: 'Cancelada',
+        X: 'Anulada',
       };
       return statusMap[status] || status;
     };
@@ -68,18 +73,13 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
     const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
 
     return (
-      <StatusBadge
-        color={color}
-        backgroundColor={bgColor}
-      >
+      <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
       </StatusBadge>
     );
   };
 
-  const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.name}</div>
-  );
+  const renderSubcategoryCell = ({ item }: { item: any }) => <div>{item?.subcategory?.name}</div>;
 
   const renderInterestCell = ({ item }: { item: any }) => (
     <div>{parseFloat(item?.interest) || 0}%</div>
@@ -87,7 +87,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
 
   const renderShowCell = ({ item }: { item: any }) => (
     <button
-      onClick={(e) => {
+      onClick={e => {
         e.stopPropagation();
         setViewItem(item);
         setOpenView(true);
@@ -241,9 +241,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
       edit: true,
       del: true,
     },
-    renderForm: (props: any) => (
-      <RenderForm {...props} />
-    ),
+    renderForm: (props: any) => <RenderForm {...props} />,
   };
 
   const { userCan, List, onEdit, onDel } = useCrud({
@@ -264,10 +262,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Pagada',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Pagada',
+        C: 'Cancelada',
+        X: 'Anulada',
       };
       return statusMap[status] || status;
     };
@@ -276,7 +274,9 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({ openView, setOpenView
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
           title={`${MONTHS[item?.month]} ${item?.year} - ${getStatusText(item?.status)}`}
-          subtitle={`Monto: Bs ${parseFloat(item?.amount || 0).toFixed(2)} - Vence: ${item?.due_at ? new Date(item.due_at).toLocaleDateString('es-ES') : 'Sin fecha'}`}
+          subtitle={`Monto: Bs ${parseFloat(item?.amount || 0).toFixed(2)} - Vence: ${
+            item?.due_at ? new Date(item.due_at).toLocaleDateString('es-ES') : 'Sin fecha'
+          }`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />

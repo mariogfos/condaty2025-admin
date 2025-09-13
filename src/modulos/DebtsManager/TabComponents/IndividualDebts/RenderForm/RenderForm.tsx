@@ -22,9 +22,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     type: 4,
     description: item.description || '',
     subcategory_id: item.subcategory_id || '',
-    asignar: item.asignar || 'T', // Cambiar default a 'T' (Todas las unidades)
-    dpto_id: item.dpto_id || [], // Cambiar a array para multiselect
-    amount_type: item.amount_type || 'F',
+    dpto_id: item.dpto_id || '', // Cambiar a string para select simple
     amount: item.amount || '',
     is_advance: item.is_advance || 'Y',
     interest: item.interest || 0,
@@ -35,7 +33,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     is_forgivable: item.is_forgivable === 'Y' || item.is_forgivable === true,
     has_pp: item.has_pp === 'Y' || item.has_pp === true || item.has_pp === undefined,
     is_blocking: item.is_blocking === 'Y' || item.is_blocking === true,
-
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -45,17 +42,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
-
-    // Si cambia el campo asignar y no es 'S', limpiar dpto_id
-    if (name === 'asignar' && value !== 'S') {
-      setFormState((prev: any) => ({
-        ...prev,
-        [name]: newValue,
-        dpto_id: [] // Limpiar selección de departamentos
-      }));
-    } else {
-      setFormState((prev: any) => ({ ...prev, [name]: newValue }));
-    }
+    setFormState((prev: any) => ({ ...prev, [name]: newValue }));
   };
 
   const validate = () => {
@@ -89,15 +76,12 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       errors: errs,
     });
 
-    // Solo validar dpto_id si asignar es 'S' (Seleccionar Unidades)
-    if (formState.asignar === 'S') {
-      errs = checkRules({
-        value: formState.dpto_id,
-        rules: ['required'],
-        key: 'dpto_id',
-        errors: errs,
-      });
-    }
+    errs = checkRules({
+      value: formState.dpto_id,
+      rules: ['required'],
+      key: 'dpto_id',
+      errors: errs,
+    });
 
     setErrors(errs);
     return errs;
@@ -107,14 +91,14 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     let method = formState.id ? 'PUT' : 'POST';
     if (hasErrors(validate())) return;
 
-    // Preparar datos para envío con tipo explícito
+    // Preparar datos para envío
     const dataToSend: any = {
       begin_at: formState.begin_at,
       due_at: formState.due_at,
       type: "4",
       description: formState.description,
       subcategory_id: formState.subcategory_id,
-      asignar: formState.asignar,
+      dpto_id: formState.dpto_id,
       amount_type: formState.amount_type,
       amount: formState.amount,
       is_advance: formState.is_advance,
@@ -124,11 +108,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       has_pp: formState.has_pp ? 'Y' : 'N',
       is_blocking: formState.is_blocking ? 'Y' : 'N',
     };
-
-    // Solo incluir dpto_id si asignar es 'S'
-    if (formState.asignar === 'S') {
-      dataToSend.dpto_id = formState.dpto_id;
-    }
 
     const { data: response } = await execute(
       '/debts' + (formState.id ? '/' + formState.id : ''),
@@ -184,13 +163,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
 
 
 
-  const getAsignarOptions = () => [
-    { id: 'T', name: 'Todas las unidades' },
-    { id: 'O', name: 'Unidades ocupadas' },
-    { id: 'L', name: 'Unidades libres' },
-    { id: 'S', name: 'Seleccionar Unidades' },
 
-  ];
 
   const getAmountTypeOptions = () => [
     { id: 'F', name: 'Fijo' },
@@ -225,7 +198,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     <DataModal
       open={open}
       onClose={onClose}
-      title={formState.id ? "Editar deuda" : "Crear deuda"}
+      title={formState.id ? 'Editar deuda' : 'Crear deuda'}
       onSave={onSave}
       buttonText="Guardar"
       buttonCancel="Cancelar"
@@ -257,9 +230,8 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
-        {/* Segunda fila - Tipo y Subcategoría */}
+        {/* Segunda fila - Subcategoría y Unidad */}
         <div className={styles.formRow}>
-
           <div className={styles.formField}>
             <Select
               label="Subcategoría"
@@ -272,54 +244,25 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               placeholder="Seleccionar subcategoría"
             />
           </div>
-        </div>
-
-        {/* Tercera fila - Asignar y Departamento (condicional) */}
-        <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
-              label="Asignar"
-              name="asignar"
-              value={formState.asignar}
-              options={getAsignarOptions()}
+              label="Unidad"
+              name="dpto_id"
+              value={formState.dpto_id}
+              options={ldpto}
+              optionLabel="label"
+              optionValue="id"
               onChange={handleChange}
               error={errors}
               required
+              placeholder="Seleccionar unidad"
             />
           </div>
-          {/* Campo de departamentos solo aparece cuando asignar es 'S' */}
-          {formState.asignar === 'S' && (
-            <div className={styles.formField}>
-              <Select
-                label="Departamentos"
-                name="dpto_id"
-                value={formState.dpto_id}
-                options={ldpto}
-                optionLabel="label"
-                optionValue="id"
-                onChange={handleChange}
-                error={errors}
-                required
-                placeholder="Seleccionar departamentos"
-                multiSelect={true} // Activar multiselect
-              />
-            </div>
-          )}
         </div>
 
-        {/* Cuarta fila - Tipo de monto y Monto */}
+        {/* Tercera fila - Tipo de monto y Monto */}
         <div className={styles.formRow}>
-          <div className={styles.formField}>
-            <Select
-              label="Tipo de monto"
-              name="amount_type"
-              value={formState.amount_type}
-              options={getAmountTypeOptions()}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
+
           <div className={styles.formField}>
             <Input
               label="Monto (Bs)"
@@ -335,11 +278,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
-        {/* Resto del formulario permanece igual */}
-        {/* Sección de configuración avanzada centrada */}
-        <div className={styles.advancedSectionCentered}>
-          {/* Checkbox de configuración avanzada centrado */}
-          <div className={styles.advancedToggleCentered}>
+        {/* Sección de configuración avanzada comprimida */}
+        <div className={styles.advancedSectionCompact}>
+          <div className={styles.advancedToggleCompact}>
             <Check
               label="Configuración avanzada"
               name="show_advanced"
@@ -348,16 +289,13 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               onChange={handleChange}
               error={errors}
             />
-            <p className={styles.advancedDescriptionCentered}>
-              Activa opciones adicionales para configurar parámetros específicos de la deuda
-            </p>
           </div>
 
-          {/* Opciones avanzadas centradas */}
+          {/* Opciones avanzadas comprimidas */}
           {formState.show_advanced && (
-            <div className={styles.advancedOptionsCentered}>
-              {/* Campo de interés centrado */}
-              <div className={styles.interestFieldCentered}>
+            <div className={styles.advancedOptionsCompact}>
+              {/* Campo de interés */}
+              <div className={styles.interestFieldCompact}>
                 <Input
                   label="Interés (%)"
                   name="interest"
@@ -371,9 +309,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                 />
               </div>
 
-              {/* Checkboxes organizados en cuadrícula 2x2 centrados */}
-              <div className={styles.checkboxGridCentered}>
-                <div className={styles.checkboxItemCentered}>
+              {/* Checkboxes organizados en línea horizontal */}
+              <div className={styles.checkboxRowCompact}>
+                <div className={styles.checkboxItemCompact}>
                   <Check
                     label="Tiene Mantenimiento de Valor"
                     name="has_mv"
@@ -382,12 +320,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                     onChange={handleChange}
                     error={errors}
                   />
-                  <p className={styles.checkboxDescriptionCentered}>
-                    Mantenimiento de Valor: Ajusta el monto de la deuda según la inflación o índices económicos
-                  </p>
                 </div>
 
-                <div className={styles.checkboxItemCentered}>
+                <div className={styles.checkboxItemCompact}>
                   <Check
                     label="Es perdonable"
                     name="is_forgivable"
@@ -396,12 +331,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                     onChange={handleChange}
                     error={errors}
                   />
-                  <p className={styles.checkboxDescriptionCentered}>
-                    La deuda puede ser condonada o perdonada por la administración
-                  </p>
                 </div>
 
-                <div className={styles.checkboxItemCentered}>
+                <div className={styles.checkboxItemCompact}>
                   <Check
                     label="Tiene Plan de Pago"
                     name="has_pp"
@@ -410,12 +342,9 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                     onChange={handleChange}
                     error={errors}
                   />
-                  <p className={styles.checkboxDescriptionCentered}>
-                    Permite establecer un plan de pagos fraccionados para esta deuda
-                  </p>
                 </div>
 
-                <div className={styles.checkboxItemCentered}>
+                <div className={styles.checkboxItemCompact}>
                   <Check
                     label="Es bloqueante"
                     name="is_blocking"
@@ -424,9 +353,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
                     onChange={handleChange}
                     error={errors}
                   />
-                  <p className={styles.checkboxDescriptionCentered}>
-                    Bloquea servicios o accesos hasta que la deuda sea cancelada
-                  </p>
                 </div>
               </div>
             </div>

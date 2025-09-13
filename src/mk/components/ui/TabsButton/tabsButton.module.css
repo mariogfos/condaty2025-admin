@@ -53,10 +53,10 @@
 .buttonRounded {
   position: relative;
   border: var(--bWidth) solid transparent;
-  background: var(--cBlack);
+  background: var(--cBlackV1);
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  padding: 12px 40px;
+  padding: 12px 16px;
   border-radius: 10px; /* Borde completo redondeado */
   color: var(--cWhiteV1);
 

@@ -2,7 +2,7 @@
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+
   width: 100%;
   color: var(--cWhite);
   font-family: var(--fPrimary);
@@ -25,7 +25,51 @@
   /* Espacio vacío para mantener el layout */
 }
 
-/* Sección de configuración avanzada CENTRADA */
+/* Sección de configuración avanzada COMPRIMIDA */
+.advancedSectionCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  border-radius: var(--bRadiusS);
+}
+
+/* Toggle de configuración avanzada COMPRIMIDO */
+.advancedToggleCompact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Opciones avanzadas COMPRIMIDAS */
+.advancedOptionsCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.interestFieldCompact {
+  width: 200px;
+  max-width: 100%;
+}
+
+/* Fila de checkboxes COMPRIMIDA */
+.checkboxRowCompact {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.checkboxItemCompact {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+/* Mantener estilos originales para compatibilidad */
 .advancedSectionCentered {
   display: flex;
   flex-direction: column;
@@ -39,7 +83,6 @@
   background-color: var(--cBlackV1);
 }
 
-/* Toggle de configuración avanzada CENTRADO */
 .advancedToggleCentered {
   display: flex;
   flex-direction: column;
@@ -58,7 +101,6 @@
   max-width: 400px;
 }
 
-/* Opciones avanzadas CENTRADAS */
 .advancedOptionsCentered {
   display: flex;
   flex-direction: column;
@@ -72,7 +114,6 @@
   max-width: 100%;
 }
 
-/* Grid de checkboxes CENTRADO */
 .checkboxGridCentered {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -118,6 +159,7 @@
 
 /* Campo de descripción */
 .descriptionField {
+  margin-top: 16px;
   width: 100%;
 }
 
@@ -137,13 +179,28 @@
     gap: 16px;
   }
 
+  .advancedSectionCompact {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
   .checkboxGridCentered {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 16px;
   }
 
+  .checkboxRowCompact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
   .interestFieldCentered {
+    width: 100%;
+  }
+
+  .interestFieldCompact {
     width: 100%;
   }
 }
@@ -162,9 +219,18 @@
     gap: 12px;
   }
 
+  .advancedSectionCompact {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
   .checkboxGridCentered {
     padding: 12px;
     gap: 12px;
+  }
+
+  .checkboxRowCompact {
+    gap: 6px;
   }
 
   .checkboxItemCentered {
@@ -192,6 +258,10 @@
 
 /* Animación suave para mostrar opciones avanzadas */
 .advancedOptionsCentered {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.advancedOptionsCompact {
   animation: fadeInUp 0.3s ease-out;
 }
 
