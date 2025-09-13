@@ -36,7 +36,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.category?.name || 'Sin categoría'}</div>
+    <div>{item?.subcategory?.name || 'Sin categoría'}</div>
   );
 
   // Renderizar columna Subcategoría
@@ -53,7 +53,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         V: 'Variable',
         F: 'Fijo',
       };
-      return distributionMap[amountType] || 'Sin distribución';
+      return distributionMap[amountType] || '-/-';
     };
 
     return <div>{getDistributionText(item?.amount_type)}</div>;

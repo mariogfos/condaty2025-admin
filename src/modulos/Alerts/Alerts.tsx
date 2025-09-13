@@ -1,7 +1,7 @@
 import styles from "./Alerts.module.css";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useMemo, useState } from "react";
-import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
