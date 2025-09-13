@@ -175,6 +175,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     page: 1,
     perPage: 20,
     debt_id: data.id,
+    type: 1,
   };
 
   const fields = useMemo(() => {
