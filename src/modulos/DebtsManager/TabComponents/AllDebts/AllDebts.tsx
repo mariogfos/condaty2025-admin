@@ -3,7 +3,7 @@ import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { MONTHS } from '@/mk/utils/date';
-
+import RenderForm from './RenderForm/RenderForm'; // AGREGAR ESTA IMPORTACIÓN
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -382,13 +382,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     permiso: 'expense',
     extraData: true,
     hideActions: {
-      add:true,
+      add: true,
       view: false,
-      edit: true,
-      del: true,
+      edit: false,
+      del: false,
     },
-
-
     renderView: (props: any) => (
       <RenderView
         open={props.open}
@@ -400,7 +398,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-
+    // AGREGAR ESTA CONFIGURACIÓN DE RENDERFORM
+    renderForm: (props: any) => (
+      <RenderForm
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        setItem={props.setItem}
+        execute={props.execute}
+        extraData={props.extraData}
+        user={props.user}
+        reLoad={props.reLoad}
+        errors={props.errors}
+        setErrors={props.setErrors}
+        onSave={props.onSave}
+        action={props.action}
+      />
+    ),
   };
 
   const { userCan, List, onEdit, onDel, extraData } = useCrud({

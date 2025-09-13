@@ -11,6 +11,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React from 'react';
+import RenderView from './RenderView/RenderView';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -470,17 +471,22 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     permiso: 'expense',
     extraData: true,
     hideActions: {
-      view: true,
-      edit: true,
-      del: true,
+      view: false, // Habilitar vista
+      edit: false, // Habilitar edición - CAMBIO PRINCIPAL
+      del: false,  // Habilitar eliminación - CAMBIO PRINCIPAL
     },
+    renderView: (props: any) => (
+      <RenderView
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        extraData={props.extraData}
+        user={props.user}
+        onEdit={props.onEdit}
+        onDel={props.onDel}
+      />
+    ),
     titleAdd: 'Nueva',
-    onHideActions: (item: any) => {
-      return {
-        hideEdit: item?.status === 'P' || item?.status === 'X',
-        hideDel: item?.status === 'P' || item?.status === 'X',
-      };
-    },
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 
