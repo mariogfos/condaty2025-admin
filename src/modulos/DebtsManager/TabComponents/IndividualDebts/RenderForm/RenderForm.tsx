@@ -97,7 +97,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     const dataToSend: any = {
       begin_at: formState.begin_at,
       due_at: formState.due_at,
-      type: "4",
+      type: 0,
       description: formState.description,
       subcategory_id: formState.subcategory_id,
       dpto_id: formState.dpto_id,

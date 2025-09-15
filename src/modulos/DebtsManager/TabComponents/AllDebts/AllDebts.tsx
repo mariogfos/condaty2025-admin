@@ -29,24 +29,19 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 }) => {
   const { setStore, store } = useAuth();
 
-  // Renderizar columna Unidad
   const renderUnitCell = ({ item }: { item: any }) => (
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
     <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
   );
 
-  // Renderizar columna Subcategoría
   const renderSubcategoryCell = ({ item }: { item: any }) => (
     <div>{item?.debt?.subcategory?.name || '-'}</div>
   );
 
-  // Renderizar columna Distribución
   const renderDistributionCell = ({ item }: { item: any }) => {
-
     switch (item?.debt?.amount_type) {
       case "F": {
         return <div>Fijo</div>;
@@ -73,11 +68,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         break;
       }
     }
-
-
   };
 
-  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
@@ -115,7 +107,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.debt?.due_at) return <div>-</div>;
     const date = new Date(item.debt.due_at);
@@ -130,17 +121,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Deuda
   const renderDebtAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  // Renderizar columna Multa
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
-  // Renderizar columna Saldo a cobrar
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -150,7 +138,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
 
-  // Opciones para filtros
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
@@ -191,7 +178,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
     const currentYear = new Date().getFullYear();
 
-    // Generar periodos de los últimos 3 años
     for (let year = currentYear; year >= currentYear - 2; year--) {
       MONTHS.slice(1).forEach((month, index) => {
         periods.push({
@@ -204,7 +190,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return periods;
   };
 
-  // Función para calcular totales manualmente
   const calculateTotals = (data: any[]) => {
     if (!data || data.length === 0) return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
 
@@ -222,7 +207,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     }, { totalDebt: 0, totalPenalty: 0, totalBalance: 0 });
   };
 
-  // Renderizar pie de tabla personalizado con diseño verde
   const renderCustomFooter = (data: any[]) => {
     const totals = calculateTotals(data);
 
@@ -294,7 +278,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     perPage: 20,
   };
 
-  // Función para renderizar totales con diseño verde
   const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
     <div style={{
       fontWeight: 'bold',
@@ -369,8 +352,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 6,
         },
       },
-      // CAMBIAR ESTAS CLAVES Y AGREGAR CONFIGURACIÓN DE SUMA
-      amount: { // Cambiar de debt_amount a amount para coincidir con API
+      amount: {
         rules: [''],
         api: '',
         label: (
@@ -379,12 +361,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
-          sumarize: true, // HABILITAR SUMA
+          sumarize: true,
           onRenderFoot: (item: any, index: number, sumas: any) =>
-            renderTotalWithGreenBorder(sumas[item.key]), // RENDERIZADOR PERSONALIZADO
+            renderTotalWithGreenBorder(sumas[item.key]),
         },
       },
-      penalty_amount: { // Esta clave ya coincide con API
+      penalty_amount: {
         rules: [''],
         api: '',
         label: (
@@ -393,12 +375,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
-          sumarize: true, // HABILITAR SUMA
+          sumarize: true,
           onRenderFoot: (item: any, index: number, sumas: any) =>
-            renderTotalWithGreenBorder(sumas[item.key]), // RENDERIZADOR PERSONALIZADO
+            renderTotalWithGreenBorder(sumas[item.key]),
         },
       },
-      // Para el saldo total, calculamos manualmente
       balance_due: {
         rules: [''],
         api: '',
@@ -408,15 +389,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderBalanceDueCell,
           order: 9,
-          sumarize: false, // No usar suma automática
+          sumarize: false,
           onRenderFoot: (item: any, index: number, sumas: any) => {
-            // Calcular el total manualmente
             const totalBalance = (sumas.amount || 0) + (sumas.penalty_amount || 0);
-            return renderTotalWithGreenBorder(totalBalance, true); // Destacado en verde
+            return renderTotalWithGreenBorder(totalBalance, true);
           },
         },
       },
-      // NUEVOS FILTROS
       status_filter: {
         rules: [],
         api: 'ae',
@@ -498,7 +477,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     filter: true,
     permiso: 'expense',
     extraData: true,
-    sumarize: true, // HABILITAR TOTALES GLOBALMENTE
+    sumarize: true,
     hideActions: {
       add: true,
       view: false,
@@ -540,7 +519,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     fields,
   });
 
-  // Pasar extraData al componente padre cuando cambie
   useEffect(() => {
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
@@ -584,7 +562,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const onClickDetail = (row: any) => {
-    // No hacer nada - evitar redirección
   };
 
   return (
@@ -597,7 +574,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
-        sumarize={true} // CAMBIAR A TRUE PARA HABILITAR SUMARIZE
+        sumarize={true}
       />
     </>
   );
