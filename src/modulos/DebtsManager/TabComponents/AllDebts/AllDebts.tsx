@@ -477,7 +477,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     filter: true,
     permiso: 'expense',
     extraData: true,
-    sumarize: true,
+    sumarize: false,
     hideActions: {
       add: true,
       view: false,
@@ -565,7 +565,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   return (
-    <>
       <List
         height={'calc(100vh - 500px)'}
         onTabletRow={renderItem}
@@ -574,9 +573,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
-        sumarize={true}
+        sumarize={false}
       />
-    </>
   );
 };
 

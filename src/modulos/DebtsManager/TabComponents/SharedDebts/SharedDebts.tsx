@@ -49,9 +49,8 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   const renderDistributionCell = ({ item }: { item: any }) => {
     const getDistributionText = (amountType: string) => {
       const distributionMap: { [key: string]: string } = {
-        M: 'Monto fijo',
-        P: 'Porcentual',
-        V: 'Variable',
+        M: 'Por m²',
+        P: 'Promedio',
         F: 'Fijo',
       };
       return distributionMap[amountType] || '-/-';
@@ -97,7 +96,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.due_at) return <div>-</div>;
+    if (!item?.due_at) return <div>-/-</div>;
     const date = new Date(item.due_at);
     return (
       <div>
@@ -200,7 +199,25 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   const fields = useMemo(() => {
     return {
+      // Campos principales para el formulario
       id: { rules: [], api: 'e' },
+      begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
+      type: { rules: [], api: 'ae', label: 'Tipo' },
+      description: { rules: [], api: 'ae', label: 'Descripción' },
+      category_id: { rules: ['required'], api: 'ae', label: 'Categoría' },
+      subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
+      asignar: { rules: ['required'], api: 'ae', label: 'Asignación' },
+      dpto_id: { rules: [], api: 'ae', label: 'Departamentos' },
+      amount_type: { rules: ['required'], api: 'ae', label: 'Tipo de monto' },
+      amount: { rules: ['required'], api: 'ae', label: 'Monto' },
+      is_advance: { rules: [], api: 'ae', label: 'Es adelanto' },
+      interest: { rules: [], api: 'ae', label: 'Interés' },
+      has_mv: { rules: [], api: 'ae', label: 'Tiene MV' },
+      is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
+      has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
+      is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
+
+      // Campos solo para visualización (sin api)
       concept: {
         rules: [''],
         api: '',
@@ -247,9 +264,9 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         },
       },
       due_at: {
-        rules: [''],
-        api: '',
-        label: 'Vencimiento',
+        rules: ['required'],
+         api: 'ae',
+         label: 'Fecha de vencimiento',
         list: {
           onRender: renderDueDateCell,
           order: 6,
@@ -286,7 +303,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           order: 9,
         },
       },
-      // FILTROS
+      // SOLO FILTROS - NO CAMPOS DE FORMULARIO
       status_filter: {
         rules: [],
         api: 'ae',
@@ -356,108 +373,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           optionLabel: 'name',
           optionValue: 'id',
         },
-      },
-      // Campos de formulario (mantener los existentes)
-      subcategory_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Subcategoría',
-        form: {
-          type: 'select',
-          options: [
-            { id: 1, name: 'Agua' },
-            { id: 2, name: 'Electricidad' },
-            { id: 3, name: 'Gas' },
-            { id: 4, name: 'Internet' },
-            { id: 5, name: 'Teléfono' },
-            { id: 6, name: 'Limpieza' },
-            { id: 7, name: 'Jardinería' },
-          ],
-        },
-        list: false,
-      },
-      amount_type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Tipo de monto',
-        form: {
-          type: 'select',
-          options: [
-            { id: 'F', name: 'Fijo' },
-            { id: 'V', name: 'Variable' },
-            { id: 'P', name: 'Porcentual' },
-            { id: 'M', name: 'Monto fijo' },
-          ],
-        },
-        list: false,
-      },
-      description: {
-        rules: [],
-        api: 'ae',
-        label: 'Descripción',
-        form: { type: 'textarea' },
-        list: false,
-      },
-      asignar: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Asignar',
-        form: {
-          type: 'select',
-          options: [
-            { id: 'S', name: 'Sí' },
-            { id: 'N', name: 'No' },
-          ],
-        },
-        list: false,
-      },
-      dpto_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Departamento',
-        form: { type: 'select' },
-        list: false,
-      },
-      is_advance: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Es anticipo',
-        form: {
-          type: 'select',
-          options: [
-            { id: 'Y', name: 'Sí' },
-            { id: 'N', name: 'No' },
-          ],
-        },
-        list: false,
-      },
-      has_mv: {
-        rules: [],
-        api: 'ae',
-        label: 'Tiene MV',
-        form: { type: 'checkbox' },
-        list: false,
-      },
-      is_forgivable: {
-        rules: [],
-        api: 'ae',
-        label: 'Es perdonable',
-        form: { type: 'checkbox' },
-        list: false,
-      },
-      has_pp: {
-        rules: [],
-        api: 'ae',
-        label: 'Tiene PP',
-        form: { type: 'checkbox' },
-        list: false,
-      },
-      is_blocking: {
-        rules: [],
-        api: 'ae',
-        label: 'Es bloqueante',
-        form: { type: 'checkbox' },
-        list: false,
       },
     };
   }, []);
