@@ -4,6 +4,7 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
 import Select from '@/mk/components/forms/Select/Select';
 import Check from '@/mk/components/forms/Check/Check';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import { MONTHS } from '@/mk/utils/date';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
@@ -11,6 +12,7 @@ import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
 import { UnitsType } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
+import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -160,19 +162,39 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     // Fallback: devolver array vacío si no hay datos
     return [];
   };
+  const getCategoryOptions = () => {
+    // Si extraData tiene las categorías con subcategorías (hijos)
+    if (extraData?.categories) {
+      const subcategories: any[] = [];
 
+      // Iterar sobre todas las categorías
+      extraData.categories.forEach((category: any) => {
+        // Si la categoría tiene hijos (subcategorías), agregarlos
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            subcategories.push({
+              id: subcategory.id,
+              name: subcategory.name,
+              category_name: category.name, // Opcional: incluir el nombre de la categoría padre
+            });
+          });
+        }
+      });
 
+      return subcategories;
+    }
 
+    // Si extraData tiene una estructura directa con hijos
+    if (extraData?.hijos && Array.isArray(extraData.hijos)) {
+      return extraData.hijos.map((subcategory: any) => ({
+        id: subcategory.id,
+        name: subcategory.name,
+      }));
+    }
 
-
-  const getAmountTypeOptions = () => [
-    { id: 'F', name: 'Fijo' },
-    { id: 'V', name: 'Variable' },
-    { id: 'P', name: 'Porcentual' },
-    { id: 'M', name: 'Por m²' },
-    { id: 'A', name: 'Promedio' },
-  ];
-
+    // Fallback: devolver array vacío si no hay datos
+    return [];
+  };
 
 
   useEffect(() => {
@@ -204,6 +226,53 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       buttonCancel="Cancelar"
     >
       <div className={styles.formContainer}>
+        {/* Segunda fila - Subcategoría y Unidad */}
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Select
+              label="Unidad"
+              name="dpto_id"
+              value={formState.dpto_id}
+              options={ldpto}
+              optionLabel="label"
+              optionValue="id"
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar unidad"
+            />
+          </div>
+        </div>
+        {/* Tercera fila - Tipo de monto y Monto */}
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Input
+              label="Monto (Bs)"
+              name="amount"
+              value={formState.amount}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              error={errors}
+              required
+              placeholder="0.00"
+            />
+          </div>
+          <div className={styles.formField}>
+            <Input
+              label="Interés (%)"
+              name="interest"
+              value={formState.interest}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              max="100"
+              error={errors}
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
         {/* Primera fila - Fechas */}
         <div className={styles.formRow}>
           <div className={styles.formField}>
@@ -234,6 +303,18 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
+              label="Categoría"
+              name="category_id"
+              value={formState.category_id}
+              options={getCategoryOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar categoría"
+            />
+          </div>
+          <div className={styles.formField}>
+            <Select
               label="Subcategoría"
               name="subcategory_id"
               value={formState.subcategory_id}
@@ -244,121 +325,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               placeholder="Seleccionar subcategoría"
             />
           </div>
-          <div className={styles.formField}>
-            <Select
-              label="Unidad"
-              name="dpto_id"
-              value={formState.dpto_id}
-              options={ldpto}
-              optionLabel="label"
-              optionValue="id"
-              onChange={handleChange}
-              error={errors}
-              required
-              placeholder="Seleccionar unidad"
-            />
-          </div>
         </div>
-
-        {/* Tercera fila - Tipo de monto y Monto */}
-        <div className={styles.formRow}>
-
-          <div className={styles.formField}>
-            <Input
-              label="Monto (Bs)"
-              name="amount"
-              value={formState.amount}
-              onChange={handleChange}
-              type="number"
-              min="0"
-              error={errors}
-              required
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-
-        {/* Sección de configuración avanzada comprimida */}
-        <div className={styles.advancedSectionCompact}>
-          <div className={styles.advancedToggleCompact}>
-            <Check
-              label="Configuración avanzada"
-              name="show_advanced"
-              value={formState.show_advanced ? 'Y' : 'N'}
-              checked={formState.show_advanced}
-              onChange={handleChange}
-              error={errors}
-            />
-          </div>
-
-          {/* Opciones avanzadas comprimidas */}
-          {formState.show_advanced && (
-            <div className={styles.advancedOptionsCompact}>
-              {/* Campo de interés */}
-              <div className={styles.interestFieldCompact}>
-                <Input
-                  label="Interés (%)"
-                  name="interest"
-                  value={formState.interest}
-                  onChange={handleChange}
-                  type="number"
-                  min="0"
-                  max="100"
-                  error={errors}
-                  placeholder="0.00"
-                />
-              </div>
-
-              {/* Checkboxes organizados en línea horizontal */}
-              <div className={styles.checkboxRowCompact}>
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Tiene Mantenimiento de Valor"
-                    name="has_mv"
-                    value={formState.has_mv ? 'Y' : 'N'}
-                    checked={formState.has_mv}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Es perdonable"
-                    name="is_forgivable"
-                    value={formState.is_forgivable ? 'Y' : 'N'}
-                    checked={formState.is_forgivable}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Tiene Plan de Pago"
-                    name="has_pp"
-                    value={formState.has_pp ? 'Y' : 'N'}
-                    checked={formState.has_pp}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Es bloqueante"
-                    name="is_blocking"
-                    value={formState.is_blocking ? 'Y' : 'N'}
-                    checked={formState.is_blocking}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* Campo de descripción */}
         <div className={styles.descriptionField}>
           <TextArea
@@ -371,6 +338,102 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
             error={errors}
             placeholder="Descripción adicional de la deuda (opcional)..."
           />
+        </div>
+        {/* Sección de Opciones Avanzadas con flecha desplegable */}
+        <div className={styles.advancedSection}>
+          <div
+            className={styles.advancedToggle}
+            onClick={() =>
+              setFormState((prev: any) => ({ ...prev, show_advanced: !prev.show_advanced }))
+            }
+          >
+            <span className={styles.advancedLabel}>Opciones avanzadas</span>
+            <span
+              className={`${styles.advancedArrow} ${
+                formState.show_advanced ? styles.advancedArrowOpen : ''
+              }`}
+            >
+              <IconArrowDown />
+            </span>
+          </div>
+
+          {formState.show_advanced && (
+            <div className={styles.advancedOptions}>
+              <div className={styles.checkboxGrid}>
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Tiene Mantenimiento de Valor"
+                    name="has_mv"
+                    value={formState.has_mv ? 'Y' : 'N'}
+                    checked={formState.has_mv}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Ajusta automáticamente el valor de la deuda según la inflación o índices económicos"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Será condonable"
+                    name="is_forgivable"
+                    value={formState.is_forgivable ? 'Y' : 'N'}
+                    checked={formState.is_forgivable}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Permite que la administración pueda perdonar o cancelar esta deuda en casos especiales"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Será bloqueante por mora"
+                    name="is_blocking"
+                    value={formState.is_blocking ? 'Y' : 'N'}
+                    checked={formState.is_blocking}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Impide que el propietario realice ciertas acciones hasta que pague esta deuda"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Tendrá plan de pago"
+                    name="has_pp"
+                    value={formState.has_pp ? 'Y' : 'N'}
+                    checked={formState.has_pp}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Permite dividir el pago de esta deuda en cuotas mensuales"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </DataModal>

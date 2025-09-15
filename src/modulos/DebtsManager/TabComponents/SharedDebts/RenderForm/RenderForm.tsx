@@ -4,6 +4,7 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import Input from '@/mk/components/forms/Input/Input';
 import Select from '@/mk/components/forms/Select/Select';
 import Check from '@/mk/components/forms/Check/Check';
+import Tooltip from '@/mk/components/ui/Tooltip/Tooltip';
 import { MONTHS } from '@/mk/utils/date';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import { checkRules, hasErrors } from '@/mk/utils/validate/Rules';
@@ -11,6 +12,7 @@ import TextArea from '@/mk/components/forms/TextArea/TextArea';
 import { getFullName } from '@/mk/utils/string';
 import { UnitsType } from '@/mk/utils/utils';
 import styles from './RenderForm.module.css';
+import { IconArrowDown, IconQuestion } from '@/components/layout/icons/IconsBiblioteca';
 
 type yearProps = { id: string | number; name: string }[];
 
@@ -22,20 +24,19 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     type: 4,
     description: item.description || '',
     subcategory_id: item.subcategory_id || '',
-    asignar: item.asignar || 'T', // Cambiar default a 'T' (Todas las unidades)
-    dpto_id: item.dpto_id || [], // Cambiar a array para multiselect
+    asignar: item.asignar || 'T',
+    dpto_id: item.dpto_id || [],
     amount_type: item.amount_type || 'F',
     amount: item.amount || '',
     is_advance: item.is_advance || 'Y',
     interest: item.interest || 0,
-    // Checkbox principal para mostrar configuración avanzada
+    // Cambiar a show_advanced para controlar el desplegable
     show_advanced: item.show_advanced || false,
     // Checkboxes avanzados
     has_mv: item.has_mv === 'Y' || item.has_mv === true,
     is_forgivable: item.is_forgivable === 'Y' || item.is_forgivable === true,
     has_pp: item.has_pp === 'Y' || item.has_pp === true || item.has_pp === undefined,
     is_blocking: item.is_blocking === 'Y' || item.is_blocking === true,
-
   });
   const [errors, setErrors]: any = useState({});
   const [ldpto, setLdpto] = useState([]);
@@ -46,12 +47,11 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
 
-    // Si cambia el campo asignar y no es 'S', limpiar dpto_id
     if (name === 'asignar' && value !== 'S') {
       setFormState((prev: any) => ({
         ...prev,
         [name]: newValue,
-        dpto_id: [] // Limpiar selección de departamentos
+        dpto_id: []
       }));
     } else {
       setFormState((prev: any) => ({ ...prev, [name]: newValue }));
@@ -182,7 +182,40 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     return [];
   };
 
+  // Función para obtener categorías
+  const getCategoryOptions = () => {
+    // Si extraData tiene las categorías con subcategorías (hijos)
+    if (extraData?.categories) {
+      const subcategories: any[] = [];
 
+      // Iterar sobre todas las categorías
+      extraData.categories.forEach((category: any) => {
+        // Si la categoría tiene hijos (subcategorías), agregarlos
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            subcategories.push({
+              id: subcategory.id,
+              name: subcategory.name,
+              category_name: category.name, // Opcional: incluir el nombre de la categoría padre
+            });
+          });
+        }
+      });
+
+      return subcategories;
+    }
+
+    // Si extraData tiene una estructura directa con hijos
+    if (extraData?.hijos && Array.isArray(extraData.hijos)) {
+      return extraData.hijos.map((subcategory: any) => ({
+        id: subcategory.id,
+        name: subcategory.name,
+      }));
+    }
+
+    // Fallback: devolver array vacío si no hay datos
+    return [];
+  };
 
   const getAsignarOptions = () => [
     { id: 'T', name: 'Todas las unidades' },
@@ -225,12 +258,94 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
     <DataModal
       open={open}
       onClose={onClose}
-      title={formState.id ? 'Editar deuda' : 'Crear deuda'}
+      title={formState.id ? 'Editar deuda compartida' : 'Crear deuda compartida'}
       onSave={onSave}
       buttonText="Guardar"
       buttonCancel="Cancelar"
     >
       <div className={styles.formContainer}>
+        {/* Segunda fila - Subcategoría y Asignación */}
+        <div className={styles.formTextHeader}>
+          <p className={styles.formTextHeaderP}>
+            Genera y asigna deudas para distintos conceptos como servicios, mantenimiento o gastos
+            extraordinarios.
+          </p>
+        </div>
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Select
+              label="Asignación"
+              name="asignar"
+              value={formState.asignar}
+              options={getAsignarOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
+        </div>
+        {/* Tercera fila - Unidades (condicional) */}
+        {formState.asignar === 'S' && (
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <Select
+                label="Unidades"
+                name="dpto_id"
+                value={formState.dpto_id}
+                options={ldpto}
+                optionLabel="label"
+                optionValue="id"
+                onChange={handleChange}
+                error={errors}
+                required
+                placeholder="Seleccionar unidades"
+                multiSelect={true}
+              />
+            </div>
+          </div>
+        )}
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Select
+              label="Distribución"
+              name="amount_type"
+              value={formState.amount_type}
+              options={getAmountTypeOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+            />
+          </div>
+        </div>
+        {/* Cuarta fila - Tipo de monto y Monto */}
+        <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Input
+              label="Monto Total (Bs)"
+              name="amount"
+              value={formState.amount}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              error={errors}
+              required
+              placeholder="0.00"
+            />
+          </div>
+          <div className={styles.formField}>
+            <Input
+              label="Interés % (Opcional)"
+              name="interest"
+              value={formState.interest}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              max="100"
+              error={errors}
+              placeholder="0.00"
+            />
+          </div>
+        </div>
         {/* Primera fila - Fechas */}
         <div className={styles.formRow}>
           <div className={styles.formField}>
@@ -257,8 +372,20 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           </div>
         </div>
 
-        {/* Segunda fila - Tipo y Subcategoría */}
+        {/* Segunda fila - Subcategoría y Asignación */}
         <div className={styles.formRow}>
+          <div className={styles.formField}>
+            <Select
+              label="Categoría"
+              name="category_id"
+              value={formState.category_id}
+              options={getCategoryOptions()}
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar categoría"
+            />
+          </div>
           <div className={styles.formField}>
             <Select
               label="Subcategoría"
@@ -271,153 +398,12 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
               placeholder="Seleccionar subcategoría"
             />
           </div>
-          <div className={styles.formField}>
-            <Select
-              label="Asignar"
-              name="asignar"
-              value={formState.asignar}
-              options={getAsignarOptions()}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
-        </div>
-
-        {/* Tercera fila - Asignar y Departamento (condicional) */}
-        <div className={styles.formRow}>
-          {formState.asignar === 'S' && (
-            <div className={styles.formField}>
-              <Select
-                label="Departamentos"
-                name="dpto_id"
-                value={formState.dpto_id}
-                options={ldpto}
-                optionLabel="label"
-                optionValue="id"
-                onChange={handleChange}
-                error={errors}
-                required
-                placeholder="Seleccionar departamentos"
-                multiSelect={true} // Activar multiselect
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Cuarta fila - Tipo de monto y Monto */}
-        <div className={styles.formRow}>
-          <div className={styles.formField}>
-            <Select
-              label="Tipo de monto"
-              name="amount_type"
-              value={formState.amount_type}
-              options={getAmountTypeOptions()}
-              onChange={handleChange}
-              error={errors}
-              required
-            />
-          </div>
-          <div className={styles.formField}>
-            <Input
-              label="Monto (Bs)"
-              name="amount"
-              value={formState.amount}
-              onChange={handleChange}
-              type="number"
-              min="0"
-              error={errors}
-              required
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-
-        {/* Sección de configuración avanzada comprimida */}
-        <div className={styles.advancedSectionCompact}>
-          <div className={styles.advancedToggleCompact}>
-            <Check
-              label="Configuración avanzada"
-              name="show_advanced"
-              value={formState.show_advanced ? 'Y' : 'N'}
-              checked={formState.show_advanced}
-              onChange={handleChange}
-              error={errors}
-            />
-          </div>
-
-          {/* Opciones avanzadas comprimidas */}
-          {formState.show_advanced && (
-            <div className={styles.advancedOptionsCompact}>
-              {/* Campo de interés */}
-              <div className={styles.interestFieldCompact}>
-                <Input
-                  label="Interés (%)"
-                  name="interest"
-                  value={formState.interest}
-                  onChange={handleChange}
-                  type="number"
-                  min="0"
-                  max="100"
-                  error={errors}
-                  placeholder="0.00"
-                />
-              </div>
-
-              {/* Checkboxes organizados en línea horizontal */}
-              <div className={styles.checkboxRowCompact}>
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Tiene Mantenimiento de Valor"
-                    name="has_mv"
-                    value={formState.has_mv ? 'Y' : 'N'}
-                    checked={formState.has_mv}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Es perdonable"
-                    name="is_forgivable"
-                    value={formState.is_forgivable ? 'Y' : 'N'}
-                    checked={formState.is_forgivable}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Tiene Plan de Pago"
-                    name="has_pp"
-                    value={formState.has_pp ? 'Y' : 'N'}
-                    checked={formState.has_pp}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-
-                <div className={styles.checkboxItemCompact}>
-                  <Check
-                    label="Es bloqueante"
-                    name="is_blocking"
-                    value={formState.is_blocking ? 'Y' : 'N'}
-                    checked={formState.is_blocking}
-                    onChange={handleChange}
-                    error={errors}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Campo de descripción */}
         <div className={styles.descriptionField}>
           <TextArea
-            label="Descripción"
+            label="Detalle de la deuda"
             name="description"
             value={formState.description}
             onChange={handleChange}
@@ -426,6 +412,103 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
             error={errors}
             placeholder="Descripción adicional de la deuda (opcional)..."
           />
+        </div>
+
+        {/* Sección de Opciones Avanzadas con flecha desplegable */}
+        <div className={styles.advancedSection}>
+          <div
+            className={styles.advancedToggle}
+            onClick={() =>
+              setFormState((prev: any) => ({ ...prev, show_advanced: !prev.show_advanced }))
+            }
+          >
+            <span className={styles.advancedLabel}>Opciones avanzadas</span>
+            <span
+              className={`${styles.advancedArrow} ${
+                formState.show_advanced ? styles.advancedArrowOpen : ''
+              }`}
+            >
+              <IconArrowDown />
+            </span>
+          </div>
+
+          {formState.show_advanced && (
+            <div className={styles.advancedOptions}>
+              <div className={styles.checkboxGrid}>
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Tiene Mantenimiento de Valor"
+                    name="has_mv"
+                    value={formState.has_mv ? 'Y' : 'N'}
+                    checked={formState.has_mv}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Ajusta automáticamente el valor de la deuda según la inflación o índices económicos"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Será condonable"
+                    name="is_forgivable"
+                    value={formState.is_forgivable ? 'Y' : 'N'}
+                    checked={formState.is_forgivable}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Permite que la administración pueda perdonar o cancelar esta deuda en casos especiales"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Será bloqueante por mora"
+                    name="is_blocking"
+                    value={formState.is_blocking ? 'Y' : 'N'}
+                    checked={formState.is_blocking}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Impide que el propietario realice ciertas acciones hasta que pague esta deuda"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+
+                <div className={styles.checkboxItem}>
+                  <Check
+                    label="Tendrá plan de pago"
+                    name="has_pp"
+                    value={formState.has_pp ? 'Y' : 'N'}
+                    checked={formState.has_pp}
+                    onChange={handleChange}
+                    error={errors}
+                    reverse={true}
+                  />
+                  <Tooltip
+                    title="Permite dividir el pago de esta deuda en cuotas mensuales"
+                    position="top"
+                  >
+                    <IconQuestion size={16} className={styles.tooltipIcon} />
+                  </Tooltip>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </DataModal>

@@ -204,6 +204,24 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       buttonCancel="Cancelar"
     >
       <div className={styles.formContainer}>
+        {/* Segunda fila - Subcategoría y Unidad */}
+        <div className={styles.formRow}>
+
+          <div className={styles.formField}>
+            <Select
+              label="Unidad"
+              name="dpto_id"
+              value={formState.dpto_id}
+              options={ldpto}
+              optionLabel="label"
+              optionValue="id"
+              onChange={handleChange}
+              error={errors}
+              required
+              placeholder="Seleccionar unidad"
+            />
+          </div>
+        </div>
         {/* Primera fila - Fechas */}
         <div className={styles.formRow}>
           <div className={styles.formField}>
@@ -262,7 +280,6 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
 
         {/* Tercera fila - Tipo de monto y Monto */}
         <div className={styles.formRow}>
-
           <div className={styles.formField}>
             <Input
               label="Monto (Bs)"

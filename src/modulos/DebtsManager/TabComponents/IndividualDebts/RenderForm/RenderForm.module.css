@@ -159,7 +159,7 @@
 
 /* Campo de descripción */
 .descriptionField {
-  margin-top: 16px;
+
   width: 100%;
 }
 
@@ -273,5 +273,112 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Nueva sección de opciones avanzadas con flecha desplegable */
+.advancedSection {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+
+}
+
+/* Toggle clickeable con flecha */
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+
+.advancedLabel {
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+}
+
+/* Flecha animada */
+.advancedArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--cWhiteV1);
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.advancedArrowOpen {
+  transform: rotate(180deg);
+}
+
+/* Contenido de opciones avanzadas */
+.advancedOptions {
+  padding: 12px 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Grid de checkboxes - 2x2 como en la imagen */
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  min-height: 45px;
+}
+
+/* Icono de tooltip */
+.tooltipIcon {
+  color: var(--cWhiteV1);
+  cursor: help;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.tooltipIcon:hover {
+  color: var(--cWhite);
+}
+
+/* Animaciones */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+/* Responsive para opciones avanzadas */
+@media (max-width: 768px) {
+  .checkboxGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .checkboxItem {
+    min-height: 40px;
   }
 }
