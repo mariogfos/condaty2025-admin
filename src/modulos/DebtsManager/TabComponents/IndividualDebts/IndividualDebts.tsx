@@ -369,7 +369,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   const mod: ModCrudType = {
     modulo: 'debt-dptos',
-    singular: 'Deuda Individual',
+    singular: 'Deuda',
     plural: '',
     export: true,
     filter: true,
@@ -377,8 +377,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     extraData: true,
     hideActions: {
       view: false,
-      edit: false,
-      del: false,
+      edit: true,
+      del: true,
     },
     renderView: (props: any) => (
       <RenderView
@@ -407,7 +407,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         action={props.action}
       />
     ),
-    titleAdd: 'Nueva',
+    titleAdd: 'Crear',
+
   };
 
   const { userCan, List, onEdit, onDel, extraData } = useCrud({

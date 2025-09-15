@@ -64,11 +64,12 @@ const DebtsManager = () => {
 
   // Configuración de tabs
   const tabs = [
-    { value: 'all', text: 'Todas las deudas' },
-    { value: 'individual', text: 'Deudas individuales' },
-    { value: 'shared', text: 'Deudas grupales' },
-    { value: 'payment_plans', text: 'Planes de pago' },
+    { value: 'all', text: 'Deudas' },
+    { value: 'individual', text: 'Individuales' },
+    { value: 'shared', text: 'Compartidas' },
     { value: 'forgiveness', text: 'Condonaciones' },
+    { value: 'payment_plans', text: 'Planes de pago' },
+
   ];
 
   const goToCategories = () => {

@@ -1,3 +1,169 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.modal {
+  background: var(--cBlackV1);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--cBlackV2);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: var(--cWhiteV1);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--cBlackV2);
+  color: var(--cWhite);
+}
+
+.content {
+  padding: 32px;
+  background-color: var(--cBlackV2);
+  border: 0.5px solid var(--cWhiteV1);
+  border-radius: var(--sL);
+}
+
+.balanceSection {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.balanceLabel {
+  font-size: 16px;
+  color: var(--cWhiteV1);
+  margin-bottom: 8px;
+}
+
+.balanceAmount {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--cWhite);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.statusRow {
+  padding-top: var(--sL);
+  padding-bottom: var(--sL);
+  border-bottom: 0.5px solid var(--cWhiteV1);
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statusItem {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  font-weight: 500;
+}
+
+.value {
+  font-size: 16px;
+  color: var(--cWhite);
+  font-weight: 600;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  max-width: fit-content;
+}
+
+
+.detailsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cWhite);
+  border-top: 0.5px solid var(--cWhiteV1);
+  padding-top: var(--sL);
+  padding-bottom: var(--sL);
+}
+
+.detailsContent {
+  width: 100%;
+  background: var(--cBlackV3);
+  padding: 16px;
+  border-radius: 8px;
+  color: var(--cWhiteV1);
+  line-height: 1.6;
+  margin-bottom: var(--sL);
+
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  border-top: 1px solid var(--cBlackV2);
+}
+
 .container {
   background-color: var(--cBlackV2);
   width: 100%;
@@ -116,7 +282,7 @@
 .detailsSection {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: var(--spXl, 48px);
   width: 100%;
@@ -280,6 +446,33 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .modal {
+    margin: 10px;
+    max-width: none;
+  }
+
+  .header {
+    padding: 20px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .infoRow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .balanceAmount {
+    font-size: 36px;
+  }
+
+  .actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+
   .container {
     padding: var(--spL);
     gap: var(--spM);

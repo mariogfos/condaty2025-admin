@@ -71,7 +71,7 @@
   background: transparent;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  padding: 12px 40px;
+  padding: 12px 16px;
   border-radius: 8px; /* Borde completo redondeado */
   color: var(--cWhite);
   background-color: var(--cHoverBigSidebar);

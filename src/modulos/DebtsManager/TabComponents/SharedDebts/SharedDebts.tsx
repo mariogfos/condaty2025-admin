@@ -464,16 +464,16 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   const mod: ModCrudType = {
     modulo: 'debts',
-    singular: 'Deuda Grupal',
+    singular: 'Deuda Compartida',
     plural: '',
     export: true,
     filter: true,
     permiso: 'expense',
     extraData: true,
     hideActions: {
-      view: false, // Habilitar vista
-      edit: false, // Habilitar edición - CAMBIO PRINCIPAL
-      del: false,  // Habilitar eliminación - CAMBIO PRINCIPAL
+      view: false,
+      edit: true,
+      del: true,
     },
     renderView: (props: any) => (
       <RenderView
@@ -486,7 +486,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-    titleAdd: 'Nueva',
+    titleAdd: 'Crear',
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 

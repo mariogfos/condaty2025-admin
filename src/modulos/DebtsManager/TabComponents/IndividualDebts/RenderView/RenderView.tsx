@@ -1,387 +1,300 @@
 'use client';
-import React, { memo, useState } from 'react';
-import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import React from 'react';
+import styles from './RenderView.module.css';
+import { formatNumber } from '@/mk/utils/numbers';
 import Button from '@/mk/components/forms/Button/Button';
-import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
-import { formatBs } from '@/mk/utils/numbers';
-import { getFullName } from '@/mk/utils/string';
-import { UnitsType } from '@/mk/utils/utils';
-import { IconEdit, IconTrash } from '@/components/layout/icons/IconsBiblioteca';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import useAxios from '@/mk/hooks/useAxios';
 import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
-import styles from './RenderView.module.css';
-
-interface DebtItem {
-  id?: number | string;
-  begin_at?: string;
-  due_at?: string;
-  type?: number;
-  description?: string;
-  subcategory_id?: number;
-  asignar?: string;
-  dpto_id?: number;
-  amount_type?: string;
-  amount?: number | string;
-  is_advance?: string;
-  interest?: number | string;
-  has_mv?: string | boolean;
-  is_forgivable?: string | boolean;
-  has_pp?: string | boolean;
-  is_blocking?: string | boolean;
-  status?: string;
-  created_at?: string;
-  updated_at?: string;
-  user?: any;
-  client_id?: string;
-  month?: number;
-  year?: number;
-  deleted_at?: string | null;
-}
-
-interface ExtraData {
-  dptos?: any[];
-}
 
 interface RenderViewProps {
   open: boolean;
   onClose: () => void;
-  item?: DebtItem | Record<string, any>;
-  extraData?: ExtraData;
+  item: any;
+  extraData?: any;
   user?: any;
-  onEdit?: (item: DebtItem) => void;
-  onDel?: (item: DebtItem) => void;
+  onEdit?: (item: any) => void;
+  onDel?: (item: any) => void;
 }
 
-const RenderView: React.FC<RenderViewProps> = memo(props => {
-  const { open, onClose, item, extraData, user, onEdit, onDel } = props;
-
-  // Consulta DET si solo tenemos un ID o si necesitamos más detalles
+const RenderView: React.FC<RenderViewProps> = ({
+  open,
+  onClose,
+  item,
+  extraData,
+  user,
+  onEdit,
+  onDel
+}) => {
+  // Llamar a la API para obtener detalles completos
   const { data } = useAxios(
-    '/debts',
-    'GET',
+    "/debt-dptos",
+    "GET",
     {
       searchBy: item?.id,
-      fullType: 'DET',
-      perPage: 1,
+      fullType: "DET",
+      perPage: -1,
       page: 1,
     },
-    open && !!item?.id // Solo ejecutar si el modal está abierto y tenemos un ID
+    open && !!item?.id // Solo hacer la llamada cuando el modal esté abierto y tengamos ID
   );
 
-  // Usar los datos de la consulta DET si están disponibles, sino usar el item original
-  const debtDetail = data?.data?.[0] || item || {};
-  const client = user?.clients?.filter((clientItem: any) => clientItem.id === user.client_id)[0];
+  if (!open || !item) return null;
 
-  const getSubcategoryName = (subcategoryId?: number) => {
-    if (!subcategoryId) return 'No especificada';
-    const subcategories: { [key: number]: string } = {
-      1: 'Agua',
-      2: 'Electricidad',
-      3: 'Gas',
-      4: 'Internet',
-      5: 'Teléfono',
-      6: 'Limpieza',
-      7: 'Jardinería',
-      8: 'Reparaciones menores',
-      9: 'Pintura',
-      10: 'Reparación de equipos',
-    };
-    return subcategories[subcategoryId] || 'No especificada';
-  };
+  // Obtener los datos detallados de la API
+  const debtDetail = data?.data?.[0] || item;
 
-  const getTypeName = (type?: number) => {
-    if (!type) return 'No especificado';
-    const types: { [key: number]: string } = {
-      1: 'Cuota ordinaria',
-      2: 'Cuota extraordinaria',
-      3: 'Multa',
-      4: 'Otros'
-    };
-    return types[type] || `Tipo ${type}`;
-  };
-
-  const getAsignarName = (asignar?: string) => {
-    if (!asignar) return 'No especificado';
-    return asignar === 'S' ? 'Sí' : 'No';
-  };
-
-  const getAmountTypeName = (amountType?: string) => {
-    if (!amountType) return 'No especificado';
-    const types: { [key: string]: string } = {
-      'F': 'Fijo',
-      'V': 'Variable',
-      'P': 'Porcentual',
-    };
-    return types[amountType] || 'No especificado';
-  };
-
-  const getIsAdvanceName = (isAdvance?: string) => {
-    if (!isAdvance) return 'No especificado';
-    return isAdvance === 'Y' ? 'Sí' : 'No';
-  };
-
-  const getStatusText = (status?: string) => {
+  const getStatusText = (status: string) => {
     const statusMap: { [key: string]: string } = {
-      'A': 'Activa',
-      'P': 'Pagada',
+      'A': 'Por cobrar',
+      'P': 'Cobrado',
+      'S': 'Por confirmar',
+      'M': 'En mora',
       'C': 'Cancelada',
       'X': 'Anulada'
     };
-    return statusMap[status || ''] || status || 'Activa';
+    return statusMap[status] || status;
   };
 
-  const getDepartmentName = () => {
-    if (!debtDetail?.dpto_id || !extraData?.dptos) return 'No especificado';
-
-    const dpto = extraData.dptos.find((d: any) => d.id === debtDetail.dpto_id);
-    if (!dpto) return 'No especificado';
-
-    return `${getFullName(dpto?.titular) || 'Sin titular'} - ${dpto.nro} ${UnitsType['_' + client?.type_dpto]} ${dpto.description}`;
+  const getStatusConfig = (status: string) => {
+    const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
+      A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
+      P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
+      S: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl4)' },
+      R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' },
+      E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
+      M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+      C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+    };
+    return statusConfig[status] || statusConfig.E;
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No especificada';
+  const getBalanceTitle = (status: string) => {
+    switch (status) {
+      case 'P': return 'Saldo cobrado';
+      case 'M': return 'Saldo a cobrar';
+      case 'A': return 'Saldo a cobrar';
+      default: return 'Saldo a cobrar';
+    }
+  };
+
+  const getAvailableActions = (status: string) => {
+    switch (status) {
+      case 'P':
+        return {
+          showAnular: false,
+          showEditar: false,
+          showRegistrarPago: false,
+          showVerPago: true
+        };
+      case 'M':
+      case 'A':
+        return {
+          showAnular: true,
+          showEditar: true,
+          showRegistrarPago: true,
+          showVerPago: false
+        };
+      default:
+        return {
+          showAnular: true,
+          showEditar: true,
+          showRegistrarPago: true,
+          showVerPago: false
+        };
+    }
+  };
+
+  const debtAmount = parseFloat(debtDetail?.amount) || 0;
+  const penaltyAmount = parseFloat(debtDetail?.penalty_amount) || 0;
+  const maintenanceAmount = parseFloat(debtDetail?.maintenance_amount) || 0;
+  const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
-  const getBooleanText = (value?: string | boolean) => {
-    if (value === undefined || value === null) return 'No especificado';
-    if (typeof value === 'boolean') return value ? 'Sí' : 'No';
-    return value === 'Y' ? 'Sí' : 'No';
-  };
-
-  const getStatusStyle = (status?: string) => {
-    if (status === 'A') return styles.statusActive;
-    if (status === 'P') return styles.statusCompleted;
-    if (status === 'C') return styles.statusCancelled;
-    if (status === 'X') return styles.statusCancelled;
-    return '';
-  };
-
-  const handleEditClick = () => {
-    if (debtDetail && onEdit) {
-      onEdit(debtDetail);
-    }
-  };
-
-  const handleDeleteClick = () => {
-    if (debtDetail && onDel) {
-      onDel(debtDetail);
-    }
-  };
-
-  const formatAmount = (amount?: number | string) => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return formatBs(numAmount || 0);
-  };
-
-  const formatInterest = (interest?: number | string) => {
-    const numInterest = typeof interest === 'string' ? parseFloat(interest) : interest;
-    return numInterest || 0;
-  };
+  const statusText = getStatusText(debtDetail?.status);
+  const { color, bgColor } = getStatusConfig(debtDetail?.status);
+  const balanceTitle = getBalanceTitle(debtDetail?.status);
+  const actions = getAvailableActions(debtDetail?.status);
 
   return (
     <DataModal
       open={open}
       onClose={onClose}
-      title="Detalle de la Deuda"
+      title="Detalle de deuda"
       buttonText=""
       buttonCancel=""
     >
       <LoadingScreen
-        onlyLoading={Object.keys(debtDetail).length === 0 && open}
+        onlyLoading={Object.keys(debtDetail).length === 0}
         type="CardSkeleton"
       >
-        {/* Botones de acción con iconos */}
-        {(onEdit || onDel) && Object.keys(debtDetail).length > 0 && (
-          <div className={styles.headerActionContainer}>
-            {onEdit && (
-              <button
-                type="button"
-                onClick={handleEditClick}
-                className={styles.iconButton}
-                title="Editar deuda"
-              >
-                <IconEdit size={20} color="var(--cAccent)" />
-              </button>
-            )}
-            {onDel && debtDetail.status !== 'X' && debtDetail.status !== 'P' && (
-              <button
-                type="button"
-                onClick={handleDeleteClick}
-                className={styles.iconButtonDanger}
-                title="Eliminar deuda"
-              >
-                <IconTrash size={20} color="var(--cError)" />
-              </button>
-            )}
-          </div>
-        )}
+        <div className={styles.content}>
+        {/* Saldo principal */}
+        <div className={styles.balanceSection}>
+          <div className={styles.balanceLabel}>{balanceTitle}</div>
+          <div className={styles.balanceAmount}>Bs {formatNumber(totalBalance)}</div>
+        </div>
 
-        {Object.keys(debtDetail).length === 0 ? (
-          <div className={styles.container}>
-            <div className={styles.notFoundContainer}>
-              <p className={styles.notFoundText}>
-                No se encontró información de la deuda.
-              </p>
-              <p className={styles.notFoundSuggestion}>
-                Por favor, verifica los detalles o intenta de nuevo más tarde.
-              </p>
+        {/* Información principal */}
+        <div className={styles.infoGrid}>
+          <div className={styles.infoRow}>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Estado:</span>
+              <StatusBadge
+                color={color}
+                backgroundColor={bgColor}
+                containerStyle={{
+                  justifyContent: "flex-start"
+                }}
+              >
+                {statusText}
+              </StatusBadge>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Fecha de inicio:</span>
+              <span className={styles.value}>
+                {formatDate(debtDetail?.debt?.begin_at || debtDetail?.created_at)}
+              </span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Vencimiento:</span>
+              <span className={styles.value}>{formatDate(debtDetail?.debt?.due_at)}</span>
             </div>
           </div>
-        ) : (
-          <div className={styles.container}>
-            {/* Header con monto y fechas principales */}
-            <div className={styles.headerSection}>
-              <div className={styles.amountDisplay}>{formatAmount(debtDetail.amount)}</div>
-              <div className={styles.dateDisplay}>
-                Vence: {formatDate(debtDetail.due_at)}
+
+          {/* Información adicional para estado cobrado */}
+          {debtDetail?.status === 'P' && (
+            <div className={styles.infoRow}>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Método de pago:</span>
+                <span className={styles.value}>{debtDetail?.payment?.method || 'QR'}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Fecha de pago:</span>
+                <span className={styles.value}>
+                  {formatDate(debtDetail?.payment?.paid_at || debtDetail?.paid_at)}
+                </span>
               </div>
             </div>
+          )}
 
-            <hr className={styles.sectionDivider} />
-
-            {/* Sección de detalles principales */}
-            <section className={styles.detailsSection}>
-              {/* Columna Izquierda */}
-              <div className={styles.detailsColumn}>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Período</span>
-                  <span className={styles.infoValue}>
-                    {debtDetail.month && debtDetail.year ?
-                      `${['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][debtDetail.month]} ${debtDetail.year}` :
-                      'No especificado'
-                    }
-                  </span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Fecha de inicio</span>
-                  <span className={styles.infoValue}>{formatDate(debtDetail.begin_at)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Fecha de vencimiento</span>
-                  <span className={styles.infoValue}>{formatDate(debtDetail.due_at)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Tipo</span>
-                  <span className={styles.infoValue}>{getTypeName(debtDetail.type)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Subcategoría</span>
-                  <span className={styles.infoValue}>{getSubcategoryName(debtDetail.subcategory_id)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Asignar</span>
-                  <span className={styles.infoValue}>{getAsignarName(debtDetail.asignar)}</span>
-                </div>
-              </div>
-
-              {/* Columna Derecha */}
-              <div className={styles.detailsColumn}>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Estado</span>
-                  <span className={`${styles.infoValue} ${getStatusStyle(debtDetail.status)}`}>
-                    {getStatusText(debtDetail.status)}
-                  </span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Tipo de monto</span>
-                  <span className={styles.infoValue}>{getAmountTypeName(debtDetail.amount_type)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Monto</span>
-                  <span className={styles.infoValue}>{formatAmount(debtDetail.amount)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Es anticipo</span>
-                  <span className={styles.infoValue}>{getIsAdvanceName(debtDetail.is_advance)}</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Interés (%)</span>
-                  <span className={styles.infoValue}>{formatInterest(debtDetail.interest)}%</span>
-                </div>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Departamento</span>
-                  <span className={styles.infoValue}>{getDepartmentName()}</span>
-                </div>
-              </div>
-            </section>
-
-            <hr className={styles.sectionDivider} />
-
-            {/* Sección de configuración avanzada - Ancho completo */}
-            <section className={styles.advancedSection}>
-              <div className={styles.advancedSectionTitle}>Configuración Avanzada</div>
-              <div className={styles.advancedGrid}>
-                <div className={styles.advancedItem}>
-                  <span className={styles.infoLabel}>Tiene Mantenimiento de Valor</span>
-                  <span className={styles.infoValue}>{getBooleanText(debtDetail.has_mv)}</span>
-                </div>
-                <div className={styles.advancedItem}>
-                  <span className={styles.infoLabel}>Es perdonable</span>
-                  <span className={styles.infoValue}>{getBooleanText(debtDetail.is_forgivable)}</span>
-                </div>
-                <div className={styles.advancedItem}>
-                  <span className={styles.infoLabel}>Tiene Plan de Pago</span>
-                  <span className={styles.infoValue}>{getBooleanText(debtDetail.has_pp)}</span>
-                </div>
-                <div className={styles.advancedItem}>
-                  <span className={styles.infoLabel}>Es bloqueante</span>
-                  <span className={styles.infoValue}>{getBooleanText(debtDetail.is_blocking)}</span>
-                </div>
-              </div>
-            </section>
-
-            {/* Descripción si existe */}
-            {debtDetail.description && (
-              <>
-                <hr className={styles.sectionDivider} />
-                <section className={styles.descriptionSection}>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Descripción</span>
-                    <span className={styles.infoValue}>
-                      {debtDetail.description.split('\n').map((line: string, idx: number) => (
-                        <span key={idx}>{line}</span>
-                      ))}
-                    </span>
-                  </div>
-                </section>
-              </>
-            )}
-
-            <hr className={styles.sectionDivider} />
-
-            {/* Información de fechas del sistema */}
-            <section className={styles.detailsSection}>
-              <div className={styles.detailsColumn}>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Fecha de creación</span>
-                  <span className={styles.infoValue}>
-                    {debtDetail.created_at ? formatToDayDDMMYYYYHHMM(debtDetail.created_at) : 'No disponible'}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.detailsColumn}>
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>Última actualización</span>
-                  <span className={styles.infoValue}>
-                    {debtDetail.updated_at ? formatToDayDDMMYYYYHHMM(debtDetail.updated_at) : 'No disponible'}
-                  </span>
-                </div>
-              </div>
-            </section>
+          <div className={styles.infoRow}>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Unidad</span>
+              <span className={styles.value}>{debtDetail?.dpto?.nro || debtDetail?.dpto_id}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Categoría</span>
+              <span className={styles.value}>
+                {debtDetail?.debt?.subcategory?.category?.name || 'Expensa'}
+              </span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Deuda</span>
+              <span className={styles.value}>Bs {formatNumber(debtAmount)}</span>
+            </div>
           </div>
+
+          <div className={styles.infoRow}>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Propietario</span>
+              <span className={styles.value}>
+                {debtDetail?.dpto?.owner?.name || 'Carlos Daniel Delgadillo Flores'}
+              </span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Subcategoría</span>
+              <span className={styles.value}>
+                {debtDetail?.debt?.subcategory?.name || 'Junio'}
+              </span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Multa</span>
+              <span className={styles.value}>Bs {formatNumber(penaltyAmount)}</span>
+            </div>
+          </div>
+
+          <div className={styles.infoRow}>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Titular</span>
+              <span className={styles.value}>
+                {debtDetail?.dpto?.tenant?.name || 'Marcelo Fernández Peña Galvarro'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Detalles */}
+        {debtDetail?.debt?.description && (
+          <>
+            <h3 className={styles.detailsTitle}>Detalles</h3>
+            <div className={styles.detailsSection}>
+              <div className={styles.detailsContent}>
+                {debtDetail.debt.description || 'Cobro de las expensas del mes de junio'}
+              </div>
+            </div>
+          </>
         )}
+
+        {/* Botones de acción */}
+        <div className={styles.actions}>
+          {actions.showAnular && onDel && (
+            <Button
+              onClick={() => onDel(debtDetail)}
+              variant="secondary"
+              className={styles.actionButton}
+            >
+              Anular
+            </Button>
+          )}
+
+          {actions.showEditar && onEdit && (
+            <Button
+              onClick={() => onEdit(debtDetail)}
+              variant="secondary"
+              className={styles.actionButton}
+            >
+              Editar
+            </Button>
+          )}
+
+          {actions.showRegistrarPago && (
+            <Button
+              onClick={() => {
+                console.log('Registrar pago para:', debtDetail);
+              }}
+              className={styles.primaryButton}
+            >
+              Registrar Pago
+            </Button>
+          )}
+
+          {actions.showVerPago && (
+            <Button
+              onClick={() => {
+                console.log('Ver pago para:', debtDetail);
+              }}
+              className={styles.actionButton}
+            >
+              Ver pago
+            </Button>
+          )}
+        </div>
+      </div>
       </LoadingScreen>
     </DataModal>
   );
-});
-
-RenderView.displayName = 'RenderViewDebtsManager';
+};
 
 export default RenderView;

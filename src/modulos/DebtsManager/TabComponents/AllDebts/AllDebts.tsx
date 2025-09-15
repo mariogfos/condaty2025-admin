@@ -3,7 +3,7 @@ import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { MONTHS } from '@/mk/utils/date';
-import RenderForm from './RenderForm/RenderForm'; // AGREGAR ESTA IMPORTACIÓN
+import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -12,6 +12,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React from 'react';
+import { formatNumber } from '@/mk/utils/numbers';
 
 
 
@@ -203,11 +204,113 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return periods;
   };
 
+  // Función para calcular totales manualmente
+  const calculateTotals = (data: any[]) => {
+    if (!data || data.length === 0) return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
+
+    return data.reduce((acc, item) => {
+      const debtAmount = parseFloat(item?.amount) || 0;
+      const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
+      const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
+      const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
+      return {
+        totalDebt: acc.totalDebt + debtAmount,
+        totalPenalty: acc.totalPenalty + penaltyAmount,
+        totalBalance: acc.totalBalance + totalBalance
+      };
+    }, { totalDebt: 0, totalPenalty: 0, totalBalance: 0 });
+  };
+
+  // Renderizar pie de tabla personalizado con diseño verde
+  const renderCustomFooter = (data: any[]) => {
+    const totals = calculateTotals(data);
+
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'var(--cBlackV2)',
+        border: '2px solid #10b981',
+        borderRadius: '12px',
+        padding: '16px 24px',
+        margin: '16px 0',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        color: 'var(--cWhite)'
+      }}>
+        <div style={{
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: 'var(--cWhite)'
+        }}>
+          Total
+        </div>
+
+        <div style={{
+          display: 'flex',
+          gap: '60px',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            textAlign: 'right',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: 'var(--cWhite)'
+          }}>
+            Bs {totals.totalDebt.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+
+          <div style={{
+            textAlign: 'right',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: 'var(--cWhite)'
+          }}>
+            Bs {totals.totalPenalty.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+
+          <div style={{
+            textAlign: 'right',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: '1px solid #10b981'
+          }}>
+            Bs {totals.totalBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const paramsInitial = {
     fullType: 'L',
     page: 1,
     perPage: 20,
   };
+
+  // Función para renderizar totales con diseño verde
+  const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
+    <div style={{
+      fontWeight: 'bold',
+      fontSize: '14px',
+      color: isHighlighted ? '#10b981' : 'var(--cWhite)',
+      textAlign: 'right',
+      backgroundColor: isHighlighted ? 'rgba(16, 185, 129, 0.1)' : 'var(--cBlackV2)',
+      padding: '8px 12px',
+      borderRadius: '6px',
+      border: '2px solid #10b981',
+      minWidth: '80px',
+      margin: '4px 0'
+    }}>
+      Bs {formatNumber(value || 0, 2)}
+    </div>
+  );
 
   const fields = useMemo(() => {
     return {
@@ -266,7 +369,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 6,
         },
       },
-      debt_amount: {
+      // CAMBIAR ESTAS CLAVES Y AGREGAR CONFIGURACIÓN DE SUMA
+      amount: { // Cambiar de debt_amount a amount para coincidir con API
         rules: [''],
         api: '',
         label: (
@@ -275,9 +379,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
+          sumarize: true, // HABILITAR SUMA
+          onRenderFoot: (item: any, index: number, sumas: any) =>
+            renderTotalWithGreenBorder(sumas[item.key]), // RENDERIZADOR PERSONALIZADO
         },
       },
-      penalty_amount: {
+      penalty_amount: { // Esta clave ya coincide con API
         rules: [''],
         api: '',
         label: (
@@ -286,8 +393,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
+          sumarize: true, // HABILITAR SUMA
+          onRenderFoot: (item: any, index: number, sumas: any) =>
+            renderTotalWithGreenBorder(sumas[item.key]), // RENDERIZADOR PERSONALIZADO
         },
       },
+      // Para el saldo total, calculamos manualmente
       balance_due: {
         rules: [''],
         api: '',
@@ -297,6 +408,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderBalanceDueCell,
           order: 9,
+          sumarize: false, // No usar suma automática
+          onRenderFoot: (item: any, index: number, sumas: any) => {
+            // Calcular el total manualmente
+            const totalBalance = (sumas.amount || 0) + (sumas.penalty_amount || 0);
+            return renderTotalWithGreenBorder(totalBalance, true); // Destacado en verde
+          },
         },
       },
       // NUEVOS FILTROS
@@ -381,11 +498,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     filter: true,
     permiso: 'expense',
     extraData: true,
+    sumarize: true, // HABILITAR TOTALES GLOBALMENTE
     hideActions: {
       add: true,
       view: false,
-      edit: false,
-      del: false,
+      edit: true,
+      del: true,
     },
     renderView: (props: any) => (
       <RenderView
@@ -398,7 +516,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-    // AGREGAR ESTA CONFIGURACIÓN DE RENDERFORM
     renderForm: (props: any) => (
       <RenderForm
         open={props.open}
@@ -477,9 +594,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
-        emptyLine2="de los esidentes las verás aquí."
+        emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
+        sumarize={true} // CAMBIAR A TRUE PARA HABILITAR SUMARIZE
       />
     </>
   );
