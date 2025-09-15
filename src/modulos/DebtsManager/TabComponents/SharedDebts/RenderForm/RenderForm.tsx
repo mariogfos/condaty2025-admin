@@ -88,6 +88,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [ldpto, setLdpto] = useState([]);
   const client = user?.clients?.filter((clientItem: any) => clientItem.id === user.client_id)[0];
 
+  // Función para encontrar la categoría padre
+  const findCategoryBySubcategory = (subcategoryId: string | number) => {
+    if (!extraData?.categories || !subcategoryId) return null;
+
+    for (const category of extraData.categories) {
+      if (category.hijos && Array.isArray(category.hijos)) {
+        const foundSubcategory = category.hijos.find(
+          (sub: any) => sub.id == subcategoryId
+        );
+        if (foundSubcategory) {
+          return category;
+        }
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
@@ -96,13 +113,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (!isInitialized && open) {
       const today = new Date();
       const formattedDate = today.toISOString().split('T')[0];
+
+      // Si estamos editando y tenemos subcategory_id pero no category_id
+      let categoryId = (item && item.category_id) || '';
+      if (!categoryId && item?.subcategory_id) {
+        const parentCategory = findCategoryBySubcategory(item.subcategory_id);
+        categoryId = parentCategory?.id || '';
+      }
+
       _setFormState({
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
         due_at: (item && item.due_at) || '',
         type: 4,
         description: (item && item.description) || '',
-        category_id: (item && item.category_id) || '',
+        category_id: categoryId, // Usar la categoría encontrada
         subcategory_id: (item && item.subcategory_id) || '',
         asignar: (item && item.asignar) || 'T',
         dpto_id: (item && item.dpto_id) || [],
@@ -118,7 +143,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       });
       setIsInitialized(true);
     }
-  }, [open, item, isInitialized]);
+  }, [open, item, isInitialized, extraData?.categories]); // Agregar extraData?.categories como dependencia
 
   const handleChangeInput = useCallback(
     (e: any) => {
