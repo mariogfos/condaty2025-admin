@@ -34,11 +34,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   );
 
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
+    <div>{item?.debt?.subcategory?.padre?.name || '-/-'}</div>
   );
 
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.name || '-'}</div>
+    <div>{item?.debt?.subcategory?.name || '-/-'}</div>
   );
 
   const renderDistributionCell = ({ item }: { item: any }) => {
@@ -108,7 +108,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.debt?.due_at) return <div>-</div>;
+    if (!item?.debt?.due_at) return <div>-/-</div>;
     const date = new Date(item.debt.due_at);
     return (
       <div>
