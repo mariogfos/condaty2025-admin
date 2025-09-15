@@ -200,12 +200,26 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     fullType: 'L',
     page: 1,
     perPage: 20,
-    type: '4', // Tipo para deudas individuales
+    type: '0', 
   };
 
   const fields = useMemo(() => {
     return {
+      // Campos principales para el formulario
       id: { rules: [], api: 'e' },
+      begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
+      type: { rules: [], api: 'ae', label: 'Tipo' },
+      description: { rules: [], api: 'ae', label: 'Descripción' },
+      subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
+      dpto_id: { rules: ['required'], api: 'ae', label: 'Unidad' },
+      amount: { rules: ['required'], api: 'ae', label: 'Monto' },
+      interest: { rules: [], api: 'ae', label: 'Interés' },
+      has_mv: { rules: [], api: 'ae', label: 'Tiene MV' },
+      is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
+      has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
+      is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
+
+      // Campos solo para visualización (sin api)
       unit: {
         rules: [''],
         api: '',
@@ -252,8 +266,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         },
       },
       due_at: {
-        rules: [''],
-        api: '',
+        rules: ['required'],
+        api: 'ae',
         label: 'Vencimiento',
         list: {
           onRender: renderDueDateCell,
@@ -391,24 +405,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-    renderForm: (props: any) => (
-      <RenderForm
-        open={props.open}
-        onClose={props.onClose}
-        item={props.item}
-        setItem={props.setItem}
-        execute={props.execute}
-        extraData={props.extraData}
-        user={props.user}
-        reLoad={props.reLoad}
-        errors={props.errors}
-        setErrors={props.setErrors}
-        onSave={props.onSave}
-        action={props.action}
-      />
-    ),
     titleAdd: 'Crear',
-
+    renderForm: (props: any) => <RenderForm {...props} />, // Simplificar como en SharedDebts
   };
 
   const { userCan, List, onEdit, onDel, extraData } = useCrud({
