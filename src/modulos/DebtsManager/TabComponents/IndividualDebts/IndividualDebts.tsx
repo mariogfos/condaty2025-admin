@@ -58,7 +58,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         return <div>Porcentual</div>;
       }
       case "M": {
-        return <div>Por m²</div>;
+        return <div>Por m<sup>2</sup></div>;
       }
       case "A": {
         return <div>Promedio</div>;
@@ -259,7 +259,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
           order: 5,

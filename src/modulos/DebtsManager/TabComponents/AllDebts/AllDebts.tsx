@@ -56,7 +56,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         break;
       }
       case "M": {
-        return <div>Por m²</div>
+        return <div>Por m<sup>2</sup></div>
         break;
       }
       case "A": {
@@ -337,7 +337,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
           order: 5,

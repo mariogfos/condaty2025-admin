@@ -257,7 +257,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
           order: 5,

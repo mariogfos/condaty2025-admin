@@ -6,6 +6,7 @@ import { IconCategories, IconArrowLeft } from '@/components/layout/icons/IconsBi
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import styles from './DetailSharedDebts.module.css';
+import { span } from 'motion/react-client';
 
 interface DetailSharedDebtsProps {
   debtId: string;
@@ -111,7 +112,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       status: {
         rules: [''],
         api: '',
-        label: 'Estado',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: renderStatusCell,
           order: 2,
