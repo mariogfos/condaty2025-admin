@@ -43,6 +43,11 @@ interface RenderFormProps {
   showToast: (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
   user?: any;
+  // Agregar estas props que vienen de useCrud
+  setItem?: (item: any) => void;
+  errors?: any;
+  setErrors?: (errors: any) => void;
+  action?: string;
 }
 
 const RenderForm: React.FC<RenderFormProps> = ({
@@ -53,6 +58,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
   showToast,
   onSave,
   user,
+  setItem,
+  errors: externalErrors,
+  setErrors: externalSetErrors,
+  action,
 }) => {
   const [_formState, _setFormState] = useState<DebtFormState>(() => {
     const today = new Date();
@@ -230,10 +239,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
     onClose();
   }, [onClose]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!validar()) return;
 
-    // Crear el objeto base
     const dataToSave = {
       ..._formState,
       // Convertir valores booleanos a strings como espera el backend
@@ -246,8 +254,45 @@ const RenderForm: React.FC<RenderFormProps> = ({
       interest: parseFloat(String(_formState.interest || '0')),
     };
 
-    onSave?.(dataToSave);
+    try {
+      // Si tenemos onSave (viene de useCrud), usarlo
+      if (onSave) {
+        await onSave(dataToSave);
+        // No llamar onCloseModal aquí porque useCrud ya maneja el cierre
+      }
+    } catch (error) {
+      console.error('Error saving:', error);
+    }
   }, [_formState, validar, onSave]);
+
+  // Usar errores externos si están disponibles, sino usar los internos
+  const currentErrors = externalErrors || _errors;
+  const currentSetErrors = externalSetErrors || set_Errors;
+
+  // Resetear el formulario cuando se cierre
+  useEffect(() => {
+    if (!open && isInitialized) {
+      setIsInitialized(false);
+      const today = new Date();
+      const formattedDate = today.toISOString().split('T')[0];
+      _setFormState({
+        begin_at: formattedDate,
+        due_at: '',
+        type: 0,
+        description: '',
+        subcategory_id: '',
+        dpto_id: '',
+        amount: '',
+        interest: 0,
+        show_advanced: false,
+        has_mv: false,
+        is_forgivable: false,
+        has_pp: true,
+        is_blocking: false,
+      });
+      set_Errors({});
+    }
+  }, [open, isInitialized]);
 
   const getSubcategoryOptions = () => {
     if (!extraData?.categories) {
@@ -292,7 +337,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   return (
     <DataModal
       open={open}
-      onClose={onCloseModal}
+      onClose={onClose} // Usar directamente onClose sin wrapper
       onSave={handleSave}
       buttonCancel="Cancelar"
       buttonText={_formState.id ? 'Actualizar' : 'Crear deuda individual'}
@@ -316,10 +361,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
               optionLabel="label"
               optionValue="id"
               onChange={handleChangeInput}
-              error={_errors}
+              error={currentErrors}
               required
               placeholder="Seleccionar unidad"
-              className={_errors.dpto_id ? styles.error : ''}
+              className={currentErrors.dpto_id ? styles.error : ''}
             />
           </div>
         </div>

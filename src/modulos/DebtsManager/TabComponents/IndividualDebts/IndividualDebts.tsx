@@ -11,6 +11,8 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import Button from '@/mk/components/forms/Button/Button';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 interface IndividualDebtsProps {
@@ -29,6 +31,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   onExtraDataChange,
 }) => {
   const { setStore, store } = useAuth();
+  const router = useRouter();
 
   // Renderizar columna Unidad
   const renderUnitCell = ({ item }: { item: any }) => (
@@ -370,10 +373,37 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     renderForm: (props: any) => <RenderForm {...props} />, // Simplificar como en SharedDebts
   };
 
+  // Función para ir a categorías
+  const goToCategories = (type = '') => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push('/categories');
+    }
+  };
+
+  // Botones extra para incluir el botón de categorías
+  const extraButtons = [
+    <Button
+      key="categories-button"
+      onClick={() => goToCategories('D')}
+      style={{
+        padding: '8px 16px',
+        width: 'auto',
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      Categorías
+    </Button>,
+  ];
+
   const { userCan, List, onEdit, onDel, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
+    extraButtons, // Agregar extraButtons aquí
   });
 
   // Pasar extraData al componente padre cuando cambie

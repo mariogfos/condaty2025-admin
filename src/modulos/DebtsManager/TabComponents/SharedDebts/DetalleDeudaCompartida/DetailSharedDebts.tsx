@@ -49,6 +49,15 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
 
+  // Función para ir a categorías
+  const goToCategories = (type = '') => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push('/categories');
+    }
+  };
+
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
@@ -209,10 +218,28 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     },
   };
 
+  // Botones extra para incluir el botón de categorías
+  const extraButtons = [
+    <Button
+      key="categories-button"
+      onClick={() => goToCategories('D')}
+      style={{
+        padding: '8px 16px',
+        width: 'auto',
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      Categorías
+    </Button>,
+  ];
+
   const { List, extraData, execute, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
+    extraButtons, // Agregar extraButtons aquí
   });
 
   const typedExecute = async (url: string, method: string, params: any): Promise<any> => {
@@ -388,7 +415,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             </div>
           </div>
 
-          {/* Botones de acción */}
+          {/* Botones de acción - REMOVER el botón de categorías de aquí */}
           <div className={styles.actionButtons}>
             <Button
               onClick={handleEdit}
@@ -409,7 +436,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           </div>
         </div>
 
-        {/* Lista con useCrud */}
+        {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
             height={'calc(100vh - 570px)'}

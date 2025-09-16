@@ -10,8 +10,11 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import Button from '@/mk/components/forms/Button/Button';
 import React from 'react';
 
+// Importar useRouter para navegación
+import { useRouter } from 'next/navigation';
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -21,9 +24,6 @@ interface SharedDebtsProps {
   onExtraDataChange?: (extraData: any) => void;
 }
 
-// Importar useRouter para navegación
-import { useRouter } from 'next/navigation';
-
 const SharedDebts: React.FC<SharedDebtsProps> = ({
   openView,
   setOpenView,
@@ -32,7 +32,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   onExtraDataChange,
 }) => {
   const { setStore, store } = useAuth();
-  const router = useRouter(); // Agregar useRouter
+  const router = useRouter();
 
   // Renderizar columna Concepto (descripción)
   const renderConceptCell = ({ item }: { item: any }) => (
@@ -400,10 +400,37 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     renderForm: (props: any) => <RenderForm {...props} />,
   };
 
+  // Función para ir a categorías
+  const goToCategories = (type = '') => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push('/categories');
+    }
+  };
+
+  // Botones extra para incluir el botón de categorías
+  const extraButtons = [
+    <Button
+      key="categories-button"
+      onClick={() => goToCategories('D')}
+      style={{
+        padding: '8px 16px',
+        width: 'auto',
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      Categorías
+    </Button>,
+  ];
+
   const { userCan, List, onEdit, onDel, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
+    extraButtons, // Agregar extraButtons aquí
   });
 
   // Pasar extraData al componente padre cuando cambie

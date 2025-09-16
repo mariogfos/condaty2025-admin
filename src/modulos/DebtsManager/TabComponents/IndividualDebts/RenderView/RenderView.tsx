@@ -127,6 +127,24 @@ const RenderView: React.FC<RenderViewProps> = ({
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status);
 
+  // Función para manejar la edición
+  const handleEdit = () => {
+    if (onEdit) {
+      // Cerrar la vista antes de abrir el formulario de edición
+      onClose();
+      onEdit(debtDetail);
+    }
+  };
+
+  // Función para manejar la eliminación
+  const handleDelete = () => {
+    if (onDel) {
+      // Cerrar la vista antes de abrir el modal de confirmación
+      onClose();
+      onDel(debtDetail);
+    }
+  };
+
   return (
     <DataModal
       open={open}
@@ -251,7 +269,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         <div className={styles.actions}>
           {actions.showAnular && onDel && (
             <Button
-              onClick={() => onDel(debtDetail)}
+              onClick={handleDelete}
               variant="secondary"
               className={styles.actionButton}
             >
@@ -261,7 +279,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
           {actions.showEditar && onEdit && (
             <Button
-              onClick={() => onEdit(debtDetail)}
+              onClick={handleEdit}
               variant="secondary"
               className={styles.actionButton}
             >
