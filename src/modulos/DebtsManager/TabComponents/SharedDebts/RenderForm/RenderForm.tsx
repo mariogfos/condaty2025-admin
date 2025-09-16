@@ -24,7 +24,6 @@ interface DebtFormState {
   dpto_id?: any[]; // Hacer opcional
   amount_type: string;
   amount: string | number;
-  is_advance: string;
   interest: number;
   show_advanced: boolean;
   has_mv: boolean;
@@ -73,7 +72,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       dpto_id: (item && item.dpto_id) || [],
       amount_type: (item && item.amount_type) || 'F',
       amount: (item && item.amount) || '',
-      is_advance: (item && item.is_advance) || 'Y',
       interest: (item && item.interest) || 0,
       show_advanced: (item && item.show_advanced) || false,
       has_mv: (item && item.has_mv) || false,
@@ -133,7 +131,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
         dpto_id: (item && item.dpto_id) || [],
         amount_type: (item && item.amount_type) || 'F',
         amount: (item && item.amount) || '',
-        is_advance: (item && item.is_advance) || 'Y',
         interest: (item && item.interest) || 0,
         show_advanced: (item && item.show_advanced) || false,
         has_mv: (item && item.has_mv) || false,
@@ -268,7 +265,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       dpto_id: [],
       amount_type: 'F',
       amount: '',
-      is_advance: 'Y',
       interest: 0,
       show_advanced: false,
       has_mv: false,
