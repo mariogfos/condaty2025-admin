@@ -222,6 +222,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const extraButtons = [
     <Button
       key="categories-button"
+      variant="secondary"
       onClick={() => goToCategories('D')}
       style={{
         padding: '8px 16px',
@@ -235,11 +236,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     </Button>,
   ];
 
-  const { List, extraData, execute, reLoad } = useCrud({
+  // CAMBIO IMPORTANTE: Obtener onSave de useCrud
+  const { List, extraData, execute, reLoad, onSave } = useCrud({
     paramsInitial,
     mod,
     fields,
-    extraButtons, // Agregar extraButtons aquí
+    extraButtons,
   });
 
   const typedExecute = async (url: string, method: string, params: any): Promise<any> => {
@@ -329,10 +331,25 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
 
-  const handleFormSave = (data: any) => {
-  reLoad();
-  setShowEditForm(false);
-  showToast('Deuda actualizada exitosamente', 'success');
+  // CORREGIR: Usar execute directo en lugar de onSave de useCrud
+  const handleFormSave = async (data: any) => {
+    try {
+      console.log('Datos a enviar:', data); // Debug
+
+      // Usar execute directo con el endpoint correcto
+      const response = await execute(`/debts/${debtId}`, 'PUT', data);
+
+      if (response?.data?.success) {
+        setShowEditForm(false);
+        reLoad(); // Recargar la lista de detalles
+        showToast('Deuda actualizada exitosamente', 'success');
+      } else {
+        showToast(response?.data?.message || 'Error al actualizar la deuda', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating debt:', error);
+      showToast('Error al actualizar la deuda', 'error');
+    }
   };
 
   const FormDelete = ({ open, onClose, item, onConfirm, message = "" }: any) => {

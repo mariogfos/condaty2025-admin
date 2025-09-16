@@ -413,6 +413,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   const extraButtons = [
     <Button
       key="categories-button"
+      variant='secondary'
       onClick={() => goToCategories('D')}
       style={{
         padding: '8px 16px',

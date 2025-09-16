@@ -61,6 +61,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     return {
+      // IMPORTANTE: Incluir el ID si existe para actualizaciones
+      id: (item && item.id) || undefined,
       ...(item || {}),
       begin_at: (item && item.begin_at) || formattedDate,
       due_at: (item && item.due_at) || '',
@@ -76,7 +78,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       show_advanced: (item && item.show_advanced) || false,
       has_mv: (item && item.has_mv) || false,
       is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) !== false, // Por defecto true
+      has_pp: (item && item.has_pp) !== false,
       is_blocking: (item && item.is_blocking) || false,
     };
   });
@@ -120,12 +122,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
 
       _setFormState({
+        // IMPORTANTE: Preservar el ID para actualizaciones
+        id: (item && item.id) || undefined,
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
         due_at: (item && item.due_at) || '',
         type: 4,
         description: (item && item.description) || '',
-        category_id: categoryId, // Usar la categoría encontrada
+        category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || '',
         asignar: (item && item.asignar) || 'T',
         dpto_id: (item && item.dpto_id) || [],
@@ -140,7 +144,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       });
       setIsInitialized(true);
     }
-  }, [open, item, isInitialized, extraData?.categories]); // Agregar extraData?.categories como dependencia
+  }, [open, item, isInitialized, extraData?.categories]);
 
   const handleChangeInput = useCallback(
     (e: any) => {
@@ -276,29 +280,43 @@ const RenderForm: React.FC<RenderFormProps> = ({
     onClose();
   }, [onClose]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!validar()) return;
 
-    // Crear el objeto base sin dpto_id
+    // Crear el objeto base
     const baseData = {
-      ..._formState,
-      // Convertir valores booleanos a strings como espera el backend
+      id: _formState.id, // IMPORTANTE: ID para PUT
+      begin_at: _formState.begin_at,
+      due_at: _formState.due_at,
+      type: _formState.type,
+      description: _formState.description,
+      category_id: _formState.category_id,
+      subcategory_id: _formState.subcategory_id,
+      asignar: _formState.asignar,
+      amount_type: _formState.amount_type,
+      amount: parseFloat(String(_formState.amount || '0')),
+      interest: parseFloat(String(_formState.interest || '0')),
+      // Convertir valores booleanos a strings
       has_mv: _formState.has_mv ? 'Y' : 'N',
       is_forgivable: _formState.is_forgivable ? 'Y' : 'N',
       has_pp: _formState.has_pp ? 'Y' : 'N',
       is_blocking: _formState.is_blocking ? 'Y' : 'N',
-      // Asegurar que amount e interest sean números
-      amount: parseFloat(String(_formState.amount || '0')),
-      interest: parseFloat(String(_formState.interest || '0')),
     };
 
-    // Crear el objeto final condicionalmente
+    // Agregar dpto_id solo si es necesario
     const dataToSave = _formState.asignar === 'S'
       ? { ...baseData, dpto_id: _formState.dpto_id }
-      : { ...baseData };
+      : baseData;
 
-    onSave?.(dataToSave);
-  }, [_formState, validar, onSave]);
+    console.log('RenderForm - Datos a enviar:', dataToSave); // Debug
+
+    try {
+      await onSave?.(dataToSave);
+    } catch (error) {
+      console.error('Error saving debt:', error);
+      showToast('Error al guardar la deuda', 'error');
+    }
+  }, [_formState, validar, onSave, showToast]);
 
   const getCategoryOptions = () => {
     if (extraData?.categories && Array.isArray(extraData.categories)) {

@@ -386,6 +386,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   const extraButtons = [
     <Button
       key="categories-button"
+      variant="secondary"
       onClick={() => goToCategories('D')}
       style={{
         padding: '8px 16px',
