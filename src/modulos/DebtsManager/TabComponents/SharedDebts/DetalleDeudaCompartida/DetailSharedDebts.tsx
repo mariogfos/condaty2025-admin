@@ -227,11 +227,34 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     reLoad();
   };
 
-  const summaryData = {
-    cobradas: { amount: 20184.00, count: 120, total: 250 },
-    porCobrar: { amount: 17539.00, count: 80, total: 250 },
-    enMora: { amount: 13832.00, count: 84, total: 250 }
-  };
+  // Usar los datos reales de extraData en lugar de datos hardcodeados
+  const summaryData = useMemo(() => {
+    if (!extraData) {
+      return {
+        cobradas: { amount: 0, count: 0, total: 0 },
+        porCobrar: { amount: 0, count: 0, total: 0 },
+        enMora: { amount: 0, count: 0, total: 0 }
+      };
+    }
+
+    return {
+      cobradas: {
+        amount: parseFloat(extraData.collected || '0'),
+        count: extraData.totalCollected || 0,
+        total: extraData.totalCollected || 0
+      },
+      porCobrar: {
+        amount: parseFloat(extraData.receivable || '0'),
+        count: extraData.totalReceivable || 0,
+        total: extraData.totalReceivable || 0
+      },
+      enMora: {
+        amount: parseFloat(extraData.arrears || '0'),
+        count: extraData.totalArrears || 0,
+        total: extraData.totalArrears || 0
+      }
+    };
+  }, [extraData]);
 
   const handleVolver = () => {
     router.back();

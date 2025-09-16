@@ -2,7 +2,7 @@
 import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { MONTHS } from '@/mk/utils/date';
+import { getDateStrMesShort, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -41,12 +41,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
   // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.name || 'Sin categoría'}</div>
+    <div>{item?.subcategory?.name || '-/-'}</div>
   );
 
   // Renderizar columna Subcategoría
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.subcategory?.name || 'Sin subcategoría'}</div>
+    <div>{item?.subcategory?.name || '-/-'}</div>
   );
 
   // Renderizar columna Distribución
@@ -98,18 +98,10 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
-    const date = new Date(item.due_at);
     return (
-      <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })}
-      </div>
+      getDateStrMesShort(item.due_at)
     );
   };
 

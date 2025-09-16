@@ -2,7 +2,7 @@
 import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { MONTHS } from '@/mk/utils/date';
+import { getDateStrMesShort, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -37,37 +37,15 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
+    <div>{item?.subcategory?.padre?.name || '-'}</div>
   );
 
   // Renderizar columna Subcategoría
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.name || '-'}</div>
+    <div>{item?.subcategory?.name || '-'}</div>
   );
 
-  // Renderizar columna Distribución
-  const renderDistributionCell = ({ item }: { item: any }) => {
-    switch (item?.debt?.amount_type) {
-      case "F": {
-        return <div>Fijo</div>;
-      }
-      case "V": {
-        return <div>Variable</div>;
-      }
-      case "P": {
-        return <div>Porcentual</div>;
-      }
-      case "M": {
-        return <div>Por m<sup>2</sup></div>;
-      }
-      case "A": {
-        return <div>Promedio</div>;
-      }
-      default: {
-        return <div>-/-</div>;
-      }
-    }
-  };
+
 
   // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
@@ -109,17 +87,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 
   // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.debt?.due_at) return <div>-</div>;
-    const date = new Date(item.debt.due_at);
-    return (
-      <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })}
-      </div>
-    );
+    if (!item?.due_at) return <div>-/-</div>;
+    return getDateStrMesShort(item.due_at);
   };
 
   // Renderizar columna Deuda
@@ -200,7 +169,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     fullType: 'L',
     page: 1,
     perPage: 20,
-    type: '0', 
+    type: '0',
   };
 
   const fields = useMemo(() => {
@@ -247,15 +216,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
           order: 3,
         },
       },
-      distribution: {
-        rules: [''],
-        api: '',
-        label: 'Distribución',
-        list: {
-          onRender: renderDistributionCell,
-          order: 4,
-        },
-      },
+
       status: {
         rules: [''],
         api: '',
