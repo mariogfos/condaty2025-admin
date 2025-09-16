@@ -385,7 +385,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           <div className={styles.actionButtons}>
             <Button
               onClick={handleEdit}
-              variant="secondary"
+              variant="primary"
               className={styles.actionButton}
             >
               <IconEdit size={16} />
@@ -393,7 +393,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             </Button>
             <Button
               onClick={handleDelete}
-              variant="cancel"
+              variant="secondary"
               className={styles.actionButton}
             >
               <IconTrash size={16} />
