@@ -11,7 +11,7 @@ import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import React from 'react';
-import RenderView from './RenderView/RenderView';
+
 
 interface SharedDebtsProps {
   openView: boolean;
@@ -21,6 +21,9 @@ interface SharedDebtsProps {
   onExtraDataChange?: (extraData: any) => void;
 }
 
+// Importar useRouter para navegación
+import { useRouter } from 'next/navigation';
+
 const SharedDebts: React.FC<SharedDebtsProps> = ({
   openView,
   setOpenView,
@@ -29,6 +32,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   onExtraDataChange,
 }) => {
   const { setStore, store } = useAuth();
+  const router = useRouter(); // Agregar useRouter
 
   // Renderizar columna Concepto (descripción)
   const renderConceptCell = ({ item }: { item: any }) => (
@@ -390,17 +394,16 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       edit: true,
       del: true,
     },
-    renderView: (props: any) => (
-      <RenderView
-        open={props.open}
-        onClose={props.onClose}
-        item={props.item}
-        extraData={props.extraData}
-        user={props.user}
-        onEdit={props.onEdit}
-        onDel={props.onDel}
-      />
-    ),
+    renderView: (props: any) => {
+      // En lugar de mostrar un modal, redirigir a la ruta
+      const debtId = props.item?.id;
+      if (debtId) {
+        router.push(`/debts_manager/shared-debt-detail/${debtId}`);
+      }
+      // Cerrar cualquier modal que esté abierto
+      props.onClose();
+      return null; // No renderizar nada ya que estamos redirigiendo
+    },
     titleAdd: 'Crear',
     renderForm: (props: any) => <RenderForm {...props} />,
   };
