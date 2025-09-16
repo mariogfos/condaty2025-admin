@@ -17,8 +17,6 @@ interface DetailSharedDebtsProps {
   debtId: string;
   debtTitle?: string;
 }
-
-// Interfaz para los datos de la deuda
 interface DebtData {
   id?: string | number;
   begin_at?: string;
@@ -47,12 +45,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const router = useRouter();
   const { user, showToast } = useAuth();
 
-  // Estados para controlar los modales - corregir tipos
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
 
-  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
@@ -88,7 +84,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_date) return <div>-</div>;
     const date = new Date(item.due_date);
@@ -103,17 +98,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Deuda
   const renderDebtAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  // Renderizar columna Multa
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
-  // Renderizar columna Saldo a cobrar
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -217,14 +209,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     },
   };
 
-  // Extraer todas las funciones necesarias del useCrud con tipos específicos
   const { List, extraData, execute, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
   });
 
-  // Crear funciones tipadas específicamente para RenderForm
   const typedExecute = async (url: string, method: string, params: any): Promise<any> => {
     return await execute(url, method, params);
   };
@@ -247,7 +237,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     router.back();
   };
 
-  // Función para obtener los datos completos de la deuda
   const fetchDebtData = async () => {
     try {
       const response = await execute(`/debts/${debtId}`, 'GET', { id: debtId });
@@ -261,12 +250,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const handleEdit = async () => {
-    // Obtener los datos completos de la deuda para editar
     const fullDebtData = await fetchDebtData();
     if (fullDebtData) {
       setDebtData(fullDebtData);
     } else {
-      // Si no se pueden obtener los datos, usar datos básicos
       setDebtData({ id: debtId });
     }
     setShowEditForm(true);
@@ -281,7 +268,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       const response = await execute(`/debts/${debtId}`, 'DELETE', { id: debtId });
       if (response?.data?.success) {
         showToast('Deuda eliminada exitosamente', 'success');
-        router.back(); // Volver a la lista después de eliminar
+        router.back();
       } else {
         showToast('Error al eliminar la deuda', 'error');
       }
@@ -291,16 +278,13 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     setShowDeleteConfirm(false);
   };
 
-  // Agregar esta función después de confirmDelete y antes del componente FormDelete
 
   const handleFormSave = (data: any) => {
-  // Recargar la lista después de guardar
   reLoad();
   setShowEditForm(false);
   showToast('Deuda actualizada exitosamente', 'success');
   };
 
-  // Componente FormDelete igual al de useCrud
   const FormDelete = ({ open, onClose, item, onConfirm, message = "" }: any) => {
   return (
     <DataModal
@@ -316,12 +300,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       {message ? (
         message
       ) : (
-        <>
+        <p>
           ¿Estás seguro de eliminar esta información?
           <br />
           Recuerda que, al momento de eliminar, ya no podrás
           recuperarla.
-        </>
+        </p>
       )}
     </DataModal>
   );
