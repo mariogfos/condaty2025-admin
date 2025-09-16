@@ -11,7 +11,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { capitalize } from '@/mk/utils/string';
 import styles from './DetailSharedDebts.module.css';
-import { span } from 'motion/react-client';
+
 
 interface DetailSharedDebtsProps {
   debtId: string;
