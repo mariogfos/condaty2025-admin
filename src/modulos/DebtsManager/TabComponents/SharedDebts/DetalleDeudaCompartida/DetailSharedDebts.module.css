@@ -1,7 +1,7 @@
 .container {
   width: 100%;
-  height: 100vh;
-  background-color: var(--cBlack);
+
+
   padding: 24px;
   overflow-y: auto;
 }
@@ -87,41 +87,106 @@
 }
 
 .listContainer {
-  background-color: var(--cBlackV1);
-  border-radius: 12px;
   padding: 0;
-  border: 1px solid var(--cWhiteV1);
   overflow: hidden;
+}
+
+/* Agregar estos estilos al final del archivo */
+
+.summarySection {
+  display: flex;
+  gap: var(--spL);
+  align-items: flex-start;
+  margin-bottom: var(--spL);
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spM);
+  flex: 1;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  min-width: 120px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spXS);
+  justify-content: center;
+  padding: var(--spS) var(--spM);
+  border-radius: var(--bRadiusM);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal de confirmación */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmModal {
+  background: var(--cWhite);
+  border-radius: var(--bRadiusL);
+  padding: var(--spL);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.confirmModal h3 {
+  margin: 0 0 var(--spM) 0;
+  color: var(--cError);
+  font-size: var(--sL);
+}
+
+.confirmModal p {
+  margin: 0 0 var(--spS) 0;
+  color: var(--cBlackV1);
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--spS);
+  justify-content: flex-end;
+  margin-top: var(--spL);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .container {
-    padding: 16px;
-  }
-
-  .header {
+  .summarySection {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
   }
 
-  .title {
-    font-size: 24px;
+  .actionButtons {
+    flex-direction: row;
+    min-width: auto;
+    width: 100%;
   }
 
-  .summaryCards {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .card {
-    padding: 20px;
-  }
-
-  .cardAmount,
-  .cardTitle {
-    font-size: 20px;
+  .actionButton {
+    flex: 1;
   }
 }
 
