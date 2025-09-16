@@ -216,7 +216,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
           <div className={styles.cardHeader}>
             <span className={styles.cardLabel}>DISTRIBUCIÓN & ASIGNACIÓN</span>
           </div>
-          <div className={styles.cardTitle}>Proporcional por m2</div>
+          <div className={styles.cardTitle}>Proporcional por m<sup>2</sup></div>
           <div className={styles.cardSubtitle}>Todas las unidades</div>
         </div>
 
