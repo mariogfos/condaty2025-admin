@@ -300,7 +300,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       due_at: _formState.due_at,
       type: _formState.type,
       description: _formState.description,
-      category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id,
       asignar: _formState.asignar,
       amount_type: _formState.amount_type,

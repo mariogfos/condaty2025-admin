@@ -455,7 +455,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         <ExpenseDetailModal
           open={showExpenseDetail}
           onClose={() => setShowExpenseDetail(false)}
-          item={{ id: debtDetail?.debt?.id || debtDetail?.id }}
+          item={debtDetail}
           execute={execute}
         />
       )}
