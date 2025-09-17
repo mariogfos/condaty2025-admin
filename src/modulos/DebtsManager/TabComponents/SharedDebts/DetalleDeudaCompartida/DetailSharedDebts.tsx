@@ -50,6 +50,26 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
 
+  // Funciones para obtener los textos de amount_type y segmentation
+  const getAmountTypeText = (amountType: string) => {
+    const amountTypeMap: { [key: string]: string } = {
+      'F': 'Fijo',
+      'M': 'Por m²',
+      'A': 'Promedio',
+    };
+    return amountTypeMap[amountType] || amountType;
+  };
+
+  const getSegmentationText = (segmentation: string) => {
+    const segmentationMap: { [key: string]: string } = {
+      'T': 'Todas las unidades',
+      'O': 'Unidades ocupadas',
+      'L': 'Unidades libres',
+      'S': 'Seleccionar Unidades',
+    };
+    return segmentationMap[segmentation] || segmentation;
+  };
+
   // Función para ir a categorías
   const goToCategories = (type = '') => {
     if (type) {
@@ -387,7 +407,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             <IconArrowLeft size={20} />
             Volver
           </button>
-          <h1 className={styles.title}>{extraData?.title || debtTitle}</h1>
+          <h1 className={styles.title}>{extraData?.debt?.subcategory?.name + " - " + extraData?.debt?.description || debtTitle}</h1>
         </div>
 
         {/* Cards de resumen con botones de acción */}
@@ -397,8 +417,8 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               <div className={styles.cardHeader}>
                 <span className={styles.cardLabel}>DISTRIBUCIÓN & ASIGNACIÓN</span>
               </div>
-              <div className={styles.cardTitle}>Proporcional por m2</div>
-              <div className={styles.cardSubtitle}>Todas las unidades</div>
+              <div className={styles.cardTitle}>{getAmountTypeText(extraData?.debt?.amount_type || 'F')}</div>
+              <div className={styles.cardSubtitle}>{getSegmentationText(extraData?.debt?.segmentation || 'T')}</div>
             </div>
 
             <div className={styles.card}>
