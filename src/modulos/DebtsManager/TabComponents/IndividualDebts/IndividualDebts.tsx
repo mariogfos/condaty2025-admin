@@ -75,8 +75,18 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    const statusText = getStatusText(item?.status);
-    const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.due_at ? new Date(item.due_at) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
+
+    const statusText = getStatusText(finalStatus);
+    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
 
     return (
       <StatusBadge
@@ -413,10 +423,21 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         'A': 'Por cobrar',
         'P': 'Pagada',
         'C': 'Cancelada',
-        'X': 'Anulada'
+        'X': 'Anulada',
+        'M': 'En mora'
       };
       return statusMap[status] || status;
     };
+
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.due_at ? new Date(item.due_at) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -425,7 +446,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(item?.status)}`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}

@@ -11,6 +11,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { capitalize } from '@/mk/utils/string';
 import styles from './DetailSharedDebts.module.css';
+import { getDateStrMes } from '@/mk/utils/date';
 
 
 interface DetailSharedDebtsProps {
@@ -80,8 +81,18 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    const statusText = getStatusText(item?.status);
-    const { color, bgColor } = statusConfig[item?.status] || statusConfig.A;
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.due_date ? new Date(item.due_date) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
+
+    const statusText = getStatusText(finalStatus);
+    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.A;
 
     return (
       <StatusBadge
@@ -94,16 +105,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.due_date) return <div>-</div>;
-    const date = new Date(item.due_date);
+    if (!item?.due_at) return <div>-</div>;
     return (
-      <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        })}
-      </div>
+      getDateStrMes(item?.due_at) || '-/-'
     );
   };
 
@@ -209,7 +213,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     filter: false,
     permiso: 'expense',
     extraData: true,
-    sumarize: true,
+    sumarize: false,
     hideActions: {
       add: true,
       view: true,
@@ -456,12 +460,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 570px)'}
+            height={'calc(100vh - 640px)'}
             emptyMsg="No hay detalles de deuda compartida disponibles"
             emptyLine2="Los detalles aparecerán aquí cuando estén disponibles."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
             filterBreakPoint={2500}
-            sumarize={true}
+            sumarize={false}
           />
         </div>
       </div>
