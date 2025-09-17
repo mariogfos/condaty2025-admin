@@ -207,10 +207,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         buttonText=""
         buttonCancel=""
       >
-        <LoadingScreen
-          onlyLoading={Object.keys(debtDetail).length === 0}
-          type="CardSkeleton"
-        >
+        <LoadingScreen onlyLoading={Object.keys(debtDetail).length === 0} type="CardSkeleton">
           <div className={styles.content}>
             {/* Saldo principal */}
             <div className={styles.balanceSection}>
@@ -220,28 +217,28 @@ const RenderView: React.FC<RenderViewProps> = ({
 
             {/* Información principal */}
             <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
-                <div className={styles.infoItem}>
+              <div className={`${styles.infoRow} ${styles.statusRow}`}>
+                <div className={styles.statusItem}>
                   <span className={styles.label}>Estado:</span>
                   <StatusBadge
                     color={color}
                     backgroundColor={bgColor}
                     containerStyle={{
-                      justifyContent: "flex-start"
+                      justifyContent: 'flex-start',
                     }}
                   >
                     {statusText}
                   </StatusBadge>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={styles.statusItem}>
                   <span className={styles.label}>Fecha de inicio:</span>
                   <span className={styles.value}>
                     {formatDate(debtDetail?.debt?.begin_at || debtDetail?.created_at)}
                   </span>
                 </div>
-                <div className={styles.infoItem}>
+                <div className={styles.statusItem}>
                   <span className={styles.label}>Vencimiento:</span>
-                  <span className={styles.value}>{formatDate(debtDetail?.debt?.due_at)}</span>
+                  <span className={styles.value}>{formatDate(debtDetail?.debt?.due_at || debtDetail?.due_at || '-/-')}</span>
                 </div>
               </div>
 
@@ -264,12 +261,12 @@ const RenderView: React.FC<RenderViewProps> = ({
               <div className={styles.infoRow}>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Unidad</span>
-                  <span className={styles.value}>{debtDetail?.dpto?.nro || '24-B'}</span>
+                  <span className={styles.value}>{debtDetail?.dpto?.nro || '-/-'}</span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Categoría</span>
                   <span className={styles.value}>
-                    {debtDetail?.debt?.subcategory?.category?.name || 'Servicios básicos'}
+                    {debtDetail?.subcategory?.padre?.name || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
@@ -282,13 +279,16 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Propietario</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.owner?.name || 'Carlos Daniel Delgadillo Flores'}
+                    {debtDetail?.dpto?.homeowner?.name && debtDetail?.dpto?.homeowner?.last_name
+                      ? `${debtDetail.dpto.homeowner.name} ${debtDetail.dpto.homeowner.last_name}`
+                      : '-/-'
+                    }
                   </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Subcategoría</span>
                   <span className={styles.value}>
-                    {debtDetail?.debt?.subcategory?.name || 'Pago de agua'}
+                    {debtDetail?.subcategory?.name || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
@@ -301,10 +301,21 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Titular</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.tenant?.name || 'Marcelo Fernández Peña Galvarro'}
+                    {debtDetail?.dpto?.tenant?.name && debtDetail?.dpto?.tenant?.last_name
+                      ? `${debtDetail.dpto.tenant.name} ${debtDetail.dpto.tenant.last_name}`
+                      : '-/-'
+                    }
                   </span>
                 </div>
-                {/* Solo mostrar distribución para type 0 */}
+                {/* Item vacío en el medio */}
+                <div className={styles.infoItem}>
+                  {/* Espacio vacío */}
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.label}>Mant. de valor</span>
+                  <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
+                </div>
+                {/* Solo mostrar distribución para type 4 */}
                 {showDistribution && (
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Distribución</span>
@@ -334,7 +345,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statLabel}>Personas por cobrar:</span>
-                    <span className={styles.statValue}>{debtDetail?.debt?.pending_units || 14}</span>
+                    <span className={styles.statValue}>
+                      {debtDetail?.debt?.pending_units || 14}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -344,7 +357,8 @@ const RenderView: React.FC<RenderViewProps> = ({
             <h3 className={styles.detailsTitle}>Detalles</h3>
             <div className={styles.detailsSection}>
               <div className={styles.detailsContent}>
-                {debtDetail?.debt?.description || 'Cobro del servicio básico de agua del mes de agosto'}
+                {debtDetail?.debt?.description ||
+                  'Cobro del servicio básico de agua del mes de agosto'}
               </div>
             </div>
 

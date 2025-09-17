@@ -116,10 +116,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
 
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.debt?.due_at) return <div>-/-</div>;
+    if (!item?.due_at) return <div>-/-</div>;
     return (
       <div>
-        {getDateStrMes(item.debt.due_at)}
+        {getDateStrMes(item.due_at)}
       </div>
     );
   };
