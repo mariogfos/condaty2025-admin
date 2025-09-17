@@ -12,6 +12,7 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
 import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
 import { getDateStrMesShort } from '@/mk/utils/date';
+import { getFullName } from '@/mk/utils/string';
 
 interface RenderViewProps {
   open: boolean;
@@ -269,7 +270,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Categoría</span>
                   <span className={styles.value}>
-                    {debtDetail?.debt?.subcategory?.category?.name || 'Servicios básicos'}
+                    {debtDetail?.subcategory?.padre?.name || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
@@ -282,13 +283,13 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Propietario</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.owner?.name || 'Carlos Daniel Delgadillo Flores'}
+                    {getFullName(debtDetail?.dpto?.homeowner)}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Subcategoría</span>
                   <span className={styles.value}>
-                    {debtDetail?.debt?.subcategory?.name || 'Pago de agua'}
+                    {debtDetail?.subcategory?.name || '-/-'}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
@@ -301,7 +302,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Titular</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.tenant?.name || 'Marcelo Fernández Peña Galvarro'}
+                    {debtDetail?.dpto?.holder === 'H' ?
+                    getFullName(debtDetail?.dpto?.homeowner) :
+                    getFullName(debtDetail?.dpto?.tenant)}
                   </span>
                 </div>
                 {/* Solo mostrar distribución para type 0 */}
