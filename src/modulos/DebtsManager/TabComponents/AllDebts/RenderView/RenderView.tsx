@@ -79,6 +79,17 @@ const RenderView: React.FC<RenderViewProps> = ({
     return statusMap[finalStatus] || finalStatus;
   };
 
+  const getPaymentTypeText = (type: string) => {
+    const paymentTypeMap: { [key: string]: string } = {
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "Pago QR",
+      O: "Pago en oficina",
+    };
+    return paymentTypeMap[type] || type;
+  };
+
   const getStatusConfig = (status: string, dueDate?: string) => {
     // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = status;
@@ -251,7 +262,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoRow}>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
-                    <span className={styles.value}>{debtDetail?.payment?.method || 'QR'}</span>
+                    <span className={styles.value}>{getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}</span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Fecha de pago:</span>
