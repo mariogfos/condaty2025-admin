@@ -2,7 +2,7 @@
 import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { MONTHS } from '@/mk/utils/date';
+import { getDateStrMes, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -107,16 +107,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     );
   };
 
+
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.debt?.due_at) return <div>-/-</div>;
-    const date = new Date(item.debt.due_at);
     return (
       <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })}
+        {getDateStrMes(item.debt.due_at)}
       </div>
     );
   };

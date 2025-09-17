@@ -178,6 +178,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       'due_at'
     );
+
+    if (_formState.begin_at && _formState.due_at) {
+      const beginDate = new Date(_formState.begin_at);
+      const dueDate = new Date(_formState.due_at);
+
+      if (dueDate <= beginDate) {
+        errs.due_at = 'La fecha de vencimiento debe ser posterior a la fecha de inicio';
+      }
+    }
+
     addError(
       checkRules({
         value: _formState.amount,
@@ -244,7 +254,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     const dataToSave = {
       ..._formState,
-      // Convertir valores booleanos a strings como espera el backend
+
       has_mv: _formState.has_mv ? 'Y' : 'N',
       is_forgivable: _formState.is_forgivable ? 'Y' : 'N',
       has_pp: _formState.has_pp ? 'Y' : 'N',
@@ -252,6 +262,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       // Asegurar que amount e interest sean números
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
+
     };
 
     try {
@@ -361,7 +372,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               optionLabel="label"
               optionValue="id"
               onChange={handleChangeInput}
-              error={currentErrors}
+              error={_errors}
               required
               placeholder="Seleccionar unidad"
               className={currentErrors.dpto_id ? styles.error : ''}
@@ -465,9 +476,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         <div className={styles.advancedSection}>
           <div
             className={styles.advancedToggle}
-            onClick={() =>
-              _setFormState(prev => ({ ...prev, show_advanced: !prev.show_advanced }))
-            }
+            onClick={() => _setFormState(prev => ({ ...prev, show_advanced: !prev.show_advanced }))}
           >
             <span className={styles.advancedLabel}>Opciones avanzadas</span>
             <span

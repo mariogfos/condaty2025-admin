@@ -2,7 +2,9 @@
 import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMesShort, MONTHS } from '@/mk/utils/date';
+// Ya tiene el import correcto: import { getDateStrMesShort, MONTHS } from '@/mk/utils/date';
+// Cambiar a getDateStrMes para consistencia
+import { getDateStrMes, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -98,10 +100,13 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     );
   };
 
+  // Renderizar columna Vencimiento - ACTUALIZADO
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
     return (
-      getDateStrMesShort(item.due_at)
+      <div>
+        {getDateStrMes(item.due_at)}
+      </div>
     );
   };
 
