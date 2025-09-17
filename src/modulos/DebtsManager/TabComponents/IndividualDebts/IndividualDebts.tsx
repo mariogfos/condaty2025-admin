@@ -2,7 +2,7 @@
 import { useMemo, useEffect } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMesShort, MONTHS } from '@/mk/utils/date';
+import { getDateStrMes, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -88,23 +88,27 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Vencimiento
+  // Renderizar columna Vencimiento - ACTUALIZADO
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
-    return getDateStrMesShort(item.due_at);
+    return (
+      <div>
+        {getDateStrMes(item.due_at)}
+      </div>
+    );
   };
 
-  // Renderizar columna Deuda
+
   const renderDebtAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  // Renderizar columna Multa
+
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
-  // Renderizar columna Saldo a cobrar
+
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -125,13 +129,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     { id: 'X', name: 'Anulada' }
   ];
 
-  const getDistributionOptions = () => [
-    { id: 'ALL', name: 'Todas las distribuciones' },
-    { id: 'fixed_unit', name: 'Monto fijo por unidad' },
-    { id: 'fixed_group', name: 'Monto fijo grupal' },
-    { id: 'percentage', name: 'Porcentual' },
-    { id: 'variable', name: 'Variable' }
-  ];
+
 
   const getCategoryOptions = () => [
     { id: 'ALL', name: 'Todas las categorías' },
@@ -282,20 +280,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
           label: 'Estado',
           width: '100%',
           options: getStatusOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      distribution_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Distribución',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Distribución',
-          width: '100%',
-          options: getDistributionOptions,
           optionLabel: 'name',
           optionValue: 'id',
         },

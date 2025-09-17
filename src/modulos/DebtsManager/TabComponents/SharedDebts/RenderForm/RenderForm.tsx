@@ -204,6 +204,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       'due_at'
     );
+
+    if (_formState.begin_at && _formState.due_at) {
+      const beginDate = new Date(_formState.begin_at);
+      const dueDate = new Date(_formState.due_at);
+
+      if (dueDate <= beginDate) {
+        errs.due_at = 'La fecha de vencimiento debe ser posterior a la fecha de inicio';
+      }
+    }
+
     addError(
       checkRules({
         value: _formState.amount,
