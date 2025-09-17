@@ -12,6 +12,7 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
 import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
 import { getDateStrMesShort } from '@/mk/utils/date';
+import { getFullName } from '@/mk/utils/string';
 
 interface RenderViewProps {
   open: boolean;
@@ -76,6 +77,17 @@ const RenderView: React.FC<RenderViewProps> = ({
       'X': 'Anulada'
     };
     return statusMap[finalStatus] || finalStatus;
+  };
+
+  const getPaymentTypeText = (type: string) => {
+    const paymentTypeMap: { [key: string]: string } = {
+      T: "Transferencia bancaria",
+      E: "Efectivo",
+      C: "Cheque",
+      Q: "Pago QR",
+      O: "Pago en oficina",
+    };
+    return paymentTypeMap[type] || type;
   };
 
   const getStatusConfig = (status: string, dueDate?: string) => {
@@ -247,7 +259,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoRow}>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
-                    <span className={styles.value}>{debtDetail?.payment?.method || 'QR'}</span>
+                    <span className={styles.value}>{getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}</span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Fecha de pago:</span>
@@ -279,10 +291,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Propietario</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.homeowner?.name && debtDetail?.dpto?.homeowner?.last_name
-                      ? `${debtDetail.dpto.homeowner.name} ${debtDetail.dpto.homeowner.last_name}`
-                      : '-/-'
-                    }
+                    {getFullName(debtDetail?.dpto?.homeowner)}
                   </span>
                 </div>
                 <div className={styles.infoItem}>
@@ -301,10 +310,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Titular</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.tenant?.name && debtDetail?.dpto?.tenant?.last_name
-                      ? `${debtDetail.dpto.tenant.name} ${debtDetail.dpto.tenant.last_name}`
-                      : '-/-'
-                    }
+                    {debtDetail?.dpto?.holder === 'H' ?
+                    getFullName(debtDetail?.dpto?.homeowner) :
+                    getFullName(debtDetail?.dpto?.tenant)}
                   </span>
                 </div>
                 {/* Item vacío en el medio */}

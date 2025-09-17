@@ -36,6 +36,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       fullType: "DET",
       perPage: -1,
       page: 1,
+      type: 0
     },
     open && !!item?.id // Solo hacer la llamada cuando el modal esté abierto y tengamos ID
   );

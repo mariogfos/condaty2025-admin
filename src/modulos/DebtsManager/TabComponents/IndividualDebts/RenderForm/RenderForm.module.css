@@ -15,6 +15,10 @@
   width: 100%;
 }
 
+.formTextHeaderP{
+  padding-bottom: var(--spM);
+}
+
 /* Campos del formulario */
 .formField {
   flex: 1;
