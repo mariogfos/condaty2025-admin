@@ -272,19 +272,19 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
     return {
       cobradas: {
-        amount: parseFloat(extraData.collected || '0'),
-        count: extraData.totalCollected || 0,
-        total: extraData.totalCollected || 0
+        amount: parseFloat(extraData.totalAmountCollected || '0'),
+        count: extraData.collected || 0,
+        total: extraData.totalReceivable || 0
       },
       porCobrar: {
-        amount: parseFloat(extraData.receivable || '0'),
-        count: extraData.totalReceivable || 0,
+        amount: parseFloat(extraData.totalAmountBalanceDue || '0'),
+        count: extraData.receivable || 0,
         total: extraData.totalReceivable || 0
       },
       enMora: {
-        amount: parseFloat(extraData.arrears || '0'),
+        amount: parseFloat(extraData.totalAmountFine || '0'),
         count: extraData.totalArrears || 0,
-        total: extraData.totalArrears || 0
+        total: extraData.totalReceivable || 0
       }
     };
   }, [extraData]);
@@ -334,18 +334,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     setShowDeleteConfirm(false);
   };
 
-
-  // CORREGIR: Usar execute directo en lugar de onSave de useCrud
   const handleFormSave = async (data: any) => {
     try {
-      console.log('Datos a enviar:', data); // Debug
-
-      // Usar execute directo con el endpoint correcto
+      console.log('Datos a enviar:', data);
       const response = await execute(`/debts/${debtId}`, 'PUT', data);
 
       if (response?.data?.success) {
         setShowEditForm(false);
-        reLoad(); // Recargar la lista de detalles
+        reLoad();
         showToast('Deuda actualizada exitosamente', 'success');
       } else {
         showToast(response?.data?.message || 'Error al actualizar la deuda', 'error');
@@ -357,29 +353,29 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   };
 
   const FormDelete = ({ open, onClose, item, onConfirm, message = "" }: any) => {
-  return (
-    <DataModal
-      id="Eliminar"
-      title={capitalize('eliminar') + " deuda compartida"}
-      buttonText={capitalize('eliminar')}
-      buttonCancel="Cancelar"
-      onSave={(e) => onConfirm ? onConfirm(item) : confirmDelete()}
-      onClose={onClose}
-      open={open}
-      variant="mini"
-    >
-      {message ? (
-        message
-      ) : (
-        <p>
-          ¿Estás seguro de eliminar esta información?
-          <br />
-          Recuerda que, al momento de eliminar, ya no podrás
-          recuperarla.
-        </p>
-      )}
-    </DataModal>
-  );
+    return (
+      <DataModal
+        id="Eliminar"
+        title={capitalize('eliminar') + " deuda compartida"}
+        buttonText={capitalize('eliminar')}
+        buttonCancel="Cancelar"
+        onSave={(e) => onConfirm ? onConfirm(item) : confirmDelete()}
+        onClose={onClose}
+        open={open}
+        variant="mini"
+      >
+        {message ? (
+          message
+        ) : (
+          <p>
+            ¿Estás seguro de eliminar esta información?
+            <br />
+            Recuerda que, al momento de eliminar, ya no podrás
+            recuperarla.
+          </p>
+        )}
+      </DataModal>
+    );
   };
 
   return (
@@ -391,7 +387,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             <IconArrowLeft size={20} />
             Volver
           </button>
-          <h1 className={styles.title}>{extraData?.title}</h1>
+          <h1 className={styles.title}>{extraData?.title || debtTitle}</h1>
         </div>
 
         {/* Cards de resumen con botones de acción */}
@@ -411,7 +407,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               </div>
               <div className={styles.cardAmount}>Bs {summaryData.cobradas.amount.toLocaleString()}</div>
               <div className={styles.cardSubtitle}>
-                {summaryData.cobradas.count} de {summaryData.cobradas.total} deudas
+                {summaryData.cobradas.count} de {extraData?.totalReceivable || 0} deudas
               </div>
             </div>
 
@@ -421,7 +417,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               </div>
               <div className={styles.cardAmount}>Bs {summaryData.porCobrar.amount.toLocaleString()}</div>
               <div className={styles.cardSubtitle}>
-                {summaryData.porCobrar.count} de {summaryData.porCobrar.total} deudas
+                {summaryData.porCobrar.count} de {extraData?.totalReceivable || 0} deudas
               </div>
             </div>
 
@@ -431,7 +427,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               </div>
               <div className={styles.cardAmount}>Bs {summaryData.enMora.amount.toLocaleString()}</div>
               <div className={styles.cardSubtitle}>
-                {summaryData.enMora.count} de {summaryData.enMora.total} deudas
+                {extraData?.totalArrears || 0} de {extraData?.totalReceivable || 0} deudas
               </div>
             </div>
           </div>
