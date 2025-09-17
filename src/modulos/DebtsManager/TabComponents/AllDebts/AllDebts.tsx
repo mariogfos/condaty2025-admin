@@ -84,24 +84,31 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Cobrado',
+        S: 'Por confirmar',
+        M: 'En mora',
+        C: 'Cancelada',
+        X: 'Anulada',
       };
       return statusMap[status] || status;
     };
 
-    const statusText = getStatusText(item?.status);
-    const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
+
+    const statusText = getStatusText(finalStatus);
+    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
 
     return (
-      <StatusBadge
-        color={color}
-        backgroundColor={bgColor}
-      >
+      <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
       </StatusBadge>
     );
@@ -530,16 +537,29 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     onDel,
   });
 
+
+
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
         'A': 'Por cobrar',
         'P': 'Pagada',
         'C': 'Cancelada',
-        'X': 'Anulada'
+        'X': 'Anulada',
+        'M': 'En mora'
       };
       return statusMap[status] || status;
     };
+
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -548,7 +568,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(item?.status)}`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
           subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}

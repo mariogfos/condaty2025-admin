@@ -56,7 +56,17 @@ const RenderView: React.FC<RenderViewProps> = ({
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string, dueDate?: string) => {
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = status;
+    const today = new Date();
+    const due = dueDate ? new Date(dueDate) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (due && due < today && status === 'A') {
+      finalStatus = 'M';
+    }
+
     const statusMap: { [key: string]: string } = {
       'A': 'Por cobrar',
       'P': 'Cobrado',
@@ -65,10 +75,20 @@ const RenderView: React.FC<RenderViewProps> = ({
       'C': 'Cancelada',
       'X': 'Anulada'
     };
-    return statusMap[status] || status;
+    return statusMap[finalStatus] || finalStatus;
   };
 
-  const getStatusConfig = (status: string) => {
+  const getStatusConfig = (status: string, dueDate?: string) => {
+    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+    let finalStatus = status;
+    const today = new Date();
+    const due = dueDate ? new Date(dueDate) : null;
+
+    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+    if (due && due < today && status === 'A') {
+      finalStatus = 'M';
+    }
+
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
       P: { color: 'var(--cSuccess)', bgColor: 'var(--cHoverCompl2)' },
@@ -79,7 +99,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
     };
-    return statusConfig[status] || statusConfig.E;
+    return statusConfig[finalStatus] || statusConfig.E;
   };
 
   const getBalanceTitle = (status: string) => {
@@ -169,8 +189,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getDateStrMesShort(dateString);
   };
 
-  const statusText = getStatusText(debtDetail?.status);
-  const { color, bgColor } = getStatusConfig(debtDetail?.status);
+  const statusText = getStatusText(debtDetail?.status, debtDetail?.debt?.due_at);
+  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.debt?.due_at);
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);

@@ -126,7 +126,7 @@ const renderSubcategoryCell = ({ item }: { item: any }) => (
 );
 
 const renderDueDateCell = ({ item }: { item: any }) => (
-  <div>{getDateStrMes(item?.dueDate || item?.debt?.due_at) || "-/-"}</div>
+  <div>{getDateStrMes(item?.due_at || item?.due_at) || '-/-'}</div>
 );
 
 const renderDebtCell = ({ item }: { item: any }) => (
