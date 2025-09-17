@@ -11,6 +11,8 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 // Importar solo los componentes que son modales
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
 import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
+import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
+import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
 
@@ -37,6 +39,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   // Estados para controlar los modales de detalle
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [currentItem, setCurrentItem] = useState(item);
 
   // Llamar a la API para obtener detalles completos
   const { data, execute } = useAxios(
@@ -174,7 +179,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   // Función para manejar la apertura del modal de detalle
   const handleDetailButtonClick = (type: number) => {
-    const targetId = debtDetail?.debt?.id || debtDetail?.id;
+    const targetId = debtDetail?.debt?.id || debtDetail?.shared_id;
 
     switch (type) {
       case 1:
@@ -185,10 +190,55 @@ const RenderView: React.FC<RenderViewProps> = ({
         setShowReservationDetail(true);
         break;
       case 4:
-        // Para deuda compartida, hacer redirección
-        window.location.href = `/debts_manager?tab=shared&detailId=${targetId}`;
+        // Para deuda compartida, redirigir a la ruta correcta
+        window.location.href = `/debts_manager/shared-debt-detail/${targetId}`;
         break;
     }
+  };
+
+  // Función para recargar el item después de registrar pago
+  const reloadItem = async () => {
+    try {
+      const response = await execute(
+        '/debt-dptos',
+        'GET',
+        {
+          fullType: 'DET',
+          searchBy: currentItem.id,
+          page: 1,
+          perPage: 1,
+        },
+        false,
+        true
+      );
+      if (response?.data?.success) {
+        setCurrentItem(response.data.data[0] || currentItem);
+      }
+    } catch (error) {
+      console.error('Error reloading item:', error);
+    }
+  };
+
+  // Preparar datos para el formulario de pago
+  const getPaymentFormData = () => {
+    return {
+      debt_dpto_id: currentItem?.id,
+      dpto_id: currentItem?.dpto_id,
+      amount: totalBalance,
+      concept: [
+        currentItem?.subcategory?.padre?.name || 'Deuda',
+        currentItem?.subcategory?.name || 'Pago de deuda'
+      ],
+      category: {
+        padre: {
+          name: currentItem?.subcategory?.padre?.name || 'Deuda'
+        }
+      },
+      owner: currentItem?.dpto?.homeowner,
+      dptos: currentItem?.dpto?.nro || '',
+      type: 'D', // Tipo deuda
+      status: 'S' // Por confirmar
+    };
   };
 
   const debtAmount = parseFloat(debtDetail?.amount) || 0;
@@ -335,32 +385,6 @@ const RenderView: React.FC<RenderViewProps> = ({
               </div>
             </div>
 
-            {/* Sección específica de Deuda compartida - solo para type 4 */}
-            {debtType === 4 && (
-              <div className={styles.sharedDebtSection}>
-                <div className={styles.sharedDebtHeader}>
-                  <h3 className={styles.sharedDebtTitle}>Deuda compartida</h3>
-                </div>
-
-                <div className={styles.sharedDebtStats}>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Total de personas:</span>
-                    <span className={styles.statValue}>{debtDetail?.debt?.total_units || 35}</span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Personas que pagaron:</span>
-                    <span className={styles.statValue}>{debtDetail?.debt?.paid_units || 21}</span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>Personas por cobrar:</span>
-                    <span className={styles.statValue}>
-                      {debtDetail?.debt?.pending_units || 14}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Detalles */}
             <h3 className={styles.detailsTitle}>Detalles</h3>
             <div className={styles.detailsSection}>
@@ -394,9 +418,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
               {actions.showRegistrarPago && (
                 <Button
-                  onClick={() => {
-                    console.log('Registrar pago para:', debtDetail);
-                  }}
+                  onClick={() => setShowPaymentForm(true)}
                   className={styles.primaryButton}
                 >
                   Registrar Pago
@@ -404,11 +426,9 @@ const RenderView: React.FC<RenderViewProps> = ({
               )}
 
               {/* Botón de ver pago para estado cobrado */}
-              {actions.showVerPago && (
+              {actions.showVerPago && currentItem?.payment_id && (
                 <Button
-                  onClick={() => {
-                    console.log('Ver pago para:', debtDetail);
-                  }}
+                  onClick={() => setShowPaymentModal(true)}
                   className={styles.actionButton}
                 >
                   Ver pago
@@ -446,6 +466,39 @@ const RenderView: React.FC<RenderViewProps> = ({
           onClose={() => setShowReservationDetail(false)}
           item={{ id: debtDetail?.debt?.id || debtDetail?.id }}
           reservationId={debtDetail?.debt?.id || debtDetail?.id}
+        />
+      )}
+
+      {/* Modal de Payment para ver pago existente */}
+      {showPaymentModal && (
+        <PaymentRenderView
+          open={showPaymentModal}
+          onClose={() => {
+            reloadItem();
+            setShowPaymentModal(false);
+          }}
+          payment_id={currentItem?.payment_id}
+          noWaiting={true}
+        />
+      )}
+
+      {/* Formulario de Payment para registrar nuevo pago */}
+      {showPaymentForm && (
+        <PaymentRenderForm
+          open={showPaymentForm}
+          onClose={() => {
+            reloadItem();
+            setShowPaymentForm(false);
+          }}
+          item={getPaymentFormData()}
+          extraData={extraData}
+          execute={execute as (...args: any[]) => Promise<any>}
+          showToast={(msg: string, type: 'info' | 'success' | 'error' | 'warning') => {
+            console.log(`${type}: ${msg}`);
+          }}
+          reLoad={() => {
+            reloadItem();
+          }}
         />
       )}
     </>

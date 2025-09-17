@@ -34,11 +34,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   );
 
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.padre?.name || '-/-'}</div>
+    <div>{item?.debt?.subcategory?.padre?.name || item?.subcategory?.padre?.name || '-/-'}</div>
   );
 
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.name || '-/-'}</div>
+    <div>{item?.debt?.subcategory?.name || item?.subcategory?.name || '-/-'}</div>
   );
 
   const renderDistributionCell = ({ item }: { item: any }) => {
@@ -94,12 +94,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
+
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
+
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }

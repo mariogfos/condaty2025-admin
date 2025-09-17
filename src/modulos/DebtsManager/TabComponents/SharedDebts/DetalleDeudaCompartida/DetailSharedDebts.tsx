@@ -41,7 +41,7 @@ interface DebtData {
 
 const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   debtId,
-  debtTitle = "Factura de agua - Septiembre"
+  debtTitle = "Deuda Compartida",
 }) => {
   const router = useRouter();
   const { user, showToast } = useAuth();
@@ -216,7 +216,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     sumarize: false,
     hideActions: {
       add: true,
-      view: true,
+      view: false,
       edit: true,
       del: true,
     },
@@ -391,7 +391,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             <IconArrowLeft size={20} />
             Volver
           </button>
-          <h1 className={styles.title}>{debtTitle}</h1>
+          <h1 className={styles.title}>{extraData?.title}</h1>
         </div>
 
         {/* Cards de resumen con botones de acción */}
