@@ -154,7 +154,7 @@ const GraphsAdapter = ({
         style: {
           colors: [colorWhite],
           fontSize: '14px',
-          fontFamily: 'Roboto',
+          fontFamily: 'Roboto, sans-serif',
         },
         formatter: (value: any) => {
           return formatBs(value);

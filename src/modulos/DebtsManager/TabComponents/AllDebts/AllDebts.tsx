@@ -97,7 +97,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
     let finalStatus = item?.status;
     const today = new Date();
-    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
+    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : item?.due_at ? new Date(item.due_at) : null;
 
 
     if (dueDate && dueDate < today && item?.status === 'A') {
