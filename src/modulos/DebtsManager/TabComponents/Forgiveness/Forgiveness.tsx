@@ -9,6 +9,7 @@ import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { getTitular } from "@/mk/utils/adapters";
 import { getDateStrMesShort } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
+import { formatBs } from "@/mk/utils/numbers";
 
 const mod = {
   modulo: "debt-dptos",
@@ -18,12 +19,10 @@ const mod = {
   // pagination: false,
   extraData: true,
   export: true,
-  // hideActions: {
-  //   view: true,
-  //   add: true,
-  //   edit: true,
-  //   del: true,
-  // },
+  hideActions: {
+    edit: true,
+    del: true,
+  },
   titleAdd: "Crear",
   renderForm: RenderForm,
   filter: true,
@@ -47,26 +46,34 @@ const Forgiveness = () => {
   }, []);
   const fields = useMemo(
     () => ({
-      name: {
-        label: "Nombre",
+      nro: {
+        label: "Unidad",
 
         form: { type: "text" },
-        list: {},
+        list: {
+          onRender: ({ item }: any) => {
+            return item?.dpto?.nro;
+          },
+        },
       },
       deadline: {
-        label: "Fecha de plazo",
+        label: "Fecha de vencimiento",
 
         form: { type: "date" },
         list: {
-          onRender: () => {
-            return getDateStrMesShort(new Date().toISOString());
+          onRender: ({ item }: any) => {
+            return getDateStrMesShort(item?.due_at);
           },
         },
       },
       amount: {
-        label: "Monto",
+        label: "Condonado",
         form: { type: "text" },
-        list: {},
+        list: {
+          onRender: ({ item }: any) => {
+            return formatBs(item?.amount);
+          },
+        },
       },
     }),
     []

@@ -319,7 +319,7 @@ const RenderForm = ({
         <Input
           name="due_at"
           type="date"
-          label="Fecha de plazo"
+          label="Fecha de vencimiento"
           value={formState?.due_at}
           onChange={handleChange}
           error={errors}
@@ -334,76 +334,89 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
       /> */}
-      <div
-        style={{
-          backgroundColor: "var(--cBlack)",
-          border: "1px solid #3E4244",
-          borderRadius: 12,
-        }}
-      >
-        {debts?.map((debt: any) => (
-          <div
-            style={{
-              // backgroundColor: "var(--cBlack)",
-              padding: "10px 16px",
-              borderBottom: "1px solid #3E4244",
-            }}
-            key={debt?.id}
-            onClick={() => toggleForgivability(debt)}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div>
-                <p
-                  style={{
-                    color: "var(--cWhite)",
-                    fontSize: 14,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {`${
-                    debt?.month
-                      ? debt?.name +
-                        " - " +
-                        MONTHS[debt?.month] +
-                        ", " +
-                        debt?.year
-                      : debt?.name
-                  }`}
-                </p>
-                <p
-                  style={{
-                    color: "var(--cWhiteV1)",
-                    fontSize: 12,
-                    marginTop: 4,
-                  }}
-                >
-                  {`Deuda: ${formatBs(debt?.amount)} • Mora: ${formatBs(
-                    debt?.penalty_amount
-                  )} • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`}
-                </p>
-              </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <p
-                  style={{
-                    color: "var(--cWhite)",
-                    fontSize: 14,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {formatBs(
-                    Number(debt?.amount) +
-                      Number(debt?.penalty_amount) +
-                      Number(debt?.maintenance_amount)
+      {debts?.length > 0 && (
+        <div
+          style={{
+            backgroundColor: "var(--cBlack)",
+            border: "1px solid #3E4244",
+            borderRadius: 12,
+            margin: "12px 0px",
+          }}
+        >
+          {debts?.map((debt: any, index: number) => (
+            <div
+              style={{
+                backgroundColor: formState?.forgiveness?.some(
+                  (f: any) => f.id === debt.id
+                )
+                  ? "var(--cFillSidebar)"
+                  : "transparent",
+                padding: "10px 16px",
+                borderBottom:
+                  index < debts?.length - 1 ? "1px solid #3E4244" : "",
+                borderTopRightRadius: index === 0 ? 12 : 0,
+                borderTopLeftRadius: index === 0 ? 12 : 0,
+                borderBottomRightRadius: index === debts?.length - 1 ? 12 : 0,
+                borderBottomLeftRadius: index === debts?.length - 1 ? 12 : 0,
+              }}
+              key={debt?.id}
+              onClick={() => toggleForgivability(debt)}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>
+                  <p
+                    style={{
+                      color: "var(--cWhite)",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {`${
+                      debt?.month
+                        ? debt?.name +
+                          " - " +
+                          MONTHS[debt?.month] +
+                          ", " +
+                          debt?.year
+                        : debt?.name
+                    }`}
+                  </p>
+                  <p
+                    style={{
+                      color: "var(--cWhiteV1)",
+                      fontSize: 12,
+                      marginTop: 4,
+                    }}
+                  >
+                    {`Deuda: ${formatBs(debt?.amount)} • Mora: ${formatBs(
+                      debt?.penalty_amount
+                    )} • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <p
+                    style={{
+                      color: "var(--cWhite)",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {formatBs(
+                      Number(debt?.amount) +
+                        Number(debt?.penalty_amount) +
+                        Number(debt?.maintenance_amount)
+                    )}
+                  </p>
+                  {formState?.forgiveness?.some(
+                    (f: any) => f.id === debt.id
+                  ) ? (
+                    <IconCheckSquare color="var(--cAccent)" />
+                  ) : (
+                    <IconCheckOff />
                   )}
-                </p>
-                {formState?.forgiveness?.some((f: any) => f.id === debt.id) ? (
-                  <IconCheckSquare color="var(--cAccent)" />
-                ) : (
-                  <IconCheckOff />
-                )}
+                </div>
               </div>
-            </div>
-            {/* {debtOptions.map(({ label, type, field }) => (
+              {/* {debtOptions.map(({ label, type, field }) => (
             <div
               key={type}
               onClick={() => toggleForgivability(debt, type as any)}
@@ -432,9 +445,10 @@ const RenderForm = ({
               )}
             </div>
           ))} */}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ display: "flex", gap: 8 }}>
         <Input
           name="amount_value"
