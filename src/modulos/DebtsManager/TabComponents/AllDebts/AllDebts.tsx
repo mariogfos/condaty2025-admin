@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { getDateStrMes, MONTHS } from '@/mk/utils/date';
@@ -11,10 +11,9 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import React from 'react';
 import { formatNumber } from '@/mk/utils/numbers';
-
-
 
 interface AllDebtsProps {
   openView: boolean;
@@ -28,6 +27,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   onExtraDataChange
 }) => {
   const { setStore, store } = useAuth();
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   const renderUnitCell = ({ item }: { item: any }) => (
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
@@ -94,11 +98,9 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
-
 
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
@@ -113,7 +115,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       </StatusBadge>
     );
   };
-
 
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
@@ -153,44 +154,76 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   const getDistributionOptions = () => [
     { id: 'ALL', name: 'Todas las distribuciones' },
-    { id: 'fixed_unit', name: 'Monto fijo por unidad' },
-    { id: 'fixed_group', name: 'Monto fijo grupal' },
-    { id: 'percentage', name: 'Porcentual' },
-    { id: 'variable', name: 'Variable' }
+    { id: 'F', name: 'Fijo' },
+    { id: 'V', name: 'Variable' },
+    { id: 'P', name: 'Porcentual' },
+    { id: 'M', name: 'Por m²' },
+    { id: 'A', name: 'Promedio' }
   ];
 
-  const getCategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las categorías' },
-    { id: 'expense', name: 'Expensa' },
-    { id: 'reserve', name: 'Reserva' },
-    { id: 'other', name: 'Otro' }
-  ];
+  const getCategoryOptions = () => {
+    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
-  const getSubcategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las subcategorías' },
-    { id: 'water', name: 'Agua' },
-    { id: 'electricity', name: 'Electricidad' },
-    { id: 'gas', name: 'Gas' },
-    { id: 'internet', name: 'Internet' },
-    { id: 'cleaning', name: 'Limpieza' },
-    { id: 'maintenance', name: 'Mantenimiento' },
-    { id: 'security', name: 'Seguridad' }
-  ];
-
-  const getPeriodOptions = () => {
-    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
-    const currentYear = new Date().getFullYear();
-
-    for (let year = currentYear; year >= currentYear - 2; year--) {
-      MONTHS.slice(1).forEach((month, index) => {
-        periods.push({
-          id: `${year}-${String(index + 1).padStart(2, '0')}`,
-          name: `${month} ${year}`
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        options.push({
+          id: category.id.toString(),
+          name: category.name
         });
       });
     }
 
-    return periods;
+    return options;
+  };
+
+  const getSubcategoryOptions = () => {
+    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            options.push({
+              id: subcategory.id.toString(),
+              name: subcategory.name
+            });
+          });
+        }
+      });
+    }
+
+    return options;
+  };
+
+  const getPeriodOptions = () => [
+    { id: 'ALL', name: 'Todos los periodos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana anterior' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' }
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "due_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined || value === "ALL") {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
   };
 
   const calculateTotals = (data: any[]) => {
@@ -208,71 +241,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         totalBalance: acc.totalBalance + totalBalance
       };
     }, { totalDebt: 0, totalPenalty: 0, totalBalance: 0 });
-  };
-
-  const renderCustomFooter = (data: any[]) => {
-    const totals = calculateTotals(data);
-
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'var(--cBlackV2)',
-        border: '2px solid #10b981',
-        borderRadius: '12px',
-        padding: '16px 24px',
-        margin: '16px 0',
-        fontWeight: 'bold',
-        fontSize: '16px',
-        color: 'var(--cWhite)'
-      }}>
-        <div style={{
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: 'var(--cWhite)'
-        }}>
-          Total
-        </div>
-
-        <div style={{
-          display: 'flex',
-          gap: '60px',
-          alignItems: 'center'
-        }}>
-          <div style={{
-            textAlign: 'right',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: 'var(--cWhite)'
-          }}>
-            Bs {totals.totalDebt.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-
-          <div style={{
-            textAlign: 'right',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: 'var(--cWhite)'
-          }}>
-            Bs {totals.totalPenalty.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-
-          <div style={{
-            textAlign: 'right',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            border: '1px solid #10b981'
-          }}>
-            Bs {totals.totalBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const paramsInitial = {
@@ -310,6 +278,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 1,
         },
       },
+      due_at: {
+        rules: [''],
+        api: '',
+        label: 'Vencimiento',
+        list: {
+          onRender: renderDueDateCell,
+          order: 6,
+        },
+        filter: {
+          key: 'due_at',
+          label: 'Periodo',
+          width: '100%',
+          options: getPeriodOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
       category: {
         rules: [''],
         api: '',
@@ -317,6 +302,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         list: {
           onRender: renderCategoryCell,
           order: 2,
+        },
+        filter: {
+          label: 'Categoría',
+          width: '100%',
+          options: getCategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
       subcategory: {
@@ -327,14 +319,29 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           onRender: renderSubcategoryCell,
           order: 3,
         },
+        filter: {
+          label: 'Subcategoría',
+          width: '100%',
+          options: getSubcategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
       },
-      distribution: {
+      amount_type: {
         rules: [''],
         api: '',
         label: 'Distribución',
         list: {
           onRender: renderDistributionCell,
           order: 4,
+        },
+        filter: {
+          key: 'amount_type',
+          label: 'Distribución',
+          width: '100%',
+          options: getDistributionOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
       status: {
@@ -345,22 +352,19 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           onRender: renderStatusCell,
           order: 5,
         },
-      },
-      due_at: {
-        rules: [''],
-        api: '',
-        label: 'Vencimiento',
-        list: {
-          onRender: renderDueDateCell,
-          order: 6,
+        filter: {
+          label: 'Estado',
+          width: '100%',
+          options: getStatusOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
         },
       },
+
       amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>
-        ),
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
@@ -372,9 +376,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       penalty_amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>
-        ),
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
@@ -387,7 +389,9 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         rules: [''],
         api: '',
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</label>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Saldo a cobrar
+          </label>
         ),
         list: {
           onRender: renderBalanceDueCell,
@@ -397,76 +401,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
             const totalBalance = (sumas.amount || 0) + (sumas.penalty_amount || 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
-        },
-      },
-      status_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Estado',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Estado',
-          width: '100%',
-          options: getStatusOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      distribution_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Distribución',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Distribución',
-          width: '100%',
-          options: getDistributionOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      category_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Categoría',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Categoría',
-          width: '100%',
-          options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      subcategory_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Subcategoría',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Subcategoría',
-          width: '100%',
-          options: getSubcategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      period_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Periodo',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Periodo',
-          width: '100%',
-          options: getPeriodOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
         },
       },
     };
@@ -516,10 +450,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
+    getFilter: handleGetFilter,
   });
 
   useEffect(() => {
@@ -537,8 +472,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     onDel,
   });
 
-
-
   const renderItem = (item: Record<string, any>) => {
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
@@ -551,12 +484,10 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -581,6 +512,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   return (
+    <>
       <List
         height={'calc(100vh - 500px)'}
         onTabletRow={renderItem}
@@ -591,6 +523,41 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         filterBreakPoint={2500}
         sumarize={false}
       />
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("due_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
+    </>
   );
 };
 

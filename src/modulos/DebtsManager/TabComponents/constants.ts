@@ -1,11 +1,3 @@
-/**
- * Constantes comunes para los componentes de DebtsManager
- * Contiene mapeos de estados, tipos de pago, distribución, tipos de deuda, etc.
- */
-
-// ============================================================================
-// ESTADOS DE DEUDA
-// ============================================================================
 
 export const DEBT_STATUS_MAP: { [key: string]: string } = {
   'A': 'Por cobrar',
@@ -27,9 +19,6 @@ export const DEBT_STATUS_CONFIG: { [key: string]: { color: string; bgColor: stri
   X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
 };
 
-// ============================================================================
-// TIPOS DE PAGO
-// ============================================================================
 
 export const PAYMENT_TYPE_MAP: { [key: string]: string } = {
   T: "Transferencia bancaria",
@@ -39,9 +28,7 @@ export const PAYMENT_TYPE_MAP: { [key: string]: string } = {
   O: "Pago en oficina",
 };
 
-// ============================================================================
-// TIPOS DE DISTRIBUCIÓN/MONTO
-// ============================================================================
+
 
 export const DISTRIBUTION_TYPE_MAP: { [key: string]: string } = {
   M: 'Por m²',
@@ -59,9 +46,6 @@ export const AMOUNT_TYPE_MAP: { [key: string]: string } = {
   A: 'Promedio'
 };
 
-// ============================================================================
-// TIPOS DE DEUDA
-// ============================================================================
 
 export const DEBT_TYPE_MAP: { [key: number]: string } = {
   0: 'Deuda individual',
@@ -78,19 +62,12 @@ export const DEBT_TYPE_BUTTON_TEXT: { [key: number]: string } = {
   4: 'Ver deuda compartida'
 };
 
-// ============================================================================
-// TÍTULOS DE BALANCE SEGÚN ESTADO
-// ============================================================================
 
 export const BALANCE_TITLE_MAP: { [key: string]: string } = {
   'P': 'Saldo cobrado',
   'M': 'Saldo a cobrar',
   'A': 'Saldo a cobrar'
 };
-
-// ============================================================================
-// OPCIONES PARA FILTROS
-// ============================================================================
 
 export const STATUS_FILTER_OPTIONS = [
   { id: 'A', name: 'Por cobrar' },
@@ -117,27 +94,17 @@ export const PAYMENT_TYPE_OPTIONS = [
   { id: 'O', name: 'Pago en oficina' }
 ];
 
-// ============================================================================
-// FUNCIONES UTILITARIAS
-// ============================================================================
 
-/**
- * Obtiene el texto del estado de una deuda
- */
 export const getStatusText = (status: string): string => {
   return DEBT_STATUS_MAP[status] || status;
 };
 
-/**
- * Obtiene la configuración de colores para un estado
- */
+
 export const getStatusConfig = (status: string, dueDate?: string): { color: string; bgColor: string } => {
-  // Verificar si está en mora por fecha vencida
   let finalStatus = status;
   const today = new Date();
   const due = dueDate ? new Date(dueDate) : null;
 
-  // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
   if (due && due < today && status === 'A') {
     finalStatus = 'M';
   }
@@ -145,37 +112,27 @@ export const getStatusConfig = (status: string, dueDate?: string): { color: stri
   return DEBT_STATUS_CONFIG[finalStatus] || DEBT_STATUS_CONFIG.E;
 };
 
-/**
- * Obtiene el texto del tipo de pago
- */
+
 export const getPaymentTypeText = (type: string): string => {
   return PAYMENT_TYPE_MAP[type] || type;
 };
 
-/**
- * Obtiene el texto del tipo de distribución
- */
+
 export const getDistributionText = (amountType: string): string => {
   return DISTRIBUTION_TYPE_MAP[amountType] || '-/-';
 };
 
-/**
- * Obtiene el texto del tipo de monto
- */
+
 export const getAmountTypeText = (amountType: string): string => {
   return AMOUNT_TYPE_MAP[amountType] || '-/-';
 };
 
-/**
- * Obtiene el título del balance según el estado
- */
+
 export const getBalanceTitle = (status: string): string => {
   return BALANCE_TITLE_MAP[status] || 'Saldo a cobrar';
 };
 
-/**
- * Obtiene el texto del botón de detalle según el tipo de deuda
- */
+
 export const getDetailButtonText = (type: number, hideSharedDebtButton: boolean = false): string | null => {
   if (type === 4 && hideSharedDebtButton) {
     return null;
@@ -183,11 +140,8 @@ export const getDetailButtonText = (type: number, hideSharedDebtButton: boolean 
   return DEBT_TYPE_BUTTON_TEXT[type] || null;
 };
 
-/**
- * Obtiene las acciones disponibles según el estado y tipo de deuda
- */
+
 export const getAvailableActions = (status: string, type: number) => {
-  // Solo el tipo 0 puede editar y anular
   if (type !== 0) {
     return {
       showAnular: false,
@@ -197,7 +151,6 @@ export const getAvailableActions = (status: string, type: number) => {
     };
   }
 
-  // Para tipo 0, comportamiento normal según el status
   switch (status) {
     case 'P':
       return {
@@ -224,21 +177,15 @@ export const getAvailableActions = (status: string, type: number) => {
   }
 };
 
-// ============================================================================
-// VALORES POR DEFECTO
-// ============================================================================
 
 export const DEFAULT_VALUES = {
-  PAYMENT_TYPE: 'T', // Transferencia bancaria por defecto
-  AMOUNT_TYPE: 'F',  // Fijo por defecto
-  STATUS: 'A',       // Por cobrar por defecto
-  INTEREST: 0,       // Sin interés por defecto
+  PAYMENT_TYPE: 'T',
+  AMOUNT_TYPE: 'F',
+  STATUS: 'A',
+  INTEREST: 0,
   DISTRIBUTION_DEFAULT: 'Dividido por igual'
 };
 
-// ============================================================================
-// LABELS COMUNES
-// ============================================================================
 
 export const COMMON_LABELS = {
   UNIT: 'Unidad',
@@ -261,10 +208,6 @@ export const COMMON_LABELS = {
   AMOUNT: 'Monto',
   TOTAL: 'Total'
 };
-
-// ============================================================================
-// MENSAJES COMUNES
-// ============================================================================
 
 export const COMMON_MESSAGES = {
   NO_DATA: '-/-',
