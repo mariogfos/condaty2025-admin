@@ -10,7 +10,7 @@ export default function SharedDebtDetailPage() {
   return (
     <DetailSharedDebts
       debtId={debtId}
-      debtTitle="Factura de agua - Septiembre"
+      debtTitle="Deudas Compartidas"
     />
   );
 }

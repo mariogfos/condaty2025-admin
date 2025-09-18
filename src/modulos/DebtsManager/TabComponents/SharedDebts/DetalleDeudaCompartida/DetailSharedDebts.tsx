@@ -7,6 +7,7 @@ import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import Button from '@/mk/components/forms/Button/Button';
 import RenderForm from '../RenderForm/RenderForm';
+import RenderView from '../../AllDebts/RenderView/RenderView';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { capitalize } from '@/mk/utils/string';
@@ -49,6 +50,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
+  // Remover estos estados que ya no son necesarios:
+  // const [showDetailView, setShowDetailView] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<any>(null);
 
   // Funciones para obtener los textos de amount_type y segmentation
   const getAmountTypeText = (amountType: string) => {
@@ -240,6 +244,19 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       edit: true,
       del: true,
     },
+    renderView: (props: any) => (
+      <RenderView
+        open={props.open}
+        onClose={props.onClose}
+        item={props.item}
+        extraData={props.extraData}
+        user={props.user}
+        onEdit={props.onEdit}
+        onDel={props.onDel}
+        hideSharedDebtButton={true}
+        hideEditAndDeleteButtons={true}
+      />
+    ),
   };
 
   // Botones extra para incluir el botón de categorías
@@ -260,7 +277,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     </Button>,
   ];
 
-  // CAMBIO IMPORTANTE: Obtener onSave de useCrud
+  // CAMBIO IMPORTANTE: Remover onView y usar renderView en mod
   const { List, extraData, execute, reLoad, onSave } = useCrud({
     paramsInitial,
     mod,
@@ -407,7 +424,12 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             <IconArrowLeft size={20} />
             Volver
           </button>
-          <h1 className={styles.title}>{extraData?.debt?.subcategory?.name + " - " + extraData?.debt?.description || debtTitle}</h1>
+          <h1 className={styles.title}>
+            {extraData?.debt ?
+              (extraData.debt.subcategory?.name + " - " + extraData.debt.description) || debtTitle
+              : debtTitle
+            }
+          </h1>
         </div>
 
         {/* Cards de resumen con botones de acción */}

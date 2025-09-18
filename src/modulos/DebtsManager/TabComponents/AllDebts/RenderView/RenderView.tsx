@@ -24,6 +24,8 @@ interface RenderViewProps {
   user?: any;
   onEdit?: (item: any) => void;
   onDel?: (item: any) => void;
+  hideSharedDebtButton?: boolean;
+  hideEditAndDeleteButtons?: boolean;
 }
 
 // En el componente RenderView, agregar execute del hook useAxios
@@ -34,7 +36,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   extraData,
   user,
   onEdit,
-  onDel
+  onDel,
+  hideSharedDebtButton = false,
+  hideEditAndDeleteButtons = false
 }) => {
   // Estados para controlar los modales de detalle
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
@@ -129,8 +133,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getAvailableActions = (status: string, type: number) => {
-    // Para type 1, quitar editar y anular
-    if (type === 1) {
+    // Solo el tipo 0 puede editar y anular
+    if (type !== 0) {
       return {
         showAnular: false,
         showEditar: false,
@@ -139,7 +143,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       };
     }
 
-    // Para otros tipos, comportamiento normal
+    // Para tipo 0, comportamiento normal según el status
     switch (status) {
       case 'P':
         return {
@@ -172,7 +176,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       case 1: return 'Ver expensa';
       case 2: return 'Ver reserva';
       case 3: return 'Ver reserva';
-      case 4: return 'Ver deuda compartida';
+      case 4: return hideSharedDebtButton ? null : 'Ver deuda compartida';
       default: return null;
     }
   };
@@ -221,22 +225,43 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   // Preparar datos para el formulario de pago
   const getPaymentFormData = () => {
+    // Usar la información real de la subcategoría de la deuda
+    const subcategoryId = debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
+    const categoryId = debtDetail?.subcategory?.padre?.id || debtDetail?.subcategory?.category_id;
+
+    // Si no tenemos la categoría padre directamente, buscarla en extraData
+    let finalCategoryId = categoryId;
+    if (!finalCategoryId && subcategoryId && extraData?.categories) {
+      const foundCategory = extraData.categories.find((cat: any) =>
+        cat.hijos?.some((hijo: any) => hijo.id === subcategoryId)
+      );
+      finalCategoryId = foundCategory?.id;
+    }
+
     return {
-      debt_dpto_id: currentItem?.id,
-      dpto_id: currentItem?.dpto_id,
+      // Datos básicos del pago
+      paid_at: new Date().toISOString().split('T')[0],
+
+      // Unidad preseleccionada
+      dpto_id: debtDetail?.dpto?.nro,
+
+      // Categoría y subcategoría basadas en la deuda real
+      category_id: finalCategoryId,
+      subcategory_id: subcategoryId,
+
+      // Monto total
       amount: totalBalance,
+
+      // Tipo de pago por defecto
+      type: 'T', // Transferencia bancaria por defecto
+
+      // Datos adicionales para el contexto
+      debt_dpto_id: debtDetail?.id,
       concept: [
-        currentItem?.subcategory?.padre?.name || 'Deuda',
-        currentItem?.subcategory?.name || 'Pago de deuda'
+        debtDetail?.subcategory?.name || 'Pago',
+        `Pago de ${debtDetail?.subcategory?.name || 'deuda'} - Unidad ${debtDetail?.dpto?.nro}`
       ],
-      category: {
-        padre: {
-          name: currentItem?.subcategory?.padre?.name || 'Deuda'
-        }
-      },
-      owner: currentItem?.dpto?.homeowner,
-      dptos: currentItem?.dpto?.nro || '',
-      type: 'D', // Tipo deuda
+      owner: debtDetail?.dpto?.homeowner,
       status: 'S' // Por confirmar
     };
   };
@@ -396,7 +421,7 @@ const RenderView: React.FC<RenderViewProps> = ({
 
             {/* Botones de acción */}
             <div className={styles.actions}>
-              {actions.showAnular && onDel && (
+              {actions.showAnular && onDel && !hideEditAndDeleteButtons && (
                 <Button
                   onClick={() => onDel(debtDetail)}
                   variant="secondary"
@@ -406,7 +431,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </Button>
               )}
 
-              {actions.showEditar && onEdit && (
+              {actions.showEditar && onEdit && !hideEditAndDeleteButtons && (
                 <Button
                   onClick={() => onEdit(debtDetail)}
                   variant="secondary"
