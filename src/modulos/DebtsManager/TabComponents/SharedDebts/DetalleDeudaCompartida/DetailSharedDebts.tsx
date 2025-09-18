@@ -309,13 +309,13 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
 
     return {
       cobradas: {
-        amount: parseFloat(extraData.totalAmountCollected || '0'),
-        count: extraData.collected || 0,
+        amount: parseFloat(extraData.collected || '0'),
+        count: extraData.totalCollected || 0,
         total: extraData.totalReceivable || 0
       },
       porCobrar: {
-        amount: parseFloat(extraData.totalAmountBalanceDue || '0'),
-        count: extraData.receivable || 0,
+        amount: parseFloat(extraData.receivable || '0'),
+        count: extraData.totalReceivable || 0,
         total: extraData.totalReceivable || 0
       },
       enMora: {
@@ -447,7 +447,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               <div className={styles.cardHeader}>
                 <span className={styles.cardLabel}>COBRADAS</span>
               </div>
-              <div className={styles.cardAmount}>Bs {summaryData.cobradas.amount.toLocaleString()}</div>
+              <div className={styles.cardAmount}>
+                <FormatBsAlign value={summaryData.cobradas.amount} />
+              </div>
               <div className={styles.cardSubtitle}>
                 {summaryData.cobradas.count} de {extraData?.totalReceivable || 0} deudas
               </div>
@@ -457,9 +459,11 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               <div className={styles.cardHeader}>
                 <span className={styles.cardLabel}>POR COBRAR</span>
               </div>
-              <div className={styles.cardAmount}>Bs {summaryData.porCobrar.amount.toLocaleString()}</div>
+              <div className={styles.cardAmount}>
+                <FormatBsAlign value={summaryData.porCobrar.amount} />
+              </div>
               <div className={styles.cardSubtitle}>
-                {summaryData.porCobrar.count} de {extraData?.totalReceivable || 0} deudas
+                {parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0} de {extraData?.totalReceivable || 0} deudas
               </div>
             </div>
 
@@ -467,7 +471,9 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               <div className={styles.cardHeader}>
                 <span className={styles.cardLabel}>EN MORA</span>
               </div>
-              <div className={styles.cardAmount}>Bs {summaryData.enMora.amount.toLocaleString()}</div>
+              <div className={styles.cardAmount}>
+                <FormatBsAlign value={summaryData.enMora.amount} />
+              </div>
               <div className={styles.cardSubtitle}>
                 {extraData?.totalArrears || 0} de {extraData?.totalReceivable || 0} deudas
               </div>

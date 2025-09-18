@@ -1,10 +1,9 @@
 'use client';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { getDateStrMes, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
-
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
@@ -15,6 +14,7 @@ import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import RenderView from '../AllDebts/RenderView/RenderView';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 
 interface IndividualDebtsProps {
   openView: boolean;
@@ -33,25 +33,24 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
 }) => {
   const { setStore, store } = useAuth();
   const router = useRouter();
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
-  // Renderizar columna Unidad
   const renderUnitCell = ({ item }: { item: any }) => (
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
     <div>{item?.subcategory?.padre?.name || '-'}</div>
   );
 
-  // Renderizar columna Subcategoría
   const renderSubcategoryCell = ({ item }: { item: any }) => (
     <div>{item?.subcategory?.name || '-'}</div>
   );
 
-
-
-  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
@@ -76,12 +75,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.due_at ? new Date(item.due_at) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -99,7 +96,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     );
   };
 
-  // Renderizar columna Vencimiento - ACTUALIZADO
   const renderDueDateCell = ({ item }: { item: any }) => {
     if (!item?.due_at) return <div>-/-</div>;
     return (
@@ -109,16 +105,13 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     );
   };
 
-
   const renderDebtAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
-
 
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
@@ -129,7 +122,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
 
-  // Opciones para filtros
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
@@ -140,41 +132,69 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     { id: 'X', name: 'Anulada' }
   ];
 
+  const getCategoryOptions = (extraData?: any) => {
+    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
-
-  const getCategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las categorías' },
-    { id: 'expense', name: 'Expensa' },
-    { id: 'reserve', name: 'Reserva' },
-    { id: 'other', name: 'Otro' }
-  ];
-
-  const getSubcategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las subcategorías' },
-    { id: 'water', name: 'Agua' },
-    { id: 'electricity', name: 'Electricidad' },
-    { id: 'gas', name: 'Gas' },
-    { id: 'internet', name: 'Internet' },
-    { id: 'cleaning', name: 'Limpieza' },
-    { id: 'maintenance', name: 'Mantenimiento' },
-    { id: 'security', name: 'Seguridad' }
-  ];
-
-  const getPeriodOptions = () => {
-    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
-    const currentYear = new Date().getFullYear();
-
-    // Generar periodos de los últimos 3 años
-    for (let year = currentYear; year >= currentYear - 2; year--) {
-      MONTHS.slice(1).forEach((month, index) => {
-        periods.push({
-          id: `${year}-${String(index + 1).padStart(2, '0')}`,
-          name: `${month} ${year}`
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        options.push({
+          id: category.id.toString(),
+          name: category.name
         });
       });
     }
 
-    return periods;
+    return options;
+  };
+
+  const getSubcategoryOptions = (extraData?: any) => {
+    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            options.push({
+              id: subcategory.id.toString(),
+              name: subcategory.name
+            });
+          });
+        }
+      });
+    }
+
+    return options;
+  };
+
+  const getPeriodOptions = () => [
+    { id: 'ALL', name: 'Todos los periodos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana anterior' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' }
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "created_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined || value === "ALL") {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
   };
 
   const paramsInitial = {
@@ -184,156 +204,30 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     type: '0',
   };
 
-  const fields = useMemo(() => {
-    return {
-      // Campos principales para el formulario
-      id: { rules: [], api: 'e' },
-      begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
-      type: { rules: [], api: 'ae', label: 'Tipo' },
-      description: { rules: [], api: 'ae', label: 'Descripción' },
-      subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
-      dpto_id: { rules: ['required'], api: 'ae', label: 'Unidad' },
-      amount: { rules: ['required'], api: 'ae', label: 'Monto' },
-      interest: { rules: [], api: 'ae', label: 'Interés' },
-      has_mv: { rules: [], api: 'ae', label: 'Tiene MV' },
-      is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
-      has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
-      is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
+  const goToCategories = (type = '') => {
+    if (type) {
+      router.push(`/categories?type=${type}`);
+    } else {
+      router.push('/categories');
+    }
+  };
 
-      // Campos solo para visualización (sin api)
-      unit: {
-        rules: [''],
-        api: '',
-        label: 'Unidad',
-        list: {
-          onRender: renderUnitCell,
-          order: 1,
-        },
-      },
-      category: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
-        list: {
-          onRender: renderCategoryCell,
-          order: 2,
-        },
-      },
-      subcategory: {
-        rules: [''],
-        api: '',
-        label: 'Subcategoría',
-        list: {
-          onRender: renderSubcategoryCell,
-          order: 3,
-        },
-      },
-
-      status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
-        list: {
-          onRender: renderStatusCell,
-          order: 5,
-        },
-      },
-      due_at: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Vencimiento',
-        list: {
-          onRender: renderDueDateCell,
-          order: 6,
-        },
-      },
-      debt_amount: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</span>,
-        list: {
-          onRender: renderDebtAmountCell,
-          order: 7,
-        },
-      },
-      penalty_amount: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
-        list: {
-          onRender: renderPenaltyAmountCell,
-          order: 8,
-        },
-      },
-      balance_due: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</span>,
-        list: {
-          onRender: renderBalanceDueCell,
-          order: 9,
-        },
-      },
-
-      // Filtros
-      status_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Estado',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Estado',
-          width: '100%',
-          options: getStatusOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      category_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Categoría',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Categoría',
-          width: '100%',
-          options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      subcategory_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Subcategoría',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Subcategoría',
-          width: '100%',
-          options: getSubcategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      period_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Periodo',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Periodo',
-          width: '100%',
-          options: getPeriodOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-    };
-  }, []);
+  const extraButtons = [
+    <Button
+      key="categories-button"
+      variant="secondary"
+      onClick={() => goToCategories('D')}
+      style={{
+        padding: '8px 16px',
+        width: 'auto',
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      Categorías
+    </Button>,
+  ];
 
   const mod: ModCrudType = {
     modulo: 'debt-dptos',
@@ -362,44 +256,142 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       />
     ),
     titleAdd: 'Crear',
-    renderForm: (props: any) => <RenderForm {...props} />, // Simplificar como en SharedDebts
+    renderForm: (props: any) => <RenderForm {...props} />,
   };
 
-  // Función para ir a categorías
-  const goToCategories = (type = '') => {
-    if (type) {
-      router.push(`/categories?type=${type}`);
-    } else {
-      router.push('/categories');
-    }
+  // Primero definimos los campos base sin extraData
+  const fields = {
+    id: { rules: [], api: 'e' },
+    begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
+    type: { rules: [], api: 'ae', label: 'Tipo' },
+    description: { rules: [], api: 'ae', label: 'Descripción' },
+    subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
+    dpto_id: { rules: ['required'], api: 'ae', label: 'Unidad' },
+    amount: { rules: ['required'], api: 'ae', label: 'Monto' },
+    interest: { rules: [], api: 'ae', label: 'Interés' },
+    has_mv: { rules: [], api: 'ae', label: 'Tiene MV' },
+    is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
+    has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
+    is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
+
+    unit: {
+      rules: [''],
+      api: '',
+      label: 'Unidad',
+      list: {
+        onRender: renderUnitCell,
+        order: 1,
+      },
+    },
+    due_at: {
+      rules: ['required'],
+      api: 'ae',
+      label: 'Vencimiento',
+      list: {
+        onRender: renderDueDateCell,
+        order: 6,
+      },
+      filter: {
+        key: 'due_at',
+        label: 'Periodo',
+        width: '100%',
+        options: getPeriodOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+        order: 1,
+      },
+    },
+    category: {
+      rules: [''],
+      api: '',
+      label: 'Categoría',
+      list: {
+        onRender: renderCategoryCell,
+        order: 2,
+      },
+      filter: {
+        label: 'Categoría',
+        width: '100%',
+        options: getCategoryOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+      },
+    },
+    subcategory: {
+      rules: [''],
+      api: '',
+      label: 'Subcategoría',
+      list: {
+        onRender: renderSubcategoryCell,
+        order: 3,
+      },
+      filter: {
+        label: 'Subcategoría',
+        width: '100%',
+        options: getSubcategoryOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+      },
+    },
+
+    status: {
+      rules: [''],
+      api: '',
+      label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+      list: {
+        onRender: renderStatusCell,
+        order: 5,
+      },
+      filter: {
+        label: 'Estado',
+        width: '100%',
+        options: getStatusOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+        order:1
+      },
+    },
+
+    debt_amount: {
+      rules: [''],
+      api: '',
+      label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</span>,
+      list: {
+        onRender: renderDebtAmountCell,
+        order: 7,
+      },
+    },
+    penalty_amount: {
+      rules: [''],
+      api: '',
+      label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
+      list: {
+        onRender: renderPenaltyAmountCell,
+        order: 8,
+      },
+    },
+    balance_due: {
+      rules: [''],
+      api: '',
+      label: (
+        <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</span>
+      ),
+      list: {
+        onRender: renderBalanceDueCell,
+        order: 9,
+      },
+    },
   };
 
-  // Botones extra para incluir el botón de categorías
-  const extraButtons = [
-    <Button
-      key="categories-button"
-      variant="secondary"
-      onClick={() => goToCategories('D')}
-      style={{
-        padding: '8px 16px',
-        width: 'auto',
-        height: 48,
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      Categorías
-    </Button>,
-  ];
-
-  const { userCan, List, onEdit, onDel, extraData, execute, reLoad, showToast } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, execute, reLoad, showToast, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
-    extraButtons, // Agregar extraButtons aquí
+    extraButtons,
+    getFilter: handleGetFilter,
   });
 
-  // Pasar extraData al componente padre cuando cambie
+
   useEffect(() => {
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
@@ -427,12 +419,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.due_at ? new Date(item.due_at) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -454,7 +444,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   };
 
   const onClickDetail = (row: any) => {
-    // No hacer nada - evitar redirección
   };
 
   return (
@@ -467,6 +456,40 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         emptyLine2="individuales las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
+      />
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("created_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
       />
     </>
   );

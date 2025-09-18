@@ -10,7 +10,6 @@ import RenderView from './RenderView/RenderView';
 import NotAccess from '@/components/auth/NotAccess/NotAccess';
 import { formatNumber } from '@/mk/utils/numbers';
 
-// Importar los componentes de tabs
 import AllDebts from './TabComponents/AllDebts/AllDebts';
 import IndividualDebts from './TabComponents/IndividualDebts/IndividualDebts';
 import SharedDebts from './TabComponents/SharedDebts/SharedDebts';
@@ -21,22 +20,19 @@ const DebtsManager = () => {
   const [viewItem, setViewItem] = useState({});
   const [activeTab, setActiveTab] = useState('all');
   const [activeSummaryCard, setActiveSummaryCard] = useState('por_cobrar');
-  const [currentExtraData, setCurrentExtraData] = useState<any>(null); // Estado para extraData
+  const [currentExtraData, setCurrentExtraData] = useState<any>(null);
   const { setStore, store } = useAuth();
 
   useEffect(() => {
     setStore({ ...store, title: '' });
   }, []);
 
-  // Función para recibir extraData de los componentes hijos
   const handleExtraDataChange = (extraData: any) => {
     setCurrentExtraData(extraData);
   };
 
-  // Datos dinámicos para las tarjetas de resumen basados en extraData
   const getSummaryData = () => {
     if (!currentExtraData) {
-      // Datos por defecto si no hay extraData
       return {
         por_cobrar: { amount: 'Bs 0.00', count: '0 en total' },
         cobradas: { amount: 'Bs 0.00', count: '0 en total' },
@@ -62,7 +58,6 @@ const DebtsManager = () => {
 
   const summaryData = getSummaryData();
 
-  // Configuración de tabs
   const tabs = [
     { value: 'all', text: 'Deudas' },
     { value: 'individual', text: 'Individuales' },
@@ -86,14 +81,13 @@ const DebtsManager = () => {
     </Button>,
   ];
 
-  // Función para renderizar el componente correcto según el tab activo
   const renderTabContent = () => {
     const commonProps = {
       openView,
       setOpenView,
       viewItem,
       setViewItem,
-      onExtraDataChange: handleExtraDataChange, // Pasar la función para recibir extraData
+      onExtraDataChange: handleExtraDataChange,
     };
 
     switch (activeTab) {
@@ -114,7 +108,6 @@ const DebtsManager = () => {
 
   return (
     <div className={styles.container}>
-      {/* Sección de tarjetas de resumen */}
       <div className={styles.summarySection}>
         <div className={styles.summaryHeader}>
           <h2 className={styles.summaryTitle}>Deudas</h2>
@@ -144,7 +137,6 @@ const DebtsManager = () => {
         </div>
       </div>
 
-      {/* Lista de deudas */}
       <div className={styles.listSection}>
         <div className={styles.tabsSection}>
           <TabsButtons
@@ -155,11 +147,9 @@ const DebtsManager = () => {
           />
         </div>
 
-        {/* Renderizar el contenido del tab activo */}
         {renderTabContent()}
       </div>
 
-      {/* Modal de vista de detalle */}
       <RenderView
         open={openView}
         onClose={() => setOpenView(false)}
