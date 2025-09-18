@@ -238,6 +238,10 @@ const RenderView: React.FC<RenderViewProps> = ({
       finalCategoryId = foundCategory?.id;
     }
 
+    // Determinar si debe estar bloqueado basado en el tipo de deuda
+    const isExpensasDebt = debtType === 1; // Tipo 1 = Expensas
+    const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
+
     return {
       // Datos básicos del pago
       paid_at: new Date().toISOString().split('T')[0],
@@ -248,6 +252,10 @@ const RenderView: React.FC<RenderViewProps> = ({
       // Categoría y subcategoría basadas en la deuda real
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
+
+      // Campos de bloqueo
+      isCategoryLocked: isExpensasDebt || isReservationsDebt,
+      isSubcategoryLocked: isExpensasDebt || isReservationsDebt,
 
       // Monto total
       amount: totalBalance,

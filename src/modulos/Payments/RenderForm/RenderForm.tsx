@@ -115,6 +115,7 @@ interface FormState {
   subcategory_id?: string | number;
   subcategories?: Subcategory[];
   isSubcategoryLocked?: boolean;
+  isCategoryLocked?: boolean;
   type?: string;
   voucher?: string;
   obs?: string;
@@ -156,16 +157,38 @@ const RenderForm: React.FC<RenderFormProps> = ({
   reLoad,
 }) => {
   const [formState, setFormState] = useState<FormState>(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    console.log(item);
+    console.log('aqui arriba ');
+
+    // Usar directamente los valores de bloqueo del item si están presentes
+    const isCategoryLocked = item?.isCategoryLocked || false;
+    const isSubcategoryLocked = item?.isSubcategoryLocked || false;
+
+    // Cargar subcategorías si hay categoría precargada
+    let subcategories: Subcategory[] = [];
+    if (item?.category_id && extraData?.categories) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(item.category_id)
+      );
+      subcategories = selectedCategory?.hijos || [];
+    }
 
     return {
-      ...(item || {}),
-      paid_at: item?.paid_at || formattedDate,
+      paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
       payment_method: item?.payment_method || '',
       file: item?.file || null,
       filename: item?.filename || null,
       ext: item?.ext || null,
+      dpto_id: item?.dpto_id || '',
+      category_id: item?.category_id || '',
+      subcategory_id: item?.subcategory_id || '',
+      subcategories,
+      isCategoryLocked,
+      isSubcategoryLocked,
+      type: item?.type || '',
+      voucher: item?.voucher || '',
+      obs: item?.obs || '',
+      amount: item?.amount || '',
     };
   });
   const [errors, setErrors] = useState<Errors>({});
@@ -287,6 +310,18 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     if (!isInitialized && open) {
       setIsInitialized(true);
+
+      // Si hay item con datos precargados y es una categoría de deudas, cargar deudas automáticamente
+      if (item && item.dpto_id && item.subcategory_id) {
+        const isExpensasSelected = item.subcategory_id === extraData?.client_config?.cat_expensas;
+        const isReservationsSelected = item.subcategory_id === extraData?.client_config?.cat_reservations;
+
+        if (isExpensasSelected || isReservationsSelected) {
+          const deudasKey = `${item.dpto_id}_${item.subcategory_id}`;
+          lastLoadedDeudas.current = deudasKey;
+          getDeudas(item.dpto_id);
+        }
+      }
     }
 
     return () => {
@@ -297,7 +332,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setPeriodoTotal(0);
       }
     };
-  }, [open]);
+  }, [open, item, extraData?.client_config?.cat_expensas, extraData?.client_config?.cat_reservations, getDeudas]);
 
   useEffect(() => {
     const isExpensasSelected = formState.subcategory_id === extraData?.client_config?.cat_expensas;
@@ -330,53 +365,67 @@ const RenderForm: React.FC<RenderFormProps> = ({
   ]);
 
   useEffect(() => {
-    let newSubcategories: Subcategory[] = [];
-    let newSubcategoryId: string | number = '';
-    let lockSubcategory = false;
+    // Solo ejecutar si no hay item (formulario nuevo) o si los campos no están bloqueados
+    if (!item || !formState.isCategoryLocked) {
+      let newSubcategories: Subcategory[] = [];
+      let newSubcategoryId: string | number = '';
+      let lockSubcategory = false;
 
-    if (formState.category_id && extraData?.categories) {
-      const selectedCategory = extraData.categories.find(
-        (category: Category) => category.id === formState.category_id
-      );
-
-      if (selectedCategory?.hijos) {
-        newSubcategories = selectedCategory.hijos || [];
-
-        // Buscar si la subcategoría es cat_expensas o cat_reservations
-        const catExpensasChild = newSubcategories.find(
-          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_expensas
+      if (formState.category_id && extraData?.categories) {
+        const selectedCategory = extraData.categories.find(
+          (category: Category) => category.id === formState.category_id
         );
-        const catReservationsChild = newSubcategories.find(
-          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_reservations
-        );
-        if (catExpensasChild) {
-          newSubcategoryId = extraData.client_config.cat_expensas;
-          lockSubcategory = true;
-        } else if (catReservationsChild) {
-          newSubcategoryId = extraData.client_config.cat_reservations;
-          lockSubcategory = true;
+
+        if (selectedCategory?.hijos) {
+          newSubcategories = selectedCategory.hijos || [];
+
+          // Buscar si la subcategoría es cat_expensas o cat_reservations
+          const catExpensasChild = newSubcategories.find(
+            (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_expensas
+          );
+          const catReservationsChild = newSubcategories.find(
+            (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_reservations
+          );
+
+          if (catExpensasChild) {
+            newSubcategoryId = extraData.client_config.cat_expensas;
+            lockSubcategory = true;
+          } else if (catReservationsChild) {
+            newSubcategoryId = extraData.client_config.cat_reservations;
+            lockSubcategory = true;
+          }
         }
       }
-    }
 
-    setFormState((prev: FormState) => {
-      if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
-        setDeudas([]);
-        setSelectedPeriodo([]);
-        setPeriodoTotal(0);
-        lastLoadedDeudas.current = '';
-      }
-      return {
-        ...prev,
-        subcategories: newSubcategories,
-        subcategory_id:
-          prev.subcategory_id !== newSubcategoryId || !prev.category_id
-            ? newSubcategoryId
-            : prev.subcategory_id,
-        isSubcategoryLocked: lockSubcategory,
-      };
-    });
-  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas]);
+      setFormState((prev: FormState) => {
+        // Si hay item y está bloqueado, no cambiar los valores de bloqueo
+        if (item && prev.isCategoryLocked) {
+          return {
+            ...prev,
+            subcategories: newSubcategories,
+          };
+        }
+
+        // Solo limpiar deudas si realmente cambió la subcategoría
+        if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
+          setDeudas([]);
+          setSelectedPeriodo([]);
+          setPeriodoTotal(0);
+          lastLoadedDeudas.current = '';
+        }
+
+        return {
+          ...prev,
+          subcategories: newSubcategories,
+          subcategory_id:
+            prev.subcategory_id !== newSubcategoryId || !prev.category_id
+              ? newSubcategoryId
+              : prev.subcategory_id,
+          isSubcategoryLocked: lockSubcategory,
+        };
+      });
+    }
+  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas, item]);
 
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -827,6 +876,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   required
                   optionLabel="name"
                   optionValue="id"
+                  disabled={formState.isCategoryLocked}
                 />
               </div>
               <div className={styles['input-half']}>

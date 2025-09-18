@@ -249,9 +249,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       debt_amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</span>,
         list: {
           onRender: renderDebtAmountCell,
           order: 7,
@@ -260,9 +258,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       penalty_amount: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
         list: {
           onRender: renderPenaltyAmountCell,
           order: 8,
@@ -271,15 +267,14 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       balance_due: {
         rules: [''],
         api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</label>
-        ),
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</span>,
         list: {
           onRender: renderBalanceDueCell,
           order: 9,
         },
       },
-      // FILTROS
+
+      // Filtros
       status_filter: {
         rules: [],
         api: 'ae',
@@ -361,6 +356,9 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         user={props.user}
         onEdit={props.onEdit}
         onDel={props.onDel}
+        execute={props.execute}
+        reLoad={props.reLoad}
+        showToast={props.showToast}
       />
     ),
     titleAdd: 'Crear',
@@ -394,7 +392,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     </Button>,
   ];
 
-  const { userCan, List, onEdit, onDel, extraData } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, execute, reLoad, showToast } = useCrud({
     paramsInitial,
     mod,
     fields,
