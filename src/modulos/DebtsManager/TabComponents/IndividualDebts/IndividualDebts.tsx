@@ -4,7 +4,7 @@ import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
 import { getDateStrMes, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
-import RenderView from './RenderView/RenderView';
+
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
 import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
@@ -14,6 +14,7 @@ import { useAuth } from '@/mk/contexts/AuthProvider';
 import Button from '@/mk/components/forms/Button/Button';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import RenderView from '../AllDebts/RenderView/RenderView';
 
 interface IndividualDebtsProps {
   openView: boolean;
@@ -356,9 +357,8 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         user={props.user}
         onEdit={props.onEdit}
         onDel={props.onDel}
-        execute={props.execute}
-        reLoad={props.reLoad}
-        showToast={props.showToast}
+        hideSharedDebtButton={false}
+        hideEditAndDeleteButtons={false}
       />
     ),
     titleAdd: 'Crear',

@@ -474,24 +474,28 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
             </div>
           </div>
 
-          {/* Botones de acción - REMOVER el botón de categorías de aquí */}
+          {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-            <Button
-              onClick={handleEdit}
-              variant="primary"
-              className={styles.actionButton}
-            >
-              <IconEdit size={16} />
-              Editar
-            </Button>
-            <Button
-              onClick={handleDelete}
-              variant="secondary"
-              className={styles.actionButton}
-            >
-              <IconTrash size={16} />
-              Eliminar
-            </Button>
+            {extraData?.hasAction && (
+              <>
+                <Button
+                  onClick={handleEdit}
+                  variant="primary"
+                  className={styles.actionButton}
+                >
+                  <IconEdit size={16} />
+                  Editar
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  variant="secondary"
+                  className={styles.actionButton}
+                >
+                  <IconTrash size={16} />
+                  Eliminar
+                </Button>
+              </>
+            )}
           </div>
         </div>
 

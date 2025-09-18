@@ -164,15 +164,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
 
-    // Cargar subcategorías si hay categoría precargada
-    let subcategories: Subcategory[] = [];
-    if (item?.category_id && extraData?.categories) {
-      const selectedCategory = extraData.categories.find(
-        (cat: Category) => String(cat.id) === String(item.category_id)
-      );
-      subcategories = selectedCategory?.hijos || [];
-    }
-
     return {
       paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
       payment_method: item?.payment_method || '',
@@ -182,7 +173,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       dpto_id: item?.dpto_id || '',
       category_id: item?.category_id || '',
       subcategory_id: item?.subcategory_id || '',
-      subcategories,
+      subcategories: [], // Inicializar vacío, se cargará en useEffect
       isCategoryLocked,
       isSubcategoryLocked,
       type: item?.type || '',
@@ -302,6 +293,38 @@ const RenderForm: React.FC<RenderFormProps> = ({
     ]
   );
 
+  // Nuevo useEffect para cargar subcategorías cuando extraData esté disponible
+  useEffect(() => {
+    if (extraData?.categories && formState.category_id) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(formState.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [extraData?.categories, formState.category_id]);
+
+  // Nuevo useEffect para cargar subcategorías iniciales cuando se abre el modal con item precargado
+  useEffect(() => {
+    if (open && item && item.category_id && item.subcategory_id && extraData?.categories) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(item.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [open, item, extraData?.categories]);
+
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
@@ -365,15 +388,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
   ]);
 
   useEffect(() => {
-    // Solo ejecutar si no hay item (formulario nuevo) o si los campos no están bloqueados
-    if (!item || !formState.isCategoryLocked) {
+    // CORRECCIÓN: Solo ejecutar si no hay item (formulario nuevo) o si los campos no están bloqueados
+    // Para deudas individuales, expensas y reservas, los campos deben permanecer bloqueados
+    if (!item || (!formState.isCategoryLocked && !formState.isSubcategoryLocked)) {
       let newSubcategories: Subcategory[] = [];
       let newSubcategoryId: string | number = '';
       let lockSubcategory = false;
 
       if (formState.category_id && extraData?.categories) {
         const selectedCategory = extraData.categories.find(
-          (category: Category) => category.id === formState.category_id
+          (category: Category) => String(category.id) === String(formState.category_id)
         );
 
         if (selectedCategory?.hijos) {
@@ -381,10 +405,10 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
           // Buscar si la subcategoría es cat_expensas o cat_reservations
           const catExpensasChild = newSubcategories.find(
-            (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_expensas
+            (hijo: Subcategory) => String(hijo.id) === String(extraData?.client_config?.cat_expensas)
           );
           const catReservationsChild = newSubcategories.find(
-            (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_reservations
+            (hijo: Subcategory) => String(hijo.id) === String(extraData?.client_config?.cat_reservations)
           );
 
           if (catExpensasChild) {
@@ -398,11 +422,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
 
       setFormState((prev: FormState) => {
-        // Si hay item y está bloqueado, no cambiar los valores de bloqueo
-        if (item && prev.isCategoryLocked) {
+        // CORRECCIÓN: Si hay item y los campos están bloqueados, mantener los valores originales
+        if (item && (prev.isCategoryLocked || prev.isSubcategoryLocked)) {
           return {
             ...prev,
             subcategories: newSubcategories,
+            // Mantener los valores originales de categoría y subcategoría si están bloqueados
           };
         }
 
@@ -425,7 +450,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         };
       });
     }
-  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas, item]);
+  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas, item, formState.isCategoryLocked, formState.isSubcategoryLocked]);
 
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

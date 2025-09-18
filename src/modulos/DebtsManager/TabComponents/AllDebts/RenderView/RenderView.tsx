@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import useAxios from '@/mk/hooks/useAxios';
 import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 
 // Importar solo los componentes que son modales
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
@@ -40,6 +41,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   hideSharedDebtButton = false,
   hideEditAndDeleteButtons = false
 }) => {
+  const { showToast: authShowToast } = useAuth();
+
   // Estados para controlar los modales de detalle
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
@@ -65,6 +68,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   // Obtener los datos detallados de la API
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
+  console.log('debtType', debtDetail);
 
   const getStatusText = (status: string, dueDate?: string) => {
     // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
@@ -133,7 +137,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getAvailableActions = (status: string, type: number) => {
-    // Solo el tipo 0 puede editar y anular
+    // Solo el tipo 0 puede editar y anular, y solo en estado 'A' (Por cobrar)
     if (type !== 0) {
       return {
         showAnular: false,
@@ -143,7 +147,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       };
     }
 
-    // Para tipo 0, comportamiento normal según el status
+    // Para tipo 0, comportamiento según el status
     switch (status) {
       case 'P':
         return {
@@ -152,19 +156,25 @@ const RenderView: React.FC<RenderViewProps> = ({
           showRegistrarPago: false,
           showVerPago: true
         };
-      case 'M':
-      case 'A':
+      case 'A': // Solo en estado "Por cobrar" se pueden editar y anular
         return {
           showAnular: true,
           showEditar: true,
           showRegistrarPago: true,
           showVerPago: false
         };
-      default:
+      case 'M': // En mora solo se puede registrar pago, no editar ni anular
         return {
-          showAnular: true,
-          showEditar: true,
+          showAnular: false,
+          showEditar: false,
           showRegistrarPago: true,
+          showVerPago: false
+        };
+      default: // Otros estados no permiten editar ni anular
+        return {
+          showAnular: false,
+          showEditar: false,
+          showRegistrarPago: status !== 'P',
           showVerPago: false
         };
     }
@@ -200,6 +210,11 @@ const RenderView: React.FC<RenderViewProps> = ({
     }
   };
 
+  // Crear función wrapper con la signatura correcta
+  const handleShowToast = (msg: string, type: 'info' | 'success' | 'error' | 'warning') => {
+    authShowToast(msg, type);
+  };
+
   // Función para recargar el item después de registrar pago
   const reloadItem = async () => {
     try {
@@ -207,10 +222,10 @@ const RenderView: React.FC<RenderViewProps> = ({
         '/debt-dptos',
         'GET',
         {
-          fullType: 'DET',
           searchBy: currentItem.id,
+          fullType: 'DET',
+          perPage: -1,  // Cambiar de 1 a -1 para que coincida con la carga inicial
           page: 1,
-          perPage: 1,
         },
         false,
         true
@@ -219,12 +234,16 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
     } catch (error) {
-      console.error('Error reloading item:', error);
+      console.error('Error al recargar el item:', error);
+      handleShowToast('Error al actualizar los datos', 'error');
     }
   };
 
   // Preparar datos para el formulario de pago
   const getPaymentFormData = () => {
+    // Calcular el total balance internamente
+    const calculatedTotalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
     // Usar la información real de la subcategoría de la deuda
     const subcategoryId = debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
     const categoryId = debtDetail?.subcategory?.padre?.id || debtDetail?.subcategory?.category_id;
@@ -238,9 +257,15 @@ const RenderView: React.FC<RenderViewProps> = ({
       finalCategoryId = foundCategory?.id;
     }
 
-    // Determinar si debe estar bloqueado basado en el tipo de deuda
+    // CORRECCIÓN: Para deudas individuales (tipo 0), expensas (tipo 1), reservas (tipos 2 y 3)
+    // y deudas compartidas (tipo 4) todas deben tener la categoría y subcategoría bloqueadas
+    const isIndividualDebt = debtType === 0; // Tipo 0 = Deudas individuales
     const isExpensasDebt = debtType === 1; // Tipo 1 = Expensas
     const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
+    const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
+
+    // Todos los tipos de deuda deben estar bloqueados
+    const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
     return {
       // Datos básicos del pago
@@ -253,12 +278,12 @@ const RenderView: React.FC<RenderViewProps> = ({
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
 
-      // Campos de bloqueo
-      isCategoryLocked: isExpensasDebt || isReservationsDebt,
-      isSubcategoryLocked: isExpensasDebt || isReservationsDebt,
+      // Campos de bloqueo - para todos los tipos de deuda
+      isCategoryLocked: shouldLockFields,
+      isSubcategoryLocked: shouldLockFields,
 
       // Monto total
-      amount: totalBalance,
+      amount: calculatedTotalBalance,
 
       // Tipo de pago por defecto
       type: 'T', // Transferencia bancaria por defecto
@@ -333,7 +358,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                 </div>
                 <div className={styles.statusItem}>
                   <span className={styles.label}>Vencimiento:</span>
-                  <span className={styles.value}>{formatDate(debtDetail?.debt?.due_at || debtDetail?.due_at || '-/-')}</span>
+                  <span className={styles.value}>
+                    {formatDate(debtDetail?.debt?.due_at || debtDetail?.due_at || '-/-')}
+                  </span>
                 </div>
               </div>
 
@@ -342,7 +369,9 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoRow}>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
-                    <span className={styles.value}>{getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}</span>
+                    <span className={styles.value}>
+                      {getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Fecha de pago:</span>
@@ -373,15 +402,11 @@ const RenderView: React.FC<RenderViewProps> = ({
               <div className={styles.infoRow}>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Propietario</span>
-                  <span className={styles.value}>
-                    {getFullName(debtDetail?.dpto?.homeowner)}
-                  </span>
+                  <span className={styles.value}>{getFullName(debtDetail?.dpto?.homeowner)}</span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Subcategoría</span>
-                  <span className={styles.value}>
-                    {debtDetail?.subcategory?.name || '-/-'}
-                  </span>
+                  <span className={styles.value}>{debtDetail?.subcategory?.name || '-/-'}</span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Multa</span>
@@ -393,15 +418,13 @@ const RenderView: React.FC<RenderViewProps> = ({
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Titular</span>
                   <span className={styles.value}>
-                    {debtDetail?.dpto?.holder === 'H' ?
-                    getFullName(debtDetail?.dpto?.homeowner) :
-                    getFullName(debtDetail?.dpto?.tenant)}
+                    {debtDetail?.dpto?.holder === 'H'
+                      ? getFullName(debtDetail?.dpto?.homeowner)
+                      : getFullName(debtDetail?.dpto?.tenant)}
                   </span>
                 </div>
                 {/* Item vacío en el medio */}
-                <div className={styles.infoItem}>
-                  {/* Espacio vacío */}
-                </div>
+                <div className={styles.infoItem}>{/* Espacio vacío */}</div>
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Mant. de valor</span>
                   <span className={styles.value}>Bs {formatNumber(maintenanceAmount)}</span>
@@ -422,8 +445,7 @@ const RenderView: React.FC<RenderViewProps> = ({
             <h3 className={styles.detailsTitle}>Detalles</h3>
             <div className={styles.detailsSection}>
               <div className={styles.detailsContent}>
-                {debtDetail?.debt?.description ||
-                  'Cobro del servicio básico de agua del mes de agosto'}
+                {debtDetail?.debt?.description || debtDetail?.description}
               </div>
             </div>
 
@@ -450,20 +472,14 @@ const RenderView: React.FC<RenderViewProps> = ({
               )}
 
               {actions.showRegistrarPago && (
-                <Button
-                  onClick={() => setShowPaymentForm(true)}
-                  className={styles.primaryButton}
-                >
+                <Button onClick={() => setShowPaymentForm(true)} className={styles.primaryButton}>
                   Registrar Pago
                 </Button>
               )}
 
               {/* Botón de ver pago para estado cobrado */}
               {actions.showVerPago && currentItem?.payment_id && (
-                <Button
-                  onClick={() => setShowPaymentModal(true)}
-                  className={styles.actionButton}
-                >
+                <Button onClick={() => setShowPaymentModal(true)} className={styles.actionButton}>
                   Ver pago
                 </Button>
               )}
@@ -526,9 +542,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           item={getPaymentFormData()}
           extraData={extraData}
           execute={execute as (...args: any[]) => Promise<any>}
-          showToast={(msg: string, type: 'info' | 'success' | 'error' | 'warning') => {
-            console.log(`${type}: ${msg}`);
-          }}
+          showToast={handleShowToast}
           reLoad={() => {
             reloadItem();
           }}
