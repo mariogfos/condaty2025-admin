@@ -265,7 +265,30 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
     type: { rules: [], api: 'ae', label: 'Tipo' },
     description: { rules: [], api: 'ae', label: 'Descripción' },
-    subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
+    category_id: {
+      rules: [''],
+      api: 'ae',
+      label: 'Categoría',
+      filter: {
+        label: 'Categoría',
+        width: '100%',
+        options: getCategoryOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+      },
+    },
+    subcategory_id: {
+      rules: ['required'],
+      api: 'ae',
+      label: 'Subcategoría',
+      filter: {
+        label: 'Subcategoría',
+        width: '100%',
+        options: getSubcategoryOptions,
+        optionLabel: 'name',
+        optionValue: 'id',
+      },
+    },
     dpto_id: { rules: ['required'], api: 'ae', label: 'Unidad' },
     amount: { rules: ['required'], api: 'ae', label: 'Monto' },
     interest: { rules: [], api: 'ae', label: 'Interés' },
@@ -309,13 +332,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         onRender: renderCategoryCell,
         order: 2,
       },
-      filter: {
-        label: 'Categoría',
-        width: '100%',
-        options: getCategoryOptions,
-        optionLabel: 'name',
-        optionValue: 'id',
-      },
     },
     subcategory: {
       rules: [''],
@@ -324,13 +340,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       list: {
         onRender: renderSubcategoryCell,
         order: 3,
-      },
-      filter: {
-        label: 'Subcategoría',
-        width: '100%',
-        options: getSubcategoryOptions,
-        optionLabel: 'name',
-        optionValue: 'id',
       },
     },
 
@@ -348,7 +357,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         options: getStatusOptions,
         optionLabel: 'name',
         optionValue: 'id',
-        order:1
+        order: 1,
       },
     },
 

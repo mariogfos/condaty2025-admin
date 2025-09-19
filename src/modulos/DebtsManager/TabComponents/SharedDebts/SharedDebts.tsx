@@ -161,7 +161,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     { id: 'A', name: 'Promedio' }
   ];
 
-  const getCategoryOptions = () => {
+  const getCategoryOptions = (extraData?: any) => {
     const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
@@ -176,7 +176,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     return options;
   };
 
-  const getSubcategoryOptions = () => {
+  const getSubcategoryOptions = (extraData?: any) => {
     const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
@@ -256,8 +256,30 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
       type: { rules: [], api: 'ae', label: 'Tipo' },
       description: { rules: [], api: 'ae', label: 'Descripción' },
-      category_id: { rules: ['required'], api: 'ae', label: 'Categoría' },
-      subcategory_id: { rules: ['required'], api: 'ae', label: 'Subcategoría' },
+      category_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Categoría',
+        filter: {
+          label: 'Categoría',
+          width: '100%',
+          options: getCategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+      subcategory_id: {
+        rules: ['required'],
+        api: 'ae',
+        label: 'Subcategoría',
+        filter: {
+          label: 'Subcategoría',
+          width: '100%',
+          options: getSubcategoryOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
       asignar: { rules: ['required'], api: 'ae', label: 'Asignación' },
       dpto_id: { rules: [], api: 'ae', label: 'Departamentos' },
       amount_type: {
@@ -298,13 +320,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           onRender: renderCategoryCell,
           order: 2,
         },
-        filter: {
-          label: 'Categoría',
-          width: '100%',
-          options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
       },
       subcategory: {
         rules: [''],
@@ -313,13 +328,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         list: {
           onRender: renderSubcategoryCell,
           order: 3,
-        },
-        filter: {
-          label: 'Subcategoría',
-          width: '100%',
-          options: getSubcategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
         },
       },
       distribution: {

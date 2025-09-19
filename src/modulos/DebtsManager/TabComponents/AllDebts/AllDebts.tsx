@@ -162,7 +162,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     { id: 'A', name: 'Promedio' }
   ];
 
-  const getCategoryOptions = () => {
+  const getCategoryOptions = (extraData?: any) => {
     const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
@@ -177,7 +177,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return options;
   };
 
-  const getSubcategoryOptions = () => {
+  const getSubcategoryOptions = (extraData?: any) => {
     const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
