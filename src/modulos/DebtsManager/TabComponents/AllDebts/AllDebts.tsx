@@ -166,7 +166,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{  }];
+    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -181,7 +181,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{  }];
+    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -222,7 +222,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined || value === "") {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
