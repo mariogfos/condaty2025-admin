@@ -2,8 +2,9 @@
   & > section {
     display: flex;
     font-size: var(--sM);
-    margin-bottom: var(--spXs);
+    /* margin-bottom: var(--spXs); */
     gap: var(--spS);
+    margin-bottom: var(--spS);
     & > div:nth-child(1) {
       color: var(--cWhiteV1);
       flex-grow: 1;
@@ -11,7 +12,7 @@
       text-wrap: balance;
       text-align: left;
       font-weight: 400;
-      margin-top: 12px;
+      /* margin-top: 12px; */
     }
     & > div:nth-child(2) {
       color: var(--cWhite);
@@ -19,7 +20,7 @@
       flex-basis: 0;
       text-align: right;
       font-weight: 400;
-      margin-top: 12px;
+      /* margin-top: 12px; */
     }
   }
 }

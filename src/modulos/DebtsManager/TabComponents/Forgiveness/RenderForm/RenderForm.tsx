@@ -12,6 +12,9 @@ import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
 import { formatBs } from "../../../../../mk/utils/numbers";
+import { Card } from "@/mk/components/ui/Card/Card";
+import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
+import Br from "@/components/Detail/Br";
 
 const RenderForm = ({
   open,
@@ -26,6 +29,8 @@ const RenderForm = ({
   const [formState, setFormState]: any = useState({
     ...item,
     forgiveness: item?.forgiven_debts || [],
+    percent_value: item?.forgiveness_percent,
+    amount_value: item?.forgiveness_amount,
   });
   const [errors, setErrors] = useState({});
   const [debts, setDebts] = useState([]);
@@ -123,7 +128,7 @@ const RenderForm = ({
   }, [formState?.dpto_id]);
 
   const toggleForgivability = (item: any) => {
-    // if (item?.is_forgivable == "N") return;
+    if (formState?.id) return;
     const idx = formState.forgiveness.findIndex((f: any) => f.id === item.id);
     if (idx > -1) {
       const forgiveness = [...formState.forgiveness];
@@ -174,19 +179,11 @@ const RenderForm = ({
       errors,
     });
 
-    // errors = checkRules({
-    //   value: formState.description,
-    //   rules: ["required"],
-    //   key: "description",
-    //   errors,
-    // });
-
     setErrors(errors);
     return errors;
   };
-  const onSave = async () => {
-    let method = formState.id ? "PUT" : "POST";
-    if (hasErrors(validate())) return;
+
+  const getTotal = () => {
     let total = 0;
     formState?.forgiveness?.forEach((debt: any) => {
       total +=
@@ -194,6 +191,12 @@ const RenderForm = ({
         Number(debt.penalty_amount) +
         Number(debt.maintenance_amount);
     });
+    return total;
+  };
+  const onSave = async () => {
+    let method = formState.id ? "PUT" : "POST";
+    if (hasErrors(validate())) return;
+    let total = getTotal();
     const amount = (total - Number(formState.amount_value)).toFixed(2);
     const idsForgiveness = formState.forgiveness.map((f: any) => f.id);
 
@@ -206,7 +209,7 @@ const RenderForm = ({
       amount: amount,
       percent_value: formState.percent_value,
       amount_value: formState.amount_value,
-      description: formState.description,
+      obs: formState.obs,
       forgiveness: idsForgiveness,
     };
 
@@ -227,6 +230,12 @@ const RenderForm = ({
     }
   };
 
+  useEffect(() => {
+    if (formState?.forgiveness?.length > 0 && !formState?.id) {
+      setFormState({ ...formState, percent_value: "", amount_value: "" });
+    }
+  }, [formState?.forgiveness]);
+
   return (
     <DataModal
       title="Crear condonación"
@@ -243,6 +252,7 @@ const RenderForm = ({
           value={formState?.dpto_id}
           onChange={handleChange}
           error={errors}
+          disabled={formState?.id}
         />
         <Input
           name="due_at"
@@ -251,22 +261,25 @@ const RenderForm = ({
           value={formState?.due_at}
           onChange={handleChange}
           error={errors}
+          min={new Date().toISOString().split("T")[0]}
         />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <p style={{ fontSize: 16, color: "var(--cWhite)", fontWeight: "500" }}>
           Deudas: {debts?.length}
         </p>
-        <p
-          style={{
-            color: "var(--cPrimary)",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-          onClick={() => setFormState({ ...formState, forgiveness: debts })}
-        >
-          Seleccionar todas
-        </p>
+        {!formState?.id && (
+          <p
+            style={{
+              color: "var(--cPrimary)",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+            onClick={() => setFormState({ ...formState, forgiveness: debts })}
+          >
+            Seleccionar todas
+          </p>
+        )}
       </div>
 
       <div
@@ -372,6 +385,30 @@ const RenderForm = ({
       </div>
       {formState?.forgiveness.length > 0 && (
         <>
+          <div
+            style={{
+              backgroundColor: "#2C2E2F",
+              padding: "12px 16px",
+              borderRadius: 12,
+              marginBottom: 10,
+            }}
+          >
+            <KeyValue
+              title={"Deuda total"}
+              value={formatBs(getTotal())}
+              colorValue="var(--cWhiteV1)"
+            />
+            <KeyValue
+              title={"Mora total"}
+              value={formatBs(totalPenaltyAmount)}
+              colorValue="var(--cWhiteV1)"
+            />
+            <KeyValue
+              title={"Mantenimiento de valor total"}
+              value={formatBs(totalMaintenanceAmount)}
+              colorValue="var(--cWhiteV1)"
+            />
+          </div>
           <p style={{ fontSize: 16, color: "var(--cWhite)", marginBottom: 10 }}>
             Monto a condonar
           </p>
@@ -382,6 +419,7 @@ const RenderForm = ({
               value={formState?.amount_value}
               onChange={handleChange}
               error={errors}
+              disabled={formState?.id}
               type="number"
               suffix="Bs"
             />
@@ -389,6 +427,7 @@ const RenderForm = ({
               name="percent_value"
               label="Porcentaje"
               value={formState?.percent_value}
+              disabled={formState?.id}
               onChange={handleChange}
               error={errors}
               type="number"
@@ -403,11 +442,42 @@ const RenderForm = ({
               </span>
             </p>
           )}
+          {formState?.amount_value > 0 && (
+            <div
+              style={{
+                backgroundColor: "#2C2E2F",
+                padding: "12px 16px",
+                borderRadius: 12,
+                marginBottom: 10,
+              }}
+            >
+              <KeyValue
+                colorKey="var(--cWhite)"
+                title={"Subtotal"}
+                value={formatBs(getTotal())}
+              />
+              <KeyValue
+                title={"Monto a condonar"}
+                value={formatBs(formState?.amount_value)}
+                colorValue="var(--cWhiteV1)"
+              />
 
+              <Br />
+              <KeyValue
+                colorKey="var(--cWhite)"
+                styleTitle={{ fontWeight: "600" }}
+                styleValue={{ fontWeight: "600" }}
+                title={"Total a pagar"}
+                size={17}
+                value={formatBs(getTotal() - Number(formState?.amount_value))}
+              />
+            </div>
+          )}
           <TextArea
             name="obs"
             required={false}
             label="Observaciones / Comentarios"
+            disabled={formState?.id}
             value={formState?.obs}
             onChange={handleChange}
             error={errors}

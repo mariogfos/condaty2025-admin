@@ -8,7 +8,12 @@ import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { getDateStrMesShort } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import { formatBs } from "@/mk/utils/numbers";
-import { colorStatusForgiveness, statusForgiveness } from "./constans";
+import {
+  colorStatusForgiveness,
+  statusForgiveness,
+  statusForgivenessFilter,
+} from "./constans";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "debt-dptos",
@@ -18,6 +23,7 @@ const mod = {
   // pagination: false,
   sumarize: true,
   extraData: true,
+  loadView: { fullType: "DET", type: 5 },
   export: true,
   hideActions: {
     // edit: true,
@@ -25,6 +31,7 @@ const mod = {
   },
   titleAdd: "Crear",
   renderForm: RenderForm,
+  renderView: RenderView,
   filter: true,
   saveMsg: {
     add: "Condonación creada con éxito",
@@ -35,7 +42,7 @@ const mod = {
 const paramsInitial = {
   fullType: "FG",
   page: 1,
-  perPage: 20,
+  perPage: -1,
   type: 5,
 };
 const Forgiveness = () => {
@@ -87,8 +94,8 @@ const Forgiveness = () => {
             return (
               <p
                 style={{
-                  color: colorStatusForgiveness[item?.status].color,
-                  background: colorStatusForgiveness[item?.status].bg,
+                  color: colorStatusForgiveness[item?.status]?.color,
+                  background: colorStatusForgiveness[item?.status]?.bg,
                   padding: "6px 10px",
                   borderRadius: "12px",
                 }}
@@ -97,6 +104,11 @@ const Forgiveness = () => {
               </p>
             );
           },
+        },
+        filter: {
+          label: "Estado",
+          width: "180px",
+          options: () => statusForgivenessFilter,
         },
       },
       category: {
