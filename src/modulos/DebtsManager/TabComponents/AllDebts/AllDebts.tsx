@@ -153,7 +153,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
     { id: 'C', name: 'Cancelada' },
-    { id: 'X', name: 'Anulada' }
+    { id: 'X', name: 'Anulada' },
   ];
 
   const getDistributionOptions = () => [
@@ -166,7 +166,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
+    const options = [{  }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -181,7 +181,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+    const options = [{  }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -222,7 +222,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined || value === "ALL") {
+    if (value === "" || value === null || value === undefined || value === "") {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -357,6 +357,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 5,
         },
         filter: {
+          key: 'status',
           label: 'Estado',
           width: '100%',
           options: getStatusOptions,
