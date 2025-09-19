@@ -63,8 +63,27 @@ const Header = ({
     console.log("nueva counter", data);
     setCount(0);
   }, []);
-  useEvent("onResetNotif", onResetNotif);
+  useEvent("onReset", onResetNotif);
   useEvent("onNotif", onNotif);
+
+  // const onOpenChat = useCallback((e: any) => {
+  //   setCountChat(0);
+  // }, []);
+
+  // useEvent("onOpenChat", onOpenChat);
+
+  const { dispatch: openChat } = useEvent("onOpenChat");
+  const [countChat, setCountChat] = useState(0);
+  const onChat = useCallback(
+    (e: any) => {
+      console.log("chat2", e);
+      setCountChat((old) => old + 1);
+    },
+    [user?.id]
+  );
+
+  useEvent("onChatNewMsg", onChat);
+
   const Title = () => {
     return (
       <div className={styles["header-title"]}>
@@ -109,7 +128,7 @@ const Header = ({
           <Link onClick={onClick} href={href || "#"}>
             <div className={styles.notificationIcon}>
               {icon}
-              {bage > 0 && href == "/notifications" && (
+              {bage > 0 && (
                 <div className={styles.notificationBadge}>{bage || 0}</div>
               )}
             </div>
@@ -121,7 +140,7 @@ const Header = ({
         <div onClick={onClick}>
           <div className={styles.notificationIcon}>
             {icon}
-            {bage > 0 && href == "/notifications" && (
+            {bage > 0 && (
               <div className={styles.notificationBadge}>{bage || 0}</div>
             )}
           </div>
@@ -153,8 +172,6 @@ const Header = ({
       </div>
     );
   };
-
-  const { dispatch: openChat } = useEvent("onOpenChat");
 
   if (isTablet)
     return (
@@ -215,7 +232,11 @@ const Header = ({
         <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
         <Round
           icon={<IconMessage color="var(--cSuccess)" />}
-          onClick={openChat}
+          onClick={(e: any) => {
+            openChat(e);
+            setCountChat(0);
+          }}
+          bage={countChat}
         />
         {/* <Dropdown
           trigger={
