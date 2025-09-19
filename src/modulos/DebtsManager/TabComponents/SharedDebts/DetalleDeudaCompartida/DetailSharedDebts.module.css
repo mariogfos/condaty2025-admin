@@ -1,8 +1,6 @@
 .container {
   width: 100%;
-
-
-  padding: 24px;
+  padding: var(--spM);
   overflow-y: auto;
 }
 

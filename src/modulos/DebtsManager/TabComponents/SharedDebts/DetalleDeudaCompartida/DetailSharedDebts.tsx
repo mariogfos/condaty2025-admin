@@ -319,7 +319,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         total: extraData.totalReceivable || 0
       },
       enMora: {
-        amount: parseFloat(extraData.totalAmountFine || '0'),
+        amount: parseFloat(extraData.arrears || '0'),
         count: extraData.totalArrears || 0,
         total: extraData.totalReceivable || 0
       }
