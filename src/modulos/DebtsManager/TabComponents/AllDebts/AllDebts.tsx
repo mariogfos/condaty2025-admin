@@ -1,9 +1,9 @@
 'use client';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { MONTHS } from '@/mk/utils/date';
-import RenderForm from './RenderForm/RenderForm'; // AGREGAR ESTA IMPORTACIÓN
+import { getDateStrMes, MONTHS } from '@/mk/utils/date';
+import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -11,9 +11,9 @@ import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 import ItemList from '@/mk/components/ui/ItemList/ItemList';
 import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import React from 'react';
-
-
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 interface AllDebtsProps {
   openView: boolean;
@@ -27,25 +27,25 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   onExtraDataChange
 }) => {
   const { setStore, store } = useAuth();
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
-  // Renderizar columna Unidad
   const renderUnitCell = ({ item }: { item: any }) => (
     <div>{item?.dpto?.nro || item?.dpto_id}</div>
   );
 
-  // Renderizar columna Categoría
   const renderCategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.padre?.name || '-'}</div>
+    <div>{item?.debt?.subcategory?.padre?.name || item?.subcategory?.padre?.name || '-/-'}</div>
   );
 
-  // Renderizar columna Subcategoría
   const renderSubcategoryCell = ({ item }: { item: any }) => (
-    <div>{item?.debt?.subcategory?.name || '-'}</div>
+    <div>{item?.debt?.subcategory?.name || item?.subcategory?.name || '-/-'}</div>
   );
 
-  // Renderizar columna Distribución
   const renderDistributionCell = ({ item }: { item: any }) => {
-
     switch (item?.debt?.amount_type) {
       case "F": {
         return <div>Fijo</div>;
@@ -60,7 +60,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         break;
       }
       case "M": {
-        return <div>Por m²</div>
+        return <div>Por m<sup>2</sup></div>
         break;
       }
       case "A": {
@@ -72,11 +72,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         break;
       }
     }
-
-
   };
 
-  // Renderizar columna Estado
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
       A: { color: 'var(--cWarning)', bgColor: 'var(--cHoverCompl8)' },
@@ -87,59 +84,58 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      UNKNOWN: { color: 'var(--cGray)', bgColor: 'var(--cGrayLight)' },
     };
 
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
-        'A': 'Por cobrar',
-        'P': 'Cobrado',
-        'S': 'Por confirmar',
-        'M': 'En mora',
-        'C': 'Cancelada',
-        'X': 'Anulada'
+        A: 'Por cobrar',
+        P: 'Cobrado',
+        S: 'Por confirmar',
+        M: 'En mora',
+        C: 'Cancelada',
+        F: 'Perdonada',
+        X: 'Anulada',
       };
-      return statusMap[status] || status;
+      return statusMap[status] || 'Estado desconocido';
     };
 
-    const statusText = getStatusText(item?.status);
-    const { color, bgColor } = statusConfig[item?.status] || statusConfig.E;
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : item?.due_at ? new Date(item.due_at) : null;
+
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
+
+    const statusText = getStatusText(finalStatus);
+    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.UNKNOWN;
 
     return (
-      <StatusBadge
-        color={color}
-        backgroundColor={bgColor}
-      >
+      <StatusBadge color={color} backgroundColor={bgColor}>
         {statusText}
       </StatusBadge>
     );
   };
 
-  // Renderizar columna Vencimiento
   const renderDueDateCell = ({ item }: { item: any }) => {
-    if (!item?.debt?.due_at) return <div>-</div>;
-    const date = new Date(item.debt.due_at);
+    if (!item?.due_at) return <div>-/-</div>;
     return (
       <div>
-        {date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })}
+        {getDateStrMes(item.due_at)}
       </div>
     );
   };
 
-  // Renderizar columna Deuda
   const renderDebtAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.amount) || 0} alignRight />
   );
 
-  // Renderizar columna Multa
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
-  // Renderizar columna Saldo a cobrar
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -149,58 +145,106 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return <FormatBsAlign value={totalBalance} alignRight />;
   };
 
-  // Opciones para filtros
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
     { id: 'P', name: 'Cobrado' },
+    { id: 'F', name: 'Perdonada' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
     { id: 'C', name: 'Cancelada' },
-    { id: 'X', name: 'Anulada' }
+    { id: 'X', name: 'Anulada' },
   ];
 
   const getDistributionOptions = () => [
     { id: 'ALL', name: 'Todas las distribuciones' },
-    { id: 'fixed_unit', name: 'Monto fijo por unidad' },
-    { id: 'fixed_group', name: 'Monto fijo grupal' },
-    { id: 'percentage', name: 'Porcentual' },
-    { id: 'variable', name: 'Variable' }
+    { id: 'F', name: 'Fijo' },
+    { id: 'V', name: 'Variable' },
+    { id: 'P', name: 'Porcentual' },
+    { id: 'M', name: 'Por m²' },
+    { id: 'A', name: 'Promedio' }
   ];
 
-  const getCategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las categorías' },
-    { id: 'expense', name: 'Expensa' },
-    { id: 'reserve', name: 'Reserva' },
-    { id: 'other', name: 'Otro' }
-  ];
+  const getCategoryOptions = (extraData?: any) => {
+    const options = [{  }];
 
-  const getSubcategoryOptions = () => [
-    { id: 'ALL', name: 'Todas las subcategorías' },
-    { id: 'water', name: 'Agua' },
-    { id: 'electricity', name: 'Electricidad' },
-    { id: 'gas', name: 'Gas' },
-    { id: 'internet', name: 'Internet' },
-    { id: 'cleaning', name: 'Limpieza' },
-    { id: 'maintenance', name: 'Mantenimiento' },
-    { id: 'security', name: 'Seguridad' }
-  ];
-
-  const getPeriodOptions = () => {
-    const periods = [{ id: 'ALL', name: 'Todos los periodos' }];
-    const currentYear = new Date().getFullYear();
-
-    // Generar periodos de los últimos 3 años
-    for (let year = currentYear; year >= currentYear - 2; year--) {
-      MONTHS.slice(1).forEach((month, index) => {
-        periods.push({
-          id: `${year}-${String(index + 1).padStart(2, '0')}`,
-          name: `${month} ${year}`
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        options.push({
+          id: category.id.toString(),
+          name: category.name
         });
       });
     }
 
-    return periods;
+    return options;
+  };
+
+  const getSubcategoryOptions = (extraData?: any) => {
+    const options = [{  }];
+
+    if (extraData?.categories && Array.isArray(extraData.categories)) {
+      extraData.categories.forEach((category: any) => {
+        if (category.hijos && Array.isArray(category.hijos)) {
+          category.hijos.forEach((subcategory: any) => {
+            options.push({
+              id: subcategory.id.toString(),
+              name: subcategory.name
+            });
+          });
+        }
+      });
+    }
+
+    return options;
+  };
+
+  const getPeriodOptions = () => [
+    { id: 'ALL', name: 'Todos los periodos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana anterior' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' }
+  ];
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "due_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined || value === "") {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+
+  const calculateTotals = (data: any[]) => {
+    if (!data || data.length === 0) return { totalDebt: 0, totalPenalty: 0, totalBalance: 0 };
+
+    return data.reduce((acc, item) => {
+      const debtAmount = parseFloat(item?.amount) || 0;
+      const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
+      const maintenanceAmount = parseFloat(item?.maintenance_amount) || 0;
+      const totalBalance = debtAmount + penaltyAmount + maintenanceAmount;
+
+      return {
+        totalDebt: acc.totalDebt + debtAmount,
+        totalPenalty: acc.totalPenalty + penaltyAmount,
+        totalBalance: acc.totalBalance + totalBalance
+      };
+    }, { totalDebt: 0, totalPenalty: 0, totalBalance: 0 });
   };
 
   const paramsInitial = {
@@ -208,6 +252,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     page: 1,
     perPage: 20,
   };
+
+  const renderTotalWithGreenBorder = (value: number, isHighlighted = false) => (
+    <div style={{
+      fontWeight: 'bold',
+      fontSize: '14px',
+      color: isHighlighted ? '#10b981' : 'var(--cWhite)',
+      textAlign: 'right',
+      backgroundColor: isHighlighted ? 'rgba(16, 185, 129, 0.1)' : 'var(--cBlackV2)',
+      padding: '8px 12px',
+      borderRadius: '6px',
+      border: '2px solid #10b981',
+      minWidth: '80px',
+      margin: '4px 0'
+    }}>
+      Bs {formatNumber(value || 0, 2)}
+    </div>
+  );
 
   const fields = useMemo(() => {
     return {
@@ -221,42 +282,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 1,
         },
       },
-      category: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
-        list: {
-          onRender: renderCategoryCell,
-          order: 2,
-        },
-      },
-      subcategory: {
-        rules: [''],
-        api: '',
-        label: 'Subcategoría',
-        list: {
-          onRender: renderSubcategoryCell,
-          order: 3,
-        },
-      },
-      distribution: {
-        rules: [''],
-        api: '',
-        label: 'Distribución',
-        list: {
-          onRender: renderDistributionCell,
-          order: 4,
-        },
-      },
-      status: {
-        rules: [''],
-        api: '',
-        label: 'Estado',
-        list: {
-          onRender: renderStatusCell,
-          order: 5,
-        },
-      },
       due_at: {
         rules: [''],
         api: '',
@@ -265,75 +290,23 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           onRender: renderDueDateCell,
           order: 6,
         },
-      },
-      debt_amount: {
-        rules: [''],
-        api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>
-        ),
-        list: {
-          onRender: renderDebtAmountCell,
-          order: 7,
-        },
-      },
-      penalty_amount: {
-        rules: [''],
-        api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>
-        ),
-        list: {
-          onRender: renderPenaltyAmountCell,
-          order: 8,
-        },
-      },
-      balance_due: {
-        rules: [''],
-        api: '',
-        label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</label>
-        ),
-        list: {
-          onRender: renderBalanceDueCell,
-          order: 9,
-        },
-      },
-      // NUEVOS FILTROS
-      status_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Estado',
-        form: { type: 'select' },
-        list: false,
         filter: {
-          label: 'Estado',
+          key: 'due_at',
+          label: 'Periodo',
           width: '100%',
-          options: getStatusOptions,
+          options: getPeriodOptions,
           optionLabel: 'name',
           optionValue: 'id',
         },
       },
-      distribution_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Distribución',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Distribución',
-          width: '100%',
-          options: getDistributionOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
-      category_filter: {
-        rules: [],
-        api: 'ae',
+      category_id: {
+        rules: [''],
+        api: '',
         label: 'Categoría',
-        form: { type: 'select' },
-        list: false,
+        list: {
+          onRender: renderCategoryCell,
+          order: 2,
+        },
         filter: {
           label: 'Categoría',
           width: '100%',
@@ -342,12 +315,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      subcategory_filter: {
-        rules: [],
-        api: 'ae',
+      subcategory_id: {
+        rules: [''],
+        api: '',
         label: 'Subcategoría',
-        form: { type: 'select' },
-        list: false,
+        list: {
+          onRender: renderSubcategoryCell,
+          order: 3,
+        },
         filter: {
           label: 'Subcategoría',
           width: '100%',
@@ -356,18 +331,81 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      period_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Periodo',
-        form: { type: 'select' },
-        list: false,
+      amount_type: {
+        rules: [''],
+        api: '',
+        label: 'Distribución',
+        list: {
+          onRender: renderDistributionCell,
+          order: 4,
+        },
         filter: {
-          label: 'Periodo',
+          key: 'amount_type',
+          label: 'Distribución',
           width: '100%',
-          options: getPeriodOptions,
+          options: getDistributionOptions,
           optionLabel: 'name',
           optionValue: 'id',
+        },
+      },
+      status: {
+        rules: [''],
+        api: '',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        list: {
+          onRender: renderStatusCell,
+          order: 5,
+        },
+        filter: {
+          key: 'status',
+          label: 'Estado',
+          width: '100%',
+          options: getStatusOptions,
+          optionLabel: 'name',
+          optionValue: 'id',
+        },
+      },
+
+      amount: {
+        rules: [''],
+        api: '',
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Deuda</label>,
+        list: {
+          onRender: renderDebtAmountCell,
+          order: 7,
+          sumarize: true,
+          onRenderFoot: (item: any, index: number, sumas: any) =>
+            renderTotalWithGreenBorder(sumas[item.key]),
+        },
+      },
+      penalty_amount: {
+        rules: [''],
+        api: '',
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</label>,
+        list: {
+          onRender: renderPenaltyAmountCell,
+          order: 8,
+          sumarize: true,
+          onRenderFoot: (item: any, index: number, sumas: any) =>
+            renderTotalWithGreenBorder(sumas[item.key]),
+        },
+      },
+      balance_due: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
+            Saldo a cobrar
+          </label>
+        ),
+        list: {
+          onRender: renderBalanceDueCell,
+          order: 9,
+          sumarize: false,
+          onRenderFoot: (item: any, index: number, sumas: any) => {
+            const totalBalance = (sumas.amount || 0) + (sumas.penalty_amount || 0);
+            return renderTotalWithGreenBorder(totalBalance, true);
+          },
         },
       },
     };
@@ -381,11 +419,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     filter: true,
     permiso: 'expense',
     extraData: true,
+    sumarize: false,
     hideActions: {
       add: true,
       view: false,
-      edit: false,
-      del: false,
+      edit: true,
+      del: true,
     },
     renderView: (props: any) => (
       <RenderView
@@ -398,7 +437,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onDel={props.onDel}
       />
     ),
-    // AGREGAR ESTA CONFIGURACIÓN DE RENDERFORM
     renderForm: (props: any) => (
       <RenderForm
         open={props.open}
@@ -417,13 +455,13 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
+    getFilter: handleGetFilter,
   });
 
-  // Pasar extraData al componente padre cuando cambie
   useEffect(() => {
     if (extraData && onExtraDataChange) {
       onExtraDataChange(extraData);
@@ -445,10 +483,20 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         'A': 'Por cobrar',
         'P': 'Pagada',
         'C': 'Cancelada',
-        'X': 'Anulada'
+        'X': 'Anulada',
+        'M': 'En mora',
+        'F': 'Perdonada'
       };
       return statusMap[status] || status;
     };
+
+    let finalStatus = item?.status;
+    const today = new Date();
+    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
+
+    if (dueDate && dueDate < today && item?.status === 'A') {
+      finalStatus = 'M';
+    }
 
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -457,8 +505,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     return (
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
-          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(item?.status)}`}
-          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
+          title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
+          subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />
@@ -467,7 +515,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   };
 
   const onClickDetail = (row: any) => {
-    // No hacer nada - evitar redirección
   };
 
   return (
@@ -477,9 +524,44 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"
-        emptyLine2="de los esidentes las verás aquí."
+        emptyLine2="de los residentes las verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={2500}
+        sumarize={false}
+      />
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("due_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
       />
     </>
   );

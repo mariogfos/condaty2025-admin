@@ -1,4 +1,3 @@
-/* Contenedor principal del formulario */
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -8,24 +7,24 @@
   font-family: var(--fPrimary);
 }
 
-/* Filas del formulario */
 .formRow {
   display: flex;
   gap: 16px;
   width: 100%;
 }
 
-/* Campos del formulario */
+.formTextHeaderP{
+  padding-bottom: var(--spM);
+}
+
 .formField {
   flex: 1;
 }
 
 .formFieldEmpty {
   flex: 1;
-  /* Espacio vacío para mantener el layout */
 }
 
-/* Sección de configuración avanzada COMPRIMIDA */
 .advancedSectionCompact {
   display: flex;
   flex-direction: column;
@@ -34,14 +33,12 @@
   border-radius: var(--bRadiusS);
 }
 
-/* Toggle de configuración avanzada COMPRIMIDO */
 .advancedToggleCompact {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Opciones avanzadas COMPRIMIDAS */
 .advancedOptionsCompact {
   display: flex;
   flex-direction: column;
@@ -54,7 +51,6 @@
   max-width: 100%;
 }
 
-/* Fila de checkboxes COMPRIMIDA */
 .checkboxRowCompact {
   display: flex;
   gap: 16px;
@@ -69,7 +65,6 @@
   white-space: nowrap;
 }
 
-/* Mantener estilos originales para compatibilidad */
 .advancedSectionCentered {
   display: flex;
   flex-direction: column;
@@ -157,13 +152,11 @@
   text-align: center;
 }
 
-/* Campo de descripción */
 .descriptionField {
-  margin-top: 16px;
+
   width: 100%;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .formContainer {
     gap: 12px;
@@ -244,7 +237,6 @@
   }
 }
 
-/* Estados hover mejorados */
 .checkboxItemCentered:hover .checkboxDescriptionCentered {
   opacity: 1;
   color: var(--cWhite);
@@ -256,7 +248,6 @@
   transition: color 0.2s ease;
 }
 
-/* Animación suave para mostrar opciones avanzadas */
 .advancedOptionsCentered {
   animation: fadeInUp 0.3s ease-out;
 }
@@ -273,5 +264,104 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.advancedSection {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+
+}
+
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+
+.advancedLabel {
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+}
+
+.advancedArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--cWhiteV1);
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.advancedArrowOpen {
+  transform: rotate(180deg);
+}
+
+.advancedOptions {
+  padding: 12px 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  min-height: 45px;
+}
+
+.tooltipIcon {
+  color: var(--cWhiteV1);
+  cursor: help;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.tooltipIcon:hover {
+  color: var(--cWhite);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkboxGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .checkboxItem {
+    min-height: 40px;
   }
 }

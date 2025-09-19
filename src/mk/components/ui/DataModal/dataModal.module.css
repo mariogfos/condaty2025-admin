@@ -24,7 +24,7 @@
     transition: all 0.3s;
     width: 85%;
     max-height: calc(100% - 50px);
-    padding: var(--spXl);
+    padding: var(--spL);
     gap: var(--spS);
     @media (width>768px) {
       width: 50%;
