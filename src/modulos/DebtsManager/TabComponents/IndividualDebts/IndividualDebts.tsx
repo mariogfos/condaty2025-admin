@@ -133,7 +133,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
+    const options = [{}];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -148,7 +148,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+    const options = [{ }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -189,7 +189,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined || value === "ALL") {
+    if (value === "" || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -352,6 +352,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         order: 5,
       },
       filter: {
+        key: 'status',
         label: 'Estado',
         width: '100%',
         options: getStatusOptions,

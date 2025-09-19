@@ -162,7 +162,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
+    const options = [{  }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -177,7 +177,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
+    const options = [{ }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -218,7 +218,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined || value === "ALL") {
+    if (value === "" || value === null || value === undefined ) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
@@ -347,6 +347,12 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           onRender: renderStatusCell,
           order: 5,
         },
+        filter: {
+
+          width: '100%',
+          options: getStatusOptions,
+
+        },
       },
       due_at: {
         rules: ['required'],
@@ -405,20 +411,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
             const totalBalance = (sumas.debt_amount || 0) + (sumas.penalty_amount || 0);
             return renderTotalWithGreenBorder(totalBalance, true);
           },
-        },
-      },
-      status_filter: {
-        rules: [],
-        api: 'ae',
-        label: 'Estado',
-        form: { type: 'select' },
-        list: false,
-        filter: {
-          label: 'Estado',
-          width: '100%',
-          options: getStatusOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
         },
       },
     };
