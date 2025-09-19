@@ -13,7 +13,7 @@ import RenderItem from '../../../shared/RenderItem';
 import { useAuth } from '@/mk/contexts/AuthProvider';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import React from 'react';
-import { formatNumber } from '@/mk/utils/numbers';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
 
 interface AllDebtsProps {
   openView: boolean;
@@ -505,7 +505,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       <RenderItem item={item} onClick={() => {}} onLongPress={onLongPress}>
         <ItemList
           title={`Unidad ${item?.dpto?.nro || item?.dpto_id} - ${getStatusText(finalStatus)}`}
-          subtitle={`Deuda: Bs ${debtAmount.toFixed(2)} | Multa: Bs ${penaltyAmount.toFixed(2)} | Total: Bs ${totalBalance.toFixed(2)}`}
+          subtitle={`Deuda: ${formatBs(debtAmount)} | Multa: ${formatBs(penaltyAmount)} | Total: ${formatBs(totalBalance)}`}
           variant="V1"
           active={selItem && selItem.id == item.id}
         />

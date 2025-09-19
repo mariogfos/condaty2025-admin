@@ -87,6 +87,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       'S': 'Por confirmar',
       'M': 'En mora',
       'C': 'Cancelada',
+      'F': 'Perdonada',
       'X': 'Anulada'
     };
     return statusMap[finalStatus] || finalStatus;
@@ -122,6 +123,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
     };
     return statusConfig[finalStatus] || statusConfig.E;
