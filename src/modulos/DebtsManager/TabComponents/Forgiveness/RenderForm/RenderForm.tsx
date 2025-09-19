@@ -1,34 +1,18 @@
 import {
   IconCheckOff,
   IconCheckSquare,
+  IconDptosDebts,
 } from "@/components/layout/icons/IconsBiblioteca";
 import Input from "@/mk/components/forms/Input/Input";
 import Select from "@/mk/components/forms/Select/Select";
 import TextArea from "@/mk/components/forms/TextArea/TextArea";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import { MONTHS_S } from "@/mk/utils/date";
 import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatBs } from "../../../../../mk/utils/numbers";
 
-interface DebtItem {
-  id: number;
-  debt_id: number;
-  name: string;
-  amount: number;
-  penalty_amount?: number;
-  maintenance_amount?: number;
-  is_forgivable?: "Y" | "N";
-}
-interface Forgiveness {
-  id: number;
-  debt_id: number;
-  amount?: number;
-  penalty_amount?: number;
-  maintenance_amount?: number;
-}
 const RenderForm = ({
   open,
   onClose,
@@ -40,9 +24,8 @@ const RenderForm = ({
   reLoad,
 }: any) => {
   const [formState, setFormState]: any = useState({
-    category_id: extraData?.category?.id || "",
-    discount_type: "percent",
-    forgiveness: [],
+    ...item,
+    forgiveness: item?.forgiven_debts || [],
   });
   const [errors, setErrors] = useState({});
   const [debts, setDebts] = useState([]);
@@ -131,59 +114,14 @@ const RenderForm = ({
   useEffect(() => {
     if (formState?.dpto_id) {
       getDptosDebts();
-      setFormState({ ...formState, forgiveness: [] });
+      if (!formState?.id) {
+        setFormState({ ...formState, forgiveness: [] });
+      }
       setErrors({});
       setDebts([]);
     }
   }, [formState?.dpto_id]);
 
-  // const toggleForgivability = useCallback(
-  //   (item: any, type: "A" | "M" | "MV") => {
-  //     if (type == "A" && item?.is_forgivable == "N") return;
-  //     setFormState((prev: any) => {
-  //       const forgiveness = [...prev.forgiveness];
-  //       const idx = forgiveness.findIndex((f) => f.id === item.id);
-  //       const fieldMap: any = {
-  //         A: "amount",
-  //         M: "penalty_amount",
-  //         MV: "maintenance_amount",
-  //       };
-  //       const field = fieldMap[type];
-
-  //       if (idx > -1) {
-  //         const updated = { ...forgiveness[idx] };
-  //         if (updated[field]) {
-  //           delete updated[field];
-  //         } else {
-  //           updated[field] = item[field as keyof DebtItem];
-  //         }
-  //         if (
-  //           !updated.amount &&
-  //           !updated.penalty_amount &&
-  //           !updated.maintenance_amount
-  //         ) {
-  //           forgiveness.splice(idx, 1);
-  //         } else {
-  //           forgiveness[idx] = updated;
-  //         }
-  //         return { ...prev, forgiveness };
-  //       }
-
-  //       return {
-  //         ...prev,
-  //         forgiveness: [
-  //           ...forgiveness,
-  //           {
-  //             id: item.id,
-  //             debt_id: item.debt_id,
-  //             [field]: item[field as keyof DebtItem],
-  //           },
-  //         ],
-  //       };
-  //     });
-  //   },
-  //   []
-  // );
   const toggleForgivability = (item: any) => {
     // if (item?.is_forgivable == "N") return;
     const idx = formState.forgiveness.findIndex((f: any) => f.id === item.id);
@@ -198,16 +136,6 @@ const RenderForm = ({
     }
   };
 
-  // const debtOptions = [
-  //   { label: "Monto", type: "A", field: "amount" },
-  //   { label: "Multa", type: "M", field: "penalty_amount" },
-  //   {
-  //     label: "Mantenimiento de valor",
-  //     type: "MV",
-  //     field: "maintenance_amount",
-  //   },
-  // ];
-
   const validate = () => {
     let errors: any = {};
 
@@ -218,12 +146,12 @@ const RenderForm = ({
       errors,
     });
 
-    errors = checkRules({
-      value: formState.category_id,
-      rules: ["required"],
-      key: "category_id",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState.category_id,
+    //   rules: ["required"],
+    //   key: "category_id",
+    //   errors,
+    // });
 
     errors = checkRules({
       value: formState.due_at,
@@ -246,17 +174,16 @@ const RenderForm = ({
       errors,
     });
 
-    errors = checkRules({
-      value: formState.description,
-      rules: ["required"],
-      key: "description",
-      errors,
-    });
+    // errors = checkRules({
+    //   value: formState.description,
+    //   rules: ["required"],
+    //   key: "description",
+    //   errors,
+    // });
 
     setErrors(errors);
     return errors;
   };
-
   const onSave = async () => {
     let method = formState.id ? "PUT" : "POST";
     if (hasErrors(validate())) return;
@@ -274,7 +201,7 @@ const RenderForm = ({
       type: "5",
       begin_at: formState.begin_at,
       due_at: formState.due_at,
-      category_id: formState.category_id,
+      // category_id: formState.category_id,
       dpto_id: formState.dpto_id,
       amount: amount,
       percent_value: formState.percent_value,
@@ -306,6 +233,7 @@ const RenderForm = ({
       open={open}
       onClose={onClose}
       onSave={onSave}
+      buttonText="Crear condonación"
     >
       <div style={{ display: "flex", gap: 8 }}>
         <Select
@@ -325,159 +253,167 @@ const RenderForm = ({
           error={errors}
         />
       </div>
-
-      {/* <Select
-        name="category_id"
-        label="Categoría"
-        options={[extraData?.category]}
-        value={formState?.category_id}
-        onChange={handleChange}
-        error={errors}
-      /> */}
-      {debts?.length > 0 && (
-        <div
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 16, color: "var(--cWhite)", fontWeight: "500" }}>
+          Deudas: {debts?.length}
+        </p>
+        <p
           style={{
-            backgroundColor: "var(--cBlack)",
-            border: "1px solid #3E4244",
-            borderRadius: 12,
-            margin: "12px 0px",
+            color: "var(--cPrimary)",
+            cursor: "pointer",
+            textDecoration: "underline",
           }}
+          onClick={() => setFormState({ ...formState, forgiveness: debts })}
         >
-          {debts?.map((debt: any, index: number) => (
-            <div
-              style={{
-                backgroundColor: formState?.forgiveness?.some(
-                  (f: any) => f.id === debt.id
-                )
-                  ? "var(--cFillSidebar)"
-                  : "transparent",
-                padding: "10px 16px",
-                borderBottom:
-                  index < debts?.length - 1 ? "1px solid #3E4244" : "",
-                borderTopRightRadius: index === 0 ? 12 : 0,
-                borderTopLeftRadius: index === 0 ? 12 : 0,
-                borderBottomRightRadius: index === debts?.length - 1 ? 12 : 0,
-                borderBottomLeftRadius: index === debts?.length - 1 ? 12 : 0,
-              }}
-              key={debt?.id}
-              onClick={() => toggleForgivability(debt)}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <p
-                    style={{
-                      color: "var(--cWhite)",
-                      fontSize: 14,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {`${
-                      debt?.month
-                        ? debt?.name +
-                          " - " +
-                          MONTHS[debt?.month] +
-                          ", " +
-                          debt?.year
-                        : debt?.name
-                    }`}
-                  </p>
-                  <p
-                    style={{
-                      color: "var(--cWhiteV1)",
-                      fontSize: 12,
-                      marginTop: 4,
-                    }}
-                  >
-                    {`Deuda: ${formatBs(debt?.amount)} • Mora: ${formatBs(
-                      debt?.penalty_amount
-                    )} • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <p
-                    style={{
-                      color: "var(--cWhite)",
-                      fontSize: 14,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {formatBs(
-                      Number(debt?.amount) +
-                        Number(debt?.penalty_amount) +
-                        Number(debt?.maintenance_amount)
-                    )}
-                  </p>
-                  {formState?.forgiveness?.some(
-                    (f: any) => f.id === debt.id
-                  ) ? (
-                    <IconCheckSquare color="var(--cAccent)" />
-                  ) : (
-                    <IconCheckOff />
-                  )}
-                </div>
-              </div>
-              {/* {debtOptions.map(({ label, type, field }) => (
-            <div
-              key={type}
-              onClick={() => toggleForgivability(debt, type as any)}
-              style={{
-                display: "flex",
-                gap: 8,
-                justifyContent: "space-between",
-                backgroundColor: "var(--cBlackV1)",
-                padding: 8,
-                borderRadius: 4,
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-            >
-              <p>
-                {label}: {debt[field as keyof DebtItem]} Bs
-              </p>
-              {formState?.forgiveness?.some(
-                (f: any) => f.id === debt.id && f[field as keyof Forgiveness]
-              ) ? (
-                <IconCheckSquare color="var(--cAccent)" />
-              ) : (
-                ((field == "amount" && debt?.is_forgivable == "Y") ||
-                  field === "penalty_amount" ||
-                  field == "maintenance_amount") && <IconCheckOff />
-              )}
-            </div>
-          ))} */}
-            </div>
-          ))}
-        </div>
-      )}
-      <div style={{ display: "flex", gap: 8 }}>
-        <Input
-          name="amount_value"
-          label="Monto a condonar"
-          value={formState?.amount_value}
-          onChange={handleChange}
-          error={errors}
-          type="number"
-          suffix="Bs"
-        />
-        <Input
-          name="percent_value"
-          label="Porcentaje a condonar"
-          value={formState?.percent_value}
-          onChange={handleChange}
-          error={errors}
-          type="number"
-          suffix="%"
-        />
+          Seleccionar todas
+        </p>
       </div>
-      <p>Monto disponible a condonar: {amountForgiveness.toFixed(2)}</p>
 
-      <TextArea
-        name="description"
-        label="Descripción"
-        value={formState?.description}
-        onChange={handleChange}
-        error={errors}
-      />
+      <div
+        style={{
+          backgroundColor: "var(--cBlack)",
+          border: "1px solid #3E4244",
+          borderRadius: 12,
+          margin: "12px 0px",
+          overflowY: "scroll",
+          height: "169px",
+        }}
+      >
+        {debts?.length == 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              height: "100%",
+            }}
+          >
+            <IconDptosDebts size={40} color="var(--cWhiteV1)" />
+            <p style={{ marginTop: 16, textAlign: "center" }}>
+              Selecciona una unidad para
+              <br /> mostrar sus deudas
+            </p>
+          </div>
+        )}
+        {debts?.map((debt: any, index: number) => (
+          <div
+            style={{
+              backgroundColor: formState?.forgiveness?.some(
+                (f: any) => f.id === debt.id
+              )
+                ? "var(--cFillSidebar)"
+                : "transparent",
+              padding: "10px 16px",
+              borderBottom:
+                index < debts?.length - 1 ? "1px solid #3E4244" : "",
+              borderTopRightRadius: index === 0 ? 12 : 0,
+              borderTopLeftRadius: index === 0 ? 12 : 0,
+              borderBottomRightRadius: index === debts?.length - 1 ? 12 : 0,
+              borderBottomLeftRadius: index === debts?.length - 1 ? 12 : 0,
+            }}
+            key={debt?.id}
+            onClick={() => toggleForgivability(debt)}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div>
+                <p
+                  style={{
+                    color: "var(--cWhite)",
+                    fontSize: 14,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {`${
+                    debt?.month
+                      ? debt?.name +
+                        " - " +
+                        MONTHS[debt?.month] +
+                        ", " +
+                        debt?.year
+                      : debt?.name
+                  }`}
+                </p>
+                <p
+                  style={{
+                    color: "var(--cWhiteV1)",
+                    fontSize: 12,
+                    marginTop: 4,
+                  }}
+                >
+                  {`Deuda: ${formatBs(debt?.amount)} • Mora: ${formatBs(
+                    debt?.penalty_amount
+                  )} • Mant. Valor: ${formatBs(debt?.maintenance_amount)}`}
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <p
+                  style={{
+                    color: "var(--cWhite)",
+                    fontSize: 14,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {formatBs(
+                    Number(debt?.amount) +
+                      Number(debt?.penalty_amount) +
+                      Number(debt?.maintenance_amount)
+                  )}
+                </p>
+                {formState?.forgiveness?.some((f: any) => f.id === debt.id) ? (
+                  <IconCheckSquare color="var(--cAccent)" />
+                ) : (
+                  <IconCheckOff />
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {formState?.forgiveness.length > 0 && (
+        <>
+          <p style={{ fontSize: 16, color: "var(--cWhite)", marginBottom: 10 }}>
+            Monto a condonar
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Input
+              name="amount_value"
+              label="Monto"
+              value={formState?.amount_value}
+              onChange={handleChange}
+              error={errors}
+              type="number"
+              suffix="Bs"
+            />
+            <Input
+              name="percent_value"
+              label="Porcentaje"
+              value={formState?.percent_value}
+              onChange={handleChange}
+              error={errors}
+              type="number"
+              suffix="%"
+            />
+          </div>
+          {amountForgiveness > 0 && (
+            <p style={{ fontSize: 13, fontWeight: "400", marginBottom: 10 }}>
+              Monto disponible a condonar:{" "}
+              <span style={{ color: "var(--cWhite)", fontWeight: "500" }}>
+                {formatBs(amountForgiveness)}
+              </span>
+            </p>
+          )}
+
+          <TextArea
+            name="obs"
+            required={false}
+            label="Observaciones / Comentarios"
+            value={formState?.obs}
+            onChange={handleChange}
+            error={errors}
+          />
+        </>
+      )}
       <div></div>
     </DataModal>
   );

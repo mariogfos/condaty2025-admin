@@ -1,15 +1,14 @@
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import React, { useEffect, useMemo, useState } from "react";
+import { getFullName } from "@/mk/utils/string";
+import React, { useEffect, useMemo } from "react";
 import styles from "./Forgiveness.module.css";
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
-import { getTitular } from "@/mk/utils/adapters";
 import { getDateStrMesShort } from "@/mk/utils/date";
 import RenderForm from "./RenderForm/RenderForm";
 import { formatBs } from "@/mk/utils/numbers";
+import { colorStatusForgiveness, statusForgiveness } from "./constans";
 
 const mod = {
   modulo: "debt-dptos",
@@ -17,10 +16,11 @@ const mod = {
   plural: "",
   permiso: "defaulters",
   // pagination: false,
+  sumarize: true,
   extraData: true,
   export: true,
   hideActions: {
-    edit: true,
+    // edit: true,
     del: true,
   },
   titleAdd: "Crear",
@@ -56,8 +56,21 @@ const Forgiveness = () => {
           },
         },
       },
-      deadline: {
-        label: "Fecha de vencimiento",
+      titular: {
+        label: "Titular",
+        form: { type: "text" },
+        list: {
+          onRender: ({ item }: any) => {
+            let titular =
+              item?.dpto?.holder == "H"
+                ? item?.dpto?.homeowner
+                : item?.dpto?.tenant;
+            return getFullName(titular);
+          },
+        },
+      },
+      due_at: {
+        label: "Vencimiento",
 
         form: { type: "date" },
         list: {
@@ -66,9 +79,61 @@ const Forgiveness = () => {
           },
         },
       },
-      amount: {
+      status: {
+        label: "Estado",
+        form: { type: "text" },
+        list: {
+          onRender: ({ item }: any) => {
+            return (
+              <p
+                style={{
+                  color: colorStatusForgiveness[item?.status].color,
+                  background: colorStatusForgiveness[item?.status].bg,
+                  padding: "6px 10px",
+                  borderRadius: "12px",
+                }}
+              >
+                {statusForgiveness[item?.status]}
+              </p>
+            );
+          },
+        },
+      },
+      category: {
+        label: "Categoría",
+        form: { type: "text" },
+        list: {
+          onRender: ({ item }: any) => {
+            return item?.subcategory?.padre?.name;
+          },
+        },
+      },
+      total_amount: {
+        label: "Deuda total",
+        form: { type: "text" },
+        list: {
+          onRender: ({ item }: any) => {
+            return formatBs(
+              Number(item?.forgiveness_amount) + Number(item?.amount)
+            );
+          },
+        },
+      },
+
+      forgiveness_amount: {
+        sumarize: true,
         label: "Condonado",
         form: { type: "text" },
+        list: {
+          onRender: ({ item }: any) => {
+            return formatBs(item?.forgiveness_amount);
+          },
+        },
+      },
+      amount: {
+        label: "Total a cobrar",
+        form: { type: "text" },
+        sumarize: true,
         list: {
           onRender: ({ item }: any) => {
             return formatBs(item?.amount);
