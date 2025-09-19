@@ -299,7 +299,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      category: {
+      category_id: {
         rules: [''],
         api: '',
         label: 'Categoría',
@@ -315,7 +315,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      subcategory: {
+      subcategory_id: {
         rules: [''],
         api: '',
         label: 'Subcategoría',
