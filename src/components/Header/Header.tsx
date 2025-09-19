@@ -56,11 +56,11 @@ const Header = ({
     { name: "Permisos", route: "/rolesabilities" },
   ];
   const onNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount((old) => old + 1);
   }, []);
   const onResetNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount(0);
   }, []);
   useEvent("onReset", onResetNotif);
@@ -76,7 +76,6 @@ const Header = ({
   const [countChat, setCountChat] = useState(0);
   const onChat = useCallback(
     (e: any) => {
-      console.log("chat2", e);
       setCountChat((old) => old + 1);
     },
     [user?.id]
@@ -162,7 +161,6 @@ const Header = ({
               "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
             )}
             onClick={() => {
-              console.log("click");
               setStore({ ...store, openProfileModal: true });
             }}
 
