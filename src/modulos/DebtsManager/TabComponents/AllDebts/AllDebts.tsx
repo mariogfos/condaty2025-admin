@@ -84,6 +84,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+      UNKNOWN: { color: 'var(--cGray)', bgColor: 'var(--cGrayLight)' },
     };
 
     const getStatusText = (status: string) => {
@@ -95,7 +96,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         C: 'Cancelada',
         X: 'Anulada',
       };
-      return statusMap[status] || status;
+      return statusMap[status] || 'Estado desconocido';
     };
 
     let finalStatus = item?.status;
@@ -107,7 +108,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     }
 
     const statusText = getStatusText(finalStatus);
-    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
+    const { color, bgColor } = statusConfig[finalStatus] || statusConfig.UNKNOWN;
 
     return (
       <StatusBadge color={color} backgroundColor={bgColor}>

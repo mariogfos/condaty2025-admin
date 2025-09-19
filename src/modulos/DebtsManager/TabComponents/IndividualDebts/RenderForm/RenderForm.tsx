@@ -43,7 +43,6 @@ interface RenderFormProps {
   showToast: (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
   user?: any;
-  // Agregar estas props que vienen de useCrud
   setItem?: (item: any) => void;
   errors?: any;
   setErrors?: (errors: any) => void;
@@ -89,7 +88,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [ldpto, setLdpto] = useState([]);
   const client = user?.clients?.filter((clientItem: any) => clientItem.id === user.client_id)[0];
 
-  // Función para encontrar la categoría padre desde la subcategoría
+  
   const findCategoryBySubcategory = (subcategoryId: string | number) => {
     if (!extraData?.categories || !subcategoryId) return null;
 
@@ -266,21 +265,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
     };
 
     try {
-      // Si tenemos onSave (viene de useCrud), usarlo
+
       if (onSave) {
         await onSave(dataToSave);
-        // No llamar onCloseModal aquí porque useCrud ya maneja el cierre
+
       }
     } catch (error) {
       console.error('Error saving:', error);
     }
   }, [_formState, validar, onSave]);
 
-  // Usar errores externos si están disponibles, sino usar los internos
+
   const currentErrors = externalErrors || _errors;
   const currentSetErrors = externalSetErrors || set_Errors;
 
-  // Resetear el formulario cuando se cierre
+
   useEffect(() => {
     if (!open && isInitialized) {
       setIsInitialized(false);
