@@ -261,7 +261,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
     );
     set_Errors(filteredErrs);
 
-    return Object.keys(errs).length === 0;
+    // Cambiar esta línea para usar filteredErrs en lugar de errs
+    return Object.keys(filteredErrs).length === 0;
   }, [_formState]);
 
   const onCloseModal = useCallback(() => {
@@ -298,8 +299,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
       id: _formState.id, // IMPORTANTE: ID para PUT
       begin_at: _formState.begin_at,
       due_at: _formState.due_at,
-      type: _formState.type,
+      type: 4,
       description: _formState.description,
+      category_id: _formState.category_id, // AGREGADO: Campo obligatorio que faltaba
       subcategory_id: _formState.subcategory_id,
       asignar: _formState.asignar,
       amount_type: _formState.amount_type,
