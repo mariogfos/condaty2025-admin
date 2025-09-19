@@ -84,6 +84,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
+      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       UNKNOWN: { color: 'var(--cGray)', bgColor: 'var(--cGrayLight)' },
     };
 
@@ -94,6 +95,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         S: 'Por confirmar',
         M: 'En mora',
         C: 'Cancelada',
+        F: 'Perdonada',
         X: 'Anulada',
       };
       return statusMap[status] || 'Estado desconocido';
@@ -147,6 +149,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
     { id: 'P', name: 'Cobrado' },
+    { id: 'F', name: 'Perdonada' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
     { id: 'C', name: 'Cancelada' },
@@ -480,7 +483,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         'P': 'Pagada',
         'C': 'Cancelada',
         'X': 'Anulada',
-        'M': 'En mora'
+        'M': 'En mora',
+        'F': 'Perdonada'
       };
       return statusMap[status] || status;
     };
