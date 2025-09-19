@@ -204,8 +204,8 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
             src={getUrlImages(
               "/ADM-" + item?.user?.id + ".webp?d=" + item?.user?.updated_at
             )}
-            h={120}
-            w={120}
+            h={60}
+            w={60}
             // <- Quitar style={{ borderRadius: 16 }} ya que el Avatar maneja esto internamente
             name={getFullName(item?.user)}
           />
@@ -249,12 +249,9 @@ const BudgetApprovalView: React.FC<BudgetApprovalViewProps> = ({
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
-              <StatusBadge
-                color={statusConfig.color}
-                backgroundColor={statusConfig.bgColor}
-              >
+              <div style={{ color: statusConfig.color }}>
                 {statusConfig.label}
-              </StatusBadge>
+              </div>
             </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Fecha fin</span>

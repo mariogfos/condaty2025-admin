@@ -22,8 +22,8 @@ export async function POST(request) {
       );
     }
 
-    const { id: _id, payload, channel, event } = body;
-    console.log("Parsed body:", { _id, payload, channel, event });
+    const { id: _id, payload, channel, event, client_id } = body;
+    console.log("Parsed body:", { _id, payload, channel, event, client_id });
 
     // Validación de seguridad
     if (!_id || _id != process.env.NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX) {
@@ -42,7 +42,7 @@ export async function POST(request) {
         channel,
         event,
         created_at: Date.now(),
-        client_id: _id,
+        client_id: client_id,
       }),
     ]);
 

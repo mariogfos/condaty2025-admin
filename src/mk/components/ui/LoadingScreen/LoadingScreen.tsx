@@ -43,7 +43,7 @@ const LoadingScreen = ({
     return <SkeletonAdapterComponent type={type} />;
   }
   // If data is loaded or there are no pending requests, render the children
-  if (loaded || waiting === 0) {
+  if (loaded || waiting <= 0) {
     return children;
   }
 

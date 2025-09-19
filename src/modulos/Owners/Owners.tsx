@@ -412,7 +412,7 @@ const Owners = () => {
         />
 
         <WidgetDashCard
-          title="Inquilinos"
+          title="Residentes"
           data={String(extraData?.tenants ?? 0)}
           style={{ maxWidth: '250px' }}
           icon={

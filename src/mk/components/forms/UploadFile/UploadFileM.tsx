@@ -63,8 +63,27 @@ export const UploadFileM = ({
   useEffect(() => {
     if (value == "" || value == "delete") {
       setSelectedFiles({});
+      setEditedImage(null);
     }
   }, [value]);
+
+  // Nuevo useEffect para manejar cambios en value
+  useEffect(() => {
+    if (value && value !== "delete" && value !== "") {
+      // Si hay un nuevo valor, actualizar editedImage
+      setEditedImage("data:image/webp;base64," + decodeURIComponent(value));
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (!selectedFiles?.name && autoOpen) {
+      const fileUpload = document.getElementById(props.name);
+      if (fileUpload) {
+        fileUpload.click();
+      }
+    }
+    console.log("carga imagen", value, fileName);
+  }, []);
 
   const deleteImg = (del = true) => {
     props.setError({ ...props.error, [props.name]: "" });
@@ -266,7 +285,7 @@ export const UploadFileM = ({
                   backgroundColor: "var(--cBlackV1)",
                   padding: "4px",
                   borderRadius: "10px",
-                  overflow: "hidden",
+                  overflow: "visible", // Cambiar de "hidden" a "visible"
                   width: "100px",
                   height: "100px",
                   display: "flex",
@@ -283,19 +302,20 @@ export const UploadFileM = ({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={
-                      value === "delete" || fileName
-                        ? fileName
-                        : (value && value != "delete"
-                            ? "data:image/webp;base64," + value
-                            : editedImage) ||
-                          (selectedFiles?.name
-                            ? URL.createObjectURL(selectedFiles)
-                            : fileName || "")
+                      // Priorizar la nueva imagen (value) sobre la imagen original (fileName)
+                      value && value !== "delete" && value !== ""
+                        ? "data:image/webp;base64," + decodeURIComponent(value)
+                        : editedImage
+                        ? editedImage
+                        : selectedFiles?.name
+                        ? URL.createObjectURL(selectedFiles)
+                        : fileName || ""
                     }
                     alt={selectedFiles?.name}
-                    // title={fileName}
                     style={{
                       objectFit: "cover",
+                      width: sizePreview?.width || "100px",
+                      height: sizePreview?.height || "100px",
                     }}
                   />
                 ) : selectedFiles.type === "application/pdf" ? (
@@ -304,69 +324,93 @@ export const UploadFileM = ({
                   <IconDocs size={80} color={"var(--cWhite)"} />
                 )}
 
-                {value != "delete" && (
-                  <IconEdit
-                    size={20}
-                    style={{
-                      position: "absolute",
-                      top: 2,
-                      right: 2,
-                      padding: 2,
-                      backgroundColor: "var(--cBlack)",
-                    }}
-                    color={"var(--cWarning)"}
-                    circle
-                    onClick={() => {
-                      const fileUpload = document.getElementById(props.name);
-                      if (fileUpload) {
-                        fileUpload.click();
-                      }
-                    }}
-                  />
-                )}
-                {value == "delete" ? (
-                  <>
-                    <IconTrash
-                      size={100}
-                      style={{
-                        cursor: "",
-                        padding: "2px",
-                        position: "absolute",
-                        color: "red",
-                        top: 0,
-                        left: 0,
+                {/* Botones de acción */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-5px", // Más arriba (fuera del contenedor)
+                    right: "-5px", // Más a la derecha (fuera del contenedor)
+                    display: "flex",
+                    gap: "5px",
+                    zIndex: 10, // Asegurar que estén por encima
+                  }}
+                >
+                  {value != "delete" && (
+                    <div
+                      onClick={() => {
+                        const fileUpload = document.getElementById(props.name);
+                        if (fileUpload) {
+                          fileUpload.click();
+                        }
                       }}
-                    />
-                    <IconArrowLeft
-                      size={20}
-                      circle={true}
-                      color="var(--cSuccess)"
                       style={{
-                        position: "absolute",
-                        top: 2,
-                        left: 2,
-                        padding: 2,
-                        backgroundColor: "var(--cBlack)",
+                        backgroundColor: "var(--cPrimary)",
+                        borderRadius: "50%",
+                        width: "30px",
+                        height: "30px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)", // Sombra para mejor visibilidad
                       }}
+                    >
+                      <IconEdit size={16} color="white" />
+                    </div>
+                  )}
+
+                  {value == "delete" ? (
+                    <div
                       onClick={() => {
                         deleteImg(false);
                       }}
-                    />
-                  </>
-                ) : (
+                      style={{
+                        backgroundColor: "var(--cPrimary)",
+                        borderRadius: "50%",
+                        width: "30px",
+                        height: "30px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      <IconArrowLeft size={16} color="white" />
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => {
+                        deleteImg();
+                      }}
+                      style={{
+                        backgroundColor: "var(--cError)",
+                        borderRadius: "50%",
+                        width: "30px",
+                        height: "30px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      <IconTrash size={16} color="white" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Mantener el ícono de trash grande cuando value == "delete" */}
+                {value == "delete" && (
                   <IconTrash
-                    size={20}
+                    size={100}
                     style={{
+                      cursor: "",
+                      padding: "2px",
                       position: "absolute",
-                      top: 2,
-                      left: 2,
-                      padding: 2,
-                      backgroundColor: "var(--cBlack)",
-                    }}
-                    color={"var(--cError)"}
-                    circle
-                    onClick={() => {
-                      deleteImg();
+                      color: "red",
+                      top: 0,
+                      left: 0,
                     }}
                   />
                 )}

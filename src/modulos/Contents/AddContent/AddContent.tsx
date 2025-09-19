@@ -23,19 +23,18 @@ import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
 import { lComDestinies } from "@/mk/utils/utils";
+import Br from "@/components/Detail/Br";
 
 const AddContent = ({
   onClose,
   open,
   item,
   setItem,
-  // errors,
   extraData,
   user,
   execute,
   openList,
   setOpenList,
-  // setErrors,
   reLoad,
   action,
 }: any) => {
@@ -43,24 +42,54 @@ const AddContent = ({
   const [errors, setErrors] = useState({});
   const [ldestinys, setLdestinys]: any = useState([]);
   const [openDestiny, setOpenDestiny] = useState(false);
-  const [formState, setFormState]: any = useState({
-    ...item,
-    // isType: "N",
-    // type: "I",
+
+  // Inicializar formState correctamente para modo edición
+  const [formState, setFormState]: any = useState(() => {
+    const initialState = { ...item };
+
+    // Si estamos en modo edición y hay imágenes, inicializar el campo avatar
+    if (action === "edit" && item?.images && item?.images.length > 0) {
+      const avatarData: any = {};
+      item.images.forEach((img: any, index: number) => {
+        avatarData[`avatar${index}`] = {
+          file: "", // Archivo vacío para imágenes existentes
+          id: img.id,
+          ext: img.ext || "webp"
+        };
+      });
+      initialState.avatar = avatarData;
+    }
+
+    return initialState;
   });
 
   useEffect(() => {
     setOpenList(false);
     if (action == "edit") {
       if (!formState?.title) {
-        setFormState({ ...formState, isType: "P" });
+        setFormState((prev: any) => ({ ...prev, isType: "P" }));
       } else {
-        setFormState({ ...formState, isType: "N" });
+        setFormState((prev: any) => ({ ...prev, isType: "N" }));
       }
     } else {
-      setFormState({ ...formState, isType: "N", type: "I" });
+      setFormState((prev: any) => ({ ...prev, isType: "N", type: "I" }));
     }
   }, []);
+
+  // Agregar useEffect para sincronizar imágenes cuando cambie el item
+  useEffect(() => {
+    if (action === "edit" && item?.images && item?.images.length > 0) {
+      const avatarData: any = {};
+      item.images.forEach((img: any, index: number) => {
+        avatarData[`avatar${index}`] = {
+          file: "",
+          id: img.id,
+          ext: img.ext || "webp"
+        };
+      });
+      setFormState((prev: any) => ({ ...prev, avatar: avatarData }));
+    }
+  }, [item, action]);
 
   useEffect(() => {
     let lDestinies: any = formState.lDestiny || [];
@@ -85,11 +114,24 @@ const AddContent = ({
 
   useEffect(() => {
     if (formState?.isType == "P") {
-      setFormState({ ...formState, title: null });
+      setFormState({
+        ...formState,
+        title: null,
+        type: "I", // Resetear a contenido multimedia por defecto
+        url: null,
+        file: null,
+        avatar: formState?.avatar // Mantener las imágenes si las hay
+      });
     }
-    // if (formState?.isType == "N") {
-    //   setFormState({ ...formState, type: "I" });
-    // }
+    if (formState?.isType == "N") {
+      setFormState({
+        ...formState,
+        type: "I", // Resetear a contenido multimedia por defecto
+        url: null,
+        file: null,
+        avatar: formState?.avatar // Mantener las imágenes si las hay
+      });
+    }
   }, [formState?.isType]);
 
   // useEffect(() => {
@@ -115,17 +157,12 @@ const AddContent = ({
       value = e.target.checked ? "Y" : "N";
     }
 
-    setFormState({ ...formState, [e.target.name]: value });
-    // if (e.target.name == "destiny" && value > 0) {
-    //   setOpenDestiny(true);
-    //   if (formState.destiny != value) {
-    //     setFormState({
-    //       ...formState,
-    //       lDestiny: [],
-    //       [e.target.name]: value,
-    //     });
-    //   }
-    // }
+    // Manejar correctamente los cambios en las imágenes
+    if (e.target.name === "avatar") {
+      setFormState((prev: any) => ({ ...prev, [e.target.name]: value }));
+    } else {
+      setFormState((prev: any) => ({ ...prev, [e.target.name]: value }));
+    }
   };
   // const getCandidates = () => {
   //   let data: any = [];
@@ -215,14 +252,14 @@ const AddContent = ({
         errors,
       });
     }
-    if (formState?.type == "D") {
+/*     if (formState?.type == "D") {
       errors = checkRules({
         value: formState?.file,
         rules: ["required"],
         key: "file",
         errors,
       });
-    }
+    } */
 
     setErrors(errors);
     return errors;
@@ -287,214 +324,180 @@ const AddContent = ({
   return (
     open && (
       <div className={styles.AddContent}>
-        <div className={styles.containerForm}>
-          <div>
-            <p onClick={() => onClose()}>Volver</p>
-            <IconArrowLeft />
-            <p>Crear nueva publicación</p>
+        {/* Header fuera del contenedor principal */}
+        <div className={styles.header}>
+          <div className={styles.backButton} onClick={() => onClose()}>
+            <IconArrowLeft size={20} />
+            <span>Volver a lista de publicaciones</span>
           </div>
-          {/* <CardContent
-            title="Publicar como"
-            subtitle=" El perfil que selecciones aparecerá como la cuenta creadora del post"
-          >a
-            <Select
-              name="candidate_id"
-              label="Candidato"
-              onChange={handleChangeInput}
-              value={formState.candidate_id}
-              options={getCandidates()}
-              error={errors}
-            /> 
-          </CardContent> */}
+          <div className={styles.formHeader}>
+            <p>Nueva publicación</p>
+          </div>
+        </div>
 
-          {/*           <CardContent
-            title="Destino"
-            destinys={getDestinysNames().toString()}
-            subtitle={
-              formState?.affCount > 0
-                ? `Tu publicación tendrá un alcance estimado de ${formState?.affCount} afiliados`
-                : formState?.affCount == 0
-                ? "No existen afiliados en el destino seleccionado"
-                : "Selecciona quienes pueden ver esta publicación"
-            }
-            style={{ display: "flex" }}
-          >
-            <Select
-              style={{ width: 200 }}
-              name="destiny"
-              label="Público objetivo"
-              onChange={handleChangeInput}
-              value={formState.destiny}
-              options={lComDestinies}
-              error={errors}
-            />
-          </CardContent> */}
-
-          <CardContent title="Tipo de publicación">
-            <div style={{ display: "flex", width: "100%" }}>
-              <Radio
-                checked={formState?.isType == "N"}
-                label="Noticia"
-                subtitle="Ideal para informar con mayor detalle sobre un acontecimiento importante."
-                onChange={() => setFormState({ ...formState, isType: "N" })}
-                disabled={action == "edit"}
-              />
-              <Radio
-                checked={formState?.isType == "P"}
-                label="Post"
-                subtitle="Publicación más informal, ideal para publicar eventos cotidianos."
-                onChange={() => setFormState({ ...formState, isType: "P" })}
-                disabled={action == "edit"}
-              />
-            </div>
-          </CardContent>
-          {formState?.isType == "N" && (
-            <CardContent
-              title="Título de la publicación"
-              subtitle="Coloca un titular que impacte"
-            >
-              <Input
-                name="title"
-                label="Titulo"
-                value={formState?.title}
-                onChange={handleChangeInput}
-                error={errors}
-              />
-            </CardContent>
-          )}
-
-          <CardContent
-            title="Detalle de la publicación"
-            subtitle="¿Qué quieres publicar hoy?"
-          >
-            <TextArea
-              name="description"
-              label="Descripción"
-              value={formState?.description}
-              onChange={handleChangeInput}
-              // required={true}
-              error={errors}
-            />
-          </CardContent>
-          <CardContent
-            title="Tipo de contenido"
-            subtitle="Selecciona el tipo de contenido que quieras publicar"
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "var(--spS)",
-                marginBottom: "var(--spL)",
-              }}
-            >
-              <TagContents
-                icon={<IconGallery size={16} />}
-                isActive={formState.type == "I"}
-                text="Contenido multimedia"
-                onClick={() =>
-                  setFormState({
-                    ...formState,
-                    type: "I",
-                    url: null,
-                    file: null,
-                  })
-                }
-                disabled={action == "edit"}
-              />
-              {formState.isType == "P" && (
-                <>
-                  {/* {action != "edit" && ( */}
-                  <TagContents
-                    isActive={formState.type == "V"}
-                    icon={<IconVideo size={16} />}
-                    text={"Video"}
-                    onClick={() =>
-                      setFormState({
-                        ...formState,
-                        type: "V",
-                        file: null,
-                        avatar: null,
-                      })
-                    }
-                    disabled={action == "edit"}
+        <div className={styles.mainContainer}>
+          <div className={styles.containerForm}>
+            <div className={styles.formContent}>
+              <CardContent title="Tipo de publicación">
+                <div className={styles.radioContainer}>
+                  <Radio
+                    checked={formState?.isType == 'N'}
+                    label="Noticia"
+                    subtitle="Ideal para informar con mayor detalle sobre un acontecimiento importante."
+                    onChange={() => setFormState({ ...formState, isType: 'N' })}
+                    disabled={action == 'edit'}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    className={styles.customRadio}
                   />
-                  {/* )} */}
-                  {/* {action != "edit" && ( */}
-                  <TagContents
-                    isActive={formState.type == "D"}
-                    icon={<IconDocs size={16} />}
-                    text="Documento"
-                    onClick={() =>
-                      setFormState({
-                        ...formState,
-                        type: "D",
-                        url: null,
-                        avatar: null,
-                      })
-                    }
-                    disabled={action == "edit"}
+                  <Radio
+                    checked={formState?.isType == 'P'}
+                    label="Post"
+                    subtitle="Publicación más informal, ideal para publicar eventos cotidianos."
+                    onChange={() => setFormState({ ...formState, isType: 'P' })}
+                    disabled={action == 'edit'}
+                    containerStyle={{ backgroundColor: 'transparent' }}
+                    className={styles.customRadio}
                   />
-                  {/* )} */}
-                </>
+                </div>
+                <Br />
+              </CardContent>
+
+              {formState?.isType == 'N' && (
+                <Input
+                  name="title"
+                  label="Titulo de la publicación"
+                  value={formState?.title}
+                  onChange={handleChangeInput}
+                  error={errors}
+                />
               )}
-            </div>
-            {formState?.type == "I" && (
-              <UploadFileMultiple
-                name="avatar"
-                value={formState?.avatar}
-                onChange={handleChangeInput}
-                label={"Subir una imagen"}
-                error={errors}
-                ext={["jpg", "png", "jpeg", "webp"]}
-                setError={setErrors}
-                img={true}
-                maxFiles={10}
-                prefix={"CONT"}
-                images={formState?.images}
-                item={formState}
 
-                // editor={}
-                // sizePreview={_field.sizePreview}
-                // autoOpen={data?.action == "add"}
-              />
-            )}
-            {formState?.type == "V" && (
-              <Input
-                name="url"
-                label="Link del video"
-                value={formState?.url}
+              <TextArea
+                name="description"
+                label="Descripción"
+                value={formState?.description}
                 onChange={handleChangeInput}
                 error={errors}
               />
-            )}
-            {formState?.type == "D" && (
-              <UploadFile
-                name={"file"}
-                value={formState?.file}
-                onChange={handleChangeInput}
-                label={"Subir documento"}
-                error={errors}
-                ext={["pdf"]}
-                setError={setErrors}
-              />
-            )}
-          </CardContent>
-          <section>
-            <Button onClick={onSave}>
-              {formState?.id ? "Actualizar" : "Publicar"}
-            </Button>
-          </section>
-        </div>
-        <div className={styles.containerPreview}>
-          <p>Vista previa</p>
-          <div>
-            <Preview
-              formState={formState}
-              extraData={extraData}
-              action={action}
-            />
+
+              <Br />
+
+              <CardContent
+                title="Sube el tipo de contenido que quieras publicar"
+                subtitle="Selecciona el tipo de contenido que quieras publicar"
+              >
+                <div className={styles.contentTypeContainer}>
+                  <TagContents
+                    icon={<IconGallery size={16} />}
+                    isActive={formState.type == 'I'}
+                    text="Contenido multimedia"
+                    onClick={() =>
+                      setFormState({
+                        ...formState,
+                        type: 'I',
+                        url: null,
+                        file: null,
+                      })
+                    }
+                    disabled={action == 'edit'}
+                  />
+                  {formState.isType == 'P' && (
+                    <>
+                      <TagContents
+                        isActive={formState.type == 'V'}
+                        icon={<IconVideo size={16} />}
+                        text={'Video'}
+                        onClick={() =>
+                          setFormState({
+                            ...formState,
+                            type: 'V',
+                            file: null,
+                            avatar: null,
+                          })
+                        }
+                        disabled={action == 'edit'}
+                      />
+                      <TagContents
+                        isActive={formState.type == 'D'}
+                        icon={<IconDocs size={16} />}
+                        text="Documento"
+                        onClick={() =>
+                          setFormState({
+                            ...formState,
+                            type: 'D',
+                            url: null,
+                            avatar: null,
+                          })
+                        }
+                        disabled={action == 'edit'}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {formState?.type == 'I' && (
+                  <div className={styles.uploadContainer}>
+                    <UploadFileMultiple
+                      name="avatar"
+                      value={formState?.avatar || {}}
+                      onChange={handleChangeInput}
+                      label={'Subir imagen, jpg, png o webp'}
+                      error={errors}
+                      ext={['jpg', 'png', 'jpeg', 'webp']}
+                      setError={setErrors}
+                      img={true}
+                      maxFiles={10}
+                      prefix={'CONT'}
+                      images={formState?.images || []}
+                      item={formState}
+                    />
+                  </div>
+                )}
+                {formState?.type == 'V' && (
+                  <div className={styles.uploadContainer}>
+                    <Input
+                      name="url"
+                      label="Link del video"
+                      value={formState?.url}
+                      onChange={handleChangeInput}
+                      error={errors}
+                    />
+                  </div>
+                )}
+                {formState?.type == 'D' && (
+                  <div className={styles.uploadContainer}>
+                    <UploadFile
+                      name={'file'}
+                      value={formState?.file}
+                      onChange={handleChangeInput}
+                      label={'Subir documento'}
+                      error={errors}
+                      ext={['pdf']}
+                      setError={setErrors}
+                      item={formState}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </div>
+
+            {/* Botones movidos fuera del formContent */}
+            <div className={styles.actionButtons}>
+              <Button variant="secondary" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button onClick={onSave}>{formState?.id ? 'Actualizar' : 'Publicar'}</Button>
+            </div>
+          </div>
+
+          <div className={styles.containerPreview}>
+            <p>Vista previa</p>
+            <div>
+              <Preview formState={formState} extraData={extraData} action={action} />
+            </div>
           </div>
         </div>
+
         {openDestiny && (
           <ModalDestiny
             open={openDestiny}

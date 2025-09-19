@@ -301,7 +301,7 @@ export default function ChatInstantDb() {
                   <IconEmail /> Contactarme por E-mail
                 </Button>
               </div>
-              <div>Este chat solo almacena los últimos 100 mensajes</div>
+              <div></div>
             </div>
           </div>
           <div>

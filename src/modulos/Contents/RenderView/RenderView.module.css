@@ -1,0 +1,430 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  min-height: 400px;
+  background-color: var(--cWhiteV2);
+  border-radius: var(--bRadiusS);
+  border: 0.5px solid var(--cWhiteV1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--cWhiteV2);
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  margin: 0;
+}
+
+/* Botones de acción originales */
+.actionButton {
+  background: none;
+  border: none;
+  color: var(--cWhite);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  gap: 12px;
+  min-height: 400px;
+}
+
+.imageContainer {
+  width: 55%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.imageWrapper {
+  height: 400px;
+  background-color: var(--cWhiteV2);
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImageText {
+  color: var(--cWhiteV1);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Estilos del carrusel - exactamente como en Areas */
+.containerButton {
+  display: flex;
+  justify-content: center;
+  padding: 0px 16px;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.button {
+  background-color: transparent;
+  padding: 6px;
+  border: 0.5px solid var(--cWhiteV1);
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.contentContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cWhiteV2);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--cWhite);
+  font-size: 16px;
+  margin: 0;
+}
+
+.userRole {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  margin: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--cWhite);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.descriptionContainer {
+  flex: 1;
+}
+
+.description {
+  margin: 0;
+  color: var(--cWhite);
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.descriptionTruncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--cAccent);
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.expandButton:hover {
+  opacity: 0.8;
+}
+
+.statsContainer {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  gap: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cWhiteV2);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.statEmoji {
+  font-size: 16px;
+}
+
+/* Agregar estos estilos al archivo existente */
+
+.button {
+  background-color: var(--cWhiteV2);
+  border: none;
+  border-radius: var(--bRadiusS);
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--cWhiteV3);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+.headerRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.text {
+  margin: 0;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.renderView {
+  .title {
+    color: var(--cWhite);
+    font-size: var(--sL);
+    font-weight: 500;
+  }
+
+  .containerFirstSection {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    .containerImage {
+      flex-grow: 1;
+      flex-basis: 0;
+
+      .image {
+        overflow: hidden;
+        height: 300px;
+        border-radius: 12px;
+        background-color: var(--cWhiteV2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .containerButton {
+        display: flex;
+        justify-content: center;
+        padding: 0px 16px;
+        align-items: center;
+        width: 100%;
+        gap: 12px;
+        margin-top: 16px;
+
+        .button {
+          background-color: transparent;
+          padding: 6px;
+          border: 0.5px solid var(--cWhiteV1);
+          border-radius: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: var(--cWhiteV2);
+          }
+        }
+      }
+    }
+
+    .containerInfo {
+      flex-grow: 1;
+      flex-basis: 0;
+      overflow-wrap: break-word;
+      min-width: 0;
+    }
+  }
+}
+
+/* Mantener los estilos existentes y agregar los nuevos */
+.container {
+  /* estilos existentes */
+}
+
+.header {
+  /* estilos existentes */
+}
+
+.headerLeft {
+  /* estilos existentes */
+}
+
+.headerRight {
+  /* estilos existentes */
+}
+
+.text {
+  /* estilos existentes */
+}
+
+.button {
+  /* estilos existentes */
+}
+
+.content {
+  /* estilos existentes */
+}
+
+.imageContainer {
+  /* estilos existentes - puede ser removido si no se usa */
+}
+
+.image {
+  /* ya definido arriba en .containerFirstSection .containerImage .image */
+}
+
+.noImageText {
+  color: var(--cWhiteV1);
+  text-align: center;
+  font-style: italic;
+}
+
+.contentContainer {
+  /* estilos existentes */
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  color: var(--cWhite);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.userRole {
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}
+
+.title {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: 500;
+  margin: 16px 0 8px 0;
+}
+
+.descriptionContainer {
+  /* estilos existentes */
+}
+
+.description {
+  color: var(--cWhiteV1);
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.descriptionTruncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -moz-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--cAccent);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+}

@@ -133,7 +133,7 @@ const Outlays = () => {
           options: getPeriodOptions,
         },
       },
-      // <- Agregar campo de tipo después de date_at
+/*       // <- Agregar campo de tipo después de date_at
       expense_type: {
         rules: [],
         api: "e",
@@ -144,7 +144,7 @@ const Outlays = () => {
           width: "150px",
           options: getTypeOptions,
         },
-      },
+      }, */
       user: {
         api: "",
         label: "Responsable",
@@ -408,7 +408,7 @@ const Outlays = () => {
         emptyMsg="Lista de egresos vacía. Cuando ingreses los gastos del condominio, "
         emptyLine2="aparecerán en esta sección."
         emptyIcon={<IconIngresos size={80} color="var(--cWhiteV1)" />}
-        filterBreakPoint={1435}
+        filterBreakPoint={1700}
       />
 
       {/* Modal para ejecutar presupuesto omentado para cuando se implmente la funcionalidad*/}

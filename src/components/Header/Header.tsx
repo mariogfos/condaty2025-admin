@@ -56,15 +56,33 @@ const Header = ({
     { name: "Permisos", route: "/rolesabilities" },
   ];
   const onNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount((old) => old + 1);
   }, []);
   const onResetNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount(0);
   }, []);
-  useEvent("onResetNotif", onResetNotif);
+  useEvent("onReset", onResetNotif);
   useEvent("onNotif", onNotif);
+
+  // const onOpenChat = useCallback((e: any) => {
+  //   setCountChat(0);
+  // }, []);
+
+  // useEvent("onOpenChat", onOpenChat);
+
+  const { dispatch: openChat } = useEvent("onOpenChat");
+  const [countChat, setCountChat] = useState(0);
+  const onChat = useCallback(
+    (e: any) => {
+      setCountChat((old) => old + 1);
+    },
+    [user?.id]
+  );
+
+  useEvent("onChatNewMsg", onChat);
+
   const Title = () => {
     return (
       <div className={styles["header-title"]}>
@@ -109,7 +127,7 @@ const Header = ({
           <Link onClick={onClick} href={href || "#"}>
             <div className={styles.notificationIcon}>
               {icon}
-              {bage > 0 && href == "/notifications" && (
+              {bage > 0 && (
                 <div className={styles.notificationBadge}>{bage || 0}</div>
               )}
             </div>
@@ -121,7 +139,7 @@ const Header = ({
         <div onClick={onClick}>
           <div className={styles.notificationIcon}>
             {icon}
-            {bage > 0 && href == "/notifications" && (
+            {bage > 0 && (
               <div className={styles.notificationBadge}>{bage || 0}</div>
             )}
           </div>
@@ -135,7 +153,7 @@ const Header = ({
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
-            hasImage={user.has_image}
+            hasImage={1}
             name={getFullName(user)}
             h={40}
             w={40}
@@ -143,7 +161,6 @@ const Header = ({
               "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
             )}
             onClick={() => {
-              console.log("click");
               setStore({ ...store, openProfileModal: true });
             }}
 
@@ -153,8 +170,6 @@ const Header = ({
       </div>
     );
   };
-
-  const { dispatch: openChat } = useEvent("onOpenChat");
 
   if (isTablet)
     return (
@@ -215,7 +230,11 @@ const Header = ({
         <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
         <Round
           icon={<IconMessage color="var(--cSuccess)" />}
-          onClick={openChat}
+          onClick={(e: any) => {
+            openChat(e);
+            setCountChat(0);
+          }}
+          bage={countChat}
         />
         {/* <Dropdown
           trigger={

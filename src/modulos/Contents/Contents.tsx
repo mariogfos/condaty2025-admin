@@ -2,40 +2,28 @@
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Contents.module.css";
-import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import useCrudUtils from "../shared/useCrudUtils";
 import { useEffect, useMemo, useState } from "react";
-import RenderItem from "../shared/RenderItem";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import {
   IconComment,
   IconDocs,
   IconDownload,
-  IconEdit,
-  IconImage,
   IconLike,
-  IconOptions,
-  IconPDF,
   IconPublicacion,
-  IconTrash,
-  IconVideo,
-  IconWorld,
-  IconYoutube,
 } from "@/components/layout/icons/IconsBiblioteca";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Check from "@/mk/components/forms/Check/Check";
 import RenderView from "./RenderView/RenderView";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
 import { formatNumber } from "@/mk/utils/numbers";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import Button from "@/mk/components/forms/Button/Button";
 import AddContent from "./AddContent/AddContent";
-import { get } from "http";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import RenderCard from "./RenderCard/RenderCard";
-import { lComDestinies } from "@/mk/utils/utils";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import CommentsModal from "@/components/CommentsModal/CommentsModal";
 
 const paramsInitial = {
   perPage: 20,
@@ -88,31 +76,130 @@ const rigthFile = (data: {
   );
 };
 
+const getTypefilter = () => [
+  { id: 'ALL', name: 'Todos' },
+  { id: 'D', name: 'Documento' },
+  { id: 'V', name: 'Video' },
+  { id: 'I', name: 'Imagen' },
+];
+const getTypeContentsfilter = () => [
+  { id: 'ALL', name: 'Todos' },
+  { id: 'P', name: 'Publicación' },
+  { id: 'N', name: 'Noticia' },
+];
+
+const getPeriodOptions = () => [
+  { id: 'ALL', name: 'Todos' },
+  { id: 'd', name: 'Hoy' },
+  { id: 'ld', name: 'Ayer' },
+  { id: 'w', name: 'Esta semana' },
+  { id: 'lw', name: 'Semana anterior' },
+  { id: 'm', name: 'Este mes' },
+  { id: 'lm', name: 'Mes anterior' },
+  { id: 'y', name: 'Este año' },
+  { id: 'ly', name: 'Año anterior' },
+  { id: 'custom', name: 'Personalizado' },
+];
+
 const Contents = () => {
+  const [openCustomFilter, setOpenCustomFilter] = useState(false);
+  const [customDateErrors, setCustomDateErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [selectedContentIdForComments, setSelectedContentIdForComments] = useState<number | null>(null);
+  const [selectedContentData, setSelectedContentData] = useState<any>(null);
+
+
+  const { user, showToast } = useAuth();
+
+
+  const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
+    const currentFilters = { ...(oldFilterState?.filterBy || {}) };
+
+    if (opt === "created_at" && value === "custom") {
+      setCustomDateErrors({});
+      setOpenCustomFilter(true);
+      delete currentFilters[opt];
+      return { filterBy: currentFilters };
+    }
+
+    if (value === "" || value === null || value === undefined) {
+      delete currentFilters[opt];
+    } else {
+      currentFilters[opt] = value;
+    }
+    return { filterBy: currentFilters };
+  };
+
+  const handleOpenComments = (contentId: number, contentData: any) => {
+    setSelectedContentIdForComments(contentId);
+    setSelectedContentData(contentData);
+    setIsCommentModalOpen(true);
+  };
+
+  const handleCloseComments = () => {
+    setIsCommentModalOpen(false);
+    setSelectedContentIdForComments(null);
+    setSelectedContentData(null);
+    handleCommentAdded();
+  };
+
+
+  const handleCommentAdded = () => {
+    if (selectedContentData) {
+      const updatedData = {
+        ...selectedContentData,
+        comments: [...(selectedContentData.comments || []), {}],
+      };
+      setSelectedContentData(updatedData);
+    }
+    reLoad();
+  };
+
   const mod: ModCrudType = {
     modulo: "contents",
     singular: "publicación",
-    plural: "Publicaciones",
+    plural: "",
     permiso: "contents",
     titleAdd: "Nueva",
-    // import: true,
-    export: true,
+    export: false,
     extraData: true,
+    filter: true,
     saveMsg: {
       add: "Publicación creada con éxito",
       edit: "Publicación actualizada con éxito",
       del: "Publicación eliminada con éxito",
     },
+    hideActions: {
+      add: false,
+      edit: true,
+      del: true,
+    },
+
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
       onConfirm?: Function;
       extraData: any;
-    }) => <RenderView {...props} />,
+    }) => (
+      <RenderView
+        {...props}
+        onEdit={(item: any) => {
+          console.log('Item para editar:', item);
+          onEdit(item);
+        }}
+        onDelete={(item: any) => onDel(item)}
+        reLoad={() => reLoad()}
+        onOpenComments={handleOpenComments}
+        selectedContentData={selectedContentData}
+      />
+    ),
     loadView: { fullType: "DET" },
-    // listAndCard: true,
-    // hideActions: { add: true },
     renderForm: (props: {
       item: any;
       setItem: any;
@@ -146,6 +233,7 @@ const Contents = () => {
       );
     },
   };
+
   const onTop = (data: {
     user?: Record<string, any>;
     item: Record<string, any>;
@@ -160,11 +248,9 @@ const Contents = () => {
     if (data?.item?.destiny == 2) selDestinies = extraData.listas;
     if (data?.item?.destiny == 3) selDestinies = extraData.dptos;
     if (data?.item?.destiny == 4) selDestinies = extraData.muns;
-    // if (data?.item?.destiny == 4) selDestinies = extraData.locals;
     if (data?.item?.destiny == 5) selDestinies = extraData.barrios;
     let lDestinies: any = data?.item?.lDestiny || [];
-    // let dataDestinies =
-    //   data?.action == "edit" ? data?.item?.cdestinies : data?.item?.lDestiny;
+
     if (data?.action == "edit" && !data?.item?.lDestiny) {
       data?.item?.cdestinies?.map((d: any) => {
         if (data?.item?.destiny == 2) {
@@ -179,9 +265,6 @@ const Contents = () => {
         if (data?.item?.destiny == 5) {
           lDestinies.push(d.barrio_id);
         }
-        // if (data?.item?.destiny == 5) {
-        //   lDestinies.push(d.local_id);
-        // }
       });
     }
 
@@ -192,7 +275,6 @@ const Contents = () => {
           .map((d: any, index: number, array: any[]) => (
             <p
               key={d.id}
-              // className={styles.subtitle}
               style={{ color: "var(--cInfo)", marginTop: 4 }}
             >
               {d.name}
@@ -202,76 +284,139 @@ const Contents = () => {
       </div>
     );
   };
-  const { user } = useAuth();
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: '' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: "e" },
-      destiny: {
-        rules: ["required"],
-        api: "ae",
-        label: "Destino",
+      id: { rules: [], api: 'e' },
+      created_at: {
+        rules: [],
+        api: 'e',
+        label: 'Fecha',
         list: {
-          width: "100px",
-          onRender: (item: any) => {
-            return lComDestinies.find((i: any) => i.id == item?.item?.destiny)
-              ?.name;
+          width: '220px',
+          onRender: (props: any) => {
+            return getDateTimeStrMesShort(props?.item?.created_at);
           },
+          form: false,
+        },
+        filter: {
+          key: 'created_at',
+          label: 'Periodo',
+          options: getPeriodOptions,
         },
       },
-      // lDestiny: {
-      //   rules: [],
-      //   api: "ae",
-      //   label: "",
-      //   list: false,
-      //   form: false,
-      // },
-      adm_id: {
-        rules: [""],
-        api: "ae",
-        label: "Administrador",
+      user: {
+        rules: [],
+        api: 'ae',
+        label: 'Creador',
         list: {
-          onRender: (props: any) => {
-            return getFullName(props?.item?.user);
+
+          onRender: (item: any) => {
+            const user = item?.item.user;
+            const nombreCompleto = getFullName(user);
+            const cedulaIdentidad = user?.ci;
+
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Avatar
+                  hasImage={1}
+                  src={getUrlImages('/ADM-' + user?.id + '.webp?d=' + user?.updated_at)}
+                  name={nombreCompleto}
+                />
+                <div>
+                  <p
+                    style={{
+                      marginBottom: '2px',
+                      fontWeight: 500,
+                      color: 'var(--cWhite)',
+                    }}
+                  >
+                    {nombreCompleto}
+                  </p>
+                  {cedulaIdentidad && (
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: 'var(--cWhiteV1)',
+                        display: 'block',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      CI: {cedulaIdentidad}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
           },
         },
       },
       type: {
-        rules: ["required"],
-        api: "ae",
-        label: "Tipo",
-        list: { width: "100px" },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Tipo',
+        list: {
+
+        },
         form: {
-          type: "select",
+          type: 'select',
           options: lType,
-          // precarga: "I"
+        },
+        filter: {
+          label: 'Tipo de contenido',
+          width: '180px',
+          options: getTypefilter,
         },
       },
       title: {
-        rules: [""],
-        api: "ae",
-        label: "Titulo",
+        rules: [''],
+        api: 'ae',
+        label: 'Titulo',
         list: false,
-        form: { type: "text" },
+        form: { type: 'text' },
       },
       description: {
-        rules: ["required"],
-        api: "ae",
-        label: "¿Qué deseas publicar hoy?",
-        list: true,
-        form: { type: "textArea", lines: 6, isLimit: true, maxLength: 5000 },
+        rules: ['required'],
+        api: 'ae',
+        label: 'Contenido',
+        list: {
+          onRender: (item: any) => {
+            const title = item?.item?.title;
+            const description = item?.item?.description;
+
+            return (
+              <div className={styles.contentContainer}>
+                {title && (
+                  <div className={styles.contentTitle}>
+                    {title}
+                  </div>
+                )}
+                {description && (
+                  <div className={styles.contentDescription}>
+                    {description}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+        form: { type: 'textArea', lines: 6, isLimit: true, maxLength: 5000 },
       },
       reaction: {
-        api: "ae",
-        label: "Interacciones",
-        list: { width: "120px" },
+        api: 'ae',
+        label: 'Interacciones',
+        list: { width: '120px' },
         onHide: isType,
         form: {},
         onRender: (item: any) => {
           return (
-            <div
-              style={{ display: "flex", alignItems: "center", fontSize: 14 }}
-            >
-              <IconLike color={"var(--cAccent)"} size={24} />
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
+              <IconLike color={'var(--cAccent)'} size={24} />
               {formatNumber(item?.item?.likes, 0)} <IconComment size={24} />
               {formatNumber(item?.item?.comments_count, 0)}
             </div>
@@ -279,38 +424,47 @@ const Contents = () => {
         },
       },
       url: {
-        rules: ["requiredIf:type,V"],
-        api: "a*e*",
-        label: "Link del video",
+        rules: ['requiredIf:type,V'],
+        api: 'a*e*',
+        label: 'Link del video',
         list: false,
         onHide: isType,
-        form: { type: "text" },
+        form: { type: 'text' },
       },
       avatar: {
-        // rules: ["requiredFileIf:type,I*add"],
-        api: "a*e*",
-        label: "Suba una imagen",
+        api: 'a*e*',
+        label: 'Suba una imagen',
         list: false,
         onHide: isType,
         form: {
-          type: "imageUploadMultiple",
-          prefix: "CONT",
+          type: 'imageUploadMultiple',
+          prefix: 'CONT',
           maxFiles: 10,
-          images: "images",
-          // onRigth: rigthAvatar,
-          style: { width: "100%" },
+          images: 'images',
+          style: { width: '100%' },
         },
       },
       file: {
-        rules: ["requiredFileIf:type,D"],
-        api: "a*e*",
-        label: "Suba un Documento",
+        rules: ['requiredFileIf:type,D'],
+        api: 'a*e*',
+        label: 'Suba un Documento',
         list: false,
         onHide: isType,
         form: {
-          type: "fileUpload",
+          type: 'fileUpload',
           onRigth: rigthFile,
-          style: { width: "100%" },
+          style: { width: '100%' },
+        },
+      },
+      content: {
+        api: 'ae',
+        label: 'Contenido',
+        list: false,
+        form: false,
+        filter: {
+          key: 'content',
+          label: 'Tipo de publicación',
+          options: getTypeContentsfilter,
         },
       },
     }),
@@ -342,7 +496,6 @@ const Contents = () => {
 
       return true;
     }
-    // console.log(action);
     let lDestiny = item.lDestiny || [];
     if (action == "edit") {
       item?.cdestinies?.map((d: any) => {
@@ -358,9 +511,6 @@ const Contents = () => {
         if (item?.destiny == 5) {
           lDestiny.push(d.barrio_id);
         }
-        // if (item?.destiny == 4) {
-        //   lDestiny.push(d.local_id);
-        // }
       });
     }
     if (name == "destiny") {
@@ -368,8 +518,6 @@ const Contents = () => {
       if (value == 2) selDestinies = extraData.listas;
       if (value == 3) selDestinies = extraData.dptos;
       if (value == 4) selDestinies = extraData.muns;
-      // if (value == 4) selDestinies = extraData.locals;
-      // if (value == 5) selDestinies = extraData.barrios;
 
       if (value != item.destiny) {
         setItem({ ...item, lDestiny: [] });
@@ -427,7 +575,7 @@ const Contents = () => {
         normalizeText(d.name).includes(normalizeText(search))
       );
       setDestiniesFiltered(filtered);
-    }, [search]);
+    }, [search, selDestinies]);
 
     const _onSave = () => {
       if (sel <= 0) {
@@ -454,20 +602,6 @@ const Contents = () => {
           _onSave();
         }}
       >
-        {/* <Check
-          key={"check0"}
-          name={"destiny_0"}
-          label="Todos"
-          checked={sel.length == 0}
-          onChange={(e: any) => {
-            const { name, checked } = e.target;
-            if (checked) {
-              setSel([]);
-            }
-          }}
-          value={0}
-          optionValue={["0", "N"]}
-        /> */}
         <DataSearch
           name="searchDestiny"
           setSearch={setOnSearch}
@@ -498,118 +632,119 @@ const Contents = () => {
     );
   };
 
-  // const onImport = () => {
-  //   setOpenImport(true);
-  // };
-
   const {
     userCan,
     List,
-    setStore,
+    setStore: crudSetStore, // Renombrar para evitar conflicto
     onSearch,
     searchs,
     onEdit,
     onDel,
     extraData,
-    showToast,
+    showToast: crudShowToast, // Renombrar para evitar conflicto
     execute,
     reLoad,
     openCard,
     getExtraData,
+    data,
+    onFilter,
+    openList,
   } = useCrud({
     paramsInitial,
     mod,
     fields,
     _onChange,
-    // _onImport: onImport,
+    getFilter: handleGetFilter,
   });
+
   const { onLongPress, selItem, searchState, setSearchState } = useCrudUtils({
     onSearch,
     searchs,
-    setStore,
+    setStore: crudSetStore,
     mod,
     onEdit,
     onDel,
-    title: "Publicaciones",
+    title: '', // Mantener vacío
   });
 
-  // const [openImport, setOpenImport] = useState(false);
-  // useEffect(() => {
-  //   setOpenImport(searchState == 3);
-  // }, [searchState]);
-
-  const renderItem = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    let icon = <IconImage size={48} circle color="var(--cWhite)" />;
-    if (item.type == "D")
-      icon = <IconDocs size={48} circle color="var(--cWhite)" />;
-    if (item.type == "V")
-      icon = <IconYoutube size={48} circle color="var(--cWhite" />;
-
-    return (
-      <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
-        <ItemList
-          title={item?.description.substring(0, 80) + "..."}
-          subtitle={
-            "Creado por: " +
-            getFullName(item.user) +
-            ", en Fecha: " +
-            getDateTimeStrMesShort(item.created_at)
-          }
-          variant="V1"
-          active={selItem && selItem.id == item.id}
-          left={icon}
-        />
-      </RenderItem>
-    );
-  };
-  const renderCard = (
-    item: Record<string, any>,
-    i: number,
-    onClick: Function
-  ) => {
-    // console.log(item);
-    return (
-      <RenderCard
-        item={item}
-        extraData={extraData}
-        onClick={onClick}
-        onDel={onDel}
-        onEdit={onEdit}
-      />
-    );
-  };
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
+
   return (
     <div className={styles.roles}>
-      {/* <IconLike onClick={() => onResponse()} /> */}
+      {/* Agregar título hardcodeado como en Defaulters */}
+      {openList && (
+        <h1 className={styles.title}>Publicaciones</h1>
+      )}
+
+      {/* Solo mostrar el WidgetDashCard cuando openList es true */}
+      {openList && (
+        <WidgetDashCard
+          title="Publicaciones"
+          data={data?.message?.total || 0}
+          icon={
+            <IconDocs
+              color={'var(--cWhite)'}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              circle
+              size={18}
+            />
+          }
+          style={{ minWidth: '160px', maxWidth: '268px', marginBottom: "16px" }}
+        />
+      )}
       <List
-        // onTabletRow={renderItem}
         actionsWidth="140px"
-        height={"calc(100vh - 285px)"}
+        height={'calc(100vh - 440px)'}
         emptyMsg="Lista de publicaciones vacía. Una vez empieces a publicar"
         emptyLine2="noticias las verás aquí."
         emptyIcon={<IconPublicacion size={80} color="var(--cWhiteV1)" />}
-        // onRenderCard={openCard ? renderCard : null}
+        filterBreakPoint={1530}
       />
-      {/* {openImport && (
-        <ImportDataModal
-          open={openImport}
-          onClose={() => {
-            setSearchState(0);
-            setOpenImport(false);
-          }}
-          mod={mod}
-          showToast={showToast}
-          reLoad={reLoad}
-          execute={execute}
-          getExtraData={getExtraData}
-          // requiredCols="DEPARTAMENTO, HABITANTES, HABILITADOS, ESCANOS, CODE"
-        />
-      )} */}
+
+      <DateRangeFilterModal
+        open={openCustomFilter}
+        onClose={() => {
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        onSave={({ startDate, endDate }) => {
+          let err: { startDate?: string; endDate?: string } = {};
+          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
+          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (startDate && endDate && startDate > endDate)
+            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
+          if (
+            startDate &&
+            endDate &&
+            startDate.slice(0, 4) !== endDate.slice(0, 4)
+          ) {
+            err.startDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+            err.endDate =
+              "El periodo personalizado debe estar dentro del mismo año";
+          }
+          if (Object.keys(err).length > 0) {
+            setCustomDateErrors(err);
+            return;
+          }
+          const customDateFilterString = `${startDate},${endDate}`;
+          onFilter("created_at", customDateFilterString);
+          setOpenCustomFilter(false);
+          setCustomDateErrors({});
+        }}
+        errorStart={customDateErrors.startDate}
+        errorEnd={customDateErrors.endDate}
+      />
+
+      {/* CommentsModal a nivel de Contents */}
+      <CommentsModal
+        isOpen={isCommentModalOpen}
+        onClose={handleCloseComments}
+        contentId={selectedContentIdForComments}
+        onCommentAdded={() => {
+          reLoad();
+        }}
+      />
     </div>
   );
 };

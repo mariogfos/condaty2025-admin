@@ -927,25 +927,26 @@ const useCrud = ({
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
-    let maxLabelWidth = 0;
-    if (filters && filters.length > 0 && typeof document !== "undefined") {
-      const span = document.createElement("span");
-      span.style.visibility = "hidden";
-      span.style.position = "absolute";
-      span.style.fontSize = "var(--sL, 16px)";
-      span.style.fontWeight = "var(--bMedium, 500)";
-      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
-      span.style.whiteSpace = "nowrap";
-      document.body.appendChild(span);
-      filters.forEach((f: any) => {
-        span.innerText = f.label;
-        if (span.offsetWidth > maxLabelWidth) {
-          maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
-        }
-      });
-      document.body.removeChild(span);
-    }
-    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
+    // let maxLabelWidth = 0;
+    // if (filters && filters.length > 0 && typeof document !== "undefined") {
+    //   const span = document.createElement("span");
+    //   span.style.visibility = "hidden";
+    //   span.style.position = "absolute";
+    //   span.style.fontSize = "var(--sL, 16px)";
+    //   span.style.fontWeight = "var(--bMedium, 500)";
+    //   span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
+    //   span.style.whiteSpace = "nowrap";
+    //   document.body.appendChild(span);
+    //   filters.forEach((f: any) => {
+    //     span.innerText = f.label;
+    //     if (span.offsetWidth > maxLabelWidth) {
+    //       maxLabelWidth = span.offsetWidth + parseFloat(f?.width);
+    //     }
+    //   });
+    //   document.body.removeChild(span);
+    // }
+    // const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth : 180) + "px";
+    const selectWidth = "auto";
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -1295,7 +1296,7 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list?.width ?? "200px",
+            width: field.filter?.width ?? field.list?.width ?? "auto",
             order:
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData

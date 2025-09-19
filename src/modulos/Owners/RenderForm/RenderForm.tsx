@@ -19,7 +19,7 @@ interface OwnerFormState {
   email?: string;
   phone?: string;
   dpto_id?: string | number;
-  dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string }>;
+  dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string; dpto_nro?: string }>;
   will_live_in_unit?: boolean;
   _disabled?: boolean;
   _emailDisabled?: boolean;
@@ -41,8 +41,8 @@ const TYPE_OWNERS = [
     name: 'Propietario',
   },
   {
-    type_owner: 'Inquilino',
-    name: 'Inquilino',
+    type_owner: 'Residente',
+    name: 'Residente',
   },
 ];
 
@@ -131,7 +131,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
 
         />
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-           ¿Este {typeOwner === 'Propietario' ? 'propietario' : 'inquilino'} vivirá en la unidad?
+           ¿Este {typeOwner === 'Propietario' ? 'propietario' : 'residente'} vivirá en la unidad?
           <input
           style={{
               accentColor: 'var(--cAccent)',
@@ -177,7 +177,7 @@ const RenderForm = ({
   extraData: any;
   reLoad: () => void;
   defaultUnitId?: string | number;
-  defaultOwnerType?: 'Propietario' | 'Inquilino';
+  defaultOwnerType?: 'Propietario' | 'Residente';
   defaultIsResident?: boolean;
   disableUnitEditing?: boolean;
   disableTypeEditing?: boolean;
@@ -204,7 +204,8 @@ const RenderForm = ({
       last_name: item?.last_name || '',
       dptos: item?.dptos || (defaultUnitId ? [{
         dpto_id: defaultUnitId,
-        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true
+        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true,
+        dpto_nro: item?.dptos?.[0]?.dpto_nro,
       }] : []),
       type_owner: item?.type_owner || defaultOwnerType || undefined,
       will_live_in_unit: item?.will_live_in_unit !== undefined ? item.will_live_in_unit : (defaultIsResident !== undefined ? defaultIsResident : true),
@@ -523,7 +524,7 @@ const RenderForm = ({
                   ? extraData?.dptosForH || []
                   : extraData?.dptosForT || [];
 
-              const nro = getUnitNro(unitsList, d.dpto_id);
+              const nro = d.dpto_nro ? getUnitNro(unitsList, d.dpto_nro) : getUnitNro(unitsList, d.dpto_id);
               return (
                 <div key={String(d.dpto_id) + '_' + idx} className={styles.unitCard}>
                   <div className={styles.unitCardLeft}>
@@ -596,7 +597,7 @@ const RenderForm = ({
             const existing = (prev.dptos || []).find(
               d => String(d.dpto_id) === String(normalizedId)
             );
-            if (prev.type_owner === 'Inquilino') {
+            if (prev.type_owner === 'Residente') {
               return {
                 ...prev,
                 dptos: [

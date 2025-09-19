@@ -12,6 +12,7 @@ import ControlLabel, { PropsTypeInputBase } from "../ControlLabel";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { resizeImage } from "@/mk/utils/images";
 import ImageEditor from "./ImageEditor";
+import { getUrlImages } from "@/mk/utils/string";
 
 interface PropsType extends PropsTypeInputBase {
   ext: string[];
@@ -33,24 +34,41 @@ export const UploadFile = ({
 }: PropsType) => {
   const [selectedFiles, setSelectedFiles]: any = useState({});
   const [isDraggingFile, setIsDraggingFile] = useState(false);
-  // console.log(props, "props");
+  const [editedImage, setEditedImage]: any = useState(null);
+  const [loadedImage, setLoadedImage] = useState(false);
   const { showToast } = useAuth();
 
-  const onError = (err: any) => {
-    console.log("reader error", err);
+  // Función para verificar si hay un documento existente
+  const hasExistingDocument = () => {
+    if (item?.type === 'D' && (item?.url === 'pdf' || item?.url?.endsWith('.pdf'))) {
+      return true;
+    }
+    if (value && typeof value === 'object' && value.ext && ['pdf', 'doc', 'docx'].includes(value.ext)) {
+      return true;
+    }
+    return false;
   };
 
-  // useEffect(() => {
-  //   if (value == "" || item[props.name]?.file == "delete") {
-  //     // setSelectedFiles({});
-  //   }
-  // }, [value, item]);
+  // Función para obtener el nombre del documento existente
+  const getExistingDocumentName = () => {
+    if (item?.title) {
+      return item.title;
+    }
+    if (item?.description) {
+      return item.description.substring(0, 30) + '...';
+    }
+    return 'Documento existente';
+  };
 
-  const [editedImage, setEditedImage]: any = useState(null);
-  const [loadedImage, setLoadedImage]: any = useState(false);
+  // Función para obtener la URL del documento existente
+  const getExistingDocumentUrl = () => {
+    if (item?.id && item?.type === 'D') {
+      return getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
+    }
+    return null;
+  };
 
   const handleImageProcessed = (imageBase64: string) => {
-    // setEditedImage(imageBase64);
     const partes = selectedFiles.name.split(".");
     let base64String = imageBase64.replace("data:", "").replace(/^.+,/, "");
     base64String = encodeURIComponent(base64String);
@@ -63,16 +81,9 @@ export const UploadFile = ({
         value: { ext: "webp", file: base64String },
       },
     });
-    // onChange({
-    //   target: {
-    //     name: props.name,
-    //     value: { ext: partes[partes.length - 1], file: base64String },
-    //   },
-    // });
   };
 
   const onChangeFile = async (e: any) => {
-    // props.setError({});
     props.setError({ ...props.error, [props.name]: "" });
     try {
       let file: any = null;
@@ -102,9 +113,7 @@ export const UploadFile = ({
         const image: any = await resizeImage(file, 720, 1024, 0.7);
         let base64String = image.replace("data:", "").replace(/^.+,/, "");
         base64String = encodeURIComponent(base64String);
-        //
         if (editor) setLoadedImage(image);
-        //
         onChange({
           target: {
             name: props.name,
@@ -126,7 +135,6 @@ export const UploadFile = ({
             },
           });
         };
-        reader.onerror = onError;
         reader.readAsDataURL(file);
       }
     } catch (error) {
@@ -139,63 +147,68 @@ export const UploadFile = ({
       });
     }
   };
+
+  const accept = () => {
+    return props.ext.map((e: string) => "." + e).join(",");
+  };
+
   const handleDragOver = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
   };
+
   const handleDrop = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDraggingFile(false);
     onChangeFile(e);
   };
 
-  const accept = () => {
-    let accept: any = [];
-    //   props.ext.map((ext) => {
-    //     accept.push(`application/${ext}`);
-    //   });
-    //   return accept.join(",");
-
-    props.ext.map((ext) => {
-      accept.push(`.${ext}`);
-    });
-    return accept.join(",");
-  };
-
-  const deleteImg = (del = true) => {
-    props.setError({ ...props.error, [props.name]: "" });
-
-    // if (!selectedFiles?.name) {
-    // console.log("deleteImg", del, selectedFiles?.name, "value:", value, {
-    //   ext: "",
-    //   file: del == false ? "" : "delete",
-    // });
-
-    if (value && value.file != "") {
-      onChange({
-        target: {
-          name: props.name,
-          value: null,
-        },
-      });
-    } else {
-      onChange({
-        target: {
-          name: props.name,
-          value: { ext: "", file: del == false ? "" : "delete" },
-        },
-      });
-    }
-    // }
+  // Función corregida para eliminar archivos
+  const deleteFile = () => {
+    // Limpiar estados locales
     setSelectedFiles({});
-    // onChange &&
-    //   onChange({
-    //     target: {
-    //       name: props.name,
-    //       value: { file: del == false ? "" : "delete", ext: "" },
-    //     },
-    //   });
+    setEditedImage(null);
+
+    // Enviar objeto con formato correcto para eliminación
+    onChange({
+      target: {
+        name: props.name,
+        value: { ext: value?.ext || 'pdf', file: "delete" }, // Formato correcto
+      },
+    });
   };
+
+  const editFile = () => {
+    const fileUpload = document.getElementById(props.name);
+    if (fileUpload) {
+      fileUpload.click();
+    }
+  };
+
+  // Verificar si hay contenido para mostrar (corregido)
+  const hasContent = () => {
+    // Si value.file es "delete", no mostrar contenido
+    if (value && typeof value === 'object' && value.file === "delete") {
+      return false;
+    }
+
+    return (
+      selectedFiles?.name ||
+      (value && value !== "") ||
+      editedImage ||
+      hasExistingDocument()
+    );
+  };
+
+  // useEffect para manejar cuando value.file cambia a "delete"
+  useEffect(() => {
+    if (value && typeof value === 'object' && value.file === "delete") {
+      setSelectedFiles({});
+      setEditedImage(null);
+    }
+  }, [value]);
+
   return (
     <ControlLabel
       {...props}
@@ -203,12 +216,6 @@ export const UploadFile = ({
       className={styles.uploadFile + " " + className}
     >
       <section
-        // onClick={() => {
-        //   const fileUpload = document.getElementById(props.name);
-        //   if (fileUpload) {
-        //     fileUpload.click();
-        //   }
-        // }}
         style={{
           borderColor: props.error[props.name]
             ? "var(--cError)"
@@ -231,178 +238,138 @@ export const UploadFile = ({
           disabled={props.disabled}
           accept={accept()}
         />
-        {
-          // !selectedFiles?.name || selectedFiles?.name == "" && onlyImg?(
-          //   <>
-          //       <IconImage size={40} color={"white"} />
-          //   <span>Adjunta o arrastra y suelta </span>
-          //   <span>{`${placeholderMsg}`}</span>
-          //   <span>{props.ext.join(", ")}</span>
-          // </>
-          // ):
-          (!selectedFiles?.name || selectedFiles?.name == "") &&
-          (!value || value == "") ? (
-            <div
-              onClick={() => {
-                const fileUpload = document.getElementById(props.name);
-                if (fileUpload) {
-                  fileUpload.click();
+
+        {!hasContent() ? (
+          <div
+            onClick={() => {
+              const fileUpload = document.getElementById(props.name);
+              if (fileUpload) {
+                fileUpload.click();
+              }
+            }}
+          >
+            {img ? (
+              <IconImage size={40} color={"var(--cWhite)"} />
+            ) : (
+              <IconDocs size={40} color={"var(--cWhite)"} />
+            )}
+            <span>
+              {props.placeholder || "Cargar un archivo o arrastrar y soltar "}
+            </span>
+            <span>{props.ext.join(", ")}</span>
+          </div>
+        ) : (
+          <div style={{ position: "relative" }}>
+            {/* Mostrar imagen editada o seleccionada */}
+            {(editedImage ||
+              selectedFiles?.type?.startsWith("image/") ||
+              (value &&
+                typeof value === 'object' &&
+                (value.ext == "webp" ||
+                  (value.indexOf && value.indexOf(".webp") > -1)))) &&
+            img ? (
+              <img
+                src={
+                  editedImage ||
+                  (selectedFiles?.name
+                    ? URL.createObjectURL(selectedFiles)
+                    : value || "")
                 }
-              }}
-            >
-              {/* value:({value}) */}
-              {img ? (
-                <IconImage size={40} color={"var(--cWhite)"} />
-              ) : (
-                <IconDocs size={40} color={"var(--cWhite)"} />
-              )}
-              <span>
-                {props.placeholder || "Cargar un archivo o arrastrar y soltar "}
-              </span>
-              <span>{props.ext.join(", ")}</span>
-            </div>
-          ) : (
-            <div style={{ position: "relative" }}>
-              {/* value2 :({value}) */}
-              {/* {(value || selectedFiles?.type?.startsWith("image/")) && img ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={
-                    selectedFiles?.name
-                      ? URL.createObjectURL(selectedFiles)
-                      : value || ""
-                  }
-                  alt="Preview"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                  }}
-                /> */}
-              {/* {JSON.stringify(value)} */}
-              {(editedImage ||
-                selectedFiles?.type?.startsWith("image/") ||
-                (value &&
-                  (value.ext == "webp" ||
-                    (value.indexOf && value.indexOf(".webp") > -1)))) &&
-              img ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={
-                    editedImage ||
-                    (selectedFiles?.name
-                      ? URL.createObjectURL(selectedFiles)
-                      : value || "")
-                  }
-                  alt={selectedFiles?.name}
-                  style={{
-                    objectFit: "cover",
-                    width: sizePreview?.width || "100px",
-                    height: sizePreview?.height || "100px",
-                  }}
-                />
-              ) : selectedFiles.type === "application/pdf" ? (
-                <>
-                  <IconPDF size={80} color={"var(--cWhite)"} />
-                  {/* Archivo seleccionado: <br /> */}
-                  <span>{selectedFiles.name}</span>
-                </>
-              ) : (
-                <>
-                  <IconDocs size={80} color={"var(--cWhite)"} />
-                  {/* Archivo seleccionado: <br /> */}
-                  <span>{selectedFiles.name}</span>
-                </>
-              )}
-              {/* <p>
-                Archivo seleccionado: <span>{selectedFiles.name}</span>
-              </p>
-              <Button
-                // onClick={() => {
-                //   const fileUpload = document.getElementById(props.name);
-                //   if (fileUpload) {
-                //     fileUpload.click();
-                //   }
-                // }}
-                variant="terciary"
-              >
-                Editar elemento
-              </Button> */}
-              <IconEdit
-                size={20}
+                alt={selectedFiles?.name}
                 style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 2,
-                  padding: 2,
-                  backgroundColor: "var(--cBlack)",
-                }}
-                color={"var(--cWarning)"}
-                circle
-                onClick={() => {
-                  const fileUpload = document.getElementById(props.name);
-                  if (fileUpload) {
-                    fileUpload.click();
-                  }
+                  objectFit: "cover",
+                  width: sizePreview?.width || "100px",
+                  height: sizePreview?.height || "100px",
                 }}
               />
-              {
-                item[props.name]?.file == "delete" ? (
-                  <>
-                    <IconTrash
-                      size={100}
+            ) : selectedFiles.type === "application/pdf" ? (
+              <>
+                <IconPDF size={80} color={"var(--cWhite)"} />
+                <span>{selectedFiles.name}</span>
+              </>
+            ) : hasExistingDocument() && !(value && typeof value === 'object' && value.file === "delete") ? (
+              /* Mostrar documento existente solo si no está marcado para eliminar */
+              <>
+                <IconPDF size={80} color={"var(--cWhite)"} />
+                <span>{getExistingDocumentName()}</span>
+                {getExistingDocumentUrl() && (
+                  <div style={{ marginTop: '8px' }}>
+                    <a
+                      href={getExistingDocumentUrl() || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
-                        cursor: "",
-                        padding: "2px",
-                        position: "absolute",
-                        color: "red",
-                        top: 0,
-                        left: 0,
+                        color: 'var(--cAccent)',
+                        textDecoration: 'none',
+                        fontSize: '12px'
                       }}
-                    />
-                    <IconArrowLeft
-                      size={20}
-                      circle={true}
-                      color="var(--cSuccess)"
-                      style={{
-                        position: "absolute",
-                        top: 2,
-                        left: 2,
-                        padding: 2,
-                        backgroundColor: "var(--cBlack)",
-                      }}
-                      onClick={() => {
-                        deleteImg(false);
-                      }}
-                    />
-                  </>
-                ) : null
-                // <IconTrash
-                //   size={20}
-                //   style={{
-                //     position: "absolute",
-                //     top: 2,
-                //     left: 2,
-                //     padding: 2,
-                //     backgroundColor: "var(--cBlack)",
-                //   }}
-                //   color={"var(--cError)"}
-                //   circle
-                //   onClick={() => {
-                //     deleteImg();
-                //   }}
-                // />
-              }
+                    >
+                      Ver documento
+                    </a>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <IconDocs size={80} color={"var(--cWhite)"} />
+                <span>{selectedFiles.name || "Archivo seleccionado"}</span>
+              </>
+            )}
+
+            {/* Botones de acción */}
+            <div
+              style={{
+                position: "absolute",
+                top: "5px",
+                right: "5px",
+                display: "flex",
+                gap: "5px",
+              }}
+            >
+              <div
+                onClick={editFile}
+                style={{
+                  backgroundColor: "var(--cPrimary)",
+                  borderRadius: "50%",
+                  width: "30px",
+                  height: "30px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <IconEdit size={16} color="white" />
+              </div>
+              <div
+                onClick={deleteFile}
+                style={{
+                  backgroundColor: "var(--cError)",
+                  borderRadius: "50%",
+                  width: "30px",
+                  height: "30px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <IconTrash size={16} color="white" />
+              </div>
             </div>
-          )
-        }
+          </div>
+        )}
+
+        {/* Editor de imagen si está habilitado */}
+        {loadedImage && editor && (
+          <ImageEditor
+            imageSrc={loadedImage}
+            onImageProcessed={handleImageProcessed}
+            onCancel={() => setLoadedImage(false)}
+            editor={editor}
+          />
+        )}
       </section>
-      {loadedImage && (
-        <ImageEditor
-          imageBase64={loadedImage || false}
-          onImageProcessed={handleImageProcessed}
-          size={editor}
-        />
-      )}
     </ControlLabel>
   );
 };

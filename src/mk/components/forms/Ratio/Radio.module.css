@@ -4,14 +4,14 @@
   & > div {
     display: flex;
     gap: 8px;
-    background-color: var(--cWhiteV2);
+    /*background-color: var(--cWhiteV2); */
     padding: 14px 8px;
     border-radius: 8px;
     & > div {
       & > p:nth-child(odd) {
         font-size: 16px;
         font-weight: 600;
-        color: var(--cWhiteV1);
+        color: var(--cWhite);
       }
       & > p:nth-child(even) {
         font-size: 14px;

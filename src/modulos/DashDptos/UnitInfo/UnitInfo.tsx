@@ -14,6 +14,7 @@ import {
 import styles from "../DashDptos.module.css";
 import Br from "@/components/Detail/Br";
 import useAxios from "@/mk/hooks/useAxios";
+import { formatBs } from "@/mk/utils/numbers";
 
 interface UnitInfoProps {
   datas: any;
@@ -139,7 +140,7 @@ const UnitInfo = ({
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Monto expensa</span>
-            <span className={styles.infoValue}>Bs {datas?.data?.expense_amount || '0'}</span>
+            <span className={styles.infoValue}>{formatBs(datas?.data?.expense_amount || '0')}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Titular</span>
@@ -233,19 +234,6 @@ const UnitInfo = ({
                   >
                     Cambiar
                   </button>
-                  {datas?.homeowner && owner?.is_resident && (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={e => {
-                        e.stopPropagation();
-                        setOpenOwnerMenu(false);
-                        onRemoveTitular('H');
-                      }}
-                    >
-                      Liberar residencia
-                    </button>
-                  )}
                 </div>
               )}
             </div>

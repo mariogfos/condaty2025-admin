@@ -14,10 +14,13 @@ import {
   IconX,
   IconDocs,
   IconPublicacion,
+  IconPdfPro,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useAxios from "@/mk/hooks/useAxios";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import EmptyData from "@/components/NoData/EmptyData";
+import RenderView from "@/modulos/Contents/RenderView/RenderView";
+import AddContent from "@/modulos/Contents/AddContent/AddContent";
 
 type User = {
   has_image?: any;
@@ -27,7 +30,15 @@ type User = {
   last_name: string;
   mother_last_name?: string;
   updated_at: string;
+  role1: Role[]
 };
+type Role = {
+  id: number;
+  name: string;
+  description:string,
+  laravel_through_key: string
+}
+
 
 type Image = {
   id: number;
@@ -65,7 +76,7 @@ export type ContentItem = {
   user_id: string;
   title: string | null;
   description: string;
-  url: string;
+  url: string | null;
   type: "V" | "D" | "I";
   views: number;
   status: string;
@@ -82,7 +93,70 @@ export type ContentItem = {
   isDescriptionExpanded?: boolean;
 };
 
-// --- FUNCIÓN REUTILIZABLE PARA MOSTRAR MULTIMEDIA ---
+
+// Nueva función para renderizar mosaico de imágenes
+const renderImageMosaic = (
+  item: ContentItem,
+  modoCompacto = false,
+  onImageClick?: () => void
+) => {
+  const images = item.images;
+  const imageCount = images.length;
+
+  if (imageCount <= 1) return null;
+
+  const getImageUrl = (image: Image) =>
+    getUrlImages(`/CONT-${item.id}-${image.id}.${image.ext}?d=${item.updated_at}`);
+
+  const getMosaicClass = () => {
+    if (imageCount === 2) return styles.twoImages;
+    if (imageCount === 3) return styles.threeImages;
+    return styles.fourOrMoreImages;
+  };
+
+  // Para modo compacto, mostrar máximo 4 imágenes
+  // Para modo normal, mostrar máximo 4 imágenes también
+  const imagesToShow = imageCount > 4 ? images.slice(0, 4) : images;
+  const remainingCount = imageCount > 4 ? imageCount - 4 : 0;
+
+  return (
+    <div
+      className={`${styles.imageMosaicContainer} ${getMosaicClass()}`}
+      onClick={onImageClick}
+    >
+      {imagesToShow.map((image, index) => {
+        const isFirst = index === 0;
+        const isLast = index === imagesToShow.length - 1;
+        const showOverlay = remainingCount > 0 && isLast;
+
+        return (
+          <div
+            key={image.id}
+            className={`${
+              isFirst ? styles.mosaicImageFirst : ''
+            } ${showOverlay ? styles.mosaicImageLast : ''}`}
+            style={{
+              position: 'relative'
+            }}
+          >
+            <img
+              src={getImageUrl(image)}
+              alt={`Imagen ${index + 1} de ${imageCount}`}
+              className={styles.mosaicImage}
+              loading="lazy"
+            />
+            {showOverlay && (
+              <div className={styles.mosaicOverlay}>
+                +{remainingCount}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const renderMedia = (
   item: ContentItem,
   modoCompacto = false,
@@ -92,6 +166,12 @@ export const renderMedia = (
   const currentImageIndex = item.currentImageIndex || 0;
 
   if (item.type === "I" && item.images && item.images.length > 0) {
+    // Si hay múltiples imágenes, mostrar mosaico
+    if (item.images.length > 1) {
+      return renderImageMosaic(item, modoCompacto, onImageClick);
+    }
+
+    // Si hay solo una imagen, mostrar como antes
     const currentImageObject = item.images[currentImageIndex];
     if (!currentImageObject) return null;
     const imageUrl = getUrlImages(
@@ -113,35 +193,6 @@ export const renderMedia = (
         }
         onClick={onImageClick}
       >
-        {item.images.length > 1 && onNavigateImage && (
-          <>
-            <button
-              className={`${styles.carouselButton} ${styles.prevButton}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigateImage("prev");
-              }}
-              aria-label="Imagen anterior"
-              type="button"
-            >
-              <IconArrowLeft />
-            </button>
-            <button
-              className={`${styles.carouselButton} ${styles.nextButton}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigateImage("next");
-              }}
-              aria-label="Imagen siguiente"
-              type="button"
-            >
-              <IconArrowRight />
-            </button>
-            <div className={styles.carouselIndicator}>
-              {currentImageIndex + 1} / {item.images.length}
-            </div>
-          </>
-        )}
         <img
           src={imageUrl}
           alt={
@@ -162,11 +213,11 @@ export const renderMedia = (
     let isInstagram = false;
 
     if (
-      item.url.includes("youtube.com/watch?v=") ||
-      item.url.includes("youtu.be/")
+      item.url?.includes("youtube.com/watch?v=") ||
+      item.url?.includes("youtu.be/")
     ) {
       let videoId = "";
-      if (item.url.includes("watch?v=")) {
+      if (item.url?.includes("watch?v=")) {
         const urlParams =
           typeof URL !== "undefined"
             ? new URLSearchParams(new URL(item.url).search)
@@ -178,18 +229,18 @@ export const renderMedia = (
           .split("?")[0];
       }
       if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (item.url.includes("youtube.com/shorts/")) {
+    } else if (item.url?.includes("youtube.com/shorts/")) {
       const videoId = item.url.split("shorts/")[1]?.split("?")[0];
       if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (item.url.includes("vimeo.com/")) {
+    } else if (item.url?.includes("vimeo.com/")) {
       const videoId = item.url.split("/").pop()?.split("?")[0];
       if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
-    } else if (item.url.includes("instagram.com/reel/")) {
+    } else if (item.url?.includes("instagram.com/reel/")) {
       const reelId = item.url.split("reel/")[1]?.split("/")[0];
       if (reelId) {
         isInstagram = true;
       }
-    } else if (item.url.includes("instagram.com/p/")) {
+    } else if (item.url?.includes("instagram.com/p/")) {
       const postId = item.url.split("p/")[1]?.split("/")[0];
       if (postId) {
         isInstagram = true;
@@ -256,9 +307,18 @@ export const renderMedia = (
       );
     }
   } else if (item.type === "D") {
+    // Verificar que item.url existe antes de usarlo
+    if (!item.url) {
+      return (
+        <div className={styles.contentMediaContainer}>
+          {/* <p>Documento no disponible</p> */}
+        </div>
+      );
+    }
+
     const docUrlIsPlaceholder =
       item.url === "pdf" ||
-      (item.url.endsWith(".pdf") &&
+      (item.url.endsWith && item.url.endsWith(".pdf") &&
         !item.url.startsWith("http") &&
         !item.url.startsWith("/"));
     let docUrl = item.url;
@@ -267,7 +327,7 @@ export const renderMedia = (
     if (typeof window !== "undefined") {
       if (docUrlIsPlaceholder) {
         docUrl = getUrlImages(`/CONT-${item.id}.pdf?d=${item.updated_at}`);
-      } else if (!item.url.startsWith("http") && !item.url.startsWith("/")) {
+      } else if (item.url && !item.url.startsWith("http") && !item.url.startsWith("/")) {
         docUrl = getUrlImages(
           item.url.startsWith("/") ? item.url : `/${item.url}`
         );
@@ -292,7 +352,7 @@ export const renderMedia = (
             : {}
         }
       >
-        <IconAdress size={32} color="var(--cWhiteV2)" />
+        <IconPdfPro size={42} color="var(--cWhiteV2)" />
         <h4
           className={styles.documentTitlePreview}
           style={modoCompacto ? { fontSize: 14, margin: 0 } : {}}
@@ -325,7 +385,7 @@ export const renderMedia = (
 // --- FIN FUNCIÓN REUTILIZABLE ---
 
 const Reel = () => {
-  const { user } = useAuth();
+  const { user, showToast } = useAuth();
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [initialLoadingState, setInitialLoadingState] = useState(true);
   const [loadingMoreState, setLoadingMoreState] = useState(false);
@@ -338,6 +398,13 @@ const Reel = () => {
   const itemsPerPage = 20;
   const [selectedContentForModal, setSelectedContentForModal] =
     useState<ContentItem | null>(null);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+
+  // Estados para manejar la edición
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingContent, setEditingContent] = useState<any>(null);
+  const [editErrors, setEditErrors] = useState<any>({});
+  const [extraData, setExtraData] = useState<any>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -354,6 +421,7 @@ const Reel = () => {
       page: 1,
       fullType: "L",
       searchBy: "",
+      extraData:true,
     },
     false
   );
@@ -371,6 +439,10 @@ const Reel = () => {
   const [postingComment, setPostingComment] = useState(false);
   const { execute: executePostComment, error: postCommentError } = useAxios();
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Hooks adicionales para edición
+  const { execute: executeEdit } = useAxios();
+  const { execute: executeGetExtraData } = useAxios();
 
   useEffect(() => {
     reLoadInitial();
@@ -413,6 +485,22 @@ const Reel = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData, initialHookLoaded, initialError]);
+
+  // Función para cargar extraData cuando sea necesario
+  const loadExtraData = async () => {
+    if (!extraData) {
+      try {
+        const response = await executeGetExtraData('/contents', 'GET', {
+          fullType: 'EXTRA'
+        });
+        if (response?.data) {
+          setExtraData(response.data);
+        }
+      } catch (error) {
+        console.error('Error loading extra data:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     const loadMoreItems = async () => {
@@ -488,49 +576,120 @@ const Reel = () => {
     [initialLoadingState, loadingMoreState, hasMore]
   );
 
-  // CÓDIGO CORREGIDO
+  // Función handleLike con patrón optimista
   const handleLike = async (contentId: number) => {
+    // 1. Actualización optimista inmediata
+    const updateContent = (prevContents: ContentItem[]) =>
+      prevContents.map((content) => {
+        if (content.id === contentId) {
+          const wasLiked = content.liked === 1;
+          return {
+            ...content,
+            liked: wasLiked ? 0 : 1,
+            likes: wasLiked
+              ? Math.max(0, content.likes - 1)
+              : content.likes + 1,
+          };
+        }
+        return content;
+      });
+
+    // Aplicar cambio optimista
+setContents((prevContents) =>
+  prevContents.map((content) => {
+    if (content.id === contentId) {
+      const wasLiked = content.liked === 1;
+      return {
+        ...content,
+        liked: wasLiked ? 0 : 1,
+        likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+      } as ContentItem;
+    }
+    return content;
+  })
+);
+
+    // También actualizar el modal si está abierto
+    setSelectedContentForModal((prevModalContent) => {
+      if (prevModalContent && prevModalContent.id === contentId) {
+        const wasLiked = prevModalContent.liked === 1;
+        return {
+          ...prevModalContent,
+          liked: wasLiked ? 0 : 1,
+          likes: wasLiked
+            ? Math.max(0, prevModalContent.likes - 1)
+            : prevModalContent.likes + 1,
+        };
+      }
+      return prevModalContent;
+    });
+
+    // 2. Llamada al backend
     try {
       const response = await executeLike("/content-like", "POST", {
         id: contentId,
       });
-      if (response?.data) {
-        // 1. Actualizar la lista principal (esta lógica ya la tenías)
-        setContents((prevContents) =>
-          prevContents.map((content) => {
-            if (content.id === contentId) {
-              return {
-                ...content,
-                liked: content.liked ? 0 : 1,
-                likes: content.liked
-                  ? content.likes > 0
-                    ? content.likes - 1
-                    : 0
-                  : (content.likes || 0) + 1,
-              };
-            }
-            return content;
-          })
-        );
 
-        // --- 2. AÑADE ESTA LÓGICA ---
-        // Adicionalmente, actualiza el estado del modal si el item que te gusta es el que está abierto.
+      // Si el backend devuelve error, revertir el cambio optimista
+      if (!response?.data) {
+        // Revertir cambios
+setContents((prevContents) =>
+  prevContents.map((content) => {
+    if (content.id === contentId) {
+      const wasLiked = content.liked === 1;
+      return {
+        ...content,
+        liked: wasLiked ? 0 : 1,
+        likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+      } as ContentItem;
+    }
+    return content;
+  })
+);
         setSelectedContentForModal((prevModalContent) => {
           if (prevModalContent && prevModalContent.id === contentId) {
+            const wasLiked = prevModalContent.liked === 1;
             return {
               ...prevModalContent,
-              liked: prevModalContent.liked ? 0 : 1,
-              likes: prevModalContent.liked
-                ? prevModalContent.likes > 0
-                  ? prevModalContent.likes - 1
-                  : 0
-                : (prevModalContent.likes || 0) + 1,
+              liked: wasLiked ? 0 : 1,
+              likes: wasLiked
+                ? Math.max(0, prevModalContent.likes - 1)
+                : prevModalContent.likes + 1,
             };
           }
-          return prevModalContent; // Si no es el item del modal, no hagas nada.
+          return prevModalContent;
         });
       }
-    } catch (err) {}
+      // Si response.data existe, el cambio optimista ya está aplicado correctamente
+    } catch (err) {
+      // En caso de error, revertir el cambio optimista
+setContents((prevContents) =>
+  prevContents.map((content) => {
+    if (content.id === contentId) {
+      const wasLiked = content.liked === 1;
+      return {
+        ...content,
+        liked: wasLiked ? 0 : 1,
+        likes: wasLiked ? Math.max(0, content.likes - 1) : content.likes + 1,
+      } as ContentItem;
+    }
+    return content;
+  })
+);
+      setSelectedContentForModal((prevModalContent) => {
+        if (prevModalContent && prevModalContent.id === contentId) {
+          const wasLiked = prevModalContent.liked === 1;
+          return {
+            ...prevModalContent,
+            liked: wasLiked ? 0 : 1,
+            likes: wasLiked
+              ? Math.max(0, prevModalContent.likes - 1)
+              : prevModalContent.likes + 1,
+          };
+        }
+        return prevModalContent;
+      });
+    }
   };
   const handleToggleDescription = (contentId: number) => {
     setContents((prevContents) =>
@@ -666,11 +825,92 @@ const Reel = () => {
   };
   const handleOpenContentModal = (contentItem: ContentItem) => {
     setSelectedContentForModal(contentItem);
+    setIsContentModalOpen(true);
   };
 
   const handleCloseContentModal = () => {
     setSelectedContentForModal(null);
+    setIsContentModalOpen(false);
   };
+
+  // Función mejorada para manejar la edición
+  const handleEditContent = async (item: any) => {
+    console.log('Editando contenido:', item);
+
+    // Cargar extraData si no está disponible
+    await loadExtraData();
+
+    // Preparar el item para edición con todos los campos necesarios
+    const editItem = {
+      ...item,
+      // Asegurar que todos los campos necesarios estén presentes
+      title: item.title || '',
+      description: item.description || '',
+      type: item.type,
+      url: item.url || '',
+      images: item.images || [],
+      user_id: item.user_id,
+      destiny: item.destiny || 'T', // Valor por defecto
+      client_id: item.client_id,
+      status: item.status,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      // Campos adicionales para edición
+      cdestinies: item.cdestinies || [],
+      lDestiny: item.lDestiny || [],
+    };
+
+    console.log('Item preparado para edición:', editItem);
+
+    setEditingContent(editItem);
+    setEditErrors({}); // Limpiar errores
+    setIsEditModalOpen(true);
+    handleCloseContentModal(); // Cerrar el modal de detalle
+  };
+
+  // Función para cerrar el modal de edición
+  const handleCloseEditModal = () => {
+    console.log('Cerrando modal de edición');
+    setIsEditModalOpen(false);
+    setEditingContent(null);
+    setEditErrors({});
+  };
+
+  // Función para manejar el guardado de la edición
+  const handleSaveEdit = () => {
+    console.log('Guardando edición');
+    // Recargar el reel después de la edición
+    handleReloadReel();
+    handleCloseEditModal();
+  };
+
+  // Nueva función para manejar la eliminación
+  const handleDeleteContent = (item: any) => {
+    console.log('Contenido eliminado:', item);
+    // Actualizar la lista local removiendo el item eliminado
+    setContents(prevContents =>
+      prevContents.filter(content => content.id !== item.id)
+    );
+    // Actualizar el total de items
+    setTotalDBItems(prev => Math.max(0, prev - 1));
+    handleCloseContentModal(); // Cerrar el modal de detalle
+  };
+
+  // Nueva función para recargar completamente el reel
+  const handleReloadReel = () => {
+    setPage(1);
+    setHasMore(true);
+    reLoadInitial();
+  };
+
+  // Agregar este useEffect para debug
+  useEffect(() => {
+    console.log('Estados de edición:', {
+      isEditModalOpen,
+      editingContent: !!editingContent,
+      extraData: !!extraData
+    });
+  }, [isEditModalOpen, editingContent, extraData]);
 
   useEffect(() => {
     if (isCommentModalOpen && commentsEndRef.current) {
@@ -690,19 +930,17 @@ const Reel = () => {
               <header className={styles.contentHeader}>
                 <div className={styles.userInfo}>
                   <Avatar
-                    hasImage={item.user?.has_image}
+                    hasImage={1}
                     name={getFullName(item.user)}
-                    src={getUrlImages(
-                      `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`
-                    )}
+                    src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
                     w={44}
                     h={44}
                   />
                   <div className={styles.userDetails}>
                     <span className={styles.userName}>
-                      {getFullName(item.user) || "Usuario Desconocido"}
+                      {getFullName(item.user) || 'Usuario Desconocido'}
                     </span>
-                    <span className={styles.userRole}>Administrador</span>
+                    <span className={styles.userRole}>{item.user?.role1?.[0].name}</span>
                   </div>
                 </div>
                 <time dateTime={item.created_at} className={styles.postDate}>
@@ -711,14 +949,11 @@ const Reel = () => {
               </header>
 
               <section className={styles.contentBody}>
-                {item.title && (
-                  <h2 className={styles.contentTitle}>{item.title}</h2>
-                )}
+                {item.title && <h2 className={styles.contentTitle}>{item.title}</h2>}
                 {item.description && (
                   <div>
                     <p className={styles.contentDescription}>
-                      {item.isDescriptionExpanded ||
-                      item.description.length <= 150
+                      {item.isDescriptionExpanded || item.description.length <= 150
                         ? item.description
                         : `${item.description.substring(0, 150)}...`}
                     </p>
@@ -727,15 +962,15 @@ const Reel = () => {
                         onClick={() => handleToggleDescription(item.id)}
                         className={styles.seeMoreButton}
                         style={{
-                          background: "none",
-                          border: "none",
-                          color: "var(--cInfo)",
-                          cursor: "pointer",
-                          padding: "5px 0px",
-                          display: "block",
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--cInfo)',
+                          cursor: 'pointer',
+                          padding: '5px 0px',
+                          display: 'block',
                         }}
                       >
-                        {item.isDescriptionExpanded ? "Ver menos" : "Ver más"}
+                        {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
                       </button>
                     )}
                   </div>
@@ -744,33 +979,45 @@ const Reel = () => {
                   item,
                   false,
                   () => handleOpenContentModal(item),
-                  (direction) => handleImageNavigation(item.id, direction)
+                  direction => handleImageNavigation(item.id, direction)
                 )}
               </section>
 
               <footer className={styles.contentFooter}>
+                {/* Sección de estadísticas (solo visualización) */}
                 <div className={styles.contentStats}>
+                  <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}>
+                    <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                    <span>{item.likes}</span>
+                  </div>
+                  <div className={styles.statDisplay}>
+                    <IconComment color={'var(--cWhiteV1)'} size={20} />
+                    <span>{item.comments_count}</span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className={styles.contentDivider}></div>
+
+                {/* Sección de acciones (botones interactivos) */}
+
+                <div className={styles.contentActions}>
                   <button
-                    className={`${styles.statItem} ${
-                      item.liked ? styles.liked : ""
-                    }`}
+                    className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
                     onClick={() => handleLike(item.id)}
                     aria-pressed={!!item.liked}
-                    aria-label={`Me gusta esta publicación, actualmente tiene ${item.likes} me gusta`}
+                    aria-label={`Me gusta esta publicación`}
                   >
-                    <IconLike
-                      color={item.liked ? "var(--cSuccess)" : "var(--cWhiteV1)"}
-                      size={24}
-                    />
-                    <span>{item.likes}</span>
+                    <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                    <span>Apoyar</span>
                   </button>
                   <button
-                    className={styles.statItem}
+                    className={styles.actionButton}
                     onClick={() => handleOpenComments(item.id)}
-                    aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
+                    aria-label={`Comentar esta publicación`}
                   >
-                    <IconComment color={"var(--cWhiteV1)"} size={24} />
-                    <span>{item.comments_count}</span>
+                    <IconComment color={'var(--cWhiteV1)'} size={20} />
+                    <span>Comentar</span>
                   </button>
                 </div>
               </footer>
@@ -787,30 +1034,22 @@ const Reel = () => {
           )}
 
       {loadingMoreState && (
-        <div className={styles.loadingMoreState}>
-          Cargando más publicaciones...
-        </div>
+        <div className={styles.loadingMoreState}>Cargando más publicaciones...</div>
       )}
       {!loadingMoreState &&
         !initialLoadingState &&
         hasMore &&
         contents.length > 0 &&
         contents.length < totalDBItems && (
-          <div ref={loadMoreRef} style={{ height: "20px", margin: "20px 0" }} />
+          <div ref={loadMoreRef} style={{ height: '20px', margin: '20px 0' }} />
         )}
       {!initialLoadingState && !hasMore && contents.length > 0 && (
         <div className={styles.noMoreContentState}>Has llegado al final.</div>
       )}
 
       {isCommentModalOpen && selectedContentIdForComments && (
-        <div
-          className={styles.commentModalOverlay}
-          onClick={handleCloseComments}
-        >
-          <div
-            className={styles.commentModalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className={styles.commentModalOverlay} onClick={handleCloseComments}>
+          <div className={styles.commentModalContent} onClick={e => e.stopPropagation()}>
             <header className={styles.commentModalHeader}>
               <h3 className={styles.commentModalTitle}>Comentarios</h3>
               <button
@@ -823,9 +1062,7 @@ const Reel = () => {
             </header>
             <section className={styles.commentModalBody}>
               {loadingComments ? (
-                <div className={styles.loadingComments}>
-                  Cargando comentarios...
-                </div>
+                <div className={styles.loadingComments}>Cargando comentarios...</div>
               ) : commentsError ? (
                 <div className={styles.commentsError}>
                   Error al cargar comentarios. Intenta de nuevo.
@@ -833,32 +1070,19 @@ const Reel = () => {
               ) : comments.length > 0 ? (
                 <ul className={styles.commentList}>
                   {comments.map((comment: Comment) => (
-                    <li
-                      key={`comment-${comment.id}`}
-                      className={styles.commentItem}
-                    >
+                    <li key={`comment-${comment.id}`} className={styles.commentItem}>
                       <Avatar
-                        hasImage={
-                          comment.user?.name
-                            ? comment.user.has_image
-                            : comment.person?.has_image
-                        }
-                        name={
-                          comment.user?.name ||
-                          comment.person?.name ||
-                          "Usuario"
-                        }
+                        hasImage={1}
+                        name={comment.user?.name || comment.person?.name || 'Usuario'}
                         src={
                           comment.user
                             ? getUrlImages(
-                                `/ADM-${comment.user.id}.webp?d=${
-                                  comment.user.updated_at || ""
-                                }`
+                                `/ADM-${comment.user.id}.webp?d=${comment.user.updated_at || ''}`
                               )
                             : comment.person?.id
                             ? getUrlImages(
                                 `/OWNER-${comment.person.id}.webp?d=${
-                                  comment.person.updated_at || ""
+                                  comment.person.updated_at || ''
                                 }`
                               )
                             : undefined
@@ -874,12 +1098,9 @@ const Reel = () => {
                               ? getFullName(comment.user)
                               : comment.person?.name
                               ? getFullName(comment.person)
-                              : "Usuario"}
+                              : 'Usuario'}
                           </span>
-                          <time
-                            dateTime={comment.created_at}
-                            className={styles.commentDate}
-                          >
+                          <time dateTime={comment.created_at} className={styles.commentDate}>
                             {getDateTimeAgo(comment.created_at)}
                           </time>
                         </div>
@@ -890,9 +1111,7 @@ const Reel = () => {
                   <div ref={commentsEndRef} />
                 </ul>
               ) : (
-                <div className={styles.noCommentsYet}>
-                  Aún no hay comentarios. ¡Sé el primero!
-                </div>
+                <div className={styles.noCommentsYet}>Aún no hay comentarios. ¡Sé el primero!</div>
               )}
             </section>
             <footer className={styles.commentModalFooter}>
@@ -900,7 +1119,7 @@ const Reel = () => {
                 placeholder="Escribe tu comentario..."
                 className={styles.commentInput}
                 value={newCommentText}
-                onChange={(e) => setNewCommentText(e.target.value)}
+                onChange={e => setNewCommentText(e.target.value)}
                 disabled={postingComment}
                 rows={3}
               />
@@ -909,12 +1128,10 @@ const Reel = () => {
                 onClick={handlePostComment}
                 disabled={postingComment || !newCommentText.trim()}
               >
-                {postingComment ? "Publicando..." : "Comentar"}
+                {postingComment ? 'Publicando...' : 'Comentar'}
               </button>
               {postCommentError && (
-                <p className={styles.commentPostError}>
-                  Error al publicar. Intenta de nuevo.
-                </p>
+                <p className={styles.commentPostError}>Error al publicar. Intenta de nuevo.</p>
               )}
             </footer>
           </div>
@@ -922,99 +1139,40 @@ const Reel = () => {
       )}
 
       {selectedContentForModal && (
-        <div
-          className={styles.contentModalOverlay}
-          onClick={handleCloseContentModal}
-        >
-          <div
-            className={styles.contentModalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={handleCloseContentModal}
-              className={styles.contentModalCloseButton}
-              aria-label="Cerrar detalle"
-            >
-              <IconX size={24} />
-            </button>
-            {renderMedia(
-              selectedContentForModal,
-              false,
-              undefined,
-              (direction) =>
-                handleImageNavigation(selectedContentForModal.id, direction)
-            )}
-            <article
-              className={`${styles.contentCard} ${styles.contentCardInModal}`}
-            >
-              <header className={styles.contentHeader}>
-                <div className={styles.userInfo}>
-                  <Avatar
-                    hasImage={selectedContentForModal.user?.has_image}
-                    name={getFullName(selectedContentForModal.user)}
-                    src={getUrlImages(
-                      `/ADM-${selectedContentForModal.user?.id}.webp?d=${selectedContentForModal.user?.updated_at}`
-                    )}
-                    w={44}
-                    h={44}
-                  />
-                  <div className={styles.userDetails}>
-                    <span className={styles.userName}>
-                      {getFullName(selectedContentForModal.user) ||
-                        "Usuario Desconocido"}
-                    </span>
-                    <span className={styles.userRole}>Administrador</span>
-                  </div>
-                </div>
-                <time
-                  dateTime={selectedContentForModal.created_at}
-                  className={styles.postDate}
-                >
-                  {getDateTimeAgo(selectedContentForModal.created_at)}
-                </time>
-              </header>
-              <section className={styles.contentBody}>
-                {selectedContentForModal.title && (
-                  <h2 className={styles.contentTitle}>
-                    {selectedContentForModal.title}
-                  </h2>
-                )}
-                {selectedContentForModal.description && (
-                  <p className={styles.contentDescription}>
-                    {selectedContentForModal.description}
-                  </p>
-                )}
-              </section>
-              <footer className={styles.contentFooter}>
-                <div className={styles.contentStats}>
-                  <button
-                    className={`${styles.statItem} ${
-                      selectedContentForModal.liked ? styles.liked : ""
-                    }`}
-                    onClick={() => handleLike(selectedContentForModal.id)}
-                  >
-                    <IconLike
-                      color={
-                        selectedContentForModal.liked
-                          ? "var(--cSuccess)"
-                          : "var(--cWhiteV1)"
-                      }
-                      size={24}
-                    />
-                    <span>{selectedContentForModal.likes}</span>
-                  </button>
-                  <button
-                    className={styles.statItem}
-                    onClick={() =>
-                      handleOpenComments(selectedContentForModal.id)
-                    }
-                  >
-                    <IconComment color={"var(--cWhiteV1)"} size={24} />
-                    <span>{selectedContentForModal.comments_count}</span>
-                  </button>
-                </div>
-              </footer>
-            </article>
+        <RenderView
+          open={isContentModalOpen}
+          onClose={handleCloseContentModal}
+          item={{ data: selectedContentForModal }}
+          selectedContentData={selectedContentForModal}
+          reLoad={handleReloadReel}
+          onEdit={handleEditContent}
+          onDelete={handleDeleteContent}
+          onOpenComments={(contentId, contentData) => {
+            handleCloseContentModal();
+            handleOpenComments(contentId);
+          }}
+        />
+      )}
+
+      {/* Modal de edición - WRAPPER MODAL PARA ADDCONTENT */}
+      {isEditModalOpen && editingContent && extraData && (
+        <div className={styles.editModalOverlay}>
+          <div className={styles.editModalContent}>
+            <AddContent
+              open={true}
+              onClose={handleCloseEditModal}
+              item={editingContent}
+              setItem={setEditingContent}
+              errors={editErrors}
+              extraData={extraData}
+              user={user}
+              execute={executeEdit}
+              setErrors={setEditErrors}
+              reLoad={handleSaveEdit}
+              action="edit"
+              openList={false}
+              setOpenList={() => {}}
+            />
           </div>
         </div>
       )}
@@ -1052,21 +1210,17 @@ export const ReelCompactList = ({
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: modoCompacto ? 12 : "var(--spXxl)",
+        display: 'flex',
+        flexDirection: 'column',
+        gap: modoCompacto ? 12 : 'var(--spXxl)',
       }}
     >
       {items.map((item: ContentItem) => (
         <article
           key={`content-${item.id}`}
-          className={
-            modoCompacto ? styles.contentCardCompact : styles.contentCard
-          }
+          className={modoCompacto ? styles.contentCardCompact : styles.contentCard}
           style={
-            modoCompacto
-              ? { boxShadow: "none", padding: 12, borderRadius: 12, margin: 0 }
-              : {}
+            modoCompacto ? { boxShadow: 'none', padding: 12, borderRadius: 12, margin: 0 } : {}
           }
         >
           <header
@@ -1075,25 +1229,17 @@ export const ReelCompactList = ({
           >
             <div className={styles.userInfo}>
               <Avatar
-                hasImage={item.user?.has_image}
+                hasImage={1}
                 name={getFullName(item.user)}
-                src={getUrlImages(
-                  `/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`
-                )}
+                src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
                 w={modoCompacto ? 32 : 44}
                 h={modoCompacto ? 32 : 44}
               />
               <div className={styles.userDetails}>
-                <span
-                  className={styles.userName}
-                  style={modoCompacto ? { fontSize: 14 } : {}}
-                >
-                  {getFullName(item.user) || "Usuario Desconocido"}
+                <span className={styles.userName} style={modoCompacto ? { fontSize: 14 } : {}}>
+                  {getFullName(item.user) || 'Usuario Desconocido'}
                 </span>
-                <span
-                  className={styles.userRole}
-                  style={modoCompacto ? { fontSize: 11 } : {}}
-                >
+                <span className={styles.userRole} style={modoCompacto ? { fontSize: 11 } : {}}>
                   Administrador
                 </span>
               </div>
@@ -1107,18 +1253,11 @@ export const ReelCompactList = ({
             </time>
           </header>
 
-          <section
-            className={styles.contentBody}
-            style={modoCompacto ? { gap: 4 } : {}}
-          >
+          <section className={styles.contentBody} style={modoCompacto ? { gap: 4 } : {}}>
             {item.title && (
               <h2
                 className={styles.contentTitle}
-                style={
-                  modoCompacto
-                    ? { fontSize: 15, margin: 0, maxHeight: "2.2em" }
-                    : {}
-                }
+                style={modoCompacto ? { fontSize: 15, margin: 0, maxHeight: '2.2em' } : {}}
               >
                 {item.title}
               </h2>
@@ -1126,11 +1265,7 @@ export const ReelCompactList = ({
             {item.description && (
               <p
                 className={styles.contentDescription}
-                style={
-                  modoCompacto
-                    ? { fontSize: 13, WebkitLineClamp: 2, maxHeight: "2.6em" }
-                    : {}
-                }
+                style={modoCompacto ? { fontSize: 13, WebkitLineClamp: 2, maxHeight: '2.6em' } : {}}
               >
                 {item.description.length > 80
                   ? `${item.description.substring(0, 80)}...`
@@ -1148,34 +1283,45 @@ export const ReelCompactList = ({
             className={styles.contentFooter}
             style={modoCompacto ? { marginTop: 8, paddingTop: 8 } : {}}
           >
+            {/* Sección de estadísticas (solo visualización) */}
             <div className={styles.contentStats}>
+              <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}>
+                <IconLike
+                  color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'}
+                  size={modoCompacto ? 16 : 20}
+                />
+                <span style={modoCompacto ? { fontSize: 13 } : {}}>{item.likes}</span>
+              </div>
+              <div className={styles.statDisplay}>
+                <IconComment color={'var(--cWhiteV1)'} size={modoCompacto ? 16 : 20} />
+                <span style={modoCompacto ? { fontSize: 13 } : {}}>{item.comments_count}</span>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className={styles.contentDivider}></div>
+
+            {/* Sección de acciones (botones interactivos) */}
+            <div className={styles.contentActions}>
               <button
-                className={`${styles.statItem} ${
-                  item.liked ? styles.liked : ""
-                }`}
+                className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
                 onClick={() => onLike && onLike(item.id)}
                 aria-pressed={!!item.liked}
-                aria-label={`Me gusta esta publicación, actualmente tiene ${item.likes} me gusta`}
-                style={
-                  modoCompacto ? { fontSize: 13, padding: "4px 10px" } : {}
-                }
+                aria-label={`Me gusta esta publicación`}
               >
                 <IconLike
-                  color={item.liked ? "var(--cSuccess)" : "var(--cWhiteV1)"}
-                  size={24}
+                  color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'}
+                  size={modoCompacto ? 16 : 20}
                 />
-                <span>{item.likes}</span>
+                <span style={modoCompacto ? { fontSize: 13 } : {}}>Apoyar</span>
               </button>
               <button
-                className={styles.statItem}
+                className={styles.actionButton}
                 onClick={() => onOpenComments && onOpenComments(item.id)}
-                aria-label={`Comentar esta publicación, actualmente tiene ${item.comments_count} comentarios`}
-                style={
-                  modoCompacto ? { fontSize: 13, padding: "4px 10px" } : {}
-                }
+                aria-label={`Comentar esta publicación`}
               >
-                <IconComment color={"var(--cWhiteV1)"} size={24} />
-                <span>{item.comments_count}</span>
+                <IconComment color={'var(--cWhiteV1)'} size={modoCompacto ? 16 : 20} />
+                <span style={modoCompacto ? { fontSize: 13 } : {}}>Comentar</span>
               </button>
             </div>
           </footer>

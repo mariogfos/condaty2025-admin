@@ -128,7 +128,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
         id: item.id,
         nro: item.nro, // Mantener el nro original
         label:
-          (getFullName(item.titular?.owner) || 'Sin titular') +
+          (getFullName(item?.titular) || 'Sin titular') +
           ' - ' +
           item.nro +
           ' ' +
