@@ -13,6 +13,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import AllDebts from "./TabComponents/AllDebts/AllDebts";
 import IndividualDebts from "./TabComponents/IndividualDebts/IndividualDebts";
 import SharedDebts from "./TabComponents/SharedDebts/SharedDebts";
+import Forgiveness from "./TabComponents/Forgiveness/Forgiveness";
 
 const DebtsManager = () => {
   const router = useRouter();
@@ -99,7 +100,7 @@ const DebtsManager = () => {
       case "payment_plans":
         return <div>Componente de Planes de Pago (por implementar)</div>;
       case "forgiveness":
-        return <Forgiveness />;
+        return <Forgiveness {...commonProps} />;
       default:
         return <AllDebts {...commonProps} />;
     }

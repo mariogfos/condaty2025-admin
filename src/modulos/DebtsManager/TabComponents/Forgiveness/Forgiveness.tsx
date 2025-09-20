@@ -45,7 +45,13 @@ const paramsInitial = {
   perPage: -1,
   type: 5,
 };
-const Forgiveness = () => {
+const Forgiveness = ({
+  openView,
+  setOpenView,
+  viewItem,
+  setViewItem,
+  onExtraDataChange,
+}: any) => {
   const { setStore, store } = useAuth();
   useEffect(() => {
     setStore({ ...store, title: "" });
