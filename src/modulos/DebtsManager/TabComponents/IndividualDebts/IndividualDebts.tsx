@@ -133,7 +133,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   ];
 
   const getCategoryOptions = (extraData?: any) => {
-    const options = [{}];
+    const options = [{ id: 'ALL', name: 'Todas las categorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
@@ -148,7 +148,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   };
 
   const getSubcategoryOptions = (extraData?: any) => {
-    const options = [{ }];
+    const options = [{ id: 'ALL', name: 'Todas las subcategorías' }];
 
     if (extraData?.categories && Array.isArray(extraData.categories)) {
       extraData.categories.forEach((category: any) => {
