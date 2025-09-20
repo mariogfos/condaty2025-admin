@@ -100,7 +100,7 @@ const DebtsManager = () => {
       case "payment_plans":
         return <div>Componente de Planes de Pago (por implementar)</div>;
       case "forgiveness":
-        return <Forgiveness {...commonProps} />;
+        return <Forgiveness />;
       default:
         return <AllDebts {...commonProps} />;
     }
