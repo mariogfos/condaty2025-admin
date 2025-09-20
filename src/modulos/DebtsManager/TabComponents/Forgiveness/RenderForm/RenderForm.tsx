@@ -106,6 +106,7 @@ const RenderForm = ({
       "GET",
       {
         dpto_id: formState?.dpto_id,
+        type: formState?.id ? "edit" : "add",
       },
       false,
       true

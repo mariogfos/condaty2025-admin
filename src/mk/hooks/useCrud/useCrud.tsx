@@ -1196,7 +1196,7 @@ const useCrud = ({
     let hideEdit = mod.hideActions?.edit;
     let hideDel = mod.hideActions?.del;
     if (mod?.onHideActions) {
-      const h = mod.onHideActions(item);
+      const h = mod?.onHideActions(item);
       hideEdit = h?.hideEdit;
       hideDel = h?.hideDel;
     }

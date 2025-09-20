@@ -15,30 +15,6 @@ import {
 } from "./constans";
 import RenderView from "./RenderView/RenderView";
 
-const mod = {
-  modulo: "debt-dptos",
-  singular: "condonación",
-  plural: "",
-  permiso: "defaulters",
-  // pagination: false,
-  sumarize: true,
-  extraData: true,
-  loadView: { fullType: "DET", type: 5 },
-  export: true,
-  hideActions: {
-    // edit: true,
-    del: true,
-  },
-  titleAdd: "Crear",
-  renderForm: RenderForm,
-  renderView: RenderView,
-  filter: true,
-  saveMsg: {
-    add: "Condonación creada con éxito",
-    edit: "Condonación actualizada con éxito",
-    del: "Condonación eliminada con éxito",
-  },
-};
 const paramsInitial = {
   fullType: "FG",
   page: 1,
@@ -46,7 +22,42 @@ const paramsInitial = {
   type: 5,
 };
 const Forgiveness = () => {
+  const onEdit = (item: any) => {
+    let day = new Date().toISOString().split("T")[0];
+    // console.log(item?.due_at, day);
+    if (item?.due_at >= day) {
+      return false;
+    }
+    return true;
+  };
+  const mod = {
+    modulo: "debt-dptos",
+    singular: "condonación",
+    plural: "",
+    permiso: "defaulters",
+    sumarize: true,
+    extraData: true,
+    loadView: { fullType: "DET", type: 5 },
+    // export: true,
+    onHideActions: (item: any) => {
+      return {
+        hideEdit: onEdit(item),
+
+        hideDel: true,
+      };
+    },
+    titleAdd: "Crear",
+    renderForm: RenderForm,
+    renderView: RenderView,
+    filter: true,
+    saveMsg: {
+      add: "Condonación creada con éxito",
+      edit: "Condonación actualizada con éxito",
+      del: "Condonación eliminada con éxito",
+    },
+  };
   const { setStore, store } = useAuth();
+
   useEffect(() => {
     setStore({ ...store, title: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,11 +116,11 @@ const Forgiveness = () => {
             );
           },
         },
-        filter: {
-          label: "Estado",
-          width: "180px",
-          options: () => statusForgivenessFilter,
-        },
+        // filter: {
+        //   label: "Estado",
+        //   width: "180px",
+        //   options: () => statusForgivenessFilter,
+        // },
       },
       category: {
         label: "Categoría",

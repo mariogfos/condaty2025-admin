@@ -13,6 +13,7 @@ import { formatNumber } from "@/mk/utils/numbers";
 import AllDebts from "./TabComponents/AllDebts/AllDebts";
 import IndividualDebts from "./TabComponents/IndividualDebts/IndividualDebts";
 import SharedDebts from "./TabComponents/SharedDebts/SharedDebts";
+import Forgiveness from "./TabComponents/Forgiveness/Forgiveness";
 
 const DebtsManager = () => {
   const router = useRouter();

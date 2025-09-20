@@ -117,7 +117,6 @@ const RenderView = ({
       },
     },
   ];
-  console.log(item);
   return (
     <DataModal title="Detalle de condonación" open={open} onClose={onClose}>
       <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
@@ -171,7 +170,7 @@ const RenderView = ({
           variant="V2"
         />
       </div>
-
+      <Br />
       <Table data={forgiveness} header={header} />
     </DataModal>
   );
