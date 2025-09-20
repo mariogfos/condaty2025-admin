@@ -143,6 +143,7 @@ const Expenses = () => {
 
   const paramsInitial = {
     fullType: 'L',
+    type: 1,
     page: 1,
     perPage: 20,
   };

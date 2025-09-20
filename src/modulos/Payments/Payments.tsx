@@ -10,7 +10,6 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import RenderDel from "./RenderDel/RenderDel";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
@@ -217,42 +216,42 @@ const Payments = () => {
           onRender: renderDptosCell,
         },
       },
-      category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione una categoría",
-        },
-        list: {
-          onRender: renderCategoryCell,
-        },
-        filter: {
-          label: "Categoría",
-          options: (extraData: any) => {
-            const categories = extraData?.categories || []; //esto?
-            const categoryOptions = categories.map((category: any) => ({
-              id: category.id,
-              name: category.name,
-            }));
-            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
-          },
-        },
-      },
-      subcategory_id: {
-        rules: ["required"],
-        label: "Subcategoría",
-        form: {
-          type: "select",
-          disabled: (formState: { category_id: any }) => !formState.category_id,
-          options: () => [],
-        },
-        list: {
-          onRender: renderSubcategoryCell,
-        },
-      },
+      // category_id: {
+      //   rules: ["required"],
+      //   api: "ae",
+      //   label: "Categoría",
+      //   form: {
+      //     type: "select",
+      //     optionsExtra: "categories",
+      //     placeholder: "Seleccione una categoría",
+      //   },
+      //   list: {
+      //     onRender: renderCategoryCell,
+      //   },
+      //   filter: {
+      //     label: "Categoría",
+      //     options: (extraData: any) => {
+      //       const categories = extraData?.categories || []; //esto?
+      //       const categoryOptions = categories.map((category: any) => ({
+      //         id: category.id,
+      //         name: category.name,
+      //       }));
+      //       return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
+      //     },
+      //   },
+      // },
+      // subcategory_id: {
+      //   rules: ["required"],
+      //   label: "Subcategoría",
+      //   form: {
+      //     type: "select",
+      //     disabled: (formState: { category_id: any }) => !formState.category_id,
+      //     options: () => [],
+      //   },
+      //   list: {
+      //     onRender: renderSubcategoryCell,
+      //   },
+      // },
       type: {
         rules: ["required"],
         api: "ae",

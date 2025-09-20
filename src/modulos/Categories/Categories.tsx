@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useCallback, useState } from 'react';
+import { useSearchParams } from 'next/navigation'; // Agregar este import
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import styles from './Categories.module.css';
 import { IconArrowLeft, IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -11,19 +12,74 @@ import CategoryCard from './CategoryCard/CategoryCard';
 import DataSearch from '@/mk/components/forms/DataSearch/DataSearch';
 import NotAccess from '@/components/layout/NotAccess/NotAccess';
 
-const BackNavigation = ({ type }: { type: 'I' | 'E' }) => (
-  <Link href={type === 'I' ? '/payments' : '/outlays'} className={styles.backLink}>
-    <IconArrowLeft />
-    <span>Volver a sección {type === 'I' ? 'ingresos' : 'egresos'}</span>
-  </Link>
-);
-const Categories = ({ type = '' }) => {
-  const typeToUse = type === 'I' ? 'I' : 'E';
-  const categoryTypeText = typeToUse === 'I' ? 'ingresos' : 'egresos';
+const BackNavigation = ({ type }: { type: 'I' | 'E' | 'D' }) => {
+  const getBackLink = () => {
+    switch (type) {
+      case 'I':
+        return '/payments';
+      case 'E':
+        return '/outlays';
+      case 'D':
+        return '/debts_manager';
+      default:
+        return '/payments';
+    }
+  };
+
+  const getBackText = () => {
+    switch (type) {
+      case 'I':
+        return 'Volver a sección ingresos';
+      case 'E':
+        return 'Volver a sección egresos';
+      case 'D':
+        return 'Volver a sección deudas';
+      default:
+        return 'Volver a sección ingresos';
+    }
+  };
+
+  return (
+    <Link href={getBackLink()} className={styles.backLink}>
+      <IconArrowLeft />
+      <span>{getBackText()}</span>
+    </Link>
+  );
+};
+
+const Categories = ({ type: propType = '' }) => {
+  // Obtener el parámetro type de la URL
+  const searchParams = useSearchParams();
+  const urlType = searchParams.get('type') || '';
+
+  // Usar el tipo de la URL si existe, sino el prop
+  const type = urlType || propType;
+
+  console.log('Type recibido:', type); // Para debug
+
+  // Corregir la lógica para incluir el tipo 'D'
+  const typeToUse = type === 'E' ? 'E' : 'I'; // 'D' y 'I' usan datos de 'I'
+  const originalType = type; // Mantener el tipo original tal como viene
+
+  const getCategoryTypeText = () => {
+    switch (originalType) {
+      case 'I':
+        return 'ingresos';
+      case 'E':
+        return 'egresos';
+      case 'D':
+        return 'ingresos';
+      default:
+        return 'ingresos';
+    }
+  };
+
+  const categoryTypeText = getCategoryTypeText();
 
   const [initialFormDataOverride, setInitialFormDataOverride] =
     useState<Partial<CategoryItem> | null>(null);
   const [forceOpenAccordions, setForceOpenAccordions] = useState(false);
+
   const mod = useMemo<ModCrudType>(
     () => ({
       modulo: 'categories',
@@ -59,7 +115,6 @@ const Categories = ({ type = '' }) => {
         />
       ),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [typeToUse, categoryTypeText, initialFormDataOverride]
   );
 
@@ -115,6 +170,7 @@ const Categories = ({ type = '' }) => {
         [typeToUse]
       ),
     });
+
   const handleEdit = useCallback(
     (itemToEdit: CategoryItem) => {
       onEdit({
@@ -127,6 +183,7 @@ const Categories = ({ type = '' }) => {
   );
 
   const handleDelete = useCallback((itemToDelete: CategoryItem) => onDel(itemToDelete), [onDel]);
+
   const handleAddSubcategory = useCallback(
     (parentCategoryId: string) => {
       setInitialFormDataOverride({
@@ -143,6 +200,7 @@ const Categories = ({ type = '' }) => {
     setInitialFormDataOverride({ type: typeToUse });
     onAdd({ type: typeToUse });
   }, [onAdd, typeToUse]);
+
   const renderCardFunction = useCallback(
     (item: CategoryItem, index: number, baseOnRowClick: (item: CategoryItem) => void) => (
       <CategoryCard
@@ -159,6 +217,7 @@ const Categories = ({ type = '' }) => {
     ),
     [handleEdit, handleDelete, typeToUse, handleAddSubcategory, forceOpenAccordions]
   );
+
   const handleSearch = useCallback(
     (value: string) => {
       onSearch(value);
@@ -166,10 +225,12 @@ const Categories = ({ type = '' }) => {
     },
     [onSearch]
   );
+
   if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+
   return (
     <div className={styles.container}>
-      <BackNavigation type={typeToUse} />
+      <BackNavigation type={originalType as 'I' | 'E' | 'D'} />
       <p className={styles.headerTitle}>Categorías de {categoryTypeText}</p>
       <div className={styles.searchContainer}>
         <div style={{ flex: 1 }}>
@@ -207,4 +268,5 @@ const Categories = ({ type = '' }) => {
     </div>
   );
 };
+
 export default Categories;

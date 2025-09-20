@@ -3,10 +3,11 @@ import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetContentsResume.module.css";
 import useAxios from "@/mk/hooks/useAxios";
 import { ReelCompactList } from "@/modulos/Reel/Reel";
-import type { ContentItem } from "@/modulos/Reel/Reel";
+
 import EmptyData from "@/components/NoData/EmptyData";
 import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
 import { useRouter } from "next/navigation";
+import { ContentItem } from "@/modulos/Reel/types";
 
 const WidgetContentsResume = () => {
   const [contents, setContents] = useState<ContentItem[]>([]);

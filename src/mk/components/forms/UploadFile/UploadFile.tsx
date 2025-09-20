@@ -40,11 +40,18 @@ export const UploadFile = ({
 
   // Función para verificar si hay un documento existente
   const hasExistingDocument = () => {
-    if (item?.type === 'D' && (item?.url === 'pdf' || item?.url?.endsWith('.pdf'))) {
+    // Verificar si es un documento existente
+    if (item?.type === 'D' && item?.url) {
       return true;
     }
-    if (value && typeof value === 'object' && value.ext && ['pdf', 'doc', 'docx'].includes(value.ext)) {
-      return true;
+    // Verificar si value tiene información de documento
+    if (value && typeof value === 'object') {
+      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx')) {
+        return true;
+      }
+      if (value.ext && ['pdf', 'doc', 'docx'].includes(value.ext) && value.file !== "delete") {
+        return true;
+      }
     }
     return false;
   };
@@ -266,14 +273,17 @@ export const UploadFile = ({
               (value &&
                 typeof value === 'object' &&
                 (value.ext == "webp" ||
-                  (value.indexOf && value.indexOf(".webp") > -1)))) &&
+                  (value.indexOf && value.indexOf(".webp") > -1))) ||
+              (value &&
+                typeof value === 'string' &&
+                (value.includes('.webp') || value.includes('.jpg') || value.includes('.jpeg') || value.includes('.png')))) &&
             img ? (
               <img
                 src={
                   editedImage ||
                   (selectedFiles?.name
                     ? URL.createObjectURL(selectedFiles)
-                    : value || "")
+                    : (typeof value === 'object' && value.url) || value || "")
                 }
                 alt={selectedFiles?.name}
                 style={{
@@ -308,6 +318,12 @@ export const UploadFile = ({
                     </a>
                   </div>
                 )}
+              </>
+            ) : value && typeof value === 'object' && ['pdf', 'doc', 'docx'].includes(value.ext) ? (
+              /* Mostrar documento cargado */
+              <>
+                <IconPDF size={80} color={"var(--cWhite)"} />
+                <span>{selectedFiles.name || "Documento cargado"}</span>
               </>
             ) : (
               <>

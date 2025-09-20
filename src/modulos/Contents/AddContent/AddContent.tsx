@@ -7,9 +7,7 @@ import {
   IconDocs,
   IconGallery,
   IconVideo,
-  IconYoutube,
 } from "@/components/layout/icons/IconsBiblioteca";
-import Select from "@/mk/components/forms/Select/Select";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import Radio from "@/mk/components/forms/Ratio/Radio";
 import Input from "@/mk/components/forms/Input/Input";
@@ -22,7 +20,6 @@ import UploadFileMultiple from "@/mk/components/forms/UploadFile/UploadFileMulti
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import TagContents from "./TagContents";
 import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { lComDestinies } from "@/mk/utils/utils";
 import Br from "@/components/Detail/Br";
 
 const AddContent = ({
@@ -43,21 +40,28 @@ const AddContent = ({
   const [ldestinys, setLdestinys]: any = useState([]);
   const [openDestiny, setOpenDestiny] = useState(false);
 
-  // Inicializar formState correctamente para modo edición
   const [formState, setFormState]: any = useState(() => {
     const initialState = { ...item };
 
-    // Si estamos en modo edición y hay imágenes, inicializar el campo avatar
     if (action === "edit" && item?.images && item?.images.length > 0) {
       const avatarData: any = {};
       item.images.forEach((img: any, index: number) => {
         avatarData[`avatar${index}`] = {
-          file: "", // Archivo vacío para imágenes existentes
+          file: "",
           id: img.id,
           ext: img.ext || "webp"
         };
       });
       initialState.avatar = avatarData;
+    }
+
+    // Manejar documentos existentes
+    if (action === "edit" && item?.type === 'D' && item?.url) {
+      initialState.file = {
+        ext: item.url || 'pdf',
+        file: '', // Archivo existente
+        existing: true
+      };
     }
 
     return initialState;
@@ -71,12 +75,16 @@ const AddContent = ({
       } else {
         setFormState((prev: any) => ({ ...prev, isType: "N" }));
       }
+      // NO cambiar el tipo si ya está establecido en edición
+      // Mantener el tipo original del item
+      if (item?.type) {
+        setFormState((prev: any) => ({ ...prev, type: item.type }));
+      }
     } else {
       setFormState((prev: any) => ({ ...prev, isType: "N", type: "I" }));
     }
   }, []);
 
-  // Agregar useEffect para sincronizar imágenes cuando cambie el item
   useEffect(() => {
     if (action === "edit" && item?.images && item?.images.length > 0) {
       const avatarData: any = {};
@@ -95,55 +103,39 @@ const AddContent = ({
     let lDestinies: any = formState.lDestiny || [];
     if (action == "edit" && !formState.lDestiny) {
       formState?.cdestinies?.map((d: any) => {
-        if (formState?.destiny == 2) {
-          lDestinies.push(d.lista_id);
-        }
-        if (formState?.destiny == 3) {
-          lDestinies.push(d.dpto_id);
-        }
-        if (formState?.destiny == 4) {
-          lDestinies.push(d.mun_id);
-        }
-        if (formState?.destiny == 5) {
-          lDestinies.push(d.barrio_id);
-        }
+        if (formState?.destiny == 2) lDestinies.push(d.lista_id);
+        if (formState?.destiny == 3) lDestinies.push(d.dpto_id);
+        if (formState?.destiny == 4) lDestinies.push(d.mun_id);
+        if (formState?.destiny == 5) lDestinies.push(d.barrio_id);
       });
     }
     setLdestinys(lDestinies);
   }, [action, formState.lDestiny]);
 
   useEffect(() => {
-    if (formState?.isType == "P") {
-      setFormState({
-        ...formState,
-        title: null,
-        type: "I", // Resetear a contenido multimedia por defecto
-        url: null,
-        file: null,
-        avatar: formState?.avatar // Mantener las imágenes si las hay
-      });
+    // Solo cambiar el tipo si NO estamos en modo edición
+    if (action !== "edit") {
+      if (formState?.isType == "P") {
+        setFormState({
+          ...formState,
+          title: null,
+          type: "I",
+          url: null,
+          file: null,
+          avatar: formState?.avatar
+        });
+      }
+      if (formState?.isType == "N") {
+        setFormState({
+          ...formState,
+          type: "I",
+          url: null,
+          file: null,
+          avatar: formState?.avatar
+        });
+      }
     }
-    if (formState?.isType == "N") {
-      setFormState({
-        ...formState,
-        type: "I", // Resetear a contenido multimedia por defecto
-        url: null,
-        file: null,
-        avatar: formState?.avatar // Mantener las imágenes si las hay
-      });
-    }
-  }, [formState?.isType]);
-
-  // useEffect(() => {
-  //   if (formState?.type != "I") {
-  //     setFormState({ ...formState, avatar: null });
-  //   } else if (formState?.type != "V") {
-  //     setFormState({ ...formState, url: null });
-  //   } else if (formState?.type != "D") {
-  //     setFormState({ ...formState, file: null });
-  //   }
-  // }, [formState?.type]);
-  // console.log(formState);
+  }, [formState?.isType, action]);
 
   useEffect(() => {
     if (formState?.destiny == 0 && action == "add") {
@@ -157,36 +149,18 @@ const AddContent = ({
       value = e.target.checked ? "Y" : "N";
     }
 
-    // Manejar correctamente los cambios en las imágenes
     if (e.target.name === "avatar") {
       setFormState((prev: any) => ({ ...prev, [e.target.name]: value }));
     } else {
       setFormState((prev: any) => ({ ...prev, [e.target.name]: value }));
     }
   };
-  // const getCandidates = () => {
-  //   let data: any = [];
-  //   extraData?.candidates.map((c: any) => {
-  //     if (c.status == "A") {
-  //       data.push({
-  //         img: getUrlImages("/CAND-" + c?.id + ".webp?d=" + c?.updated_at),
-  //         id: c?.id,
-  //         name:
-  //           getFullName(c) +
-  //           " - " +
-  //           extraData?.typeCands.find((t: any) => t.id == c.typecand_id)?.name,
-  //       });
-  //     }
-  //   });
-  //   return data;
-  // };
+
   const selDestinies = (value: any) => {
     let selDestinies = [];
     if (value == 2) selDestinies = extraData?.listas;
     if (value == 3) selDestinies = extraData?.dptos;
     if (value == 4) selDestinies = extraData?.muns;
-    // if (value == 5) selDestinies = extraData.barrios;
-
     return selDestinies;
   };
 
@@ -207,20 +181,6 @@ const AddContent = ({
   const validate = (field: any = "") => {
     let errors: any = {};
 
-    // Eliminada la validación de destiny
-    // errors = checkRules({
-    //   value: formState?.destiny,
-    //   rules: ["required"],
-    //   key: "destiny",
-    //   errors,
-    // });
-    // errors = checkRules({
-    //   value: formState?.candidate_id,
-    //   rules: ["required"],
-    //   key: "candidate_id",
-    //   errors,
-    // });
-
     if (formState?.isType == "N") {
       errors = checkRules({
         value: formState?.title,
@@ -235,7 +195,6 @@ const AddContent = ({
         errors,
         data: formState,
       });
-
       errors = checkRules({
         value: formState?.description,
         rules: ["required"],
@@ -252,18 +211,11 @@ const AddContent = ({
         errors,
       });
     }
-/*     if (formState?.type == "D") {
-      errors = checkRules({
-        value: formState?.file,
-        rules: ["required"],
-        key: "file",
-        errors,
-      });
-    } */
 
     setErrors(errors);
     return errors;
   };
+
   const onSave = async () => {
     if (hasErrors(validate())) return;
     setItem({ ...formState });
@@ -277,7 +229,6 @@ const AddContent = ({
     }
 
     let method = formState.id ? "PUT" : "POST";
-    // Forzar destiny a "T"
     const { data } = await execute(
       "/contents" + (formState.id ? "/" + formState.id : ""),
       method,
@@ -324,7 +275,6 @@ const AddContent = ({
   return (
     open && (
       <div className={styles.AddContent}>
-        {/* Header fuera del contenedor principal */}
         <div className={styles.header}>
           <div className={styles.backButton} onClick={() => onClose()}>
             <IconArrowLeft size={20} />
@@ -481,7 +431,6 @@ const AddContent = ({
               </CardContent>
             </div>
 
-            {/* Botones movidos fuera del formContent */}
             <div className={styles.actionButtons}>
               <Button variant="secondary" onClick={onClose}>
                 Cancelar

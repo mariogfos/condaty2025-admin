@@ -1,0 +1,133 @@
+/* Contenedor principal del formulario */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--cWhite);
+  font-family: var(--fPrimary);
+}
+.formTextHeader {
+  margin-bottom: var(--spL);
+  .formTextHeaderP {
+    font-size: var(--sM);
+    line-height: 1.5;
+    font-weight: var(--bRegular);
+    color: var(--cWhiteV1);
+  }
+}
+
+/* Filas del formulario */
+.formRow {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Campos del formulario */
+.formField {
+  flex: 1;
+}
+
+.formFieldEmpty {
+  flex: 1;
+  /* Espacio vacío para mantener el layout */
+}
+
+/* Nueva sección de opciones avanzadas con flecha desplegable */
+.advancedSection {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+
+}
+
+/* Toggle clickeable con flecha */
+.advancedToggle {
+  display: flex;
+  gap: var(--sS);
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.advancedToggle:hover {
+  border-bottom-color: var(--cWhiteV3);
+}
+
+.advancedLabel {
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+}
+
+/* Flecha animada */
+.advancedArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--cWhiteV1);
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.advancedArrowOpen {
+  transform: rotate(180deg);
+}
+
+/* Contenido de opciones avanzadas */
+.advancedOptions {
+
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Grid de checkboxes - 2x2 como en la imagen */
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  min-height: 45px;
+}
+
+/* Icono de tooltip */
+.tooltipIcon {
+  color: var(--cWhiteV1);
+  cursor: help;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.tooltipIcon:hover {
+  color: var(--cWhite);
+}
+
+/* Contenido de opciones avanzadas */
+.advancedOptions {
+  padding: 12px 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Responsive para opciones avanzadas */
+@media (max-width: 768px) {
+  .checkboxGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .checkboxItem {
+    min-height: 40px;
+  }
+}

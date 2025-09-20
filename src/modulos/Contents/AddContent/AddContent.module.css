@@ -50,31 +50,27 @@
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  padding-right: 8px; /* Espacio para el scrollbar */
+  padding-right: 8px;
 }
 
 .actionButtons {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 0;
-  margin: 0;
   padding-top: 16px;
   margin-top: 16px;
-  flex-shrink: 0; /* Evita que los botones se compriman */
+  flex-shrink: 0;
 }
 
 .actionButtons button {
   min-width: 120px;
 }
 
-/* Resetear margins y paddings de componentes internos */
 .formContent > * {
   margin: 0;
   padding: 0;
 }
 
-/* Excepciones para componentes que necesitan padding interno */
 .formContent .card,
 .formContent [class*="Card"] {
   padding-top: var(--spL);
@@ -208,14 +204,12 @@
   border-color: var(--cAccent);
 }
 
-/* Resetear estilos de inputs y textareas dentro del form */
 .formContent input,
 .formContent textarea,
 .formContent select {
   margin: 0;
 }
 
-/* Resetear estilos de los componentes Br */
 .formContent hr,
 .formContent [class*="Br"] {
   margin: 0;

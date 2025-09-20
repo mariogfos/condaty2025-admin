@@ -201,6 +201,8 @@ const ProfileModal = ({
       onClose();
       if (reLoad) reLoad();
       reLoadDet();
+    } else if (data?.success == false) {
+      showToast(data?.message || "Error al eliminar " + profileRole, "error");
     }
   };
 
