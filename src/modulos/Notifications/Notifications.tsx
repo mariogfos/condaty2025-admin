@@ -381,7 +381,7 @@ const Notifications = () => {
     }
   };
 
-  const { dispatch } = useEvent("onResetNotif");
+  const { dispatch } = useEvent("onReset");
 
   useEffect(() => {
     dispatch("hola");

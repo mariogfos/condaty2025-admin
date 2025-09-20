@@ -53,6 +53,7 @@ const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) =
     R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
     E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
     M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+    F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
   };
 
   const displayStatus = getDisplayStatus(item);
@@ -102,6 +103,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
         return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
+      case 'F':
+        return { text: 'Perdonada', code: 'F' };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }

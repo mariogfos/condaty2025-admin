@@ -354,9 +354,12 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {item.concept?.map((c: string, i: number) => <div key={i}>-{c}</div>) ||
-                    item?.category?.padre?.name ||
-                    '-/-'}
+                  {item.concept?.map((c: string, i: number) => <div key={i}>- {c}</div>) ||
+                    item?.details?.map((detail: any, index: number) => (
+                      <div key={index}>- {detail?.subcategory?.padre?.name || '-/-'}</div>
+                    )) ||
+                    '-/-'
+                  }
                 </span>
               </div>
               <div className={styles.infoBlock}>
