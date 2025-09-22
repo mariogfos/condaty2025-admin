@@ -448,7 +448,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
-              label="Distribución"
+              label="Tipo"
               name="amount_type"
               value={_formState.amount_type}
               options={getAmountTypeOptions()}

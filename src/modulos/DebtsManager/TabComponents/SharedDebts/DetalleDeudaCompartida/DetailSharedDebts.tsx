@@ -447,21 +447,30 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="COBRADAS"
               mainContent={<FormatBsAlign value={summaryData.cobradas.amount} />}
-              subtitle={`${summaryData.cobradas.count} de ${extraData?.totalReceivable || 0} deudas`}
+              subtitle={`${summaryData.cobradas.count}`}
+              total={extraData?.totalReceivable || 0}
+              current={summaryData.cobradas.count}
+
             />
 
             <UnifiedCard
               variant="detail"
               label="POR COBRAR"
               mainContent={<FormatBsAlign value={summaryData.porCobrar.amount} />}
-              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0} de ${extraData?.totalReceivable || 0} deudas`}
+              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}`}
+              total={extraData?.totalReceivable || 0}
+              current={parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}
+
             />
 
             <UnifiedCard
               variant="detail"
               label="EN MORA"
               mainContent={<FormatBsAlign value={summaryData.enMora.amount} />}
-              subtitle={`${extraData?.totalArrears || 0} de ${extraData?.totalReceivable || 0} deudas`}
+              subtitle={`${extraData?.totalArrears || 0}`}
+              total={extraData?.totalReceivable || 0}
+              current={extraData?.totalArrears || 0}
+         
             />
           </div>
 

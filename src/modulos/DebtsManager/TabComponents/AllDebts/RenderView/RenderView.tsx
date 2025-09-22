@@ -434,7 +434,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 {/* Solo mostrar distribución para type 4 */}
                 {showDistribution && (
                   <div className={styles.infoItem}>
-                    <span className={styles.label}>Distribución</span>
+                    <span className={styles.label}>Tipo</span>
                     <span className={styles.value}>
                       {debtDetail?.debt?.distribution || 'Dividido por igual'}
                     </span>

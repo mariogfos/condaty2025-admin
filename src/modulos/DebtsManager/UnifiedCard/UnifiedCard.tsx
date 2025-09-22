@@ -13,6 +13,11 @@ interface UnifiedCardProps {
   label?: string;
   mainContent?: string | React.ReactNode;
 
+  // Para barras de progreso
+  total?: number;
+  current?: number;
+  showProgressBar?: boolean;
+
   // Propiedades comunes
   variant?: 'summary' | 'detail';
   isActive?: boolean;
@@ -27,14 +32,21 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   subtitle,
   label,
   mainContent,
+  total = 0,
+  current = 0,
+  showProgressBar = false,
   variant = 'summary',
   isActive = false,
   onClick,
   className = ''
 }) => {
+  // Calcular porcentaje para la barra de progreso
+  const percentage = total > 0 ? Math.min((current / total) * 100, 100) : 0;
+
   return (
     <div
       className={`${styles.card} ${isActive ? styles.active : ''} ${className}`}
+      onClick={onClick}
     >
       <div className={styles.header}>
         {variant === 'summary' && title && (
@@ -55,9 +67,26 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 
         {variant === 'detail' && (
           <>
-            <div className={styles.mainContent}>{mainContent}</div>
-            {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
+            <div className={styles.summaryContent}>
+              <div className={styles.amount}>{mainContent}</div>
+              {subtitle && <div className={styles.count}>/{subtitle}</div>}
+            </div>
           </>
+        )}
+
+        {/* Barra de progreso */}
+        {showProgressBar && (
+          <div className={styles.progressBarContainer}>
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <div className={styles.progressText}>
+              {percentage.toFixed(1)}%
+            </div>
+          </div>
         )}
       </div>
     </div>
