@@ -170,10 +170,9 @@ const ProfileModal = ({
         last_name: data?.data[0]?.last_name,
         mother_last_name: data?.data[0]?.mother_last_name,
         phone: data?.data[0]?.phone,
-        // avatar: data?.data[0]?.avatar, // REMOVER - no existe en el API
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
-        has_image: parseInt(data?.data[0]?.has_image) || 0, // Convertir string a número
+        has_image: parseInt(data?.data[0]?.has_image) || 0, 
       });
     }
   }, [openEdit, data]);
