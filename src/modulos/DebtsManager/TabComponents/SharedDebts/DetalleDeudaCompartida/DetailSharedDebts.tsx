@@ -470,13 +470,13 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               subtitle={`${extraData?.totalArrears || 0}`}
               total={extraData?.totalReceivable || 0}
               current={extraData?.totalArrears || 0}
-         
+
             />
           </div>
 
           {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-            {extraData?.hasAction && (
+           {/*  {extraData?.hasAction && ( */}
               <>
                 <Button
                   onClick={handleEdit}
@@ -495,7 +495,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
                   Eliminar
                 </Button>
               </>
-            )}
+          {/*   )} */}
           </div>
         </div>
 

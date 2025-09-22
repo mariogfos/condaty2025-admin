@@ -20,7 +20,7 @@ interface DebtFormState {
   description: string;
   category_id: string | number;
   subcategory_id: string | number;
-  asignar: string;
+  segmentation: string;
   dpto_id?: any[]; // Hacer opcional
   amount_type: string;
   amount: string | number;
@@ -70,7 +70,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: (item && item.description) || '',
       category_id: (item && item.category_id) || '',
       subcategory_id: (item && item.subcategory_id) || '',
-      asignar: (item && item.asignar) || 'T',
+      segmentation: (item && item.segmentation) || 'T',
       dpto_id: (item && item.dpto_id) || [],
       amount_type: (item && item.amount_type) || 'F',
       amount: (item && item.amount) || '',
@@ -131,7 +131,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         description: (item && item.description) || '',
         category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || '',
-        asignar: (item && item.asignar) || 'T',
+        segmentation: (item && item.segmentation) || 'T',
         dpto_id: (item && item.dpto_id) || [],
         amount_type: (item && item.amount_type) || 'F',
         amount: (item && item.amount) || '',
@@ -151,7 +151,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       const { name, value, type, checked } = e.target;
       let newValue = type === 'checkbox' ? checked : value;
 
-      if (name === 'asignar' && value !== 'S') {
+      if (name === 'segmentation' && value !== 'S') {
         _setFormState(prev => ({
           ...prev,
           [name]: newValue,
@@ -242,7 +242,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       'subcategory_id'
     );
 
-    if (_formState.asignar === 'S') {
+    if (_formState.segmentation === 'S') {
       addError(
         checkRules({
           value: _formState.dpto_id,
@@ -276,7 +276,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: '',
       category_id: '',
       subcategory_id: '',
-      asignar: 'T',
+      segmentation: 'T',
       dpto_id: [],
       amount_type: 'F',
       amount: '',
@@ -303,7 +303,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: _formState.description,
       category_id: _formState.category_id, // AGREGADO: Campo obligatorio que faltaba
       subcategory_id: _formState.subcategory_id,
-      asignar: _formState.asignar,
+      segmentation: _formState.segmentation,
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
@@ -314,7 +314,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     };
 
     // Agregar dpto_id solo si es necesario
-    const dataToSave = _formState.asignar === 'S'
+    const dataToSave = _formState.segmentation === 'S'
       ? { ...baseData, dpto_id: _formState.dpto_id }
       : baseData;
 
@@ -411,19 +411,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles.formField}>
             <Select
               label="Asignación"
-              name="asignar"
-              value={_formState.asignar}
+              name="segmentation"
+              value={_formState.segmentation}
               options={getAsignarOptions()}
               onChange={handleChangeInput}
               error={_errors}
               required
-              className={_errors.asignar ? styles.error : ''}
+              className={_errors.segmentation ? styles.error : ''}
             />
           </div>
         </div>
 
         {/* Unidades (condicional) */}
-        {_formState.asignar === 'S' && (
+        {_formState.segmentation === 'S' && (
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select
