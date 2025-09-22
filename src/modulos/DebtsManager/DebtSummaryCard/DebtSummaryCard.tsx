@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import styles from './DebtSummaryCard.module.css';
+import UnifiedCard from '../UnifiedCard/UnifiedCard';
 
 interface DebtSummaryCardProps {
   title: string;
@@ -18,18 +18,14 @@ const DebtSummaryCard: React.FC<DebtSummaryCardProps> = ({
   onClick
 }) => {
   return (
-    <div
-      className={`${styles.card} ${isActive ? styles.active : ''}`}
+    <UnifiedCard
+      variant="summary"
+      title={title}
+      amount={amount}
+      count={count}
+      isActive={isActive}
       onClick={onClick}
-    >
-      <div className={styles.header}>
-        <h3 className={styles.title}>{title}</h3>
-      </div>
-      <div className={styles.content}>
-        <div className={styles.amount}>{amount}</div>
-        <div className={styles.count}>/{count}</div>
-      </div>
-    </div>
+    />
   );
 };
 

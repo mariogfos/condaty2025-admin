@@ -1,0 +1,111 @@
+.card {
+  background-color: var(--cBlackV1);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--cWhiteV1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+.header {
+  margin-bottom: 16px;
+}
+
+/* Estilos para variant="summary" */
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cSuccess);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Estilos para variant="detail" */
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cSuccess);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* Contenedor específico para summary que muestra amount y count en fila */
+.summaryContent {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* Para variant="summary" */
+.amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--cWhite);
+  line-height: 1.2;
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+.count {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+/* Para variant="detail" */
+.mainContent {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cWhite);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+    min-height: 100px;
+  }
+
+  .amount,
+  .mainContent {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+    min-height: 90px;
+  }
+
+  .amount,
+  .mainContent {
+    font-size: 18px;
+  }
+
+  .title,
+  .label {
+    font-size: 11px;
+  }
+}
