@@ -78,7 +78,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       show_advanced: (item && item.show_advanced) || false,
       has_mv: (item && item.has_mv) || false,
       is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) !== false,
+      has_pp: (item && item.has_pp) || false,
       is_blocking: (item && item.is_blocking) || false,
     };
   });
@@ -139,7 +139,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         show_advanced: (item && item.show_advanced) || false,
         has_mv: (item && item.has_mv) || false,
         is_forgivable: (item && item.is_forgivable) || false,
-        has_pp: (item && item.has_pp) !== false,
+        has_pp: (item && item.has_pp) || false,
         is_blocking: (item && item.is_blocking) || false,
       });
       setIsInitialized(true);
@@ -307,7 +307,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
-      // Convertir valores booleanos a strings
       has_mv: _formState.has_mv ? 'Y' : 'N',
       is_forgivable: _formState.is_forgivable ? 'Y' : 'N',
       has_pp: _formState.has_pp ? 'Y' : 'N',
@@ -449,7 +448,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
-              label="Distribución"
+              label="Tipo"
               name="amount_type"
               value={_formState.amount_type}
               options={getAmountTypeOptions()}

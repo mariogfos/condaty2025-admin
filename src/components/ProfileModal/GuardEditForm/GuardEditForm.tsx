@@ -32,6 +32,7 @@ interface FormState {
   avatar?: string;
   address?: string;
   email?: string;
+  has_image?: number; // Agregar has_image
   _disabled?: boolean;
   _emailDisabled?: boolean;
 }
@@ -60,7 +61,6 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
   const { showToast } = useAuth();
   const { execute } = useAxios();
   const [localErrors, setLocalErrors] = useState<Errors>({});
-
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -112,6 +112,7 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
         _disabled: true,
         _emailDisabled: true,
       });
+
       showToast(
         'El guardia ya existe en condaty, se va a vincular al condominio',
         'warning'
@@ -253,12 +254,15 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
 
   // Función para obtener la URL de la imagen del guardia
   const getGuardImageUrl = () => {
+
+
     if (formState.id) {
       // Para guardias existentes, construir la URL similar a ProfileModal
       return getUrlImages(`/GUARD-${formState.id}.webp?d=${new Date().getTime()}`);
     }
     return '';
   };
+
 
   return (
     <DataModal
@@ -276,13 +280,16 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
             <UploadFile
               name="avatar"
               ext={['jpg', 'png', 'jpeg', 'webp']}
-              value={
-                formState.avatar && typeof formState.avatar === 'object'
-                  ? formState.avatar
-                  : formState.id
-                    ? getGuardImageUrl()
-                    : ''
-              }
+              value={(() => {
+                if (formState.avatar && typeof formState.avatar === 'object') {
+                  return formState.avatar;
+                }
+                if (formState.id && formState.has_image === 1) {
+                  const url = getGuardImageUrl();
+                  return url;
+                }
+                return '';
+              })()}
               onChange={handleChangeInput}
               img={true}
               sizePreview={{ width: '150px', height: '150px' }}

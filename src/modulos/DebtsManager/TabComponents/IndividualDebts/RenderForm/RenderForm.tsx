@@ -78,7 +78,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       show_advanced: (item && item.show_advanced) || false,
       has_mv: (item && item.has_mv) || false,
       is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) !== false, // Por defecto true
+      has_pp: (item && item.has_pp) || false,
       is_blocking: (item && item.is_blocking) || false,
     };
   });
@@ -88,7 +88,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [ldpto, setLdpto] = useState([]);
   const client = user?.clients?.filter((clientItem: any) => clientItem.id === user.client_id)[0];
 
-  
+
   const findCategoryBySubcategory = (subcategoryId: string | number) => {
     if (!extraData?.categories || !subcategoryId) return null;
 
@@ -127,7 +127,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         show_advanced: (item && item.show_advanced) || false,
         has_mv: (item && item.has_mv) || false,
         is_forgivable: (item && item.is_forgivable) || false,
-        has_pp: (item && item.has_pp) !== false,
+        has_pp: (item && item.has_pp) || false,
         is_blocking: (item && item.is_blocking) || false,
       });
       setIsInitialized(true);
