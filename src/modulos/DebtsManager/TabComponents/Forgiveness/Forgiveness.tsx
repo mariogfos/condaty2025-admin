@@ -38,7 +38,7 @@ const Forgiveness = () => {
     sumarize: true,
     extraData: true,
     loadView: { fullType: "DET", type: 5 },
-    // export: true,
+    export: true,
     onHideActions: (item: any) => {
       return {
         hideEdit: onEdit(item),
