@@ -157,7 +157,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   ];
 
   const getDistributionOptions = () => [
-    { id: 'ALL', name: 'Todas las distribuciones' },
+    { id: 'ALL', name: 'Todas los tipos' },
     { id: 'F', name: 'Fijo' },
     { id: 'V', name: 'Variable' },
     { id: 'P', name: 'Porcentual' },
@@ -334,14 +334,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({
       amount_type: {
         rules: [''],
         api: '',
-        label: 'Distribución',
+        label: 'Tipo',
         list: {
           onRender: renderDistributionCell,
           order: 4,
         },
         filter: {
           key: 'amount_type',
-          label: 'Distribución',
+          label: 'Tipo',
           width: '100%',
           options: getDistributionOptions,
           optionLabel: 'name',
