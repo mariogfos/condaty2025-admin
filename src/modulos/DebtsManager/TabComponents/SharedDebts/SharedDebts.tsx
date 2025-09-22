@@ -537,7 +537,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 500px)'}
+        height={'calc(100vh - 550px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas grupales vacía. Una vez generes las cuotas"

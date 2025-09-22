@@ -520,7 +520,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 500px)'}
+        height={'calc(100vh - 550px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"

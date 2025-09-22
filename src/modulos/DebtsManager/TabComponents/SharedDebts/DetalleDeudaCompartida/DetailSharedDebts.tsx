@@ -493,7 +493,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 640px)'}
+            height={'calc(100vh - 560px)'}
             emptyMsg="No hay detalles de deuda compartida disponibles"
             emptyLine2="Los detalles aparecerán aquí cuando estén disponibles."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
