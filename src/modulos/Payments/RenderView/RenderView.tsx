@@ -203,6 +203,29 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       0
     );
   };
+
+  const getUniqueConcepts = () => {
+    if (!item) return <div>-/-</div>;
+
+    if (item.details?.length) {
+      const uniqueCategories = Array.from(
+        new Set(
+          item.details
+            .map(detail => detail?.subcategory?.padre?.name)
+            .filter(Boolean)
+        )
+      );
+
+      return uniqueCategories.length > 0 
+        ? uniqueCategories.map((name, i) => (
+            <div key={`category-${i}`}>- {name}</div>
+          ))
+        : <div>-/-</div>;
+    }
+
+    return <div>-/-</div>;
+  };
+
   const handleAnularClick = () => {
     if (item && onDel) {
       onDel(item);
@@ -354,12 +377,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Concepto</span>
                 <span className={styles.infoValue}>
-                  {item.concept?.map((c: string, i: number) => <div key={i}>- {c}</div>) ||
-                    item?.details?.map((detail: any, index: number) => (
-                      <div key={index}>- {detail?.subcategory?.padre?.name || '-/-'}</div>
-                    )) ||
-                    '-/-'
-                  }
+                  {getUniqueConcepts()}
                 </span>
               </div>
               <div className={styles.infoBlock}>
@@ -531,7 +549,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                               {periodo?.debt_dpto?.debt?.year}
                             </div>
                             <div className={styles.periodsTableCell} data-label="Concepto">
-                              {item?.category?.padre?.name || '-/-'}
+                              {periodo?.subcategory?.padre?.name || '-/-'}
                             </div>
                             <div className={styles.periodsTableCell} data-label="Monto">
                               {formatBs(periodo?.debt_dpto?.amount || 0)}
