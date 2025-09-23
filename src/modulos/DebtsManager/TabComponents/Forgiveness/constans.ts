@@ -24,6 +24,6 @@ export const colorStatusForgiveness: any = {
   X: { color: "var(--cError)", bg: "var(--cHoverError)" },
   M: { color: "var(--cError)", bg: "var(--cHoverError)" },
   E: { color: "var(--cInfo)", bg: "var(--cHoverInfo)" },
-  S: { color: "var(--cInfo)", bg: "var(--cHoverInfo)" },
+  S: { color: "var(--cInfo)", bg: "#39ACEC33" },
   W: { color: "#1E8AE9", bg: "#517FE133" },
 };
