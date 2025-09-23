@@ -27,6 +27,7 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
+  reLoad?: () => void; // Agregar reLoad como prop opcional
 }
 
 // En el componente RenderView, agregar execute del hook useAxios
@@ -39,7 +40,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   onEdit,
   onDel,
   hideSharedDebtButton = false,
-  hideEditAndDeleteButtons = false
+  hideEditAndDeleteButtons = false,
+  reLoad // Agregar reLoad en la desestructuración
 }) => {
   const { showToast: authShowToast } = useAuth();
 
@@ -51,7 +53,7 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [currentItem, setCurrentItem] = useState(item);
 
   // Llamar a la API para obtener detalles completos
-  const { data, execute } = useAxios(
+  const { data, execute, loaded } = useAxios(
     '/debt-dptos',
     'GET',
     {
@@ -65,18 +67,19 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   if (!open || !item) return null;
 
-  // Obtener los datos detallados de la API
+
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
-  console.log('debtType', debtDetail);
+
+
+  const hasApiData = data?.data?.[0];
+
 
   const getStatusText = (status: string, dueDate?: string) => {
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = status;
     const today = new Date();
     const due = dueDate ? new Date(dueDate) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (due && due < today && status === 'A') {
       finalStatus = 'M';
     }
@@ -236,7 +239,6 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
     } catch (error) {
-      console.error('Error al recargar el item:', error);
       handleShowToast('Error al actualizar los datos', 'error');
     }
   };
@@ -492,6 +494,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
                   className={styles.actionButton}
+                  disabled={!hasApiData}
                 >
                   {detailButtonText}
                 </Button>
@@ -515,8 +518,8 @@ const RenderView: React.FC<RenderViewProps> = ({
         <ReservationDetailModal
           open={showReservationDetail}
           onClose={() => setShowReservationDetail(false)}
-          item={{ id: debtDetail?.debt?.id || debtDetail?.id }}
-          reservationId={debtDetail?.debt?.id || debtDetail?.id}
+          reservationId={debtDetail?.reservation?.id}
+          // No pasar reservationId ya que tenemos el item completo
         />
       )}
 
