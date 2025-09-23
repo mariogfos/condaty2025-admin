@@ -116,11 +116,11 @@ const Forgiveness = () => {
             );
           },
         },
-        // filter: {
-        //   label: "Estado",
-        //   width: "180px",
-        //   options: () => statusForgivenessFilter,
-        // },
+        filter: {
+          label: "Estado",
+          width: "180px",
+          options: () => statusForgivenessFilter,
+        },
       },
       category: {
         label: "Categoría",
