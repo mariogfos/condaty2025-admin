@@ -162,11 +162,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   const getDebtTypeOptions = () => [
     { id: 'ALL', name: 'Todas las deudas' },
-    { id: 'F', name: 'Fijo' },
-    { id: 'V', name: 'Variable' },
-    { id: 'P', name: 'Porcentual' },
-    { id: 'M', name: 'Por m²' },
-    { id: 'A', name: 'Promedio' }
+    { id: 0, name: 'Individual' },
+    { id: 1, name: 'Expensas' },
+    { id: 2, name: 'Reservas' },
+    { id: 3, name: 'Cancelación' },
+    { id: 4, name: 'Compartida' },
+    { id: 5, name: 'Condonación' },
   ];
 
   const getCategoryOptions = (extraData?: any) => {
@@ -335,7 +336,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      amount_type: {
+      type: {
         rules: [''],
         api: '',
         label: 'Tipo',
@@ -344,7 +345,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           order: 4,
         },
         filter: {
-          key: 'amount_type',
+          key: 'type',
           label: 'Tipo',
           width: '100%',
           options: getDebtTypeOptions,
