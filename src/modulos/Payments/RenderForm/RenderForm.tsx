@@ -23,6 +23,11 @@ interface Dpto {
   holder?: 'H' | 'T';
   homeowner?: any;
   tenant?: any;
+  type?: {
+    id?: string | number;
+    name?: string;
+    description?: string;
+  };
   titular?: {
     owner?: {
       id?: string | number;
@@ -226,7 +231,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         return {
           id: dpto.nro,
           name:
-            store.Unitstype +
+            dpto?.type?.name +
             ' ' +
             dpto.nro +
             ' - ' +
