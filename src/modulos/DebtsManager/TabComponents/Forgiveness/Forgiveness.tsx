@@ -102,16 +102,20 @@ const Forgiveness = () => {
         form: { type: "text" },
         list: {
           onRender: ({ item }: any) => {
+            let status = item?.status;
+            if (item?.due_at < new Date().toISOString().split("T")[0]) {
+              status = "M";
+            }
             return (
               <p
                 style={{
-                  color: colorStatusForgiveness[item?.status]?.color,
-                  background: colorStatusForgiveness[item?.status]?.bg,
+                  color: colorStatusForgiveness[status]?.color,
+                  background: colorStatusForgiveness[status]?.bg,
                   padding: "6px 10px",
                   borderRadius: "12px",
                 }}
               >
-                {statusForgiveness[item?.status]}
+                {statusForgiveness[status]}
               </p>
             );
           },
