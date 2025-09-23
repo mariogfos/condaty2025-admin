@@ -2,6 +2,9 @@
   width: 100%;
   padding: var(--spM);
   overflow-y: auto;
+  /* Asegurar que el contenedor principal permita que los tooltips se muestren */
+  position: relative;
+  z-index: 1;
 }
 
 .header {
@@ -84,7 +87,10 @@
 
 .listContainer {
   padding: 0;
-  overflow: hidden;
+  overflow: visible; /* Cambiar de hidden a visible para permitir que el tooltip se muestre */
+  /* Asegurar que el contenedor de la lista tenga un z-index bajo */
+  position: relative;
+  z-index: 1;
 }
 
 /* Agregar estos estilos al final del archivo */
@@ -138,7 +144,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000; /* Aumentar el z-index para que esté por encima del tooltip */
 }
 
 .confirmModal {
