@@ -290,7 +290,8 @@ const RenderForm = ({
           borderRadius: 12,
           margin: "12px 0px",
           overflowY: "scroll",
-          height: "169px",
+          maxHeight: "169px",
+          height: debts?.length == 0 ? "169px" : "auto",
         }}
       >
         {debts?.length == 0 && (
@@ -413,6 +414,14 @@ const RenderForm = ({
           <p style={{ fontSize: 16, color: "var(--cWhite)", marginBottom: 10 }}>
             Monto a condonar
           </p>
+          {amountForgiveness > 0 && (
+            <p style={{ fontSize: 13, fontWeight: "400", marginBottom: 10 }}>
+              Monto disponible a condonar:{" "}
+              <span style={{ color: "var(--cWhite)", fontWeight: "500" }}>
+                {formatBs(amountForgiveness)}
+              </span>
+            </p>
+          )}
           <div style={{ display: "flex", gap: 8 }}>
             <Input
               name="amount_value"
@@ -435,14 +444,7 @@ const RenderForm = ({
               suffix="%"
             />
           </div>
-          {amountForgiveness > 0 && (
-            <p style={{ fontSize: 13, fontWeight: "400", marginBottom: 10 }}>
-              Monto disponible a condonar:{" "}
-              <span style={{ color: "var(--cWhite)", fontWeight: "500" }}>
-                {formatBs(amountForgiveness)}
-              </span>
-            </p>
-          )}
+
           {formState?.amount_value > 0 && (
             <div
               style={{
