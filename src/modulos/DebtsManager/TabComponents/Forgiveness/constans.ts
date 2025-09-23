@@ -8,6 +8,7 @@ export const statusForgiveness: any = {
   W: "Por confirmar Dir.",
 };
 export const statusForgivenessFilter: any = [
+  { id: "ALL", name: "Todos" },
   { id: "A", name: "Por cobrar" },
   { id: "P", name: "Cobrado" },
   { id: "X", name: "Cancelado" },
