@@ -162,12 +162,12 @@ const AllDebts: React.FC<AllDebtsProps> = ({
 
   const getDebtTypeOptions = () => [
     { id: 'ALL', name: 'Todas las deudas' },
-    { id: 0, name: 'Individual' },
-    { id: 1, name: 'Expensas' },
-    { id: 2, name: 'Reservas' },
-    { id: 3, name: 'Cancelación' },
-    { id: 4, name: 'Compartida' },
-    { id: 5, name: 'Condonación' },
+    { id: "0", name: 'Individual' },
+    { id: "1", name: 'Expensas' },
+    { id: "2", name: 'Reservas' },
+    { id: "3", name: 'Cancelación' },
+    { id: "4", name: 'Compartida' },
+    { id: "5", name: 'Condonación' },
   ];
 
   const getCategoryOptions = (extraData?: any) => {

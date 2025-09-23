@@ -333,7 +333,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       distribution: {
         rules: [''],
         api: '',
-        label: 'Tipo',
+        label: 'Distribución',
         list: {
           onRender: renderDistributionCell,
           order: 4,
