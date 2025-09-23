@@ -25,7 +25,7 @@ const Forgiveness = () => {
   const onEdit = (item: any) => {
     let day = new Date().toISOString().split("T")[0];
     // console.log(item?.due_at, day);
-    if (item?.due_at >= day) {
+    if (item?.due_at >= day && item?.status !== "P") {
       return false;
     }
     return true;
