@@ -21,7 +21,7 @@ interface DebtFormState {
   category_id: string | number;
   subcategory_id: string | number;
   segmentation: string;
-  dpto_id?: any[]; // Hacer opcional
+  dpto_id?: any[];
   amount_type: string;
   amount: string | number;
   interest: number;
@@ -122,7 +122,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
 
       _setFormState({
-        // IMPORTANTE: Preservar el ID para actualizaciones
         id: (item && item.id) || undefined,
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
@@ -294,14 +293,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const handleSave = useCallback(async () => {
     if (!validar()) return;
 
-    // Crear el objeto base
     const baseData = {
-      id: _formState.id, // IMPORTANTE: ID para PUT
+      id: _formState.id,
       begin_at: _formState.begin_at,
       due_at: _formState.due_at,
       type: 4,
       description: _formState.description,
-      category_id: _formState.category_id, // AGREGADO: Campo obligatorio que faltaba
+      category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id,
       segmentation: _formState.segmentation,
       amount_type: _formState.amount_type,
@@ -313,12 +311,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       is_blocking: _formState.is_blocking ? 'Y' : 'N',
     };
 
-    // Agregar dpto_id solo si es necesario
     const dataToSave = _formState.segmentation === 'S'
       ? { ...baseData, dpto_id: _formState.dpto_id }
       : baseData;
 
-    console.log('RenderForm - Datos a enviar:', dataToSave); // Debug
+    console.log('RenderForm - Datos a enviar:', dataToSave); 
 
     try {
       await onSave?.(dataToSave);

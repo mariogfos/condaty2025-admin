@@ -51,11 +51,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
-  // Remover estos estados que ya no son necesarios:
-  // const [showDetailView, setShowDetailView] = useState(false);
-  // const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Funciones para obtener los textos de amount_type y segmentation
   const getAmountTypeText = (amountType: string) => {
     const amountTypeMap: { [key: string]: string } = {
       'F': 'Fijo',
@@ -106,12 +102,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.due_date ? new Date(item.due_date) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -278,7 +272,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     </Button>,
   ];
 
-  // CAMBIO IMPORTANTE: Remover onView y usar renderView en mod
   const { List, extraData, execute, reLoad, onSave } = useCrud({
     paramsInitial,
     mod,
@@ -286,19 +279,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     extraButtons,
   });
 
-  const typedExecute = async (url: string, method: string, params: any): Promise<any> => {
-    return await execute(url, method, params);
-  };
-
-  const typedShowToast = (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => {
-    showToast(msg, type);
-  };
-
-  const typedReLoad = (): void => {
-    reLoad();
-  };
-
-  // Usar los datos reales de extraData en lugar de datos hardcodeados
   const summaryData = useMemo(() => {
     if (!extraData) {
       return {
