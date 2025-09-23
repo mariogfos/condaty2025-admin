@@ -218,6 +218,12 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                   <span className={styles.infoValue}>{obs_in || "-/-"}</span>
                 </div>
+                {confirm == "G" && (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>Tipo de aprobación</span>
+                    <span className={styles.infoValue}>{"Por el guardia"}</span>
+                  </div>
+                )}
               </div>
 
               <div className={styles.detailsColumn}>
