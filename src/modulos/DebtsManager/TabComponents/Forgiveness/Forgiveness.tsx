@@ -25,10 +25,13 @@ const Forgiveness = () => {
   const onEdit = (item: any) => {
     let day = new Date().toISOString().split("T")[0];
     // console.log(item?.due_at, day);
-    if (item?.due_at >= day && item?.status !== "P") {
-      return false;
+    if (item?.due_at < day) {
+      return true;
     }
-    return true;
+    if (item?.status == "P" || item?.status == "S") {
+      return true;
+    }
+    return false;
   };
   const mod = {
     modulo: "debt-dptos",
