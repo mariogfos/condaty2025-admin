@@ -252,7 +252,7 @@ const Payments = () => {
       //     onRender: renderSubcategoryCell,
       //   },
       // },
-      type: {
+      method: {
         rules: ["required"],
         api: "ae",
         label: "Forma de pago",

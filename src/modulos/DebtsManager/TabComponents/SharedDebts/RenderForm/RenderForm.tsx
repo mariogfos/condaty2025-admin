@@ -20,8 +20,8 @@ interface DebtFormState {
   description: string;
   category_id: string | number;
   subcategory_id: string | number;
-  asignar: string;
-  dpto_id?: any[]; // Hacer opcional
+  segmentation: string;
+  dpto_id?: any[];
   amount_type: string;
   amount: string | number;
   interest: number;
@@ -70,7 +70,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: (item && item.description) || '',
       category_id: (item && item.category_id) || '',
       subcategory_id: (item && item.subcategory_id) || '',
-      asignar: (item && item.asignar) || 'T',
+      segmentation: (item && item.segmentation) || 'T',
       dpto_id: (item && item.dpto_id) || [],
       amount_type: (item && item.amount_type) || 'F',
       amount: (item && item.amount) || '',
@@ -78,7 +78,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       show_advanced: (item && item.show_advanced) || false,
       has_mv: (item && item.has_mv) || false,
       is_forgivable: (item && item.is_forgivable) || false,
-      has_pp: (item && item.has_pp) !== false,
+      has_pp: (item && item.has_pp) || false,
       is_blocking: (item && item.is_blocking) || false,
     };
   });
@@ -122,7 +122,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
 
       _setFormState({
-        // IMPORTANTE: Preservar el ID para actualizaciones
         id: (item && item.id) || undefined,
         ...(item || {}),
         begin_at: (item && item.begin_at) || formattedDate,
@@ -131,7 +130,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         description: (item && item.description) || '',
         category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || '',
-        asignar: (item && item.asignar) || 'T',
+        segmentation: (item && item.segmentation) || 'T',
         dpto_id: (item && item.dpto_id) || [],
         amount_type: (item && item.amount_type) || 'F',
         amount: (item && item.amount) || '',
@@ -139,7 +138,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         show_advanced: (item && item.show_advanced) || false,
         has_mv: (item && item.has_mv) || false,
         is_forgivable: (item && item.is_forgivable) || false,
-        has_pp: (item && item.has_pp) !== false,
+        has_pp: (item && item.has_pp) || false,
         is_blocking: (item && item.is_blocking) || false,
       });
       setIsInitialized(true);
@@ -151,7 +150,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       const { name, value, type, checked } = e.target;
       let newValue = type === 'checkbox' ? checked : value;
 
-      if (name === 'asignar' && value !== 'S') {
+      if (name === 'segmentation' && value !== 'S') {
         _setFormState(prev => ({
           ...prev,
           [name]: newValue,
@@ -242,7 +241,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       'subcategory_id'
     );
 
-    if (_formState.asignar === 'S') {
+    if (_formState.segmentation === 'S') {
       addError(
         checkRules({
           value: _formState.dpto_id,
@@ -276,7 +275,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: '',
       category_id: '',
       subcategory_id: '',
-      asignar: 'T',
+      segmentation: 'T',
       dpto_id: [],
       amount_type: 'F',
       amount: '',
@@ -294,32 +293,29 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const handleSave = useCallback(async () => {
     if (!validar()) return;
 
-    // Crear el objeto base
     const baseData = {
-      id: _formState.id, // IMPORTANTE: ID para PUT
+      id: _formState.id,
       begin_at: _formState.begin_at,
       due_at: _formState.due_at,
       type: 4,
       description: _formState.description,
-      category_id: _formState.category_id, // AGREGADO: Campo obligatorio que faltaba
+      category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id,
-      asignar: _formState.asignar,
+      segmentation: _formState.segmentation,
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
-      // Convertir valores booleanos a strings
       has_mv: _formState.has_mv ? 'Y' : 'N',
       is_forgivable: _formState.is_forgivable ? 'Y' : 'N',
       has_pp: _formState.has_pp ? 'Y' : 'N',
       is_blocking: _formState.is_blocking ? 'Y' : 'N',
     };
 
-    // Agregar dpto_id solo si es necesario
-    const dataToSave = _formState.asignar === 'S'
+    const dataToSave = _formState.segmentation === 'S'
       ? { ...baseData, dpto_id: _formState.dpto_id }
       : baseData;
 
-    console.log('RenderForm - Datos a enviar:', dataToSave); // Debug
+    console.log('RenderForm - Datos a enviar:', dataToSave); 
 
     try {
       await onSave?.(dataToSave);
@@ -412,19 +408,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles.formField}>
             <Select
               label="Asignación"
-              name="asignar"
-              value={_formState.asignar}
+              name="segmentation"
+              value={_formState.segmentation}
               options={getAsignarOptions()}
               onChange={handleChangeInput}
               error={_errors}
               required
-              className={_errors.asignar ? styles.error : ''}
+              className={_errors.segmentation ? styles.error : ''}
             />
           </div>
         </div>
 
         {/* Unidades (condicional) */}
-        {_formState.asignar === 'S' && (
+        {_formState.segmentation === 'S' && (
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select
@@ -449,7 +445,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         <div className={styles.formRow}>
           <div className={styles.formField}>
             <Select
-              label="Distribución"
+              label="Tipo"
               name="amount_type"
               value={_formState.amount_type}
               options={getAmountTypeOptions()}

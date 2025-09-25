@@ -52,9 +52,7 @@
   border-bottom: 1px solid transparent;
 }
 
-.advancedToggle:hover {
-  border-bottom-color: var(--cWhiteV3);
-}
+
 
 .advancedLabel {
   font-size: var(--sM);
