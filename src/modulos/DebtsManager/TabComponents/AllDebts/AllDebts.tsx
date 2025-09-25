@@ -45,26 +45,30 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     <div>{item?.debt?.subcategory?.name || item?.subcategory?.name || '-/-'}</div>
   );
 
-  const renderDistributionCell = ({ item }: { item: any }) => {
-    switch (item?.debt?.amount_type) {
-      case "F": {
-        return <div>Fijo</div>;
+  const renderDebtTypeCell = ({ item }: { item: any }) => {
+    switch (item?.type) {
+      case 0: {
+        return <div>Individual</div>
         break;
       }
-      case "V": {
-        return <div>Variable</div>
+      case 1: {
+        return <div>Expensas</div>;
         break;
       }
-      case "P": {
-        return <div>Porcentual</div>
+      case 2: {
+        return <div>Reservas</div>
         break;
       }
-      case "M": {
-        return <div>Por m<sup>2</sup></div>
+      case 3: {
+        return <div>Multa por Cancelación</div>
         break;
       }
-      case "A": {
-        return <div>Promedio</div>
+      case 4: {
+        return <div>Compartida</div>
+        break;
+      }
+      case 5: {
+        return <div>Condonación</div>
         break;
       }
       default: {
@@ -156,13 +160,14 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     { id: 'X', name: 'Anulada' },
   ];
 
-  const getDistributionOptions = () => [
-    { id: 'ALL', name: 'Todas las distribuciones' },
-    { id: 'F', name: 'Fijo' },
-    { id: 'V', name: 'Variable' },
-    { id: 'P', name: 'Porcentual' },
-    { id: 'M', name: 'Por m²' },
-    { id: 'A', name: 'Promedio' }
+  const getDebtTypeOptions = () => [
+    { id: 'ALL', name: 'Todas las deudas' },
+    { id: "0", name: 'Individual' },
+    { id: "1", name: 'Expensas' },
+    { id: "2", name: 'Reservas' },
+    { id: "3", name: 'Cancelación' },
+    { id: "4", name: 'Compartida' },
+    { id: "5", name: 'Condonación' },
   ];
 
   const getCategoryOptions = (extraData?: any) => {
@@ -331,19 +336,19 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      amount_type: {
+      type: {
         rules: [''],
         api: '',
-        label: 'Distribución',
+        label: 'Tipo',
         list: {
-          onRender: renderDistributionCell,
+          onRender: renderDebtTypeCell,
           order: 4,
         },
         filter: {
-          key: 'amount_type',
-          label: 'Distribución',
+          key: 'type',
+          label: 'Tipo',
           width: '100%',
-          options: getDistributionOptions,
+          options: getDebtTypeOptions,
           optionLabel: 'name',
           optionValue: 'id',
         },
@@ -520,7 +525,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 500px)'}
+        height={'calc(100vh - 550px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de todas las deudas vacía. Una vez generes las cuotas"

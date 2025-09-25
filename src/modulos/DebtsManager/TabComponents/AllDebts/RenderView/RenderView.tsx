@@ -8,8 +8,6 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import useAxios from '@/mk/hooks/useAxios';
 import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import { useAuth } from '@/mk/contexts/AuthProvider';
-
-// Importar solo los componentes que son modales
 import ExpenseDetailModal from '@/modulos/Expenses/ExpensesDetails/RenderView/RenderView';
 import ReservationDetailModal from '@/modulos/Reservas/RenderView/RenderView';
 import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
@@ -27,9 +25,10 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
+
 }
 
-// En el componente RenderView, agregar execute del hook useAxios
+
 const RenderView: React.FC<RenderViewProps> = ({
   open,
   onClose,
@@ -39,19 +38,20 @@ const RenderView: React.FC<RenderViewProps> = ({
   onEdit,
   onDel,
   hideSharedDebtButton = false,
-  hideEditAndDeleteButtons = false
+  hideEditAndDeleteButtons = false,
+
 }) => {
   const { showToast: authShowToast } = useAuth();
 
-  // Estados para controlar los modales de detalle
+
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
 
-  // Llamar a la API para obtener detalles completos
-  const { data, execute } = useAxios(
+
+  const { data, execute, loaded } = useAxios(
     '/debt-dptos',
     'GET',
     {
@@ -65,18 +65,19 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   if (!open || !item) return null;
 
-  // Obtener los datos detallados de la API
+
   const debtDetail = data?.data?.[0] || item;
   const debtType = debtDetail?.type || debtDetail?.debt?.type || 0;
-  console.log('debtType', debtDetail);
+
+
+  const hasApiData = data?.data?.[0];
+
 
   const getStatusText = (status: string, dueDate?: string) => {
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = status;
     const today = new Date();
     const due = dueDate ? new Date(dueDate) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (due && due < today && status === 'A') {
       finalStatus = 'M';
     }
@@ -105,12 +106,10 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getStatusConfig = (status: string, dueDate?: string) => {
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = status;
     const today = new Date();
     const due = dueDate ? new Date(dueDate) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (due && due < today && status === 'A') {
       finalStatus = 'M';
     }
@@ -139,7 +138,6 @@ const RenderView: React.FC<RenderViewProps> = ({
   };
 
   const getAvailableActions = (status: string, type: number) => {
-    // Solo el tipo 0 puede editar y anular, y solo en estado 'A' (Por cobrar)
     if (type !== 0) {
       return {
         showAnular: false,
@@ -149,7 +147,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       };
     }
 
-    // Para tipo 0, comportamiento según el status
     switch (status) {
       case 'P':
         return {
@@ -158,7 +155,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           showRegistrarPago: false,
           showVerPago: true
         };
-      case 'A': // Solo en estado "Por cobrar" se pueden editar y anular
+      case 'A':
         return {
           showAnular: true,
           showEditar: true,
@@ -182,18 +179,16 @@ const RenderView: React.FC<RenderViewProps> = ({
     }
   };
 
-  // Función para obtener el texto del botón de detalle según el tipo
   const getDetailButtonText = (type: number) => {
     switch (type) {
       case 1: return 'Ver expensa';
       case 2: return 'Ver reserva';
-      case 3: return 'Ver reserva';
+      case 3: return ;
       case 4: return hideSharedDebtButton ? null : 'Ver deuda compartida';
       default: return null;
     }
   };
 
-  // Función para manejar la apertura del modal de detalle
   const handleDetailButtonClick = (type: number) => {
     const targetId = debtDetail?.debt?.id || debtDetail?.shared_id;
 
@@ -202,22 +197,21 @@ const RenderView: React.FC<RenderViewProps> = ({
         setShowExpenseDetail(true);
         break;
       case 2:
-      case 3:
         setShowReservationDetail(true);
         break;
+      case 3:
+        setShowPaymentForm(true);
+        break;
       case 4:
-        // Para deuda compartida, redirigir a la ruta correcta
         window.location.href = `/debts_manager/shared-debt-detail/${targetId}`;
         break;
     }
   };
 
-  // Crear función wrapper con la signatura correcta
   const handleShowToast = (msg: string, type: 'info' | 'success' | 'error' | 'warning') => {
     authShowToast(msg, type);
   };
 
-  // Función para recargar el item después de registrar pago
   const reloadItem = async () => {
     try {
       const response = await execute(
@@ -226,7 +220,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         {
           searchBy: currentItem.id,
           fullType: 'DET',
-          perPage: -1,  // Cambiar de 1 a -1 para que coincida con la carga inicial
+          perPage: -1,
           page: 1,
         },
         false,
@@ -236,21 +230,14 @@ const RenderView: React.FC<RenderViewProps> = ({
         setCurrentItem(response.data.data[0] || currentItem);
       }
     } catch (error) {
-      console.error('Error al recargar el item:', error);
       handleShowToast('Error al actualizar los datos', 'error');
     }
   };
 
-  // Preparar datos para el formulario de pago
   const getPaymentFormData = () => {
-    // Calcular el total balance internamente
     const calculatedTotalBalance = debtAmount + penaltyAmount + maintenanceAmount;
-
-    // Usar la información real de la subcategoría de la deuda
     const subcategoryId = debtDetail?.subcategory_id || debtDetail?.subcategory?.id;
     const categoryId = debtDetail?.subcategory?.padre?.id || debtDetail?.subcategory?.category_id;
-
-    // Si no tenemos la categoría padre directamente, buscarla en extraData
     let finalCategoryId = categoryId;
     if (!finalCategoryId && subcategoryId && extraData?.categories) {
       const foundCategory = extraData.categories.find((cat: any) =>
@@ -259,8 +246,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       finalCategoryId = foundCategory?.id;
     }
 
-    // CORRECCIÓN: Para deudas individuales (tipo 0), expensas (tipo 1), reservas (tipos 2 y 3)
-    // y deudas compartidas (tipo 4) todas deben tener la categoría y subcategoría bloqueadas
     const isIndividualDebt = debtType === 0; // Tipo 0 = Deudas individuales
     const isExpensasDebt = debtType === 1; // Tipo 1 = Expensas
     const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
@@ -270,34 +255,22 @@ const RenderView: React.FC<RenderViewProps> = ({
     const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
     return {
-      // Datos básicos del pago
+
       paid_at: new Date().toISOString().split('T')[0],
-
-      // Unidad preseleccionada
       dpto_id: debtDetail?.dpto?.nro,
-
-      // Categoría y subcategoría basadas en la deuda real
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
-
-      // Campos de bloqueo - para todos los tipos de deuda
       isCategoryLocked: shouldLockFields,
       isSubcategoryLocked: shouldLockFields,
-
-      // Monto total
       amount: calculatedTotalBalance,
-
-      // Tipo de pago por defecto
-      type: 'T', // Transferencia bancaria por defecto
-
-      // Datos adicionales para el contexto
+      type: isReservationsDebt ? 'R' : 'T',
       debt_dpto_id: debtDetail?.id,
       concept: [
         debtDetail?.subcategory?.name || 'Pago',
         `Pago de ${debtDetail?.subcategory?.name || 'deuda'} - Unidad ${debtDetail?.dpto?.nro}`
       ],
       owner: debtDetail?.dpto?.homeowner,
-      status: 'S' // Por confirmar
+      status: 'S'
     };
   };
 
@@ -316,8 +289,6 @@ const RenderView: React.FC<RenderViewProps> = ({
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
-
-  // Determinar si mostrar el campo de distribución (solo para type 0)
   const showDistribution = debtType === 4;
 
   return (
@@ -434,7 +405,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                 {/* Solo mostrar distribución para type 4 */}
                 {showDistribution && (
                   <div className={styles.infoItem}>
-                    <span className={styles.label}>Distribución</span>
+                    <span className={styles.label}>Tipo</span>
                     <span className={styles.value}>
                       {debtDetail?.debt?.distribution || 'Dividido por igual'}
                     </span>
@@ -492,6 +463,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   onClick={() => handleDetailButtonClick(debtType)}
                   variant="secondary"
                   className={styles.actionButton}
+                  disabled={!hasApiData}
                 >
                   {detailButtonText}
                 </Button>
@@ -515,8 +487,8 @@ const RenderView: React.FC<RenderViewProps> = ({
         <ReservationDetailModal
           open={showReservationDetail}
           onClose={() => setShowReservationDetail(false)}
-          item={{ id: debtDetail?.debt?.id || debtDetail?.id }}
-          reservationId={debtDetail?.debt?.id || debtDetail?.id}
+          reservationId={debtDetail?.reservation?.id}
+          // No pasar reservationId ya que tenemos el item completo
         />
       )}
 

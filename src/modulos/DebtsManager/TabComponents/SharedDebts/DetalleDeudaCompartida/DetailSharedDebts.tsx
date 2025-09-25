@@ -13,6 +13,7 @@ import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { capitalize } from '@/mk/utils/string';
 import styles from './DetailSharedDebts.module.css';
 import { getDateStrMes } from '@/mk/utils/date';
+import UnifiedCard from '../../../UnifiedCard/UnifiedCard';
 
 
 interface DetailSharedDebtsProps {
@@ -50,11 +51,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [debtData, setDebtData] = useState<DebtData | undefined>(undefined);
-  // Remover estos estados que ya no son necesarios:
-  // const [showDetailView, setShowDetailView] = useState(false);
-  // const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Funciones para obtener los textos de amount_type y segmentation
   const getAmountTypeText = (amountType: string) => {
     const amountTypeMap: { [key: string]: string } = {
       'F': 'Fijo',
@@ -105,12 +102,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
       return statusMap[status] || status;
     };
 
-    // NUEVA LÓGICA: Verificar si está en mora por fecha vencida
     let finalStatus = item?.status;
     const today = new Date();
     const dueDate = item?.due_date ? new Date(item.due_date) : null;
 
-    // Si la fecha de vencimiento es menor a hoy y el estado es 'A' (Por cobrar), cambiar a 'M' (En mora)
     if (dueDate && dueDate < today && item?.status === 'A') {
       finalStatus = 'M';
     }
@@ -277,7 +272,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     </Button>,
   ];
 
-  // CAMBIO IMPORTANTE: Remover onView y usar renderView en mod
   const { List, extraData, execute, reLoad, onSave } = useCrud({
     paramsInitial,
     mod,
@@ -285,19 +279,6 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     extraButtons,
   });
 
-  const typedExecute = async (url: string, method: string, params: any): Promise<any> => {
-    return await execute(url, method, params);
-  };
-
-  const typedShowToast = (msg: string, type?: 'info' | 'success' | 'error' | 'warning') => {
-    showToast(msg, type);
-  };
-
-  const typedReLoad = (): void => {
-    reLoad();
-  };
-
-  // Usar los datos reales de extraData en lugar de datos hardcodeados
   const summaryData = useMemo(() => {
     if (!extraData) {
       return {
@@ -435,54 +416,47 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         {/* Cards de resumen con botones de acción */}
         <div className={styles.summarySection}>
           <div className={styles.summaryCards}>
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <span className={styles.cardLabel}>DISTRIBUCIÓN & ASIGNACIÓN</span>
-              </div>
-              <div className={styles.cardTitle}>{getAmountTypeText(extraData?.debt?.amount_type || 'F')}</div>
-              <div className={styles.cardSubtitle}>{getSegmentationText(extraData?.debt?.segmentation || 'T')}</div>
-            </div>
+            <UnifiedCard
+              variant="detail"
+              label="DISTRIBUCIÓN & ASIGNACIÓN"
+              mainContent={getAmountTypeText(extraData?.debt?.amount_type || 'F')}
+              subtitle={getSegmentationText(extraData?.debt?.segmentation || 'T')}
+            />
 
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <span className={styles.cardLabel}>COBRADAS</span>
-              </div>
-              <div className={styles.cardAmount}>
-                <FormatBsAlign value={summaryData.cobradas.amount} />
-              </div>
-              <div className={styles.cardSubtitle}>
-                {summaryData.cobradas.count} de {extraData?.totalReceivable || 0} deudas
-              </div>
-            </div>
+            <UnifiedCard
+              variant="detail"
+              label="COBRADAS"
+              mainContent={<FormatBsAlign value={summaryData.cobradas.amount} />}
+              subtitle={`${summaryData.cobradas.count}`}
+              total={extraData?.totalReceivable || 0}
+              current={summaryData.cobradas.count}
 
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <span className={styles.cardLabel}>POR COBRAR</span>
-              </div>
-              <div className={styles.cardAmount}>
-                <FormatBsAlign value={summaryData.porCobrar.amount} />
-              </div>
-              <div className={styles.cardSubtitle}>
-                {parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0} de {extraData?.totalReceivable || 0} deudas
-              </div>
-            </div>
+            />
 
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <span className={styles.cardLabel}>EN MORA</span>
-              </div>
-              <div className={styles.cardAmount}>
-                <FormatBsAlign value={summaryData.enMora.amount} />
-              </div>
-              <div className={styles.cardSubtitle}>
-                {extraData?.totalArrears || 0} de {extraData?.totalReceivable || 0} deudas
-              </div>
-            </div>
+            <UnifiedCard
+              variant="detail"
+              label="POR COBRAR"
+              mainContent={<FormatBsAlign value={summaryData.porCobrar.amount} />}
+              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}`}
+              total={extraData?.totalReceivable || 0}
+              current={parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}
+
+            />
+
+            <UnifiedCard
+              variant="detail"
+              label="EN MORA"
+              mainContent={<FormatBsAlign value={summaryData.enMora.amount} />}
+              subtitle={`${extraData?.totalArrears || 0}`}
+              total={extraData?.totalReceivable || 0}
+              current={extraData?.totalArrears || 0}
+
+            />
           </div>
 
           {/* Botones de acción - Validar hasAction del extraData */}
           <div className={styles.actionButtons}>
-            {extraData?.hasAction && (
+           {/*  {extraData?.hasAction && ( */}
               <>
                 <Button
                   onClick={handleEdit}
@@ -501,14 +475,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
                   Eliminar
                 </Button>
               </>
-            )}
+          {/*   )} */}
           </div>
         </div>
 
         {/* Lista con useCrud - aquí aparecerá el botón de categorías automáticamente */}
         <div className={styles.listContainer}>
           <List
-            height={'calc(100vh - 640px)'}
+            height={'calc(100vh - 560px)'}
             emptyMsg="No hay detalles de deuda compartida disponibles"
             emptyLine2="Los detalles aparecerán aquí cuando estén disponibles."
             emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}

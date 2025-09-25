@@ -14,6 +14,8 @@ import {
   statusForgivenessFilter,
 } from "./constans";
 import RenderView from "./RenderView/RenderView";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import { span } from "motion/react-client";
 
 const paramsInitial = {
   fullType: "FG",
@@ -98,7 +100,13 @@ const Forgiveness = () => {
         },
       },
       status: {
-        label: "Estado",
+        label: (
+          <span
+            style={{ display: "block", width: "100%", textAlign: "center" }}
+          >
+            Estado
+          </span>
+        ),
         form: { type: "text" },
         list: {
           onRender: ({ item }: any) => {
@@ -107,24 +115,19 @@ const Forgiveness = () => {
               status = "M";
             }
             return (
-              <p
-                style={{
-                  color: colorStatusForgiveness[status]?.color,
-                  background: colorStatusForgiveness[status]?.bg,
-                  padding: "6px 10px",
-                  borderRadius: "12px",
-                }}
+              <StatusBadge
+                color={colorStatusForgiveness[item?.status]?.color}
+                backgroundColor={colorStatusForgiveness[item?.status]?.bg}
               >
-                {statusForgiveness[status]}
-              </p>
+                {statusForgiveness[item?.status]}
+              </StatusBadge>
             );
           },
         },
-        filter: {
-          label: "Estado",
-          width: "180px",
-          options: () => statusForgivenessFilter,
-        },
+        // filter: {
+        //   label: "Estado",
+        //   options: () => statusForgivenessFilter,
+        // },
       },
       category: {
         label: "Categoría",

@@ -1,0 +1,180 @@
+.card {
+  background-color: var(--cBlackV1);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--cWhiteV1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover {
+  border-color: var(--cSuccess);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+/* Estilos para variant="summary" */
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cSuccess);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Estilos para variant="detail" */
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cSuccess);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Contenedor específico para summary que muestra amount y count en fila */
+.summaryContent {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* Para variant="summary" */
+.amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--cWhite);
+  line-height: 1.2;
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+.count {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+/* Para variant="detail" */
+.mainContent {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cWhite);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  line-height: 1.4;
+}
+
+/* Estilos para la barra de progreso */
+.progressBarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--cBlackV3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cSuccess) 0%, var(--cAccent) 100%);
+  border-radius: 4px;
+  transition: width 0.6s ease-in-out;
+  position: relative;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progressText {
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+    min-height: 100px;
+  }
+
+  .amount,
+  .mainContent {
+    font-size: 20px;
+  }
+
+  .progressBar {
+    height: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+    min-height: 90px;
+  }
+
+  .amount,
+  .mainContent {
+    font-size: 18px;
+  }
+
+  .title,
+  .label {
+    font-size: 11px;
+  }
+
+  .progressBar {
+    height: 6px;
+  }
+
+  .progressText {
+    font-size: 11px;
+  }
+}

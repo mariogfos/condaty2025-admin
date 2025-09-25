@@ -153,7 +153,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   ];
 
   const getDistributionOptions = () => [
-    { id: 'ALL', name: 'Todas las distribuciones' },
+    { id: 'ALL', name: 'Todas los tipos' },
     { id: 'F', name: 'Fijo' },
     { id: 'V', name: 'Variable' },
     { id: 'P', name: 'Porcentual' },
@@ -288,7 +288,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         label: 'Tipo de monto',
         filter: {
           key: 'amount_type',
-          label: 'Distribución',
+          label: 'Tipo',
           width: '100%',
           options: getDistributionOptions,
           optionLabel: 'name',
@@ -537,7 +537,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 500px)'}
+        height={'calc(100vh - 550px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas grupales vacía. Una vez generes las cuotas"

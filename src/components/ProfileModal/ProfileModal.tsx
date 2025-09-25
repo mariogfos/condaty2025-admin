@@ -49,6 +49,7 @@ interface FormState {
   password?: string;
   pinned?: number;
   code?: string;
+  has_image?: number; // Agregar has_image
 }
 interface ErrorState {
   [key: string]: string;
@@ -169,9 +170,9 @@ const ProfileModal = ({
         last_name: data?.data[0]?.last_name,
         mother_last_name: data?.data[0]?.mother_last_name,
         phone: data?.data[0]?.phone,
-        avatar: data?.data[0]?.avatar,
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
+        has_image: parseInt(data?.data[0]?.has_image) || 0, 
       });
     }
   }, [openEdit, data]);
