@@ -198,7 +198,7 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
-        disabled={!!formState.id} // Deshabilitar si existe ID (modo edición)
+        disabled={!!formState.id}
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
