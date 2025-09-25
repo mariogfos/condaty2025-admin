@@ -15,7 +15,6 @@ import {
 } from "./constans";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { span } from "motion/react-client";
 
 const paramsInitial = {
   fullType: "FG",
