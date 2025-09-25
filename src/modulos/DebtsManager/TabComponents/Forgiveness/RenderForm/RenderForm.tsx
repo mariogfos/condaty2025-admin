@@ -210,7 +210,8 @@ const RenderForm = ({
       amount: amount,
       percent_value: formState.percent_value,
       amount_value: formState.amount_value,
-      obs: formState.obs,
+      obs: `- ${formState.obsNew} ${formState.obs ? `\n${formState.obs}` : ""}`,
+      // obs: "",
       forgiveness: idsForgiveness,
     };
 
@@ -239,11 +240,11 @@ const RenderForm = ({
 
   return (
     <DataModal
-      title="Crear condonación"
+      title={formState?.id ? "Editar condonación" : "Crear condonación"}
       open={open}
       onClose={onClose}
       onSave={onSave}
-      buttonText="Crear condonación"
+      buttonText={formState?.id ? "Editar condonación" : "Crear condonación"}
     >
       <div style={{ display: "flex", gap: 8 }}>
         <Select
@@ -476,12 +477,45 @@ const RenderForm = ({
               />
             </div>
           )}
+          {formState?.obs && (
+            // <TextArea
+            //   name="obs"
+            //   required={false}
+            //   label="Observaciones anteriores"
+            //   disabled={formState?.id}
+            //   value={formState?.obs}
+            //   onChange={handleChange}
+            //   error={errors}
+            // />
+            <>
+              <p
+                style={{
+                  color: "var(--cWhite)",
+                  marginBottom: 8,
+                  fontSize: 16,
+                  fontWeight: "400",
+                }}
+              >
+                Observaciones anteriores
+              </p>
+              <p
+                style={{
+                  color: "var(--cWhiteV1)",
+                  marginBottom: 8,
+                  fontSize: 14,
+                  fontWeight: "400",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {formState?.obs}
+              </p>
+            </>
+          )}
           <TextArea
-            name="obs"
+            name="obsNew"
             required={false}
             label="Observaciones / Comentarios"
-            disabled={formState?.id}
-            value={formState?.obs}
+            value={formState?.obsNew}
             onChange={handleChange}
             error={errors}
           />
