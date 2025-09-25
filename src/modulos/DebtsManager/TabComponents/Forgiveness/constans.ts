@@ -22,7 +22,7 @@ export const colorStatusForgiveness: any = {
   P: { color: "var(--cSuccess)", bg: "var(--cHoverSuccess)" },
   X: { color: "var(--cError)", bg: "var(--cHoverError)" },
   M: { color: "var(--cWarning)", bg: "var(--cHoverWarning)" },
-  E: { color: "var(--cInfo)", bg: "var(--cHoverInfo)" },
-  S: { color: "var(--cInfo)", bg: "var(--cHoverInfo)" },
+  E: { color: "var(--cInfo)", bg: "var(--cHoverCompl3)" },
+  S: { color: "var(--cInfo)", bg: "var(--cHoverCompl3)" },
   W: { color: "#1E8AE9", bg: "#517FE133" },
 };
