@@ -347,11 +347,18 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           onRender: renderStatusCell,
           order: 5,
         },
+      },
+      status_filter: {
+        rules: [''],
+        api: '',
+        label: "Estado",
+        list: false,
         filter: {
-
+          order: 1,
+          key: 'status',
+          label: 'Estado',
           width: '100%',
           options: getStatusOptions,
-
         },
       },
       due_at: {
