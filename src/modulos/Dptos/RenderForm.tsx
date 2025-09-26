@@ -187,7 +187,6 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
-        disabled={!!formState.id} // Deshabilitar si existe ID (modo edición)
       />
 
       <Select
@@ -198,7 +197,6 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
-        disabled={!!formState.id} // Deshabilitar si existe ID (modo edición)
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -258,7 +256,7 @@ const RenderForm = ({
                 onChange={handleChange}
                 />}
               />
-
+            
 
           </div>
           {enabledFields[field.id] && (
