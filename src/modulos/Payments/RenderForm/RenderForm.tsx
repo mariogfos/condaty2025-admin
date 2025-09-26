@@ -61,6 +61,16 @@ interface Deuda {
   id: string | number;
   amount?: number;
   penalty_amount?: number;
+  status?: string;
+  debt_id?: string | null;
+  dpto_id?: number;
+  payment_id?: string | null;
+  shared_id?: string | null;
+  type?: number;
+  maintenance_amount?: string | null;
+  begin_at?: string;
+  due_at?: string;
+  description?: string;
   debt?: {
     month?: number;
     year?: number;
@@ -96,6 +106,16 @@ interface Deuda {
         description?: string;
       };
     };
+  } | null;
+  shared?: {
+    id?: string;
+    year?: number;
+    month?: number;
+    type?: number;
+    begin_at?: string;
+    due_at?: string;
+    description?: string;
+    amount_type?: string;
   };
 }
 
@@ -751,6 +771,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
             <div
               className={`${styles['deudas-header']} ${
                 formState.type === 'R' ? styles['deudas-header-reservations-simple'] : ''
+              } ${
+                formState.type === 'O' ? styles['deudas-header-other-debts'] : ''
               }`}
             >
               {formState.type === 'R' ? (
@@ -759,6 +781,20 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   <span className={styles['header-item']}>Concepto</span>
                   <span className={`${styles['header-item']} ${styles['header-amount']}`}>
                     Total
+                  </span>
+                  <span className={styles['header-item']}>Seleccionar</span>
+                </>
+              ) : formState.type === 'O' ? (
+                <>
+                  <span className={styles['header-item']}>Descripción</span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Monto
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Multa
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    SubTotal
                   </span>
                   <span className={styles['header-item']}>Seleccionar</span>
                 </>
@@ -796,6 +832,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div
                   className={`${styles['deuda-row']} ${
                     formState.type === 'R' ? styles['deuda-row-reservations-simple'] : ''
+                  } ${
+                    formState.type === 'O' ? styles['deuda-row-other-debts'] : ''
                   }`}
                 >
                   {formState.type === 'R' ? (
@@ -818,6 +856,24 @@ const RenderForm: React.FC<RenderFormProps> = ({
                             periodo.debt?.method === 3
                               ? Number(periodo.penalty_amount ?? 0)
                               : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                          )}
+                      </div>
+                    </>
+                  ) : formState.type === 'O' ? (
+                    <>
+                      <div className={styles['deuda-cell']}>
+                        {periodo.description || periodo.shared?.description || periodo.debt?.description || '-/-'}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' +
+                          formatNumber(
+                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
                           )}
                       </div>
                     </>

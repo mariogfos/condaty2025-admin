@@ -25,7 +25,7 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
-
+  onReload?: () => void; // Nueva prop para reload de la lista padre
 }
 
 
@@ -39,10 +39,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   onDel,
   hideSharedDebtButton = false,
   hideEditAndDeleteButtons = false,
-
+  onReload, // Nueva prop
 }) => {
   const { showToast: authShowToast } = useAuth();
-
 
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
@@ -50,6 +49,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
 
+  // Declarar la variable today
+  const today = new Date();
 
   const { data, execute, loaded } = useAxios(
     '/debt-dptos',
@@ -117,7 +118,6 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   const getStatusConfig = (status: string, dueDate?: string) => {
     let finalStatus = status;
-    const today = new Date();
     today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
     const due = dueDate ? new Date(dueDate) : null;
@@ -158,13 +158,20 @@ const RenderView: React.FC<RenderViewProps> = ({
       return {
         showAnular: false,
         showEditar: false,
-        showRegistrarPago: status !== 'P',
-        showVerPago: status === 'P'
+        showRegistrarPago: status !== 'P' && status !== 'S',
+        showVerPago: status === 'P' || status === 'S'
       };
     }
 
     switch (status) {
       case 'P':
+        return {
+          showAnular: false,
+          showEditar: false,
+          showRegistrarPago: false,
+          showVerPago: true
+        };
+      case 'S': // Por confirmar debe mostrar "Ver pago"
         return {
           showAnular: false,
           showEditar: false,
@@ -189,7 +196,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         return {
           showAnular: false,
           showEditar: false,
-          showRegistrarPago: status !== 'P',
+          showRegistrarPago: status !== 'P' && status !== 'S',
           showVerPago: false
         };
     }
@@ -245,9 +252,22 @@ const RenderView: React.FC<RenderViewProps> = ({
       if (response?.data?.success) {
         setCurrentItem(response.data.data[0] || currentItem);
       }
+
+      // Llamar al reload de la lista padre si está disponible
+      if (onReload) {
+        onReload();
+      }
     } catch (error) {
       handleShowToast('Error al actualizar los datos', 'error');
     }
+  };
+
+  // Función para manejar el cierre del modal con reload
+  const handleClose = () => {
+    if (onReload) {
+      onReload();
+    }
+    onClose();
   };
 
   const getPaymentFormData = () => {
@@ -281,6 +301,8 @@ const RenderView: React.FC<RenderViewProps> = ({
       paymentType = 'E'; // Expensas
     } else if (isReservationsDebt) {
       paymentType = 'R'; // Reservas
+    } else if (isIndividualDebt || isSharedDebt) {
+      paymentType = 'O'; // Otras deudas
     }
 
     return {
@@ -324,7 +346,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     <>
       <DataModal
         open={open}
-        onClose={onClose}
+        onClose={handleClose} // Usar la nueva función de cierre
         title="Detalle de deuda"
         buttonText=""
         buttonCancel=""

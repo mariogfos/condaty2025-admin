@@ -468,7 +468,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
