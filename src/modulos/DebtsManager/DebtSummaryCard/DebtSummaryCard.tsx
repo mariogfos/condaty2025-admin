@@ -23,8 +23,8 @@ const DebtSummaryCard: React.FC<DebtSummaryCardProps> = ({
       title={title}
       amount={amount}
       count={count}
-      isActive={isActive}
-      onClick={onClick}
+
+
     />
   );
 };
