@@ -45,8 +45,7 @@
 /* Nueva variación rounded - corregida */
 .tabsButtonRounded {
   display: flex;
-  gap: var(--spS);
-  padding-bottom: 12px;
+  gap: 0; /* Cambiar de var(--spS) a 0 para eliminar el espaciado */
 
 }
 
@@ -57,27 +56,27 @@
   cursor: pointer;
   transition: color 0.3s ease-in-out;
   padding: 12px 16px;
-  border-radius: 10px; /* Borde completo redondeado */
+  border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
   color: var(--cWhiteV1);
-
   white-space: nowrap;
-  width: auto; /* Tamaño del contenido */
-  flex: none; /* No expandir */
+  width: auto;
+  flex: none;
 }
+
 
 .selectedRounded {
   position: relative;
-  border: var(--bWidth) solid var(--cAccent); /* Borde completo */
+  border: var(--bWidth) solid var(--cAccent);
   background: transparent;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
   padding: 12px 16px;
-  border-radius: 8px; /* Borde completo redondeado */
+  border-radius:  var( --sXs); /* Solo redondear el lado izquierdo del primer botón */
   color: var(--cWhite);
   background-color: var(--cHoverBigSidebar);
   white-space: nowrap;
-  width: auto; /* Tamaño del contenido */
-  flex: none; /* No expandir */
+  width: auto;
+  flex: none;
   font-weight: 700;
 }
 

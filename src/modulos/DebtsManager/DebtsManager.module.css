@@ -79,11 +79,15 @@
 }
 
 .tabsSection {
-
+  background-color: var(--cBlackV1);
+  border-radius: var(--bRadius);
+  width: fit-content; /* Solo el ancho necesario para los tabs */
+  margin-bottom: var(--spM);
 }
 
 .listSection {
-  background: linear-gradient(145deg, var(--cBlackV1), var(--cBlackV2));
+  background: #333536;
+  padding: 20px;
   border-radius: var(--bRadius);
 
   box-shadow:
