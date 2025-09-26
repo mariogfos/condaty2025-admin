@@ -15,7 +15,7 @@ import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type PropsType = {
   isTablet: boolean;
@@ -82,6 +82,22 @@ const Header = ({
   );
 
   useEvent("onChatNewMsg", onChat);
+
+  const checkNotif = async () => {
+    let notifId = 0;
+    try {
+      notifId = parseInt(localStorage.getItem("notifId") || "0");
+    } catch (error) {
+      notifId = 0;
+    }
+    if (notifId < user?.notifId) {
+      setCount((old) => old + 1);
+    }
+  };
+  useEffect(() => {
+    if (count == 0) checkNotif();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const Title = () => {
     return (

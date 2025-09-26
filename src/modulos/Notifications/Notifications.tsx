@@ -300,11 +300,11 @@ const Notifications = () => {
     onDel: () => {},
   });
 
-  // useEffect(() => {
-  //   if (data?.data?.length > 0) {
-  //     localStorage.setItem("notifView", data.data[0].id);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data?.data?.length > 0) {
+      localStorage.setItem("notifId", data.data[0].id);
+    }
+  }, [data]);
 
   const handleRowClick = (item: any) => {
     try {
