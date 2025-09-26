@@ -116,6 +116,7 @@ interface FormState {
   subcategories?: Subcategory[];
   isSubcategoryLocked?: boolean;
   isCategoryLocked?: boolean;
+  isAmountLocked?: boolean; // Nuevo campo para bloquear el monto
   method?: string;
   voucher?: string;
   obs?: string;
@@ -161,6 +162,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [formState, setFormState] = useState<FormState>(() => {
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
+    const isAmountLocked = item?.isAmountLocked || false; // Nuevo campo
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
@@ -174,6 +176,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       subcategories: [], // Inicializar vacío, se cargará en useEffect
       isCategoryLocked,
       isSubcategoryLocked,
+      isAmountLocked, // Nuevo campo
       method: item?.method || '',
       voucher: item?.voucher || '',
       obs: item?.obs || '',
@@ -984,7 +987,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       }
                       required={true}
                       error={errors}
-                      disabled={isDebtBasedPayment}
+                      disabled={isDebtBasedPayment || formState.isAmountLocked}
                       maxLength={20}
                     />
                   </div>

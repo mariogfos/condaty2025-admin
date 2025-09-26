@@ -267,7 +267,6 @@ const RenderView: React.FC<RenderViewProps> = ({
       paymentType = 'R'; // Reservas
     }
 
-
     return {
       paid_at: new Date().toISOString().split('T')[0],
       dpto_id: debtDetail?.dpto?.nro,
@@ -275,6 +274,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       subcategory_id: subcategoryId,
       isCategoryLocked: shouldLockFields,
       isSubcategoryLocked: shouldLockFields,
+      isAmountLocked: shouldLockFields, // Nuevo campo para bloquear el monto
       amount: calculatedTotalBalance,
       type: paymentType,
       debt_dpto_id: debtDetail?.id,

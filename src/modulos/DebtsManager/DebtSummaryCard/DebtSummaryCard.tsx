@@ -7,7 +7,7 @@ interface DebtSummaryCardProps {
   amount: string;
   count: string;
   isActive?: boolean;
-  onClick?: () => void;
+
 }
 
 const DebtSummaryCard: React.FC<DebtSummaryCardProps> = ({
@@ -15,7 +15,7 @@ const DebtSummaryCard: React.FC<DebtSummaryCardProps> = ({
   amount,
   count,
   isActive = false,
-  onClick
+
 }) => {
   return (
     <UnifiedCard
