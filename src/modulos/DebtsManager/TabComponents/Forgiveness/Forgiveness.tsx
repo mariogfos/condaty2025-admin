@@ -113,23 +113,26 @@ const Forgiveness = () => {
         list: {
           onRender: ({ item }: any) => {
             let status = item?.status;
-            if (item?.due_at < new Date().toISOString().split("T")[0]) {
+            if (
+              item?.due_at < new Date().toISOString().split("T")[0] &&
+              item?.status == "A"
+            ) {
               status = "M";
             }
             return (
               <StatusBadge
-                color={colorStatusForgiveness[item?.status]?.color}
-                backgroundColor={colorStatusForgiveness[item?.status]?.bg}
+                color={colorStatusForgiveness[status]?.color}
+                backgroundColor={colorStatusForgiveness[status]?.bg}
               >
-                {statusForgiveness[item?.status]}
+                {statusForgiveness[status]}
               </StatusBadge>
             );
           },
         },
-        // filter: {
-        //   label: "Estado",
-        //   options: () => statusForgivenessFilter,
-        // },
+        filter: {
+          label: "Estado",
+          options: () => statusForgivenessFilter,
+        },
       },
       category: {
         label: "Categoría",
