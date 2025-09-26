@@ -413,16 +413,16 @@ const RenderForm = ({
             />
           </div>
           <p style={{ fontSize: 16, color: "var(--cWhite)", marginBottom: 10 }}>
-            Monto a condonar
+            Monto disponible a condonar {formatBs(amountForgiveness)}
           </p>
-          {amountForgiveness > 0 && (
+          {/* {amountForgiveness > 0 && (
             <p style={{ fontSize: 13, fontWeight: "400", marginBottom: 10 }}>
-              Monto disponible a condonar:{" "}
+             :{" "}
               <span style={{ color: "var(--cWhite)", fontWeight: "500" }}>
-                {formatBs(amountForgiveness)}
+              
               </span>
             </p>
-          )}
+          )} */}
           <div style={{ display: "flex", gap: 8 }}>
             <Input
               name="amount_value"
