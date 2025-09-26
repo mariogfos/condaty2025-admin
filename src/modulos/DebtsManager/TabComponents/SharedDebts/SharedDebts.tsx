@@ -92,10 +92,14 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.due_at ? new Date(item.due_at) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.due_at;
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
 
@@ -347,11 +351,18 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           onRender: renderStatusCell,
           order: 5,
         },
+      },
+      status_filter: {
+        rules: [''],
+        api: '',
+        label: "Estado",
+        list: false,
         filter: {
-
+          order: 1,
+          key: 'status',
+          label: 'Estado',
           width: '100%',
           options: getStatusOptions,
-
         },
       },
       due_at: {
@@ -504,9 +515,11 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
 
     let finalStatus = item?.status;
     const today = new Date();
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const dueDate = item?.due_at ? new Date(item.due_at) : null;
+    const dueDateOnly = dueDate ? new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    if (dueDateOnly && dueDateOnly < todayDateOnly && item?.status === 'A') {
       finalStatus = 'M';
     }
 

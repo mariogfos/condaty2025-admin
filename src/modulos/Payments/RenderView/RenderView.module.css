@@ -93,7 +93,7 @@
 .infoValue div {
   line-height: 1.4;
   min-width: 0;
-  text-align: right;
+  text-align: left;
 }
 .statusPaid {
   color: var(--cSuccess) !important;
