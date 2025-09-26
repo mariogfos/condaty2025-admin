@@ -15,7 +15,6 @@ import {
 } from "./constans";
 import RenderView from "./RenderView/RenderView";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
-import { span } from "motion/react-client";
 
 const paramsInitial = {
   fullType: "FG",
@@ -27,10 +26,13 @@ const Forgiveness = () => {
   const onEdit = (item: any) => {
     let day = new Date().toISOString().split("T")[0];
     // console.log(item?.due_at, day);
-    if (item?.due_at >= day) {
-      return false;
+    if (item?.due_at < day) {
+      return true;
     }
-    return true;
+    if (item?.status == "P" || item?.status == "S") {
+      return true;
+    }
+    return false;
   };
   const mod = {
     modulo: "debt-dptos",
@@ -100,24 +102,37 @@ const Forgiveness = () => {
         },
       },
       status: {
-        label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
+        label: (
+          <span
+            style={{ display: "block", width: "100%", textAlign: "center" }}
+          >
+            Estado
+          </span>
+        ),
         form: { type: "text" },
         list: {
           onRender: ({ item }: any) => {
+            let status = item?.status;
+            if (
+              item?.due_at < new Date().toISOString().split("T")[0] &&
+              item?.status == "A"
+            ) {
+              status = "M";
+            }
             return (
-              <StatusBadge 
-                color={colorStatusForgiveness[item?.status]?.color}
-                backgroundColor={colorStatusForgiveness[item?.status]?.bg}
+              <StatusBadge
+                color={colorStatusForgiveness[status]?.color}
+                backgroundColor={colorStatusForgiveness[status]?.bg}
               >
-                {statusForgiveness[item?.status]}
+                {statusForgiveness[status]}
               </StatusBadge>
             );
           },
         },
-        // filter: {
-        //   label: "Estado",
-        //   options: () => statusForgivenessFilter,
-        // },
+        filter: {
+          label: "Estado",
+          options: () => statusForgivenessFilter,
+        },
       },
       category: {
         label: "Categoría",
