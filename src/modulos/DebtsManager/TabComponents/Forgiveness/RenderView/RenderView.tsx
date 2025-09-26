@@ -1,4 +1,3 @@
-import Br from "@/components/Detail/Br";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Table from "@/mk/components/ui/Table/Table";
 import { getDateStrMesShort } from "@/mk/utils/date";
@@ -6,6 +5,8 @@ import { formatBs } from "@/mk/utils/numbers";
 import { getFullName } from "@/mk/utils/string";
 import React from "react";
 import { colorStatusForgiveness, statusForgiveness } from "../constans";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
+import Button from "@/mk/components/forms/Button/Button";
 
 const LabelValue = ({
   label,
@@ -15,7 +16,7 @@ const LabelValue = ({
   styleLabel,
 }: {
   label: string;
-  value: string;
+  value: string | React.ReactNode;
   styleValue?: React.CSSProperties;
   style?: React.CSSProperties;
   styleLabel?: React.CSSProperties;
@@ -23,57 +24,18 @@ const LabelValue = ({
   return (
     <div style={{ ...style, flex: 1 }}>
       <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
-      <p style={{ color: "var(--cWhite)", ...styleValue, marginTop: 8 }}>
-        {value}
-      </p>
+      {typeof value == "string" ? (
+        <p style={{ color: "var(--cWhite)", marginTop: 8, ...styleValue }}>
+          {value}
+        </p>
+      ) : (
+        value
+      )}
     </div>
   );
 };
 
-const RenderView = ({
-  open,
-  onClose,
-  item,
-  setItem,
-  execute,
-  extraData,
-  user,
-  reLoad,
-}: any) => {
-  const forgiveness = [
-    {
-      id: 52,
-      description: "Deuda de expensa",
-      amount: "641.00",
-      penalty_amount: "32.05",
-      maintenance_amount: "55.08",
-      subcategory_id: 2,
-      pivot: {
-        debt_dpto_id: 251,
-        forgiven_debt_dpto_id: 52,
-      },
-      subcategory: {
-        id: 2,
-        name: "Expensas",
-      },
-    },
-    {
-      id: 227,
-      description: "Deuda de expensa",
-      amount: "641.00",
-      penalty_amount: "32.05",
-      maintenance_amount: "47.44",
-      subcategory_id: 2,
-      pivot: {
-        debt_dpto_id: 251,
-        forgiven_debt_dpto_id: 227,
-      },
-      subcategory: {
-        id: 2,
-        name: "Expensas",
-      },
-    },
-  ];
+const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
   const header = [
     {
       key: "Tipo",
@@ -117,8 +79,49 @@ const RenderView = ({
       },
     },
   ];
+
+  const getStatus = (item: any) => {
+    let status = item?.status;
+    if (
+      item?.due_at < new Date().toISOString().split("T")[0] &&
+      item?.status == "A"
+    ) {
+      status = "M";
+    }
+    return status;
+  };
   return (
-    <DataModal title="Detalle de condonación" open={open} onClose={onClose}>
+    <DataModal
+      title="Detalle de condonación"
+      open={open}
+      onClose={onClose}
+      buttonText=""
+      buttonCancel=""
+      buttonExtra={
+        <div style={{ display: "flex", gap: 16, width: "100%" }}>
+          {item?.due_at < new Date().toISOString().split("T")[0] ||
+          item?.status == "P" ||
+          item?.status == "S" ? null : (
+            <Button
+              onClick={() => onEdit(item)}
+              variant="secondary"
+              style={{ flex: 1 }}
+            >
+              Editar
+            </Button>
+          )}
+          {item?.status == "P" || item?.status == "S" ? null : (
+            <Button
+              onClick={() => onDel(item)}
+              variant="secondary"
+              style={{ flex: 1 }}
+            >
+              Anular
+            </Button>
+          )}
+        </div>
+      }
+    >
       <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
         <p
           style={{
@@ -192,28 +195,69 @@ const RenderView = ({
             padding: 16,
           }}
         >
-          <div style={{ display: "flex", gap: 16 }}>
-            <LabelValue
-              label="Fecha de creación"
-              value={getDateStrMesShort(item?.created_at)}
-            />
+          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
             <LabelValue
               label="Estado"
-              value={statusForgiveness[item?.status]}
+              value={
+                <StatusBadge
+                  containerStyle={{
+                    justifyContent: "flex-start",
+                  }}
+                  color={colorStatusForgiveness[getStatus(item)]?.color}
+                  backgroundColor={colorStatusForgiveness[getStatus(item)]?.bg}
+                >
+                  {statusForgiveness[getStatus(item)]}
+                </StatusBadge>
+              }
             />
             <LabelValue
-              label="Vencimiento"
+              label="Vencimiento:"
               value={getDateStrMesShort(item?.due_at)}
+            />
+            <LabelValue
+              label="Fecha de creación:"
+              value={getDateStrMesShort(item?.created_at)}
             />
           </div>
 
           <LabelValue
             style={{ marginTop: 12 }}
-            label="Creado por"
+            label="Creado por:"
             value={getFullName(item?.confirmed_by)}
           />
         </div>
         <Table data={item?.forgiven_debts} header={header} />
+        {item?.obs && (
+          <>
+            <p
+              style={{
+                color: "var(--cWhite)",
+                fontSize: 16,
+                fontWeight: "500",
+              }}
+            >
+              Detalles
+            </p>
+            <div
+              style={{
+                backgroundColor: "#353839",
+                padding: "12px 16px",
+                borderRadius: 8,
+              }}
+            >
+              <p
+                style={{
+                  color: "var(--cWhite)",
+                  fontSize: 14,
+                  fontWeight: "400",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {item?.obs}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </DataModal>
   );

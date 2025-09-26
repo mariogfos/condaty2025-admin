@@ -210,8 +210,10 @@ const RenderForm = ({
       amount: amount,
       percent_value: formState.percent_value,
       amount_value: formState.amount_value,
-      obs: `- ${formState.obsNew} ${formState.obs ? `\n${formState.obs}` : ""}`,
-      // obs: "",
+      obs: `${formState.obsNew ? "- " + formState.obsNew : ""} ${
+        formState.obs ? `\n${formState.obs}` : ""
+      }`,
+
       forgiveness: idsForgiveness,
     };
 
