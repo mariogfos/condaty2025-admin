@@ -251,11 +251,24 @@ const RenderView: React.FC<RenderViewProps> = ({
     const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
     const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
 
-    // Todos los tipos de deuda deben estar bloqueados
+    const isForgivenessDebt = debtDetail?.description?.toLowerCase().includes('condonación') ||
+                           debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
+                           debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
+
     const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
-    return {
+    let paymentType = 'I';
 
+    if (isForgivenessDebt) {
+      paymentType = 'F'; // Condonación
+    } else if (isExpensasDebt) {
+      paymentType = 'E'; // Expensas
+    } else if (isReservationsDebt) {
+      paymentType = 'R'; // Reservas
+    }
+
+
+    return {
       paid_at: new Date().toISOString().split('T')[0],
       dpto_id: debtDetail?.dpto?.nro,
       category_id: finalCategoryId,
@@ -263,7 +276,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       isCategoryLocked: shouldLockFields,
       isSubcategoryLocked: shouldLockFields,
       amount: calculatedTotalBalance,
-      type: isReservationsDebt ? 'R' : 'T',
+      type: paymentType,
       debt_dpto_id: debtDetail?.id,
       concept: [
         debtDetail?.subcategory?.name || 'Pago',
