@@ -10,32 +10,24 @@ import { colorStatusForgiveness, statusForgiveness } from "../constans";
 const LabelValue = ({
   label,
   value,
-  variant = "V1",
+  style,
   styleValue,
   styleLabel,
 }: {
   label: string;
   value: string;
-  variant?: string;
   styleValue?: React.CSSProperties;
+  style?: React.CSSProperties;
   styleLabel?: React.CSSProperties;
 }) => {
-  if (variant == "V1") {
-    return (
-      <p style={{ color: "var(--cWhiteV1)", flex: 1, ...styleLabel }}>
-        {label}:{" "}
-        <span style={{ color: "var(--cWhite)", ...styleValue }}>{value}</span>
+  return (
+    <div style={{ ...style, flex: 1 }}>
+      <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
+      <p style={{ color: "var(--cWhite)", ...styleValue, marginTop: 8 }}>
+        {value}
       </p>
-    );
-  }
-  if (variant == "V2") {
-    return (
-      <div style={{ flex: 1 }}>
-        <p style={{ color: "var(--cWhiteV1)", ...styleLabel }}>{label}</p>
-        <p style={{ color: "var(--cWhite)", ...styleValue }}>{value}</p>
-      </div>
-    );
-  }
+    </div>
+  );
 };
 
 const RenderView = ({
@@ -84,12 +76,11 @@ const RenderView = ({
   ];
   const header = [
     {
-      key: "amount",
-      label: "Deuda",
+      key: "Tipo",
+      label: "Descripción",
       responsive: "onlyDesktop",
       onRender: ({ item }: any) => {
-        console.log(item);
-        return formatBs(item?.amount);
+        return item?.description;
       },
     },
     {
@@ -101,6 +92,14 @@ const RenderView = ({
       },
     },
     {
+      key: "penalty_amount",
+      label: "Multa",
+      responsive: "onlyDesktop",
+      onRender: ({ item }: any) => {
+        return formatBs(item?.penalty_amount);
+      },
+    },
+    {
       key: "maintenance_amount",
       label: "Mant. valor",
       responsive: "onlyDesktop",
@@ -109,69 +108,113 @@ const RenderView = ({
       },
     },
     {
-      key: "penalty_amount",
-      label: "Multa",
+      key: "amount",
+      label: "Total",
       responsive: "onlyDesktop",
       onRender: ({ item }: any) => {
-        return formatBs(item?.penalty_amount);
+        console.log(item);
+        return formatBs(item?.amount);
       },
     },
   ];
   return (
     <DataModal title="Detalle de condonación" open={open} onClose={onClose}>
-      <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
-        <LabelValue
-          label="Fecha de creación"
-          value={getDateStrMesShort(item?.created_at)}
-        />
-        <LabelValue
-          label="Fecha inicio"
-          value={getDateStrMesShort(item?.begin_at)}
-        />
-        <LabelValue label="Creado por" value={item?.id} />
-      </div>
-      <div style={{ display: "flex", gap: 16 }}>
-        <LabelValue
-          label="Estado"
-          value={statusForgiveness[item?.status]}
-          styleValue={{
-            backgroundColor: colorStatusForgiveness[item?.status].bg,
-            color: colorStatusForgiveness[item?.status].color,
-            padding: "6px 10px",
-            borderRadius: 14,
+      <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
+        <p
+          style={{
+            color: "var(--cWhiteV1)",
+            fontSize: 16,
+            textAlign: "center",
           }}
-        />
-        <LabelValue
-          label="Vencimiento"
-          value={getDateStrMesShort(item?.due_at)}
-        />
-        <LabelValue label="Aprobado por" value={item?.id} />
-      </div>
-      <Br />
+        >
+          Total a cobrar
+        </p>
+        <p
+          style={{
+            color: "var(--cWhite)",
+            marginTop: 8,
+            fontSize: 36,
+            fontWeight: 600,
+            textAlign: "center",
+            marginBottom: 16,
+          }}
+        >
+          {formatBs(item?.amount)}
+        </p>
+        <div
+          style={{
+            border: "1px solid #494949",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            gap: 16,
+          }}
+        >
+          <LabelValue label="Deuda" value={formatBs(item?.amount)} />
+          <LabelValue label="Multa" value={formatBs(item?.penalty_amount)} />
+          <LabelValue
+            label="Condonado"
+            value={
+              formatBs(item?.forgiveness_amount) +
+              " (" +
+              parseFloat(item?.forgiveness_percent) +
+              "%)"
+            }
+          />
+        </div>
+        <div
+          style={{
+            border: "1px solid #494949",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            gap: 16,
+          }}
+        >
+          <LabelValue label="Unidad" value={item?.dpto?.nro} />
+          <LabelValue
+            label="Propietario"
+            value={getFullName(item?.dpto?.homeowner)}
+          />
+          <LabelValue
+            label="Titular"
+            value={
+              item?.dpto?.holder == "H"
+                ? getFullName(item?.dpto?.homeowner)
+                : getFullName(item?.dpto?.tenant)
+            }
+          />
+        </div>
+        <div
+          style={{
+            border: "1px solid #494949",
+            borderRadius: 12,
+            padding: 16,
+          }}
+        >
+          <div style={{ display: "flex", gap: 16 }}>
+            <LabelValue
+              label="Fecha de creación"
+              value={getDateStrMesShort(item?.created_at)}
+            />
+            <LabelValue
+              label="Estado"
+              value={statusForgiveness[item?.status]}
+            />
+            <LabelValue
+              label="Vencimiento"
+              value={getDateStrMesShort(item?.due_at)}
+            />
+          </div>
 
-      <div style={{ display: "flex", gap: 16 }}>
-        <LabelValue label="Unidad" value={item?.dpto?.nro} variant="V2" />
-        <LabelValue
-          label="Titular"
-          value={
-            item?.dpto?.holder == "H"
-              ? getFullName(item?.dpto?.homeowner)
-              : getFullName(item?.dpto?.tenant)
-          }
-          variant="V2"
-        />
-        <LabelValue
-          label="Propietario"
-          value={
-            item?.dpto?.holder == "H"
-              ? getFullName(item?.dpto?.homeowner)
-              : getFullName(item?.dpto?.tenant)
-          }
-          variant="V2"
-        />
+          <LabelValue
+            style={{ marginTop: 12 }}
+            label="Creado por"
+            value={getFullName(item?.confirmed_by)}
+          />
+        </div>
+        <Table data={item?.forgiven_debts} header={header} />
       </div>
-      <Br />
-      <Table data={forgiveness} header={header} />
     </DataModal>
   );
 };

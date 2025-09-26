@@ -34,6 +34,18 @@ const Forgiveness = () => {
     }
     return false;
   };
+
+  const onDel = (item: any) => {
+    let day = new Date().toISOString().split("T")[0];
+    // console.log(item?.due_at, day);
+    // if (item?.due_at < day) {
+    //   return true;
+    // }
+    if (item?.status == "P" || item?.status == "S") {
+      return true;
+    }
+    return false;
+  };
   const mod = {
     modulo: "debt-dptos",
     singular: "condonación",
@@ -46,8 +58,7 @@ const Forgiveness = () => {
     onHideActions: (item: any) => {
       return {
         hideEdit: onEdit(item),
-
-        hideDel: true,
+        hideDel: onDel(item),
       };
     },
     titleAdd: "Crear",
