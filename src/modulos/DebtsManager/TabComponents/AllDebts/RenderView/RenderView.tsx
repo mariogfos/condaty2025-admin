@@ -74,11 +74,21 @@ const RenderView: React.FC<RenderViewProps> = ({
 
 
   const getStatusText = (status: string, dueDate?: string) => {
+    console.log("llega entra");
+    console.log("status", status);
+    console.log("dueDate", dueDate);
+
     let finalStatus = status;
     const today = new Date();
-    const due = dueDate ? new Date(dueDate) : null;
+    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
-    if (due && due < today && status === 'A') {
+    const due = dueDate ? new Date(dueDate) : null;
+    if (due) {
+      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
+    }
+
+    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
+    if (due && today > due && status === 'A') {
       finalStatus = 'M';
     }
 
@@ -108,9 +118,15 @@ const RenderView: React.FC<RenderViewProps> = ({
   const getStatusConfig = (status: string, dueDate?: string) => {
     let finalStatus = status;
     const today = new Date();
-    const due = dueDate ? new Date(dueDate) : null;
+    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
-    if (due && due < today && status === 'A') {
+    const due = dueDate ? new Date(dueDate) : null;
+    if (due) {
+      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
+    }
+
+    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
+    if (due && today > due && status === 'A') {
       finalStatus = 'M';
     }
 
@@ -297,8 +313,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getDateStrMesShort(dateString);
   };
 
-  const statusText = getStatusText(debtDetail?.status, debtDetail?.debt?.due_at);
-  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.debt?.due_at);
+  const statusText = getStatusText(debtDetail?.status, debtDetail?.due_at);
+  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.due_at);
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
