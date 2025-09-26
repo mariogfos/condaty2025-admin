@@ -427,7 +427,7 @@ const RenderForm = ({
             <Input
               name="amount_value"
               label="Monto"
-              value={formState?.amount_value}
+              value={parseFloat(formState?.amount_value)}
               onChange={handleChange}
               error={errors}
               disabled={formState?.id}
@@ -437,7 +437,7 @@ const RenderForm = ({
             <Input
               name="percent_value"
               label="Porcentaje"
-              value={formState?.percent_value}
+              value={parseFloat(formState?.percent_value)}
               disabled={formState?.id}
               onChange={handleChange}
               error={errors}
