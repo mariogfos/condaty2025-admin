@@ -3,11 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import styles from "./chat.module.css";
 import {
   IconCheck,
-  IconEmail,
   IconGroup,
   IconImage,
   IconReadMessage,
-  IconWhatsapp,
   IconX,
 } from "@/components/layout/icons/IconsBiblioteca";
 import ChatRoom from "./room/ChatRoom";
@@ -19,7 +17,7 @@ import { useEvent } from "@/mk/hooks/useEvents";
 import { SendMessageType } from "./chat-types";
 import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
-import Button from "../forms/Button/Button";
+import Image from "next/image";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -224,7 +222,13 @@ export default function ChatInstantDb() {
               {typeSearch == roomGral ? (
                 <IconGroup size={40} />
               ) : typeSearch.indexOf("chatBot") != -1 ? (
-                <Logo width={40} />
+                <Image
+                  src="/assets/images/Condy.png"
+                  width={40}
+                  height={40}
+                  alt="Soporte Condy"
+                  style={{ borderRadius: "50%" }}
+                />
               ) : (
                 <Avatar
                   hasImage={
@@ -276,8 +280,8 @@ export default function ChatInstantDb() {
               })}
             </div>
             <div>
-              <div>Canales de contactos</div>
-              <div
+              <div>Soporte</div>
+              {/* <div
                 style={{
                   width: "214px",
                   fontSize: "14px",
@@ -285,8 +289,17 @@ export default function ChatInstantDb() {
                   flexDirection: "column",
                   gap: "4px",
                 }}
-              >
-                <Button
+              > */}
+              <ChatContactItem
+                u={{ id: "chatBot", name: "Condy", isBot: true }}
+                user={user}
+                uniquePresence={uniquePresence}
+                openChat={_openNewChat}
+                countMsg={countMsg}
+                typing={typing}
+                typeSearch={typeSearch}
+              />
+              {/* <Button
                   variant="secondary"
                   small
                   style={{ justifyContent: "left", gap: "4px" }}
@@ -299,8 +312,8 @@ export default function ChatInstantDb() {
                   style={{ justifyContent: "left", gap: "4px" }}
                 >
                   <IconEmail /> Contactarme por E-mail
-                </Button>
-              </div>
+                </Button> */}
+              {/* </div> */}
               <div></div>
             </div>
           </div>
@@ -361,7 +374,13 @@ const ChatContactItem = ({
     >
       <div style={{ position: "relative" }}>
         {u.id == "chatBot" ? (
-          <Logo width={40} />
+          <Image
+            src="/assets/images/Condy.png"
+            width={40}
+            height={40}
+            alt="Soporte Condy"
+            style={{ borderRadius: "50%" }}
+          />
         ) : u.isGroup ? (
           <IconGroup size={40} />
         ) : (
