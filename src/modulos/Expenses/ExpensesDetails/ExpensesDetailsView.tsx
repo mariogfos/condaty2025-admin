@@ -98,13 +98,13 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
       case 'P':
-        return { text: 'Cobrado', code: 'P' };
+        return { text: 'Cobrada', code: 'P' };
       case 'S':
         return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
       case 'F':
-        return { text: 'Perdonada', code: 'F' };
+        return { text: 'Condonada', code: 'F' };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
