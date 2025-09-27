@@ -278,7 +278,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: 'ALL', name: 'Todos' },
               { id: 'A', name: 'Por cobrar' },
-              { id: 'P', name: 'Cobrado' },
+              { id: 'P', name: 'Cobrada' },
+              { id: 'F', name: 'Condonada' },
               { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },
             ];
