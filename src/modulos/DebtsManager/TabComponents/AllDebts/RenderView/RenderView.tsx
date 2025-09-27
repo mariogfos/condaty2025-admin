@@ -394,7 +394,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
                     <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}
+                      {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
                     </span>
                   </div>
                   <div className={styles.infoItem}>
