@@ -213,6 +213,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
     const isAmountLocked = item?.isAmountLocked || false; // Nuevo campo
+    console.log('item', item?.amount);
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
@@ -515,19 +516,24 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (debtId && deudas.length > 0) {
       const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
       if (targetDebt) {
+        // Usar la misma lógica que handleSelectPeriodo para calcular el monto
+        const calculatedAmount = targetDebt.debt?.method === 3
+          ? Number(targetDebt.penalty_amount ?? 0)
+          : Number(targetDebt.amount ?? 0) + Number(targetDebt.penalty_amount ?? 0);
+
         const newSelectedPeriodo: SelectedPeriodo = {
           id: targetDebt.id,
-          amount: (targetDebt.amount || 0) + (targetDebt.penalty_amount || 0)
+          amount: calculatedAmount
         };
 
         setSelectedPeriodo([newSelectedPeriodo]);
-        setPeriodoTotal(newSelectedPeriodo.amount);
+        setPeriodoTotal(calculatedAmount);
 
         // Si el monto está bloqueado, actualizar el formState con el monto de la deuda
         if (formState.isAmountLocked) {
           setFormState(prev => ({
             ...prev,
-            amount: newSelectedPeriodo.amount
+            amount: calculatedAmount
           }));
         }
       }
@@ -566,9 +572,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const handleSelectPeriodo = useCallback((periodo: Deuda) => {
-    // Para multas (type 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
+    // Para multas (method 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
     const subtotal =
-      periodo.type === 3
+      periodo.debt?.method === 3
         ? Number(periodo.penalty_amount ?? 0)
         : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0);
 
@@ -800,7 +806,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   const allPeriodos: SelectedPeriodo[] = deudas.map(periodo => ({
                     id: periodo.id,
                     amount:
-                      periodo.type === 3
+                      periodo.debt?.method === 3
                         ? Number(periodo.penalty_amount ?? 0)
                         : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0),
                   }));
@@ -893,12 +899,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   {formState.type === 'R' ? (
                     <>
                       <div className={styles['deuda-cell']}>
-                        {periodo.type === 3
+                        {periodo.debt?.method === 3
                           ? formatToDayDDMMYYYY(periodo.penalty_reservation?.date_at) || '-/-'
                           : formatToDayDDMMYYYY(periodo.reservation?.date_at) || '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
-                        {periodo.type === 3
+                        {periodo.debt?.method === 3
                           ? `Multa: Cancelación del área ${
                               periodo.penalty_reservation?.area?.title || '-/-'
                             }`
@@ -907,7 +913,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
                           formatNumber(
-                            periodo.type === 3
+                            periodo.debt?.method === 3
                               ? Number(periodo.penalty_amount ?? 0)
                               : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
                           )}
