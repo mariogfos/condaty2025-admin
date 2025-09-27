@@ -226,7 +226,11 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
             value={getFullName(item?.confirmed_by)}
           />
         </div>
-        <Table data={item?.forgiven_debts} header={header} />
+        <Table
+          data={item?.forgiven_debts}
+          header={header}
+          // onRowClick={(e) => console.log("Hola")}
+        />
         {item?.obs && (
           <>
             <p

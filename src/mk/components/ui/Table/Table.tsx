@@ -43,7 +43,7 @@ type PropsType = {
   onRenderBody?: null | ((row: any, i: number, onClick: Function) => any);
   onRenderHead?: null | ((item: any, row: any) => any);
   onRenderFoot?: null | ((item: any, row: any) => any);
-  onRowClick?: (e: any, scrollTo?: number) => void;
+  onRowClick?: null | ((e: any, scrollTo?: number) => void);
   onTabletRow?: (
     item: Record<string, any>,
     i: number,
@@ -83,7 +83,7 @@ const Table = ({
   onRenderBody = null,
   onRenderHead = null,
   onRenderFoot = null,
-  onRowClick = (e) => {},
+  onRowClick,
   onTabletRow,
   onButtonActions,
   onRenderCard,
@@ -377,11 +377,11 @@ const Body = ({
 
   const _onRowClick = (e: any) => {
     // if (id) {
-    const scrollTop = divRef?.current?.scrollTop;
-    // console.log("sendScroll", scrollTop);
-    setStore({ ["scrollTop" + id]: scrollTop });
     // }
     if (onRowClick) {
+      const scrollTop = divRef?.current?.scrollTop;
+      // console.log("sendScroll", scrollTop);
+      setStore({ ["scrollTop" + id]: scrollTop });
       onRowClick(e);
     }
   };
