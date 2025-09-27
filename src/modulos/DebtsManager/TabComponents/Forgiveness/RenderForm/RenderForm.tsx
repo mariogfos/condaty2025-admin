@@ -12,7 +12,6 @@ import { MONTHS } from "@/mk/utils/date1";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import React, { useEffect, useState } from "react";
 import { formatBs } from "../../../../../mk/utils/numbers";
-import { Card } from "@/mk/components/ui/Card/Card";
 import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import Br from "@/components/Detail/Br";
 
@@ -23,7 +22,6 @@ const RenderForm = ({
   setItem,
   execute,
   extraData,
-  user,
   reLoad,
 }: any) => {
   const [formState, setFormState]: any = useState({

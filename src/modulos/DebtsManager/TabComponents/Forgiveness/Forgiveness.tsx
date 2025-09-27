@@ -56,7 +56,7 @@ const Forgiveness = () => {
     //     hideDel: onDel(item),
     //   };
     // },
-    hideActions: { add: true, edit: true, del: true },
+    hideActions: { add: false, edit: true, del: true },
     titleAdd: "Crear",
     renderForm: RenderForm,
     renderView: RenderView,
