@@ -902,7 +902,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                           ? `Multa: Cancelación del área ${
                               periodo.penalty_reservation?.area?.title || '-/-'
                             }`
-                          : periodo.reservation?.area?.title || '-/-'}
+                          : `Reserva: ${periodo.reservation?.area?.title || '-/-'}` || '-/-'}
                       </div>
                       <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
