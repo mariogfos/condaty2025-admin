@@ -60,6 +60,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
     };
 
@@ -69,6 +70,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         'P': 'Cobrado',
         'S': 'Por confirmar',
         'M': 'En mora',
+        'F': 'Condonada',
         'C': 'Cancelada',
         'X': 'Anulada'
       };
@@ -76,12 +78,17 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.due_at ? new Date(item.due_at) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.due_at;
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
-    }
+
+    } 
 
     const statusText = getStatusText(finalStatus);
     const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
@@ -128,6 +135,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     { id: 'P', name: 'Cobrado' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
+    { id: 'F', name: 'Condonada' },
     { id: 'C', name: 'Cancelada' },
     { id: 'X', name: 'Anulada' }
   ];
@@ -430,10 +438,14 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.due_at ? new Date(item.due_at) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.due_at;
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
 

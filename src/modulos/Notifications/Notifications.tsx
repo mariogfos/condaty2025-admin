@@ -58,20 +58,20 @@ const Notifications = () => {
       const actValue = messageData.act || messageData.info?.act;
       const level = messageData.level || messageData.info?.level;
 
-      console.log('messageData:', messageData);
-      console.log('actValue:', actValue);
-      console.log('level:', level);
+      console.log("messageData:", messageData);
+      console.log("actValue:", actValue);
+      console.log("level:", level);
 
-      if (actValue === 'newContent') {
+      if (actValue === "newContent") {
         return (
           <div
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: 'var(--cWhite)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "var(--cWhite)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconNewPublication color="var(--cWhite)" />
@@ -87,10 +87,10 @@ const Notifications = () => {
                 style={{
                   borderRadius: 50,
                   padding: 8,
-                  backgroundColor: 'var(--cError)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "var(--cError)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <IconAmbulance color="var(--cWhite)" />
@@ -102,10 +102,10 @@ const Notifications = () => {
                 style={{
                   borderRadius: 50,
                   padding: 8,
-                  backgroundColor: 'var(--cError)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "var(--cError)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <IconAlertNotification color="var(--cWhite)" />
@@ -117,10 +117,10 @@ const Notifications = () => {
                 style={{
                   borderRadius: 50,
                   padding: 8,
-                  backgroundColor: 'var(--cWarning)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "var(--cWarning)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <IconAlertNotification color="var(--cWhite)" />
@@ -132,10 +132,10 @@ const Notifications = () => {
                 style={{
                   borderRadius: 50,
                   padding: 8,
-                  backgroundColor: 'var(--cInfo)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "var(--cInfo)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <IconAlertNotification color="var(--cWhite)" />
@@ -150,10 +150,10 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: 'var(--cInfo)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "var(--cInfo)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconPreRegister color="var(--cWhite)" />
@@ -167,10 +167,10 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: 'var(--cSuccess)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "var(--cSuccess)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconPaymentCommitment color="var(--cWhite)" />
@@ -184,10 +184,10 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: 'var(--cAccent)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "var(--cAccent)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconNewReserve color="var(--cWhite)" />
@@ -201,10 +201,10 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: 'var(--cAccent)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "var(--cAccent)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <IconUser color="var(--cWhite)" />
@@ -300,6 +300,12 @@ const Notifications = () => {
     onDel: () => {},
   });
 
+  useEffect(() => {
+    if (data?.data?.length > 0) {
+      localStorage.setItem("notifId", data.data[0].id);
+    }
+  }, [data]);
+
   const handleRowClick = (item: any) => {
     try {
       // Agregar a localStorage para marcar como leída
@@ -354,13 +360,14 @@ const Notifications = () => {
     onClick: Function
   ) => {
     try {
-      let parsedMessage: { msg: { title: string; body: string }; info?: any } = {
-        msg: { title: "", body: "" },
-        info: null
-      };
+      let parsedMessage: { msg: { title: string; body: string }; info?: any } =
+        {
+          msg: { title: "", body: "" },
+          info: null,
+        };
       try {
         let x = item.message.replace(/\\"/g, '"').replace(/\\'/g, "'");
-        parsedMessage = JSON.parse(x)
+        parsedMessage = JSON.parse(x);
       } catch (error) {
         console.error("Error parsing message:", error);
       }
@@ -384,7 +391,7 @@ const Notifications = () => {
   const { dispatch } = useEvent("onReset");
 
   useEffect(() => {
-    dispatch("hola");
+    dispatch("Notif");
   }, []);
 
   if (!userCan(mod.permiso, "R")) return <NotAccess />;

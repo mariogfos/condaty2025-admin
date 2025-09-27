@@ -37,15 +37,15 @@ const renderSubcategoryCell = (props: any) => {
   }
 };
 
-const renderTypeCell = (props: any) => {
-  const typeMap: Record<string, string> = {
+const renderMethodCell = (props: any) => {
+  const methodMap: Record<string, string> = {
     T: "Transferencia bancaria",
     E: "Efectivo",
     C: "Cheque",
     Q: "Pago QR",
     O: "Pago en oficina",
   };
-  return <div>{typeMap[props.item.type] || props.item.type}</div>;
+  return <div>{methodMap[props.item.method] || props.item.method}</div>;
 };
 
 interface StatusConfig {
@@ -164,7 +164,7 @@ const Payments = () => {
     { id: "custom", name: "Personalizado" },
   ];
 
-  const getPaymentTypeOptions = () => [
+  const getPaymentMethodOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "T", name: "Transferencia bancaria" },
     { id: "E", name: "Efectivo" },
@@ -265,12 +265,12 @@ const Payments = () => {
           ],
         },
         list: {
-          onRender: renderTypeCell,
+          onRender: renderMethodCell,
         },
         filter: {
           label: "Forma de pago",
 
-          options: getPaymentTypeOptions,
+          options: getPaymentMethodOptions,
         },
       },
 

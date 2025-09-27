@@ -189,7 +189,7 @@ const Alerts = () => {
       level: {
         rules: ['required'],
         api: 'ae',
-        label: <span style={{ display: 'block', width: '100%' }}>Grupo de alerta</span>,
+        label: <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>Grupo de alerta</span>,
         list: {
           width: '12%',
           onRender: renderAlertLevel,

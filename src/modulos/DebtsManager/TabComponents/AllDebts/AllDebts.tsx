@@ -95,22 +95,30 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
         A: 'Por cobrar',
-        P: 'Cobrado',
+        P: 'Cobrada',
         S: 'Por confirmar',
         M: 'En mora',
         C: 'Cancelada',
-        F: 'Perdonada',
+        F: 'Condonada',
         X: 'Anulada',
       };
       return statusMap[status] || 'Estado desconocido';
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : item?.due_at ? new Date(item.due_at) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.debt?.due_at || item?.due_at;
+
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
+
+    } else {
+
     }
 
     const statusText = getStatusText(finalStatus);
@@ -152,8 +160,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'F', name: 'Perdonada' },
+    { id: 'P', name: 'Cobrada' },
+    { id: 'F', name: 'Condonada' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
     { id: 'C', name: 'Cancelada' },
@@ -460,7 +468,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -490,16 +498,20 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         'C': 'Cancelada',
         'X': 'Anulada',
         'M': 'En mora',
-        'F': 'Perdonada'
+        'F': 'Condonada'
       };
       return statusMap[status] || status;
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.debt?.due_at ? new Date(item.debt.due_at) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.debt?.due_at || item?.due_at;
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
 
