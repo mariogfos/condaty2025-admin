@@ -571,6 +571,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           reLoad={() => {
             reloadItem();
           }}
+          debtId={item?.id}
         />
       )}
     </>

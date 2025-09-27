@@ -71,6 +71,34 @@ interface Deuda {
   begin_at?: string;
   due_at?: string;
   description?: string;
+  penalty_reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
+  reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
   debt?: {
     month?: number;
     year?: number;
@@ -92,7 +120,7 @@ interface Deuda {
         description?: string;
       };
     };
-    reservation_penalty?: {
+    penalty_reservation?: {
       id?: string;
       debt_id?: string;
       area_id?: string;
@@ -168,6 +196,7 @@ interface RenderFormProps {
   execute: (...args: any[]) => Promise<any>;
   showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
+  debtId?: string | number; // Nueva prop para el ID de la deuda específica
 }
 
 const RenderForm: React.FC<RenderFormProps> = ({
@@ -178,6 +207,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   execute,
   showToast,
   reLoad,
+  debtId, // Nueva prop
 }) => {
   const [formState, setFormState] = useState<FormState>(() => {
     const isCategoryLocked = item?.isCategoryLocked || false;
@@ -480,6 +510,30 @@ const RenderForm: React.FC<RenderFormProps> = ({
     showCategoryFields,
   ]);
 
+  // Nuevo useEffect para seleccionar automáticamente la deuda específica
+  useEffect(() => {
+    if (debtId && deudas.length > 0) {
+      const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
+      if (targetDebt) {
+        const newSelectedPeriodo: SelectedPeriodo = {
+          id: targetDebt.id,
+          amount: (targetDebt.amount || 0) + (targetDebt.penalty_amount || 0)
+        };
+
+        setSelectedPeriodo([newSelectedPeriodo]);
+        setPeriodoTotal(newSelectedPeriodo.amount);
+
+        // Si el monto está bloqueado, actualizar el formState con el monto de la deuda
+        if (formState.isAmountLocked) {
+          setFormState(prev => ({
+            ...prev,
+            amount: newSelectedPeriodo.amount
+          }));
+        }
+      }
+    }
+  }, [debtId, deudas, formState.isAmountLocked]);
+
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value, type } = e.target;
@@ -512,9 +566,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
   );
 
   const handleSelectPeriodo = useCallback((periodo: Deuda) => {
-    // Para multas (method 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
+    // Para multas (type 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
     const subtotal =
-      periodo.debt?.method === 3
+      periodo.type === 3
         ? Number(periodo.penalty_amount ?? 0)
         : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0);
 
@@ -746,7 +800,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   const allPeriodos: SelectedPeriodo[] = deudas.map(periodo => ({
                     id: periodo.id,
                     amount:
-                      periodo.debt?.method === 3
+                      periodo.type === 3
                         ? Number(periodo.penalty_amount ?? 0)
                         : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0),
                   }));
@@ -839,21 +893,21 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   {formState.type === 'R' ? (
                     <>
                       <div className={styles['deuda-cell']}>
-                        {periodo.debt?.method === 3
-                          ? formatToDayDDMMYYYY(periodo.debt?.reservation_penalty?.date_at) || '-/-'
-                          : formatToDayDDMMYYYY(periodo.debt?.reservation?.date_at) || '-/-'}
+                        {periodo.type === 3
+                          ? formatToDayDDMMYYYY(periodo.penalty_reservation?.date_at) || '-/-'
+                          : formatToDayDDMMYYYY(periodo.reservation?.date_at) || '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
-                        {periodo.debt?.method === 3
+                        {periodo.type === 3
                           ? `Multa: Cancelación del área ${
-                              periodo.debt?.reservation_penalty?.area?.title || '-/-'
+                              periodo.penalty_reservation?.area?.title || '-/-'
                             }`
-                          : periodo.debt?.reservation?.area?.title || '-/-'}
+                          : periodo.reservation?.area?.title || '-/-'}
                       </div>
                       <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
                           formatNumber(
-                            periodo.debt?.method === 3
+                            periodo.type === 3
                               ? Number(periodo.penalty_amount ?? 0)
                               : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
                           )}
