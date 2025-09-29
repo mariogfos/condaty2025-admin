@@ -21,7 +21,6 @@ interface UnifiedCardProps {
   // Propiedades comunes
   variant?: 'summary' | 'detail';
   isActive?: boolean;
-  onClick?: () => void; // Nueva prop para manejar clicks
   className?: string;
 }
 
@@ -37,7 +36,6 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   showProgressBar = false,
   variant = 'summary',
   isActive = false,
-  onClick, // Nueva prop
   className = ''
 }) => {
   // Calcular porcentaje para la barra de progreso
@@ -46,8 +44,6 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   return (
     <div
       className={`${styles.card} ${isActive ? styles.active : ''} ${className}`}
-      onClick={onClick} // Agregar el manejador de click
-      style={{ cursor: onClick ? 'pointer' : 'default' }} // Cambiar cursor si es clickeable
     >
       <div className={styles.header}>
         {variant === 'summary' && title && (
