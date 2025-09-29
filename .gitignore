@@ -49,3 +49,5 @@ next-env.d.ts
 .env.development
 package-lock.json
 .env.development
+
+WARP.md

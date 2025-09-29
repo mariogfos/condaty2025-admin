@@ -118,21 +118,18 @@ const DebtsManager = () => {
             amount={summaryData.por_cobrar.amount}
             count={summaryData.por_cobrar.count}
             isActive={activeSummaryCard === "por_cobrar"}
-            onClick={() => setActiveSummaryCard("por_cobrar")}
           />
           <DebtSummaryCard
             title="DEUDAS COBRADAS"
             amount={summaryData.cobradas.amount}
             count={summaryData.cobradas.count}
             isActive={activeSummaryCard === "cobradas"}
-            onClick={() => setActiveSummaryCard("cobradas")}
           />
           <DebtSummaryCard
             title="DEUDAS EN MORA"
             amount={summaryData.en_mora.amount}
             count={summaryData.en_mora.count}
             isActive={activeSummaryCard === "en_mora"}
-            onClick={() => setActiveSummaryCard("en_mora")}
           />
         </div>
       </div>

@@ -199,7 +199,11 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   const getTotalAmount = () => {
     if (!item?.details?.length) return item?.amount || 0;
     return item.details.reduce(
-      (sum: number, detail: any) => sum + (parseFloat(detail.amount) || 0),
+      (sum: number, detail: any) => {
+        const amount = parseFloat(detail.amount) || 0;
+        const maintenanceAmount = parseFloat(detail?.debt_dpto?.maintenance_amount) || 0;
+        return sum + amount + maintenanceAmount;
+      },
       0
     );
   };
@@ -216,7 +220,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         )
       );
 
-      return uniqueCategories.length > 0 
+      return uniqueCategories.length > 0
         ? uniqueCategories.map((name, i) => (
             <div key={`category-${i}`}>- {name}</div>
           ))
@@ -470,100 +474,50 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             <div className={styles.periodsDetailsSection}>
               <div className={styles.periodsDetailsHeader}>
                 <h3 className={styles.periodsDetailsTitle}>
-                  {item.details[0]?.debt_dpto?.debt?.type === 2
-                    ? 'Reservas pagadas'
-                    : item.details[0]?.debt_dpto?.debt?.type === 3
-                    ? 'Multas pagadas'
-                    : 'Periodos pagados'}
+                  Detalles del pago
                 </h3>
               </div>
 
               <div className={styles.periodsTableWrapper}>
                 <div className={styles.periodsTable}>
-                  <div
-                    className={
-                      item.details[0]?.debt_dpto?.debt?.type === 2 ||
-                      item.details[0]?.debt_dpto?.debt?.type === 3
-                        ? styles.periodsTableHeaderReservations
-                        : styles.periodsTableHeader
-                    }
-                  >
-                    {item.details[0]?.debt_dpto?.debt?.type === 2 ||
-                    item.details[0]?.debt_dpto?.debt?.type === 3 ? (
-                      <>
-                        <div className={styles.periodsTableCell}>Fecha</div>
-                        <div className={styles.periodsTableCell}>Concepto</div>
-                        <div className={styles.periodsTableCell}>Total</div>
-                      </>
-                    ) : (
-                      <>
-                        <div className={styles.periodsTableCell}>Periodo</div>
-                        <div className={styles.periodsTableCell}>Concepto</div>
-                        <div className={styles.periodsTableCell}>Monto</div>
-                        <div className={styles.periodsTableCell}>Multa</div>
-                        <div className={styles.periodsTableCell}>Subtotal</div>
-                      </>
-                    )}
+                  <div className={styles.periodsTableHeader}>
+                    <div className={styles.periodsTableCell}>Tipo</div>
+                    <div className={styles.periodsTableCell}>Concepto</div>
+                    <div className={styles.periodsTableCell}>Monto</div>
+                    <div className={styles.periodsTableCell}>Multa</div>
+                    <div className={styles.periodsTableCell}>MV</div>
+                    <div className={styles.periodsTableCell}>Subtotal</div>
                   </div>
                   <div className={styles.periodsTableBody}>
-                    {item.details?.map((periodo: any, index: number) => (
-                      <div
-                        className={
-                          periodo?.debt_dpto?.debt?.type === 2 ||
-                          periodo?.debt_dpto?.debt?.type === 3
-                            ? styles.periodsTableRowReservations
-                            : styles.periodsTableRow
-                        }
-                        key={periodo?.id ?? index}
-                      >
-                        {periodo?.debt_dpto?.debt?.type === 2 ||
-                        periodo?.debt_dpto?.debt?.type === 3 ? (
-                          <>
-                            <div className={styles.periodsTableCell} data-label="Fecha">
-                              {periodo?.debt_dpto?.debt?.type === 3
-                                ? formatToDayDDMMYYYY(
-                                    periodo?.debt_dpto?.debt?.reservation_penalty?.date_at
-                                  ) || '-/-'
-                                : formatToDayDDMMYYYY(
-                                    periodo?.debt_dpto?.debt?.reservation?.date_at
-                                  ) || '-/-'}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Concepto">
-                              {periodo?.debt_dpto?.debt?.type === 3
-                                ? `Multa por Cancelación: ${
-                                    periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title ||
-                                    '-/-'
-                                  }`
-                                : `Reserva: ${
-                                    periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'
-                                  }`}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Total">
-                              {formatBs(periodo?.amount || 0)}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className={styles.periodsTableCell} data-label="Periodo">
-                              {MONTHS_ES[(periodo?.debt_dpto?.debt?.month ?? 1) - 1]}{' '}
-                              {periodo?.debt_dpto?.debt?.year}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Concepto">
-                              {periodo?.subcategory?.padre?.name || '-/-'}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Monto">
-                              {formatBs(periodo?.debt_dpto?.amount || 0)}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Multa">
-                              {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
-                            </div>
-                            <div className={styles.periodsTableCell} data-label="Subtotal">
-                              {formatBs(periodo?.amount || 0)}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ))}
+                    {item.details?.map((periodo: any, index: number) => {
+                      const debtType = periodo?.debt_dpto?.type;
+
+                      return (
+                        <div
+                          className={styles.periodsTableRow}
+                          key={periodo?.id ?? index}
+                        >
+                          <div className={styles.periodsTableCell} data-label="Tipo">
+                            {getDebtType(debtType)}
+                          </div>
+                          <div className={styles.periodsTableCell} data-label="Concepto">
+                            {getConceptByType(periodo)}
+                          </div>
+                          <div className={styles.periodsTableCell} data-label="Monto">
+                            {formatBs(periodo?.debt_dpto?.amount || 0)}
+                          </div>
+                          <div className={styles.periodsTableCell} data-label="Multa">
+                            {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
+                          </div>
+                          <div className={styles.periodsTableCell} data-label="MV">
+                            {formatBs(periodo?.debt_dpto?.maintenance_amount || 0)}
+                          </div>
+                          <div className={styles.periodsTableCell} data-label="Subtotal">
+                            {formatBs(getSubtotal(periodo))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -624,3 +578,47 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
 RenderView.displayName = 'RenderViewPayment';
 
 export default RenderView;
+
+  // Función para obtener el tipo de deuda
+  const getDebtType = (type: number) => {
+    switch (type) {
+      case 0:
+        return 'Individual';
+      case 1:
+        return 'Expensas';
+      case 2:
+        return 'Reservas';
+      case 3:
+        return 'Multa por Cancelación';
+      case 4:
+        return 'Compartida';
+      case 5:
+        return 'Condonación';
+      default:
+        return 'Desconocido';
+    }
+  };
+
+  // Función para obtener el concepto basado en el tipo
+  const getConceptByType = (periodo: any) => {
+    const type = periodo?.debt_dpto?.type;
+
+    switch (type) {
+      case 0: // Individual
+      case 4: // Compartida
+        return periodo?.subcategory?.name || '-/-';
+      case 2: // Reservas
+        return `Reserva: ${periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}`;
+      case 3: // Multa por Cancelación
+        return `Multa por Cancelación: ${periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || '-/-'}`;
+      default:
+        return periodo?.subcategory?.name || '-/-';
+    }
+  };
+
+  // Función para calcular el subtotal incluyendo mantenimiento de valor
+  const getSubtotal = (periodo: any) => {
+    const amount = parseFloat(periodo?.amount) || 0;
+    const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
+    return amount + maintenanceAmount;
+  };
