@@ -23,17 +23,24 @@ const paramsInitial = {
   type: 5,
 };
 const Forgiveness = () => {
-  const onEdit = (item: any) => {
-    let day = new Date().toISOString().split("T")[0];
-    // console.log(item?.due_at, day);
-    if (item?.due_at < day) {
-      return true;
-    }
-    if (item?.status == "P" || item?.status == "S") {
-      return true;
-    }
-    return false;
-  };
+  // const onEdit = (item: any) => {
+  //   let day = new Date().toISOString().split("T")[0];
+  //   // console.log(item?.due_at, day);
+  //   if (item?.due_at < day) {
+  //     return true;
+  //   }
+  //   if (item?.status == "P" || item?.status == "S") {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
+  // const onDel = (item: any) => {
+  //   if (item?.status == "P" || item?.status == "S") {
+  //     return true;
+  //   }
+  //   return false;
+  // };
   const mod = {
     modulo: "debt-dptos",
     singular: "condonación",
@@ -43,13 +50,13 @@ const Forgiveness = () => {
     extraData: true,
     loadView: { fullType: "DET", type: 5 },
     export: true,
-    onHideActions: (item: any) => {
-      return {
-        hideEdit: onEdit(item),
-
-        hideDel: true,
-      };
-    },
+    // onHideActions: (item: any) => {
+    //   return {
+    //     hideEdit: onEdit(item),
+    //     hideDel: onDel(item),
+    //   };
+    // },
+    hideActions: { add: false, edit: true, del: true },
     titleAdd: "Crear",
     renderForm: RenderForm,
     renderView: RenderView,

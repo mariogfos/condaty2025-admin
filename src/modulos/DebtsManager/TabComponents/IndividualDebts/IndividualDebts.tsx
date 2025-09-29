@@ -60,6 +60,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' },
       M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
       C: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
+      F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' },
       X: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' },
     };
 
@@ -69,6 +70,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         'P': 'Cobrado',
         'S': 'Por confirmar',
         'M': 'En mora',
+        'F': 'Condonada',
         'C': 'Cancelada',
         'X': 'Anulada'
       };
@@ -133,6 +135,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     { id: 'P', name: 'Cobrado' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
+    { id: 'F', name: 'Condonada' },
     { id: 'C', name: 'Cancelada' },
     { id: 'X', name: 'Anulada' }
   ];

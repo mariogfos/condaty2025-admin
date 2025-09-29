@@ -95,11 +95,11 @@ const RenderView: React.FC<RenderViewProps> = ({
 
     const statusMap: { [key: string]: string } = {
       'A': 'Por cobrar',
-      'P': 'Cobrado',
+      'P': 'Cobrada',
       'S': 'Por confirmar',
       'M': 'En mora',
       'C': 'Cancelada',
-      'F': 'Perdonada',
+      'F': 'Condonada',
       'X': 'Anulada'
     };
     return statusMap[finalStatus] || finalStatus;
@@ -394,7 +394,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
                     <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}
+                      {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
                     </span>
                   </div>
                   <div className={styles.infoItem}>
