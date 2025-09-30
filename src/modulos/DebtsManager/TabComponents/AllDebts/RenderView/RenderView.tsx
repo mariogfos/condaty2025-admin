@@ -14,6 +14,7 @@ import PaymentRenderView from '@/modulos/Payments/RenderView/RenderView';
 import PaymentRenderForm from '@/modulos/Payments/RenderForm/RenderForm';
 import { getDateStrMesShort } from '@/mk/utils/date';
 import { getFullName } from '@/mk/utils/string';
+import { getTitular } from '@/mk/utils/adapters';
 
 interface RenderViewProps {
   open: boolean;
@@ -305,6 +306,10 @@ const RenderView: React.FC<RenderViewProps> = ({
       paymentType = 'O'; // Otras deudas
     }
 
+    // Obtener el titular correctamente usando getTitular
+    const titular = getTitular(debtDetail?.dpto);
+    const owner_id = titular?.id;
+
     return {
       paid_at: new Date().toISOString().split('T')[0],
       dpto_id: debtDetail?.dpto?.nro,
@@ -321,6 +326,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         `Pago de ${debtDetail?.subcategory?.name || 'deuda'} - Unidad ${debtDetail?.dpto?.nro}`
       ],
       owner: debtDetail?.dpto?.homeowner,
+      owner_id: owner_id, // Agregar el owner_id calculado correctamente
       status: 'S'
     };
   };
