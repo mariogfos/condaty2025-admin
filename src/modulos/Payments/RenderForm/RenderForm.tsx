@@ -154,7 +154,6 @@ interface SelectedPeriodo {
 
 interface FormState {
   paid_at?: string;
-
   file?: string | null;
   filename?: string | null;
   ext?: string | null;
@@ -164,12 +163,13 @@ interface FormState {
   subcategories?: Subcategory[];
   isSubcategoryLocked?: boolean;
   isCategoryLocked?: boolean;
-  isAmountLocked?: boolean; // Nuevo campo para bloquear el monto
+  isAmountLocked?: boolean;
   method?: string;
   voucher?: string;
   obs?: string;
   amount?: number | string;
-  type?: string; // Nuevo campo para el tipo de pago
+  type?: string;
+  owner_id?: string | number;
 }
 
 interface Errors {
@@ -212,7 +212,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [formState, setFormState] = useState<FormState>(() => {
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
-    const isAmountLocked = item?.isAmountLocked || false; // Nuevo campo
+    const isAmountLocked = item?.isAmountLocked || false;
     console.log('item', item?.amount);
 
     return {
@@ -224,14 +224,15 @@ const RenderForm: React.FC<RenderFormProps> = ({
       dpto_id: item?.dpto_id || '',
       category_id: item?.category_id || '',
       subcategory_id: item?.subcategory_id || '',
-      subcategories: [], // Inicializar vacío, se cargará en useEffect
+      subcategories: [],
       isCategoryLocked,
       isSubcategoryLocked,
-      isAmountLocked, // Nuevo campo
+      isAmountLocked,
       method: item?.method || '',
       voucher: item?.voucher || '',
       obs: item?.obs || '',
       amount: item?.amount || '',
+      owner_id: item?.owner_id || '',
     };
   });
   const [errors, setErrors] = useState<Errors>({});
@@ -740,24 +741,29 @@ const RenderForm: React.FC<RenderFormProps> = ({
   ]);
 
   const _onSavePago = useCallback(async () => {
-    if (!validar()) {
-      if (
-        isExpensasWithoutDebt ||
-        isReservationsWithoutDebt ||
-        (isDebtBasedPayment && deudas.length > 0 && selectedPeriodo.length === 0)
-      ) {
-        showToast('Por favor revise los errores', 'error');
+    const isValid = validar();
+    if (!isValid) {
+      // Los errores ya fueron establecidos en el estado por la función validar()
+      // Solo necesitamos mostrar el toast apropiado
+      if (errors.general) {
+        showToast(errors.general, 'error');
       } else {
         showToast('Por favor revise los campos marcados', 'warning');
       }
       return;
     }
 
-    const selectedDpto = extraData?.dptos.find(
-      (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
-    );
-    const titular = getTitular(selectedDpto);
-    const owner_id = titular?.id;
+    // Usar owner_id del formState si existe, sino calcularlo
+    let owner_id = formState.owner_id;
+
+    // Solo calcular owner_id si no viene del formState (cuando se usa desde Payments directamente)
+    if (!owner_id) {
+      const selectedDpto = extraData?.dptos.find(
+        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
+      );
+      const titular = getTitular(selectedDpto);
+      owner_id = titular?.id;
+    }
 
     let params: any = {
       paid_at: formState.paid_at,
