@@ -198,14 +198,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
   };
   const getTotalAmount = () => {
     if (!item?.details?.length) return item?.amount || 0;
-    return item.details.reduce(
-      (sum: number, detail: any) => {
-        const amount = parseFloat(detail.amount) || 0;
-        const maintenanceAmount = parseFloat(detail?.debt_dpto?.maintenance_amount) || 0;
-        return sum + amount + maintenanceAmount;
-      },
-      0
-    );
+    return item.amount
   };
 
   const getUniqueConcepts = () => {
@@ -524,7 +517,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               <div className={styles.periodsDetailsFooter}>
                 <div className={styles.periodsDetailsTotal}>
                   Total pagado:{' '}
-                  <span className={styles.totalAmountValue}>{formatBs(getTotalAmount())}</span>
+                  <span className={styles.totalAmountValue}>{formatBs(item.amount ?? 0)}</span>
                 </div>
               </div>
             </div>
@@ -617,8 +610,8 @@ export default RenderView;
   };
 
   // Función para calcular el subtotal incluyendo mantenimiento de valor
-  const getSubtotal = (periodo: any) => {
-    const amount = parseFloat(periodo?.amount) || 0;
-    const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
-    return amount + maintenanceAmount;
+const getSubtotal = (periodo: any) => {
+/*     const amount = parseFloat(periodo?.amount) || 0;
+    const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0; */
+  return periodo?.amount;
   };
