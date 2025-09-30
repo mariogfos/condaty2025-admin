@@ -24,7 +24,7 @@ interface PaymentDetail {
   paid_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
-  obs?: string;
+  obs?: string; 
   type?: string;
   method?: string;
   voucher?: string;
