@@ -74,7 +74,6 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
       label: "Total",
       responsive: "onlyDesktop",
       onRender: ({ item }: any) => {
-        console.log(item);
         return formatBs(item?.amount);
       },
     },
