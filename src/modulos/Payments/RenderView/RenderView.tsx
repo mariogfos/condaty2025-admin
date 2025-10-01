@@ -24,8 +24,9 @@ interface PaymentDetail {
   paid_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
-  obs?: string;
+  obs?: string; 
   type?: string;
+  method?: string;
   voucher?: string;
   ext?: string;
   updated_at?: string;
@@ -401,7 +402,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Forma de pago</span>
-                <span className={styles.infoValue}>{getPaymentType(item.type || '')}</span>
+                <span className={styles.infoValue}>{getPaymentType(item.method || '')}</span>
               </div>
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}>Pagado por</span>

@@ -96,11 +96,11 @@ const RenderView: React.FC<RenderViewProps> = ({
 
     const statusMap: { [key: string]: string } = {
       'A': 'Por cobrar',
-      'P': 'Cobrado',
+      'P': 'Cobrada',
       'S': 'Por confirmar',
       'M': 'En mora',
       'C': 'Cancelada',
-      'F': 'Perdonada',
+      'F': 'Condonada',
       'X': 'Anulada'
     };
     return statusMap[finalStatus] || finalStatus;

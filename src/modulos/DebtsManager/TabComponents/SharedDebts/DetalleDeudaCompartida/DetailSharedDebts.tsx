@@ -103,10 +103,14 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     };
 
     let finalStatus = item?.status;
-    const today = new Date();
-    const dueDate = item?.due_date ? new Date(item.due_date) : null;
 
-    if (dueDate && dueDate < today && item?.status === 'A') {
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = item?.debt?.due_at || item?.due_at;
+
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
     }
 
@@ -427,7 +431,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="COBRADAS"
               mainContent={<FormatBsAlign value={summaryData.cobradas.amount} />}
-              subtitle={`${summaryData.cobradas.count}`}
+              subtitle={`${summaryData.cobradas.count} En total`}
               total={extraData?.totalReceivable || 0}
               current={summaryData.cobradas.count}
 
@@ -437,7 +441,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="POR COBRAR"
               mainContent={<FormatBsAlign value={summaryData.porCobrar.amount} />}
-              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}`}
+              subtitle={`${parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0} En total`}
               total={extraData?.totalReceivable || 0}
               current={parseFloat(extraData?.receivable || '0') > 0 ? Math.ceil(parseFloat(extraData?.receivable || '0') / parseFloat(extraData?.totalAmountDebt || '1')) : 0}
 
@@ -447,7 +451,7 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
               variant="detail"
               label="EN MORA"
               mainContent={<FormatBsAlign value={summaryData.enMora.amount} />}
-              subtitle={`${extraData?.totalArrears || 0}`}
+              subtitle={`${extraData?.totalArrears || 0} En total`}
               total={extraData?.totalReceivable || 0}
               current={extraData?.totalArrears || 0}
 
