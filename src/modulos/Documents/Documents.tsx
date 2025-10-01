@@ -9,9 +9,9 @@ import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
+  { id: "ALL", name: "Todos" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
-  { id: "A", name: "Todos" },
 ];
 
 const Documents = () => {
@@ -26,6 +26,7 @@ const Documents = () => {
     loadView: {
       fullType: "DET",
     },
+    filter: true,
     export: true,
     renderView: (props: {
       open: boolean;
@@ -74,7 +75,11 @@ const Documents = () => {
         label: "Destino",
         form: { type: "select", options: lOptions },
         list: false,
+        filter: {
+          options: () => lOptions,
+        },
       },
+
       // position: {
       //   rules: ["required"],
       //   api: "ae*",
