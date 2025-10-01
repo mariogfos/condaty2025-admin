@@ -79,17 +79,6 @@ const Documents = () => {
           options: () => lOptions,
         },
       },
-
-      // position: {
-      //   rules: ["required"],
-      //   api: "ae*",
-      //   label: "Posición",
-      //   form: {
-      //     type: "text",
-      //     label: "Introduce un número del 0 al 5 para ordenar el documento",
-      //   },
-      //   list:false
-      // },
       doc: {
         rules: ["required*a"],
         api: "ae*",
