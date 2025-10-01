@@ -66,7 +66,7 @@ const Documents = () => {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
-        form: { type: "text" },
+        form: { type: "textArea" },
         list: {},
       },
       for_to: {
