@@ -75,18 +75,8 @@ const Documents = () => {
         form: { type: "select", options: lOptions },
         list: false,
       },
-      // position: {
-      //   rules: ["required"],
-      //   api: "ae*",
-      //   label: "Posición",
-      //   form: {
-      //     type: "text",
-      //     label: "Introduce un número del 0 al 5 para ordenar el documento",
-      //   },
-      //   list:false
-      // },
       doc: {
-        rules: ["required*a"],
+        rules: ["required"],
         api: "ae*",
         label: "Archivo",
         form: {
