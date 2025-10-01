@@ -22,6 +22,7 @@ const Documents = () => {
     singular: "Documento",
     plural: "Documentos",
     permiso: "",
+    titleAdd: "Nuevo",
     extraData: true,
     loadView: {
       fullType: "DET",
