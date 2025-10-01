@@ -9,7 +9,7 @@ import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
-  { id: "ALL", name: "Todos" },
+  { id: "A", name: "Todos" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
 ];
