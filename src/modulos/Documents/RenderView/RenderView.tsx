@@ -33,16 +33,19 @@ const RenderView = (props: {
     >
       <Card>
         <section>
-          <IconPDF
-            size={50}
-            color={"var(--cBlack)"}
+          <div
             style={{
               backgroundColor: "var(--cWhiteV1)",
+              padding: 12,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
               justifyContent: "center",
             }}
-            viewBox="0 0 18 24"
-            circle
-          />
+          >
+            <IconPDF size={60} color={"var(--cBlack)"} viewBox="0 0 18 24" />
+          </div>
+
           <div>{props?.item?.name}</div>
         </section>
         <Br />
