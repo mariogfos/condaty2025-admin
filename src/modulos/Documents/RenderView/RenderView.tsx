@@ -15,11 +15,46 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  // console.log(props,'propsassasas')
   const DocDestiny: any = {
     O: { name: "Residentes" },
     G: { name: "Guardias" },
     A: { name: "Todos" },
+  };
+
+  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
+    const url = getUrlImages(
+      "/DOC-" +
+        props?.item?.id +
+        "." +
+        (props?.item?.doc?.ext || props?.item?.ext) +
+        "?d=" +
+        props?.item?.updated_at
+    );
+
+    const fileName = `documento-${props?.item?.id}.${
+      props?.item?.doc?.ext || props?.item?.ext
+    }`;
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Error al descargar el archivo:", error);
+      window.location.href = url;
+    }
   };
 
   return (
@@ -51,50 +86,22 @@ const RenderView = (props: {
         <Br />
 
         <ContainerDetail>
-          {/* <div className={styles.textsDiv}>
-              <div>Subido por</div>
-              <div>{getFullName(props?.item?.user)}</div>
-            </div> */}
           <LabelValueDetail
             value={getFullName(props?.item?.user)}
             label="Subido por"
           />
 
-          {/* <div className={styles.textsDiv}>
-            <div>Segmentación</div>
-            <div className="truncatedText">
-              {DocDestiny[props?.item?.for_to]?.name}
-            </div>
-          </div> */}
           <LabelValueDetail
             value={DocDestiny[props?.item?.for_to]?.name}
             label="Segmentación"
           />
 
-          {/* <div>
-            <div className={styles.textsDiv}>
-              <div>Descripción</div>
-              <div>{props?.item?.descrip}</div>
-            </div>
-          </div> */}
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
         </ContainerDetail>
         <Br />
 
         <section>
-          <a
-            target="_blank"
-            href={getUrlImages(
-              "/DOC-" +
-                props?.item?.id +
-                "." +
-                (props?.item?.doc?.ext || props?.item?.ext) +
-                "?d=" +
-                props?.item?.updated_at
-            )}
-            rel="noopener noreferrer"
-            className={styles.viewButton}
-          >
+          <a href="#" onClick={handleDownload} className={styles.viewButton}>
             <p>Ver documento</p>
           </a>
         </section>
