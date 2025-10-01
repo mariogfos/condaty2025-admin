@@ -9,7 +9,7 @@ import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
-  { id: "A", name: "Todos" },
+  { id: "A", name: "Guardias y residentes" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
 ];
@@ -77,7 +77,7 @@ const Documents = () => {
         form: { type: "select", options: lOptions },
         list: false,
         filter: {
-          options: () => lOptions,
+          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
         },
       },
       doc: {
