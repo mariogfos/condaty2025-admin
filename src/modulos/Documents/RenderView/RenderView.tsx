@@ -18,7 +18,7 @@ const RenderView = (props: {
   const DocDestiny: any = {
     O: { name: "Residentes" },
     G: { name: "Guardias" },
-    A: { name: "Todos" },
+    A: { name: "Guardias y residentes" },
   };
 
   const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
