@@ -369,7 +369,7 @@ const HomePage = () => {
           <div className={styles.leftColumn}>
             <WidgetBase
               variant={"V1"}
-              title={"Resumen actual"}
+              title={"Resumenes actuales"}
               subtitle={formattedDate}
               className={styles.summaryWidgetEqualHeight}
               style={{ maxHeight: "max-content" }}
