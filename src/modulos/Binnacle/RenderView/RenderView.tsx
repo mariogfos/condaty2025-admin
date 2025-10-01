@@ -9,7 +9,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 interface BinnacleDetailProps {
   open: boolean;
   onClose: () => void;
-  item: any; // Puedes ser más específico aquí si conoces la estructura exacta
+  item: any; 
   extraData?: any;
 }
 
