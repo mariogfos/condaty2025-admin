@@ -95,11 +95,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     const getStatusText = (status: string) => {
       const statusMap: { [key: string]: string } = {
         A: 'Por cobrar',
-        P: 'Cobrado',
+        P: 'Cobrada',
         S: 'Por confirmar',
         M: 'En mora',
         C: 'Cancelada',
-        F: 'Perdonada',
+        F: 'Condonada',
         X: 'Anulada',
       };
       return statusMap[status] || 'Estado desconocido';
@@ -160,8 +160,8 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   const getStatusOptions = () => [
     { id: 'ALL', name: 'Todos los estados' },
     { id: 'A', name: 'Por cobrar' },
-    { id: 'P', name: 'Cobrado' },
-    { id: 'F', name: 'Perdonada' },
+    { id: 'P', name: 'Cobrada' },
+    { id: 'F', name: 'Condonada' },
     { id: 'S', name: 'Por confirmar' },
     { id: 'M', name: 'En mora' },
     { id: 'C', name: 'Cancelada' },
@@ -468,7 +468,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     ),
   };
 
-  const { userCan, List, onEdit, onDel, extraData, onFilter } = useCrud({
+  const { userCan, List, onEdit, onDel, extraData, onFilter, reLoad } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -498,7 +498,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         'C': 'Cancelada',
         'X': 'Anulada',
         'M': 'En mora',
-        'F': 'Perdonada'
+        'F': 'Condonada'
       };
       return statusMap[status] || status;
     };

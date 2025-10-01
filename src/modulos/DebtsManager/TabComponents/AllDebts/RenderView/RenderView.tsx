@@ -25,7 +25,7 @@ interface RenderViewProps {
   onDel?: (item: any) => void;
   hideSharedDebtButton?: boolean;
   hideEditAndDeleteButtons?: boolean;
-
+  onReload?: () => void; // Nueva prop para reload de la lista padre
 }
 
 
@@ -39,10 +39,9 @@ const RenderView: React.FC<RenderViewProps> = ({
   onDel,
   hideSharedDebtButton = false,
   hideEditAndDeleteButtons = false,
-
+  onReload, // Nueva prop
 }) => {
   const { showToast: authShowToast } = useAuth();
-
 
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showReservationDetail, setShowReservationDetail] = useState(false);
@@ -50,6 +49,8 @@ const RenderView: React.FC<RenderViewProps> = ({
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [currentItem, setCurrentItem] = useState(item);
 
+  // Declarar la variable today
+  const today = new Date();
 
   const { data, execute, loaded } = useAxios(
     '/debt-dptos',
@@ -74,21 +75,31 @@ const RenderView: React.FC<RenderViewProps> = ({
 
 
   const getStatusText = (status: string, dueDate?: string) => {
+    console.log("llega entra");
+    console.log("status", status);
+    console.log("dueDate", dueDate);
+
     let finalStatus = status;
     const today = new Date();
-    const due = dueDate ? new Date(dueDate) : null;
+    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
-    if (due && due < today && status === 'A') {
+    const due = dueDate ? new Date(dueDate) : null;
+    if (due) {
+      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
+    }
+
+    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
+    if (due && today > due && status === 'A') {
       finalStatus = 'M';
     }
 
     const statusMap: { [key: string]: string } = {
       'A': 'Por cobrar',
-      'P': 'Cobrado',
+      'P': 'Cobrada',
       'S': 'Por confirmar',
       'M': 'En mora',
       'C': 'Cancelada',
-      'F': 'Perdonada',
+      'F': 'Condonada',
       'X': 'Anulada'
     };
     return statusMap[finalStatus] || finalStatus;
@@ -107,10 +118,15 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   const getStatusConfig = (status: string, dueDate?: string) => {
     let finalStatus = status;
-    const today = new Date();
-    const due = dueDate ? new Date(dueDate) : null;
+    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
-    if (due && due < today && status === 'A') {
+    const due = dueDate ? new Date(dueDate) : null;
+    if (due) {
+      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
+    }
+
+    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
+    if (due && today > due && status === 'A') {
       finalStatus = 'M';
     }
 
@@ -142,13 +158,20 @@ const RenderView: React.FC<RenderViewProps> = ({
       return {
         showAnular: false,
         showEditar: false,
-        showRegistrarPago: status !== 'P',
-        showVerPago: status === 'P'
+        showRegistrarPago: status !== 'P' && status !== 'S',
+        showVerPago: status === 'P' || status === 'S'
       };
     }
 
     switch (status) {
       case 'P':
+        return {
+          showAnular: false,
+          showEditar: false,
+          showRegistrarPago: false,
+          showVerPago: true
+        };
+      case 'S': // Por confirmar debe mostrar "Ver pago"
         return {
           showAnular: false,
           showEditar: false,
@@ -173,7 +196,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         return {
           showAnular: false,
           showEditar: false,
-          showRegistrarPago: status !== 'P',
+          showRegistrarPago: status !== 'P' && status !== 'S',
           showVerPago: false
         };
     }
@@ -229,9 +252,22 @@ const RenderView: React.FC<RenderViewProps> = ({
       if (response?.data?.success) {
         setCurrentItem(response.data.data[0] || currentItem);
       }
+
+      // Llamar al reload de la lista padre si está disponible
+      if (onReload) {
+        onReload();
+      }
     } catch (error) {
       handleShowToast('Error al actualizar los datos', 'error');
     }
+  };
+
+  // Función para manejar el cierre del modal con reload
+  const handleClose = () => {
+    if (onReload) {
+      onReload();
+    }
+    onClose();
   };
 
   const getPaymentFormData = () => {
@@ -251,19 +287,34 @@ const RenderView: React.FC<RenderViewProps> = ({
     const isReservationsDebt = debtType === 2 || debtType === 3; // Tipo 2 y 3 = Reservas
     const isSharedDebt = debtType === 4; // Tipo 4 = Deudas compartidas
 
-    // Todos los tipos de deuda deben estar bloqueados
+    const isForgivenessDebt = debtDetail?.description?.toLowerCase().includes('condonación') ||
+                           debtDetail?.debt?.description?.toLowerCase().includes('condonación') ||
+                           debtDetail?.subcategory?.name?.toLowerCase().includes('condonación');
+
     const shouldLockFields = isIndividualDebt || isExpensasDebt || isReservationsDebt || isSharedDebt;
 
-    return {
+    let paymentType = 'I';
 
+    if (isForgivenessDebt) {
+      paymentType = 'F'; // Condonación
+    } else if (isExpensasDebt) {
+      paymentType = 'E'; // Expensas
+    } else if (isReservationsDebt) {
+      paymentType = 'R'; // Reservas
+    } else if (isIndividualDebt || isSharedDebt) {
+      paymentType = 'O'; // Otras deudas
+    }
+
+    return {
       paid_at: new Date().toISOString().split('T')[0],
       dpto_id: debtDetail?.dpto?.nro,
       category_id: finalCategoryId,
       subcategory_id: subcategoryId,
       isCategoryLocked: shouldLockFields,
       isSubcategoryLocked: shouldLockFields,
+      isAmountLocked: shouldLockFields, // Nuevo campo para bloquear el monto
       amount: calculatedTotalBalance,
-      type: isReservationsDebt ? 'R' : 'T',
+      type: paymentType,
       debt_dpto_id: debtDetail?.id,
       concept: [
         debtDetail?.subcategory?.name || 'Pago',
@@ -284,8 +335,8 @@ const RenderView: React.FC<RenderViewProps> = ({
     return getDateStrMesShort(dateString);
   };
 
-  const statusText = getStatusText(debtDetail?.status, debtDetail?.debt?.due_at);
-  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.debt?.due_at);
+  const statusText = getStatusText(debtDetail?.status, debtDetail?.due_at);
+  const { color, bgColor } = getStatusConfig(debtDetail?.status, debtDetail?.due_at);
   const balanceTitle = getBalanceTitle(debtDetail?.status);
   const actions = getAvailableActions(debtDetail?.status, debtType);
   const detailButtonText = getDetailButtonText(debtType);
@@ -295,7 +346,7 @@ const RenderView: React.FC<RenderViewProps> = ({
     <>
       <DataModal
         open={open}
-        onClose={onClose}
+        onClose={handleClose} // Usar la nueva función de cierre
         title="Detalle de deuda"
         buttonText=""
         buttonCancel=""
@@ -343,7 +394,7 @@ const RenderView: React.FC<RenderViewProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.label}>Método de pago:</span>
                     <span className={styles.value}>
-                      {getPaymentTypeText(debtDetail?.payment?.type) || '-/-'}
+                      {getPaymentTypeText(debtDetail?.payment?.method) || '-/-'}
                     </span>
                   </div>
                   <div className={styles.infoItem}>
@@ -520,6 +571,7 @@ const RenderView: React.FC<RenderViewProps> = ({
           reLoad={() => {
             reloadItem();
           }}
+          debtId={item?.id}
         />
       )}
     </>

@@ -52,6 +52,8 @@ const RenderView = (props: {
         return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
+      case 'F':
+        return { text: 'Condonada', code: 'F' };
       default:
         return { text: item.status || 'Desconocido', code: item.status || '' };
     }
@@ -63,6 +65,7 @@ const RenderView = (props: {
     S: 'var(--cWarning)',
     P: 'var(--cSuccess)',
     E: 'var(--cInfo)',
+    F: 'var(--cInfo)',
   };
 
   type InfoBlockProps = {

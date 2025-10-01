@@ -93,7 +93,7 @@ const ProfileModal = ({
   del = true,
   type,
 }: ProfileModalProps) => {
-  const { user, getUser, showToast, userCan } = useAuth();
+  const { user, getUser, showToast, userCan, logout } = useAuth();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<ErrorState>({});
@@ -172,7 +172,7 @@ const ProfileModal = ({
         phone: data?.data[0]?.phone,
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
-        has_image: parseInt(data?.data[0]?.has_image) || 0, 
+        has_image: parseInt(data?.data[0]?.has_image) || 0,
       });
     }
   }, [openEdit, data]);
@@ -223,6 +223,26 @@ const ProfileModal = ({
   const deletePerm = userCan("users", "D");
   const editPerm = userCan("users", "U");
 
+  // Verificar si el usuario puede editar este perfil específico
+  const canEditThisProfile = () => {
+    if (type === "admin") {
+      // Para administradores, solo pueden editar su propio perfil
+      return editPerm && user?.id === data?.data[0]?.id;
+    }
+    // Para otros tipos de usuarios, usar el permiso general
+    return editPerm;
+  };
+
+  // Verificar si el usuario puede eliminar este perfil específico
+  const canDeleteThisProfile = () => {
+    if (type === "admin") {
+      // Para administradores, solo pueden eliminar su propio perfil
+      return deletePerm && user?.id === data?.data[0]?.id;
+    }
+    // Para otros tipos de usuarios, usar el permiso general
+    return deletePerm;
+  };
+
   return (
     open && (
       <DataModal
@@ -239,7 +259,7 @@ const ProfileModal = ({
           <section>
             <h1>{title}</h1>
             <div>
-              {edit && editPerm && (
+              {edit && canEditThisProfile() && (
                 <button
                   type="button"
                   onClick={() => setOpenEdit(true)}
@@ -258,7 +278,7 @@ const ProfileModal = ({
                   <IconEdit className="" size={24} color={'var(--cWhite)'} />
                 </button>
               )}
-              {del && deletePerm && (
+              {del && canDeleteThisProfile() && (
                 <button
                   type="button"
                   style={{
@@ -442,8 +462,7 @@ const ProfileModal = ({
           <div style={{display: 'flex', justifyContent: 'flex-start'}}>
             <Button
               onClick={() => {
-                setOpenAuthModal(true);
-                setAuthType('logout');
+                logout();
               }}
               style={{
                 backgroundColor: 'transparent',

@@ -61,6 +61,44 @@ interface Deuda {
   id: string | number;
   amount?: number;
   penalty_amount?: number;
+  status?: string;
+  debt_id?: string | null;
+  dpto_id?: number;
+  payment_id?: string | null;
+  shared_id?: string | null;
+  type?: number;
+  maintenance_amount?: string | null;
+  begin_at?: string;
+  due_at?: string;
+  description?: string;
+  penalty_reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
+  reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
   debt?: {
     month?: number;
     year?: number;
@@ -82,7 +120,7 @@ interface Deuda {
         description?: string;
       };
     };
-    reservation_penalty?: {
+    penalty_reservation?: {
       id?: string;
       debt_id?: string;
       area_id?: string;
@@ -96,6 +134,16 @@ interface Deuda {
         description?: string;
       };
     };
+  } | null;
+  shared?: {
+    id?: string;
+    year?: number;
+    month?: number;
+    type?: number;
+    begin_at?: string;
+    due_at?: string;
+    description?: string;
+    amount_type?: string;
   };
 }
 
@@ -116,6 +164,7 @@ interface FormState {
   subcategories?: Subcategory[];
   isSubcategoryLocked?: boolean;
   isCategoryLocked?: boolean;
+  isAmountLocked?: boolean; // Nuevo campo para bloquear el monto
   method?: string;
   voucher?: string;
   obs?: string;
@@ -147,6 +196,7 @@ interface RenderFormProps {
   execute: (...args: any[]) => Promise<any>;
   showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
+  debtId?: string | number; // Nueva prop para el ID de la deuda específica
 }
 
 const RenderForm: React.FC<RenderFormProps> = ({
@@ -157,10 +207,13 @@ const RenderForm: React.FC<RenderFormProps> = ({
   execute,
   showToast,
   reLoad,
+  debtId, // Nueva prop
 }) => {
   const [formState, setFormState] = useState<FormState>(() => {
     const isCategoryLocked = item?.isCategoryLocked || false;
     const isSubcategoryLocked = item?.isSubcategoryLocked || false;
+    const isAmountLocked = item?.isAmountLocked || false; // Nuevo campo
+    console.log('item', item?.amount);
 
     return {
       paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
@@ -174,6 +227,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       subcategories: [], // Inicializar vacío, se cargará en useEffect
       isCategoryLocked,
       isSubcategoryLocked,
+      isAmountLocked, // Nuevo campo
       method: item?.method || '',
       voucher: item?.voucher || '',
       obs: item?.obs || '',
@@ -456,6 +510,35 @@ const RenderForm: React.FC<RenderFormProps> = ({
     formState.isSubcategoryLocked,
     showCategoryFields,
   ]);
+
+  // Nuevo useEffect para seleccionar automáticamente la deuda específica
+  useEffect(() => {
+    if (debtId && deudas.length > 0) {
+      const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
+      if (targetDebt) {
+        // Usar la misma lógica que handleSelectPeriodo para calcular el monto
+        const calculatedAmount = targetDebt.debt?.method === 3
+          ? Number(targetDebt.penalty_amount ?? 0)
+          : Number(targetDebt.amount ?? 0) + Number(targetDebt.penalty_amount ?? 0);
+
+        const newSelectedPeriodo: SelectedPeriodo = {
+          id: targetDebt.id,
+          amount: calculatedAmount
+        };
+
+        setSelectedPeriodo([newSelectedPeriodo]);
+        setPeriodoTotal(calculatedAmount);
+
+        // Si el monto está bloqueado, actualizar el formState con el monto de la deuda
+        if (formState.isAmountLocked) {
+          setFormState(prev => ({
+            ...prev,
+            amount: calculatedAmount
+          }));
+        }
+      }
+    }
+  }, [debtId, deudas, formState.isAmountLocked]);
 
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -748,6 +831,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
             <div
               className={`${styles['deudas-header']} ${
                 formState.type === 'R' ? styles['deudas-header-reservations-simple'] : ''
+              } ${
+                formState.type === 'O' ? styles['deudas-header-other-debts'] : ''
               }`}
             >
               {formState.type === 'R' ? (
@@ -756,6 +841,20 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   <span className={styles['header-item']}>Concepto</span>
                   <span className={`${styles['header-item']} ${styles['header-amount']}`}>
                     Total
+                  </span>
+                  <span className={styles['header-item']}>Seleccionar</span>
+                </>
+              ) : formState.type === 'O' ? (
+                <>
+                  <span className={styles['header-item']}>Descripción</span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Monto
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    Multa
+                  </span>
+                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
+                    SubTotal
                   </span>
                   <span className={styles['header-item']}>Seleccionar</span>
                 </>
@@ -793,21 +892,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 <div
                   className={`${styles['deuda-row']} ${
                     formState.type === 'R' ? styles['deuda-row-reservations-simple'] : ''
+                  } ${
+                    formState.type === 'O' ? styles['deuda-row-other-debts'] : ''
                   }`}
                 >
                   {formState.type === 'R' ? (
                     <>
                       <div className={styles['deuda-cell']}>
                         {periodo.debt?.method === 3
-                          ? formatToDayDDMMYYYY(periodo.debt?.reservation_penalty?.date_at) || '-/-'
-                          : formatToDayDDMMYYYY(periodo.debt?.reservation?.date_at) || '-/-'}
+                          ? formatToDayDDMMYYYY(periodo.penalty_reservation?.date_at) || '-/-'
+                          : formatToDayDDMMYYYY(periodo.reservation?.date_at) || '-/-'}
                       </div>
                       <div className={styles['deuda-cell']}>
                         {periodo.debt?.method === 3
                           ? `Multa: Cancelación del área ${
-                              periodo.debt?.reservation_penalty?.area?.title || '-/-'
+                              periodo.penalty_reservation?.area?.title || '-/-'
                             }`
-                          : periodo.debt?.reservation?.area?.title || '-/-'}
+                          : `Reserva: ${periodo.reservation?.area?.title || '-/-'}` || '-/-'}
                       </div>
                       <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
                         {'Bs ' +
@@ -815,6 +916,24 @@ const RenderForm: React.FC<RenderFormProps> = ({
                             periodo.debt?.method === 3
                               ? Number(periodo.penalty_amount ?? 0)
                               : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
+                          )}
+                      </div>
+                    </>
+                  ) : formState.type === 'O' ? (
+                    <>
+                      <div className={styles['deuda-cell']}>
+                        {periodo.description || periodo.shared?.description || periodo.debt?.description || '-/-'}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                      </div>
+                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                        {'Bs ' +
+                          formatNumber(
+                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
                           )}
                       </div>
                     </>
@@ -984,7 +1103,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                       }
                       required={true}
                       error={errors}
-                      disabled={isDebtBasedPayment}
+                      disabled={isDebtBasedPayment || formState.isAmountLocked}
                       maxLength={20}
                     />
                   </div>
