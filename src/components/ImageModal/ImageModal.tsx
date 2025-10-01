@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import styles from './imageModal.module.css';
+import { IconX } from '@/components/layout/icons/IconsBiblioteca';
 
 type ImageModalProps = {
   isOpen: boolean;
@@ -35,13 +36,13 @@ export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalPro
         role="dialog"
         aria-modal="true"
       >
-        <button 
+        <IconX
           className={styles.closeButton}
+          size={40}
           onClick={handleClose}
-          aria-label="Close modal"
-        >
-          ×
-        </button>
+          circle
+          style={{ backgroundColor: "transparent", padding: "0px" }}
+        />
         <img 
           src={imageUrl} 
           alt={altText || 'Expanded image'} 

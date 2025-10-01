@@ -25,15 +25,11 @@
 }
 
 .closeButton {
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 2rem;
+  position: absolute !important;
+  top: -20px !important;
+  right: -20px !important;
+  color: var(--cWhite) !important;
   cursor: pointer;
-  padding: 8px 12px;
   transition: opacity 0.2s;
 }
 
