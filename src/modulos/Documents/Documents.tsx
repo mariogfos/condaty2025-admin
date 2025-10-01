@@ -80,7 +80,7 @@ const Documents = () => {
         },
       },
       doc: {
-        rules: ["required*a"],
+        rules: ["required"],
         api: "ae*",
         label: "Archivo",
         form: {
