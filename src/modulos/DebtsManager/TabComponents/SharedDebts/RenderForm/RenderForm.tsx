@@ -20,7 +20,7 @@ interface DebtFormState {
   description: string;
   category_id: string | number;
   subcategory_id: string | number;
-  segmentation: string;
+  asignar: string;
   dpto_id?: any[];
   amount_type: string;
   amount: string | number;
@@ -70,7 +70,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: (item && item.description) || '',
       category_id: (item && item.category_id) || '',
       subcategory_id: (item && item.subcategory_id) || '',
-      segmentation: (item && item.segmentation) || 'T',
+      asignar: (item && item.asignar) || 'T',
       dpto_id: (item && item.dpto_id) || [],
       amount_type: (item && item.amount_type) || 'F',
       amount: (item && item.amount) || '',
@@ -130,7 +130,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         description: (item && item.description) || '',
         category_id: categoryId,
         subcategory_id: (item && item.subcategory_id) || '',
-        segmentation: (item && item.segmentation) || 'T',
+        asignar: (item && item.asignar) || 'T',
         dpto_id: (item && item.dpto_id) || [],
         amount_type: (item && item.amount_type) || 'F',
         amount: (item && item.amount) || '',
@@ -241,7 +241,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       'subcategory_id'
     );
 
-    if (_formState.segmentation === 'S') {
+    if (_formState.asignar === 'S') {
       addError(
         checkRules({
           value: _formState.dpto_id,
@@ -275,7 +275,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: '',
       category_id: '',
       subcategory_id: '',
-      segmentation: 'T',
+      asignar: 'T',
       dpto_id: [],
       amount_type: 'F',
       amount: '',
@@ -301,7 +301,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       description: _formState.description,
       category_id: _formState.category_id,
       subcategory_id: _formState.subcategory_id,
-      segmentation: _formState.segmentation,
+      asignar: _formState.asignar,
       amount_type: _formState.amount_type,
       amount: parseFloat(String(_formState.amount || '0')),
       interest: parseFloat(String(_formState.interest || '0')),
@@ -311,11 +311,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       is_blocking: _formState.is_blocking ? 'Y' : 'N',
     };
 
-    const dataToSave = _formState.segmentation === 'S'
+    const dataToSave = _formState.asignar === 'S'
       ? { ...baseData, dpto_id: _formState.dpto_id }
       : baseData;
 
-    console.log('RenderForm - Datos a enviar:', dataToSave); 
+    console.log('RenderForm - Datos a enviar:', dataToSave);
 
     try {
       await onSave?.(dataToSave);
@@ -408,8 +408,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles.formField}>
             <Select
               label="Asignación"
-              name="segmentation"
-              value={_formState.segmentation}
+              name="asignar"
+              value={_formState.asignar}
               options={getAsignarOptions()}
               onChange={handleChangeInput}
               error={_errors}
@@ -420,7 +420,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         </div>
 
         {/* Unidades (condicional) */}
-        {_formState.segmentation === 'S' && (
+        {_formState.asignar === 'S' && (
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select
