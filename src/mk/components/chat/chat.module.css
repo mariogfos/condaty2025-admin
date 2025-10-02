@@ -16,13 +16,13 @@
   }
 }
 .chatContainer {
-  max-width: 810px;
+  max-width: 50%;
   width: 75%;
   height: 100vh;
   background-color: var(--cBlackV2);
   position: absolute;
   top: 0;
-  right: -1085px;
+  right: -50%;
   transition: right 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
