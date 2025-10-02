@@ -76,7 +76,7 @@ const Documents = () => {
         api: "ae*",
         label: "Visible para",
         form: { type: "select", options: lOptions },
-        list: false,
+        list: {},
         filter: {
           options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
         },

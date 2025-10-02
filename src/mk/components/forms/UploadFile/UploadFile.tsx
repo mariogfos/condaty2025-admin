@@ -46,10 +46,10 @@ export const UploadFile = ({
     }
     // Verificar si value tiene información de documento
     if (value && typeof value === 'object') {
-      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx')) {
+      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx' || value.ext === 'xls' || value.ext === 'xlsx')) {
         return true;
       }
-      if (value.ext && ['pdf', 'doc', 'docx'].includes(value.ext) && value.file !== "delete") {
+      if (value.ext && ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(value.ext) && value.file !== "delete") {
         return true;
       }
     }
@@ -266,7 +266,7 @@ export const UploadFile = ({
             <span>{props.ext.join(", ")}</span>
           </div>
         ) : (
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", minWidth: "250px" }}>
             {/* Mostrar imagen editada o seleccionada */}
             {(editedImage ||
               selectedFiles?.type?.startsWith("image/") ||
@@ -294,13 +294,13 @@ export const UploadFile = ({
               />
             ) : selectedFiles.type === "application/pdf" ? (
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name}</span>
               </>
             ) : hasExistingDocument() && !(value && typeof value === 'object' && value.file === "delete") ? (
               /* Mostrar documento existente solo si no está marcado para eliminar */
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{getExistingDocumentName()}</span>
                 {getExistingDocumentUrl() && (
                   <div style={{ marginTop: '8px' }}>
@@ -319,15 +319,15 @@ export const UploadFile = ({
                   </div>
                 )}
               </>
-            ) : value && typeof value === 'object' && ['pdf', 'doc', 'docx'].includes(value.ext) ? (
+            ) : value && typeof value === 'object' && ["pdf", "doc", "docx", "xls", "xlsx",].includes(value.ext) ? (
               /* Mostrar documento cargado */
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name || "Documento cargado"}</span>
               </>
             ) : (
               <>
-                <IconDocs size={80} color={"var(--cWhite)"} />
+                <IconImage size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name || "Archivo seleccionado"}</span>
               </>
             )}
