@@ -95,13 +95,11 @@ const ChatRoom = ({
     }
   };
 
-  // Filtrar mensajes de la sala actual
   const messages = useMemo(
     () => chats?.messages?.filter((m: any) => m.roomId === roomId) || [],
     [chats, roomId]
   );
 
-  // Marcar mensajes como leídos
   useEffect(() => {
     if (messages.length) readMessage(messages);
   }, [messages, readMessage]);
@@ -154,7 +152,7 @@ const ChatRoom = ({
     const chatEl = chatRef.current;
     const msgEl = msgRefs.current[msg.id];
     let placeBelow = false;
-    const pickerHeight = 320; 
+    const pickerHeight = 320;
     const margin = 16;
 
     if (chatEl && msgEl) {
@@ -169,12 +167,28 @@ const ChatRoom = ({
 
   const handleEmojiSelect = (emojiObject: any) => {
     const emojis = JSON.parse(showEmojiPicker?.emoticon || "[]");
-    emojis.push({
-      emoji: emojiObject.emoji,
-      sender: user.id,
-      time: new Date().toISOString(),
-      unified: showEmojiPicker.unified,
-    });
+    const idx = emojis.findIndex((e: any) => e.sender === user.id);
+
+    if (idx >= 0) {
+      if (emojis[idx].emoji === emojiObject.emoji) {
+        emojis.splice(idx, 1);
+      } else {
+        emojis[idx] = {
+          ...emojis[idx],
+          emoji: emojiObject.emoji,
+          time: new Date().toISOString(),
+          unified: showEmojiPicker?.unified,
+        };
+      }
+    } else {
+      emojis.push({
+        emoji: emojiObject.emoji,
+        sender: user.id,
+        time: new Date().toISOString(),
+        unified: showEmojiPicker?.unified,
+      });
+    }
+
     sendEmoticon(JSON.stringify(emojis), showEmojiPicker.id);
     setShowEmojiPicker(null);
   };
@@ -294,32 +308,58 @@ const ChatRoom = ({
                 </div>
                 <div
                   className={
-                    styles.bubbleHour + ' ' + (msg.sender !== user.id && isGroup && styles.isGroup)
+                    styles.bubbleHour +
+                    " " +
+                    (msg.sender !== user.id && isGroup && styles.isGroup)
                   }
                 >
                   <div className={styles.messageHour}>
-                    {getTimePMAM(msg.created_at)}{' '}
-                    {msg.sender === user.id && !msg.received_at && <IconCheck size={12} />}
-                    {msg.sender === user.id && msg.received_at && !msg.read_at && (
-                      <IconReadMessage size={12} />
+                    {getTimePMAM(msg.created_at)}{" "}
+                    {msg.sender === user.id && !msg.received_at && (
+                      <IconCheck size={12} />
                     )}
-                    {msg.sender === user.id && msg.received_at && msg.read_at && (
-                      <IconReadMessage size={12} color="var(--cPrimary)" />
-                    )}
+                    {msg.sender === user.id &&
+                      msg.received_at &&
+                      !msg.read_at && <IconReadMessage size={12} />}
+                    {msg.sender === user.id &&
+                      msg.received_at &&
+                      msg.read_at && (
+                        <IconReadMessage size={12} color="var(--cPrimary)" />
+                      )}
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '4px',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {msg.emoticon &&
-                      (JSON.parse(msg.emoticon) ?? []).map((e: any, i: number) => (
-                        <span key={i + 'em'}>{e.emoji}</span>
-                      ))}
-                    {((msg.emoticon && JSON.parse(msg.emoticon)) ?? []).length || ''}
-                  </div>
+                  {/* Render de reacciones agrupadas y resaltado del usuario actual */}
+                  {(() => {
+                    const reactions = (msg.emoticon && JSON.parse(msg.emoticon)) || [];
+                    type ReactionAgg = { emoji: string; count: number; users: string[] };
+
+                    const grouped: ReactionAgg[] = Object.values(
+                      reactions.reduce((acc: Record<string, ReactionAgg>, r: any) => {
+                        const key = String(r.emoji);
+                        if (!acc[key]) {
+                          acc[key] = { emoji: key, count: 0, users: [] };
+                        }
+                        acc[key].count += 1;
+                        acc[key].users.push(String(r.sender));
+                        return acc;
+                      }, {} as Record<string, ReactionAgg>)
+                    );
+
+                    return (
+                      <div className={styles.reactionContainer}>
+                        {grouped.map((g, i) => (
+                          <span
+                            key={i + "grp"}
+                            className={`${styles.reactionBubble} ${
+                              g.users.includes(String(user.id)) ? styles.myReaction : ""
+                            }`}
+                          >
+                            <span>{g.emoji}</span>
+                            <span>{g.count}</span>
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </Fragment>

@@ -264,3 +264,25 @@
     transform: translateY(0);
   }
 }
+
+.reactionContainer {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.reactionBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.myReaction {
+  outline: 1px solid var(--cPrimary);
+  background-color: rgba(0, 0, 0, 0.18);
+}
