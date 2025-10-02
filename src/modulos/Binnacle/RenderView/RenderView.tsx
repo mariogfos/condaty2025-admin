@@ -9,8 +9,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 interface BinnacleDetailProps {
   open: boolean;
   onClose: () => void;
-  item: any; 
-  extraData?: any;
+  item: any;
 }
 
 // eslint-disable-next-line react/display-name
