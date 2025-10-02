@@ -58,42 +58,6 @@ const RenderView = (props: {
     }
   };
 
-  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-
-    const url = getUrlImages(
-      "/DOC-" +
-        props?.item?.id +
-        "." +
-        (props?.item?.doc?.ext || props?.item?.ext) +
-        "?d=" +
-        props?.item?.updated_at
-    );
-
-    const fileName = `documento-${props?.item?.id}.${
-      props?.item?.doc?.ext || props?.item?.ext
-    }`;
-
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-
-      const blobUrl = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error("Error al descargar el archivo:", error);
-      window.location.href = url;
-    }
-  };
-
   const iconNameExtension = props?.item?.ext;
 
   return (
