@@ -41,6 +41,7 @@ const RenderView = memo((props: BinnacleDetailProps) => {
               }}
               style={{ borderRadius: 16 }}
               name={getFullName(item)}
+              expandable={true}
             />
           </div>
         )}

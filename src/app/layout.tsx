@@ -8,6 +8,7 @@ import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
+import { ImageModalProvider } from "@/contexts/ImageModalContext";
 // import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 // const geistSans = Geist({
@@ -46,18 +47,20 @@ export default function RootLayout({
       <body cz-shortcut-listen="true">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>
-            <NotifInstantDb />
-            <div
-              id="portal-root"
-              style={{
-                position: "absolute",
-                overflow: "visible",
-                zIndex: 9999,
-                width: "100%",
-              }}
-            ></div>
-            <Layout>{children}</Layout>
-            <ChatInstantDb />
+            <ImageModalProvider>
+              <NotifInstantDb />
+              <div
+                id="portal-root"
+                style={{
+                  position: "absolute",
+                  overflow: "visible",
+                  zIndex: 9999,
+                  width: "100%",
+                }}
+              ></div>
+              <Layout>{children}</Layout>
+              <ChatInstantDb />
+            </ImageModalProvider>
           </AuthProvider>
         </AxiosInstanceProvider>
       </body>
