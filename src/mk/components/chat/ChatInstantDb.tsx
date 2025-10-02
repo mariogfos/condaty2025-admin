@@ -147,7 +147,7 @@ export default function ChatInstantDb() {
     }
 
     setCountMsg(cM);
-    setLastMsg(chats.messages[chats.messages.length - 1].created_at);
+    setLastMsg(chats.messages[chats.messages.length - 1]?.created_at);
     // setLastMsg(chats?.messages?.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chats?.messages]);
