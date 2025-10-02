@@ -38,9 +38,8 @@ export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalPro
       >
         <IconX
           className={styles.closeButton}
-          size={40}
+          size={32}
           onClick={handleClose}
-          circle
           style={{ backgroundColor: "transparent", padding: "0px" }}
         />
         <img 
