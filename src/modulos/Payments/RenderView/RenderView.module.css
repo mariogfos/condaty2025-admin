@@ -187,7 +187,7 @@
 .periodsTableHeader,
 .periodsTableRow {
   display: grid;
-  grid-template-columns: 1.5fr 2fr 1fr 1fr 1.5fr;
+  grid-template-columns: 1.2fr 2fr 0.8fr 0.8fr 0.8fr 1fr;
   width: 100%;
   align-items: stretch;
 }
@@ -271,6 +271,7 @@
 }
 .periodsTableCell[data-label='Monto'],
 .periodsTableCell[data-label='Multa'],
+.periodsTableCell[data-label='MV'],
 .periodsTableCell[data-label='Subtotal'],
 .periodsTableCell[data-label='Total'] {
   justify-content: flex-end;
@@ -278,7 +279,8 @@
 }
 .periodsTableHeader .periodsTableCell:nth-child(3),
 .periodsTableHeader .periodsTableCell:nth-child(4),
-.periodsTableHeader .periodsTableCell:nth-child(5) {
+.periodsTableHeader .periodsTableCell:nth-child(5),
+.periodsTableHeader .periodsTableCell:nth-child(6) {
   justify-content: flex-end;
   text-align: right;
 }

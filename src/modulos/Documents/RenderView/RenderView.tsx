@@ -18,7 +18,43 @@ const RenderView = (props: {
   const DocDestiny: any = {
     O: { name: "Residentes" },
     G: { name: "Guardias" },
-    A: { name: "Todos" },
+    A: { name: "Guardias y residentes" },
+  };
+
+  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
+    const url = getUrlImages(
+      "/DOC-" +
+        props?.item?.id +
+        "." +
+        (props?.item?.doc?.ext || props?.item?.ext) +
+        "?d=" +
+        props?.item?.updated_at
+    );
+
+    const fileName = `documento-${props?.item?.id}.${
+      props?.item?.doc?.ext || props?.item?.ext
+    }`;
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Error al descargar el archivo:", error);
+      window.location.href = url;
+    }
   };
 
   return (
@@ -32,16 +68,19 @@ const RenderView = (props: {
     >
       <Card>
         <section>
-          <IconPDF
-            size={50}
-            color={"var(--cBlack)"}
+          <div
             style={{
               backgroundColor: "var(--cWhiteV1)",
+              padding: 12,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
               justifyContent: "center",
             }}
-            viewBox="0 0 18 24"
-            circle
-          />
+          >
+            <IconPDF size={60} color={"var(--cBlack)"} viewBox="0 0 18 24" />
+          </div>
+
           <div>{props?.item?.name}</div>
         </section>
         <Br />
@@ -52,6 +91,7 @@ const RenderView = (props: {
             value={getFullName(props?.item?.user)}
             label="Subido por"
           />
+          
           <LabelValueDetail
             value={DocDestiny[props?.item?.for_to]?.name}
             label="Segmentación"
@@ -62,19 +102,7 @@ const RenderView = (props: {
         <Br />
 
         <section>
-          <a
-            target="_blank"
-            href={getUrlImages(
-              "/DOC-" +
-                props?.item?.id +
-                "." +
-                (props?.item?.doc?.ext || props?.item?.ext) +
-                "?d=" +
-                props?.item?.updated_at
-            )}
-            rel="noopener noreferrer"
-            className={styles.viewButton}
-          >
+          <a href="#" onClick={handleDownload} className={styles.viewButton}>
             <p>Ver documento</p>
           </a>
         </section>
