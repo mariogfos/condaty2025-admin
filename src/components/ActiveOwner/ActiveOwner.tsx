@@ -113,7 +113,7 @@ const ActiveOwner = ({
     <DataModal
       open={open}
       onSave={activeResident}
-      title={typeActive === "X" ? "Rechazar cuenta" : "Asignar unidad"}
+      title={typeActive === "X" ? "Rechazar solicitud" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
     >
@@ -121,15 +121,15 @@ const ActiveOwner = ({
         <div className={styles.activeContainer}>
           <div>
             Selecciona la unidad para el residente
-            <span>{getFullName(data)}</span>
+            <span className={styles.resalted}> {getFullName(data)}</span>.
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
-            El residente indicó que está en la unidad:{" "}
-            <span>{client?.pivot?.preunidad || "Sin especificar"}</span>
+            El residente indicó que está en la unidad: {" "}
+            <span className={styles.resalted}>U: {client?.pivot?.preunidad || "Sin especificar"}</span>
           </p>
           <div>
             <Select
-              label="Unidad"
+              label="Selecciona la unidad"
               // placeholder={"Número de " + store.UnitsType}
               name="dpto_id"
               required={true}
@@ -143,7 +143,8 @@ const ActiveOwner = ({
           </div>
         </div>
       ) : (
-        <div>
+        <div className={styles.activeContainer}>
+          <p className={styles.textContent}>Por favor indica el motivo del rechazo para que el residente pueda comprender y realice el pre-registro de manera correcta</p>
           <TextArea
             label="Motivo del rechazo de cuenta"
             name="obs"
