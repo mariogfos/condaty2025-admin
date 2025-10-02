@@ -2,7 +2,7 @@ import styles from "./RenderView.module.css";
 import { getUrlImages } from "@/mk/utils/string";
 import { getFullName } from "../../../mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { IconPDF } from "@/components/layout/icons/IconsBiblioteca";
+import { IconPDF, IconJPG, IconDOC } from "@/components/layout/icons/IconsBiblioteca";
 import { Card } from "@/mk/components/ui/Card/Card";
 import ContainerDetail from "@/components/Detail/ContainerDetail";
 import LabelValueDetail from "@/components/Detail/LabelValueDetail";
@@ -57,6 +57,8 @@ const RenderView = (props: {
     }
   };
 
+  const iconNameExtension = props?.item?.ext;
+
   return (
     <DataModal
       open={props.open}
@@ -78,7 +80,21 @@ const RenderView = (props: {
               justifyContent: "center",
             }}
           >
-            <IconPDF color={"var(--cBlack)"} viewBox="0 0 18 24" />
+            {(() => {
+              switch (iconNameExtension?.toLowerCase()) {
+                case "pdf":
+                  return <IconPDF color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                case "doc":
+                case "docx":
+                case "xls":
+                case "xlsx":
+                  return <IconDOC color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                case "webp":
+                  return <IconJPG color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                default:
+                  return <IconDOC color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+              }
+            })()}
             
           </div>
 
@@ -93,8 +109,6 @@ const RenderView = (props: {
           <LabelValueDetail value={DocDestiny[props?.item?.for_to]?.name} label="Segmentación" />
 
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
-
-          <LabelValueDetail value={props?.item?.ext} label="Extension" />
 
         </ContainerDetail>
         <Br />
