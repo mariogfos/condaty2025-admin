@@ -78,7 +78,8 @@ const RenderView = (props: {
               justifyContent: "center",
             }}
           >
-            <IconPDF size={60} color={"var(--cBlack)"} viewBox="0 0 18 24" />
+            <IconPDF color={"var(--cBlack)"} viewBox="0 0 18 24" />
+            
           </div>
 
           <div>{props?.item?.name}</div>
@@ -86,17 +87,15 @@ const RenderView = (props: {
         <Br />
 
         <ContainerDetail>
-          <LabelValueDetail
-            value={getFullName(props?.item?.user)}
-            label="Subido por"
-          />
 
-          <LabelValueDetail
-            value={DocDestiny[props?.item?.for_to]?.name}
-            label="Segmentación"
-          />
+          <LabelValueDetail value={getFullName(props?.item?.user)} label="Subido por"/>
+          
+          <LabelValueDetail value={DocDestiny[props?.item?.for_to]?.name} label="Segmentación" />
 
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
+
+          <LabelValueDetail value={props?.item?.ext} label="Extension" />
+
         </ContainerDetail>
         <Br />
 
