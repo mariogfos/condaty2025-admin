@@ -162,7 +162,7 @@
   gap: 8px;
   justify-content: space-between; */
   border-radius: 8px;
-  margin: 16px;
+  margin: 16px 16px 0 0;
   /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
@@ -197,7 +197,7 @@
 
 .chatButton {
   position: absolute;
-  color: var(--cPrimary);
+  color: var(--cBlack);
   opacity: 0.8;
   cursor: pointer;
   bottom: 4px;
