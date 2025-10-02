@@ -3,6 +3,7 @@ import { CSSProperties, useEffect, useState } from "react";
 import { initialsName } from "../../../utils/string";
 import styles from "./avatar.module.css";
 import { useImageModal } from "@/contexts/ImageModalContext";
+import { IconExpand } from "@/components/layout/icons/IconsBiblioteca";
 
 type PropsType = {
   src?: string;
@@ -73,14 +74,17 @@ export const Avatar = ({
       }}
     >
       {src && !imageError && hasImage != 0 ? (
-        <img
-          src={src}
-          alt={name}
-          onError={() => {
-            setImageError(true);
-            onError?.();
-          }}
-        />
+        <>
+          <img
+            src={src}
+            alt={name}
+            onError={() => {
+              setImageError(true);
+              onError?.();
+            }}
+          />
+          {expandable && <IconExpand color="var(--cWhite)" />}
+        </>
       ) : (
         <div style={{ ...styleText, fontSize: w / 3 }}>
           {initialsName(name)}
@@ -101,9 +105,9 @@ export const Avatar = ({
         aria-haspopup="dialog"
         type="button"
       >
-        {content}
-        {pin && <span className="spin"></span>}
-        {children}
+          {content}
+          {pin && <span className="spin"></span>}
+          {children}
       </button>
     );
   }
