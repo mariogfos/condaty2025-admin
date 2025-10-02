@@ -352,7 +352,7 @@ const ChatRoom = ({
           }}
         >
           <IconImage
-            color="var(--cBlack)"
+            color="var(--cWhite)"
             onClick={() => fileInputRef.current?.click()}
             style={{ cursor: "pointer", padding: "4px" }}
             circle
