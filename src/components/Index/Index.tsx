@@ -210,7 +210,6 @@ const HomePage = () => {
     const secondaryText = ownerData?.ci
       ? `C.I: ${ownerData.ci}`
       : ownerData?.email || "";
-    console.log(ownerData);
 
     return (
       <div className={styles.itemRow}>
