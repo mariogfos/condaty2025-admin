@@ -1,8 +1,16 @@
-.activeOwner {
 
-}
 .activeContainer {
     display: flex;
     flex-direction: column;
     gap: var(--spL);
+    min-width: 800px;
+}
+.textContent {
+    font-size: var(--sM);
+    color: var(--cWhiteV1);
+    margin-bottom: var(--spL);
+}
+
+.resalted {
+    color: var(--cWhite);
 }

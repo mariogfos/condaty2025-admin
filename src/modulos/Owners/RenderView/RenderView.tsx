@@ -23,7 +23,7 @@ const RenderView = (props: any) => {
     setOpenActive(true);
     setTypeActive(t);
   };
-
+  console.log("item", item);
   if (!item) {
     return (
       <DataModal
@@ -48,83 +48,85 @@ const RenderView = (props: any) => {
         <DataModal
           open={open}
           onClose={onClose}
-          title={"Detalle del residente"}
+          title={"Detalle de la solicitud"}
           buttonText=""
           buttonCancel=""
           style={{ width: "max-content" }}
           className={styles.renderView}
         >
-          <div>
-            <div>
+          <div className={styles.boxContent}>
+            <div className={styles.avatarOwner}>
               <Avatar
                 hasImage={item?.has_image}
                 src={getUrlImages(
                   "/OWNER-" + item.id + ".webp?d=" + item.updated_at
                 )}
-                h={170}
-                w={170}
-                style={{ borderRadius: 16 }}
+                h={191}
+                w={191}
+                style={{ borderRadius: '50%' }}
                 name={getFullName(item)}
               />
-              <div>
-                <p className={styles.title}>{getFullName(item)}</p>
-              </div>
+              
+              <p className={styles.ownerName}>{getFullName(item)}</p>
+              
             </div>
-            <section>
-              <div>
-                <p>Cédula de identidad</p>
+            <section className={styles.infoSection}>
+              <div className={styles.infoSection_details}>
+                <p>Carnet de identidad</p>
                 <p>{item?.ci || "No disponible"}</p>
               </div>
-              <div>
+             {/*  <div className={styles.infoSection_details}>
+                <p>Tipo de residente</p>
+                <p>{item?.ci || "No disponible"}</p>
+              </div> */}
+              <div className={styles.infoSection_details}>
                 <p>Correo electrónico</p>
                 <p>{item?.email || "No disponible"}</p>
               </div>
-              <div>
-                <p>Número de Whatsapp</p>
+              <div className={styles.infoSection_details}>
+                <p>Celular</p>
                 <p>
                   {(item.prefix_phone ? "+" + item.prefix_phone : "") +
                     " " +
                     (item?.phone || "No disponible")}
                 </p>
               </div>
-              <div>
+              <div className={styles.infoSection_details}>
                 <p>Estado</p>
-                <p>
+                <p className={styles.statusActive}>
                   {lStatusActive[client?.pivot?.status]?.name ||
                     item.status ||
                     "No disponible"}
                 </p>
               </div>
               {item?.dpto?.[0]?.type.name && (
-                <div>
+                <div className={styles.infoSection_details}>
                   <p>Tipo de unidad</p>
                   <p>{item?.dpto[0]?.type.name}</p>
                 </div>
               )}
-
               <>
                 {item?.dpto?.length > 0 ? (
                   // CASO 1: Si ya tiene una unidad asignada
-                  <div>
+                  <div className={styles.infoSection_details}>
                     <p>Número de Unidad</p>
                     <p>{item.dpto[0].nro}</p>
                   </div>
                 ) : (
                   // CASO 2: Si solo tiene una unidad solicitada (preunidad)
-                  <div>
-                    <p>Número de Unidad solicitada</p>
-                    <p>{client?.pivot?.preunidad || "No especificada"}</p>
+                  <div className={styles.infoSection_details}>
+                    <p>Unidad solicitada</p>
+                    <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
                   </div>
                 )}
               </>
             </section>
           </div>
+          
           {client?.pivot?.status === "W" && (
-            <div>
-              <Button onClick={() => openModal("X")} variant="secondary">
-                Rechazar
-              </Button>
-              <Button onClick={() => openModal("A")}>Activar</Button>
+            <div className={styles.boxButtons}>
+              <Button onClick={() =>  openModal("X")} className={styles.btnSecondary} variant="secondary">Rechazar Solicitud</Button>
+              <Button onClick={() => openModal("A")}>Aprobar Solicitud</Button>
             </div>
           )}
         </DataModal>
