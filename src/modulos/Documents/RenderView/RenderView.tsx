@@ -86,11 +86,12 @@ const RenderView = (props: {
         <Br />
 
         <ContainerDetail>
+
           <LabelValueDetail
             value={getFullName(props?.item?.user)}
             label="Subido por"
           />
-
+          
           <LabelValueDetail
             value={DocDestiny[props?.item?.for_to]?.name}
             label="Segmentación"
