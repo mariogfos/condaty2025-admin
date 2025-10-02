@@ -4,6 +4,17 @@
   align-items: center;
   position: relative;
 
+  /* Reset button styles when avatar is a button */
+  &.avatarButton {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    outline: none;
+  }
+
   & > div {
     display: flex;
     justify-content: center;
