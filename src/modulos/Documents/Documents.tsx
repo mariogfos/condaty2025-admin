@@ -23,6 +23,7 @@ const Documents = () => {
     plural: "Documentos",
     permiso: "",
     extraData: true,
+    textSaveButtom: "Subir documento",
     loadView: {
       fullType: "DET",
     },
@@ -52,7 +53,7 @@ const Documents = () => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Nombre",
+        label: "Nombre del documento",
         form: { type: "text" },
         list: {},
       },
