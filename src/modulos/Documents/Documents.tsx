@@ -74,7 +74,7 @@ const Documents = () => {
       for_to: {
         rules: ["required"],
         api: "ae*",
-        label: "Destino",
+        label: "Visible para",
         form: { type: "select", options: lOptions },
         list: false,
         filter: {
