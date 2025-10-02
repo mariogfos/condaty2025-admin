@@ -76,6 +76,7 @@ export type ModCrudType = {
   titleAdd?: string;
   titleEdit?: string;
   titleDel?: string;
+  textSaveButtom?: string;
 };
 
 export type TypeRenderForm = {
@@ -827,11 +828,15 @@ const useCrud = ({
         title={
           (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
         }
-        // buttonText={
-        //   action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
-        // }
-        buttonText={action == "add" ? "Guardar" : "Actualizar"}
-        // buttonCancel=""
+        // textSaveButtom por defecto "Guardar" o "Actualizar" segun action en mod.textSaveButtom
+        buttonText={
+          action == "add"
+            ? mod?.textSaveButtom
+              ? mod?.textSaveButtom
+              : "Guardar"
+            : "Actualizar"
+        }
+
         onSave={(e) =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)

@@ -15,7 +15,6 @@ const RenderView = (props: {
   onConfirm?: Function;
   extraData?: any;
 }) => {
-  // console.log(props,'propsassasas')
   const DocDestiny: any = {
     O: { name: "Residentes" },
     G: { name: "Guardias" },
@@ -48,32 +47,16 @@ const RenderView = (props: {
         <Br />
 
         <ContainerDetail>
-          {/* <div className={styles.textsDiv}>
-              <div>Subido por</div>
-              <div>{getFullName(props?.item?.user)}</div>
-            </div> */}
+
           <LabelValueDetail
             value={getFullName(props?.item?.user)}
             label="Subido por"
           />
-
-          {/* <div className={styles.textsDiv}>
-            <div>Segmentación</div>
-            <div className="truncatedText">
-              {DocDestiny[props?.item?.for_to]?.name}
-            </div>
-          </div> */}
           <LabelValueDetail
             value={DocDestiny[props?.item?.for_to]?.name}
             label="Segmentación"
           />
 
-          {/* <div>
-            <div className={styles.textsDiv}>
-              <div>Descripción</div>
-              <div>{props?.item?.descrip}</div>
-            </div>
-          </div> */}
           <LabelValueDetail value={props?.item?.descrip} label="Descripción" />
         </ContainerDetail>
         <Br />
