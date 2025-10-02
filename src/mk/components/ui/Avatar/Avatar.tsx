@@ -2,6 +2,8 @@
 import { CSSProperties, useEffect, useState } from "react";
 import { initialsName } from "../../../utils/string";
 import styles from "./avatar.module.css";
+import { useImageModal } from "@/contexts/ImageModalContext";
+
 type PropsType = {
   src?: string;
   name?: string;
@@ -16,6 +18,7 @@ type PropsType = {
   styleText?: CSSProperties;
   square?: boolean;
   onError?: () => void;
+  expandable?: boolean;
 };
 
 export const Avatar = ({
@@ -32,18 +35,41 @@ export const Avatar = ({
   style,
   square,
   hasImage,
+  expandable = false,
 }: PropsType) => {
+  const { openModal } = useImageModal();
   const [imageError, setImageError] = useState(false);
+  
   useEffect(() => {
     setImageError(false);
   }, [src]);
+
   if (!src || src.indexOf("undefined") > -1) {
-    // console.error("se envio una imagen undefined");
     return null;
   }
 
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (expandable && src && !imageError) {
+      e.stopPropagation();
+      openModal(src, name);
+    }
+    onClick?.(e);
+  };
+
   return (
-    <div className={styles.avatar + " " + className} onClick={onClick}>
+    <div 
+      className={styles.avatar + " " + className}
+      onClick={expandable ? handleImageClick : onClick}
+      onKeyDown={expandable ? (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleImageClick(e as any);
+        }
+      } : undefined}
+      role={expandable ? "button" : undefined}
+      tabIndex={expandable ? 0 : undefined}
+      aria-label={expandable ? `View ${name}'s profile picture` : undefined}
+    >
       <div
         style={{
           width: w,
@@ -53,20 +79,18 @@ export const Avatar = ({
         }}
       >
         {src && !imageError && hasImage != 0 ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
             alt={name}
             onError={() => {
               setImageError(true);
-              onError && onError();
+              onError?.();
             }}
           />
         ) : (
           <div style={{ ...styleText, fontSize: w / 3 }}>
             {initialsName(name)}
           </div>
-          // <IconUser size={w - 8} color={"var(--cBlackV2)"} reverse={false} />
         )}
       </div>
       {pin && <span className="spin"></span>}
