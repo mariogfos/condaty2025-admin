@@ -54,6 +54,12 @@
   width: 10px;
 }
 
+.messageUser,
+.messageBubble,
+.chatInput {
+  font-family: var(--fPrimary);
+}
+
 .messageUser {
   color: var(--cAccent);
   font-size: 10px;
