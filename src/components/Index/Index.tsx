@@ -210,6 +210,7 @@ const HomePage = () => {
     const secondaryText = ownerData?.ci
       ? `C.I: ${ownerData.ci}`
       : ownerData?.email || "";
+    console.log(ownerData);
 
     return (
       <div className={styles.itemRow}>
@@ -217,7 +218,7 @@ const HomePage = () => {
           <Avatar
             hasImage={ownerData.has_image}
             src={getUrlImages(
-              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
+              "/OWNER-" + ownerData?.id + ".webp?d=" + ownerData?.updated_at
             )}
             name={primaryText}
             w={40}
