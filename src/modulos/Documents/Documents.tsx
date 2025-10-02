@@ -75,7 +75,7 @@ const Documents = () => {
         api: "ae*",
         label: "Destino",
         form: { type: "select", options: lOptions },
-        list: false,
+        list: {},
         filter: {
           options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
         },
