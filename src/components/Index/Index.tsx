@@ -215,7 +215,7 @@ const HomePage = () => {
       <div className={styles.itemRow}>
         <div className={styles.itemImageContainer}>
           <Avatar
-            hasImage={ownerData.has_image}
+            hasImage={1}
             src={getUrlImages(
               "/OWNER-" + ownerData?.id + ".webp?d=" + ownerData?.updated_at
             )}
