@@ -144,18 +144,16 @@
 
 .emojiPicker {
   position: absolute;
-  top: 88px;
   left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
+  width: auto;           /* no ocupar todo el ancho del chat */
   z-index: 20;
+  animation: fadeIn 0.2s ease;
+  /* el contenedor no debe ser blanco, solo el componente interno */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .chatInputContainer {

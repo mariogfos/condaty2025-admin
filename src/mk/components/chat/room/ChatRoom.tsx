@@ -138,11 +138,33 @@ const ChatRoom = ({
     }
   };
 
-  //manejo de emoticones
   const [showEmojiPicker, setShowEmojiPicker]: any = useState(null);
+  const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleEmojiClick = (msg: any) => {
-    setShowEmojiPicker(msg?.id === showEmojiPicker?.id ? null : msg);
+    if (!msg) {
+      setShowEmojiPicker(null);
+      return;
+    }
+    if (showEmojiPicker?.id === msg.id) {
+      setShowEmojiPicker(null);
+      return;
+    }
+
+    const chatEl = chatRef.current;
+    const msgEl = msgRefs.current[msg.id];
+    let placeBelow = false;
+    const pickerHeight = 320; 
+    const margin = 16;
+
+    if (chatEl && msgEl) {
+      const chatRect = chatEl.getBoundingClientRect();
+      const msgRect = msgEl.getBoundingClientRect();
+      const availableAbove = msgRect.top - chatRect.top;
+      placeBelow = availableAbove < pickerHeight + margin;
+    }
+
+    setShowEmojiPicker({ ...msg, placeBelow });
   };
 
   const handleEmojiSelect = (emojiObject: any) => {
@@ -169,20 +191,7 @@ const ChatRoom = ({
 
   return (
     <div className={styles.chatRoomContainer}>
-      {showEmojiPicker !== null && (
-        <div className={styles.emojiPicker}>
-          <EmojiPicker
-            reactionsDefaultOpen={true}
-            onReactionClick={handleEmojiSelect}
-            onEmojiClick={handleEmojiSelect}
-          />
-          <IconX
-            size={10}
-            color="black"
-            onClick={() => handleEmojiClick(null)}
-          />
-        </div>
-      )}
+
       <div className={styles.chatMsgContainer} ref={chatRef}>
         {previewURL && (
           <div className={styles.previewContainer}>
@@ -214,25 +223,45 @@ const ChatRoom = ({
                     ? styles.otherMessage
                     : styles.otherSameMessage
                 }`}
-                style={{ position: "relative" }}
+                style={{ position: 'relative' }}
+                ref={(el) => {
+                  msgRefs.current[msg.id] = el;
+                }}
               >
+                {/* Emoji Picker anclado al mensaje que lo invoca */}
+                {showEmojiPicker?.id === msg.id && (
+                  <div
+                    className={styles.emojiPicker}
+                    style={{
+                      ...(showEmojiPicker?.placeBelow
+                        ? { top: 'calc(100% + 8px)', bottom: 'auto' }
+                        : { bottom: 'calc(100% + 8px)', top: 'auto' }),
+                    }}
+                  >
+                    <EmojiPicker
+                      reactionsDefaultOpen={true}
+                      onReactionClick={handleEmojiSelect}
+                      onEmojiClick={handleEmojiSelect}
+                      height={320}
+                      style={{
+                        backgroundColor: 'var(--cWhite)',
+                        border: '1px solid #E8E8E8',
+                      }}
+                    />
+                    <IconX
+                      size={10}
+                      color="black"
+                      onClick={() => handleEmojiClick(null)}
+                    />
+                  </div>
+                )}
                 <div
-                  className={
-                    isGroup && msg.sender !== user.id
-                      ? styles.avatar
-                      : styles.noAvatar
-                  }
+                  className={isGroup && msg.sender !== user.id ? styles.avatar : styles.noAvatar}
                 >
-                  {isGroup &&
-                  msg.sender !== user.id &&
-                  lastSender !== msg.sender ? (
+                  {isGroup && msg.sender !== user.id && lastSender !== msg.sender ? (
                     <Avatar
-                      hasImage={
-                        userMsg?.name ? userMsg.has_image : user.has_image
-                      }
-                      src={getUrlImages(
-                        "/ADM-" + userMsg?.id + ".webp?d=" + userMsg?.updated_at
-                      )}
+                      hasImage={userMsg?.name ? userMsg.has_image : user.has_image}
+                      src={getUrlImages('/ADM-' + userMsg?.id + '.webp?d=' + userMsg?.updated_at)}
                       w={32}
                       h={32}
                       name={userMsg?.name ?? getFullName(user)}
@@ -241,30 +270,23 @@ const ChatRoom = ({
                 </div>
                 <div className={styles.messageBubble}>
                   {msg.sender !== user.id && (
-                    <div
-                      className={styles.emojiIcon}
-                      onClick={() => handleEmojiClick(msg)}
-                    >
+                    <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
                       😊
                     </div>
                   )}
-                  {isGroup &&
-                    msg.sender !== user.id &&
-                    lastSender !== msg.sender && (
-                      <div className={styles.messageUser}>
-                        {userMsg?.name ?? getFullName(user)}
-                      </div>
-                    )}
+                  {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
+                    <div className={styles.messageUser}>{userMsg?.name ?? getFullName(user)}</div>
+                  )}
                   {(lastSender = msg.sender) && null}
                   <div
                     style={{
-                      whiteSpace: "pre-line",
-                      overflowWrap: "anywhere",
+                      whiteSpace: 'pre-line',
+                      overflowWrap: 'anywhere',
                     }}
                   >
-                    {msg["$files"].length > 0 && (
-                      <a target="_blank" href={msg["$files"][0].url}>
-                        <img src={msg["$files"][0].url} width={"100%"} alt="" />
+                    {msg['$files'].length > 0 && (
+                      <a target="_blank" href={msg['$files'][0].url}>
+                        <img src={msg['$files'][0].url} width={'100%'} alt="" />
                       </a>
                     )}
                     {msg.text}
@@ -272,40 +294,31 @@ const ChatRoom = ({
                 </div>
                 <div
                   className={
-                    styles.bubbleHour +
-                    " " +
-                    (msg.sender !== user.id && isGroup && styles.isGroup)
+                    styles.bubbleHour + ' ' + (msg.sender !== user.id && isGroup && styles.isGroup)
                   }
                 >
                   <div className={styles.messageHour}>
-                    {getTimePMAM(msg.created_at)}{" "}
-                    {msg.sender === user.id && !msg.received_at && (
-                      <IconCheck size={12} />
+                    {getTimePMAM(msg.created_at)}{' '}
+                    {msg.sender === user.id && !msg.received_at && <IconCheck size={12} />}
+                    {msg.sender === user.id && msg.received_at && !msg.read_at && (
+                      <IconReadMessage size={12} />
                     )}
-                    {msg.sender === user.id &&
-                      msg.received_at &&
-                      !msg.read_at && <IconReadMessage size={12} />}
-                    {msg.sender === user.id &&
-                      msg.received_at &&
-                      msg.read_at && (
-                        <IconReadMessage size={12} color="var(--cPrimary)" />
-                      )}
+                    {msg.sender === user.id && msg.received_at && msg.read_at && (
+                      <IconReadMessage size={12} color="var(--cPrimary)" />
+                    )}
                   </div>
                   <div
                     style={{
-                      display: "flex",
-                      gap: "4px",
-                      alignItems: "center",
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center',
                     }}
                   >
                     {msg.emoticon &&
-                      (JSON.parse(msg.emoticon) ?? []).map(
-                        (e: any, i: number) => (
-                          <span key={i + "em"}>{e.emoji}</span>
-                        )
-                      )}
-                    {((msg.emoticon && JSON.parse(msg.emoticon)) ?? [])
-                      .length || ""}
+                      (JSON.parse(msg.emoticon) ?? []).map((e: any, i: number) => (
+                        <span key={i + 'em'}>{e.emoji}</span>
+                      ))}
+                    {((msg.emoticon && JSON.parse(msg.emoticon)) ?? []).length || ''}
                   </div>
                 </div>
               </div>
@@ -347,9 +360,7 @@ const ChatRoom = ({
 
           <IconSend />
         </div>
-        {/* <button onClick={handleSendMessage} className={styles.chatButton}>
-          Enviar
-        </button> */}
+
       </div>
     </div>
   );
