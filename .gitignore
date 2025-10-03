@@ -49,5 +49,5 @@ package-lock.json
 WARP.md
 
 # Ignore code scanner and editor settings
-.scannerwork
-.vscode/
+/.vscode/
+/.scannerwork/
