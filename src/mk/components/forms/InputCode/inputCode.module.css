@@ -1,9 +1,9 @@
 .inputCodeContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   background-color: transparent;
-  gap: 3rem;
+  gap: 12px;
   margin-bottom: var(--spS);
   margin-top: var(--spS);
 
@@ -15,11 +15,11 @@
 }
 
 .inputCode {
-  width: var(--spXxl);
-
-  padding: var(--spS); 
-  padding-left: 11px;
-  padding-right: 4px;
+  width: 56px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.25rem;
+  padding: var(--spS);
   border: 1px solid #ccc;
   background-color: transparent;
   border-radius: var(--spS);
@@ -37,11 +37,11 @@
 .inputCodeErr {
   color: var(--cError);
   border-color: var(--cError);
-  width: var(--spXl);
-  /* background-color: transparent; */
+  width: 56px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.25rem;
   padding: var(--spS);
-  padding-left: 7px;
-  padding-right: 4px;
   border: 1px solid #ccc;
   background-color: transparent;
   border-radius: var(--spS);
