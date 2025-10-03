@@ -3,7 +3,7 @@
   background-color: var(--cBlackV2);
   padding: var(--spM) var(--spS);
   border-radius: var(--bRadius);
- 
+
   position: relative;
   border: 0.5px solid var(--cWhiteV1);
   gap: var(--spS);
@@ -13,12 +13,11 @@
 
   & > div:nth-child(1) {
     flex-grow: 1;
+    min-width: 0;
     gap: var(--spS);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 
     & > p {
       color: var(--cWhiteV1);
@@ -91,4 +90,20 @@
   font-weight: var(--bRegular);
   color: var(--cWhiteV1);
   gap: 6px;
+  min-width: 0;
+}
+
+.titleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.iconWrap {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
