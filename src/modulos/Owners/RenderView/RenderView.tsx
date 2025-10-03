@@ -11,53 +11,19 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const RenderView = (props: any) => {
-  const {
-    open,
-    onClose,
-    item: data,
-    reLoad,
-    onConfirm,
-    extraData,
-    execute,
-    showToast,
-  } = props;
+  const { open, onClose, item, reLoad, onConfirm, extraData } = props;
   const { user } = useAuth();
-  const [item, setItem]: any = useState({});
   const client = item?.clients?.find(
     (item: any) => item?.id === user?.client_id
   );
   const [openActive, setOpenActive] = useState(false);
   const [typeActive, setTypeActive] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const openModal = (t: any) => {
     setOpenActive(true);
     setTypeActive(t);
   };
-  const getDataDetail = async () => {
-    setLoading(true);
-    const { data: dataDetail, error } = await execute(
-      "/owners",
-      "GET",
-      {
-        fullType: "DET",
-        searchBy: data?.id,
-      },
-      false,
-      true
-    );
-    if (dataDetail?.success === true) {
-      setItem(dataDetail?.data[0]);
-    } else {
-      showToast(error?.data?.message || error?.message, "error");
-    }
-    setLoading(false);
-  };
-  useEffect(() => {
-    if (open) {
-      getDataDetail();
-    }
-  }, []);
+  console.log("item", item);
   if (!item) {
     return (
       <DataModal
@@ -88,87 +54,78 @@ const RenderView = (props: any) => {
           style={{ width: "max-content" }}
           className={styles.renderView}
         >
-          {loading ? (
-            <p>Cargando...</p>
-          ) : (
-            <div className={styles.boxContent}>
-              <div className={styles.avatarOwner}>
-                <Avatar
-                  hasImage={item?.has_image}
-                  src={getUrlImages(
-                    "/OWNER-" + item.id + ".webp?d=" + item.updated_at
-                  )}
-                  h={191}
-                  w={191}
-                  style={{ borderRadius: "50%" }}
-                  name={getFullName(item)}
-                />
-
-                <p className={styles.ownerName}>{getFullName(item)}</p>
+          <div className={styles.boxContent}>
+            <div className={styles.avatarOwner}>
+              <Avatar
+                hasImage={1}
+                src={getUrlImages(
+                  "/OWNER-" + item.id + ".webp?d=" + item.updated_at
+                )}
+                h={191}
+                w={191}
+                style={{ borderRadius: '50%' }}
+                name={getFullName(item)}
+              />
+              
+              <p className={styles.ownerName}>{getFullName(item)}</p>
+              
+            </div>
+            <section className={styles.infoSection}>
+              <div className={styles.infoSection_details}>
+                <p>Carnet de identidad</p>
+                <p>{item?.ci || "No disponible"}</p>
               </div>
-              <section className={styles.infoSection}>
-                <div className={styles.infoSection_details}>
-                  <p>Carnet de identidad</p>
-                  <p>{item?.ci || "No disponible"}</p>
-                </div>
-                {/*  <div className={styles.infoSection_details}>
+             {/*  <div className={styles.infoSection_details}>
                 <p>Tipo de residente</p>
                 <p>{item?.ci || "No disponible"}</p>
               </div> */}
+              <div className={styles.infoSection_details}>
+                <p>Correo electrónico</p>
+                <p>{item?.email || "No disponible"}</p>
+              </div>
+              <div className={styles.infoSection_details}>
+                <p>Celular</p>
+                <p>
+                  {(item.prefix_phone ? "+" + item.prefix_phone : "") +
+                    " " +
+                    (item?.phone || "No disponible")}
+                </p>
+              </div>
+              <div className={styles.infoSection_details}>
+                <p>Estado</p>
+                <p className={styles.statusActive}>
+                  {lStatusActive[client?.pivot?.status]?.name ||
+                    item.status ||
+                    "No disponible"}
+                </p>
+              </div>
+              {item?.dpto?.[0]?.type.name && (
                 <div className={styles.infoSection_details}>
-                  <p>Correo electrónico</p>
-                  <p>{item?.email || "No disponible"}</p>
+                  <p>Tipo de unidad</p>
+                  <p>{item?.dpto[0]?.type.name}</p>
                 </div>
-                <div className={styles.infoSection_details}>
-                  <p>Celular</p>
-                  <p>
-                    {(item.prefix_phone ? "+" + item.prefix_phone : "") +
-                      " " +
-                      (item?.phone || "No disponible")}
-                  </p>
-                </div>
-                <div className={styles.infoSection_details}>
-                  <p>Estado</p>
-                  <p className={styles.statusActive}>
-                    {lStatusActive[client?.pivot?.status]?.name ||
-                      item.status ||
-                      "No disponible"}
-                  </p>
-                </div>
-                {item?.dpto?.[0]?.type.name && (
+              )}
+              <>
+                {item?.dpto?.length > 0 ? (
+                  // CASO 1: Si ya tiene una unidad asignada
                   <div className={styles.infoSection_details}>
-                    <p>Tipo de unidad</p>
-                    <p>{item?.dpto[0]?.type.name}</p>
+                    <p>Número de Unidad</p>
+                    <p>{item.dpto[0].nro}</p>
+                  </div>
+                ) : (
+                  // CASO 2: Si solo tiene una unidad solicitada (preunidad)
+                  <div className={styles.infoSection_details}>
+                    <p>Unidad solicitada</p>
+                    <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
                   </div>
                 )}
-                <>
-                  {item?.dpto?.length > 0 ? (
-                    // CASO 1: Si ya tiene una unidad asignada
-                    <div className={styles.infoSection_details}>
-                      <p>Número de Unidad</p>
-                      <p>{item.dpto[0].nro}</p>
-                    </div>
-                  ) : (
-                    // CASO 2: Si solo tiene una unidad solicitada (preunidad)
-                    <div className={styles.infoSection_details}>
-                      <p>Unidad solicitada</p>
-                      <p>U: {client?.pivot?.preunidad || "No especificada"}</p>
-                    </div>
-                  )}
-                </>
-              </section>
-            </div>
-          )}
-
+              </>
+            </section>
+          </div>
+          
           {client?.pivot?.status === "W" && (
             <div className={styles.boxButtons}>
-              <Button
-                onClick={() => openModal("X")}
-                className={styles.btnSecondary}
-                variant="secondary"
-              >
-                Rechazar Solicitud
-              </Button>
+              <Button onClick={() =>  openModal("X")} className={styles.btnSecondary} variant="secondary">Rechazar Solicitud</Button>
               <Button onClick={() => openModal("A")}>Aprobar Solicitud</Button>
             </div>
           )}
