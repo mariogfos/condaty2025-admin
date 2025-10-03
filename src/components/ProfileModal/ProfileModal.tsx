@@ -105,7 +105,7 @@ const ProfileModal = ({
   const [openDel, setOpenDel] = useState(false);
   const client = user?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id
-  )[0];
+  )?.[0];
   const getIconType = () => {
     if (type === "admin") {
       return <IconAdmin color={"var(--cSuccess)"} size={16} />;
@@ -410,7 +410,7 @@ const ProfileModal = ({
               <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
             </WidgetBase>
 
-            {user.id === data?.data[0]?.id && (
+            {user?.id === data?.data[0]?.id && (
               <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
                 <div style={{ marginTop: 10 }} className="bottomLine" />
 
@@ -463,10 +463,11 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          {user.id === data?.data[0]?.id && (
+          {user?.id === data?.data[0]?.id && (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <Button
                 onClick={() => {
+                  onClose();
                   logout();
                 }}
                 style={{

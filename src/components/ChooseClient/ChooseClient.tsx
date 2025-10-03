@@ -82,22 +82,21 @@ const ChooseClient = ({ open, onClose }: Props) => {
       />
     );
   };
-
-  const activeClients = user.clients
-    .filter(
+  const activeClients = user?.clients
+    ?.filter(
       (client: any) =>
         client?.pivot?.status === "P" || client?.pivot?.status === "A"
     )
     .sort((a: any, b: any) => {
-      const isActiveA: any = a.id === user.client_id;
-      const isActiveB: any = b.id === user.client_id;
+      const isActiveA: any = a.id === user?.client_id;
+      const isActiveB: any = b.id === user?.client_id;
       return isActiveB - isActiveA;
-    });
+    }) || [];
 
-  const pendingClients = user.clients.filter(
+  const pendingClients = user?.clients?.filter(
     (client: any) =>
       client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
-  );
+  ) || [];
   return (
     <DataModal
       title="Seleccionar condominio"
