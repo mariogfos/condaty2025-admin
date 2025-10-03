@@ -463,24 +463,26 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <Button
-              onClick={() => {
-                logout();
-              }}
-              style={{
-                backgroundColor: 'transparent',
-                color: 'var(--cError)',
-                border: 'none',
-                padding: '0px 0px',
-                width: 'auto',
-                minWidth: 'auto',
-                textDecorationLine: 'underline',
-              }}
-            >
-              Cerrar Sesión
-            </Button>
-          </div>
+          {user.id === data?.data[0]?.id && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <Button
+                onClick={() => {
+                  logout();
+                }}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--cError)',
+                  border: 'none',
+                  padding: '0px 0px',
+                  width: 'auto',
+                  minWidth: 'auto',
+                  textDecorationLine: 'underline',
+                }}
+              >
+                Cerrar Sesión
+              </Button>
+            </div>
+          )}
         </div>
         {openAuthModal && (
           <Authentication
