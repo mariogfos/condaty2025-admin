@@ -18,6 +18,7 @@ import { SendMessageType } from "./chat-types";
 import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
 import Image from "next/image";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -43,6 +44,8 @@ export default function ChatInstantDb() {
   const [_rooms, set_rooms] = useState([]);
   const { dispatch: newMsg } = useEvent("onChatNewMsg");
   const [notifAudio, setNotifAudio] = useState(true);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   console.log("user del chat");
   console.log(usersChat);
 
@@ -181,6 +184,20 @@ export default function ChatInstantDb() {
     setCurrentRoom(rooms?.find((e: any) => e.value == typeSearch));
   }, [rooms, typeSearch]);
 
+  const handleOpenHeaderProfile = () => {
+    if (typeSearch === roomGral || typeSearch.indexOf("chatBot") !== -1) return;
+    const userId = currentRoom?.value?.replace("--", "").replace(user.id, "");
+    if (userId) {
+      setSelectedUserId(userId);
+      setProfileModalOpen(true);
+    }
+  };
+
+  const handleCloseProfile = () => {
+    setProfileModalOpen(false);
+    setSelectedUserId(null);
+  };
+
   return (
     <>
       <div
@@ -205,7 +222,12 @@ export default function ChatInstantDb() {
               checked={notifAudio}
             />
           </div>
-          <div>
+          <div
+            onClick={handleOpenHeaderProfile}
+            style={{
+              cursor: typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1 ? "pointer" : "default"
+            }}
+          >
             <div>
               {typeSearch == roomGral ? (
                 <IconGroup size={40} />
@@ -322,6 +344,21 @@ export default function ChatInstantDb() {
           </div>
         </div>
       </div>
+
+      {/* Modal de perfil de usuario */}
+      {selectedUserId && (
+        <ProfileModal
+          open={profileModalOpen}
+          onClose={handleCloseProfile}
+          dataID={selectedUserId}
+          type="admin"
+          title="Perfil de personal"
+          titleBack="Volver al chat"
+          del={false}
+          edit={false}
+          zIndex={10001}
+        />
+      )}
     </>
   );
 }
