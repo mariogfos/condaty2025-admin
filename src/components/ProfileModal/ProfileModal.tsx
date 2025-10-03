@@ -34,6 +34,7 @@ interface ProfileModalProps {
   edit?: boolean;
   del?: boolean;
   type?: string;
+  zIndex?: number;
 }
 interface FormState {
   id?: string | number;
@@ -92,6 +93,7 @@ const ProfileModal = ({
   edit = true,
   del = true,
   type,
+  zIndex,
 }: ProfileModalProps) => {
   const { user, getUser, showToast, userCan, logout } = useAuth();
   const { execute } = useAxios();
@@ -253,7 +255,7 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-
+        zIndex={zIndex}
       >
         <div className={styles.ProfileModal}>
           <section>

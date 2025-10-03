@@ -23,6 +23,7 @@ type PropsType = {
   style?: CSSProperties;
   colorTitle?: string;
   variant?: string | null;
+  zIndex?: number;
 };
 
 const DataModal = ({
@@ -44,6 +45,7 @@ const DataModal = ({
   //colorTitle = 'var(--cAccent)',
   colorTitle = "var(--cWhite)",
   variant = null,
+  zIndex = 200,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -65,7 +67,7 @@ const DataModal = ({
   }, [open]);
   return (
     <div
-      style={{ visibility: open ? "visible" : "hidden" }}
+      style={{ visibility: open ? "visible" : "hidden", zIndex }}
       className={styles.dataModal}
       onClick={(e) => e.stopPropagation()}
     >
