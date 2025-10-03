@@ -32,10 +32,10 @@ const Badge: React.FC = () => (
   />
 );
 
-const MainmenuDropdown = ({ 
-  label, icon, items, 
-  collapsed = false, 
-  isOpen = false, onToggle, 
+const MainmenuDropdown = ({
+  label, icon, items,
+  collapsed = false,
+  isOpen = false, onToggle,
   setSideBarOpen }: MainmenuDropdownProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -44,7 +44,7 @@ const MainmenuDropdown = ({
   const type = searchParams?.get("type");
 
   const hasItemWithBadge = useMemo(
-    () => items.some((item) => item.bage && item.bage > 0),
+    () => items.some((item) => Number(item.bage) > 0),
     [items]
   );
 
@@ -131,7 +131,7 @@ const MainmenuDropdown = ({
                 .join(" ")}
             >
               {item.label}
-              {item.bage && item.bage > 0 && <Badge />}
+              {Number(item.bage) > 0 && <Badge />}
             </Link>
           ))}
         </div>

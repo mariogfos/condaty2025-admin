@@ -35,6 +35,23 @@ const paramsInitial = {
 
 export { getAlertLevelText };
 
+const DescriptionCell = ({ description }: { description: string }) => {
+  return (
+    <div
+      title={description}
+      style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        maxWidth: '100%',
+        width: '100%',
+      }}
+    >
+      {description}
+    </div>
+  );
+};
+
 const Alerts = () => {
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
@@ -59,6 +76,8 @@ const Alerts = () => {
     }) => <RenderView {...props} reLoad={() => reLoad()} />,
   };
   const { setStore } = useAuth();
+
+
 
   const getPeriodOptions = () => [
     { id: 'ALL', name: 'Todos' },
@@ -90,6 +109,11 @@ const Alerts = () => {
     }
     return { filterBy: currentFilters };
   };
+  const renderDescriptionCell = (props: any) => {
+    const description = props?.item?.descrip || '';
+    return <DescriptionCell description={description} />;
+  };
+
 
   const renderGuardInfo = ({ item }: { item: any }) => {
     let entityToDisplay = null;
@@ -166,7 +190,7 @@ const Alerts = () => {
         api: '',
         label: 'Fecha de creación',
         list: {
-          width: '20%',
+          width: 300,
           onRender: formatCreatedAt,
         },
         filter: {
@@ -180,7 +204,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Informador',
         list: {
-          width: '26%',
+          width: 330,
           onRender: renderGuardInfo,
         },
         form: { type: 'text' },
@@ -189,9 +213,13 @@ const Alerts = () => {
       level: {
         rules: ['required'],
         api: 'ae',
-        label: <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>Grupo de alerta</span>,
+        label: (
+          <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+            Grupo de alerta
+          </span>
+        ),
         list: {
-          width: '12%',
+          width: 250,
           onRender: renderAlertLevel,
         },
         form: { type: 'select', options: ALERT_LEVEL_OPTIONS },
@@ -208,7 +236,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Descripción',
         list: {
-          width: '42%',
+          onRender: renderDescriptionCell,
         },
         form: { type: 'text' },
       },
@@ -258,6 +286,7 @@ const Alerts = () => {
               />
             }
             className={styles.widgetResumeCard}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}
