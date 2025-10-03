@@ -20,6 +20,7 @@ type PropsType = {
   square?: boolean;
   onError?: () => void;
   expandable?: boolean;
+  expandableZIndex?: number;
 };
 
 export const Avatar = ({
@@ -37,6 +38,7 @@ export const Avatar = ({
   square,
   hasImage,
   expandable = false,
+  expandableZIndex,
 }: PropsType) => {
   const { openModal } = useImageModal();
   const [imageError, setImageError] = useState(false);
@@ -53,7 +55,7 @@ export const Avatar = ({
     if (expandable && src && !imageError) {
       e.stopPropagation();
       e.preventDefault();
-      openModal(src, name);
+      openModal(src, name, expandableZIndex);
     }
     onClick?.(e);
   };

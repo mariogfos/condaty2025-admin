@@ -326,6 +326,8 @@ const ProfileModal = ({
               <div>
                 <div>
                   <Avatar
+                    expandable={true}
+                    expandableZIndex={10002}
                     hasImage={1}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
@@ -343,9 +345,8 @@ const ProfileModal = ({
                 <div>
                   {IconType}
                   {data?.data[0]?.dpto?.[0]?.nro && type === 'owner'
-                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
-                        data?.data[0]?.dpto?.[0]?.nro || '-/-'
-                      }`
+                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${data?.data[0]?.dpto?.[0]?.nro || '-/-'
+                    }`
                     : profileRole}
                 </div>
                 <div>
@@ -461,7 +462,7 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          <div style={{display: 'flex', justifyContent: 'flex-start'}}>
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
             <Button
               onClick={() => {
                 logout();

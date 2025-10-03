@@ -252,11 +252,11 @@ export default function ChatInstantDb() {
                   }
                   src={getUrlImages(
                     "/ADM-" +
-                      currentRoom?.value
-                        .replace("--", "")
-                        .replace(user.id, "") +
-                      ".webp?d=" +
-                      new Date().getTime()
+                    currentRoom?.value
+                      .replace("--", "")
+                      .replace(user.id, "") +
+                    ".webp?d=" +
+                    new Date().getTime()
                   )}
                   w={40}
                   h={40}

@@ -8,9 +8,10 @@ type ImageModalProps = {
   onClose: () => void;
   imageUrl?: string;
   altText?: string;
+  zIndex?: number;
 }
 
-export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalProps) => {
+export const ImageModal = ({ isOpen, onClose, imageUrl, altText, zIndex = 1000 }: ImageModalProps) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalPro
       className={styles.modalOverlay}
       onClick={handleClose}
       role="presentation"
+      style={{ zIndex }}
     >
       <div 
         className={styles.modalContent}

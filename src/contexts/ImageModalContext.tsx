@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useMemo } from 'react';
 import { ImageModal } from '@/components/ImageModal/ImageModal';
 
 type ImageModalContextType = {
-  openModal: (imageUrl: string, altText?: string) => void;
+  openModal: (imageUrl: string, altText?: string, zIndex?: number) => void;
   closeModal: () => void;
 }
 
@@ -22,10 +22,11 @@ export const ImageModalProvider = ({ children }: { children: React.ReactNode }) 
     isOpen: false,
     imageUrl: '',
     altText: '',
+    zIndex: undefined as number | undefined,
   });
 
-  const openModal = (imageUrl: string, altText?: string) => {
-    setModalState({ isOpen: true, imageUrl, altText: altText || '' });
+  const openModal = (imageUrl: string, altText?: string, zIndex?: number) => {
+    setModalState({ isOpen: true, imageUrl, altText: altText || '', zIndex });
   };
 
   const closeModal = () => {
@@ -48,6 +49,7 @@ export const ImageModalProvider = ({ children }: { children: React.ReactNode }) 
         onClose={closeModal}
         imageUrl={modalState.imageUrl}
         altText={modalState.altText}
+        zIndex={modalState.zIndex}
       />
     </ImageModalContext.Provider>
   );

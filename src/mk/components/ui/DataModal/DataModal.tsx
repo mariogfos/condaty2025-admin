@@ -30,7 +30,7 @@ const DataModal = ({
   children,
   onClose,
   open,
-  onSave = (e: any) => {},
+  onSave = (e: any) => { },
   title = "",
   className = "",
   buttonText = "Guardar",
