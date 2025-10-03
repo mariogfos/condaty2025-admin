@@ -6,7 +6,6 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Sidebar from "@/mk/components/ui/Sidebar/Sidebar";
 import MainMenu from "../MainMenu/MainMenu";
 import Header from "../Header/Header";
-// import useScreenSize from "@/mk/hooks/useScreenSize";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
@@ -28,8 +27,6 @@ import {
 } from "./icons/IconsBiblioteca";
 import ChooseClient from "../ChooseClient/ChooseClient";
 import ProfileModal from "../ProfileModal/ProfileModal";
-
-// const soundBell = new Audio("/sounds/bellding.mp3");
 const typeAlerts: any = {
   E: {
     name: "Emergencia Medica",
@@ -55,37 +52,47 @@ const typeAlerts: any = {
 
 const Layout = ({ children }: any) => {
   const { user, logout, store, setStore, showToast, userCan } = useAuth();
-  // const { isTablet, isDesktop } = useScreenSize();
 
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [client, setClient]: any = useState(null);
   const [onLogout, setOnLogout] = useState(false);
   const [openAlert, setOpenAlert]: any = useState({ open: false, item: null });
-  const path: any = usePathname();
-  const router = useRouter();
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [soundBell] = useState(
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
   const [openClient, setOpenClient] = useState(false);
+  const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] = useState(false);
+
+  const path: any = usePathname();
+  const router = useRouter();
   const isTablet = false;
   const isDesktop = true;
 
+  // Helper para truncar texto a 150 chars con "…"
+  const truncateText = (text: string, max: number) =>
+    (text ?? "").length > max ? (text ?? "").slice(0, max).trimEnd() + "…" : (text ?? "");
+
+  // Precalcular valores del nombre/descripcion de la emergencia
+  const emergencyName = openAlert?.item?.name ?? "";
+  const nameTooLong = emergencyName.length > 150;
+  const visibleName = isLayoutAlertDescExpanded ? emergencyName : truncateText(emergencyName, 150);
+
+  // Reiniciar al abrir/cambiar la alerta
   useEffect(() => {
-    // if (user) {
-    //   const client = user.clients?.find((c: any) => c.id === user.client_id);
-    //   setClient(client);
-    // }
-    // setStore({ ...store, openProfileModal:false });
+    setIsLayoutAlertDescExpanded(false);
+  }, [openAlert?.item?.name, openAlert?.item?.created_at, openAlert?.open]);
+
+  // Verificar cliente al montar
+  useEffect(() => {
     if (!user?.client_id) {
       setOpenClient(true);
-      return;
     }
-  }, []);
+  }, [user?.client_id]);
 
+  // Habilitar audio después de la primera interacción del usuario
   useEffect(() => {
-    // Habilitar el audio después de la primera interacción del usuario
     const enableAudio = () => {
       soundBell
         ?.play()
@@ -93,7 +100,6 @@ const Layout = ({ children }: any) => {
           soundBell?.pause();
           soundBell?.load();
           setAudioEnabled(true);
-          // Remover el evento después de la primera interacción
           document.removeEventListener("click", enableAudio);
         })
         .catch((error) => console.log("Error al habilitar el audio:", error));
@@ -105,9 +111,22 @@ const Layout = ({ children }: any) => {
     };
   }, [soundBell]);
 
+  // Manejar redimensionamiento de ventana
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1025) {
+        setSideMenuOpen(true); // Colapsado
+      } else {
+        setSideMenuOpen(false); // Expandido
+      }
+    };
+    handleResize(); // Ejecutar al montar
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const onNotif = useCallback(
     (e: any) => {
-      // console.log("*******11111*****", e);
       if (!user?.id) return;
       console.log(user, "user");
       if (e.event == "ping") {
@@ -142,7 +161,7 @@ const Layout = ({ children }: any) => {
         }
       }
     },
-    [soundBell, showToast, audioEnabled, user]
+    [soundBell, showToast, audioEnabled, user, userCan]
   );
 
   useEvent("onNotif", onNotif);
@@ -150,30 +169,17 @@ const Layout = ({ children }: any) => {
   const layoutClassName = `${styles.layout} ${
     isDesktop && !sideMenuOpen ? styles.layoutExpanded : ""
   } ${isDesktop && sideMenuOpen ? styles.layoutCollapsed : ""}`;
+
   const onCloseAlert = () => {
     setOpenAlert({ open: false, item: null });
     soundBell?.pause();
     soundBell?.load();
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1025) {
-        setSideMenuOpen(true); // Colapsado
-      } else {
-        setSideMenuOpen(false); // Expandido
-      }
-    };
-    handleResize(); // Ejecutar al montar
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <main className={layoutClassName}>
       <section>
         <Header
-          // isTablet={isTablet}
           isTablet={false}
           user={user}
           path={path}
@@ -215,7 +221,7 @@ const Layout = ({ children }: any) => {
         )}
       </section>
       <section>{children}</section>
-      <section>{/* Fotter Here!! */}</section>
+      <section>{/* Footer Here!! */}</section>
 
       {store?.openProfileModal && (
         <ProfileModal
@@ -229,6 +235,7 @@ const Layout = ({ children }: any) => {
           del={false}
         />
       )}
+
       {onLogout && (
         <DataModal
           open={onLogout}
@@ -272,7 +279,6 @@ const Layout = ({ children }: any) => {
             title={openAlert?.item?.owner_name}
             subtitle={"Unidad: " + openAlert?.item?.unit}
             right={
-              // <p style={{ width: 160, textAlign: "right" }}>
               <p style={{ width: 110, textAlign: "right" }}>
                 {getDateTimeAgo(openAlert?.item?.created_at)}
               </p>
@@ -308,10 +314,19 @@ const Layout = ({ children }: any) => {
             }}
           >
             {typeAlerts[openAlert?.item?.type]?.icon}
-            <p>{openAlert?.item?.name}</p>
+            <p className={styles.alertDesc}>{visibleName}</p>
+            {nameTooLong && (
+              <button
+                className={styles.viewMoreBtn}
+                onClick={() => setIsLayoutAlertDescExpanded((v: boolean) => !v)}
+              >
+                {isLayoutAlertDescExpanded ? "Ver menos" : "Ver más"}
+              </button>
+            )}
           </div>
         </DataModal>
       )}
+
       {openClient && (
         <ChooseClient
           open={openClient}
