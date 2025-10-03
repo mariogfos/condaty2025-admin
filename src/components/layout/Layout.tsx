@@ -235,6 +235,7 @@ const Layout = ({ children }: any) => {
           titleBack="Volver atras"
           type="admin"
           del={false}
+          setOnLogout={setOnLogout}
         />
       )}
 

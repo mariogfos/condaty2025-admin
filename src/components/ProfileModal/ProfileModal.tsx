@@ -35,6 +35,7 @@ interface ProfileModalProps {
   del?: boolean;
   type?: string;
   zIndex?: number;
+  setOnLogout?: (value: boolean) => void;
 }
 interface FormState {
   id?: string | number;
@@ -94,6 +95,7 @@ const ProfileModal = ({
   del = true,
   type,
   zIndex,
+  setOnLogout,
 }: ProfileModalProps) => {
   const { user, getUser, showToast, userCan, logout } = useAuth();
   const { execute } = useAxios();
@@ -463,14 +465,12 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          {user?.id === data?.data[0]?.id && (
+          {user?.id === data?.data[0]?.id && setOnLogout && (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <Button
                 onClick={() => {
-                  logout();
-                  setTimeout(() => {
-                    onClose();
-                  }, 0);
+                  onClose();
+                  setOnLogout(true);
                 }}
                 style={{
                   backgroundColor: 'transparent',
