@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useMemo } from 'react';
 import { ImageModal } from '@/components/ImageModal/ImageModal';
 
 type ImageModalContextType = {
@@ -32,8 +32,16 @@ export const ImageModalProvider = ({ children }: { children: React.ReactNode }) 
     setModalState(prev => ({ ...prev, isOpen: false }));
   };
 
+  const contextValue = useMemo(
+    () => ({
+      openModal,
+      closeModal,
+    }),
+    []
+  );
+
   return (
-    <ImageModalContext.Provider value={{ openModal, closeModal }}>
+    <ImageModalContext.Provider value={contextValue}>
       {children}
       <ImageModal
         isOpen={modalState.isOpen}
