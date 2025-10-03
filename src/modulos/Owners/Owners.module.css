@@ -21,7 +21,6 @@
          }
          & > section {
            padding: var(--spM);
-           background-color: var(--cBlackV1);
            border-radius: 8px;
            width:50%;
 
@@ -95,6 +94,7 @@
   display: flex;
   flex-direction: row;
   gap: var(--spM);
+  background-color: var(--cBlackV1);
   border: .5px solid var(--cWhiteV1);
   border-radius: var(--bRadius);
   justify-content: space-between;
