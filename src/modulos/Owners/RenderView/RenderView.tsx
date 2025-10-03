@@ -57,7 +57,7 @@ const RenderView = (props: any) => {
           <div className={styles.boxContent}>
             <div className={styles.avatarOwner}>
               <Avatar
-                hasImage={item?.has_image}
+                hasImage={1}
                 src={getUrlImages(
                   "/OWNER-" + item.id + ".webp?d=" + item.updated_at
                 )}

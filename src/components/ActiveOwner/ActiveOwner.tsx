@@ -29,9 +29,14 @@ const ActiveOwner = ({
   // A:Aceptado
   // W:En espera
 
-  const { data: dptos, execute } = useAxios("/dptos", "GET", {
-    fullType: "PR",
-  });
+  const { data: dptos, execute } = useAxios(
+    "/dptos",
+    "GET",
+    {
+      fullType: "PR",
+    },
+    true
+  );
 
   // useEffect(() => {
   //   const lista =
@@ -46,7 +51,10 @@ const ActiveOwner = ({
     const lista =
       dptos?.data?.map((item: any) => ({
         id: item?.id,
-        nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
+        // nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
+        nro: `${store?.UnitsType} ${item?.nro} ${
+          item?.description ? "- " + item?.description : ""
+        }`,
       })) || [];
 
     return lista;
@@ -108,7 +116,6 @@ const ActiveOwner = ({
       console.log("error:", error);
     }
   };
-  console.log(getLDptos(), "DPTOS");
   return (
     <DataModal
       open={open}
@@ -124,8 +131,10 @@ const ActiveOwner = ({
             <span className={styles.resalted}> {getFullName(data)}</span>.
           </div>
           <p className="font-light text-md mb-6 text-lightv3">
-            El residente indicó que está en la unidad: {" "}
-            <span className={styles.resalted}>U: {client?.pivot?.preunidad || "Sin especificar"}</span>
+            El residente indicó que está en la unidad:{" "}
+            <span className={styles.resalted}>
+              U: {client?.pivot?.preunidad || "Sin especificar"}
+            </span>
           </p>
           <div>
             <Select
@@ -144,7 +153,10 @@ const ActiveOwner = ({
         </div>
       ) : (
         <div className={styles.activeContainer}>
-          <p className={styles.textContent}>Por favor indica el motivo del rechazo para que el residente pueda comprender y realice el pre-registro de manera correcta</p>
+          <p className={styles.textContent}>
+            Por favor indica el motivo del rechazo para que el residente pueda
+            comprender y realice el pre-registro de manera correcta
+          </p>
           <TextArea
             label="Motivo del rechazo de cuenta"
             name="obs"
