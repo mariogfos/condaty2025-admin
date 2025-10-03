@@ -54,6 +54,7 @@ const ChatRoom = ({
 
   useEffect(() => {
     setShowEmojiPicker(null);
+    setNewMessage("");
   }, [roomId]);
 
   const cancelUpload = () => {
