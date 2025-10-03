@@ -52,6 +52,10 @@ const ChatRoom = ({
   const [newMessage, setNewMessage] = useState("");
   const { sendMessageBot } = useChatProvider({ provider: "kimi" });
 
+  useEffect(() => {
+    setShowEmojiPicker(null);
+  }, [roomId]);
+
   const cancelUpload = () => {
     if (selectedFile) {
       URL.revokeObjectURL(selectedFile.previewURL);
@@ -62,28 +66,31 @@ const ChatRoom = ({
   };
 
   const handleSendMessage = async () => {
+    const messageText = newMessage;
+    setNewMessage("");
+    typing.inputProps.onBlur();
+
     let msgId = 0;
     if (selectedFile) {
       setIsUploading(true);
       msgId = await sendMessage(
-        newMessage,
+        messageText,
         roomId,
         user?.id,
         selectedFile.file
       );
       cancelUpload();
     } else {
-      msgId = await sendMessage(newMessage, roomId, user?.id);
+      msgId = await sendMessage(messageText, roomId, user?.id);
     }
-    setNewMessage("");
-    typing.inputProps.onBlur();
+
     if (roomId.indexOf("chatBot") > -1) {
       db.transact(
         db.tx.messages[msgId].update({
           received_at: Date.now(),
         })
       );
-      const reply = await sendMessageBot(newMessage);
+      const reply = await sendMessageBot(messageText);
       if (reply != "") {
         await sendMessage(reply, roomId, "chatBot");
         db.transact(
@@ -209,8 +216,6 @@ const ChatRoom = ({
       {/* Área de mensajes con overlay relativo */}
       <div className={styles.messagesArea}>
         <div className={styles.chatMsgContainer} ref={chatRef}>
-          {/* Removemos el preview de aquí para que no esté dentro del scroll */}
-          {/* <div style={{ color: "white" }}>{JSON.stringify(users)}</div> */}
           {messages?.map((msg: any, i: number) => {
             const userMsg = users?.find((e: any) => e.id === msg.sender);
             const date = getDateStr(new Date(msg.created_at).toISOString());
@@ -363,8 +368,6 @@ const ChatRoom = ({
             );
           })}
       </div>
-
-      {/* Preview fuera del scroll, overlay sobre el área de mensajes */}
       {previewURL && (
         <div className={styles.previewContainer}>
           <IconX color="red" onClick={() => cancelUpload()} />
@@ -421,3 +424,6 @@ const ChatRoom = ({
 };
 
 export default ChatRoom;
+
+
+
