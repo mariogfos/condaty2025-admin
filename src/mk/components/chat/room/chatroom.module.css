@@ -173,16 +173,15 @@
 .chatInput {
   border: none;
   width: 100%;
-  height: calc(100% - 36px);
+  height: 100%;
   padding: 16px;
+    padding-bottom: 48px; /* Espacio para los botones abajo */
   border-radius: 8px;
-  line-height: 1;
+  line-height: 1.4;
   white-space: pre-line;
   resize: none;
   outline: none;
   background-color: transparent;
-  /* background-color: red; */
-  /* margin: 16px; */
   color: var(--cWhiteV1);
 }
 

@@ -349,19 +349,20 @@ const ChatRoom = ({
           className={styles.chatButton}
         >
           <IconImage
-            color="var(--cBlack)"
+            color="var(--cBlackV1)"
             onClick={() => fileInputRef.current?.click()}
-            style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
-            size={32}
+            circle={true}
+            style={{ backgroundColor: "var(--cWhiteV1)" }}
           />
 
           <IconSend 
-            color="var(--cBlack)"
+            color="var(--cBlackV1)"
             onClick={() => {
             if (!sending) handleSendMessage();
             }}
-            style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
-            size={32}
+            circle={true}
+            reverse={true}
+            style={{ backgroundColor: "var(--cAccent)" }}
           />
         </div>
 
