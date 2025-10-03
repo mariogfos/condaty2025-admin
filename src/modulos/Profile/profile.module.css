@@ -208,9 +208,8 @@
 }
 
 .modalLogout {
-  text-align: center;
+  text-align: start;
   color: var(--lightColor);
-  margin: 1rem 0;
 }
 
 .modalAvatar {
