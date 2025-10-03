@@ -3473,7 +3473,7 @@ export const IconHandcoin = (props: IconType) => (
 
 export const IconSend = (props: IconType) => (
   <IconWrap viewBox="0 0 24 24" {...props}>
-    <path d="M9.25565 12.7436L2.11035 9.49573L18.9992 3L12.5035 19.8889L9.25565 12.7436ZM9.25565 12.7436L13.1531 8.84615" stroke="#212121" stroke-width="0.888889" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M9.25565 12.7436L2.11035 9.49573L18.9992 3L12.5035 19.8889L9.25565 12.7436ZM9.25565 12.7436L13.1531 8.84615" />
   </IconWrap>
 );
 
