@@ -21,6 +21,7 @@ type PropsType = {
   onError?: () => void;
   expandable?: boolean;
   expandableZIndex?: number;
+  expandableIcon?: boolean;
 };
 
 export const Avatar = ({
@@ -39,6 +40,7 @@ export const Avatar = ({
   hasImage,
   expandable = false,
   expandableZIndex,
+  expandableIcon = true,
 }: PropsType) => {
   const { openModal } = useImageModal();
   const [imageError, setImageError] = useState(false);
@@ -85,7 +87,7 @@ export const Avatar = ({
               onError?.();
             }}
           />
-          {expandable && <IconExpand color="var(--cWhite)" />}
+          {expandable && expandableIcon && <IconExpand color="var(--cWhite)" />}
         </>
       ) : (
         <div style={{ ...styleText, fontSize: w / 3 }}>

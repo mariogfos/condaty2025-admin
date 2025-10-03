@@ -328,6 +328,7 @@ const ProfileModal = ({
                   <Avatar
                     expandable={true}
                     expandableZIndex={10002}
+                    expandableIcon={false}
                     hasImage={1}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
