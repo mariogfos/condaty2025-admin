@@ -54,6 +54,12 @@
   width: 10px;
 }
 
+.messageUser,
+.messageBubble,
+.chatInput {
+  font-family: var(--fPrimary);
+}
+
 .messageUser {
   color: var(--cAccent);
   font-size: 10px;
@@ -156,14 +162,16 @@
   gap: 8px;
   justify-content: space-between; */
   border-radius: 8px;
-  margin: 16px;
+  margin: 16px 16px 0 0;
   /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
 .chatInput {
-  border: 1px solid transparent;
+  border: none;
   width: 100%;
   height: calc(100% - 36px);
   padding: 16px;
@@ -179,12 +187,17 @@
 }
 
 .chatInput:focus {
+  outline: none;
+}
+
+.chatInput:focus ~ .chatButton,
+.chatInputContainer:focus-within {
   border-color: var(--cAccent);
 }
 
 .chatButton {
   position: absolute;
-  color: var(--cPrimary);
+  color: var(--cBlack);
   opacity: 0.8;
   cursor: pointer;
   bottom: 4px;
