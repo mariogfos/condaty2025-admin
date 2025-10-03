@@ -5,7 +5,7 @@
     right: 0;
     bottom: 0;
     z-index: 50;
-    background-color: #1a1a1a; /* color oscuro, ajusta según tu tema */
+    background-color: #1a1a1a;
     color: #ffffff;
   }
   
@@ -18,12 +18,22 @@
   }
   
   .logo {
-    color: #ff6b6b; /* ajusta el color según tu tema */
+    color: #ff6b6b;
   }
   
   .spinDot {
-    animation: spin 1s linear infinite;
-    text-align: center;
+    width: 32px;
+    padding: 3px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cPrimary);
+    --_m: conic-gradient(#2121 10%, var(--cPrimary)),
+      linear-gradient(var(--cPrimary) 0 0) content-box;
+    -webkit-mask: var(--_m);
+    mask: var(--_m);
+    -webkit-mask-composite: source-out;
+    mask-composite: subtract;
+    animation: l3 1s infinite linear;
   }
   
   .text {
@@ -35,12 +45,9 @@
   .bold {
     font-weight: bold;
   }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+
+  @keyframes l3 {
+  to {
+    transform: rotate(1turn);
   }
+}
