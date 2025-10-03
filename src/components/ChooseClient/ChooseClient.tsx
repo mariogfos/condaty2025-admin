@@ -97,6 +97,10 @@ const ChooseClient = ({ open, onClose }: Props) => {
     (client: any) =>
       client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
   ) || [];
+  
+  // No renderizar si no hay usuario, si el modal no está abierto, o si está en proceso de logout
+  if (!user || !open || user?.id === "0") return null;
+  
   return (
     <DataModal
       title="Seleccionar condominio"

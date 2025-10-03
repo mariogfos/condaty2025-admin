@@ -86,10 +86,12 @@ const Layout = ({ children }: any) => {
 
   // Verificar cliente al montar
   useEffect(() => {
-    if (!user?.client_id) {
+    if (user && user?.id !== "0" && !user?.client_id) {
       setOpenClient(true);
+    } else if (!user || user?.id === "0") {
+      setOpenClient(false);
     }
-  }, [user?.client_id]);
+  }, [user?.client_id, user]);
 
   // Habilitar audio después de la primera interacción del usuario
   useEffect(() => {

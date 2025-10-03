@@ -467,8 +467,10 @@ const ProfileModal = ({
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <Button
                 onClick={() => {
-                  onClose();
                   logout();
+                  setTimeout(() => {
+                    onClose();
+                  }, 0);
                 }}
                 style={{
                   backgroundColor: 'transparent',
