@@ -162,7 +162,7 @@
   gap: 8px;
   justify-content: space-between; */
   border-radius: 8px;
-  margin: 16px 16px 0 0;
+  margin: 16px 0 0 0;
   /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
@@ -210,6 +210,10 @@
   opacity: 0.8;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .chatButton > svg:hover {
