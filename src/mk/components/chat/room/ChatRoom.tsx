@@ -55,6 +55,7 @@ const ChatRoom = ({
   useEffect(() => {
     setShowEmojiPicker(null);
     setNewMessage("");
+    if (roomId.indexOf("chatBot") > -1 && selectedFile) cancelUpload();
   }, [roomId]);
 
   const cancelUpload = () => {
@@ -142,6 +143,10 @@ const ChatRoom = ({
   const { previewURL } = selectedFile || {};
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (roomId.indexOf("chatBot") > -1) {
+      e.target.value = "";
+      return;
+    }
     const file = e.target.files?.[0];
     if (file) {
       const previewURL = URL.createObjectURL(file);
@@ -410,14 +415,16 @@ const ChatRoom = ({
             if (!sending) handleSendMessage();
           }}
         >
-          <IconImage
-            color="var(--cBlack)"
-            onClick={() => fileInputRef.current?.click()}
-            style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
-            size={32}
-
-
-          />
+          {roomId.indexOf("chatBot") === -1 && (
+            <IconImage
+              color="var(--cBlack)"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+              style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
+              size={32}
+            />
+          )}
 
           <IconSend
             color="var(--cBlack)"
