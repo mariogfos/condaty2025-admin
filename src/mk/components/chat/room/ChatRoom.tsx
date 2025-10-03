@@ -5,6 +5,7 @@ import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateStr, getTimePMAM } from "@/mk/utils/date1";
 import {
   IconCheck,
+  IconEmoji,
   IconImage,
   IconReadMessage,
   IconSend,
@@ -139,7 +140,9 @@ const ChatRoom = ({
   };
 
   const [showEmojiPicker, setShowEmojiPicker]: any = useState(null);
+  const [showInputEmojiPicker, setShowInputEmojiPicker] = useState(false);
   const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const inputEmojiPickerRef = useRef<HTMLDivElement>(null);
 
   const handleEmojiClick = (msg: any) => {
     if (!msg) {
@@ -154,7 +157,7 @@ const ChatRoom = ({
     const chatEl = chatRef.current;
     const msgEl = msgRefs.current[msg.id];
     let placeBelow = false;
-    const pickerHeight = 320; 
+    const pickerHeight = 320;
     const margin = 16;
 
     if (chatEl && msgEl) {
@@ -189,6 +192,28 @@ const ChatRoom = ({
     }
   };
 
+  const handleInputEmojiSelect = (emojiObject: any) => {
+    setNewMessage(newMessage + emojiObject.emoji);
+    setShowInputEmojiPicker(false);
+  };
+
+  // Cerrar el picker al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (inputEmojiPickerRef.current && !inputEmojiPickerRef.current.contains(event.target as Node)) {
+        setShowInputEmojiPicker(false);
+      }
+    };
+
+    if (showInputEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showInputEmojiPicker]);
+
   return (
     <div className={styles.chatRoomContainer}>
 
@@ -216,13 +241,12 @@ const ChatRoom = ({
                 </div>
               )}
               <div
-                className={`${styles.messageContainer} ${
-                  msg.sender === user.id
-                    ? styles.myMessage
-                    : lastSender !== msg.sender
+                className={`${styles.messageContainer} ${msg.sender === user.id
+                  ? styles.myMessage
+                  : lastSender !== msg.sender
                     ? styles.otherMessage
                     : styles.otherSameMessage
-                }`}
+                  }`}
                 style={{ position: 'relative' }}
                 ref={(el) => {
                   msgRefs.current[msg.id] = el;
@@ -336,7 +360,6 @@ const ChatRoom = ({
         />
 
         <textarea
-          // type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           className={styles.chatInput}
@@ -345,27 +368,51 @@ const ChatRoom = ({
           onKeyDown={typing.inputProps.onKeyDown}
           onKeyUp={onKeyUp}
         />
-        <div
-          className={styles.chatButton}
-        >
+
+        {/* Selector de emojis para el input */}
+        {showInputEmojiPicker && (
+          <div
+            ref={inputEmojiPickerRef}
+            className={styles.inputEmojiPicker}
+          >
+            <EmojiPicker
+              onEmojiClick={handleInputEmojiSelect}
+              height={350}
+              width={300}
+              style={{ backgroundColor: 'var(--cWhite)' }}
+            />
+          </div>
+        )}
+
+        <div className={styles.chatButton}>
+          <IconEmoji
+            color="var(--cBlackV1)"
+            onClick={() => setShowInputEmojiPicker(!showInputEmojiPicker)}
+            circle={true}
+            style={{padding: "4px", backgroundColor: "var(--cWhiteV1)" }}
+            reverse={true}
+            title="Emojis"
+          />
+
           <IconImage
             color="var(--cBlackV1)"
             onClick={() => fileInputRef.current?.click()}
             circle={true}
-            style={{ backgroundColor: "var(--cWhiteV1)" }}
+            style={{padding: "4px", backgroundColor: "var(--cWhiteV1)" }}
+            title="Adjuntar imagen"
           />
 
-          <IconSend 
+          <IconSend
             color="var(--cBlackV1)"
             onClick={() => {
-            if (!sending) handleSendMessage();
+              if (!sending) handleSendMessage();
             }}
             circle={true}
             reverse={true}
-            style={{ backgroundColor: "var(--cAccent)" }}
+            style={{padding: "4px", backgroundColor: "var(--cAccent)" }}
+            title="Enviar mensaje"
           />
         </div>
-
       </div>
     </div>
   );
