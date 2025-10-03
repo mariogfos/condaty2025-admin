@@ -206,166 +206,174 @@ const ChatRoom = ({
   return (
     <div className={styles.chatRoomContainer}>
 
-      <div className={styles.chatMsgContainer} ref={chatRef}>
-        {previewURL && (
-          <div className={styles.previewContainer}>
-            <IconX color="red" onClick={() => cancelUpload()} />
-            <img src={previewURL} alt="Preview" />
-          </div>
-        )}
-        {/* <div style={{ color: "white" }}>{JSON.stringify(users)}</div> */}
-        {messages?.map((msg: any, i: number) => {
-          const userMsg = users?.find((e: any) => e.id === msg.sender);
-          const date = getDateStr(new Date(msg.created_at).toISOString());
-          renderDate = false;
-          if (oldDate != date) {
-            oldDate = date;
-            renderDate = true;
-          }
-          return (
-            <Fragment key={i + msg.sender}>
-              {renderDate && (
-                <div className={styles.dateMarker}>
-                  {getDateStrMes(new Date(msg.created_at).toISOString())}
-                </div>
-              )}
-              <div
-                className={`${styles.messageContainer} ${
-                  msg.sender === user.id
-                    ? styles.myMessage
-                    : lastSender !== msg.sender
-                    ? styles.otherMessage
-                    : styles.otherSameMessage
-                }`}
-                style={{ position: 'relative' }}
-                ref={(el) => {
-                  msgRefs.current[msg.id] = el;
-                }}
-              >
-                {/* Emoji Picker anclado al mensaje que lo invoca */}
-                {showEmojiPicker?.id === msg.id && (
-                  <div
-                    className={styles.emojiPicker}
-                    style={{
-                      ...(showEmojiPicker?.placeBelow
-                        ? { top: 'calc(100% + 8px)', bottom: 'auto' }
-                        : { bottom: 'calc(100% + 8px)', top: 'auto' }),
-                    }}
-                  >
-                    <EmojiPicker
-                      reactionsDefaultOpen={true}
-                      onReactionClick={handleEmojiSelect}
-                      onEmojiClick={handleEmojiSelect}
-                      height={320}
-                      style={{
-                        backgroundColor: 'var(--cWhite)',
-                        border: '1px solid #E8E8E8',
-                      }}
-                    />
-                    <IconX
-                      size={10}
-                      color="black"
-                      onClick={() => handleEmojiClick(null)}
-                    />
+      {/* Área de mensajes con overlay relativo */}
+      <div className={styles.messagesArea}>
+        <div className={styles.chatMsgContainer} ref={chatRef}>
+          {/* Removemos el preview de aquí para que no esté dentro del scroll */}
+          {/* <div style={{ color: "white" }}>{JSON.stringify(users)}</div> */}
+          {messages?.map((msg: any, i: number) => {
+            const userMsg = users?.find((e: any) => e.id === msg.sender);
+            const date = getDateStr(new Date(msg.created_at).toISOString());
+            renderDate = false;
+            if (oldDate != date) {
+              oldDate = date;
+              renderDate = true;
+            }
+            return (
+              <Fragment key={i + msg.sender}>
+                {renderDate && (
+                  <div className={styles.dateMarker}>
+                    {getDateStrMes(new Date(msg.created_at).toISOString())}
                   </div>
                 )}
                 <div
-                  className={isGroup && msg.sender !== user.id ? styles.avatar : styles.noAvatar}
+                  className={`${styles.messageContainer} ${
+                    msg.sender === user.id
+                      ? styles.myMessage
+                      : lastSender !== msg.sender
+                      ? styles.otherMessage
+                      : styles.otherSameMessage
+                  }`}
+                  style={{ position: 'relative' }}
+                  ref={(el) => {
+                    msgRefs.current[msg.id] = el;
+                  }}
                 >
-                  {isGroup && msg.sender !== user.id && lastSender !== msg.sender ? (
-                    <Avatar
-                      hasImage={userMsg?.name ? userMsg.has_image : user.has_image}
-                      src={getUrlImages('/ADM-' + userMsg?.id + '.webp?d=' + userMsg?.updated_at)}
-                      w={32}
-                      h={32}
-                      name={userMsg?.name ?? getFullName(user)}
-                    />
-                  ) : null}
-                </div>
-                <div className={styles.messageBubble}>
-                  {msg.sender !== user.id && (
-                    <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
-                      😊
+                  {/* Emoji Picker anclado al mensaje que lo invoca */}
+                  {showEmojiPicker?.id === msg.id && (
+                    <div
+                      className={styles.emojiPicker}
+                      style={{
+                        ...(showEmojiPicker?.placeBelow
+                          ? { top: 'calc(100% + 8px)', bottom: 'auto' }
+                          : { bottom: 'calc(100% + 8px)', top: 'auto' }),
+                      }}
+                    >
+                      <EmojiPicker
+                        reactionsDefaultOpen={true}
+                        onReactionClick={handleEmojiSelect}
+                        onEmojiClick={handleEmojiSelect}
+                        height={320}
+                        style={{
+                          backgroundColor: 'var(--cWhite)',
+                          border: '1px solid #E8E8E8',
+                        }}
+                      />
+                      <IconX
+                        size={10}
+                        color="black"
+                        onClick={() => handleEmojiClick(null)}
+                      />
                     </div>
                   )}
-                  {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
-                    <div className={styles.messageUser}>{userMsg?.name ?? getFullName(user)}</div>
-                  )}
-                  {(lastSender = msg.sender) && null}
                   <div
-                    style={{
-                      whiteSpace: 'pre-line',
-                      overflowWrap: 'anywhere',
-                    }}
+                    className={isGroup && msg.sender !== user.id ? styles.avatar : styles.noAvatar}
                   >
-                    {msg['$files'].length > 0 && (
-                      <a target="_blank" href={msg['$files'][0].url}>
-                        <img src={msg['$files'][0].url} width={'100%'} alt="" />
-                      </a>
-                    )}
-                    {msg.text}
+                    {isGroup && msg.sender !== user.id && lastSender !== msg.sender ? (
+                      <Avatar
+                        hasImage={userMsg?.name ? userMsg.has_image : user.has_image}
+                        src={getUrlImages('/ADM-' + userMsg?.id + '.webp?d=' + userMsg?.updated_at)}
+                        w={32}
+                        h={32}
+                        name={userMsg?.name ?? getFullName(user)}
+                      />
+                    ) : null}
                   </div>
-                </div>
-                <div
-                  className={
-                    styles.bubbleHour +
-                    " " +
-                    (msg.sender !== user.id && isGroup && styles.isGroup)
-                  }
-                >
-                  <div className={styles.messageHour}>
-                    {getTimePMAM(msg.created_at)}{" "}
-                    {msg.sender === user.id && !msg.received_at && (
-                      <IconCheck size={12} />
-                    )}
-                    {msg.sender === user.id &&
-                      msg.received_at &&
-                      !msg.read_at && <IconReadMessage size={12} />}
-                    {msg.sender === user.id &&
-                      msg.received_at &&
-                      msg.read_at && (
-                        <IconReadMessage size={12} color="var(--cPrimary)" />
-                      )}
-                  </div>
-                  {/* Render de reacciones agrupadas y resaltado del usuario actual */}
-                  {(() => {
-                    const reactions = (msg.emoticon && JSON.parse(msg.emoticon)) || [];
-                    type ReactionAgg = { emoji: string; count: number; users: string[] };
-
-                    const grouped: ReactionAgg[] = Object.values(
-                      reactions.reduce((acc: Record<string, ReactionAgg>, r: any) => {
-                        const key = String(r.emoji);
-                        if (!acc[key]) {
-                          acc[key] = { emoji: key, count: 0, users: [] };
-                        }
-                        acc[key].count += 1;
-                        acc[key].users.push(String(r.sender));
-                        return acc;
-                      }, {} as Record<string, ReactionAgg>)
-                    );
-
-                    return (
-                      <div className={styles.reactionContainer}>
-                        {grouped.map((g, i) => (
-                          <span
-                            key={i + "grp"}
-                            className={`${styles.reactionBubble} ${
-                              g.users.includes(String(user.id)) ? styles.myReaction : ""
-                            }`}
-                          >
-                            <span>{g.emoji}</span>
-                            <span>{g.count}</span>
-                          </span>
-                        ))}
+                  <div className={styles.messageBubble}>
+                    {msg.sender !== user.id && (
+                      <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
+                        😊
                       </div>
-                    );
-                  })()}
+                    )}
+                    {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
+                      <div className={styles.messageUser}>{userMsg?.name ?? getFullName(user)}</div>
+                    )}
+                    {(lastSender = msg.sender) && null}
+                    <div
+                      style={{
+                        whiteSpace: 'pre-line',
+                        overflowWrap: 'anywhere',
+                      }}
+                    >
+                      {msg['$files'].length > 0 && (
+                        <a target="_blank" href={msg['$files'][0].url}>
+                          <img src={msg['$files'][0].url} width={'100%'} alt="" />
+                        </a>
+                      )}
+                      {msg.text}
+                    </div>
+                  </div>
+                  <div
+                    className={
+                      styles.bubbleHour +
+                      " " +
+                      (msg.sender !== user.id && isGroup && styles.isGroup)
+                    }
+                  >
+                    <div className={styles.messageHour}>
+                      {getTimePMAM(msg.created_at)}{" "}
+                      {msg.sender === user.id && !msg.received_at && (
+                        <IconCheck size={12} />
+                      )}
+                      {msg.sender === user.id &&
+                        msg.received_at &&
+                        !msg.read_at && <IconReadMessage size={12} />}
+                      {msg.sender === user.id &&
+                        msg.received_at &&
+                        msg.read_at && (
+                          <IconReadMessage size={12} color="var(--cPrimary)" />
+                        )}
+                    </div>
+                    {/* Render de reacciones agrupadas y resaltado del usuario actual */}
+                    {(() => {
+                      const reactions = (msg.emoticon && JSON.parse(msg.emoticon)) || [];
+                      type ReactionAgg = { emoji: string; count: number; users: string[] };
+
+                      const grouped: ReactionAgg[] = Object.values(
+                        reactions.reduce((acc: Record<string, ReactionAgg>, r: any) => {
+                          const key = String(r.emoji);
+                          if (!acc[key]) {
+                            acc[key] = { emoji: key, count: 0, users: [] };
+                          }
+                          acc[key].count += 1;
+                          acc[key].users.push(String(r.sender));
+                          return acc;
+                        }, {} as Record<string, ReactionAgg>)
+                      );
+
+                      return (
+                        <div className={styles.reactionContainer}>
+                          {grouped.map((g, i) => (
+                            <span
+                              key={i + "grp"}
+                              className={`${styles.reactionBubble} ${
+                                g.users.includes(String(user.id)) ? styles.myReaction : ""
+                              }`}
+                            >
+                              <span>{g.emoji}</span>
+                              <span>{g.count}</span>
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            </Fragment>
-          );
-        })}
+              </Fragment>
+            );
+          })}
       </div>
+
+      {/* Preview fuera del scroll, overlay sobre el área de mensajes */}
+      {previewURL && (
+        <div className={styles.previewContainer}>
+          <IconX color="red" onClick={() => cancelUpload()} />
+          <img src={previewURL} alt="Preview" />
+        </div>
+      )}
+      </div>
+
+      {/* Barra inferior de input y botones: queda visible siempre */}
       <div className={styles.chatInputContainer}>
         <input
           ref={fileInputRef}
@@ -397,10 +405,10 @@ const ChatRoom = ({
             style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
             size={32}
 
-            
+
           />
 
-          <IconSend 
+          <IconSend
             color="var(--cBlack)"
             style={{ backgroundColor: "var(--cWhiteV1)", borderRadius: "35%" }}
             size={32}

@@ -20,9 +20,18 @@
   width: 100%;
   /* border: 5px solid blue; */
 }
+
+.messagesArea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .chatMsgContainer {
   flex-grow: 1;
-  height: 50%;
+  height: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -145,10 +154,10 @@
 .emojiPicker {
   position: absolute;
   left: 0;
-  width: auto;           /* no ocupar todo el ancho del chat */
+  width: auto;
   z-index: 20;
   animation: fadeIn 0.2s ease;
-  /* el contenedor no debe ser blanco, solo el componente interno */
+
   background: transparent;
   border: none;
   border-radius: 0;
@@ -245,7 +254,8 @@
 
 .previewContainer {
   position: absolute;
-  height: 100%;
+  top: 0;
+  bottom: 0;
   z-index: 5000;
   background-color: var(--cBlack);
   display: flex;
