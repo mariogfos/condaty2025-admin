@@ -68,6 +68,9 @@ const ChatRoom = ({
 
   const handleSendMessage = async () => {
     const messageText = newMessage;
+    const hasText = messageText.trim().length > 0;
+    if (!hasText && !selectedFile) return;
+
     setNewMessage("");
     typing.inputProps.onBlur();
 
@@ -102,6 +105,8 @@ const ChatRoom = ({
       }
     }
   };
+
+
 
   const messages = useMemo(
     () => chats?.messages?.filter((m: any) => m.roomId === roomId) || [],
@@ -202,11 +207,13 @@ const ChatRoom = ({
   };
 
   const onKeyUp = (e: any) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       if (e.shiftKey) {
-        setNewMessage(newMessage + "\n");
+        setNewMessage(newMessage + '\n');
       } else {
-        handleSendMessage();
+        if (newMessage.trim().length > 0 || selectedFile) {
+          handleSendMessage();
+        }
       }
     }
   };
