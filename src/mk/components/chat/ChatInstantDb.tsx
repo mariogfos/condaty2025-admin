@@ -43,6 +43,8 @@ export default function ChatInstantDb() {
   const [_rooms, set_rooms] = useState([]);
   const { dispatch: newMsg } = useEvent("onChatNewMsg");
   const [notifAudio, setNotifAudio] = useState(true);
+  console.log("user del chat");
+  console.log(usersChat);
 
   useEffect(() => {
     if (
