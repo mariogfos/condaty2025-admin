@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+
 import {
   useState,
   useEffect,
@@ -46,55 +47,421 @@ import EmptyData from "@/components/NoData/EmptyData";
 import { IconEmptySearch } from "@/components/layout/icons/IconsBiblioteca";
 import useMediaQuery from "../useMediaQuery";
 
+/**
+ * @fileoverview useCrud - A comprehensive React hook for CRUD operations
+ *
+ * This hook provides a complete solution for Create, Read, Update, Delete operations
+ * with features like pagination, filtering, searching, importing, exporting, and more.
+ *
+ * @example
+ * ```typescript
+ * const {
+ *   List,
+ *   onAdd,
+ *   onEdit,
+ *   onDel,
+ *   onView,
+ *   data,
+ *   loaded
+ * } = useCrud({
+ *   paramsInitial: { page: 1, perPage: 10 },
+ *   mod: {
+ *     modulo: 'users',
+ *     singular: 'Usuario',
+ *     plural: 'Usuarios',
+ *     permiso: 'USER'
+ *   },
+ *   fields: {
+ *     name: {
+ *       label: 'Nombre',
+ *       form: { type: 'text' },
+ *       list: { order: 1 }
+ *     }
+ *   }
+ * });
+ * ```
+ */
+
+/**
+ * Props for custom render functions
+ */
+export interface RenderViewProps {
+  open: boolean;
+  onClose: () => void;
+  item: Record<string, any>;
+  onConfirm?: (
+    data: Record<string, any>,
+    setErrors?: (errors: Record<string, any>) => void
+  ) => Promise<void>;
+  extraData: Record<string, any>;
+  execute: (
+    url: string,
+    method: string,
+    params?: Record<string, any>,
+    showLoading?: boolean,
+    noWaiting?: boolean
+  ) => Promise<{ data: any; error?: any }>;
+  onEdit: (item: Record<string, any>) => void;
+  onAdd: () => void;
+  openList: boolean;
+  setOpenList: (open: boolean) => void;
+  reLoad: (
+    params?: Record<string, any>,
+    noWaiting?: boolean,
+    force?: boolean
+  ) => void;
+  showToast: (
+    message: string,
+    type: "success" | "error" | "warning" | "info"
+  ) => void;
+  onDel: (item: Record<string, any>) => void;
+}
+
+export interface RenderFormProps {
+  open: boolean;
+  onClose: () => void;
+  item: Record<string, any>;
+  setItem: (item: Record<string, any>) => void;
+  onSave: (
+    data: Record<string, any>,
+    setErrors?: (errors: Record<string, any>) => void
+  ) => Promise<void>;
+  extraData: Record<string, any>;
+  execute: (
+    url: string,
+    method: string,
+    params?: Record<string, any>,
+    showLoading?: boolean,
+    noWaiting?: boolean
+  ) => Promise<{ data: any; error?: any }>;
+  errors: Record<string, any>;
+  setErrors: (errors: Record<string, any>) => void;
+  reLoad: (
+    params?: Record<string, any>,
+    noWaiting?: boolean,
+    force?: boolean
+  ) => void;
+  user: Record<string, any>;
+  onEdit: (item: Record<string, any>) => void;
+  onDel: (item: Record<string, any>) => void;
+  onAdd: () => void;
+  action: ActionType;
+  openList: boolean;
+  setOpenList: (open: boolean) => void;
+  showToast: (
+    message: string,
+    type: "success" | "error" | "warning" | "info"
+  ) => void;
+}
+
+export interface RenderDelProps {
+  open: boolean;
+  onClose: () => void;
+  item: Record<string, any>;
+  setItem: (item: Record<string, any>) => void;
+  onSave: (
+    data: Record<string, any>,
+    setErrors?: (errors: Record<string, any>) => void
+  ) => Promise<void>;
+  extraData: Record<string, any>;
+  execute: (
+    url: string,
+    method: string,
+    params?: Record<string, any>,
+    showLoading?: boolean,
+    noWaiting?: boolean
+  ) => Promise<{ data: any; error?: any }>;
+  errors: Record<string, any>;
+  setErrors: (errors: Record<string, any>) => void;
+  reLoad: (
+    params?: Record<string, any>,
+    noWaiting?: boolean,
+    force?: boolean
+  ) => void;
+  user: Record<string, any>;
+  onEdit: (item: Record<string, any>) => void;
+  onDel: (item: Record<string, any>) => void;
+  onAdd: () => void;
+  openList: boolean;
+  setOpenList: (open: boolean) => void;
+}
+
+/**
+ * Configuration type for CRUD module settings
+ */
 export type ModCrudType = {
+  /** Module identifier for API endpoints */
   modulo: string;
+  /** Singular form of the entity name (e.g., "Usuario") */
   singular: string;
+  /** Plural form of the entity name (e.g., "Usuarios") */
   plural: string;
+  /** Permission code for access control */
   permiso: string;
+  /** Enable extra data fetching or provide custom extra data configuration */
   extraData?: boolean | Record<string, any>;
-  renderView?: Function;
-  renderForm?: Function;
-  renderDel?: Function;
+  /** Custom render function for view modal */
+  renderView?: (props: RenderViewProps) => React.ReactNode;
+  /** Custom render function for form modal */
+  renderForm?: (props: RenderFormProps) => React.ReactNode;
+  /** Custom render function for delete confirmation modal */
+  renderDel?: (props: RenderDelProps) => React.ReactNode;
+  /** Enable export functionality */
   export?: boolean;
+  /** Enable pagination */
   pagination?: boolean;
+  /** Configuration for loading detailed view data */
   loadView?: Record<string, any>;
+  /** Enable import functionality */
   import?: boolean;
+  /** Enable filtering */
   filter?: boolean;
+  /** Enable data summarization */
   sumarize?: boolean;
-  messageDel?: any;
+  /** Custom delete confirmation message */
+  messageDel?: string;
+  /** Hide specific actions */
   hideActions?: {
+    /** Hide add button */
     add?: boolean;
+    /** Hide edit button */
     edit?: boolean;
+    /** Hide delete button */
     del?: boolean;
+    /** Hide view button */
     view?: boolean;
   };
-  onHideActions?: Function;
-  saveMsg?: { add?: string; edit?: string; del?: string };
+  /** Function to determine action visibility based on item data */
+  onHideActions?: (item: Record<string, any>) => {
+    hideEdit?: boolean;
+    hideDel?: boolean;
+  };
+  /** Custom success messages for save operations */
+  saveMsg?: {
+    add?: string;
+    edit?: string;
+    del?: string;
+  };
+  /** Enable list and card view toggle */
   listAndCard?: boolean;
+  /** Disable loading indicators */
   noWaiting?: boolean;
+  /** Enable search functionality or provide search configuration */
   search?: boolean | object;
+  /** Custom title for add action */
   titleAdd?: string;
+  /** Custom title for edit action */
   titleEdit?: string;
+  /** Custom title for delete action */
   titleDel?: string;
+  /** Custom search function */
+  onSearch?: (
+    data: Record<string, any>[],
+    search: Record<string, any>
+  ) => Record<string, any>[];
+  /** Custom close import handler */
+  onCloseImport?: () => void;
+  /** Required columns for import */
+  importRequiredCols?: string[];
+  /** Export configuration */
+  exportCols?: string;
+  exportTitulo?: string;
+  exportTitulos?: string;
+  exportAnchos?: string;
 };
 
+/**
+ * Field configuration for forms and tables
+ */
+export interface FieldConfig {
+  /** Field label */
+  label?: string;
+  /** Form-specific configuration */
+  form?: {
+    type?: string;
+    label?: string;
+    order?: number;
+    rules?: Record<string, any>;
+    style?: React.CSSProperties;
+    options?: any;
+    optionLabel?: string;
+    optionValue?: string;
+    optionsExtra?: string;
+    onRender?: (props: any) => React.ReactNode;
+    onBlur?: (
+      e: React.ChangeEvent,
+      context: {
+        item: Record<string, any>;
+        setItem: (item: Record<string, any>) => void;
+        error: Record<string, any>;
+        setError: (error: Record<string, any>) => void;
+      }
+    ) => void;
+    prepareData?: (
+      formState: Record<string, any>,
+      field: FieldConfig,
+      key: string,
+      setFormState: (state: Record<string, any>) => void
+    ) => Record<string, any>;
+    onHide?: (context: {
+      item: Record<string, any>;
+      user: Record<string, any>;
+      key: string;
+    }) => boolean;
+    precarga?: any;
+    edit?: {
+      precarga?: any;
+    };
+  };
+  /** List/table-specific configuration */
+  list?: {
+    label?: string;
+    order?: number;
+    width?: string;
+    className?: string;
+    style?: React.CSSProperties;
+    onRender?: (item: RenderColType) => React.ReactNode;
+    type?: string;
+    options?: any;
+    optionsExtra?: string;
+    optionValue?: string;
+    optionLabel?: string;
+    sortabled?: boolean;
+    sumarize?: boolean;
+  };
+  /** View-specific configuration */
+  view?: {
+    label?: string;
+    order?: number;
+    onRender?: (context: {
+      value: any;
+      key: string;
+      item: Record<string, any>;
+      i: number;
+    }) => React.ReactNode;
+    onRenderLabel?: (context: {
+      value: any;
+      key: string;
+      item: Record<string, any>;
+      i: number;
+    }) => React.ReactNode;
+    onTop?: (context: {
+      value: any;
+      key: string;
+      item: Record<string, any>;
+      i: number;
+    }) => React.ReactNode;
+    onBottom?: (context: {
+      value: any;
+      key: string;
+      item: Record<string, any>;
+      i: number;
+    }) => React.ReactNode;
+    emptyHide?: boolean;
+    hide?: (context: {
+      item: Record<string, any>;
+      user: Record<string, any>;
+      key: string;
+    }) => boolean;
+  };
+  /** Filter-specific configuration */
+  filter?: {
+    label?: string;
+    order?: number;
+    width?: string;
+    options?: (extraData: Record<string, any>) => any[];
+    extraData?: string;
+    optionLabel?: string;
+    optionValue?: string;
+  };
+  /** General field properties */
+  order?: number;
+  rules?: Record<string, any>;
+  style?: React.CSSProperties;
+  onRender?: (props: any) => React.ReactNode;
+  onHide?: (context: {
+    item: Record<string, any>;
+    user: Record<string, any>;
+    key: string;
+  }) => boolean;
+  prepareData?: (
+    formState: Record<string, any>,
+    field: FieldConfig,
+    key: string,
+    setFormState: (state: Record<string, any>) => void
+  ) => Record<string, any>;
+  sortabled?: boolean;
+  sumarize?: boolean;
+  hide?: (context: {
+    item: Record<string, any>;
+    user: Record<string, any>;
+    key: string;
+  }) => boolean;
+  openTag?: {
+    className?: string;
+    border?: boolean;
+    style?: React.CSSProperties;
+    onTop?: (context: {
+      item: Record<string, any>;
+      key: string;
+      extraData: Record<string, any>;
+    }) => React.ReactNode;
+  };
+  closeTag?: boolean;
+  tagStyle?: React.CSSProperties;
+}
+
+/**
+ * Props for form field rendering
+ */
 export type TypeRenderForm = {
+  /** Field identifier */
   field: string;
-  item: any;
-  onChange?: (e: any) => void;
-  error?: any;
-  setItem?: Function;
-  extraData?: any;
+  /** Current form data item */
+  item: Record<string, any>;
+  /** Change handler function */
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Field error message */
+  error?: string;
+  /** Function to update the form item */
+  setItem?: (item: Record<string, any>) => void;
+  /** Extra data from the module */
+  extraData?: Record<string, any>;
 };
+/**
+ * Props for the useCrud hook
+ */
 type PropsType = {
-  paramsInitial: any;
-  mod: any;
-  fields: any;
-  getSearch?: Function;
-  getFilter?: Function;
-  _onChange?: Function;
-  _onImport?: Function;
-  menuFilter?: any;
+  /** Initial parameters for API requests */
+  paramsInitial: Record<string, any>;
+  /** Module configuration object */
+  mod: ModCrudType;
+  /** Field definitions for forms and tables */
+  fields: Record<string, FieldConfig>;
+  /** Custom search function */
+  getSearch?: (
+    searchTerm: string,
+    previousSearch: Record<string, any>
+  ) => Record<string, any>;
+  /** Custom filter function */
+  getFilter?: (
+    filterKey: string,
+    filterValue: string,
+    previousFilter: Record<string, any>
+  ) => Record<string, any>;
+  /** Custom change handler for form fields */
+  _onChange?: (
+    e: React.ChangeEvent,
+    formState: Record<string, any>,
+    setFormState: (state: Record<string, any>) => void,
+    setShowExtraModal?: (modal: any) => void,
+    action?: ActionType
+  ) => boolean | void;
+  /** Custom import handler */
+  _onImport?: () => void;
+  /** Custom filter menu component */
+  menuFilter?: React.ReactNode;
+  /** Additional buttons for the action bar */
   extraButtons?: React.ReactNode[];
 };
 
@@ -161,6 +528,41 @@ type UseCrudType = {
   openCard: boolean;
 };
 
+/**
+ * Main useCrud hook function that provides complete CRUD functionality
+ *
+ * @param paramsInitial - Initial parameters for API requests
+ * @param mod - Module configuration object defining behavior and permissions
+ * @param fields - Field definitions for forms, lists, and views
+ * @param getSearch - Optional custom search function
+ * @param getFilter - Optional custom filter function
+ * @param _onChange - Optional custom form change handler
+ * @param _onImport - Optional custom import handler
+ * @param menuFilter - Optional custom filter menu component
+ * @param extraButtons - Optional additional action buttons
+ *
+ * @returns UseCrudType object with all CRUD functionality
+ *
+ * @example
+ * ```typescript
+ * const crud = useCrud({
+ *   paramsInitial: { page: 1, perPage: 10 },
+ *   mod: {
+ *     modulo: 'users',
+ *     singular: 'Usuario',
+ *     plural: 'Usuarios',
+ *     permiso: 'USER'
+ *   },
+ *   fields: {
+ *     name: {
+ *       label: 'Nombre',
+ *       form: { type: 'text' },
+ *       list: { order: 1 }
+ *     }
+ *   }
+ * });
+ * ```
+ */
 const useCrud = ({
   paramsInitial,
   mod,
@@ -274,24 +676,69 @@ const useCrud = ({
     setOpen(true);
   };
 
+  /**
+   * Opens the add form modal for creating new records
+   * Checks user permissions before opening the form
+   *
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <Button onClick={onAdd}>Agregar Nuevo</Button>
+   * ```
+   */
   const onAdd = useCallback(() => {
     if (!userCan(mod.permiso, "C"))
       return showToast("No tiene permisos para " + mod.titleAdd, "error");
     initOpen(setOpen);
   }, []);
 
+  /**
+   * Opens the delete confirmation modal for the specified item
+   *
+   * @param item - The item to be deleted
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <IconTrash onClick={() => onDel(item)} />
+   * ```
+   */
   const onDel = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "D"))
       return showToast("No tiene permisos para " + mod.titleDel, "error");
     initOpen(setOpenDel, item, "del");
   }, []);
 
+  /**
+   * Opens the edit form modal for the specified item
+   *
+   * @param item - The item to be edited
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <IconEdit onClick={() => onEdit(item)} />
+   * ```
+   */
   const onEdit = useCallback((item: Record<string, any>) => {
     if (!userCan(mod.permiso, "U"))
       return showToast("No tiene permisos para " + mod.titleEdit, "error");
     initOpen(setOpen, item, "edit");
   }, []);
 
+  /**
+   * Opens the view modal for the specified item
+   * If loadView is configured, it fetches detailed data from the server
+   *
+   * @param item - The item to be viewed
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <IconEye onClick={() => onView(item)} />
+   * ```
+   */
   const onView = useCallback(async (item: Record<string, any>) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
@@ -401,14 +848,29 @@ const useCrud = ({
       onCloseCrud();
       setOpenDel(false);
       reLoad(params, mod?.noWaiting);
-      showToast(mod.saveMsg?.[action] || response?.message, "success");
+      showToast(
+        mod.saveMsg?.[action as keyof typeof mod.saveMsg] || response?.message,
+        "success"
+      );
     } else {
       showToast(response?.message, "error");
       logError("Error onSave:", err);
     }
   };
 
-  const [oldSearch, setOldSearch] = useState({});
+  /**
+   * Handles search functionality
+   * Updates search parameters and resets pagination to first page
+   *
+   * @param _search - The search term entered by the user
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <SearchInput onSearch={onSearch} />
+   * ```
+   */
+  const [oldSearch, setOldSearch] = useState<{ searchBy?: string }>({});
   const onSearch = (_search: string) => {
     let searchBy = { searchBy: _search };
     if (getSearch) searchBy = getSearch(_search, oldSearch);
@@ -419,7 +881,22 @@ const useCrud = ({
     }
     setOldSearch(searchBy);
   };
-  const [oldFilter, setOldFilter]: any = useState({});
+  /**
+   * Handles filter functionality
+   * Updates filter parameters and resets pagination to first page
+   *
+   * @param _opt - The filter option name (with or without "_filter" suffix)
+   * @param value - The filter value to apply
+   * @returns void
+   *
+   * @example
+   * ```typescript
+   * <Select onChange={(e) => onFilter('status_filter', e.target.value)} />
+   * ```
+   */
+  const [oldFilter, setOldFilter] = useState<{
+    filterBy?: Record<string, any>;
+  }>({});
   const onFilter = (_opt: string, value: string) => {
     let opt = _opt.replace("_filter", "");
     // console.log("onFilter", opt, value);
@@ -808,8 +1285,9 @@ const useCrud = ({
 
     const onBlurForm = useCallback(
       (e: any) => {
-        if (fields[e.target?.name]?.form?.onBlur) {
-          fields[e.target?.name].form?.onBlur(e, {
+        const onBlur = fields[e.target?.name]?.form?.onBlur;
+        if (onBlur) {
+          onBlur(e, {
             item: formStateForm,
             setItem: setFormStateForm,
             error: errorForm,
