@@ -56,6 +56,7 @@ const HomePage = () => {
     data: dashboard,
     reLoad,
     loaded,
+    execute,
   } = useAxios("/dashboard", "GET", {
     ...paramsInitial,
   });
@@ -215,9 +216,9 @@ const HomePage = () => {
       <div className={styles.itemRow}>
         <div className={styles.itemImageContainer}>
           <Avatar
-            hasImage={ownerData.has_image}
+            hasImage={1}
             src={getUrlImages(
-              `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
+              "/OWNER-" + ownerData?.id + ".webp?d=" + ownerData?.updated_at
             )}
             name={primaryText}
             w={40}
@@ -639,21 +640,26 @@ const HomePage = () => {
           reLoad={() => reLoad()}
         />
       )}
-      <DataModal
-        open={openPreRegistroModal}
-        title="Lista completa de pre-registros"
-        onClose={() => setOpenPreRegistroModal(false)}
-        buttonText=""
-        buttonCancel=""
-      >
-        {renderPreRegistroList()}
-      </DataModal>
-      <OwnersRender
-        open={openActive}
-        onClose={() => setOpenActive(false)}
-        item={dataOwner}
-        reLoad={reLoad}
-      />
+      {openPreRegistroModal && (
+        <DataModal
+          open={openPreRegistroModal}
+          title="Lista completa de pre-registros"
+          onClose={() => setOpenPreRegistroModal(false)}
+          buttonText=""
+          buttonCancel=""
+        >
+          {renderPreRegistroList()}
+        </DataModal>
+      )}
+      {openActive && (
+        <OwnersRender
+          open={openActive}
+          onClose={() => setOpenActive(false)}
+          item={dataOwner}
+          reLoad={reLoad}
+          execute={execute}
+        />
+      )}
     </>
   );
 };
