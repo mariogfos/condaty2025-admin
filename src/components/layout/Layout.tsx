@@ -248,6 +248,7 @@ const Layout = ({ children }: any) => {
           }}
           buttonText="Cerrar sesión"
           buttonCancel="Cancelar"
+          variant={"mini"}
           onSave={() => logout()}
         >
           <p className={styles.modalLogout}>

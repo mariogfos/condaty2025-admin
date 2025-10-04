@@ -3473,7 +3473,7 @@ export const IconHandcoin = (props: IconType) => (
 
 export const IconSend = (props: IconType) => (
   <IconWrap viewBox="0 0 24 24" {...props}>
-    <path d="M9.25565 12.7436L2.11035 9.49573L18.9992 3L12.5035 19.8889L9.25565 12.7436ZM9.25565 12.7436L13.1531 8.84615" />
+    <path d="M9.25565 12.7436L2.11035 9.49573L18.9992 3L12.5035 19.8889L9.25565 12.7436ZM9.25565 12.7436L13.1531 8.84615" stroke="#212121" strokeWidth="0.888889" strokeLinecap="round" strokeLinejoin="round" />
   </IconWrap>
 );
 
@@ -4098,8 +4098,8 @@ export const IconNewPublication = (props: IconType) => {
       <path
         d="M6.92806 5.38281L14.8071 6.77181M6.23306 9.32181L14.1121 10.7118M5.53906 13.2608L10.4631 14.1298"
         stroke="#414141"
-        stroke-width="1.5"
-        stroke-linecap="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </IconWrap>
   );

@@ -23,14 +23,14 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
 
   const handleChangeInput = (e: any) => {
     let value = e.target.value;
-    
+
     if (e.target.name === "ci") {
       value = value.replace(/\D/g, "");
       value = value.slice(0, 11);
     }
-  
+
     if (e.target.name === "newPassword" || e.target.name === "repPassword") {
-      value = value.replace(/\s+/g, ""); 
+      value = value.replace(/\s+/g, "");
     }
     setformState({ ...formState, [e.target.name]: value });
   };
@@ -79,7 +79,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       {err = { ...err, ci: "Indica tu carnet de identidad" };}
     if(formState.ci && formState.ci.length > 11 )
      { err = { ...err,ci: "El carnet de identidad debe tener máximo 11 caracteres" };}
-  
+
 
     if (Object.keys(err).length > 0) {
       seterrors(err);
@@ -105,14 +105,14 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
     setformState({ ...formState, code });
   };
 
- const inputCodeValidation = async () => {  
+ const inputCodeValidation = async () => {
   let err = {};
   if(formState.pinned === 2){
     if (!formState.code)
      { err = { ...err, code: "Ingresa el código de verificación enviado a tu correo electrónico" }};
     if (formState.code?.length != 4)
       {err = { ...err, code: "El código de verificación debe tener 4 dígitos" }}
-    
+
     if (Object.keys(err).length > 0) {
       seterrors(err);
       return;
@@ -181,17 +181,17 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
   const _onSave = () => {
     if (formState.pinned === 1) {
       onGetCode();
-    } 
+    }
     if(formState.pinned === 2){
       inputCodeValidation();
-      
+
     }
     if(formState.pinned === 3){
       onChangePass();
       // setformState({ ...formState, pinned: 4 });
     }
-    
-   
+
+
   }
   return (
     <DataModal
@@ -207,7 +207,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           Ingresa tu cédula de identidad y se enviará un código de verificación a tu correo electrónico.
           <Input
             label={"Cedúla de identidad"}
-            required={false}
+            required={true}
             type="text"
             name="ci"
             error={errors}
@@ -226,7 +226,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       ) :
        formState.pinned === 2? (
         <>
-        
+
           <div>Enviamos un código de verificación a tu correo para que puedas
                 crear una contraseña nueva</div>
                 <div style={{display:"flex",justifyContent:"center"}}>
@@ -245,7 +245,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
                 posible que tu correo electrónico indicado no exista o es
                 incorrecto.</div> */}
           </div>
-       
+
         </>
       ):(
         <div>
@@ -264,8 +264,8 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
           onChange={handleChangeInput}
         />
       </div>)
-    
-    
+
+
     }
     </DataModal>
   );
