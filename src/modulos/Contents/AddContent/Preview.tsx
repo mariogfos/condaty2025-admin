@@ -252,7 +252,7 @@ const Preview = ({ formState, extraData, action }: PropsType) => {
 
   const mainPost = {
     userName: getFullName(user) || dataFake.name,
-    userRole: 'Encargado de comunicación',
+    userRole: user?.role?.name,
     time: 'Hace un momento',
     title: formState?.title || null,
     description: formState?.description || dataFake.description,
