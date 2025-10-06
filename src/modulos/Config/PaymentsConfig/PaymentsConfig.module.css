@@ -13,9 +13,9 @@
 }
 
 .headerSubtitle {
+  margin-top: 4px;
   font-size: 14px;
   color: var(--cWhiteV1);
-  margin-bottom: 1rem;
 }
 
 .formContainer {

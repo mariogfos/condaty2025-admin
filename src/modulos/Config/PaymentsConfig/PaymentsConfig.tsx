@@ -19,7 +19,6 @@ const PaymentsConfig = ({
   return (
     <div className={styles.paymentsContainer}>
       <div>
-        <h1 className={styles.headerTitle}>Métodos de pagos</h1>
         <p className={styles.headerSubtitle}>
           Configura los métodos de pagos con los cuales los residentes podrán pagar sus cuotas,
           deudas y demás transacciones del condominio
