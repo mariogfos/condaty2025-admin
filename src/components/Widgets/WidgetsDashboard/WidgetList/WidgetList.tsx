@@ -59,6 +59,8 @@ export const WidgetList = ({
             icon={emptyListIcon}
             h={120}
             centered={true}
+            className={styles.widgetListEmptyContainer}
+            size={48}
           />
         )}
       </div>
