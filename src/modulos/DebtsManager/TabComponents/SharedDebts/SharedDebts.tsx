@@ -339,15 +339,6 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
           order: 1,
         },
       },
-      category: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
-        list: {
-          onRender: renderCategoryCell,
-          order: 2,
-        },
-      },
       subcategory: {
         rules: [''],
         api: '',

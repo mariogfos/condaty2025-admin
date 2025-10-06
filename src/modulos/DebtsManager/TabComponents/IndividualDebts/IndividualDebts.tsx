@@ -296,18 +296,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
     type: { rules: [], api: 'ae', label: 'Tipo' },
     description: { rules: [], api: 'ae', label: 'Descripción' },
-    category_id: {
-      rules: [''],
-      api: 'ae',
-      label: 'Categoría',
-      filter: {
-        label: 'Categoría',
-        width: '100%',
-        options: getCategoryOptions,
-        optionLabel: 'name',
-        optionValue: 'id',
-      },
-    },
     subcategory_id: {
       rules: ['required'],
       api: 'ae',

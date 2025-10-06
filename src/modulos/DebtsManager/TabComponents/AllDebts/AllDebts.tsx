@@ -330,22 +330,6 @@ const AllDebts: React.FC<AllDebtsProps> = ({
           optionValue: 'id',
         },
       },
-      category_id: {
-        rules: [''],
-        api: '',
-        label: 'Categoría',
-        list: {
-          onRender: renderCategoryCell,
-          order: 2,
-        },
-        filter: {
-          label: 'Categoría',
-          width: '100%',
-          options: getCategoryOptions,
-          optionLabel: 'name',
-          optionValue: 'id',
-        },
-      },
       subcategory_id: {
         rules: [''],
         api: '',
