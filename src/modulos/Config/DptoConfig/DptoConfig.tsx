@@ -30,7 +30,7 @@ const DptoConfig = ({
       <div className={styles.formContainer}>
         <div className={styles.uploadSection}>
           <p className={styles.uploadHelpText}>
-            Carga el logotipo del condominio, de preferencia 800px x 800px
+            Carga el logotipo del condominio, de preferencia un mínimo de 130px x 63px o un máximo de 256px x 125px
           </p>
 
           <div
