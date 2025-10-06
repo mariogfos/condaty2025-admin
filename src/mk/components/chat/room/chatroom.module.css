@@ -349,6 +349,7 @@
 }
 
 .reactionBubble {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji", "EmojiOne", sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 4px;
