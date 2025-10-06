@@ -675,13 +675,14 @@ const HomePage = () => {
         reLoad={reLoad}
       />
 
-      {/* Modal RenderView de Contenidos */}
+      {/* Modal de detalle de contenidos: ocultar editar/eliminar en dashboard */}
       <ContentRenderView
         open={openContentRender}
         onClose={handleCloseContentRenderView}
-        item={{}}
-        contentId={selectedContentId ?? undefined}
-        selectedContentData={selectedContentData}
+        item={{ data: selectedContentData }}
+        contentId={selectedContentId || undefined}
+        selectedContentData={selectedContentData || undefined}
+        showActions={false}
       />
     </>
   );
