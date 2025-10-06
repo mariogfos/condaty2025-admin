@@ -13,7 +13,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { getDateStrMes } from "@/mk/utils/date";
@@ -278,7 +278,7 @@ const ChatRoom = ({
                       : styles.otherSameMessage
                   }`}
                   style={{ position: 'relative' }}
-                  ref={(el) => {
+                  ref={el => {
                     msgRefs.current[msg.id] = el;
                   }}
                 >
@@ -297,16 +297,13 @@ const ChatRoom = ({
                         onReactionClick={handleEmojiSelect}
                         onEmojiClick={handleEmojiSelect}
                         height={320}
+                        emojiStyle={EmojiStyle.NATIVE}
                         style={{
                           backgroundColor: 'var(--cWhite)',
                           border: '1px solid #E8E8E8',
                         }}
                       />
-                      <IconX
-                        size={10}
-                        color="black"
-                        onClick={() => handleEmojiClick(null)}
-                      />
+                      <IconX size={10} color="black" onClick={() => handleEmojiClick(null)} />
                     </div>
                   )}
                   <div
@@ -349,23 +346,19 @@ const ChatRoom = ({
                   <div
                     className={
                       styles.bubbleHour +
-                      " " +
+                      ' ' +
                       (msg.sender !== user.id && isGroup && styles.isGroup)
                     }
                   >
                     <div className={styles.messageHour}>
-                      {getTimePMAM(msg.created_at)}{" "}
-                      {msg.sender === user.id && !msg.received_at && (
-                        <IconCheck size={12} />
+                      {getTimePMAM(msg.created_at)}{' '}
+                      {msg.sender === user.id && !msg.received_at && <IconCheck size={12} />}
+                      {msg.sender === user.id && msg.received_at && !msg.read_at && (
+                        <IconReadMessage size={12} />
                       )}
-                      {msg.sender === user.id &&
-                        msg.received_at &&
-                        !msg.read_at && <IconReadMessage size={12} />}
-                      {msg.sender === user.id &&
-                        msg.received_at &&
-                        msg.read_at && (
-                          <IconReadMessage size={12} color="var(--cPrimary)" />
-                        )}
+                      {msg.sender === user.id && msg.received_at && msg.read_at && (
+                        <IconReadMessage size={12} color="var(--cPrimary)" />
+                      )}
                     </div>
                     {/* Render de reacciones agrupadas y resaltado del usuario actual */}
                     {(() => {
@@ -388,9 +381,9 @@ const ChatRoom = ({
                         <div className={styles.reactionContainer}>
                           {grouped.map((g, i) => (
                             <span
-                              key={i + "grp"}
+                              key={i + 'grp'}
                               className={`${styles.reactionBubble} ${
-                                g.users.includes(String(user.id)) ? styles.myReaction : ""
+                                g.users.includes(String(user.id)) ? styles.myReaction : ''
                               }`}
                             >
                               <span>{g.emoji}</span>
@@ -421,12 +414,12 @@ const ChatRoom = ({
           type="file"
           accept="image/*"
           onChange={handleFileSelect}
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
         />
 
         <textarea
           value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          onChange={e => setNewMessage(e.target.value)}
           className={styles.chatInput}
           placeholder="Escribe un mensaje..."
           onBlur={typing.inputProps.onBlur}
@@ -440,21 +433,19 @@ const ChatRoom = ({
           <div className={styles.loadingOverlay}>
             <div className={styles.loader} />
             <span className={styles.loadingText}>
-              {isUploading ? "Subiendo imagen..." : "Enviando..."}
+              {isUploading ? 'Subiendo imagen...' : 'Enviando...'}
             </span>
           </div>
         )}
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
-          <div
-            ref={inputEmojiPickerRef}
-            className={styles.inputEmojiPicker}
-          >
+          <div ref={inputEmojiPickerRef} className={styles.inputEmojiPicker}>
             <EmojiPicker
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
+              emojiStyle={EmojiStyle.NATIVE}
               style={{ backgroundColor: 'var(--cWhite)' }}
             />
           </div>
@@ -470,16 +461,16 @@ const ChatRoom = ({
             }}
             circle={true}
             style={{
-              padding: "4px",
-              backgroundColor: "var(--cWhiteV1)",
-              opacity: (isUploading || sending) ? 0.5 : 1,
-              pointerEvents: (isUploading || sending) ? "none" : "auto",
+              padding: '4px',
+              backgroundColor: 'var(--cWhiteV1)',
+              opacity: isUploading || sending ? 0.5 : 1,
+              pointerEvents: isUploading || sending ? 'none' : 'auto',
             }}
             reverse={true}
             title="Emojis"
           />
 
-          {roomId.indexOf("chatBot") === -1 && (
+          {roomId.indexOf('chatBot') === -1 && (
             <IconImage
               color="var(--cBlackV1)"
               onClick={() => {
@@ -489,10 +480,10 @@ const ChatRoom = ({
               }}
               circle={true}
               style={{
-                padding: "4px",
-                backgroundColor: "var(--cWhiteV1)",
-                opacity: (isUploading || sending) ? 0.5 : 1,
-                pointerEvents: (isUploading || sending) ? "none" : "auto",
+                padding: '4px',
+                backgroundColor: 'var(--cWhiteV1)',
+                opacity: isUploading || sending ? 0.5 : 1,
+                pointerEvents: isUploading || sending ? 'none' : 'auto',
               }}
               title="Adjuntar imagen"
             />
@@ -506,9 +497,9 @@ const ChatRoom = ({
             circle={true}
             reverse={true}
             style={{
-              padding: "4px",
-              backgroundColor: "var(--cAccent)",
-              opacity: (isUploading || sending) ? 0.65 : 1,
+              padding: '4px',
+              backgroundColor: 'var(--cAccent)',
+              opacity: isUploading || sending ? 0.65 : 1,
             }}
             title="Enviar mensaje"
           />
