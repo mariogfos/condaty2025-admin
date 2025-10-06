@@ -1,6 +1,7 @@
 .container {
   position: relative;
-  /* display: inline-flex; */
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
 }
 

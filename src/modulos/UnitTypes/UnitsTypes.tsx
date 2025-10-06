@@ -17,21 +17,7 @@ const mod = {
   },
   permiso: "unittypes",
   extraData: true,
-  renderForm: (props: {
-    item: any;
-    setItem: any;
-    errors: any;
-    extraData: any;
-    open: boolean;
-    onClose: any;
-    user: any;
-    execute: any;
-    setErrors: any;
-    action: any;
-    reLoad: any;
-  }) => {
-    return <RenderForm {...props} />;
-  },
+  renderForm: RenderForm,
   renderView: (props: {
     open: boolean;
     onClose: any;
@@ -113,7 +99,9 @@ const UnitsType = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: true,
+        list: {
+          width: 200,
+        },
         form: { type: "text" },
       },
       fields: {
@@ -135,7 +123,7 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 405px)"} />
+      <List height={"calc(100vh - 350px)"} />
     </div>
   );
 };

@@ -16,6 +16,7 @@ interface ReelCompactListProps {
   onOpenComments?: (id: number) => void;
   modoCompacto?: boolean;
   onImageClick?: (id: number) => void;
+  onOpenRenderView?: (id: number, data?: ContentItem) => void;
 }
 
 const ReelCompactList: React.FC<ReelCompactListProps> = ({
@@ -23,7 +24,8 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
   onLike,
   onOpenComments,
   modoCompacto = false,
-  onImageClick
+  onImageClick,
+  onOpenRenderView
 }) => {
   const handleToggleDescription = (contentId: number, items: ContentItem[], setItems: React.Dispatch<React.SetStateAction<ContentItem[]>>) => {
     setItems((prevContents) =>
@@ -51,12 +53,22 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
       {items.map((item: ContentItem, index: number) => {
         const isNews = item.title && item.title.trim() !== '';
         const newsIndex = getNewsIndex(items, index);
-        const isImageRight = newsIndex % 2 === 0; 
+        const isImageRight = newsIndex % 2 === 0;
 
         return (
           <article
             key={`compact-content-${item.id}`}
             className={`${styles.contentCardCompact} ${isNews ? styles.newsCard : ''} ${isNews && isImageRight ? styles.newsImageRight : ''} ${isNews && !isImageRight ? styles.newsImageLeft : ''}`}
+            onClick={() => onOpenRenderView?.(item.id, item)}
+            role="button"
+            tabIndex={0}
+            aria-label={`Abrir detalle de la publicación${item.title ? `: ${item.title}` : ''}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onOpenRenderView?.(item.id, item);
+              }
+            }}
           >
             <header className={styles.contentHeader}>
               <div className={styles.userInfo}>
@@ -92,7 +104,10 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                     </p>
                     {item.description.length > 100 && (
                       <button
-                        onClick={() => handleToggleDescription(item.id, items, () => {})}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleDescription(item.id, items, () => {});
+                        }}
                         className={styles.seeMoreButton}
                       >
                         {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
@@ -113,10 +128,20 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                       {/* Imagen principal - siempre la primera */}
                       <div
                         className={styles.newsImageWrapper}
-                        onClick={() => onImageClick?.(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenRenderView?.(item.id, item);
+                        }}
                         role="button"
                         tabIndex={0}
                         aria-label={`Ver imagen completa de ${item.title || 'noticia'}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onOpenRenderView?.(item.id, item);
+                          }
+                        }}
                       >
                         <img
                           src={getUrlImages(`/CONT-${item.id}-${item.images[0].id}.webp?d=${item.updated_at}`)}
@@ -141,7 +166,10 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                     </p>
                     {item.description.length > 100 && (
                       <button
-                        onClick={() => handleToggleDescription(item.id, items, () => {})}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleDescription(item.id, items, () => {});
+                        }}
                         className={styles.seeMoreButton}
                       >
                         {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
@@ -152,22 +180,55 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                 <MediaRenderer
                   item={item}
                   modoCompacto={true}
-                  onImageClick={() => onImageClick?.(item.id)}
+                  onImageClick={() => onOpenRenderView?.(item.id, item)}
                 />
               </section>
             )}
 
             <footer className={styles.contentFooter}>
               <div className={styles.contentStats}>
-                <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}>
+                <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLike?.(item.id);
+                  }}
+                >
                   <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
                   <span>{item.likes}</span>
                 </div>
-                <div className={styles.statDisplay}>
+                <div
+                  className={styles.statDisplay}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenComments?.(item.id);
+                  }}
+                >
                   <IconComment color={'var(--cWhiteV1)'} size={16} />
                   <span>{item.comments_count}</span>
                 </div>
               </div>
+
+
+
+  {/*             <div className={styles.contentActions}>
+                <button
+                  className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
+                  onClick={() => onLike?.(item.id)}
+                  aria-pressed={!!item.liked}
+                  aria-label={`Me gusta esta publicación`}
+                >
+                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
+                  <span>Apoyar</span>
+                </button>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => onOpenComments?.(item.id)}
+                  aria-label={`Comentar esta publicación`}
+                >
+                  <IconComment color={'var(--cWhiteV1)'} size={16} />
+                  <span>Comentar</span>
+                </button>
+              </div> */}
             </footer>
           </article>
         );
