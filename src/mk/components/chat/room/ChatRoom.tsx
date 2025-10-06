@@ -156,6 +156,48 @@ const ChatRoom = ({
     }
   };
 
+  // Drag and Drop handlers
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (roomId.indexOf("chatBot") === -1) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (roomId.indexOf("chatBot") > -1) {
+      return;
+    }
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      // Verificar que sea una imagen
+      if (file.type.startsWith('image/')) {
+        const previewURL = URL.createObjectURL(file);
+        setSelectedFile({ file, previewURL });
+      }
+    }
+  };
+
   const [showEmojiPicker, setShowEmojiPicker]: any = useState(null);
   const [showInputEmojiPicker, setShowInputEmojiPicker] = useState(false);
   const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -251,7 +293,23 @@ const ChatRoom = ({
   }, [showInputEmojiPicker]);
 
   return (
-    <div className={styles.chatRoomContainer}>
+    <div 
+      className={styles.chatRoomContainer}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Overlay de drag and drop */}
+      {isDragging && (
+        <div className={styles.dragOverlay}>
+          <div className={styles.dragContent}>
+            <IconImage size={64} color="var(--cPrimary)" />
+            <p>Suelta la imagen aquí</p>
+          </div>
+        </div>
+      )}
+      
       {/* Área de mensajes con overlay relativo */}
       <div className={styles.messagesArea}>
         <div className={styles.chatMsgContainer} ref={chatRef}>

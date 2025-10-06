@@ -208,6 +208,37 @@
   }
 }
 
+/* Overlay de drag and drop */
+.dragOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.dragContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--cWhite);
+  border-radius: 1rem;
+  border: 3px dashed var(--cPrimary);
+}
+
+.dragContent p {
+  color: var(--cBlackV1);
+  font-size: 1.2rem;
+  font-weight: var(--bSemibold);
+  margin: 0;
+}
+
 .loadingText {
   margin-top: 8px;
   color: var(--cWhiteV1);
