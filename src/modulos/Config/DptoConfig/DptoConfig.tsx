@@ -18,113 +18,10 @@ const DptoConfig = ({
   onChange,
   onSave,
 }: any) => {
-  // const [validationErrors, setValidationErrors] = useState<
-  //   Record<string, string>
-  // >({});
+
 
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
-
-  // Validar cambios en el formulario
-  // useEffect(() => {
-  //   const newErrors: Record<string, string> = {};
-
-  //   // Validación 1: Nombre del condominio - no debe permitir caracteres especiales y máximo 80 caracteres
-  //   if (formState?.name) {
-  //     if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]+$/.test(formState.name)) {
-  //       newErrors.name = "No se permiten caracteres especiales";
-  //     } else if (formState.name.length > 80) {
-  //       newErrors.name = "Máximo 80 caracteres";
-  //     }
-  //   }
-
-  //   // Validación 2: Descripción del condominio - máximo 500 caracteres
-  //   if (formState?.description && formState.description.length > 500) {
-  //     newErrors.description = "Máximo 500 caracteres";
-  //   }
-
-  //   // Validación 3: Monto inicial - debe ser menos o igual a 10 dígitos
-  //   if (formState?.initial_amount) {
-  //     const amountStr = String(formState.initial_amount).replace(/\D/g, "");
-  //     if (amountStr.length > 10) {
-  //       newErrors.initial_amount =
-  //         "El monto debe ser menor o igual a 10 dígitos";
-  //     }
-  //   }
-
-  //   // Validación 4: Limitar los otros campos (teléfono, dirección, etc.)
-  //   if (formState?.phone && formState.phone.toString().length > 15) {
-  //     newErrors.phone = "Máximo 15 dígitos";
-  //   }
-
-  //   if (formState?.address && formState.address.length > 100) {
-  //     newErrors.address = "Máximo 100 caracteres";
-  //   }
-
-  //   // Correo electrónico ahora tiene máximo de 100 caracteres
-  //   if (formState?.email && formState.email.length > 100) {
-  //     newErrors.email = "Máximo 100 caracteres";
-  //   }
-
-  //   if (formState?.year && (formState.year < 1900 || formState.year > 2100)) {
-  //     newErrors.year = "Año entre 1900 y 2100";
-  //   }
-
-  //   setValidationErrors(newErrors);
-  // }, [formState]);
-
-  // Función para manejar cambios con validación
-  // const handleChange = (
-  //   e: React.ChangeEvent<
-  //     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  //   >
-  // ) => {
-  //   const { name, value } = e.target;
-
-  //   // Validaciones específicas para cada campo
-  //   if (name === "name") {
-  //     // Solo permitir letras, números y espacios (sin caracteres especiales) con máximo 80 caracteres
-  //     if (
-  //       value === "" ||
-  //       (/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s]*$/.test(value) && value.length <= 80)
-  //     ) {
-  //       onChange(e);
-  //     }
-  //   } else if (name === "description") {
-  //     // Limitar a 500 caracteres
-  //     if (value.length <= 500) {
-  //       onChange(e);
-  //     }
-  //   } else if (name === "initial_amount") {
-  //     // Permitir la edición del monto inicial sin restricciones adicionales
-  //     onChange(e);
-  //   } else if (name === "phone") {
-  //     // Solo permitir números con longitud máxima de 15
-  //     if (value === "" || (/^\d*$/.test(value) && value.length <= 15)) {
-  //       onChange(e);
-  //     }
-  //   } else if (name === "address") {
-  //     // Limitar a 100 caracteres
-  //     if (value.length <= 100) {
-  //       onChange(e);
-  //     }
-  //   } else if (name === "email") {
-  //     // Limitar a 100 caracteres (cambiado de 50 a 100)
-  //     if (value.length <= 100) {
-  //       onChange(e);
-  //     }
-  //   } else if (name === "year") {
-  //     // Solo años válidos entre 1900 y 2100
-  //     if (
-  //       value === "" ||
-  //       (/^\d*$/.test(value) && parseInt(value) >= 0 && parseInt(value) <= 2100)
-  //     ) {
-  //       onChange(e);
-  //     }
-  //   } else {
-  //     onChange(e);
-  //   }
-  // };
 
   return (
     <div className={styles.Config}>
@@ -142,19 +39,17 @@ const DptoConfig = ({
               display: "flex",
               justifyContent: "left",
               alignItems: "center",
-              // height: "400px",
-              // width: "400px",
             }}
           >
             <UploadFile
               name="avatarLogo"
               onChange={onChange}
               value={
-                !existLogo
-                  ? getUrlImages(
-                      "/LOGO-" + formState?.id + ".webp?" + formState.updated_at
+                typeof formState?.avatarLogo === "object"
+                  ? formState?.avatarLogo
+                  : getUrlImages(
+                      "/LOGO-" + formState?.id + ".webp?" + formState?.updated_at
                     )
-                  : ""
               }
               setError={setErrors}
               error={errors}
@@ -164,7 +59,6 @@ const DptoConfig = ({
               placeholder="Cargar una imagen"
               ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
-              // onError={() => setExistLogo(true)}
             />
           </div>
         </div>
@@ -179,14 +73,14 @@ const DptoConfig = ({
               name="avatar"
               onChange={onChange}
               value={
-                !existAvatar
-                  ? getUrlImages(
+                typeof formState?.avatar === "object"
+                  ? formState?.avatar
+                  : getUrlImages(
                       "/CLIENT-" +
                         formState?.id +
                         ".webp?" +
                         formState.updated_at
                     )
-                  : ""
               }
               setError={setErrors}
               error={errors}
@@ -196,7 +90,6 @@ const DptoConfig = ({
               placeholder="Cargar una imagen"
               ext={["jpg", "png", "jpeg", "webp"]}
               item={formState}
-              // onError={() => setExistAvatar(true)}
             />
           </div>
         </div>
