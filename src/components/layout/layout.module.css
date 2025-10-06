@@ -59,3 +59,30 @@
 .layoutCollapsed {
   --sidebar-width: 80px;
 }
+
+/* Estilos para el modal de alerta */
+.alertDesc {
+  color: var(--cWhite);
+  font-size: 14px;
+  line-height: 1.35;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.viewMoreBtn {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--cWhite);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.modalLogout {
+  color: var(--cWhiteV1);
+  text-align: start;
+}

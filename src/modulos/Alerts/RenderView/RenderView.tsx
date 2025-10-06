@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./RenderView.module.css";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -200,8 +201,17 @@ interface RenderViewProps {
   reLoad?: () => void;
 }
 
+// Dentro del componente RenderView
 const RenderView = (props: RenderViewProps) => {
   const { execute } = useAxios();
+
+  // Estado para controlar el truncado/expandido de la descripción/título
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
+
+  // Al cambiar de alerta, reseteamos la expansión
+  useEffect(() => {
+    setIsDescExpanded(false);
+  }, [props.item?.id]);
 
   const onSaveAttend = async () => {
     const { data } = await execute(
@@ -285,10 +295,46 @@ function getAttendantPrefix(hasAdminAttend: boolean) {
           </div>
           <span
             className={styles.hlAlertTypeText}
-            style={{ color: alertTypeBoxDetails?.textColor }}
+            style={{
+              // asegurar que el texto no se desborde del contenedor
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+              whiteSpace: "normal",
+              display: "block",
+              color: alertTypeBoxDetails?.textColor,
+            }}
           >
-            {alertTypeBoxDetails?.title}
+            {(() => {
+              const fullTitle = alertTypeBoxDetails?.title || "";
+              const isLong = fullTitle.length > 150;
+              return !isDescExpanded && isLong
+                ? fullTitle.slice(0, 150) + "…"
+                : fullTitle;
+            })()}
           </span>
+          {(() => {
+            const fullTitle = alertTypeBoxDetails?.title || "";
+            const isLong = fullTitle.length > 150;
+            if (!isLong) return null;
+            return (
+              <button
+                onClick={() => setIsDescExpanded((v) => !v)}
+                style={{
+                  marginTop: "8px",
+                  background: "transparent",
+                  border: "none",
+                  color: alertTypeBoxDetails?.textColor || "var(--cWhite, #fafafa)",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  fontSize: "12px",
+                  padding: 0,
+                  alignSelf: "flex-start",
+                }}
+              >
+                {isDescExpanded ? "Ver menos" : "Ver más"}
+              </button>
+            );
+          })()}
         </div>
         <UserInfoDisplay
           user={informer}
@@ -351,9 +397,47 @@ function getAttendantPrefix(hasAdminAttend: boolean) {
   const renderGeneralAlert = () => (
     <>
       <div className={styles.gTopSection}>
-        <span className={styles.gAlertDescriptionText}>
-          {props.item.descrip || "Descripción no disponible."}
+        <span
+          className={styles.gAlertDescriptionText}
+          style={{
+            // impedir desbordes horizontales; que "baje" en vez de salirse a la derecha
+            overflowWrap: "anywhere",
+            wordBreak: "break-word",
+            whiteSpace: "normal",
+            display: "block",
+          }}
+        >
+          {(() => {
+            const fullDesc = props.item.descrip || "Descripción no disponible.";
+            const isLong = fullDesc.length > 150;
+            return !isDescExpanded && isLong
+              ? fullDesc.slice(0, 150) + "…"
+              : fullDesc;
+          })()}
         </span>
+        {(() => {
+          const fullDesc = props.item.descrip || "Descripción no disponible.";
+          const isLong = fullDesc.length > 150;
+          if (!isLong) return null;
+          return (
+            <button
+              onClick={() => setIsDescExpanded((v) => !v)}
+              style={{
+                marginTop: "8px",
+                background: "transparent",
+                border: "none",
+                color: "var(--cAccent, #62ab8b)",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "12px",
+                padding: 0,
+                alignSelf: "flex-start",
+              }}
+            >
+              {isDescExpanded ? "Ver menos" : "Ver más"}
+            </button>
+          );
+        })()}
         {informer && (
           <UserInfoDisplay
             user={informer}
