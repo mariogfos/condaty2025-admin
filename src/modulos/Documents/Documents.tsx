@@ -56,7 +56,7 @@ const Documents = () => {
         api: "ae",
         label: "Nombre del documento",
         form: { type: "text" },
-        list: {},
+        list: { width: "280" },
       },
       ext: {
         rules: [],
@@ -64,22 +64,23 @@ const Documents = () => {
         label: "Extensión",
         list: false,
       },
+      
+      for_to: {
+        rules: ["required"],
+        api: "ae*",
+        label: "Visible para",
+        form: { type: "select", options: lOptions },
+        list: { width: "280" },
+        filter: {
+          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
+        },
+      },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
         form: { type: "textArea" },
         list: {},
-      },
-      for_to: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Visible para",
-        form: { type: "select", options: lOptions },
-        list: {},
-        filter: {
-          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
-        },
       },
       doc: {
         rules: ["required"],
