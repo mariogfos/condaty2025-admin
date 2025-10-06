@@ -43,27 +43,25 @@ const HeadTitle = ({
     router.back();
   };
   return (
-    <div style={style} className={styles.headTitle + " " + className}>
+    <div style={style} className={styles.headTitle + ' ' + className}>
       {left !== false && (
         <span>
-          {left !== null ? (
-            left
-          ) : (
-            <IconArrowLeft onClick={goBack} color={colorBack} size={24} />
-          )}
+          {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
         </span>
       )}
       <div
         style={{
-          marginLeft: left === false ? undefined : "var(--spM)",
-          marginRight: left === false ? undefined : "var(--spM)",
-          color: colorTitle
+          marginLeft: left === false ? undefined : 'var(--spM)',
+          marginRight: left === false ? undefined : 'var(--spM)',
+          color: colorTitle,
         }}
       >
         {customTitle ? (
           customTitle
         ) : (
-          <p style={{ color: 'inherit' }}>{title}</p>
+          <p style={{ color: 'inherit', cursor: 'pointer' }} onClick={goBack}>
+            {title}
+          </p>
         )}
       </div>
       <span>{right}</span>

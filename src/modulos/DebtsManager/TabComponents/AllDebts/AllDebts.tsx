@@ -316,10 +316,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         rules: [''],
         api: '',
         label: 'Categoría',
-        list: {
+        list: false/* {
           onRender: renderCategoryCell,
           order: 2,
-        },
+        }, */
+          ,
         filter: {
           label: 'Categoría',
           width: '100%',

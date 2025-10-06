@@ -88,7 +88,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
 
-    } 
+    }
 
     const statusText = getStatusText(finalStatus);
     const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
@@ -336,10 +336,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       rules: [''],
       api: '',
       label: 'Categoría',
-      list: {
+      list: false/* {
         onRender: renderCategoryCell,
         order: 2,
-      },
+      }, */,
     },
     subcategory: {
       rules: [''],
