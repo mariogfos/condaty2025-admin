@@ -9,7 +9,7 @@ import { IconPublicacion } from "@/components/layout/icons/IconsBiblioteca";
 import { useRouter } from "next/navigation";
 import { ContentItem } from "@/modulos/Reel/types";
 
-const WidgetContentsResume = () => {
+const WidgetContentsResume = ({ onOpenRenderView }: { onOpenRenderView?: (id: number, data?: ContentItem) => void }) => {
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { data, loaded, error, reLoad } = useAxios(
@@ -85,6 +85,7 @@ const WidgetContentsResume = () => {
             onLike={handleRedirectToReel}
             onOpenComments={handleRedirectToReel}
             onImageClick={handleImageClick}
+            onOpenRenderView={onOpenRenderView}
           />
         ) : (
           <EmptyData

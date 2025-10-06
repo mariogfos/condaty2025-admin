@@ -30,6 +30,7 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
+import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -45,6 +46,23 @@ const HomePage = () => {
   const [openReservation, setOpenReservation] = useState(false);
   const [selectedReservationId, setSelectedReservationId]: any = useState(null);
   const [openPreRegistroModal, setOpenPreRegistroModal] = useState(false);
+
+  // Modal de contenidos (RenderView)
+  const [openContentRender, setOpenContentRender] = useState(false);
+  const [selectedContentId, setSelectedContentId] = useState<number | null>(null);
+  const [selectedContentData, setSelectedContentData] = useState<any>(null);
+
+  const handleOpenContentRenderView = (id: number, data?: any) => {
+    setSelectedContentId(id);
+    setSelectedContentData(data || null);
+    setOpenContentRender(true);
+  };
+
+  const handleCloseContentRenderView = () => {
+    setOpenContentRender(false);
+    setSelectedContentId(null);
+    setSelectedContentData(null);
+  };
 
   useEffect(() => {
     setStore({
@@ -621,7 +639,9 @@ const HomePage = () => {
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume />
+              <WidgetContentsResume
+                onOpenRenderView={handleOpenContentRenderView}
+              />
             </div>
           </div>
         </div>
@@ -653,6 +673,15 @@ const HomePage = () => {
         onClose={() => setOpenActive(false)}
         item={dataOwner}
         reLoad={reLoad}
+      />
+
+      {/* Modal RenderView de Contenidos */}
+      <ContentRenderView
+        open={openContentRender}
+        onClose={handleCloseContentRenderView}
+        item={{}}
+        contentId={selectedContentId ?? undefined}
+        selectedContentData={selectedContentData}
       />
     </>
   );
