@@ -175,7 +175,7 @@ const HomePage = () => {
   const reservasList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `Área: ${data?.area?.title || "No especificada"}`;
+    const secondaryText = `${data?.area?.title || "No especificada"}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
