@@ -45,7 +45,7 @@ const HeadTitle = ({
   return (
     <div style={style} className={styles.headTitle + ' ' + className}>
       {left !== false && (
-        <span>
+        <span role="button" aria-label="Volver">
           {left !== null ? left : <IconArrowLeft onClick={goBack} color={colorBack} size={24} />}
         </span>
       )}
@@ -59,7 +59,12 @@ const HeadTitle = ({
         {customTitle ? (
           customTitle
         ) : (
-          <p style={{ color: 'inherit', cursor: 'pointer' }} onClick={goBack}>
+          <p
+            style={{ color: 'inherit', cursor: 'pointer' }}
+            onClick={goBack}
+            role="button"
+            aria-label="Volver"
+          >
             {title}
           </p>
         )}
