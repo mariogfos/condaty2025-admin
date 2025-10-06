@@ -89,6 +89,7 @@ const Documents = () => {
         form: {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
+          maxSize: 30,
           style: { width: "100%" },
         },
         onRender: ({ item }: any) => {
