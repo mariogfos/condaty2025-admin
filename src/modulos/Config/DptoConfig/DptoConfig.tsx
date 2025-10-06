@@ -47,9 +47,11 @@ const DptoConfig = ({
               value={
                 typeof formState?.avatarLogo === "object"
                   ? formState?.avatarLogo
-                  : getUrlImages(
-                      "/LOGO-" + formState?.id + ".webp?" + formState?.updated_at
-                    )
+                  : String(formState?.has_image_l) === "1"
+                    ? getUrlImages(
+                        "/LOGO-" + formState?.id + ".webp?" + formState?.updated_at
+                      )
+                    : undefined
               }
               setError={setErrors}
               error={errors}
@@ -75,12 +77,14 @@ const DptoConfig = ({
               value={
                 typeof formState?.avatar === "object"
                   ? formState?.avatar
-                  : getUrlImages(
-                      "/CLIENT-" +
-                        formState?.id +
-                        ".webp?" +
-                        formState.updated_at
-                    )
+                  : String(formState?.has_image_c) === "1"
+                    ? getUrlImages(
+                        "/CLIENT-" +
+                          formState?.id +
+                          ".webp?" +
+                          formState?.updated_at
+                      )
+                    : undefined
               }
               setError={setErrors}
               error={errors}
