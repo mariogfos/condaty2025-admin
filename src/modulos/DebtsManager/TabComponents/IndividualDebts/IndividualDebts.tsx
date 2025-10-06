@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMes, MONTHS } from '@/mk/utils/date';
+import { getDateStrMes, getDateStrMesShort, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
@@ -50,6 +50,29 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   const renderSubcategoryCell = ({ item }: { item: any }) => (
     <div>{item?.subcategory?.name || '-'}</div>
   );
+  const renderMaintenanceAmountCell = ({ item }: { item: any }) => {
+    const raw = item?.maintenance_amount;
+
+    const hasValue =
+      raw !== null && raw !== undefined && String(raw).trim() !== '' && !isNaN(Number(raw));
+
+    if (!hasValue)
+      return (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          -/-
+        </div>
+      );
+
+    return <FormatBsAlign value={parseFloat(raw)} alignRight />;
+  };
 
   const renderStatusCell = ({ item }: { item: any }) => {
     const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
@@ -88,7 +111,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     if (dueAtString && dueAtString < todayString && item?.status === 'A') {
       finalStatus = 'M';
 
-    } 
+    }
 
     const statusText = getStatusText(finalStatus);
     const { color, bgColor } = statusConfig[finalStatus] || statusConfig.E;
@@ -107,7 +130,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     if (!item?.due_at) return <div>-/-</div>;
     return (
       <div>
-        {getDateStrMes(item.due_at)}
+        {getDateStrMesShort(item.due_at)}
       </div>
     );
   };
@@ -273,18 +296,6 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
     begin_at: { rules: ['required'], api: 'ae', label: 'Fecha de inicio' },
     type: { rules: [], api: 'ae', label: 'Tipo' },
     description: { rules: [], api: 'ae', label: 'Descripción' },
-    category_id: {
-      rules: [''],
-      api: 'ae',
-      label: 'Categoría',
-      filter: {
-        label: 'Categoría',
-        width: '100%',
-        options: getCategoryOptions,
-        optionLabel: 'name',
-        optionValue: 'id',
-      },
-    },
     subcategory_id: {
       rules: ['required'],
       api: 'ae',
@@ -388,11 +399,22 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
         order: 8,
       },
     },
+    maintenance_amount: {
+      rules: [''],
+      api: '',
+      label: (
+        <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
+      ),
+      list: {
+        order: 9,
+        onRender: renderMaintenanceAmountCell,
+      },
+    },
     balance_due: {
       rules: [''],
       api: '',
       label: (
-        <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Saldo a cobrar</span>
+        <span style={{ display: 'block', textAlign: 'right', width: '100%' }}> Monto total</span>
       ),
       list: {
         onRender: renderBalanceDueCell,
