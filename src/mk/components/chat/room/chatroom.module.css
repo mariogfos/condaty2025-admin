@@ -19,7 +19,6 @@
   flex-direction: column;
   flex-grow: 1;
   width: 100%;
-  /* border: 5px solid blue; */
 }
 
 .messagesArea {
@@ -41,23 +40,19 @@
   padding-top: 0;
   position: relative;
   color: black;
-  /* background-color: red; */
-  /* width: 50%; */
+
 }
 
 .messageContainer {
   display: flex;
-  /* align-items: flex-end; */
   margin-bottom: 34px;
   align-items: flex-start;
-  /* background-color: blue; */
 }
 
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  /* background-color: #ccc; Color de placeholder para el avatar */
   margin-right: 10px;
 }
 .noAvatar {
@@ -79,17 +74,16 @@
 .messageBubble {
   max-width: 70%;
   padding: 10px;
-  /* padding-bottom: 0; */
   border-radius: 10px;
   position: relative;
   color: var(--cWhite);
-  background-color: var(--cBlackV1); /* Color de fondo de la burbuja de chat */
+  background-color: var(--cBlackV1);
   transition: background-color 0.2s ease;
   line-height: 1.2;
   white-space: pre-line;
 }
 .messageBubble:hover {
-  background-color: var(--cBlackV3); /* Cambia el color al pasar el mouse */
+  background-color: var(--cBlackV3);
 }
 
 .messageBubble::after {
@@ -100,7 +94,7 @@
   width: 0;
   height: 0;
   border: 10px solid transparent;
-  border-right-color: var(--cBlackV1); /* Color de la punta de la burbuja */
+  border-right-color: var(--cBlackV1);
   border-left: 0;
   margin-top: 10px;
   transition: border-color 0.2s ease;
@@ -109,7 +103,7 @@
   left: auto;
   right: -10px;
   border-right-color: transparent;
-  border-left-color: #35463e; /* Color de la punta para los mensajes propios */
+  border-left-color: #35463e;
 }
 
 .myMessage {
@@ -117,18 +111,18 @@
 }
 
 .myMessage .messageBubble {
-  background-color: #35463e; /* Color de fondo para los mensajes propios */
+  background-color: #35463e;
 }
 
 .myMessage .messageBubble:hover {
-  background-color: rgb(2, 57, 25); /* Cambia el color al pasar el mouse */
+  background-color: rgb(2, 57, 25);
 }
 
 .myMessage .messageBubble::after {
   left: auto;
   right: -10px;
   border-right-color: transparent;
-  border-left-color: #35463e; /* Color de la punta para los mensajes propios */
+  border-left-color: #35463e;
 }
 
 .myMessage .avatar {
@@ -168,19 +162,15 @@
 
 .chatInputContainer {
   position: relative;
-  /* display: flex;
-  gap: 8px;
-  justify-content: space-between; */
   border-radius: 8px;
   margin: 16px 0 0 0;
-  /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
 }
 
-/* Overlay de loading sobre el input */
+
 .loadingOverlay {
   position: absolute;
   inset: 0;
@@ -220,7 +210,7 @@
   width: 100%;
   height: 100%;
   padding: 16px;
-    padding-bottom: 48px; /* Espacio para los botones abajo */
+  padding-bottom: 48px;
   border-radius: 8px;
   line-height: 1.4;
   white-space: pre-line;

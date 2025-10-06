@@ -37,10 +37,9 @@ const useControllerChatbot = () => {
       }),
       db.tx.chatbots[chatBotId.id].delete(),
     ]);
-    // console.log("asignando", chatBotId, data?.chatbot[0].id);
   };
   useEffect(() => {
-    // console.log("Datatata", data);
+
     if (data?.chatbot?.length > 0 && data?.chatbots?.length > 0) {
       processChatBot();
     }
