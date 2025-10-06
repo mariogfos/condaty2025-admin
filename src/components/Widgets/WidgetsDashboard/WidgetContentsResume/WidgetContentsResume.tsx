@@ -54,11 +54,6 @@ const WidgetContentsResume = () => {
     router.push("/reels");
   };
 
-  // Al hacer click en imagen, redirigir a /reels
-  const handleImageClick = () => {
-    router.push("/reels");
-  };
-
   return (
     <WidgetBase
       variant={"V1"}
@@ -84,7 +79,7 @@ const WidgetContentsResume = () => {
             // modoCompacto={true}
             onLike={handleRedirectToReel}
             onOpenComments={handleRedirectToReel}
-            onImageClick={handleImageClick}
+            onImageClick={handleRedirectToReel}
           />
         ) : (
           <EmptyData

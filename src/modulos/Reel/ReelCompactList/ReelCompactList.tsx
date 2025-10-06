@@ -64,8 +64,8 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   hasImage={1}
                   name={getFullName(item.user)}
                   src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
-                  w={32}
-                  h={32}
+                  w={40}
+                  h={40}
                 />
                 <div className={styles.userDetails}>
                   <span className={styles.userName}>
@@ -167,28 +167,6 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <IconComment color={'var(--cWhiteV1)'} size={16} />
                   <span>{item.comments_count}</span>
                 </div>
-              </div>
-
-              <div className={styles.contentDivider}></div>
-
-              <div className={styles.contentActions}>
-                <button
-                  className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
-                  onClick={() => onLike?.(item.id)}
-                  aria-pressed={!!item.liked}
-                  aria-label={`Me gusta esta publicación`}
-                >
-                  <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={16} />
-                  <span>Apoyar</span>
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => onOpenComments?.(item.id)}
-                  aria-label={`Comentar esta publicación`}
-                >
-                  <IconComment color={'var(--cWhiteV1)'} size={16} />
-                  <span>Comentar</span>
-                </button>
               </div>
             </footer>
           </article>
