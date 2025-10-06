@@ -4,6 +4,31 @@
   align-items: center;
   position: relative;
 
+  /* Reset button styles when avatar is a button */
+    &.avatarButton {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    outline: none;
+    position: relative;
+  
+    svg {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      padding: 4px;
+      z-index: 1;
+      background-color: rgba(0, 0, 0, 0.2);
+      box-sizing: content-box;
+      border-radius: 6px;
+    }
+  }
+
   & > div {
     display: flex;
     justify-content: center;

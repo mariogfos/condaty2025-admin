@@ -82,22 +82,25 @@ const ChooseClient = ({ open, onClose }: Props) => {
       />
     );
   };
-
-  const activeClients = user.clients
-    .filter(
+  const activeClients = user?.clients
+    ?.filter(
       (client: any) =>
         client?.pivot?.status === "P" || client?.pivot?.status === "A"
     )
     .sort((a: any, b: any) => {
-      const isActiveA: any = a.id === user.client_id;
-      const isActiveB: any = b.id === user.client_id;
+      const isActiveA: any = a.id === user?.client_id;
+      const isActiveB: any = b.id === user?.client_id;
       return isActiveB - isActiveA;
-    });
+    }) || [];
 
-  const pendingClients = user.clients.filter(
+  const pendingClients = user?.clients?.filter(
     (client: any) =>
       client?.pivot?.status !== "P" && client?.pivot?.status !== "A"
-  );
+  ) || [];
+  
+  // No renderizar si no hay usuario, si el modal no está abierto, o si está en proceso de logout
+  if (!user || !open || user?.id === "0") return null;
+  
   return (
     <DataModal
       title="Seleccionar condominio"

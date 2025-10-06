@@ -1,15 +1,16 @@
 .dateMarker {
-  position: sticky;
-  top: 0;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
+  position: relative;
+  background: var(--cHovertablepdf);
+  color: var(--cWhiteV1);
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: var(--bRegular);
   text-align: center;
-  z-index: 2;
-  margin-bottom: 10px;
+  margin: 16px auto;
+  z-index: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  max-width: 80%;
 }
 
 .chatRoomContainer {
@@ -20,9 +21,18 @@
   width: 100%;
   /* border: 5px solid blue; */
 }
+
+.messagesArea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .chatMsgContainer {
   flex-grow: 1;
-  height: 50%;
+  height: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -52,6 +62,12 @@
 }
 .noAvatar {
   width: 10px;
+}
+
+.messageUser,
+.messageBubble,
+.chatInput {
+  font-family: var(--fPrimary);
 }
 
 .messageUser {
@@ -138,18 +154,16 @@
 
 .emojiPicker {
   position: absolute;
-  top: 88px;
   left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.2s ease;
+  width: auto;
   z-index: 20;
+  animation: fadeIn 0.2s ease;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .chatInputContainer {
@@ -158,48 +172,73 @@
   gap: 8px;
   justify-content: space-between; */
   border-radius: 8px;
-  margin: 16px;
+  margin: 16px 0 0 0;
   /* padding: 16px; */
   height: 96px;
   background-color: var(--cWhiteV2);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
 .chatInput {
-  border: 1px solid transparent;
+  border: none;
   width: 100%;
-  height: calc(100% - 36px);
+  height: 100%;
   padding: 16px;
+    padding-bottom: 48px; /* Espacio para los botones abajo */
   border-radius: 8px;
-  line-height: 1;
+  line-height: 1.4;
   white-space: pre-line;
   resize: none;
   outline: none;
   background-color: transparent;
-  /* background-color: red; */
-  /* margin: 16px; */
   color: var(--cWhiteV1);
 }
 
 .chatInput:focus {
+  outline: none;
+}
+
+.chatInput:focus ~ .chatButton,
+.chatInputContainer:focus-within {
   border-color: var(--cAccent);
 }
 
 .chatButton {
   position: absolute;
-  color: var(--cPrimary);
-  opacity: 0.8;
-  cursor: pointer;
+  color: var(--cBlack);
   bottom: 4px;
   right: 16px;
-  transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
 }
 
-.chatButton:hover {
+.chatButton > svg {
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chatButton > svg:hover {
   opacity: 1;
+  transform: scale(1.05);
+}
+
+.inputEmojiPicker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 16px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .bubbleHour {
@@ -234,7 +273,8 @@
 
 .previewContainer {
   position: absolute;
-  height: 100%;
+  top: 0;
+  bottom: 0;
   z-index: 5000;
   background-color: var(--cBlack);
   display: flex;
@@ -265,4 +305,26 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.reactionContainer {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.reactionBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.myReaction {
+  outline: 1px solid var(--cPrimary);
+  background-color: rgba(0, 0, 0, 0.18);
 }
