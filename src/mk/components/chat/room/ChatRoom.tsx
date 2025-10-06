@@ -445,7 +445,7 @@ const ChatRoom = ({
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
-              emojiStyle={EmojiStyle.NATIVE}
+              emojiStyle={EmojiStyle.GOOGLE}
               style={{ backgroundColor: 'var(--cWhite)' }}
             />
           </div>
