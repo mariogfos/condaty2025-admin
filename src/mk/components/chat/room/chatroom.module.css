@@ -67,7 +67,7 @@
 .messageUser,
 .messageBubble,
 .chatInput {
-  font-family: var(--fPrimary);
+  font-family: var(--fPrimary), "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Segoe UI Symbol", system-ui, sans-serif;
 }
 
 .messageUser {
