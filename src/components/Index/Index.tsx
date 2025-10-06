@@ -14,6 +14,7 @@ import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import AlertsRender from "@/modulos/Alerts/RenderView/RenderView";
+import { ALERT_LEVEL_LABELS } from "@/modulos/Alerts/alertConstants";
 import {
   IconBriefCaseMoney,
   IconEgresos,
@@ -278,14 +279,12 @@ const HomePage = () => {
     const secondaryText = data.descrip || "Sin descripción";
 
     let levelClass = styles.levelLow;
-    let levelTextIndicator = "Nivel bajo";
+    let levelTextIndicator = ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] || ALERT_LEVEL_LABELS[1];
     if (data.level === 2) {
       levelClass = styles.levelMedium;
-      levelTextIndicator = "Nivel medio";
     } else if (data.level === 3 || data.level > 2) {
       // Mayor que 2 también es alto
       levelClass = styles.levelHigh;
-      levelTextIndicator = "Nivel alto";
     }
 
     // Determinar si podemos intentar cargar una imagen de avatar
