@@ -348,18 +348,41 @@
   align-items: center;
   right: 0;
   left: 0;
-  & > svg {
-    position: absolute;
-    right: 6px;
-    top: 0;
-    z-index: 10;
-    cursor: pointer;
-  }
-  & > img {
-    object-fit: contain;
-    max-height: 100%;
-    max-width: 100%;
-  }
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+}
+
+.previewItem {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--cBlackV2);
+}
+
+.removeIcon {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  z-index: 10;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  padding: 4px;
+  transition: transform 0.2s;
+}
+
+.removeIcon:hover {
+  transform: scale(1.1);
 }
 
 @keyframes fadeIn {
