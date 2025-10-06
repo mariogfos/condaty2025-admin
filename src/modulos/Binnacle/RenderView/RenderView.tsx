@@ -10,12 +10,17 @@ interface BinnacleDetailProps {
   open: boolean;
   onClose: () => void;
   item: any;
+
 }
 
 // eslint-disable-next-line react/display-name
 const RenderView = memo((props: BinnacleDetailProps) => {
   const { open, onClose, item } = props;
-  const [imageExist, setImageExist] = useState(true);
+
+  const normalizeHasImage = (v: any) => v === true || v === 1 || v === "1";
+
+  const [imageExist, setImageExist] = useState<boolean>(normalizeHasImage(item?.has_image));
+  const hasGuardImage = normalizeHasImage(item?.guardia?.has_image);
 
   return (
     <DataModal
@@ -27,12 +32,11 @@ const RenderView = memo((props: BinnacleDetailProps) => {
       style={{ maxWidth: 670 }}
     >
       <div className={styles.container}>
-        {imageExist && (
+        {/* Solo renderiza Avatar principal si verdaderamente hay imagen */}
+        {imageExist && normalizeHasImage(item?.has_image) && (
           <div className={styles.imageContainer}>
             <Avatar
-              src={getUrlImages(
-                "/GNEW-" + item.id + ".webp?d=" + item.updated_at
-              )}
+              src={getUrlImages("/GNEW-" + item.id + ".webp?d=" + item.updated_at)}
               h={298}
               w={298}
               onError={() => {
@@ -41,6 +45,7 @@ const RenderView = memo((props: BinnacleDetailProps) => {
               style={{ borderRadius: 16 }}
               name={getFullName(item)}
               expandable={true}
+              hasImage={item?.has_image}
             />
           </div>
         )}
@@ -48,16 +53,16 @@ const RenderView = memo((props: BinnacleDetailProps) => {
         <div className={styles.detailsContainer}>
           <div className={styles.detailRow}>
             <div className={styles.value} style={{ display: "flex", gap: 8 }}>
-              <Avatar
-                hasImage={item?.guardia?.has_image}
-                src={getUrlImages(
-                  "/GUARD-" +
-                    item?.guardia?.id +
-                    ".webp?d=" +
-                    item?.guardia?.updated_at
-                )}
-                name={getFullName(item.guardia)}
-              />
+              {/* No renderiza Avatar del guardia si no hay imagen */}
+              {hasGuardImage && (
+                <Avatar
+                  hasImage={item.guardia.has_image}
+                  src={getUrlImages(
+                    "/GUARD-" + item?.guardia?.id + ".webp?d=" + item?.guardia?.updated_at
+                  )}
+                  name={getFullName(item?.guardia)}
+                />
+              )}
               <div>
                 {getFullName(item.guardia) || "Sin guardia asignado"}
                 <div className={styles.label}>Guardia</div>

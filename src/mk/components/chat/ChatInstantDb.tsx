@@ -18,6 +18,7 @@ import { SendMessageType } from "./chat-types";
 import { getTimePMAM } from "@/mk/utils/date1";
 import Switch from "../forms/Switch/Switch";
 import Image from "next/image";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
 
 const soundBell = new Audio("/sounds/bellding.mp3");
 
@@ -43,6 +44,10 @@ export default function ChatInstantDb() {
   const [_rooms, set_rooms] = useState([]);
   const { dispatch: newMsg } = useEvent("onChatNewMsg");
   const [notifAudio, setNotifAudio] = useState(true);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  console.log("user del chat");
+  console.log(usersChat);
 
   useEffect(() => {
     if (
@@ -69,13 +74,17 @@ export default function ChatInstantDb() {
   const [lastMsg, setLastMsg] = useState(null);
   const [countMsg, setCountMsg]: any = useState({});
   useEffect(() => {
-    if (!chats?.messages) return;
+    const messages: any[] = Array.isArray(chats?.messages) ? chats.messages : [];
+
+    if (messages.length === 0) {
+      setCountMsg({});
+      setLastMsg(null);
+      return;
+    }
 
     let cM: any = {};
-    chats.messages?.map((m: any) => {
-      const idUser = (m.roomId as string)
-        .replace("--", "")
-        .replace(user.id, "");
+    messages.forEach((m: any) => {
+      const idUser = (m.roomId as string).replace("--", "").replace(user.id, "");
       cM = { ...cM, [idUser]: { ...cM[idUser], msg: m } };
       if (idUser !== roomGral) {
         if (m.sender === user.id || m.read_at) return;
@@ -86,48 +95,32 @@ export default function ChatInstantDb() {
       }
     });
 
-    const abrir =
-      lastMsg &&
-      chats.messages[chats.messages.length - 1].created_at > lastMsg &&
-      chats?.messages[chats?.messages?.length - 1].sender != user.id &&
-      (typeSearch != chats.messages[chats.messages.length - 1].roomId || !open);
+    // Último mensaje seguro
+    const latestMessage = messages[messages.length - 1];
 
-    // const abrir =
-    //   lastMsg &&
-    //   chats?.messages?.length > lastMsg &&
-    //   chats?.messages[chats?.messages?.length - 1].sender != user.id &&
-    //   (typeSearch != chats.messages[chats.messages.length - 1].roomId || !open);
+    const abrir =
+      !!lastMsg &&
+      !!latestMessage &&
+      latestMessage.created_at > lastMsg &&
+      latestMessage.sender !== user.id &&
+      (typeSearch !== latestMessage.roomId || !open);
 
     if (abrir) {
-      console.log(
-        "abrir chatnbotif",
-        lastMsg,
-        chats?.messages?.length,
-        user?.id,
-        open
-      );
       cM = {
         ...cM,
         [roomGral]: {
-          msg: chats?.messages[chats?.messages?.length - 1],
+          msg: latestMessage,
           count: (cM[roomGral]?.count ?? 0) + 1,
         },
       };
-      newMsg({
-        data: chats?.messages[chats?.messages?.length - 1],
-        type: "newMsg",
-      });
+      newMsg({ data: latestMessage, type: "newMsg" });
       if (notifAudio) soundBell.play();
       showToast(
         <>
           <div>
-            {chats?.messages[chats?.messages?.length - 1].roomId == roomGral &&
-              "(Grupo Admin) "}
+            {latestMessage.roomId == roomGral && "(Grupo Admin) "}
             {
-              usersChat?.find(
-                (e: any) =>
-                  e.id === chats?.messages[chats.messages.length - 1].sender
-              )?.name
+              usersChat?.find((e: any) => e.id === latestMessage.sender)?.name
             }{" "}
             envió un mensaje:
           </div>
@@ -139,7 +132,7 @@ export default function ChatInstantDb() {
               overflow: "hidden",
             }}
           >
-            {chats?.messages[chats.messages.length - 1].text}
+            {latestMessage.text}
           </div>
         </>,
         "info"
@@ -147,9 +140,7 @@ export default function ChatInstantDb() {
     }
 
     setCountMsg(cM);
-    setLastMsg(chats.messages[chats.messages.length - 1].created_at);
-    // setLastMsg(chats?.messages?.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setLastMsg(latestMessage?.created_at ?? null);
   }, [chats?.messages]);
 
   useEffect(() => {
@@ -193,6 +184,20 @@ export default function ChatInstantDb() {
     setCurrentRoom(rooms?.find((e: any) => e.value == typeSearch));
   }, [rooms, typeSearch]);
 
+  const handleOpenHeaderProfile = () => {
+    if (typeSearch === roomGral || typeSearch.indexOf("chatBot") !== -1) return;
+    const userId = currentRoom?.value?.replace("--", "").replace(user.id, "");
+    if (userId) {
+      setSelectedUserId(userId);
+      setProfileModalOpen(true);
+    }
+  };
+
+  const handleCloseProfile = () => {
+    setProfileModalOpen(false);
+    setSelectedUserId(null);
+  };
+
   return (
     <>
       <div
@@ -217,7 +222,12 @@ export default function ChatInstantDb() {
               checked={notifAudio}
             />
           </div>
-          <div>
+          <div
+            onClick={handleOpenHeaderProfile}
+            style={{
+              cursor: typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1 ? "pointer" : "default"
+            }}
+          >
             <div>
               {typeSearch == roomGral ? (
                 <IconGroup size={40} />
@@ -242,11 +252,11 @@ export default function ChatInstantDb() {
                   }
                   src={getUrlImages(
                     "/ADM-" +
-                      currentRoom?.value
-                        .replace("--", "")
-                        .replace(user.id, "") +
-                      ".webp?d=" +
-                      new Date().getTime()
+                    currentRoom?.value
+                      .replace("--", "")
+                      .replace(user.id, "") +
+                    ".webp?d=" +
+                    new Date().getTime()
                   )}
                   w={40}
                   h={40}
@@ -334,13 +344,31 @@ export default function ChatInstantDb() {
           </div>
         </div>
       </div>
+
+      {/* Modal de perfil de usuario */}
+      {selectedUserId && (
+        <ProfileModal
+          open={profileModalOpen}
+          onClose={handleCloseProfile}
+          dataID={selectedUserId}
+          type="admin"
+          title="Perfil de personal"
+          titleBack="Volver al chat"
+          del={false}
+          edit={false}
+          zIndex={10001}
+        />
+      )}
     </>
   );
 }
 
 const RenderText = ({ msg, userId, rol }: any) => {
   return (
-    <div className="truncate" style={{ display: "flex", gap: "4px" }}>
+    <div
+      className="truncate"
+      style={{ display: "flex", gap: "4px", alignItems: "center", minWidth: 0 }}
+    >
       {msg?.sender === userId && !msg?.received_at && <IconCheck size={12} />}
       {msg?.sender === userId && msg?.received_at && !msg?.read_at && (
         <IconReadMessage size={12} />
@@ -349,7 +377,18 @@ const RenderText = ({ msg, userId, rol }: any) => {
         <IconReadMessage size={12} color="var(--cPrimary)" />
       )}
       {msg?.$files?.length > 0 && <IconImage size={12} />}
-      {msg?.text ?? rol}
+      <span
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          display: "inline-block",
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        {msg?.text ?? rol}
+      </span>
     </div>
   );
 };
@@ -415,9 +454,11 @@ const ChatContactItem = ({
         <div
           className="truncate"
           style={{
-            color: "var(--cWhiteV1",
+            color: "var(--cWhiteV1)", /* corregido: cerramos el paréntesis */
             display: "flex",
             gap: "4px",
+            minWidth: 0,             /* necesario para ellipsis dentro de flex */
+            overflow: "hidden",      /* evita desbordes */
           }}
         >
           {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name ? (

@@ -8,9 +8,10 @@ type ImageModalProps = {
   onClose: () => void;
   imageUrl?: string;
   altText?: string;
+  zIndex?: number;
 }
 
-export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalProps) => {
+export const ImageModal = ({ isOpen, onClose, imageUrl, altText, zIndex = 1000 }: ImageModalProps) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalPro
       className={styles.modalOverlay}
       onClick={handleClose}
       role="presentation"
+      style={{ zIndex }}
     >
       <div 
         className={styles.modalContent}
@@ -38,9 +40,8 @@ export const ImageModal = ({ isOpen, onClose, imageUrl, altText }: ImageModalPro
       >
         <IconX
           className={styles.closeButton}
-          size={40}
+          size={32}
           onClick={handleClose}
-          circle
           style={{ backgroundColor: "transparent", padding: "0px" }}
         />
         <img 

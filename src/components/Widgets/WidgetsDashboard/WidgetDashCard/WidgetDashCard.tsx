@@ -42,7 +42,9 @@ export const WidgetDashCard = ({
     >
       <div>
         <div className={styles.title}>
-          {title}{' '}
+          <span className={styles.titleText} title={title}>
+            {title}
+          </span>
           {tooltip && (
             <Tooltip title={tooltipTitle} position={tooltipPosition} singleLine={false} minWidth={tooltipWidth || 200}>
               <span
@@ -50,8 +52,7 @@ export const WidgetDashCard = ({
                   display: 'inline-flex',
                   alignItems: 'center',
                   cursor: 'pointer',
-                  marginLeft: 5,
-                  
+                  flexShrink: 0,
                 }}
               >
                 <IconInterrogation color={tooltipColor || 'var(--cWhiteV1)'} size={18} />
@@ -64,7 +65,7 @@ export const WidgetDashCard = ({
           {data}
         </p>
       </div>
-      <div> {icon}</div>
+      <div className={styles.iconWrap}>{icon}</div>
     </div>
   );
 };

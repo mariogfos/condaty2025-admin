@@ -34,6 +34,8 @@ interface ProfileModalProps {
   edit?: boolean;
   del?: boolean;
   type?: string;
+  zIndex?: number;
+  setOnLogout?: (value: boolean) => void;
 }
 interface FormState {
   id?: string | number;
@@ -92,6 +94,8 @@ const ProfileModal = ({
   edit = true,
   del = true,
   type,
+  zIndex,
+  setOnLogout,
 }: ProfileModalProps) => {
   const { user, getUser, showToast, userCan, logout } = useAuth();
   const { execute } = useAxios();
@@ -103,7 +107,7 @@ const ProfileModal = ({
   const [openDel, setOpenDel] = useState(false);
   const client = user?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id
-  )[0];
+  )?.[0];
   const getIconType = () => {
     if (type === "admin") {
       return <IconAdmin color={"var(--cSuccess)"} size={16} />;
@@ -253,7 +257,7 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-
+        zIndex={zIndex}
       >
         <div className={styles.ProfileModal}>
           <section>
@@ -324,6 +328,9 @@ const ProfileModal = ({
               <div>
                 <div>
                   <Avatar
+                    expandable={true}
+                    expandableZIndex={10002}
+                    expandableIcon={false}
                     hasImage={1}
                     src={getUrlImages(urlImages)}
                     name={getFullName(data?.data[0])}
@@ -341,9 +348,8 @@ const ProfileModal = ({
                 <div>
                   {IconType}
                   {data?.data[0]?.dpto?.[0]?.nro && type === 'owner'
-                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
-                        data?.data[0]?.dpto?.[0]?.nro || '-/-'
-                      }`
+                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${data?.data[0]?.dpto?.[0]?.nro || '-/-'
+                    }`
                     : profileRole}
                 </div>
                 <div>
@@ -406,7 +412,7 @@ const ProfileModal = ({
               <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
             </WidgetBase>
 
-            {user.id === data?.data[0]?.id && (
+            {user?.id === data?.data[0]?.id && (
               <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
                 <div style={{ marginTop: 10 }} className="bottomLine" />
 
@@ -459,24 +465,27 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          <div style={{display: 'flex', justifyContent: 'flex-start'}}>
-            <Button
-              onClick={() => {
-                logout();
-              }}
-              style={{
-                backgroundColor: 'transparent',
-                color: 'var(--cError)',
-                border: 'none',
-                padding: '0px 0px',
-                width: 'auto',
-                minWidth: 'auto',
-                textDecorationLine: 'underline',
-              }}
-            >
-              Cerrar Sesión
-            </Button>
-          </div>
+          {user?.id === data?.data[0]?.id && setOnLogout && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <Button
+                onClick={() => {
+                  onClose();
+                  setOnLogout(true);
+                }}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--cError)',
+                  border: 'none',
+                  padding: '0px 0px',
+                  width: 'auto',
+                  minWidth: 'auto',
+                  textDecorationLine: 'underline',
+                }}
+              >
+                Cerrar Sesión
+              </Button>
+            </div>
+          )}
         </div>
         {openAuthModal && (
           <Authentication
