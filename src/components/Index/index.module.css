@@ -255,7 +255,7 @@
 
 .itemSecondaryText {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Limita a 2 líneas */
+  -webkit-line-clamp: 2; /* Limita a 2 líneas */
   -webkit-box-orient: vertical; /* Necesario para el truncado multilinea */
   overflow: hidden;
   text-overflow: ellipsis;
