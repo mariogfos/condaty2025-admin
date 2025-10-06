@@ -15,6 +15,7 @@ import { SendEmoticonType, SendMessageType } from "../chat-types";
 
 import EmojiPicker from "emoji-picker-react";
 import { Avatar } from "../../ui/Avatar/Avatar";
+import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { getDateStrMes } from "@/mk/utils/date";
 
@@ -338,9 +339,17 @@ const ChatRoom = ({
                       }}
                     >
                       {msg['$files'].length > 0 && (
-                        <a target="_blank" href={msg['$files'][0].url}>
-                          <img src={msg['$files'][0].url} width={'100%'} alt="" />
-                        </a>
+                        <Image 
+                          src={msg['$files'][0].url}
+                          alt="Imagen adjunta"
+                          w={250}
+                          expandable={true}
+                          expandableIcon={false}
+                          expandableZIndex={10002}
+                          square={true}
+                          style={{ width: '100%', height: 'auto', maxWidth: '250px' }}
+                          objectFit="cover"
+                        />
                       )}
                       {msg.text}
                     </div>
@@ -408,7 +417,15 @@ const ChatRoom = ({
         {previewURL && (
           <div className={styles.previewContainer}>
             <IconX color="red" onClick={() => cancelUpload()} />
-            <img src={previewURL} alt="Preview" />
+            <Image 
+              src={previewURL} 
+              alt="Vista previa"
+              w={200}
+              h={200}
+              square={true}
+              style={{ width: '100%', height: 'auto' }}
+              objectFit="contain"
+            />
           </div>
         )}
       </div>
