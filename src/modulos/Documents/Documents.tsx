@@ -19,8 +19,8 @@ const Documents = () => {
 
   const mod = {
     modulo: "documents",
-    singular: "Documento",
-    plural: "Documentos",
+    singular: "documento",
+    plural: "documentos",
     permiso: "",
     titleAdd: "Nuevo",
     extraData: true,

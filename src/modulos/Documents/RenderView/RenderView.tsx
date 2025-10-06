@@ -90,11 +90,11 @@ const RenderView = (props: {
                 case "docx":
                 case "xls":
                 case "xlsx":
-                  return <IconDOC color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                  return <IconDOC color={"var(--cBlack)"}  />;
                 case "webp":
                   return <IconJPG color={"var(--cBlack)"} viewBox="0 0 18 24" />;
                 default:
-                  return <IconDOC color={"var(--cBlack)"} viewBox="0 0 18 24" />;
+                  return <IconDOC color={"var(--cBlack)"} />;
               }
             })()}
             
