@@ -160,6 +160,7 @@ const ChatRoom = ({
   const [showInputEmojiPicker, setShowInputEmojiPicker] = useState(false);
   const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const inputEmojiPickerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleEmojiClick = (msg: any) => {
     if (!msg) {
@@ -228,8 +229,8 @@ const ChatRoom = ({
   };
 
   const handleInputEmojiSelect = (emojiObject: any) => {
-    setNewMessage(newMessage + emojiObject.emoji);
-    setShowInputEmojiPicker(false);
+    setNewMessage((prev) => prev + emojiObject.emoji);
+    textareaRef.current?.focus();
   };
 
   // Cerrar el picker al hacer clic fuera
@@ -431,7 +432,7 @@ const ChatRoom = ({
       </div>
 
       {/* Barra inferior de input y botones: queda visible siempre */}
-      <div className={styles.chatInputContainer}>
+      <div className={styles.chatInputContainer} aria-busy={isUploading || sending}>
         <input
           ref={fileInputRef}
           type="file"
@@ -448,7 +449,18 @@ const ChatRoom = ({
           onBlur={typing.inputProps.onBlur}
           onKeyDown={typing.inputProps.onKeyDown}
           onKeyUp={onKeyUp}
+          ref={textareaRef}
         />
+
+        {/* Overlay de loading mientras se envía o carga */}
+        {(isUploading || sending) && (
+          <div className={styles.loadingOverlay}>
+            <div className={styles.loader} />
+            <span className={styles.loadingText}>
+              {isUploading ? "Subiendo imagen..." : "Enviando..."}
+            </span>
+          </div>
+        )}
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
@@ -468,9 +480,18 @@ const ChatRoom = ({
         <div className={styles.chatButton}>
           <IconEmoji
             color="var(--cBlackV1)"
-            onClick={() => setShowInputEmojiPicker(!showInputEmojiPicker)}
+            onClick={() => {
+              if (!sending && !isUploading) {
+                setShowInputEmojiPicker(!showInputEmojiPicker);
+              }
+            }}
             circle={true}
-            style={{ padding: "4px", backgroundColor: "var(--cWhiteV1)" }}
+            style={{
+              padding: "4px",
+              backgroundColor: "var(--cWhiteV1)",
+              opacity: (isUploading || sending) ? 0.5 : 1,
+              pointerEvents: (isUploading || sending) ? "none" : "auto",
+            }}
             reverse={true}
             title="Emojis"
           />
@@ -478,9 +499,18 @@ const ChatRoom = ({
           {roomId.indexOf("chatBot") === -1 && (
             <IconImage
               color="var(--cBlackV1)"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (!sending && !isUploading) {
+                  fileInputRef.current?.click();
+                }
+              }}
               circle={true}
-              style={{ padding: "4px", backgroundColor: "var(--cWhiteV1)" }}
+              style={{
+                padding: "4px",
+                backgroundColor: "var(--cWhiteV1)",
+                opacity: (isUploading || sending) ? 0.5 : 1,
+                pointerEvents: (isUploading || sending) ? "none" : "auto",
+              }}
               title="Adjuntar imagen"
             />
           )}
@@ -488,11 +518,15 @@ const ChatRoom = ({
           <IconSend
             color="var(--cBlackV1)"
             onClick={() => {
-              if (!sending) handleSendMessage();
+              if (!sending && !isUploading) handleSendMessage();
             }}
             circle={true}
             reverse={true}
-            style={{ padding: "4px", backgroundColor: "var(--cAccent)" }}
+            style={{
+              padding: "4px",
+              backgroundColor: "var(--cAccent)",
+              opacity: (isUploading || sending) ? 0.65 : 1,
+            }}
             title="Enviar mensaje"
           />
         </div>

@@ -67,7 +67,7 @@
 .messageUser,
 .messageBubble,
 .chatInput {
-  font-family: var(--fPrimary);
+  font-family: var(--fPrimary), "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Segoe UI Symbol", system-ui, sans-serif;
 }
 
 .messageUser {
@@ -178,6 +178,41 @@
   background-color: var(--cWhiteV2);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
+}
+
+/* Overlay de loading sobre el input */
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--cWhiteV1);
+  border-top-color: var(--cAccent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  margin-top: 8px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  font-weight: var(--bRegular);
 }
 
 .chatInput {

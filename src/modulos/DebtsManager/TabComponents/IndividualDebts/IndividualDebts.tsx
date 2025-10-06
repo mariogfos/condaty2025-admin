@@ -347,10 +347,10 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
       rules: [''],
       api: '',
       label: 'Categoría',
-      list: {
+      list: false/* {
         onRender: renderCategoryCell,
         order: 2,
-      },
+      }, */,
     },
     subcategory: {
       rules: [''],
