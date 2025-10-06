@@ -5,15 +5,15 @@ import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
 import { WidgetDashCard } from "../Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
+import { getDateTimeStrMes } from "@/mk/utils/date";
 import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
-import WidgetCalculatePenalty from "../Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
 import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages } from "@/mk/utils/string";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import AlertsRender from "@/modulos/Alerts/RenderView/RenderView";
 import {
   IconBriefCaseMoney,
   IconEgresos,
@@ -27,9 +27,7 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import EmptyData from "@/components/NoData/EmptyData";
 
 const paramsInitial = {
   fullType: "L",
@@ -44,6 +42,8 @@ const HomePage = () => {
   const [dataPayment, setDataPayment]: any = useState({});
   const [openReservation, setOpenReservation] = useState(false);
   const [selectedReservationId, setSelectedReservationId]: any = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [selectedAlert, setSelectedAlert]: any = useState(null);
   const [openPreRegistroModal, setOpenPreRegistroModal] = useState(false);
 
   useEffect(() => {
@@ -113,7 +113,13 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div className={`${styles.itemRow}`} onClick={() => {
+              // if (userCan("payments", "C") == false) {
+              //   return showToast("No tiene permisos para aceptar pagos", "error");
+              // }
+              setDataPayment(data);
+              setOpenPayment(true);
+            }}>
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -139,13 +145,6 @@ const HomePage = () => {
         <div className={styles.itemActionContainer}>
           <button
             className={styles.itemActionButton}
-            onClick={() => {
-              // if (userCan("payments", "C") == false) {
-              //   return showToast("No tiene permisos para aceptar pagos", "error");
-              // }
-              setDataPayment(data);
-              setOpenPayment(true);
-            }}
           >
             Revisar
           </button>
@@ -166,7 +165,10 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div className={`${styles.itemRow}`} onClick={() => {
+              setSelectedReservationId(data.id);
+              setOpenReservation(true);
+            }}>
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -192,10 +194,6 @@ const HomePage = () => {
         <div className={styles.itemActionContainer}>
           <button
             className={styles.itemActionButton}
-            onClick={() => {
-              setSelectedReservationId(data.id);
-              setOpenReservation(true);
-            }}
           >
             Revisar
           </button>
@@ -212,7 +210,16 @@ const HomePage = () => {
       : ownerData?.email || "";
 
     return (
-      <div className={styles.itemRow}>
+      <div className={styles.itemRow} onClick={() => {
+              if (userCan("owners", "C") == false) {
+                return showToast(
+                  "No tiene permisos para aceptar cuentas pre-registradas",
+                  "error"
+                );
+              }
+              setDataOwner(ownerData);
+              setOpenActive(true);
+            }}>
         <div className={styles.itemImageContainer}>
           <Avatar
             hasImage={ownerData.has_image}
@@ -234,16 +241,6 @@ const HomePage = () => {
         <div className={styles.itemActionContainer}>
           <button
             className={styles.itemActionButton}
-            onClick={() => {
-              if (userCan("owners", "C") == false) {
-                return showToast(
-                  "No tiene permisos para aceptar cuentas pre-registradas",
-                  "error"
-                );
-              }
-              setDataOwner(ownerData);
-              setOpenActive(true);
-            }}
           >
             Revisar
           </button>
@@ -293,7 +290,7 @@ const HomePage = () => {
 
     // Determinar si podemos intentar cargar una imagen de avatar
     // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
-    const canDisplayAvatarImage = dataSource && dataSource.id;
+  const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
 
     if (canDisplayAvatarImage) {
@@ -309,7 +306,10 @@ const HomePage = () => {
     }
 
     return (
-      <div className={styles.itemRowAlert}>
+      <div className={styles.itemRow} onClick={() => {
+        setSelectedAlert(data);
+        setOpenAlert(true);
+      }}>
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
@@ -351,7 +351,7 @@ const HomePage = () => {
     return (
       <div className={styles.preRegistroListContainer}>
         {dashboard?.data?.porActivar?.map((item: any, index: number) => (
-          <div key={index} className={styles.preRegistroItem}>
+          <div key={item?.id ?? index} className={styles.preRegistroItem}>
             {registroList(item)}
           </div>
         ))}
@@ -654,6 +654,17 @@ const HomePage = () => {
         item={dataOwner}
         reLoad={reLoad}
       />
+      {openAlert && (
+        <AlertsRender
+          open={openAlert}
+          onClose={() => {
+            setOpenAlert(false);
+            setSelectedAlert(null);
+          }}
+          item={selectedAlert}
+          reLoad={() => reLoad()}
+        />
+      )}
     </>
   );
 };
