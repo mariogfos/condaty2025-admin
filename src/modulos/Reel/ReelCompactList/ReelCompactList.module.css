@@ -89,7 +89,7 @@
   color: white;
   padding: var(--spXs) var(--spS);
   border-radius: var(--bRadiusS);
-  font-size: var(--sS);
+  font-size: var(--sM);
   font-weight: var(--bMedium);
   z-index: 10;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -113,7 +113,7 @@
 }
 
 .newsDescription {
-  font-size: var(--sS);
+  font-size: var(--sM);
   color: var(--cWhiteV1);
   line-height: 1.65;
   margin: 0;
@@ -147,16 +147,16 @@
 .userName {
   font-weight: var(--bSemibold);
   color: var(--cWhite);
-  font-size: 13px;
+  font-size: var(--sM);
 }
 
 .userRole {
-  font-size: 11px;
+  font-size: var(--sM);
   color: var(--cWhiteV1);
 }
 
 .postDate {
-  font-size: 11px;
+  font-size: var(--sM);
   color: var(--cWhiteV1);
   white-space: normal;
   margin-left: var(--spS);
@@ -184,7 +184,7 @@
 }
 
 .contentDescription {
-  font-size: 13px;
+  font-size: var(--sM);
   color: var(--cWhite);
   line-height: 1.5;
   margin: 0;
@@ -223,7 +223,7 @@
   align-items: center;
   gap: 4px;
   color: var(--cWhiteV1);
-  font-size: 13px;
+  font-size: var(--sL);
   font-weight: var(--bMedium);
 }
 
@@ -335,7 +335,7 @@
   }
 
   .newsDescription {
-    font-size: var(--sS);
+    font-size: var(--sM);
   }
 
   .contentHeader {
@@ -352,7 +352,7 @@
   }
 
   .contentDescription {
-    font-size: var(--sS);
+    font-size: var(--sM);
   }
 
   .contentFooter {
@@ -365,7 +365,7 @@
   }
 
   .statDisplay {
-    font-size: var(--sS);
+    font-size: var(--sM);
   }
 
   .statDisplay svg {
@@ -374,7 +374,7 @@
   }
 
   .actionButton {
-    font-size: var(--sS);
+    font-size: var(--sM);
     padding: var(--spXs);
   }
 

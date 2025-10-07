@@ -22,6 +22,7 @@ import { getDateStrMes } from "@/mk/utils/date";
 interface SelectedFile {
   file: File;
   previewURL: string;
+  id: string;
 }
 
 type ChatRoomPropsType = {
@@ -57,35 +58,50 @@ const ChatRoom = ({
   useEffect(() => {
     setShowEmojiPicker(null);
     setNewMessage("");
-    if (roomId.indexOf("chatBot") > -1 && selectedFile) cancelUpload();
+    if (roomId.indexOf("chatBot") > -1 && selectedFiles.length > 0) cancelUpload();
   }, [roomId]);
 
   const cancelUpload = () => {
-    if (selectedFile) {
-      URL.revokeObjectURL(selectedFile.previewURL);
-      setSelectedFile(null);
-      fileInputRef.current?.value && (fileInputRef.current.value = "");
-      setIsUploading(false);
+    selectedFiles.forEach(file => {
+      URL.revokeObjectURL(file.previewURL);
+    });
+    setSelectedFiles([]);
+    fileInputRef.current?.value && (fileInputRef.current.value = "");
+    setIsUploading(false);
+  };
+
+  const removeFile = (id: string) => {
+    const fileToRemove = selectedFiles.find(f => f.id === id);
+    if (fileToRemove) {
+      URL.revokeObjectURL(fileToRemove.previewURL);
+      setSelectedFiles(prev => prev.filter(f => f.id !== id));
     }
   };
 
   const handleSendMessage = async () => {
     const messageText = newMessage;
     const hasText = messageText.trim().length > 0;
-    if (!hasText && !selectedFile) return;
+    if (!hasText && selectedFiles.length === 0) return;
 
     setNewMessage("");
     typing.inputProps.onBlur();
 
     let msgId = 0;
-    if (selectedFile) {
+    if (selectedFiles.length > 0) {
       setIsUploading(true);
-      msgId = await sendMessage(
-        messageText,
-        roomId,
-        user?.id,
-        selectedFile.file
-      );
+      // Enviar cada imagen como un mensaje separado
+      for (const selectedFile of selectedFiles) {
+        msgId = await sendMessage(
+          selectedFiles.length === 1 ? messageText : "",
+          roomId,
+          user?.id,
+          selectedFile.file
+        );
+      }
+      // Enviar el texto después de las imágenes si hay múltiples imágenes
+      if (selectedFiles.length > 1 && hasText) {
+        msgId = await sendMessage(messageText, roomId, user?.id);
+      }
       cancelUpload();
     } else {
       msgId = await sendMessage(messageText, roomId, user?.id);
@@ -137,22 +153,66 @@ const ChatRoom = ({
   let renderDate = false;
   let lastSender = "";
 
-  const [selectedFile, setSelectedFile] = React.useState<SelectedFile | null>(
-    null
-  );
+  const [selectedFiles, setSelectedFiles] = React.useState<SelectedFile[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const { previewURL } = selectedFile || {};
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (roomId.indexOf("chatBot") > -1) {
       e.target.value = "";
       return;
     }
-    const file = e.target.files?.[0];
-    if (file) {
-      const previewURL = URL.createObjectURL(file);
-      setSelectedFile({ file, previewURL });
+    const files = e.target.files;
+    if (files) {
+      const newFiles: SelectedFile[] = Array.from(files).map(file => ({
+        file,
+        previewURL: URL.createObjectURL(file),
+        id: `${Date.now()}-${Math.random()}`
+      }));
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  // Drag and Drop handlers
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (roomId.indexOf("chatBot") === -1) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (roomId.indexOf("chatBot") > -1) {
+      return;
+    }
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+      const newFiles: SelectedFile[] = imageFiles.map(file => ({
+        file,
+        previewURL: URL.createObjectURL(file),
+        id: `${Date.now()}-${Math.random()}`
+      }));
+      setSelectedFiles(prev => [...prev, ...newFiles]);
     }
   };
 
@@ -221,7 +281,7 @@ const ChatRoom = ({
       if (e.shiftKey) {
         setNewMessage(newMessage + '\n');
       } else {
-        if (newMessage.trim().length > 0 || selectedFile) {
+        if (newMessage.trim().length > 0 || selectedFiles.length > 0) {
           handleSendMessage();
         }
       }
@@ -251,7 +311,23 @@ const ChatRoom = ({
   }, [showInputEmojiPicker]);
 
   return (
-    <div className={styles.chatRoomContainer}>
+    <div 
+      className={styles.chatRoomContainer}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Overlay de drag and drop */}
+      {isDragging && (
+        <div className={styles.dragOverlay}>
+          <div className={styles.dragContent}>
+            <IconImage size={64} color="var(--cPrimary)" />
+            <p>Suelta la imagen aquí</p>
+          </div>
+        </div>
+      )}
+      
       {/* Área de mensajes con overlay relativo */}
       <div className={styles.messagesArea}>
         <div className={styles.chatMsgContainer} ref={chatRef}>
@@ -408,18 +484,29 @@ const ChatRoom = ({
             );
           })}
         </div>
-        {previewURL && (
+        {selectedFiles.length > 0 && (
           <div className={styles.previewContainer}>
-            <IconX color="red" onClick={() => cancelUpload()} />
-            <Image 
-              src={previewURL} 
-              alt="Vista previa"
-              w={200}
-              h={200}
-              square={true}
-              style={{ width: '100%', height: 'auto' }}
-              objectFit="contain"
-            />
+            <div className={styles.previewGrid}>
+              {selectedFiles.map((file) => (
+                <div key={file.id} className={styles.previewItem}>
+                  <IconX 
+                    color="red" 
+                    onClick={() => removeFile(file.id)}
+                    className={styles.removeIcon}
+                    size={20}
+                  />
+                  <Image 
+                    src={file.previewURL} 
+                    alt="Vista previa"
+                    w={150}
+                    h={150}
+                    square={true}
+                    style={{ width: '100%', height: 'auto' }}
+                    objectFit="cover"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -430,6 +517,7 @@ const ChatRoom = ({
           ref={fileInputRef}
           type="file"
           accept="image/*"
+          multiple
           onChange={handleFileSelect}
           style={{ display: 'none' }}
         />

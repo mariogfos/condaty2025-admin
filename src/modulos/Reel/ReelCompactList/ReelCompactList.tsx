@@ -76,8 +76,8 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   hasImage={1}
                   name={getFullName(item.user)}
                   src={getUrlImages(`/ADM-${item.user?.id}.webp?d=${item.user?.updated_at}`)}
-                  w={32}
-                  h={32}
+                  w={40}
+                  h={40}
                 />
                 <div className={styles.userDetails}>
                   <span className={styles.userName}>

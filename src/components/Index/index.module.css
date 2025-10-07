@@ -205,12 +205,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0;
-}
-.itemRowAlert {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
+  cursor: pointer;
+
 }
 
 .itemImageContainer {
@@ -259,7 +255,7 @@
 
 .itemSecondaryText {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Limita a 2 líneas */
+  -webkit-line-clamp: 2; /* Limita a 2 líneas */
   -webkit-box-orient: vertical; /* Necesario para el truncado multilinea */
   overflow: hidden;
   text-overflow: ellipsis;
