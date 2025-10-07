@@ -1337,7 +1337,7 @@ const useCrud = ({
       emptyContent = props.onRenderEmpty();
     } else if (
       (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && searchs.searchBy)(searchs && searchs.searchBy)
+      (searchs && searchs.searchBy)
     ) {
       emptyContent = (
         <EmptyData
