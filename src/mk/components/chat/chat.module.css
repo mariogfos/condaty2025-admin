@@ -29,8 +29,10 @@
   box-sizing: border-box;
   overflow: hidden;
   z-index: 10000;
+  pointer-events: none;
   &.close {
     right: 0px;
+    pointer-events: auto;
   }
 }
 .chatHeader {
