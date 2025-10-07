@@ -117,7 +117,7 @@
   --cHoverBlack: #212121cc;
   --cHoverBlackv2: #33353633;
   --cHoverUnread: #18f6620f;
-
+  --cHoverModal: rgba(0, 0, 0, 0.75); /* 75% de opacidad para Modales */
   /* Paleta de colores Random */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;

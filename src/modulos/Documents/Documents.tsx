@@ -19,8 +19,8 @@ const Documents = () => {
 
   const mod = {
     modulo: "documents",
-    singular: "Documento",
-    plural: "Documentos",
+    singular: "documento",
+    plural: "documentos",
     permiso: "",
     titleAdd: "Nuevo",
     extraData: true,
@@ -56,13 +56,24 @@ const Documents = () => {
         api: "ae",
         label: "Nombre del documento",
         form: { type: "text" },
-        list: {},
+        list: { width: "280" },
       },
       ext: {
         rules: [],
         api: "ae",
         label: "Extensión",
         list: false,
+      },
+      
+      for_to: {
+        rules: ["required"],
+        api: "ae*",
+        label: "Visible para",
+        form: { type: "select", options: lOptions },
+        list: { width: "280" },
+        filter: {
+          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
+        },
       },
       descrip: {
         rules: ["required"],
@@ -71,16 +82,6 @@ const Documents = () => {
         form: { type: "textArea" },
         list: {},
       },
-      for_to: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Visible para",
-        form: { type: "select", options: lOptions },
-        list: {},
-        filter: {
-          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
-        },
-      },
       doc: {
         rules: ["required"],
         api: "ae*",
@@ -88,6 +89,7 @@ const Documents = () => {
         form: {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
+          maxSize: 30,
           style: { width: "100%" },
         },
         onRender: ({ item }: any) => {
