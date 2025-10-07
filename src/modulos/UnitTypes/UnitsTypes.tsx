@@ -2,9 +2,10 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./UnitsType.module.css";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const mod = {
   modulo: "types",
@@ -112,6 +113,12 @@ const UnitsType = () => {
         onRender: renderExtraFields,
       },
     };
+  }, []);
+
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Tipo de unidades' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { userCan, List } = useCrud({

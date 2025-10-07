@@ -20,6 +20,7 @@ type PropsType = {
   singleLine?: boolean;
   maxWidth?: string | number;
   minWidth?: string | number;
+  fullWidth?: boolean;
 };
 
 const Tooltip = ({
@@ -31,10 +32,11 @@ const Tooltip = ({
   singleLine = true,
   maxWidth,
   minWidth,
+  fullWidth,
 }: PropsType) => {
   if (!title) return children;
   return (
-    <div className={`${styles.container} ${className || ""}`} style={style}>
+    <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ""} ${className || ""}`} style={style}>
       <span
         className={`${styles.tooltip} ${styles[position]}`}
         style={{
