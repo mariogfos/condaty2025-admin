@@ -22,6 +22,7 @@
 /build
 .env*
 .env.development
+.env.production
 # misc
 .DS_Store
 *.pem
@@ -45,6 +46,7 @@ next-env.d.ts
 .env.development
 package-lock.json
 .env.development
+.env.production
 
 WARP.md
 
