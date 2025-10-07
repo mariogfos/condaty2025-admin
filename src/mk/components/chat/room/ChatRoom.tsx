@@ -374,7 +374,7 @@ const ChatRoom = ({
                         onReactionClick={handleEmojiSelect}
                         onEmojiClick={handleEmojiSelect}
                         height={320}
-                        emojiStyle={EmojiStyle.NATIVE}
+                        emojiStyle={EmojiStyle.APPLE}
                         style={{
                           backgroundColor: 'var(--cWhite)',
                           border: '1px solid #E8E8E8',
