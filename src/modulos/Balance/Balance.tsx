@@ -232,17 +232,17 @@ const BalanceGeneral: React.FC = () => {
     let totalEgresos = 0;
     let totalIngresos = 0;
     const saldoInicial = Number(finanzas?.data?.saldoInicial) || 0;
-    finanzas?.data?.egresos?.forEach((subcategoria: any) => {
+    finanzas?.data?.egresosHist?.forEach((subcategoria: any) => {
       totalEgresos += Number(subcategoria.amount) || 0;
     });
-    finanzas?.data?.ingresos?.forEach((subcategoria: any) => {
+    finanzas?.data?.ingresosHist?.forEach((subcategoria: any) => {
       totalIngresos += Number(subcategoria.amount) || 0;
     });
     const saldoFinal = totalIngresos - totalEgresos + saldoInicial;
     return { totalIngresos, totalEgresos, saldoInicial, saldoFinal };
   }, [
-    finanzas?.data?.ingresos,
-    finanzas?.data?.egresos,
+    finanzas?.data?.ingresosHist,
+    finanzas?.data?.egresosHist,
 
     finanzas?.data?.saldoInicial,
   ]);
@@ -321,7 +321,7 @@ const BalanceGeneral: React.FC = () => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.ingresos ?? 0);
+      map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
     });
     return Array.from(map.values());
   }, [finanzas?.data?.ingresosHist]);
@@ -331,7 +331,7 @@ const BalanceGeneral: React.FC = () => {
       if (!map.has(item.categ_id)) {
         map.set(item.categ_id, { name: item.categoria, total: 0 });
       }
-      map.get(item.categ_id).total += parseFloat(item.egresos ?? 0);
+      map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
     });
     return Array.from(map.values());
   }, [finanzas?.data?.egresosHist]);
@@ -392,12 +392,12 @@ const BalanceGeneral: React.FC = () => {
         .reduce((acc: any[], item: any) => {
           let found = acc.find((a) => a.id === item.categ_id);
           if (found) {
-            found.total += parseFloat(item.ingresos ?? 0);
+            found.total += parseFloat(item.amount ?? 0);
           } else {
             acc.push({
               id: item.categ_id,
               name: item.categoria,
-              total: parseFloat(item.ingresos ?? 0),
+              total: parseFloat(item.amount ?? 0),
             });
           }
           return acc;
@@ -415,12 +415,12 @@ const BalanceGeneral: React.FC = () => {
         .reduce((acc: any[], item: any) => {
           let found = acc.find((a) => a.id === item.categ_id);
           if (found) {
-            found.total += parseFloat(item.egresos ?? 0);
+            found.total += parseFloat(item.amount ?? 0);
           } else {
             acc.push({
               id: item.categ_id,
               name: item.categoria,
-              total: parseFloat(item.egresos ?? 0),
+              total: parseFloat(item.amount ?? 0),
             });
           }
           return acc;
@@ -433,8 +433,8 @@ const BalanceGeneral: React.FC = () => {
   if (loadingLocal || !loaded) {
     ingresosContent = <LoadingScreen />;
   } else if (
-    !finanzas?.data?.ingresos ||
-    finanzas?.data?.ingresos?.length === 0
+    !finanzas?.data?.ingresosHist ||
+    finanzas?.data?.ingresosHist?.length === 0
   ) {
     ingresosContent = (
       <EmptyData
@@ -537,7 +537,7 @@ const BalanceGeneral: React.FC = () => {
           title="Ingresos"
           title2="Total"
           categorias={finanzas?.data?.categI}
-          subcategorias={finanzas?.data?.ingresos}
+          subcategorias={finanzas?.data?.ingresosHist}
           anual={
             formStateFilter?.filter_date === "y" ||
             formStateFilter?.filter_date === "ly" ||
@@ -554,8 +554,8 @@ const BalanceGeneral: React.FC = () => {
   if (loadingLocal || !loaded) {
     egresosContent = <LoadingScreen />;
   } else if (
-    !finanzas?.data?.egresos ||
-    finanzas?.data?.egresos?.length === 0
+    !finanzas?.data?.egresosHist ||
+    finanzas?.data?.egresosHist?.length === 0
   ) {
     egresosContent = (
       <EmptyData
@@ -658,7 +658,7 @@ const BalanceGeneral: React.FC = () => {
           title="Egresos"
           title2="Total"
           categorias={finanzas?.data?.categE}
-          subcategorias={finanzas?.data?.egresos}
+          subcategorias={finanzas?.data?.egresosHist}
           anual={
             formStateFilter?.filter_date === "y" ||
             formStateFilter?.filter_date === "ly" ||
@@ -810,10 +810,10 @@ const BalanceGeneral: React.FC = () => {
             {formStateFilter.filter_mov === "T" && (
               <>
                 {loaded &&
-                (!finanzas?.data?.ingresos ||
-                  finanzas?.data?.ingresos?.length === 0) &&
-                (!finanzas?.data?.egresos ||
-                  finanzas?.data?.egresos?.length === 0) ? (
+                (!finanzas?.data?.ingresosHist ||
+                  finanzas?.data?.ingresosHist?.length === 0) &&
+                (!finanzas?.data?.egresosHist ||
+                  finanzas?.data?.egresosHist?.length === 0) ? (
                   <EmptyData
                     message="Gráfica y tablas financieras sin datos. verás la evolución del flujo de efectivo"
                     line2="a medida que tengas ingresos y egresos."
@@ -969,7 +969,7 @@ const BalanceGeneral: React.FC = () => {
                       title="Ingresos"
                       title2="Total"
                       categorias={finanzas?.data?.categI}
-                      subcategorias={finanzas?.data?.ingresos}
+                      subcategorias={finanzas?.data?.ingresosHist}
                       anual={
                         formStateFilter?.filter_date === "y" ||
                         formStateFilter?.filter_date === "ly" ||
@@ -984,7 +984,7 @@ const BalanceGeneral: React.FC = () => {
                       title="Egresos"
                       title2="Total"
                       categorias={finanzas?.data?.categE}
-                      subcategorias={finanzas?.data?.egresos}
+                      subcategorias={finanzas?.data?.egresosHist}
                       anual={
                         formStateFilter?.filter_date === "y" ||
                         formStateFilter?.filter_date === "ly" ||
@@ -996,8 +996,8 @@ const BalanceGeneral: React.FC = () => {
                       {`Resumen detallado de totales`}
                     </h2>
                     <TableResumenGeneral
-                      subcategoriasE={finanzas?.data?.egresos}
-                      subcategoriasI={finanzas?.data?.ingresos}
+                      subcategoriasE={finanzas?.data?.egresosHist}
+                      subcategoriasI={finanzas?.data?.ingresosHist}
                       title={"Resumen general"}
                       title2={"Total"}
                       titleTotal={"Total acumulado"}
