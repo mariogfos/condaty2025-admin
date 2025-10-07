@@ -240,7 +240,7 @@ const HomePage = () => {
               "error"
             );
           }
-          setDataOwner(ownerData);
+          setDataOwner({ ...ownerData, type_owner: data?.type });
           setOpenActive(true);
         }}
       >
