@@ -77,7 +77,6 @@ export type ModCrudType = {
   titleEdit?: string;
   titleDel?: string;
   textSaveButtom?: string;
-  textSaveButtom?: string;
 };
 
 export type TypeRenderForm = {
