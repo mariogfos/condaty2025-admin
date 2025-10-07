@@ -77,6 +77,7 @@ export type ModCrudType = {
   titleEdit?: string;
   titleDel?: string;
   textSaveButtom?: string;
+  textSaveButtom?: string;
 };
 
 export type TypeRenderForm = {
@@ -836,7 +837,6 @@ const useCrud = ({
               : "Guardar"
             : "Actualizar"
         }
-
         onSave={(e) =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)
@@ -1356,7 +1356,7 @@ const useCrud = ({
       emptyContent = props.onRenderEmpty();
     } else if (
       (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && searchs.searchBy)
+      (searchs && searchs.searchBy)(searchs && searchs.searchBy)
     ) {
       emptyContent = (
         <EmptyData
