@@ -45,7 +45,8 @@
 .widgetContents {
   width: 100%;
   display: flex;
-  flex: 1;
+  flex-grow: 1;
+  /* overflow: hidden; */
 }
 .summaryWidgetEqualHeight {
   /* height: 162px; */
@@ -206,7 +207,6 @@
   gap: 0.5rem;
   padding: 0.25rem 0;
   cursor: pointer;
-
 }
 
 .itemImageContainer {
