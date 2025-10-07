@@ -545,12 +545,6 @@ const ChatRoom = ({
             <div className={styles.previewContent}>
               {/* Vista previa grande */}
               <div className={styles.mainPreview}>
-                <IconX 
-                  color="white" 
-                  onClick={() => removeFile(selectedFiles[selectedPreviewIndex].id)}
-                  className={styles.removeMainIcon}
-                  size={24}
-                />
                 <div className={styles.imageCounter}>
                   {selectedPreviewIndex + 1} / {selectedFiles.length}
                 </div>
