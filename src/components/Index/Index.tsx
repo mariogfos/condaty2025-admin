@@ -5,15 +5,16 @@ import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
 import { WidgetDashCard } from "../Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
+import { getDateTimeStrMes } from "@/mk/utils/date";
 import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
-import WidgetCalculatePenalty from "../Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
 import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages, truncateText } from "@/mk/utils/string";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import AlertsRender from "@/modulos/Alerts/RenderView/RenderView";
+import { ALERT_LEVEL_LABELS } from "@/modulos/Alerts/alertConstants";
 import {
   IconBriefCaseMoney,
   IconEgresos,
@@ -27,9 +28,9 @@ import {
 } from "../layout/icons/IconsBiblioteca";
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import EmptyData from "@/components/NoData/EmptyData";
+import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -44,7 +45,28 @@ const HomePage = () => {
   const [dataPayment, setDataPayment]: any = useState({});
   const [openReservation, setOpenReservation] = useState(false);
   const [selectedReservationId, setSelectedReservationId]: any = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [selectedAlert, setSelectedAlert]: any = useState(null);
   const [openPreRegistroModal, setOpenPreRegistroModal] = useState(false);
+
+  // Modal de contenidos (RenderView)
+  const [openContentRender, setOpenContentRender] = useState(false);
+  const [selectedContentId, setSelectedContentId] = useState<number | null>(
+    null
+  );
+  const [selectedContentData, setSelectedContentData] = useState<any>(null);
+
+  const handleOpenContentRenderView = (id: number, data?: any) => {
+    setSelectedContentId(id);
+    setSelectedContentData(data || null);
+    setOpenContentRender(true);
+  };
+
+  const handleCloseContentRenderView = () => {
+    setOpenContentRender(false);
+    setSelectedContentId(null);
+    setSelectedContentData(null);
+  };
 
   useEffect(() => {
     setStore({
@@ -114,7 +136,16 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          // if (userCan("payments", "C") == false) {
+          //   return showToast("No tiene permisos para aceptar pagos", "error");
+          // }
+          setDataPayment(data);
+          setOpenPayment(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -138,18 +169,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-            onClick={() => {
-              // if (userCan("payments", "C") == false) {
-              //   return showToast("No tiene permisos para aceptar pagos", "error");
-              // }
-              setDataPayment(data);
-              setOpenPayment(true);
-            }}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -158,7 +178,7 @@ const HomePage = () => {
   const reservasList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `Área: ${data?.area?.title || "No especificada"}`;
+    const secondaryText = `${data?.area?.title || "No especificada"}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -167,7 +187,13 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          setSelectedReservationId(data.id);
+          setOpenReservation(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -191,15 +217,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-            onClick={() => {
-              setSelectedReservationId(data.id);
-              setOpenReservation(true);
-            }}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -213,7 +231,19 @@ const HomePage = () => {
       : ownerData?.email || "";
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          if (userCan("owners", "C") == false) {
+            return showToast(
+              "No tiene permisos para aceptar cuentas pre-registradas",
+              "error"
+            );
+          }
+          setDataOwner(ownerData);
+          setOpenActive(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           <Avatar
             hasImage={1}
@@ -280,21 +310,22 @@ const HomePage = () => {
       .toUpperCase();
 
     const secondaryText = data.descrip || "Sin descripción";
+    const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
-    let levelTextIndicator = "Nivel bajo";
+    let levelTextIndicator =
+      ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] ||
+      ALERT_LEVEL_LABELS[1];
     if (data.level === 2) {
       levelClass = styles.levelMedium;
-      levelTextIndicator = "Nivel medio";
     } else if (data.level === 3 || data.level > 2) {
       // Mayor que 2 también es alto
       levelClass = styles.levelHigh;
-      levelTextIndicator = "Nivel alto";
     }
 
     // Determinar si podemos intentar cargar una imagen de avatar
     // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
-    const canDisplayAvatarImage = dataSource && dataSource.id;
+    const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
 
     if (canDisplayAvatarImage) {
@@ -310,7 +341,13 @@ const HomePage = () => {
     }
 
     return (
-      <div className={styles.itemRowAlert}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          setSelectedAlert(data);
+          setOpenAlert(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
@@ -332,7 +369,9 @@ const HomePage = () => {
         </div>
         <div className={styles.itemTextInfo}>
           <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText}>{secondaryText}</span>
+          <span className={styles.itemSecondaryText} title={secondaryText}>
+            {truncatedSecondaryText}
+          </span>
           <span className={styles.itemDateText}>
             {getDateTimeStrMes(data.created_at)}
           </span>
@@ -352,7 +391,7 @@ const HomePage = () => {
     return (
       <div className={styles.preRegistroListContainer}>
         {dashboard?.data?.porActivar?.map((item: any, index: number) => (
-          <div key={index} className={styles.preRegistroItem}>
+          <div key={item?.id ?? index} className={styles.preRegistroItem}>
             {registroList(item)}
           </div>
         ))}
@@ -622,7 +661,9 @@ const HomePage = () => {
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume />
+              <WidgetContentsResume
+                onOpenRenderView={handleOpenContentRenderView}
+              />
             </div>
           </div>
         </div>

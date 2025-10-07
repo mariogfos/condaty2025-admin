@@ -41,21 +41,35 @@ export const WidgetDashCard = ({
       style={style}
     >
       <div>
-        <div className={styles.title}>
+        <div
+          className={styles.title}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        >
           <span className={styles.titleText} title={title}>
             {title}
           </span>
           {tooltip && (
-            <Tooltip title={tooltipTitle} position={tooltipPosition} singleLine={false} minWidth={tooltipWidth || 200}>
+            <Tooltip
+              title={tooltipTitle}
+              position={tooltipPosition}
+              singleLine={false}
+              minWidth={tooltipWidth || 200}
+              style={{ display: 'inline-flex', alignItems: 'center' }}
+            >
               <span
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
                   flexShrink: 0,
+                  lineHeight: 1,
                 }}
               >
-                <IconInterrogation color={tooltipColor || 'var(--cWhiteV1)'} size={18} />
+                <IconInterrogation
+                  color={tooltipColor || 'var(--cWhiteV1)'}
+                  size={18}
+                />
               </span>
             </Tooltip>
           )}

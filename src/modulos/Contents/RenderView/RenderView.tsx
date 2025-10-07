@@ -30,6 +30,7 @@ const RenderView = (props: {
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;
   contentId?: number;
+  showActions?: boolean;
 }) => {
   const { data } = props?.item || {};
   const { showToast } = useAuth();
@@ -168,18 +169,22 @@ const RenderView = (props: {
               <p className={styles.text}>Para: Todos</p>
             </div>
             <div className={styles.headerRight}>
-              <button
-                className={styles.actionButton}
-                onClick={handleEdit}
-              >
-                <IconEdit size={24} />
-              </button>
-              <button
-                className={styles.actionButton}
-                onClick={handleDelete}
-              >
-                <IconTrash size={24} />
-              </button>
+              {(props.showActions ?? true) && (
+                <>
+                  <button
+                    className={styles.actionButton}
+                    onClick={handleEdit}
+                  >
+                    <IconEdit size={24} />
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={handleDelete}
+                  >
+                    <IconTrash size={24} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
           <Br />

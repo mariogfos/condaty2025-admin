@@ -2,7 +2,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
 import useCrudUtils from '../../../shared/useCrudUtils';
-import { getDateStrMes, MONTHS } from '@/mk/utils/date';
+import { getDateStrMes, getDateStrMesShort, MONTHS } from '@/mk/utils/date';
 import RenderForm from './RenderForm/RenderForm';
 import RenderView from './RenderView/RenderView';
 import { IconCategories } from '@/components/layout/icons/IconsBiblioteca';
@@ -135,7 +135,7 @@ const AllDebts: React.FC<AllDebtsProps> = ({
     if (!item?.due_at) return <div>-/-</div>;
     return (
       <div>
-        {getDateStrMes(item.due_at)}
+        {getDateStrMesShort(item.due_at)}
       </div>
     );
   };
@@ -147,6 +147,24 @@ const AllDebts: React.FC<AllDebtsProps> = ({
   const renderPenaltyAmountCell = ({ item }: { item: any }) => (
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
+
+  const renderMaintenanceAmountCell = ({ item }: { item: any }) => {
+    const raw = item?.maintenance_amount;
+
+    const hasValue =
+      raw !== null &&
+      raw !== undefined &&
+      String(raw).trim() !== '' &&
+      !isNaN(Number(raw));
+
+    if (!hasValue) return <div style={{ display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%', }}>-/-</div>;
+
+    return <FormatBsAlign value={parseFloat(raw)} alignRight />;
+  };
 
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
@@ -316,10 +334,11 @@ const AllDebts: React.FC<AllDebtsProps> = ({
         rules: [''],
         api: '',
         label: 'Categoría',
-        list: {
+        list: false/* {
           onRender: renderCategoryCell,
           order: 2,
-        },
+        }, */
+          ,
         filter: {
           label: 'Categoría',
           width: '100%',
@@ -403,13 +422,20 @@ const AllDebts: React.FC<AllDebtsProps> = ({
             renderTotalWithGreenBorder(sumas[item.key]),
         },
       },
+      maintenance_amount: {
+        rules: [''],
+        api: '',
+        label: <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>,
+        list: {
+          order: 9,
+          onRender: renderMaintenanceAmountCell,
+        },
+      },
       balance_due: {
         rules: [''],
         api: '',
         label: (
-          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>
-            Saldo a cobrar
-          </label>
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Monto total</label>
         ),
         list: {
           onRender: renderBalanceDueCell,

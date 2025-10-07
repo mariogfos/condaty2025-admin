@@ -1,7 +1,18 @@
 .container {
   position: relative;
-  /* display: inline-flex; */
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+.fullWidth > * {
+  flex: 1; /* el hijo (Input) se estira al ancho disponible */
 }
 
 .tooltip {

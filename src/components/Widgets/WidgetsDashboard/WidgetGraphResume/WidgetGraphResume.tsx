@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 
-import { MONTHS_S_GRAPH, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
+import {
+  MONTHS_S_GRAPH,
+  getDateStr,
+  getDateStrMes,
+  getNow,
+} from "@/mk/utils/date";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
-import styles from "./WidgetGraphResume.module.css"
+import styles from "./WidgetGraphResume.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
 
-
 type PropsType = {
   saldoInicial?: number;
-  ingresos: { ingresos: number; mes: number }[];
-  egresos: { egresos: number; mes: number }[];
+  ingresos: { amount: number; mes: number }[];
+  egresos: { amount: number; mes: number }[];
   chartTypes?: ChartType[];
   h?: number | string;
   title?: string;
@@ -48,6 +52,34 @@ const WidgetGraphResume = ({
   });
 
   const [meses, setMeses]: any = useState([]);
+
+  // nuevo: estado para controlar el tipo de gráfico desde el header
+  const [selectedChartType, setSelectedChartType] = useState<ChartType>(
+    chartTypes && chartTypes.length > 0 ? chartTypes[0] : "bar"
+  );
+  useEffect(() => {
+    // Si cambian los tipos disponibles y el seleccionado no está, ajustarlo
+    if (chartTypes && chartTypes.length > 0) {
+      if (!chartTypes.includes(selectedChartType)) {
+        setSelectedChartType(chartTypes[0]);
+      }
+    }
+  }, [chartTypes]);
+
+  const chartTypeOptions = (chartTypes || ["bar", "line"]).map((type) => ({
+    id: type,
+    name:
+      type === "bar"
+        ? "Barra"
+        : type === "line"
+        ? "Línea"
+        : type === "donut"
+        ? "Donut"
+        : type === "pie"
+        ? "Torta"
+        : "Línea",
+  }));
+
   useEffect(() => {
     const lista = {
       inicial: [saldoInicial || 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -70,18 +102,18 @@ const WidgetGraphResume = ({
       if (item.mes > mesI) mesI = item.mes;
       if (item.mes < mesF) mesF = item.mes;
       lista.ingresos[item.mes - 1] =
-        lista.ingresos[item.mes - 1] + Number(item.ingresos);
+        lista.ingresos[item.mes - 1] + Number(item.amount);
 
       lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] + Number(item.ingresos);
+        lista.saldos[item.mes - 1] + Number(item.amount);
     });
 
     egresos?.map((item) => {
       lista.egresos[item.mes - 1] =
-        lista.egresos[item.mes - 1] + Number(item.egresos);
+        lista.egresos[item.mes - 1] + Number(item.amount);
 
       lista.saldos[item.mes - 1] =
-        lista.saldos[item.mes - 1] - Number(item.egresos);
+        lista.saldos[item.mes - 1] - Number(item.amount);
     });
 
     let inicial = saldoInicial || 0;
@@ -126,9 +158,7 @@ const WidgetGraphResume = ({
     <div className={styles.widgetGraphResume + " " + className}>
       <WidgetBase className={styles.widgetBase}>
         <section>
-          <p className={styles.title}>
-            {title || "Resumen general"}
-          </p>
+          <p className={styles.title}>{title || "Resumen general"}</p>
           <p className={styles.subtitle}>
             {subtitle ||
               `Este es un resumen general del año ${formattedTodayDate}`}
@@ -153,32 +183,61 @@ const WidgetGraphResume = ({
                   { name: "Saldo Acumulado", values: balance?.saldos },
                 ],
               }}
-              chartTypes={chartTypes}
+              // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
+              chartTypes={[selectedChartType]}
               options={{
                 height: h,
-                colors: ["var(--cCompl1)", "var(--cCompl7)", "var(--cCompl8)", "var(--cCompl9)"],
+                colors: [
+                  "var(--cCompl1)",
+                  "var(--cCompl7)",
+                  "var(--cCompl8)",
+                  "var(--cCompl9)",
+                ],
               }}
             />
             <div className={styles.legendContainer}>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl1)" }}></div>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl1)" }}
+                ></div>
                 <span className={styles.legendLabel}>Saldo Inicial</span>
-                <span className={styles.legendValue}>Bs {formatNumber(saldoInicial || 0)}</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(saldoInicial || 0)}
+                </span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl7)" }}></div>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl7)" }}
+                ></div>
                 <span className={styles.legendLabel}>Ingresos</span>
-                <span className={styles.legendValue}>Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(balance.ingresos.reduce((a, b) => a + b, 0))}
+                </span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl8)" }}></div>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl8)" }}
+                ></div>
                 <span className={styles.legendLabel}>Egresos</span>
-                <span className={styles.legendValue}>Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}</span>
+                <span className={styles.legendValue}>
+                  Bs {formatNumber(balance.egresos.reduce((a, b) => a + b, 0))}
+                </span>
               </div>
               <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{ backgroundColor: "var(--cCompl9)" }}></div>
+                <div
+                  className={styles.legendColor}
+                  style={{ backgroundColor: "var(--cCompl9)" }}
+                ></div>
                 <span className={styles.legendLabel}>Saldo Acumulado</span>
-                <span className={styles.legendValue}>Bs {formatNumber(balance.saldos.filter(val => val !== 0).pop() || 0)}</span>
+                <span className={styles.legendValue}>
+                  Bs{" "}
+                  {formatNumber(
+                    balance.saldos.filter((val) => val !== 0).pop() || 0
+                  )}
+                </span>
               </div>
             </div>
           </>

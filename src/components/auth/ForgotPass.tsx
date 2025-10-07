@@ -201,6 +201,7 @@ const ForgotPass = ({ open, setOpen, mod }: PropsType) => {
       onSave={_onSave}
       buttonText={formState.pinned === 1 ? "Obtener código" : formState.pinned === 2 ? "Continuar" : "Cambiar contraseña"  }
       buttonCancel=""
+      variant={'mini'}
     >
       {formState.pinned === 1 ? (
         <div>
