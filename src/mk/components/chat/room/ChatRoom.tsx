@@ -18,6 +18,7 @@ import { Avatar } from "../../ui/Avatar/Avatar";
 import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { getDateStrMes } from "@/mk/utils/date";
+import { EmojiText } from "@/mk/hooks/useEmojiRenderer";
 
 interface SelectedFile {
   file: File;
@@ -448,7 +449,7 @@ const ChatRoom = ({
                   <div className={styles.messageBubble}>
                     {msg.sender !== user.id && (
                       <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
-                        😊
+                        <EmojiText>😊</EmojiText>
                       </div>
                     )}
                     {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
@@ -474,7 +475,7 @@ const ChatRoom = ({
                           objectFit="cover"
                         />
                       )}
-                      {msg.text}
+                      <EmojiText>{msg.text}</EmojiText>
                     </div>
                   </div>
                   <div
@@ -520,7 +521,7 @@ const ChatRoom = ({
                                 g.users.includes(String(user.id)) ? styles.myReaction : ''
                               }`}
                             >
-                              <span>{g.emoji}</span>
+                              <EmojiText>{g.emoji}</EmojiText>
                               <span>{g.count}</span>
                             </span>
                           ))}
