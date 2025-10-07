@@ -7,6 +7,7 @@ import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css"
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
+import Select from "@/mk/components/forms/Select/Select";
 
 
 type PropsType = {
@@ -48,6 +49,34 @@ const WidgetGraphResume = ({
   });
 
   const [meses, setMeses]: any = useState([]);
+
+  // nuevo: estado para controlar el tipo de gráfico desde el header
+  const [selectedChartType, setSelectedChartType] = useState<ChartType>(
+    chartTypes && chartTypes.length > 0 ? chartTypes[0] : "bar"
+  );
+  useEffect(() => {
+    // Si cambian los tipos disponibles y el seleccionado no está, ajustarlo
+    if (chartTypes && chartTypes.length > 0) {
+      if (!chartTypes.includes(selectedChartType)) {
+        setSelectedChartType(chartTypes[0]);
+      }
+    }
+  }, [chartTypes]);
+
+  const chartTypeOptions = (chartTypes || ["bar", "line"]).map((type) => ({
+    id: type,
+    name:
+      type === "bar"
+        ? "Barra"
+        : type === "line"
+        ? "Línea"
+        : type === "donut"
+        ? "Donut"
+        : type === "pie"
+        ? "Torta"
+        : "Línea",
+  }));
+
   useEffect(() => {
     const lista = {
       inicial: [saldoInicial || 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -125,15 +154,29 @@ const WidgetGraphResume = ({
   return (
     <div className={styles.widgetGraphResume + " " + className}>
       <WidgetBase className={styles.widgetBase}>
-        <section>
-          <p className={styles.title}>
-            {title || "Resumen general"}
-          </p>
-          <p className={styles.subtitle}>
-            {subtitle ||
-              `Este es un resumen general del año ${formattedTodayDate}`}
-          </p>
-        </section>
+        <div className={styles.headerRow}>
+          <div className={styles.titleBlock}>
+            <p className={styles.title}>
+              {title || "Resumen general"}
+            </p>
+            <p className={styles.subtitle}>
+              {subtitle ||
+                `Este es un resumen general del año ${formattedTodayDate}`}
+            </p>
+          </div>
+          {chartTypes && chartTypes.length > 1 && (
+            <div className={styles.chartTypeSelector}>
+              <Select
+                label=""
+                value={selectedChartType}
+                name="chartType"
+                className={styles.chartTypeSelect}
+                onChange={(e: any) => setSelectedChartType(e.target.value as ChartType)}
+                options={chartTypeOptions}
+              />
+            </div>
+          )}
+        </div>
         {showEmptyData ? (
           <EmptyData
             message={emptyDataProps?.message || "No hay datos disponibles"}
@@ -153,7 +196,8 @@ const WidgetGraphResume = ({
                   { name: "Saldo Acumulado", values: balance?.saldos },
                 ],
               }}
-              chartTypes={chartTypes}
+              // pasar solo el tipo seleccionado para ocultar el select interno de GraphBase
+              chartTypes={[selectedChartType]}
               options={{
                 height: h,
                 colors: ["var(--cCompl1)", "var(--cCompl7)", "var(--cCompl8)", "var(--cCompl9)"],
