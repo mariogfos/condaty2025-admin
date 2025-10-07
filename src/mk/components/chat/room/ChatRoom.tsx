@@ -653,7 +653,7 @@ const ChatRoom = ({
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
-              emojiStyle={EmojiStyle.GOOGLE}
+              emojiStyle={EmojiStyle.APPLE}
               style={{ backgroundColor: 'var(--cWhite)' }}
             />
           </div>
