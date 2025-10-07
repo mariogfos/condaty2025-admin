@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spL);
+  height: 300px;
 }
 
 .contentCardCompact {
@@ -9,7 +10,7 @@
   background: var(--cBlackV3);
   border-radius: var(--bRadiusL);
   padding: var(--spM);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--cBlackV3);
   display: flex;
   flex-direction: column;
@@ -85,7 +86,7 @@
   position: absolute;
   top: var(--spS);
   right: var(--spS);
-  background: #6B7280;
+  background: #6b7280;
   color: white;
   padding: var(--spXs) var(--spS);
   border-radius: var(--bRadiusS);
