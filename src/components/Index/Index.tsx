@@ -9,7 +9,7 @@ import { getDateTimeStrMes } from "@/mk/utils/date";
 import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
 import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { getFullName, getUrlImages, truncateText } from "@/mk/utils/string";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
@@ -296,6 +296,7 @@ const HomePage = () => {
       .toUpperCase();
 
     const secondaryText = data.descrip || "Sin descripción";
+    const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
     let levelTextIndicator = ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] || ALERT_LEVEL_LABELS[1];
@@ -349,7 +350,12 @@ const HomePage = () => {
         </div>
         <div className={styles.itemTextInfo}>
           <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText}>{secondaryText}</span>
+          <span 
+            className={styles.itemSecondaryText} 
+            title={secondaryText}
+          >
+            {truncatedSecondaryText}
+          </span>
           <span className={styles.itemDateText}>
             {getDateTimeStrMes(data.created_at)}
           </span>
