@@ -80,16 +80,22 @@ const paramsInitial = {
 };
 
 const renderExtraFields = (props: any) => {
-  const fieldsForThisType = props?.extraData?.fields?.filter(
-    (field: any) => field.type_id === props.item.id
-  );
+  const fields = props.item?.fields || [];
 
-  if (!fieldsForThisType || fieldsForThisType.length === 0) {
-    return <span>Sin campos extras</span>;
+  if (!fields || fields.length === 0) {
+    return <span>-/-</span>;
   }
 
-  const fieldNames = fieldsForThisType.map((field: any) => field.name);
-  return <span>{fieldNames.join(", ")}</span>;
+  return (
+    <span>
+      {fields.map((field: any, index: number) => (
+        <span key={field.id || `field-${props.item.id}-${index}`}>
+          {field.name}
+          {index < fields.length - 1 ? ', ' : ''}
+        </span>
+      ))}
+    </span>
+  );
 };
 
 const UnitsType = () => {
