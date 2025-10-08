@@ -61,24 +61,27 @@ const leftAccess = (item: any) => {
   );
 };
 
-const visitedToCell = ({ titular }: { titular: any }) => {
-  const updatedAtQuery = titular?.updated_at ? `?d=${titular.updated_at}` : '';
-  const avatarSrc = titular?.id
-    ? getUrlImages(`/OWNER-${titular.id}.webp${updatedAtQuery}`)
+const visitedToCell = ({ item }: { item: any }) => {
+  // Priorizar mostrar al residente/propietario (owner)
+  const person = item?.owner ?? item?.titular?.owner ?? item?.homeowner ?? null;
+
+  const updatedAtQuery = person?.updated_at ? `?d=${person.updated_at}` : '';
+  const avatarSrc = person?.id
+    ? getUrlImages(`/OWNER-${person.id}.webp${updatedAtQuery}`)
     : '';
 
   return (
     <div className={styles.visitInfo}>
       <Avatar
-        hasImage={titular?.has_image}
+        hasImage={person?.has_image}
         src={avatarSrc}
-        name={getFullName(titular)}
+        name={getFullName(person || {})}
         w={32}
         h={32}
       />
       <div>
-        <p className={styles.visitName}>{getFullName(titular)}</p>
-        <p className={styles.visitSubtitle}>C.I. {titular?.ci || 'Sin registro'}</p>
+        <p className={styles.visitName}>{getFullName(person || {})}</p>
+        <p className={styles.visitSubtitle}>C.I. {person?.ci || 'Sin registro'}</p>
       </div>
     </div>
   );
@@ -121,6 +124,7 @@ const AccessTable = ({ access }: AccessTableProps) => {
       key: 'visited_to',
       label: 'Visitó a',
       responsive: 'desktop',
+      onRender: visitedToCell,
 
     },
     {
