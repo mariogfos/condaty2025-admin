@@ -2,8 +2,8 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Hook para renderizar emojis usando Twemoji en Windows y otros navegadores con soporte limitado
- * Twemoji convierte los emojis en imágenes SVG de Twitter
+ * Hook para renderizar emojis estilo Apple en Windows y otros navegadores con soporte limitado
+ * Convierte los emojis en imágenes PNG de Apple
  */
 export function useEmojiRenderer(dependencies: any[] = []) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,17 +28,23 @@ export function useEmojiRenderer(dependencies: any[] = []) {
           });
         }
 
-        // Parsear los emojis en el contenedor
+        // Parsear los emojis en el contenedor con estilo Apple
         if (containerRef.current) {
           // @ts-ignore
           window.twemoji.parse(containerRef.current, {
-            folder: 'svg',
-            ext: '.svg',
-            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/'
+            callback: function(icon: string, options: any) {
+              // Usar CDN de emoji-datasource-apple para los PNG de Apple
+              return 'https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.1.2/img/apple/64/' + icon + '.png';
+            },
+            attributes: function() {
+              return {
+                loading: 'lazy'
+              };
+            }
           });
         }
       } catch (error) {
-        console.warn('Error al cargar Twemoji:', error);
+        console.warn('Error al cargar emojis:', error);
       }
     };
 
