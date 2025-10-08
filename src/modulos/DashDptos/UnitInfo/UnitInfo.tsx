@@ -84,6 +84,9 @@ const UnitInfo = ({
     return "Sin asignar";
   };
 
+  // Bandera para habilitar/deshabilitar el selector según propietario/residente
+  const isTitularSelectable = Boolean(datas?.homeowner || datas?.tenant);
+
   const { execute } = useAxios();
 
   const changeTitular = async (holder: "H" | "T") => {
@@ -143,10 +146,11 @@ const UnitInfo = ({
             <span className={styles.infoValue}>{formatBs(datas?.data?.expense_amount || '0')}</span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Titular</span>
+            <span className={styles.infoLabel}>Paga las expensas:</span>
             <button
               type="button"
               className={styles.titularDropdown}
+              disabled={!isTitularSelectable}
               onClick={e => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
@@ -157,7 +161,7 @@ const UnitInfo = ({
                 size={16}
                 className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
               />
-              {openTitularSelector && (
+              {openTitularSelector && isTitularSelectable && (
                 <div className={styles.dropdownMenu}>
                   <button
                     type="button"
@@ -210,19 +214,17 @@ const UnitInfo = ({
               </button>
               {openOwnerMenu && (
                 <div className={styles.dropdownMenu}>
-                  {!datas?.homeowner && (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={e => {
-                        e.stopPropagation();
-                        setOpenOwnerMenu(false);
-                        onTitular('H', 'new');
-                      }}
-                    >
-                      Nuevo
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setOpenOwnerMenu(false);
+                      onTitular('H', 'new');
+                    }}
+                  >
+                    Nuevo
+                  </button>
                   <button
                     type="button"
                     className={styles.menuItem}
@@ -232,7 +234,7 @@ const UnitInfo = ({
                       onTitular('H', 'change');
                     }}
                   >
-                    Cambiar
+                    Asignar
                   </button>
                 </div>
               )}
@@ -269,8 +271,8 @@ const UnitInfo = ({
           ) : (
             <div className={styles.emptyState}>
               <EmptyData
-                message="Sin propietario asignado. Para asignar"
-                line2="un propietario a esta unidad."
+                message="Sin propietario asignado. Para asignar un propietario"
+                line2="a esta unidad, hacer click en los tres puntos de arriba."
                 icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                 centered={true}
                 fontSize={14}
@@ -287,7 +289,9 @@ const UnitInfo = ({
               <button
                 type="button"
                 className={styles.menuDots}
+                disabled={!datas?.homeowner}
                 onClick={e => {
+                  if (!datas?.homeowner) return;
                   e.stopPropagation();
                   setOpenTenantMenu(!openTenantMenu);
                   setOpenOwnerMenu(false);
@@ -300,7 +304,7 @@ const UnitInfo = ({
               </button>
               {openTenantMenu && (
                 <div className={styles.dropdownMenu}>
-                  {!datas?.tenant && (
+                  {!datas?.tenant && !!datas?.homeowner && (
                     <button
                       type="button"
                       className={styles.menuItem}
@@ -313,18 +317,19 @@ const UnitInfo = ({
                       Nuevo
                     </button>
                   )}
-
-                  <button
-                    type="button"
-                    className={styles.menuItem}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setOpenTenantMenu(false);
-                      onTitular('T',"change");
-                    }}
-                  >
-                    Cambiar
-                  </button>
+                  {!!datas?.homeowner && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setOpenTenantMenu(false);
+                        onTitular('T',"change");
+                      }}
+                    >
+                      Asignar
+                    </button>
+                  )}
                   {datas?.tenant && (
                     <button
                       type="button"
@@ -410,8 +415,8 @@ const UnitInfo = ({
           ) : (
             <div className={styles.emptyState}>
               <EmptyData
-                message="Sin residente asignado. Para asignar"
-                line2="un residente a esta unidad."
+                message="Sin residente asignado. Para asignar un residente"
+                line2="a esta unidad, hacer click en los tres puntos de arriba."
                 icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                 centered={true}
                 fontSize={14}

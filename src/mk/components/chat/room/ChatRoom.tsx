@@ -18,6 +18,7 @@ import { Avatar } from "../../ui/Avatar/Avatar";
 import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { getDateStrMes } from "@/mk/utils/date";
+import { EmojiText } from "@/mk/hooks/useEmojiRenderer";
 
 interface SelectedFile {
   file: File;
@@ -72,9 +73,21 @@ const ChatRoom = ({
 
   const removeFile = (id: string) => {
     const fileToRemove = selectedFiles.find(f => f.id === id);
+    const indexToRemove = selectedFiles.findIndex(f => f.id === id);
     if (fileToRemove) {
       URL.revokeObjectURL(fileToRemove.previewURL);
-      setSelectedFiles(prev => prev.filter(f => f.id !== id));
+      setSelectedFiles(prev => {
+        const updated = prev.filter(f => f.id !== id);
+        // Ajustar el índice seleccionado si es necesario
+        if (indexToRemove === selectedPreviewIndex && updated.length > 0) {
+          setSelectedPreviewIndex(Math.max(0, selectedPreviewIndex - 1));
+        } else if (selectedPreviewIndex >= updated.length && updated.length > 0) {
+          setSelectedPreviewIndex(updated.length - 1);
+        } else if (updated.length === 0) {
+          setSelectedPreviewIndex(0);
+        }
+        return updated;
+      });
     }
   };
 
@@ -156,6 +169,7 @@ const ChatRoom = ({
   const [selectedFiles, setSelectedFiles] = React.useState<SelectedFile[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [selectedPreviewIndex, setSelectedPreviewIndex] = React.useState(0);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (roomId.indexOf("chatBot") > -1) {
@@ -169,7 +183,11 @@ const ChatRoom = ({
         previewURL: URL.createObjectURL(file),
         id: `${Date.now()}-${Math.random()}`
       }));
-      setSelectedFiles(prev => [...prev, ...newFiles]);
+      setSelectedFiles(prev => {
+        const updated = [...prev, ...newFiles];
+        setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
+        return updated;
+      });
     }
   };
 
@@ -212,7 +230,11 @@ const ChatRoom = ({
         previewURL: URL.createObjectURL(file),
         id: `${Date.now()}-${Math.random()}`
       }));
-      setSelectedFiles(prev => [...prev, ...newFiles]);
+      setSelectedFiles(prev => {
+        const updated = [...prev, ...newFiles];
+        setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
+        return updated;
+      });
     }
   };
 
@@ -310,6 +332,34 @@ const ChatRoom = ({
     };
   }, [showInputEmojiPicker]);
 
+  // Navegación con teclado en el preview de imágenes
+  useEffect(() => {
+    if (selectedFiles.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && selectedPreviewIndex > 0) {
+        e.preventDefault();
+        setSelectedPreviewIndex(selectedPreviewIndex - 1);
+      } else if (e.key === 'ArrowRight' && selectedPreviewIndex < selectedFiles.length - 1) {
+        e.preventDefault();
+        setSelectedPreviewIndex(selectedPreviewIndex + 1);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelUpload();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        if (selectedFiles.length > 0) {
+          removeFile(selectedFiles[selectedPreviewIndex].id);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedFiles, selectedPreviewIndex]);
+
   return (
     <div 
       className={styles.chatRoomContainer}
@@ -399,7 +449,7 @@ const ChatRoom = ({
                   <div className={styles.messageBubble}>
                     {msg.sender !== user.id && (
                       <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
-                        😊
+                        <EmojiText>😊</EmojiText>
                       </div>
                     )}
                     {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
@@ -425,7 +475,7 @@ const ChatRoom = ({
                           objectFit="cover"
                         />
                       )}
-                      {msg.text}
+                      <EmojiText>{msg.text}</EmojiText>
                     </div>
                   </div>
                   <div
@@ -471,7 +521,7 @@ const ChatRoom = ({
                                 g.users.includes(String(user.id)) ? styles.myReaction : ''
                               }`}
                             >
-                              <span>{g.emoji}</span>
+                              <EmojiText>{g.emoji}</EmojiText>
                               <span>{g.count}</span>
                             </span>
                           ))}
@@ -486,26 +536,79 @@ const ChatRoom = ({
         </div>
         {selectedFiles.length > 0 && (
           <div className={styles.previewContainer}>
-            <div className={styles.previewGrid}>
-              {selectedFiles.map((file) => (
-                <div key={file.id} className={styles.previewItem}>
-                  <IconX 
-                    color="red" 
-                    onClick={() => removeFile(file.id)}
-                    className={styles.removeIcon}
-                    size={20}
-                  />
-                  <Image 
-                    src={file.previewURL} 
-                    alt="Vista previa"
-                    w={150}
-                    h={150}
-                    square={true}
-                    style={{ width: '100%', height: 'auto' }}
-                    objectFit="cover"
-                  />
+            <button 
+              className={styles.closePreviewButton}
+              onClick={cancelUpload}
+              title="Cerrar vista previa (ESC)"
+            >
+              <IconX color="white" size={24} />
+            </button>
+            <div className={styles.previewContent}>
+              {/* Vista previa grande */}
+              <div className={styles.mainPreview}>
+                <div className={styles.imageCounter}>
+                  {selectedPreviewIndex + 1} / {selectedFiles.length}
                 </div>
-              ))}
+                
+                {/* Botón anterior */}
+                {selectedFiles.length > 1 && selectedPreviewIndex > 0 && (
+                  <button 
+                    className={styles.navButton + ' ' + styles.navPrev}
+                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex - 1)}
+                    title="Imagen anterior"
+                  >
+                    ‹
+                  </button>
+                )}
+                
+                {/* Botón siguiente */}
+                {selectedFiles.length > 1 && selectedPreviewIndex < selectedFiles.length - 1 && (
+                  <button 
+                    className={styles.navButton + ' ' + styles.navNext}
+                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex + 1)}
+                    title="Siguiente imagen"
+                  >
+                    ›
+                  </button>
+                )}
+                
+                <Image 
+                  src={selectedFiles[selectedPreviewIndex].previewURL} 
+                  alt="Vista previa principal"
+                  w={600}
+                  h={400}
+                  square={true}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  objectFit="contain"
+                />
+              </div>
+              
+              {/* Carrusel de miniaturas */}
+              {selectedFiles.length > 1 && (
+                <div className={styles.thumbnailCarousel}>
+                  <div className={styles.thumbnailGrid}>
+                    {selectedFiles.map((file, index) => (
+                      <div 
+                        key={file.id} 
+                        className={`${styles.thumbnailItem} ${
+                          index === selectedPreviewIndex ? styles.thumbnailSelected : ''
+                        }`}
+                        onClick={() => setSelectedPreviewIndex(index)}
+                      >
+                        <Image 
+                          src={file.previewURL} 
+                          alt={`Miniatura ${index + 1}`}
+                          w={80}
+                          h={80}
+                          square={true}
+                          style={{ width: '100%', height: '100%' }}
+                          objectFit="cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -550,7 +653,7 @@ const ChatRoom = ({
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
-              emojiStyle={EmojiStyle.GOOGLE}
+              emojiStyle={EmojiStyle.APPLE}
               style={{ backgroundColor: 'var(--cWhite)' }}
             />
           </div>

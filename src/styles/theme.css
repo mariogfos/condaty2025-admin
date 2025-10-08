@@ -429,3 +429,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .bottomLine {
   border-bottom: 1px solid var(--cWhiteV1);
 }
+
+/* Estilos para emojis de Twemoji */
+img.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+/* Ajustes específicos para reacciones en chat */
+.reactionBubble img.emoji {
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: middle;
+}
+
+/* Ajustes para el botón de emoji en mensajes */
+.emojiIcon img.emoji {
+  height: 1.4em;
+  width: 1.4em;
+  vertical-align: middle;
+}
