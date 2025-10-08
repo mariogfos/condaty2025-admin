@@ -214,19 +214,17 @@ const UnitInfo = ({
               </button>
               {openOwnerMenu && (
                 <div className={styles.dropdownMenu}>
-                  {!datas?.homeowner && (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={e => {
-                        e.stopPropagation();
-                        setOpenOwnerMenu(false);
-                        onTitular('H', 'new');
-                      }}
-                    >
-                      Nuevo
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setOpenOwnerMenu(false);
+                      onTitular('H', 'new');
+                    }}
+                  >
+                    Nuevo
+                  </button>
                   <button
                     type="button"
                     className={styles.menuItem}
@@ -291,7 +289,9 @@ const UnitInfo = ({
               <button
                 type="button"
                 className={styles.menuDots}
+                disabled={!datas?.homeowner}
                 onClick={e => {
+                  if (!datas?.homeowner) return;
                   e.stopPropagation();
                   setOpenTenantMenu(!openTenantMenu);
                   setOpenOwnerMenu(false);
@@ -304,7 +304,7 @@ const UnitInfo = ({
               </button>
               {openTenantMenu && (
                 <div className={styles.dropdownMenu}>
-                  {!datas?.tenant && (
+                  {!datas?.tenant && !!datas?.homeowner && (
                     <button
                       type="button"
                       className={styles.menuItem}
@@ -317,18 +317,19 @@ const UnitInfo = ({
                       Nuevo
                     </button>
                   )}
-
-                  <button
-                    type="button"
-                    className={styles.menuItem}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setOpenTenantMenu(false);
-                      onTitular('T',"change");
-                    }}
-                  >
-                    Asignar
-                  </button>
+                  {!!datas?.homeowner && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setOpenTenantMenu(false);
+                        onTitular('T',"change");
+                      }}
+                    >
+                      Asignar
+                    </button>
+                  )}
                   {datas?.tenant && (
                     <button
                       type="button"
