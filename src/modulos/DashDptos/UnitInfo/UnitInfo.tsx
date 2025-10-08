@@ -84,6 +84,9 @@ const UnitInfo = ({
     return "Sin asignar";
   };
 
+  // Bandera para habilitar/deshabilitar el selector según propietario/residente
+  const isTitularSelectable = Boolean(datas?.homeowner || datas?.tenant);
+
   const { execute } = useAxios();
 
   const changeTitular = async (holder: "H" | "T") => {
@@ -147,6 +150,7 @@ const UnitInfo = ({
             <button
               type="button"
               className={styles.titularDropdown}
+              disabled={!isTitularSelectable}
               onClick={e => {
                 e.stopPropagation();
                 setOpenTitularSelector(!openTitularSelector);
@@ -157,7 +161,7 @@ const UnitInfo = ({
                 size={16}
                 className={openTitularSelector ? styles.arrowUp : styles.arrowDown}
               />
-              {openTitularSelector && (
+              {openTitularSelector && isTitularSelectable && (
                 <div className={styles.dropdownMenu}>
                   <button
                     type="button"
