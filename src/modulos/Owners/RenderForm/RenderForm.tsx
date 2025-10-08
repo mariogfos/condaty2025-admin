@@ -19,8 +19,7 @@ interface OwnerFormState {
   email?: string;
   phone?: string;
   dpto_id?: string | number;
-  dptos?: Array<{ dpto_id: string | number; will_live_in_unit: boolean; nro?: string; dpto_nro?: string }>;
-  will_live_in_unit?: boolean;
+  dptos?: Array<{ dpto_id: string | number; nro?: string; dpto_nro?: string }>;
   _disabled?: boolean;
   _emailDisabled?: boolean;
   [key: string]: any;
@@ -33,7 +32,6 @@ interface OwnerFormErrors {
   last_name?: string;
   email?: string;
   dpto_id?: string;
-  will_live_in_unit?: string;
 }
 const TYPE_OWNERS = [
   {
@@ -63,9 +61,8 @@ interface UnitModalProps {
   units: Array<{ id: string | number; nro: string }>;
   initialData: {
     dpto_id?: string | number;
-    will_live_in_unit: boolean;
   };
-  onSave: (data: { dpto_id: string | number; will_live_in_unit: boolean }) => void;
+  onSave: (data: { dpto_id: string | number }) => void;
   typeOwner?: string;
 }
 
@@ -78,12 +75,10 @@ const UnitModal: React.FC<UnitModalProps> = ({
   typeOwner,
 }) => {
   const [selectedUnit, setSelectedUnit] = useState<string | number>(initialData.dpto_id || '');
-  const [willLiveInUnit, setWillLiveInUnit] = useState<boolean>(initialData.will_live_in_unit);
 
   useEffect(() => {
     if (open) {
       setSelectedUnit(initialData.dpto_id || '');
-      setWillLiveInUnit(initialData.will_live_in_unit);
     }
   }, [open, initialData]);
 
@@ -93,7 +88,6 @@ const UnitModal: React.FC<UnitModalProps> = ({
   };
 
   const handleSave = () => {
-
     if (selectedUnit === '' || selectedUnit === null || selectedUnit === undefined) return;
     const parsed =
       typeof selectedUnit === 'string' && /^\d+$/.test(selectedUnit)
@@ -102,7 +96,6 @@ const UnitModal: React.FC<UnitModalProps> = ({
 
     onSave({
       dpto_id: parsed,
-      will_live_in_unit: willLiveInUnit,
     });
 
     onClose();
@@ -119,7 +112,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <Select
           name="dpto_id"
-          filter = {true}
+          filter={true}
           label="Seleccionar Unidad"
           value={selectedUnit}
           options={units}
@@ -127,23 +120,7 @@ const UnitModal: React.FC<UnitModalProps> = ({
           optionValue="id"
           onChange={handleSelectChange}
           required
-
-
         />
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-           ¿Este {typeOwner === 'Propietario' ? 'propietario' : 'residente'} vivirá en la unidad?
-          <input
-          style={{
-              accentColor: 'var(--cAccent)',
-              width: '12px',
-              height: '12px',
-            }}
-            type="checkbox"
-            checked={willLiveInUnit}
-            onChange={e => setWillLiveInUnit(e.target.checked)}
-          />
-
-        </label>
       </div>
     </DataModal>
   );
@@ -187,11 +164,13 @@ const RenderForm = ({
       ci: '',
       name: '',
       last_name: '',
-      will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true,
-      dptos: defaultUnitId ? [{
-        dpto_id: defaultUnitId,
-        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true
-      }] : [],
+      dptos: defaultUnitId
+        ? [
+            {
+              dpto_id: defaultUnitId,
+            },
+          ]
+        : [],
       type_owner: defaultOwnerType || undefined,
       _disabled: false,
       _emailDisabled: false,
@@ -204,11 +183,9 @@ const RenderForm = ({
       last_name: item?.last_name || '',
       dptos: item?.dptos || (defaultUnitId ? [{
         dpto_id: defaultUnitId,
-        will_live_in_unit: defaultIsResident !== undefined ? defaultIsResident : true,
         dpto_nro: item?.dptos?.[0]?.dpto_nro,
       }] : []),
       type_owner: item?.type_owner || defaultOwnerType || undefined,
-      will_live_in_unit: item?.will_live_in_unit !== undefined ? item.will_live_in_unit : (defaultIsResident !== undefined ? defaultIsResident : true),
     };
   });
   const [errors, setErrors] = useState<OwnerFormErrors>({});
@@ -243,7 +220,6 @@ const RenderForm = ({
         [name]: value,
         dptos: [],
         dpto_id: undefined,
-        will_live_in_unit: true,
       }));
       if (errors.dpto_id) {
         setErrors(prev => ({ ...prev, dpto_id: undefined }));
@@ -401,7 +377,6 @@ const RenderForm = ({
 
     try {
       const dptoIds = (formState.dptos || []).map(d => d.dpto_id);
-      const residentUnit = (formState.dptos || []).find(d => d.will_live_in_unit);
 
       const payload: any = {
         ci: formState.ci,
@@ -414,10 +389,6 @@ const RenderForm = ({
         dpto: dptoIds,
         is_homeowner: formState.type_owner === 'Propietario' ? 'Y' : 'N',
       };
-
-      if (residentUnit) {
-        payload.dpto_resident = residentUnit.dpto_id;
-      }
 
       const endpoint = formState.id ? `/owners/${formState.id}` : '/owners';
       const method = formState.id ? 'PUT' : 'POST';
@@ -515,7 +486,6 @@ const RenderForm = ({
           required
           disabled={disableTypeEditing}
         />
-        {/* Cards de unidades seleccionadas (múltiples para Propietario) */}
         {(formState.dptos || []).length > 0 && (
           <div className={styles.unitCardsWrapper}>
             {(formState.dptos || []).map((d, idx) => {
@@ -531,9 +501,6 @@ const RenderForm = ({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span className={styles.unitLetter}>U:</span>
                       <span className={styles.unitNumber}>{nro}</span>
-                    </div>
-                    <div className={styles.unitInfo}>
-                      {d.will_live_in_unit ? 'Vive en la unidad' : 'No vive en la unidad'}
                     </div>
                   </div>
                   <div className={styles.unitCardRight}>
@@ -577,7 +544,6 @@ const RenderForm = ({
         }
         initialData={{
           dpto_id: '',
-          will_live_in_unit: true,
         }}
         typeOwner={formState.type_owner}
         onSave={data => {
@@ -601,7 +567,7 @@ const RenderForm = ({
               return {
                 ...prev,
                 dptos: [
-                  { dpto_id: normalizedId, will_live_in_unit: !!data.will_live_in_unit, nro },
+                  { dpto_id: normalizedId, nro },
                 ],
               };
             }
@@ -610,21 +576,14 @@ const RenderForm = ({
             if (existing) {
               newDptos = newDptos.map(d =>
                 String(d.dpto_id) === String(normalizedId)
-                  ? { ...d, will_live_in_unit: !!data.will_live_in_unit, nro }
+                  ? { ...d, nro }
                   : d
               );
             } else {
               newDptos.push({
                 dpto_id: normalizedId,
-                will_live_in_unit: !!data.will_live_in_unit,
                 nro,
               });
-            }
-
-            if (data.will_live_in_unit) {
-              newDptos = newDptos.map(d =>
-                String(d.dpto_id) === String(normalizedId) ? d : { ...d, will_live_in_unit: false }
-              );
             }
 
             return {
