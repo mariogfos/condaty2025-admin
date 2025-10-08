@@ -216,12 +216,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required'],
+        rules: ['required', 'greater:0'],
         key: 'amount',
         errors: errs,
       }),
       'amount'
     );
+    
+    addError(
+      checkRules({
+        value: _formState.interest,
+        rules: ['required', 'greater:0'],
+        key: 'interest',
+        errors: errs,
+      }),
+      'interest'
+    );
+
     addError(
       checkRules({
         value: _formState.category_id,
@@ -480,7 +491,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               value={_formState.interest}
               onChange={handleChangeInput}
               type="number"
-              min="0"
+              min={0}
               max="100"
               error={_errors}
               placeholder="0.00"
