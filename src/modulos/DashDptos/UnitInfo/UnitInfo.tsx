@@ -232,7 +232,7 @@ const UnitInfo = ({
                       onTitular('H', 'change');
                     }}
                   >
-                    Cambiar
+                    Asignar
                   </button>
                 </div>
               )}
@@ -323,7 +323,7 @@ const UnitInfo = ({
                       onTitular('T',"change");
                     }}
                   >
-                    Cambiar
+                    Asignar
                   </button>
                   {datas?.tenant && (
                     <button
