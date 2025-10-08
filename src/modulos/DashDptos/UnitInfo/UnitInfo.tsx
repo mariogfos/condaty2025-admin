@@ -143,7 +143,7 @@ const UnitInfo = ({
             <span className={styles.infoValue}>{formatBs(datas?.data?.expense_amount || '0')}</span>
           </div>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>Titular</span>
+            <span className={styles.infoLabel}>Paga las expensas:</span>
             <button
               type="button"
               className={styles.titularDropdown}
@@ -270,7 +270,7 @@ const UnitInfo = ({
             <div className={styles.emptyState}>
               <EmptyData
                 message="Sin propietario asignado. Para asignar"
-                line2="un propietario a esta unidad."
+                line2="un propietario a esta unidad, hacer click en los tres puntos de arriba."
                 icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                 centered={true}
                 fontSize={14}
@@ -411,7 +411,7 @@ const UnitInfo = ({
             <div className={styles.emptyState}>
               <EmptyData
                 message="Sin residente asignado. Para asignar"
-                line2="un residente a esta unidad."
+                line2="un residente a esta unidad, hacer click en los tres puntos de arriba."
                 icon={<IconHomePerson2 size={32} color="var(--cWhiteV1)" />}
                 centered={true}
                 fontSize={14}
