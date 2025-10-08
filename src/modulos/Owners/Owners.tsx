@@ -333,7 +333,7 @@ const Owners = () => {
         label: "Tipo",
         list: {},
         filter: {
-          label: "Tipo de residente",
+          label: "Tipo",
           width: "180px",
 
           options: getTypefilter,
@@ -411,7 +411,7 @@ const Owners = () => {
   return (
     <div className={styles.style}>
       <div style={{ display: "flex", gap: "12px" }}>
-        <WidgetDashCard
+{/*         <WidgetDashCard
           title="Residentes Totales"
           data={String(extraData?.totals ?? 0)}
           style={{ maxWidth: "250px" }}
@@ -432,7 +432,7 @@ const Owners = () => {
               size={18}
             />
           }
-        />
+        /> */}
 
         <WidgetDashCard
           title="Propietarios"
