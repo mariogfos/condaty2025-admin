@@ -1,22 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-'use client';
-import styles from './Dptos.module.css';
-import RenderItem from '../shared/RenderItem';
-import useCrudUtils from '../shared/useCrudUtils';
-import { Children, useEffect, useMemo, useState } from 'react';
-import ItemList from '@/mk/components/ui/ItemList/ItemList';
-import NotAccess from '@/components/layout/NotAccess/NotAccess';
-import useCrud, { ModCrudType } from '@/mk/hooks/useCrud/useCrud';
-import { useAuth } from '@/mk/contexts/AuthProvider';
+"use client";
+import styles from "./Dptos.module.css";
+import RenderItem from "../shared/RenderItem";
+import useCrudUtils from "../shared/useCrudUtils";
+import { Children, useEffect, useMemo, useState } from "react";
+import ItemList from "@/mk/components/ui/ItemList/ItemList";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
+import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
-import { getFullName, getUrlImages, pluralize } from '@/mk/utils/string';
-import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
-import { useRouter } from 'next/navigation';
-import { UnitsType } from '@/mk/utils/utils';
-import RenderForm from './RenderForm';
-import ImportDataModal from '@/mk/components/data/ImportDataModal/ImportDataModal';
-import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
-import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import { getFullName, getUrlImages, pluralize } from "@/mk/utils/string";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { useRouter } from "next/navigation";
+import { UnitsType } from "@/mk/utils/utils";
+import RenderForm from "./RenderForm";
+import ImportDataModal from "@/mk/components/data/ImportDataModal/ImportDataModal";
+import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import {
   IconDepartments2,
   IconHome,
@@ -24,59 +24,59 @@ import {
   IconDepartment,
   IconLocal,
   IconGarage,
-} from '@/components/layout/icons/IconsBiblioteca';
+} from "@/components/layout/icons/IconsBiblioteca";
 
 const paramsInitial = {
-  fullType: 'L',
+  fullType: "L",
   perPage: 20,
   page: 1,
-  searchBy: '',
+  searchBy: "",
 };
 const lTitulars = [
-  { id: 'S', name: 'Disponibles' },
-  { id: 'C', name: 'Habitadas' },
+  { id: "S", name: "Disponibles" },
+  { id: "C", name: "Habitadas" },
 ];
 
 const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
-  if (name === 'Casa') {
+  if (name === "Casa") {
     return (
       <IconHome
-        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+        color={isEmpty ? "var(--cWhiteV1)" : "var(--cSuccess)"}
         style={{
-          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+          backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl2)",
         }}
         circle
         size={18}
       />
     );
-  } else if (name === 'Departamento') {
+  } else if (name === "Departamento") {
     return (
       <IconDepartment
-        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
+        color={isEmpty ? "var(--cWhiteV1)" : "var(--cWarning)"}
         style={{
-          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl4)',
+          backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl4)",
         }}
         circle
         size={18}
       />
     );
-  } else if (name === 'Local') {
+  } else if (name === "Local") {
     return (
       <IconLocal
-        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cAlert)'}
+        color={isEmpty ? "var(--cWhiteV1)" : "var(--cAlert)"}
         style={{
-          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl9)',
+          backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl9)",
         }}
         circle
         size={18}
       />
     );
-  } else if (name === 'Garaje') {
+  } else if (name === "Garaje") {
     return (
       <IconGarage
-        color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cCompl4)'}
+        color={isEmpty ? "var(--cWhiteV1)" : "var(--cCompl4)"}
         style={{
-          backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl7)',
+          backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl7)",
         }}
         circle
         size={18}
@@ -86,9 +86,9 @@ const renderDepartmentIcon = (name: string, isEmpty: boolean) => {
   // Ícono por defecto para tipos de unidades no conocidas
   return (
     <IconUnidades
-      color={isEmpty ? 'var(--cWhiteV1)' : 'var(--cWhite)'}
+      color={isEmpty ? "var(--cWhiteV1)" : "var(--cWhite)"}
       style={{
-        backgroundColor: isEmpty ? 'var(--cHover)' : 'var(--cHoverCompl1)',
+        backgroundColor: isEmpty ? "var(--cHover)" : "var(--cHoverCompl1)",
       }}
       circle
       size={18}
@@ -100,24 +100,26 @@ const Dptos = () => {
   const router = useRouter();
   const { user } = useAuth();
 
-  const client = user?.clients?.filter((item: any) => item?.id === user?.client_id)[0];
+  const client = user?.clients?.filter(
+    (item: any) => item?.id === user?.client_id
+  )[0];
 
   const { setStore, store } = useAuth();
 
   useEffect(() => {
-    setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: '' });
+    setStore({ ...store, UnitsType: UnitsType[client?.type_dpto], title: "" });
   }, []);
 
   const mod: ModCrudType = {
-    modulo: 'dptos',
-    singular: '',
-    plural: '',
+    modulo: "dptos",
+    singular: "",
+    plural: "",
     filter: true,
-    permiso: '',
+    permiso: "",
     export: true,
     extraData: true,
     import: false,
-    titleAdd: 'Nueva unidad',
+    titleAdd: "Nueva unidad",
     hideActions: {
       view: true,
       add: false,
@@ -142,30 +144,30 @@ const Dptos = () => {
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
 
       nro: {
-        rules: ['required'],
-        api: 'ae',
+        rules: ["required"],
+        api: "ae",
         // label: "Número de " + store?.UnitsType,
-        label: 'Unidad',
-        form: { type: 'text' },
-        list: { width: '100px' },
+        label: "Unidad",
+        form: { type: "text" },
+        list: { width: "100px" },
       },
 
       description: {
         rules: [],
-        api: 'ae',
-        label: 'Descripción',
-        form: { type: 'text' },
+        api: "ae",
+        label: "Descripción",
+        form: { type: "text" },
         list: false,
       },
       type: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Tipo de unidad',
+        rules: ["required"],
+        api: "ae",
+        label: "Tipo de unidad",
         form: {
-          type: 'select',
+          type: "select",
           options: (data: any) => {
             let dataList: any = [];
             data?.extraData?.type?.map((c: any) => {
@@ -179,14 +181,14 @@ const Dptos = () => {
         },
         list: {
           onRender: (props: any) => {
-            return props?.item?.type?.name || 'Sin tipo';
+            return props?.item?.type?.name || "Sin tipo";
           },
         },
         filter: {
-          label: 'Tipo de unidad',
+          label: "Tipo de unidad",
           options: (data: any) => {
             // console.log(data, "data")
-            let options = [{ id: 'ALL', name: 'Todos' }];
+            let options = [{ id: "ALL", name: "Todos" }];
             data?.type?.forEach((type: any) => {
               options.push({
                 id: type.id,
@@ -195,31 +197,31 @@ const Dptos = () => {
             });
             return options;
           },
-          optionLabel: 'name',
-          optionValue: 'id',
+          optionLabel: "name",
+          optionValue: "id",
         },
       },
       expense_amount: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Cuota (Bs)',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Cuota (Bs)",
+        form: { type: "text" },
         list: false,
       },
       dimension: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Dimensiones en m² ',
-        form: { type: 'text' },
+        rules: ["required"],
+        api: "ae",
+        label: "Dimensiones en m² ",
+        form: { type: "text" },
         list: false,
       },
       homeowner_id: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Propietario',
+        rules: ["required"],
+        api: "ae",
+        label: "Propietario",
 
         form: {
-          type: 'select',
+          type: "select",
 
           options: (items: any) => {
             let data: any = [];
@@ -235,91 +237,111 @@ const Dptos = () => {
         list: {
           onRender: (props: any) => {
             return props?.item?.homeowner ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Avatar
                   hasImage={props?.item?.homeowner?.has_image}
                   src={getUrlImages(
-                    '/OWNER-' +
+                    "/OWNER-" +
                       props?.item?.homeowner?.id +
-                      '.webp?d=' +
+                      ".webp?d=" +
                       props?.item?.homeowner?.updated_at
                   )}
                   name={getFullName(props?.item?.homeowner)}
                 />
                 <div>
-                  <p style={{ color: 'var(--cWhite)' }}>{getFullName(props?.item?.homeowner)}</p>
-                  <p>CI: {props?.item?.homeowner?.ci || 'Sin registro'}</p>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(props?.item?.homeowner)}
+                  </p>
+                  <p>CI: {props?.item?.homeowner?.ci || "Sin registro"}</p>
                 </div>
               </div>
             ) : (
-              'Sin propietario'
+              "Sin propietario"
             );
           },
         },
       },
 
       titular: {
-        rules: [''],
-        api: '',
-        label: 'Residente',
+        rules: [""],
+        api: "",
+        label: "Residente",
         list: {
           onRender: (props: any) => {
-              // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
-              const tenant = props?.item?.tenant;
-              const homeowner = props?.item?.homeowner;
-              const person = tenant ? tenant : homeowner;
-              const hasLived = props?.item?.dpto_owners?.length > 0;
+            // Decide titular based on holder flag: 'H' -> homeowner, 'T' -> tenant
+            const tenant = props?.item?.tenant;
+            // const homeowner = props?.item?.homeowner;
+            // const person = tenant ? tenant : homeowner;
+            const hasLived = props?.item?.dpto_owners?.length > 0;
 
-              if (!person || !hasLived) {
-                return <div className={styles.noTitular}>Sin residente</div>;
-              }
+            if (!tenant || !hasLived) {
+              return <div className={styles.noTitular}>Sin residente</div>;
+            }
 
-              const personId = person?.id;
-              const updatedAt = person?.updated_at || person?.updatedAt || '';
+            const personId = tenant?.id;
+            const updatedAt = tenant?.updated_at || tenant?.updatedAt || "";
 
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Avatar
-                    hasImage={person?.has_image}
-                    src={getUrlImages('/OWNER-' + personId + '.webp?d=' + updatedAt)}
-                    name={getFullName(person)}
-                  />
-                  <div>
-                    <p style={{ color: 'var(--cWhite)' }}>{getFullName(person)}</p>
-                    <p>CI: {person?.ci || 'Sin registro'}</p>
-                  </div>
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  hasImage={tenant?.has_image}
+                  src={getUrlImages(
+                    "/OWNER-" + personId + ".webp?d=" + updatedAt
+                  )}
+                  name={getFullName(tenant)}
+                />
+                <div>
+                  <p style={{ color: "var(--cWhite)" }}>
+                    {getFullName(tenant)}
+                  </p>
+                  <p>CI: {tenant?.ci || "Sin registro"}</p>
                 </div>
-              );
-            },
+              </div>
+            );
+          },
         },
         filter: {
-          label: 'Estado',
+          label: "Estado",
 
-          options: () => [{ id: 'ALL', name: 'Todos' }, ...lTitulars],
-          optionLabel: 'name',
-          optionValue: 'id',
+          options: () => [{ id: "ALL", name: "Todos" }, ...lTitulars],
+          optionLabel: "name",
+          optionValue: "id",
         },
         import: true,
       },
       status: {
-        rules: [''],
-        api: '',
-        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
+        rules: [""],
+        api: "",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         form: false,
         list: {
-          width: '160px',
+          width: "160px",
           onRender: (props: any) => {
             // Use dpto_owners relationship: if it has items -> Habitada, else Disponible
             const owners = props?.item?.dpto_owners;
-            const isOccupied = Array.isArray(owners) ? owners.length > 0 : !!owners;
+            const isOccupied = Array.isArray(owners)
+              ? owners.length > 0
+              : !!owners;
             return (
               <div className={styles.statusCellCenter}>
                 {isOccupied ? (
-                  <StatusBadge color="var(--cSuccess)" backgroundColor="var(--cHoverSuccess)">
+                  <StatusBadge
+                    color="var(--cSuccess)"
+                    backgroundColor="var(--cHoverSuccess)"
+                  >
                     Habitada
                   </StatusBadge>
                 ) : (
-                  <StatusBadge color="var(--cWhite)" backgroundColor="var(--cHover)">
+                  <StatusBadge
+                    color="var(--cWhite)"
+                    backgroundColor="var(--cHover)"
+                  >
                     Disponible
                   </StatusBadge>
                 )}
@@ -337,7 +359,7 @@ const Dptos = () => {
 
   // Custom filter function to map 'titular' to 'status'
   const getFilter = (opt: string, value: string, oldFilter: any) => {
-    if (opt === 'titular') {
+    if (opt === "titular") {
       // Remove the 'titular' key and add 'status' instead
       const { titular, ...restFilters } = oldFilter.filterBy || {};
       return { filterBy: { ...restFilters, status: value } };
@@ -377,7 +399,11 @@ const Dptos = () => {
     router.push(`/units/${item.id}`);
   };
 
-  const renderItem = (item: Record<string, any>, i: number, onClick: Function) => {
+  const renderItem = (
+    item: Record<string, any>,
+    i: number,
+    onClick: Function
+  ) => {
     return (
       <RenderItem item={item} onClick={onClick} onLongPress={onLongPress}>
         <ItemList
@@ -411,10 +437,10 @@ const Dptos = () => {
         style={{
           ...style,
           padding: 8,
-          borderRadius: '50%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          borderRadius: "50%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         {children}
@@ -422,7 +448,7 @@ const Dptos = () => {
     );
   };
 
-  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.departamentos}>
       <h1 className={styles.dashboardTitle}>Unidades</h1>
@@ -435,14 +461,14 @@ const Dptos = () => {
             <IconUnidades
               color={
                 !data?.message?.total || data?.message?.total === 0
-                  ? 'var(--cWhiteV1)'
-                  : 'var(--cInfo)'
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
               }
               style={{
                 backgroundColor:
                   !data?.message?.total || data?.message?.total === 0
-                    ? 'var(--cHover)'
-                    : 'var(--cHoverCompl3)',
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl3)",
               }}
               circle
               size={18}
@@ -451,13 +477,16 @@ const Dptos = () => {
         />
         {getFormatTypeUnit().map((item: any, i: number) => {
           const isEmpty = !item.value || item.value === 0;
-          const pluralizedTitle = pluralize(item.name, item.value || 0).charAt(0).toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
+          const pluralizedTitle =
+            pluralize(item.name, item.value || 0)
+              .charAt(0)
+              .toUpperCase() + pluralize(item.name, item.value || 0).slice(1);
           return (
             <WidgetDashCard
               key={i}
               title={pluralizedTitle}
               data={item.value}
-              style={{ minWidth: '160px', maxWidth: '268px' }}
+              style={{ minWidth: "160px", maxWidth: "268px" }}
               icon={renderDepartmentIcon(item.name, isEmpty)}
             />
           );
@@ -467,7 +496,7 @@ const Dptos = () => {
       <div className={styles.listContainer}>
         <List
           onTabletRow={renderItem}
-          height={'calc(100vh - 450px)'}
+          height={"calc(100vh - 450px)"}
           onRowClick={handleRowClick}
           emptyMsg="Lista vacía. Una vez registres las diferentes unidades"
           emptyLine2="del condominio las verás aquí."

@@ -67,7 +67,7 @@
 .messageUser,
 .messageBubble,
 .chatInput {
-  font-family: var(--fPrimary);
+  font-family: var(--fPrimary), "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Segoe UI Symbol", system-ui, sans-serif;
 }
 
 .messageUser {
@@ -180,6 +180,72 @@
   transition: border-color 0.2s ease;
 }
 
+/* Overlay de loading sobre el input */
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--cWhiteV1);
+  border-top-color: var(--cAccent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Overlay de drag and drop */
+.dragOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.dragContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--cWhite);
+  border-radius: 1rem;
+  border: 3px dashed var(--cPrimary);
+}
+
+.dragContent p {
+  color: var(--cBlackV1);
+  font-size: 1.2rem;
+  font-weight: var(--bSemibold);
+  margin: 0;
+}
+
+.loadingText {
+  margin-top: 8px;
+  color: var(--cWhiteV1);
+  font-size: 14px;
+  font-weight: var(--bRegular);
+}
+
 .chatInput {
   border: none;
   width: 100%;
@@ -282,18 +348,41 @@
   align-items: center;
   right: 0;
   left: 0;
-  & > svg {
-    position: absolute;
-    right: 6px;
-    top: 0;
-    z-index: 10;
-    cursor: pointer;
-  }
-  & > img {
-    object-fit: contain;
-    max-height: 100%;
-    max-width: 100%;
-  }
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+}
+
+.previewItem {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--cBlackV2);
+}
+
+.removeIcon {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  z-index: 10;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  padding: 4px;
+  transition: transform 0.2s;
+}
+
+.removeIcon:hover {
+  transform: scale(1.1);
 }
 
 @keyframes fadeIn {
@@ -314,6 +403,7 @@
 }
 
 .reactionBubble {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji", "EmojiOne", sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 4px;

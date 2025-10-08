@@ -2,9 +2,10 @@
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import styles from "./UnitsType.module.css";
+import { useAuth } from "@/mk/contexts/AuthProvider";
 
 const mod = {
   modulo: "types",
@@ -17,21 +18,7 @@ const mod = {
   },
   permiso: "unittypes",
   extraData: true,
-  renderForm: (props: {
-    item: any;
-    setItem: any;
-    errors: any;
-    extraData: any;
-    open: boolean;
-    onClose: any;
-    user: any;
-    execute: any;
-    setErrors: any;
-    action: any;
-    reLoad: any;
-  }) => {
-    return <RenderForm {...props} />;
-  },
+  renderForm: RenderForm,
   renderView: (props: {
     open: boolean;
     onClose: any;
@@ -93,16 +80,22 @@ const paramsInitial = {
 };
 
 const renderExtraFields = (props: any) => {
-  const fieldsForThisType = props?.extraData?.fields?.filter(
-    (field: any) => field.type_id === props.item.id
-  );
+  const fields = props.item?.fields || [];
 
-  if (!fieldsForThisType || fieldsForThisType.length === 0) {
-    return <span>Sin campos extras</span>;
+  if (!fields || fields.length === 0) {
+    return <span>-/-</span>;
   }
 
-  const fieldNames = fieldsForThisType.map((field: any) => field.name);
-  return <span>{fieldNames.join(", ")}</span>;
+  return (
+    <span>
+      {fields.map((field: any, index: number) => (
+        <span key={field.id || `field-${props.item.id}-${index}`}>
+          {field.name}
+          {index < fields.length - 1 ? ', ' : ''}
+        </span>
+      ))}
+    </span>
+  );
 };
 
 const UnitsType = () => {
@@ -113,7 +106,9 @@ const UnitsType = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: true,
+        list: {
+          width: 200,
+        },
         form: { type: "text" },
       },
       fields: {
@@ -126,6 +121,12 @@ const UnitsType = () => {
     };
   }, []);
 
+  const { setStore, store } = useAuth();
+  useEffect(() => {
+    setStore({ ...store, title: 'Tipo de unidades' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { userCan, List } = useCrud({
     paramsInitial,
     mod,
@@ -135,7 +136,7 @@ const UnitsType = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div>
-      <List height={"calc(100vh - 405px)"} />
+      <List height={"calc(100vh - 350px)"} />
     </div>
   );
 };

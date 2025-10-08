@@ -14,7 +14,7 @@
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
   min-height: 48px;
   padding-right: 44px;
-  z-index: 300;
+  z-index: 11001; 
   transition: all 1s ease-in-out;
   font-size: var(--sS);
   opacity: 0;
