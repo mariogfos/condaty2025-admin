@@ -28,6 +28,8 @@ import {
 import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
 
 
+type TitularType = 'H' | 'T';
+
 interface DashDptosProps {
   id: string | number;
 }
@@ -47,7 +49,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
   const [currentRemovalType, setCurrentRemovalType] = useState<
-    "H" | "T" | null
+    TitularType | null
   >(null);
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
@@ -66,7 +68,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
-  const [currentChangeType, setCurrentChangeType] = useState<"H" | "T" | null>(
+  const [currentChangeType, setCurrentChangeType] = useState<TitularType | null>(
     null
   );
 
@@ -171,9 +173,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [newIsResident, setNewIsResident] = useState<boolean>(false);
   const [openTransferModal, setOpenTransferModal] = useState(false);
   const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
-  const [pendingTransferType, setPendingTransferType] = useState<"H" | "T" | null>(null);
+  const [pendingTransferType, setPendingTransferType] = useState<TitularType | null>(null);
 
-  const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
+  const onTitular = (type: TitularType, action?: 'new' | 'change') => {
     if (action === 'new') {
       setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
       setNewIsResident(type === 'T');
@@ -192,7 +194,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     setOpenTitular(true);
   };
 
-  const handleRemoveTitularClick = (type: "H" | "T") => {
+  const handleRemoveTitularClick = (type: TitularType) => {
     setCurrentRemovalType(type);
     setOpenDelTitular(true);
   };
