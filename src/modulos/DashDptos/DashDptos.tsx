@@ -372,10 +372,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   currentChangeType === "H"
                     ? extra.homeowners || []
                     : extra.tenants || [];
-                return list.map((owner: any) => ({
-                  ...owner,
-                  name: `${getFullName(owner)}`,
-                }));
+                return list.map((owner: any) => {
+              const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
+              const dptoLabel =
+                Array.isArray(owner?.dpto) && owner.dpto.length > 0
+                  ? ` - Unidad ${owner.dpto[0]?.nro ?? ""}`
+                  : "";
+              return {
+                ...owner,
+                name: `${getFullName(owner)}${ciLabel}${dptoLabel}`,
+              };
+            });
               })()}
               optionLabel="name"
               optionValue="id"
