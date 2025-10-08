@@ -110,13 +110,13 @@ const RenderForm = ({
     });
     errs = checkRules({
       value: formState.expense_amount,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "expense_amount",
       errors: errs,
     });
     errs = checkRules({
       value: formState.dimension,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "dimension",
       errors: errs,
     });

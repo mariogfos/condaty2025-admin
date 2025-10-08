@@ -25,6 +25,17 @@ const amountCell = ({ item }: { item: any }) => {
   );
 };
 
+const paymentMethodCell = ({ item }: { item: any }) => {
+  const methodMap: Record<string, string> = {
+    T: "Transferencia bancaria",
+    E: "Efectivo",
+    C: "Cheque",
+    Q: "Pago QR",
+    O: "Pago en oficina",
+  };
+  return methodMap[item?.method] || item?.method || '-/-';
+};
+
 interface PaymentsTableProps {
   payments: any[];
 }
@@ -40,20 +51,10 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       },
     },
     {
-      key: 'category',
-      label: 'Categoría',
+      key: 'payment_method',
+      label: 'Forma de pago',
       responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return item?.category?.padre?.name || '-/-';
-      },
-    },
-    {
-      key: 'subcategory',
-      label: 'Subcategoría',
-      responsive: 'desktop',
-      onRender: ({ item }: any) => {
-        return item?.category?.name || '-/-';
-      },
+      onRender: paymentMethodCell,
     },
     {
       key: 'amount',

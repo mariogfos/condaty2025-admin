@@ -212,6 +212,7 @@ export default function ChatInstantDb() {
             ? styles.chatContainer + " close " + styles.close
             : styles.chatContainer
         }
+        inert={!open ? true : undefined}
       >
         {/* encabezado */}
         <div className={styles.chatHeader}>
