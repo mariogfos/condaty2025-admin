@@ -63,7 +63,8 @@ const Layout = ({ children }: any) => {
     typeof window !== "undefined" ? new Audio("/sounds/Alerta.mp3") : null
   );
   const [openClient, setOpenClient] = useState(false);
-  const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] = useState(false);
+  const [isLayoutAlertDescExpanded, setIsLayoutAlertDescExpanded] =
+    useState(false);
 
   const path: any = usePathname();
   const router = useRouter();
@@ -72,12 +73,16 @@ const Layout = ({ children }: any) => {
 
   // Helper para truncar texto a 150 chars con "…"
   const truncateText = (text: string, max: number) =>
-    (text ?? "").length > max ? (text ?? "").slice(0, max).trimEnd() + "…" : (text ?? "");
+    (text ?? "").length > max
+      ? (text ?? "").slice(0, max).trimEnd() + "…"
+      : text ?? "";
 
   // Precalcular valores del nombre/descripcion de la emergencia
   const emergencyName = openAlert?.item?.name ?? "";
   const nameTooLong = emergencyName.length > 150;
-  const visibleName = isLayoutAlertDescExpanded ? emergencyName : truncateText(emergencyName, 150);
+  const visibleName = isLayoutAlertDescExpanded
+    ? emergencyName
+    : truncateText(emergencyName, 150);
 
   // Reiniciar al abrir/cambiar la alerta
   useEffect(() => {
@@ -141,7 +146,7 @@ const Layout = ({ children }: any) => {
         showToast(e.payload.title, "info");
       }
 
-      if (e.event =="alerts" && e.payload?.level >= 2) {
+      if (e.event == "alerts" && e.payload?.level >= 2) {
         showToast("¡Se registró una nueva alerta!", "warning");
       }
       if (e.event == "newContent") {
