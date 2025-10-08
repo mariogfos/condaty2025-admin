@@ -274,7 +274,7 @@ const Dptos = () => {
             // const person = tenant ? tenant : homeowner;
             const hasLived = props?.item?.dpto_owners?.length > 0;
 
-            if (!tenant || !hasLived) {
+            if (!tenant && !hasLived) {
               return <div className={styles.noTitular}>Sin residente</div>;
             }
 
