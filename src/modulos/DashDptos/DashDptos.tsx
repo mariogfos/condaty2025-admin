@@ -215,7 +215,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           isHomeowner ? "Propietario liberado" : "Residente desvinculado",
           "success"
         );
-        reLoad({extradata: true});
+        reLoad({ extraData: true });
         setOpenDelTitular(false);
         setCurrentRemovalType(null);
       } else {
@@ -387,7 +387,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Modales de Historial */}
         {openTitularHist && (
           <HistoryOwnership
-            ownershipData={datas?.tenantHist || []}
+            ownershipData={datas?.titularHist || datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
           />
@@ -443,10 +443,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               type_owner: newOwnerType,
               dptos: datas?.data?.id ? [{
                 dpto_id: datas.data.id,
-                will_live_in_unit: newIsResident,
                 dpto_nro: datas.data.nro,
               }] : [],
-              will_live_in_unit: newIsResident,
               _disabled: false,
               _emailDisabled: false
             }}

@@ -47,15 +47,16 @@ const HistoryOwnership = ({
           Estás visualizando una lista completa de todos los titulares y sus
           respectivos dependientes que esta unidad ha tenido hasta la fecha.
         </p>
-
-        <div className={styles.searchWrapper}>
-          <DataSearch
-            name="search"
-            setSearch={handleSearch}
-            value=""
-            textButton="Buscar"
-          />
-        </div>
+        {filteredData.length > 0 && (
+          <div className={styles.searchWrapper}>
+            <DataSearch
+              name="search"
+              setSearch={handleSearch}
+              value=""
+              textButton="Buscar"
+            />
+          </div>
+        )}
 
         <div className={styles.titularesList}>
           {filteredData.length === 0 ? (
