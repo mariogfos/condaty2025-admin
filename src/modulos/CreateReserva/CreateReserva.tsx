@@ -325,7 +325,6 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad
     );
-    console.log(selectedUnit);
     const ownerId = selectedUnit?.titular?.id;
     if (!ownerId) {
       setIsSubmitting(false);
