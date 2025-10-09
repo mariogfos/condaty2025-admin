@@ -23,17 +23,25 @@ const renderSubtitle = (item: any) => {
   if (item?.other) {
     subtitle = item.other?.other_type?.name;
   }
+  if (item?.type === 'O') {
+    subtitle = 'CI: ' + item.owner?.ci;
+  }
   return subtitle;
 };
-const visitCell = ({ item }: { item: any }) => (
-  <div className={styles.visitInfo}>
-    {leftAccess(item)}
-    <div>
-      <p className={styles.visitName}>{getFullName(item.visit)}</p>
-      <p className={styles.visitSubtitle}>{renderSubtitle(item)}</p>
+const visitCell = ({ item }: { item: any }) => {
+  const displayUser = item?.type === 'O' ? item.owner : item.visit;
+  
+  return (
+    <div className={styles.visitInfo}>
+      {leftAccess(item)}
+      <div>
+        <p className={styles.visitName}>{getFullName(displayUser)}</p>
+        <p className={styles.visitSubtitle}>{renderSubtitle(item)}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 const leftAccess = (item: any) => {
   if (item?.other) {
     let icon;
@@ -49,6 +57,17 @@ const leftAccess = (item: any) => {
         break;
     }
     return <div className={styles.iconContainer}>{icon}</div>;
+  }
+  if (item?.type === 'O') {
+    return (
+      <Avatar
+        hasImage={item?.owner?.has_iamge}
+        src={getUrlImages(`/OWNER-${item?.owner?.id}.webp?d=${item?.owner?.updated_at}`)}
+        name={getFullName(item.owner)}
+        w={40}
+        h={40}  
+      />
+    )
   }
   return (
     <Avatar
@@ -107,7 +126,16 @@ const typeCell = ({ item }: { item: any }) => {
   if (item.type === 'I') {
     return 'Individual';
   }
-  return 'Grupal';
+  if (item.type === 'G') {
+    return 'QR Grupal';
+  }
+  if (item.type === 'F') {
+    return 'QR Frecuente';
+  }
+  if (item.type === 'O') {
+    return 'Llave QR';
+  }
+  return '-/-';
 };
 
 const AccessTable = ({ access }: AccessTableProps) => {
