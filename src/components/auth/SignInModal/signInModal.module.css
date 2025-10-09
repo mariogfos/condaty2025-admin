@@ -1,0 +1,32 @@
+.signInModal{
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction: column;
+& > div {
+    align-self:center;
+    align-items: center;
+    /* background-color: aqua; */
+    & > div:nth-child(1) {
+      color:var(--cBlack);
+      margin-bottom:var(--spS);
+      font-size: var(--sXxl);
+      font-weight: var(--bBold);
+    }
+    & > div:nth-child(2) {
+        color:var(--cBlackV2);
+        font-size: var(--sM);
+        font-weight: var(--bRegular);
+        margin-bottom: 40px;
+      }
+    & > div:nth-child(5) {
+        color:green;
+        margin-bottom: 40px;
+        text-align: center;
+      }  
+}
+& > div {
+  color:var(--cBlackV2);
+  margin-top:8px;
+}
+}

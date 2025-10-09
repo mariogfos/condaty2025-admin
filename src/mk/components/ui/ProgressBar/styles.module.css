@@ -1,0 +1,40 @@
+.progressBar {
+  display: flex;
+  height: 30px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progressBarSent {
+  background-color: green;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.progressBarPending {
+  background-color: yellow;
+  height: 100%;
+  /* position: absolute; */
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: blink 1s infinite;
+  overflow: hidden;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

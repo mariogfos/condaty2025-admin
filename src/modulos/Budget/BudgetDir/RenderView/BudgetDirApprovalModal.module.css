@@ -1,0 +1,50 @@
+/* components/budgets/SendBudgetApprovalModal.module.css */
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spM, 1rem); /* Espacio entre párrafos */
+    padding-bottom: var(--spL, 1.5rem); /* Espacio antes de los botones */
+  }
+  
+  .contentContainer p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--White); /* Ajusta el color si es necesario */
+  }
+  
+  .contentContainer strong {
+    font-weight: 600; /* O el peso que uses para énfasis */
+  }
+  
+  .actionButtonsContainer {
+    display: flex;
+    justify-content: flex-end; /* Alinea botones a la derecha */
+    gap: var(--spM, 1rem); /* Espacio entre botones */
+    padding-top: var(--spM, 1rem); /* Espacio sobre los botones */
+    border-top: 1px solid var(--cSeparator, #eee); /* Línea separadora opcional */
+  }
+  
+  /* Opcional: si quieres que los botones ocupen espacio equitativo */
+  /* .cancelButton,
+  .confirmButton {
+    flex-grow: 1;
+  } */
+
+
+  .secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
+    flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
+    flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+    /* Puedes añadir otros estilos si son necesarios */
+  }
+  
+  .primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
+    flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
+    flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
+  }
+  .divider {
+    height: 0.5px;
+    width: 100%;
+    background-color: var(--cWhiteV1);
+    margin-bottom: var(--spM, 12px);
+  }
+  

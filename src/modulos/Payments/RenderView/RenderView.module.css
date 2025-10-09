@@ -1,0 +1,485 @@
+/* RenderView.module.css */
+
+.container {
+  background-color: var(--cBlackV2);
+  width: 100%; /* El container debe usar el 100% del espacio que le da el DataModal */
+  display: flex;
+  flex-direction: column;
+  padding: var(--spXl);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV1);
+  min-width: 600px; /* Ajusta este valor según tus necesidades */
+}
+
+.notFoundContainer {
+  padding: var(--spXl) var(--spL);
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.notFoundText {
+  font-size: var(--sL);
+  color: var(--cWhite);
+  font-weight: var(--bMedium);
+  margin-bottom: var(--spS);
+}
+
+.notFoundSuggestion {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spXs);
+  padding-bottom: var(--spL);
+  text-align: center;
+}
+
+.amountDisplay {
+  color: var(--cWhite);
+  font-size: 36px;
+  font-weight: var(--bBold);
+  line-height: 1.1;
+}
+
+.dateDisplay {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.5;
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV2);
+  margin: var(--spS) 0;
+}
+
+.mainInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Siempre dos columnas de igual tamaño */
+  gap: var(--spL);
+  width: 100%;
+  padding: var(--spL) 0;
+  box-sizing: border-box;
+}
+.mainInfoGrid > .infoColumn:first-child {
+  margin-left: 50%;
+  
+}
+
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+  min-width: 0; /* Esencial para permitir que la columna se encoja */
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  font-weight: var(--bRegular);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0; /* Para que el texto largo no impida que el contenedor se encoja */
+  text-align: left; /* Alineación a la derecha para todos los valores */
+}
+
+.infoValue div {
+  line-height: 1.4;
+  min-width: 0;
+  text-align: right; /* Alineación a la derecha también para los divs internos */
+}
+
+.statusPaid {
+  color: var(--cSuccess) !important;
+  font-weight: var(--bSemibold);
+}
+.statusPending {
+  color: var(--cWarning) !important;
+  font-weight: var(--bSemibold);
+}
+.statusRejected {
+  color: var(--cError) !important;
+  font-weight: var(--bSemibold);
+}
+
+.voucherButtonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--spL) 0;
+  position: relative;
+}
+
+.voucherButton {
+  background-color: transparent;
+  color: var(--cWhite);
+  border: 1px solid var(--cWhiteV1);
+  font-size: var(--sM);
+  padding: var(--spM) var(--spXl);
+  border-radius: var(--bRadiusS);
+  text-align: center;
+  font-weight: var(--bMedium);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  min-width: 220px;
+  max-width: 100%;
+}
+
+.voucherButton:hover {
+  background-color: var(--cWhiteV3);
+  border-color: var(--cWhite);
+}
+
+.periodsDetailsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.periodsDetailsHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.periodsDetailsTitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  margin: 0;
+  padding-left: var(--spXs);
+}
+
+.periodsTableWrapper {
+  width: 100%;
+  border: 1px solid var(--cWhiteV1);
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+}
+
+.periodsTable {
+  width: 100%;
+}
+
+.periodsTableHeader,
+.periodsTableRow {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 1.5fr;
+  width: 100%;
+  align-items: stretch;
+}
+
+.periodsTableRow {
+ border-bottom: 1px solid var(--cBlackV3);
+}
+
+.periodsTableBody .periodsTableRow:last-child {
+  border-bottom: none;
+}
+
+.periodsTableHeader {
+  background-color: var(--cBlackV2);
+  border-bottom: 1px solid var(--cWhiteV1);
+}
+
+.periodsTableCell {
+  padding: var(--spM);
+  text-align: left;
+  font-size: var(--sS);
+  color: var(--cWhite);
+  border-right: 1px solid var(--cBlackV3);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  background-color: var(--cBlackV1);
+  min-height: 44px;
+  overflow-wrap: break-word; /* Añadido para celdas de tabla */
+  min-width: 0; /* Añadido para celdas de tabla */
+}
+
+.periodsTableHeader .periodsTableCell {
+  color: var(--cWhiteV1);
+  font-size: var(--sXs);
+  font-weight: var(--bMedium);
+  text-transform: uppercase;
+  background-color: var(--cBlackV2);
+}
+
+.periodsTableCell:last-child {
+  border-right: none;
+}
+
+.periodsTableCell[data-label="Monto"],
+.periodsTableCell[data-label="Multa"],
+.periodsTableCell[data-label="Subtotal"] {
+  justify-content: flex-end;
+  text-align: right;
+}
+.periodsTableHeader .periodsTableCell:nth-child(3),
+.periodsTableHeader .periodsTableCell:nth-child(4),
+.periodsTableHeader .periodsTableCell:nth-child(5) {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.periodsDetailsFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding-top: var(--spM);
+}
+
+.periodsDetailsTotal {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  white-space: nowrap;
+}
+
+.totalAmountValue {
+  color: var(--cWhite);
+  font-weight: var(--bSemibold);
+}
+
+.actionButtonsContainer {
+  display: flex;
+  gap: var(--spM);
+  width: 100%;
+  margin-top: var(--spXl);
+  padding-top: var(--spL);
+  border-top: 1px solid var(--cBlackV2);
+}
+
+.actionButton {
+  flex: 1;
+  padding: var(--spM) var(--spL);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  border-radius: var(--bRadiusS);
+  text-align: center;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.2s ease;
+  border: none;
+  color: var(--cWhite);
+}
+.actionButton:hover {
+  filter: brightness(1.15);
+}
+.actionButton:active {
+  transform: scale(0.98);
+}
+
+.rejectButton {
+  background-color: var(--cError);
+}
+
+.confirmButton {
+  background-color: var(--cSuccess);
+}
+
+@media (max-width: var(--responsive-tablet)) {
+  .container {
+    padding: var(--spL);
+    gap: var(--spM);
+  }
+  .headerSection {
+    padding-bottom: var(--spM);
+  }
+  .amountDisplay {
+    font-size: 30px;
+  }
+  .dateDisplay {
+    font-size: var(--sS);
+  }
+  .sectionDivider {
+    margin: var(--spXs) 0;
+  }
+  .mainInfoGrid {
+    grid-template-columns: 1fr 1fr; /* Mantiene dos columnas incluso en móvil */
+    gap: var(--spM);
+    padding: var(--spM) 0;
+  }
+  .mainInfoGrid > .infoColumn:first-child {
+    /* Si tenías "margin-left: 50%;" aquí, cámbialo por un valor más pequeño.
+       Si no tenías esta regla, añádela con el valor deseado. */
+    margin-left: var(--spL); /* Ejemplo: usa una de tus variables de espaciado existentes */
+    /* Alternativas:
+       margin-left: 20px;  // Un valor fijo en píxeles
+       margin-left: 1.5rem; // Un valor fijo en rems
+    */
+  }
+  .mainInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  gap: var(--spXl); /* Un poco más de espacio que spL para separar mejor */
+  width: 100%;
+  padding: var(--spL) 0;
+  box-sizing: border-box;
+}
+.mainInfoGrid > .infoColumn:first-child {
+  margin-left: 50%;
+  
+}
+  .infoColumn {
+    gap: var(--spM);
+  }
+  .voucherButtonContainer {
+    padding: var(--spM) 0;
+  }
+  .voucherButton {
+    padding: var(--spS) var(--spM);
+    font-size: var(--sS);
+    min-width: auto;
+    width: 100%;
+  }
+  .periodsDetailsSection {
+    gap: var(--spS);
+    padding-top: 0;
+  }
+  .periodsDetailsHeader {
+    margin-bottom: var(--spS);
+  }
+  .periodsDetailsTitle {
+    font-size: var(--sM);
+  }
+  .periodsTableWrapper {
+    border-radius: var(--bRadiusS);
+  }
+  .periodsTableHeader {
+    display: none;
+  }
+  .periodsTableRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: var(--spM);
+    border-bottom: 1px solid var(--cBlackV3);
+    background-color: var(--cBlackV1);
+  }
+  .periodsTableBody .periodsTableRow:last-child {
+     border-bottom: none;
+  }
+  .periodsTableCell {
+    display: flex;
+    justify-content: space-between;
+    text-align: left !important;
+    padding: var(--spS) 0;
+    border-right: none;
+    border-bottom: 1px dashed var(--cBlackV3);
+    font-size: var(--sS);
+    background-color: transparent;
+    min-height: auto;
+  }
+  .periodsTableCell:last-child {
+    border-bottom: none;
+  }
+  .periodsTableCell::before {
+    content: attr(data-label);
+    font-weight: var(--bMedium);
+    color: var(--cWhiteV1);
+    margin-right: var(--spM);
+    min-width: 70px;
+    text-align: left;
+  }
+  .periodsDetailsFooter {
+    padding-top: var(--spS);
+  }
+  .periodsDetailsTotal {
+    font-size: var(--sS);
+  }
+  .actionButtonsContainer {
+    flex-direction: column;
+    margin-top: var(--spL);
+    padding-top: var(--spM);
+  }
+  .actionButton {
+    padding: var(--spM);
+    font-size: var(--sS);
+  }
+}
+
+/* Media query para pantallas muy pequeñas */
+@media (max-width: 640px) {
+  .mainInfoGrid {
+    grid-template-columns: 1fr 1fr; /* Mantiene dos columnas incluso en móvil */
+    gap: 0.5rem; /* Reduce el espacio entre columnas en móvil */
+  }
+
+  .infoBlock {
+    padding: 0.25rem; /* Reduce el padding en móvil */
+  }
+
+  .infoLabel {
+    font-size: 0.75rem;
+  }
+
+  .infoValue {
+    font-size: 0.875rem;
+  }
+}
+
+.headerActionContainer {
+  /* Puedes añadir estilos aquí si necesitas posicionar el botón de anular,
+     por ejemplo, alinearlo a la derecha. */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+  padding-bottom: var(--spM); /* Espacio antes del contenido principal del modal */
+}
+
+.textButtonDanger {
+  background-color: transparent;
+  border: none;
+  color: var(--cError);           /* Asumiendo que --cError es tu variable para el color rojo */
+  padding: 8px 12px;              /* Padding para hacerlo clickeable */
+  cursor: pointer;
+  font-family: var(--fPrimary);   /* Consistencia con tu fuente primaria */
+  font-size: var(--sM);           /* Consistencia con otros tamaños de texto (ej. .infoValue) */
+  font-weight: var(--bMedium);    /* Consistencia con otros pesos de fuente */
+  text-align: center;
+  border-radius: var(--bRadiusXs, 4px); /* Un radio de borde sutil, opcional */
+  transition: color 0.2s ease, background-color 0.2s ease; /* Transiciones suaves */
+}
+
+.textButtonDanger:hover,
+.textButtonDanger:focus { /* :focus para accesibilidad con teclado */
+  /* color: #cc0000;  Puedes oscurecer el rojo si lo deseas, o usar otra variable */
+  text-decoration: underline; /* Un subrayado es común para text buttons al hacer hover/focus */
+  background-color: rgba(255, 0, 0, 0.05); /* Un sutil color de fondo al interactuar, opcional */
+  outline: none; /* Quita el outline por defecto en focus si añades otros indicadores */
+}
+
+/* Estilos para cuando el botón pudiera estar deshabilitado (aunque tu lógica actual lo oculta) */
+.textButtonDanger:disabled {
+  color: var(--cWhiteV3, #999999); /* Color de texto apagado */
+  cursor: not-allowed;
+  text-decoration: none;
+  background-color: transparent;
+}

@@ -1,0 +1,163 @@
+.container {
+    padding: 20px;
+    color: var(--light-v1);
+  }
+  
+  .iconHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+
+  
+  .pedidoIcon {
+    width: 40px;
+    height: 40px;
+    color: var(--light-v1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .pedidoTitle {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--light-v1);
+  }
+  
+  .divider {
+    height: 1px;
+    width: 100%;
+    background-color: var(--light-v3);
+    opacity: 0.3;
+    margin: 16px 0;
+  }
+  
+  .detailsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .detailRow {
+    display: flex;
+    align-items: center; /* Cambiado de flex-start a center */
+    justify-content: center; /* Añadir esta línea */
+  }
+  
+  .label {
+    flex: 0 0 50%;
+    text-align: right;
+    padding-right: 16px;
+    font-weight: 500;
+    color: var(--cWhite);
+  }
+  
+  .value {
+    text-align: left;
+    flex: 0 0 50%;
+    color: var(--light-v3);
+  }
+  
+  .valueAccent {
+    flex: 0 0 50%;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .valueError {
+    flex: 0 0 50%;
+    color: var(--error);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .ingressIcon {
+    color: var(--accent);
+  }
+  
+  .egressIcon {
+    color: var(--error);
+  }
+  
+  .actionContainer {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  
+  .entryButton {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .entryButton:hover {
+    background-color: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .exitButton {
+    background-color: var(--error);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .exitButton:hover {
+    background-color: var(--error-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Animation for the icon */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .iconCircle {
+    animation: pulse 2s infinite ease-in-out;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .detailRow {
+      flex-direction: column;
+    }
+    
+    .label, .value, .valueAccent, .valueError {
+      flex: 1 0 100%;
+      text-align: left;
+      padding: 0;
+      margin-bottom: 4px;
+    }
+  }

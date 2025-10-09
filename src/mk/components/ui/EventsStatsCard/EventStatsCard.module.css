@@ -1,0 +1,52 @@
+.cardEvent {
+    background-color: var(--cHover);
+    border:1px solid var(--cBlackV3);
+    border-radius: var(--bRadius);
+    padding:var(--spS);
+    width: 100%;
+  }
+
+  .flexAndGap{
+    gap: 12px;
+    display: flex;
+  }
+  .cardEventContainer {
+     display:flex;
+     justify-content: center;
+     align-items: center;
+     flex-direction: column;
+     gap:4px;
+  
+  }
+  .textBlackV2 {
+    color: var(--cBlackV2);
+    font-size: var(--sM);
+    font-weight: var(--bMedium);
+  }
+  .textWhiteV1 {
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+    font-weight: var(--bMedium);
+  }
+  .bigNumber{
+    font-size: 40px;
+    font-weight: var(--bBold);
+    color: var(--cWhite);
+  }
+  .number{
+    font-size: var(--sXl);
+    font-weight: var(--bBold);
+    color: var(--cWhite);
+  }
+  .commentsAndLike {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .titleAndIcon {
+    display:flex;
+    align-items: center;
+  }
+  

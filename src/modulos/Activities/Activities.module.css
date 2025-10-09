@@ -1,0 +1,232 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportContainer {
+  background-color: var(--darkv2, #1c1c1c);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exportIcon {
+  color: var(--tWhite, #ffffff);
+}
+
+.listWrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Estilos para elementos de Accesos */
+.visitorName {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+/* Estilos para elementos de Invitaciones */
+.invitationTitle {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+.invitationTypeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupIcon {
+  color: var(--info, #3b82f6);
+}
+
+.singleIcon {
+  color: var(--success, #10b981);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.statusA {
+  background-color: var(--success, #10b981);
+  color: white;
+}
+
+.statusX {
+  background-color: var(--error, #ef4444);
+  color: white;
+}
+
+.statusE {
+  background-color: var(--lightv3, #a7a7a7);
+  color: white;
+}
+
+/* Estilos para elementos de Pedidos */
+.pedidoDescripcion {
+  font-weight: 500;
+  color: var(--tWhite, #ffffff);
+}
+
+/* Estilos para reportes */
+.downloadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.downloadLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: var(--info, #3b82f6);
+  font-weight: 500;
+  gap: 0.5rem;
+}
+
+.downloadIcon {
+  color: var(--info, #3b82f6);
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+}
+
+/* Añadir al Activities.module.css */
+
+/* Estilos para los iconos de tipo de pedido */
+.typeIconContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+}
+
+.avatarText{
+  display: flex;
+  /* align-items: center; */
+  gap: 8px;
+  flex-direction: column;
+  flex:1;
+   font-size: var(--sM);
+  & > div:nth-child(1){
+   color:var(--cWhite);
+   font-size: var(--sL);
+  }
+}
+.companionsText{
+  /* background-color: red; */
+  min-height: 15px;
+  font-size: var(--sS);
+}
+
+/* Corrección para el centrado vertical de iconos */
+.iconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--darkv1);
+  flex-shrink: 0;
+  position: relative;
+  margin-right: 16px;
+}
+
+
+
+.typeIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+}
+
+.typeName {
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Estilos específicos para cada tipo de pedido */
+.iconCircle svg {
+  opacity: 0.9;
+}
+
+/* Colores para cada tipo de pedido */
+.iconDelivery {
+  color: #4ade80; /* verde */
+}
+
+.iconTaxi {
+  color: #facc15; /* amarillo */
+}
+
+.iconEmail {
+  color: #60a5fa; /* azul */
+}
+
+.iconOther {
+  color: #a78bfa; /* morado */
+}
+
+.iconFoot {
+  color: #fb923c; /* naranja */
+}
+
+.iconVehicle {
+  color: #f87171; /* rojo */
+}
+
+.valueAccent {
+  flex: 0 0 60%;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.valueError {
+  flex: 0 0 60%;
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

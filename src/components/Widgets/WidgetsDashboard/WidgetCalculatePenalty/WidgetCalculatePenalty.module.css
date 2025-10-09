@@ -1,0 +1,17 @@
+.widgetCalculatePenalty {
+    background-color: var(--cBlackV2) !important;
+    & > div {
+      /* background-color: blue; */
+      display: flex;
+      flex-direction: column;
+      gap:var(--spM);
+      & > div:nth-child(1){
+        color: var(--cWhite);
+        font-size: var(--sL);
+      }
+      & > div:nth-child(2){
+        color: var(--cWhiteV1);
+        font-size: var(--sM);
+      } 
+    }
+  }

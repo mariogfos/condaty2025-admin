@@ -1,0 +1,274 @@
+.apexcharts-menu {
+  background-color: black !important;
+  color: white !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: #333 !important; /* Color al pasar el cursor */
+}
+
+.only-print {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+
+  .only-print {
+    display: block;
+  }
+}
+.only-print {
+  display: none;
+}
+.hidden {
+  display: none;
+}
+
+.hidden-tablet {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.hidden-desktop {
+  @media (min-width: 769px) {
+    display: none;
+  }
+}
+
+.hidden-mobile {
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.show-tablet {
+  @media (width > 768px) {
+    display: none;
+  }
+}
+.show-mobile {
+  @media (width > 480px) {
+    display: none;
+  }
+}
+
+.prueba {
+  background-color: red;
+  opacity: 70%;
+}
+
+.center {
+  text-align: center;
+}
+.right {
+  text-align: right;
+}
+.left {
+  text-align: left;
+}
+
+.link {
+  color: var(--cAccent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.spPS {
+  --spP: var(--spS);
+}
+.spPX {
+  --spP: var(--spX);
+}
+.mY {
+  margin-top: var(--spM);
+  margin-bottom: var(--spM);
+}
+.mYxs {
+  margin-top: var(--spXs);
+  margin-bottom: var(--spXs);
+}
+.mYs {
+  margin-top: var(--spS);
+  margin-bottom: var(--spS);
+}
+.mYl {
+  margin-top: var(--spL);
+  margin-bottom: var(--spL);
+}
+
+.mYxl {
+  margin-top: var(--spXl);
+  margin-bottom: var(--spXl);
+}
+
+.mYxxl {
+  margin-top: var(--spXxl);
+  margin-bottom: var(--spXxl);
+}
+.mX {
+  margin-left: var(--spM);
+  margin-right: var(--spM);
+}
+
+.mXs {
+  margin-left: var(--spS);
+  margin-right: var(--spS);
+}
+
+.mXl {
+  margin-left: var(--spL);
+  margin-right: var(--spL);
+}
+
+.mXxl {
+  margin-left: var(--spXl);
+  margin-right: var(--spXl);
+}
+
+.mXxxl {
+  margin-left: var(--spXxl);
+  margin-right: var(--spXxl);
+}
+
+.pY {
+  padding-top: var(--spM);
+  padding-bottom: var(--spM);
+}
+
+.pYs {
+  padding-top: var(--spS);
+  padding-bottom: var(--spS);
+}
+
+.pYl {
+  padding-top: var(--spL);
+  padding-bottom: var(--spL);
+}
+
+.pYxl {
+  padding-top: var(--spXl);
+  padding-bottom: var(--spXl);
+}
+
+.pYxxl {
+  padding-top: var(--spXxl);
+  padding-bottom: var(--spXxl);
+}
+.pX {
+  padding-left: var(--spP, --spM);
+  padding-right: var(--spP, --spM);
+}
+
+.pXs {
+  padding-left: var(--spS);
+  padding-right: var(--spS);
+}
+
+.pXl {
+  padding-left: var(--spL);
+  padding-right: var(--spL);
+}
+
+.pXxl {
+  padding-left: var(--spXl);
+  padding-right: var(--spXl);
+}
+
+.pXxxl {
+  padding-left: var(--spXxl);
+  padding-right: var(--spXxl);
+}
+/* colors */
+.bgPrimary {
+  background-color: var(--cPrimary);
+}
+.bgSecondary {
+  background-color: var(--cSecondary);
+}
+.bgTerciary {
+  background-color: var(--cTerciary);
+}
+.bgAccent {
+  background-color: var(--cAccent);
+}
+.bgWhite {
+  background-color: var(--cWhite);
+}
+.bgBlack {
+  background-color: var(--cBlack);
+}
+.bgBlackV1 {
+  background-color: var(--cBlackV1);
+}
+.bgBlackV2 {
+  background-color: var(--cBlackV2);
+}
+.bgBlackV3 {
+  background-color: var(--cBlackV3);
+}
+.bgError {
+  background-color: var(--cError);
+}
+.bgSuccess {
+  background-color: var(--cSuccess);
+}
+.bgInfo {
+  background-color: var(--cInfo);
+}
+.bgWarning {
+  background-color: var(--cWarning);
+}
+
+.cPrimary {
+  color: var(--cPrimary);
+}
+.cSecondary {
+  color: var(--cSecondary);
+}
+.cTerciary {
+  color: var(--cTerciary);
+}
+
+.cError {
+  color: var(--cError);
+}
+/* textos */
+.tTitle,
+h1 {
+  font-size: var(--sXl);
+  color: var(--cWhite);
+  font-weight: var(--bBold);
+}
+
+.tSubtitle,
+h2 {
+  font-size: var(--sL);
+  color: var(--cWhiteV2);
+  font-weight: var(--bSemiBold);
+}
+
+.tMedium {
+  font-size: var(--sM);
+  color: var(--cTerciary);
+  font-weight: var(--bRegular);
+}
+
+.tSmall {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  font-weight: var(--bRegular);
+}
+
+.tXSmall {
+  font-size: var(--sXs);
+  color: var(--cWhiteV1);
+  font-weight: var(--bLight);
+}
+
+.rotate {
+  transform: rotate(180deg);
+}

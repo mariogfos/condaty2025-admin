@@ -1,0 +1,146 @@
+/* WidgetList.module.css */
+
+.widgetList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Equivalente a gap-4 (16px) */
+    /* flex-grow: 1; Si necesitas que el widget crezca para llenar espacio,
+                   puedes añadirlo aquí o mediante la prop className desde el padre. */
+    min-height: 177px; /* Altura mínima como en h-[177px]. Permite crecer si el contenido es mayor. */
+    background-color: #333536;
+    padding: 1rem; /* Equivalente a p-4 (16px) */
+    border-radius: 1rem; /* Equivalente a rounded-2xl (16px) */
+    border: 0.5px solid #a7a7a7;
+    color: #fafafa; /* Color de texto por defecto, similar a text-neutral-50 */
+    box-sizing: border-box; /* Para que padding y border no incrementen el tamaño total si se usa width/height fijo */
+  }
+  
+  .widgetListHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* self-stretch es generalmente el comportamiento por defecto para elementos directos de un contenedor flex.
+       El gap-2 del Figma (flex flex-col gap-2 self-stretch) para el header
+       se maneja por el espaciado natural o el gap del .widgetList padre.
+    */
+  }
+  
+  .widgetListTitle {
+    font-weight: 600; /* font-semibold */
+    font-size: 20px; /* text-[20px] */
+    color: #fafafa; /* text-neutral-50. Tu CSS original usaba var(--cWhite) */
+  }
+  
+  .widgetListViewAll {
+    font-weight: 500; /* font-medium */
+    font-size: 12px; /* text-[12px] */
+    text-decoration: underline;
+    color: #00e38c;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    /* El Figma tenía un "flex items-center gap-2.5" alrededor de esto.
+       Si en el futuro necesitas un icono junto al texto, este botón
+       podría convertirse en un div con display: flex; align-items: center; gap: 0.625rem; */
+  }
+  
+  .widgetListContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Equivalente a gap-3 (12px), para el espacio entre items */
+    flex-grow: 1; /* Permite que esta sección ocupe el espacio disponible */
+    overflow-y: auto; /* Añade scroll si el contenido excede la altura del widgetList */
+  }
+  
+  .widgetListEmptyMessage {
+    color: #a7a7a7; /* Un color más sutil que el 'red' original */
+    font-size: 14px;
+    text-align: center;
+    padding: 1rem 0; /* Espaciado para el mensaje */
+    flex-grow: 1; /* Para centrarlo si el contenido está vacío y hay espacio */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /*
+    ------------------------------------------------------------------------------------
+    ESTILOS CONCEPTUALES PARA LOS ITEMS (generados por la función `renderItem`)
+    ------------------------------------------------------------------------------------
+    La función `renderItem` que pases al componente `WidgetList` debería generar
+    una estructura HTML que pueda ser estilizada con clases como las siguientes.
+    Estos estilos NO van en WidgetList.module.css necesariamente, sino en el módulo CSS
+    del componente que renderiza cada item, o como clases globales si prefieres.
+  
+    Ejemplo de cómo podrías estructurar el CSS para un item individual:
+  
+    .itemRow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem; // Tailwind gap-2 (8px)
+      // self-stretch es usualmente el comportamiento por defecto
+    }
+  
+    .itemImageContainer {
+      width: 40px;  // Tailwind w-10
+      height: 40px; // Tailwind h-10
+      flex-shrink: 0; // Para que no se encoja si el texto es largo
+    }
+  
+    .itemImage {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; // o 'contain', según necesites
+      border-radius: 50%; // Si las imágenes son avatares circulares
+    }
+  
+    .itemTextInfo {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 0.125rem; // Espacio pequeño entre nombre y subtexto si es necesario
+      overflow: hidden; // Para manejar textos largos con ellipsis si se desea
+    }
+  
+    .itemPrimaryText {
+      font-weight: 500; // Tailwind font-medium
+      font-size: 14px;  // Tailwind text-[14px]
+      color: #fafafa;   // Tailwind text-neutral-50
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .itemSecondaryText {
+      font-weight: 400; // Tailwind font-normal
+      font-size: 14px;  // Tailwind text-[14px]
+      color: #a7a7a7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .itemActionContainer {
+      // Tailwind w-10 h-3.5 (width: 2.5rem, height: 0.875rem)
+      // Aplicar width: 2.5rem; podría ser demasiado restrictivo para texto.
+      // Es mejor dejar que el contenido defina el ancho o usar padding.
+      // height: 0.875rem; (14px) para el contenedor de un texto de 12px es ajustado.
+      // Se podría usar line-height o padding en el span.
+      display: flex;
+      align-items: center;
+      justify-content: center; // Para centrar el texto si se fija un ancho
+      width: auto; // O un ancho fijo si es necesario, ej: 50px;
+    }
+  
+    .itemActionText {
+      font-weight: 400; // Tailwind font-normal
+      font-size: 12px;  // Tailwind text-[12px]
+      text-align: center;
+      text-decoration: underline;
+      color: #00e38c;
+      cursor: pointer;
+      padding: 0.125rem 0; // Pequeño padding vertical
+    }
+    ------------------------------------------------------------------------------------
+  */

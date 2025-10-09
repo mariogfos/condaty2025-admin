@@ -1,0 +1,30 @@
+.widgetVolunteers {
+    height: 180px;
+
+    &>div:first-of-type {
+        border-top: 1px solid #393C3F;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    &>p:first-of-type {
+        font-size: 16px;
+        @media (min-width: 1440px) {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+    }
+
+    &>h1:nth-child(2) {
+        @media (min-width: 1440px) {
+            font-size: 40px;
+        }
+    }
+
+    &>p:last-of-type {
+        color: #C6C6C6;
+        @media (min-width: 1440px) {
+            font-size: 14px
+        }
+    }
+}

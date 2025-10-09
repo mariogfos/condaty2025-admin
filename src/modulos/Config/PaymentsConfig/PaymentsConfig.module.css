@@ -1,0 +1,162 @@
+.paymentsContainer {
+  width: 100%;
+  max-width: 739px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhites);
+}
+
+.headerSubtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  margin-bottom: 1rem;
+}
+
+.formContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: #333536;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 0.5px solid #a7a7a7;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  color: var(--cWhite, #ffffff);
+  font-weight: normal;
+  margin-bottom: 0.25rem;
+}
+
+.sectionSubtitle {
+  font-size: 14px;
+  color: var(--cWhiteV1, #a7a7a7);
+  margin-bottom: 0.75rem;
+}
+
+.uploadContainer {
+  height: 304px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  align-self: stretch;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.qrPreviewContainer > div {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.inputContainer {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.inputHalf {
+  flex: 1;
+}
+
+/* .inputHalf > div {
+  background-color: #414141;
+  border-radius: 0.5rem;
+  color: #ffffff;
+  border: none;
+  height: 3rem;
+} */
+
+.inputHalf input {
+  color: #ffffff;
+}
+
+.inputHalf label {
+  color: #a7a7a7;
+}
+
+.saveButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  height: 3rem;
+  width: 328px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  background-color: #00e38c;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  color: #212121;
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.textareaContainer {
+  min-height: 105px;
+}
+
+.textareaContainer label {
+  color: #a7a7a7 !important;
+  font-size: 12px !important;
+}
+
+/* Clase específica para el componente UploadFile */
+.uploadComponent {
+  background-color: #414141;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.uploadButton {
+  color: #00e38c;
+  text-decoration: underline;
+  font-size: 12px;
+  margin-top: 0.5rem;
+}
+/* Agregar estos estilos al archivo PaymentsConfig.module.css */
+
+.characterCount {
+  text-align: right;
+  font-size: 12px;
+  color: var(--cWhiteV1);
+  margin-top: 4px;
+}
+
+.disabledButton {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

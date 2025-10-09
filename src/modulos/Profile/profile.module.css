@@ -1,0 +1,230 @@
+.profileContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainContent {
+  width: 100%;
+  margin-top: -96px; /* -mt-24 */
+}
+
+.profileGrid {
+  display: flex;
+  gap: 32px; /* gap-8 */
+}
+
+@media (max-width: 768px) {
+  .profileGrid {
+    flex-direction: column;
+  }
+}
+
+.imageSection {
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .imageSection {
+    width: 50%;
+  }
+}
+
+.imageContainer {
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--darkv3);
+}
+
+.mobileAvatarWrapper {
+  width: 112px;
+  height: 112px;
+}
+
+@media (min-width: 768px) {
+  .mobileAvatarWrapper {
+    display: none;
+  }
+}
+
+.desktopImageContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+}
+
+.avatar {
+  background-color: var(--darkColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+}
+
+.avatarImage {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .avatarImage {
+    display: block;
+  }
+}
+
+.cameraButton {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  border-radius: 9999px;
+  background-color: var(--accent);
+  padding: 8px;
+}
+
+.cameraIcon {
+  color: black;
+  width: 16px;
+  height: 16px;
+}
+
+.editButton {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center;     /* Centra verticalmente (opcional) */
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .editButton {
+    margin-bottom: 0;
+  }
+}
+
+.editProfileButton {
+  background-color: var(--accentColor);
+  border-radius: 24px;
+  width: 100px;
+  text-align: center;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.formSection {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .formSection {
+    width: 50%;
+  }
+}
+
+.sectionTitle {
+  color: var(--lightColor);
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.infoCard {
+  background-color: var(--darkv2);
+  padding: 12px;
+  border-radius: 16px;
+  position: relative;
+}
+
+.infoLabel {
+  color: var(--lightv3);
+  font-size: 12px;
+}
+
+.infoValue {
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: var(--lightColor);
+}
+
+.divider {
+  background-color: var(--lightv3);
+  width: 100%;
+  height: 1px;
+  margin-bottom: 12px;
+}
+
+.accessSection {
+  margin-top: 16px;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .buttonsContainer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.accessButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cBlack);
+  background-color: var(--darkv2);
+  border-radius: 16px;
+  height: 40px;
+  padding: 8px 32px;
+  font-size: 12px;
+}
+
+.buttonIcon {
+  margin-right: 8px;
+  width: 24px;
+  height: 24px;
+}
+
+.hiddenInput {
+  display: none;
+}
+.profileModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modalLogout {
+  text-align: center;
+  color: var(--lightColor);
+  margin: 1rem 0;
+}
+
+.modalAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--darkColor);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.formInput {
+  margin-top: 2rem;
+  width: 100%;
+}

@@ -1,0 +1,136 @@
+.widgetCandidates {
+  height: 508px;
+  /* flex: 1; */
+  border: none;
+  
+  overflow: auto;
+
+  & > p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 169px;
+    color: var(--cGray);
+    font-size: var(--sL);
+  }
+}
+
+.candidates {
+  position: relative;
+}
+
+.title {
+  font-size: var(--sL);
+  font-weight: 600;
+  color: var(--cWhite);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: var(--sM);
+  font-weight: 400;
+  color: var(--cBlackV2);
+  text-align: center;
+}
+
+.widgetTitle {
+  color: var(--cWhite);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.filtersContainer {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  border-radius: var(--bRadiusL);
+}
+
+.filterButton {
+  padding: 8px 16px; /* Tamaño del botón */
+  background-color: var(--cGray); /* Color de fondo predeterminado */
+  border: none;
+  border-radius: var(--bRadiusS); /* Bordes redondeados pequeños */
+  color: var(--cWhite); /* Color de texto */
+  font-size: var(--sM); /* Tamaño de fuente */
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.filterButton:hover {
+  background-color: var(--cHover); /* Color de fondo al pasar el cursor */
+  transform: scale(1.05); /* Animación de escala */
+}
+
+.filterButton.active {
+  background-color: var(--cSuccess); /* Color de fondo activo */
+  color: var(--cWhite); /* Asegura que el texto sea legible */
+  font-weight: bold; /* Destaca el botón activo */
+}
+
+.candidateCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  /* background-color: #f14; */
+  border: 1px solid var(--cBlackV3);
+  border-radius: var(--bRadiusL);
+  padding: 12px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  width: 160px; /* Ancho fijo para uniformidad */
+  height: 200px; /* Ajuste opcional de altura */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Añade un pequeño sombreado */
+}
+
+.candidateCard:hover {
+  background-color: var(--cHover);
+  transform: translateY(-4px);
+}
+
+.avatar {
+  margin-bottom: 8px;
+}
+
+.candidateInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.candidateInfo p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+}
+
+.professionInfo {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--cBlackV2);
+  margin-top: 8px;
+}
+
+.noCandidates {
+  color: var(--cGray);
+  text-align: center;
+  font-size: 16px;
+}
+
+.titleDetail {
+  font-size: var(--sL);
+  font-weight: 600;
+  color: var(--cWhite);
+  margin-bottom: 4px;
+}
+
+.subtitleDetail {
+  font-size: var(--sM);
+  font-weight: 400;
+  color: var(--cBlackV2);
+}
