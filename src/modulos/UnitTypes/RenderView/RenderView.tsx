@@ -63,14 +63,7 @@ const RenderView = memo((props: UnitTypeDetailProps) => {
             <div className={styles.label}>Tipo de unidad</div>
             <div className={styles.value}>{item?.name || "-/-"}</div>
           </div>
-
-          <div className={styles.detailRow}>
-            <div className={styles.label}>Descripción</div>
-            <div className={styles.value}>
-              {item?.description || "Sin descripción"}
-            </div>
-          </div>
-
+          
           <div className={styles.detailRow}>
             <div className={styles.label}>Campos</div>
             <div className={styles.value}>
