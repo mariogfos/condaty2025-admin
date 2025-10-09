@@ -1,0 +1,75 @@
+.roles {
+  width: 100%;
+}
+.style {
+  width: 100%;
+}
+
+/* Estilo base para las insignias de estado */
+.statusBadge {
+  font-weight: var(--bMedium);
+  padding: 6px var(--spM);
+  border-radius: 4px; /* Bordes redondeados como en la imagen */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+/* Estilos para cada nivel de estado */
+
+.nivelPanico {
+  background-color: var(--cMediumAlertHover);
+  color: var(--cMediumAlert);
+}
+
+/* Nivel Alto - Rojo */
+.nivelAlto {
+  background-color: rgba(220, 53, 69, 0.2); /* Fondo rojo semi-transparente */
+  color: #da5d5d; /* Texto rojo */
+}
+
+/* Nivel Medio - Amarillo/Dorado */
+.nivelMedio {
+  background-color: rgba(
+    255,
+    193,
+    7,
+    0.2
+  ); /* Fondo amarillo semi-transparente */
+  color: #e6b800; /* Texto amarillo/dorado */
+}
+
+/* Nivel Bajo - Verde */
+.nivelBajo {
+  background-color: rgba(40, 167, 69, 0.2); /* Fondo verde semi-transparente */
+  color: #28a745; /* Texto verde */
+}
+
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%;
+}
+
+.widgetResumeCard {
+  width: 216px !important;
+  height: 79px;
+  padding: var(--spM);
+  border-radius: var(--bRadiusM);
+  background-color: var(--cBlackV1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.widgetResumeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

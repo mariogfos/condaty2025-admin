@@ -1,0 +1,15 @@
+.notAccess {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10%;
+  height: 100vh;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  padding-bottom: 100px;
+  & > div {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}

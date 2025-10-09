@@ -1,0 +1,114 @@
+.navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
+  padding: var(--spM) var(--spXl);
+
+  @media (width <=1023px) {
+    border-bottom-left-radius: var(--bRadiusL);
+    border-bottom-right-radius: var(--bRadiusL);
+    border-bottom: 1px solid var(--cBlackV3);
+    padding: var(--spM);
+  }
+
+  &>head {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+    font-size: var(--sXl);
+
+    @media (width <=1023px) {
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+
+      &>p:first-of-type {
+        font-weight: var(--bSemibold);
+        font-size: var(--sM);
+        margin-top: var(--spM);
+      }
+
+      &>p:last-child {
+        font-weight: var(--Regular);
+        font-size: var(--sS);
+        color: var(--cWhiteV3);
+      }
+    }
+  }
+
+  &>span {
+    flex-shrink: 1;
+    background-color: var(--cBlackV1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--bRadiusS);
+    cursor: pointer;
+
+    &>svg {
+      width: 24px;
+      height: 24px;
+      color: var(--cWhiteV3);
+    }
+
+    @media (width <=1023px) {
+      display: none;
+    }
+  }
+
+  &>span:hover {
+    background-color: var(--cHover);
+  }
+
+
+  &>section {
+    display: flex;
+    align-items: center;
+    gap: var(--spS);
+    cursor: pointer;
+
+    &>div:last-of-type {
+
+      &>p:first-of-type {
+        color: var(--cWhite);
+        font-size: var(--sM);
+      }
+
+      &>p:last-of-type {
+        color: var(--cWhiteV3);
+        font-size: var(--sS);
+      }
+
+
+    }
+
+    @media (width <=1023px) {
+      display: none;
+    }
+  }
+
+  &>div {
+    width: 32px;
+    height: 32px;
+    background-color: var(--cWhite);
+    border-radius: 100%;
+    color: var(--cBlackV3);
+    display: none;
+    justify-content: center;
+    align-items: center;
+
+    @media (width <=1023px) {
+      display: flex;
+    }
+  }
+
+  &>a {
+
+    @media (width <=1023px) {
+      display: none;
+    }
+  }
+}

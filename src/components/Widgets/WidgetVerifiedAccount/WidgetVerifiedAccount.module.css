@@ -1,0 +1,47 @@
+.widgetVerifiedAccount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 64px;
+
+  &>div:nth-child(1) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &>div:nth-child(1) {
+      &>h2 {
+        color: #C6C6C6;
+        font-weight: 300;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      &>p {
+        color: #FFFFFF;
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+    }
+
+    &>div:nth-child(2) {
+      &>h2 {
+        color: #C6C6C6;
+        font-weight: 300;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      &>p {
+        color: #FFFFFF;
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+    }
+  }
+
+}

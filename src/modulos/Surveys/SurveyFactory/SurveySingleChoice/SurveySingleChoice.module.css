@@ -1,0 +1,29 @@
+.surveySingleChoice {
+  & > p:nth-child(1) {
+    color: var(--cWhite);
+    font-size: var(--sXl);
+    font-weight: 700;
+  }
+  & > p:nth-child(2) {
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+    font-weight: 400;
+    margin-bottom: var(--spXs);
+  }
+  & > p:nth-child(3) {
+    color: var(--cSuccess);
+    margin-bottom: var(--spXl);
+  }
+  & > div {
+    background-color: var(--cBlackV1);
+    border-radius: var(--bRadius);
+    padding: var(--spM);
+    margin-bottom: var(--spM);
+    & > p {
+      color: var(--cWhite);
+      font-size: var(--sM);
+      font-weight: 600;
+      margin-bottom: var(--spS);
+    }
+  }
+}
