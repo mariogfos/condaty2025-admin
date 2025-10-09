@@ -271,7 +271,7 @@
 }
 .periodsTableCell[data-label='Monto'],
 .periodsTableCell[data-label='Multa'],
-.periodsTableCell[data-label='MV'],
+.periodsTableCell[data-label='Mant. Valor'],
 .periodsTableCell[data-label='Subtotal'],
 .periodsTableCell[data-label='Total'] {
   justify-content: flex-end;

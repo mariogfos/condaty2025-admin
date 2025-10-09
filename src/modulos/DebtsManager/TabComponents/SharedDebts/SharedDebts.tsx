@@ -325,7 +325,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
       amount: { rules: ['required'], api: 'ae', label: 'Monto' },
       is_advance: { rules: [], api: 'ae', label: 'Es adelanto' },
       interest: { rules: [], api: 'ae', label: 'Interés' },
-      has_mv: { rules: [], api: 'ae', label: 'Tiene MV' },
+      has_mv: { rules: [], api: 'ae', label: 'Tiene Mant. Valor' },
       is_forgivable: { rules: [], api: 'ae', label: 'Es condonable' },
       has_pp: { rules: [], api: 'ae', label: 'Tiene plan de pago' },
       is_blocking: { rules: [], api: 'ae', label: 'Es bloqueante' },
@@ -582,7 +582,7 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
   return (
     <>
       <List
-        height={'calc(100vh - 550px)'}
+        height={'calc(100vh - 580px)'}
         onTabletRow={renderItem}
         onRowClick={onClickDetail}
         emptyMsg="Lista de deudas grupales vacía. Una vez generes las cuotas"
@@ -599,26 +599,20 @@ const SharedDebts: React.FC<SharedDebtsProps> = ({
         }}
         onSave={({ startDate, endDate }) => {
           let err: { startDate?: string; endDate?: string } = {};
-          if (!startDate) err.startDate = "La fecha de inicio es obligatoria";
-          if (!endDate) err.endDate = "La fecha de fin es obligatoria";
+          if (!startDate) err.startDate = 'La fecha de inicio es obligatoria';
+          if (!endDate) err.endDate = 'La fecha de fin es obligatoria';
           if (startDate && endDate && startDate > endDate)
-            err.startDate = "La fecha de inicio no puede ser mayor a la de fin";
-          if (
-            startDate &&
-            endDate &&
-            startDate.slice(0, 4) !== endDate.slice(0, 4)
-          ) {
-            err.startDate =
-              "El periodo personalizado debe estar dentro del mismo año";
-            err.endDate =
-              "El periodo personalizado debe estar dentro del mismo año";
+            err.startDate = 'La fecha de inicio no puede ser mayor a la de fin';
+          if (startDate && endDate && startDate.slice(0, 4) !== endDate.slice(0, 4)) {
+            err.startDate = 'El periodo personalizado debe estar dentro del mismo año';
+            err.endDate = 'El periodo personalizado debe estar dentro del mismo año';
           }
           if (Object.keys(err).length > 0) {
             setCustomDateErrors(err);
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter("due_at", customDateFilterString);
+          onFilter('due_at', customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}

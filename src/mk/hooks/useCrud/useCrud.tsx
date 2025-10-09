@@ -467,6 +467,7 @@ const useCrud = ({
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
     const { data: file } = await execute(
       "/" + mod.modulo,
       "GET",
@@ -482,11 +483,37 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+
     if (file?.success) {
-      window.open(getUrlImages("/" + file.data.path)); // Abrir directamente en lugar de usar callback
-      callBack(getUrlImages("/" + file.data.path)); // Mantener callback por compatibilidad
+      const url = getUrlImages("/" + (file.data?.path || ""));
+      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      const suggestedName = (() => {
+        const path = String(file.data?.path || "");
+        const base = path.split("/").pop();
+        if (base && base.trim().length > 0) return base;
+        const ext = (type ?? "pdf").toLowerCase();
+        return `listado-${mod.modulo}.${ext}`;
+      })();
+
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobUrl);
+        callBack(url); // Mantener callback por compatibilidad
+      } catch (error) {
+        // Fallback: si falla la descarga, abrir directamente la URL
+        window.location.href = url;
+      }
     } else {
-      showToast("Hubo un error al exportar el archivo", "error");
       showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
     }
