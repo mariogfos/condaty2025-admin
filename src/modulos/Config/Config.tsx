@@ -124,15 +124,24 @@ const Config = () => {
     if (typeSearch === "M") {
       errors = checkRules({
         value: formState.soft_limit,
-        rules: ["required"],
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
         key: "soft_limit",
         errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.hard_limit,
-        rules: ["required"],
+        rules: ["required", "greaterOrEqual:soft_limit,Pre-aviso"],
         key: "hard_limit",
         errors,
+        data: formState,
+      });
+      errors = checkRules({
+        value: formState.penalty_limit,
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
+        key: "penalty_limit",
+        errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.penalty_percent,

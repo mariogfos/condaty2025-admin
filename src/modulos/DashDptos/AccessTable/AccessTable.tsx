@@ -23,17 +23,25 @@ const renderSubtitle = (item: any) => {
   if (item?.other) {
     subtitle = item.other?.other_type?.name;
   }
+  if (item?.type === 'O') {
+    subtitle = 'CI: ' + item.owner?.ci;
+  }
   return subtitle;
 };
-const visitCell = ({ item }: { item: any }) => (
-  <div className={styles.visitInfo}>
-    {leftAccess(item)}
-    <div>
-      <p className={styles.visitName}>{getFullName(item.visit)}</p>
-      <p className={styles.visitSubtitle}>{renderSubtitle(item)}</p>
+const visitCell = ({ item }: { item: any }) => {
+  const displayUser = item?.type === 'O' ? item.owner : item.visit;
+  
+  return (
+    <div className={styles.visitInfo}>
+      {leftAccess(item)}
+      <div>
+        <p className={styles.visitName}>{getFullName(displayUser)}</p>
+        <p className={styles.visitSubtitle}>{renderSubtitle(item)}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 const leftAccess = (item: any) => {
   if (item?.other) {
     let icon;
@@ -50,6 +58,17 @@ const leftAccess = (item: any) => {
     }
     return <div className={styles.iconContainer}>{icon}</div>;
   }
+  if (item?.type === 'O') {
+    return (
+      <Avatar
+        hasImage={item?.owner?.has_iamge}
+        src={getUrlImages(`/OWNER-${item?.owner?.id}.webp?d=${item?.owner?.updated_at}`)}
+        name={getFullName(item.owner)}
+        w={40}
+        h={40}  
+      />
+    )
+  }
   return (
     <Avatar
       hasImage={item?.visit?.has_image}
@@ -61,24 +80,27 @@ const leftAccess = (item: any) => {
   );
 };
 
-const visitedToCell = ({ titular }: { titular: any }) => {
-  const updatedAtQuery = titular?.updated_at ? `?d=${titular.updated_at}` : '';
-  const avatarSrc = titular?.id
-    ? getUrlImages(`/OWNER-${titular.id}.webp${updatedAtQuery}`)
+const visitedToCell = ({ item }: { item: any }) => {
+  // Priorizar mostrar al residente/propietario (owner)
+  const person = item?.owner ?? item?.titular?.owner ?? item?.homeowner ?? null;
+
+  const updatedAtQuery = person?.updated_at ? `?d=${person.updated_at}` : '';
+  const avatarSrc = person?.id
+    ? getUrlImages(`/OWNER-${person.id}.webp${updatedAtQuery}`)
     : '';
 
   return (
     <div className={styles.visitInfo}>
       <Avatar
-        hasImage={titular?.has_image}
+        hasImage={person?.has_image}
         src={avatarSrc}
-        name={getFullName(titular)}
+        name={getFullName(person || {})}
         w={32}
         h={32}
       />
       <div>
-        <p className={styles.visitName}>{getFullName(titular)}</p>
-        <p className={styles.visitSubtitle}>C.I. {titular?.ci || 'Sin registro'}</p>
+        <p className={styles.visitName}>{getFullName(person || {})}</p>
+        <p className={styles.visitSubtitle}>C.I. {person?.ci || 'Sin registro'}</p>
       </div>
     </div>
   );
@@ -104,7 +126,16 @@ const typeCell = ({ item }: { item: any }) => {
   if (item.type === 'I') {
     return 'Individual';
   }
-  return 'Grupal';
+  if (item.type === 'G') {
+    return 'QR Grupal';
+  }
+  if (item.type === 'F') {
+    return 'QR Frecuente';
+  }
+  if (item.type === 'O') {
+    return 'Llave QR';
+  }
+  return '-/-';
 };
 
 const AccessTable = ({ access }: AccessTableProps) => {
@@ -121,6 +152,7 @@ const AccessTable = ({ access }: AccessTableProps) => {
       key: 'visited_to',
       label: 'Visitó a',
       responsive: 'desktop',
+      onRender: visitedToCell,
 
     },
     {
