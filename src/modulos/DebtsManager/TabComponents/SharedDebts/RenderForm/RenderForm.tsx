@@ -435,6 +435,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select
+                filter={true}
                 label="Unidades"
                 name="dpto_id"
                 value={_formState.dpto_id}
