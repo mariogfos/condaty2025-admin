@@ -3,9 +3,8 @@ import useCrud from "@/mk/hooks/useCrud/useCrud";
 import RenderForm from "./RenderForm/RenderForm";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import { useEffect, useMemo } from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import styles from "./UnitsType.module.css";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import RenderView from "./RenderView/RenderView";
 
 const mod = {
   modulo: "types",
@@ -19,58 +18,8 @@ const mod = {
   permiso: "unittypes",
   extraData: true,
   renderForm: RenderForm,
-  renderView: (props: {
-    open: boolean;
-    onClose: any;
-    item: Record<string, any>;
-    extraData: any;
-  }) => {
-    return (
-      <DataModal
-        open={props.open}
-        onClose={props.onClose}
-        title={"Detalle de tipo de unidad"}
-        buttonText=""
-        buttonCancel=""
-      >
-        <div className={styles.renderView}>
-          <div>
-            <div>
-              <span className="font-medium">Tipo de unidad: </span>
-              <span className="text-lg font-semibold mb-4">
-                {props.item?.name}
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <div>
-              <span className="font-medium">Descripción: </span>
-              <span>{props.item?.description || "Sin descripción"}</span>
-            </div>
-            <div>
-              <span className="font-medium">Campos:</span>
-              <div className="mt-2 space-y-2">
-                {props?.extraData?.fields
-                  ?.filter((field: any) => field.type_id === props.item.id)
-                  .map((field: any, index: number) => (
-                    <div
-                      key={field.id || `field-${props.item.id}-${index}`}
-                      className="pl-4"
-                    >
-                      <span style={{ color: "var(--cWhite)" }}>
-                        {field.name}
-                      </span>
-                      {field.description}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </DataModal>
-    );
-  },
+  renderView: (props: any) => <RenderView {...props} />,
+  loadView: { fullType: "DET" },
 };
 const paramsInitial = {
   perPage: 20,

@@ -375,6 +375,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               required
               placeholder="Seleccionar unidad"
               className={currentErrors.dpto_id ? styles.error : ''}
+              filter={true}
             />
           </div>
         </div>

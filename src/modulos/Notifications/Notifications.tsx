@@ -59,10 +59,6 @@ const Notifications = () => {
       const actValue = messageData.act || messageData.info?.act;
       const level = messageData.level || messageData.info?.level;
 
-      console.log("messageData:", messageData);
-      console.log("actValue:", actValue);
-      console.log("level:", level);
-
       if (actValue === "newContent") {
         return (
           <div

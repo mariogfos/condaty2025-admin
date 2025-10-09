@@ -62,6 +62,22 @@ const ChatRoom = ({
     if (roomId.indexOf("chatBot") > -1 && selectedFiles.length > 0) cancelUpload();
   }, [roomId]);
 
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    // Obtener altura de línea
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight, 10);
+    const maxHeight = lineHeight * 10;
+
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${newHeight}px`;
+
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [newMessage]);
+
   const cancelUpload = () => {
     selectedFiles.forEach(file => {
       URL.revokeObjectURL(file.previewURL);

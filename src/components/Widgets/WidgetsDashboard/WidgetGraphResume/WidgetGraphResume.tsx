@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  MONTHS_S_GRAPH,
-  getDateStr,
-  getDateStrMes,
-  getNow,
-} from "@/mk/utils/date";
+import { MONTHS_S_GRAPH, getDateStr, getDateStrMes, getNow } from "@/mk/utils/date";
 import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import WidgetBase from "../../WidgetBase/WidgetBase";
 import styles from "./WidgetGraphResume.module.css";
 import { formatNumber } from "@/mk/utils/numbers";
 import EmptyData from "@/components/NoData/EmptyData";
+import Select from "@/mk/components/forms/Select/Select";
+
 
 type PropsType = {
   saldoInicial?: number;
@@ -157,13 +154,29 @@ const WidgetGraphResume = ({
   return (
     <div className={styles.widgetGraphResume + " " + className}>
       <WidgetBase className={styles.widgetBase}>
-        <section>
-          <p className={styles.title}>{title || "Resumen general"}</p>
-          <p className={styles.subtitle}>
-            {subtitle ||
-              `Este es un resumen general del año ${formattedTodayDate}`}
-          </p>
-        </section>
+        <div className={styles.headerRow}>
+          <div className={styles.titleBlock}>
+            <p className={styles.title}>
+              {title || "Resumen general"}
+            </p>
+            <p className={styles.subtitle}>
+              {subtitle ||
+                `Este es un resumen general del año ${formattedTodayDate}`}
+            </p>
+          </div>
+          {chartTypes && chartTypes.length > 1 && (
+            <div className={styles.chartTypeSelector}>
+              <Select
+                label=""
+                value={selectedChartType}
+                name="chartType"
+                className={styles.chartTypeSelect}
+                onChange={(e: any) => setSelectedChartType(e.target.value as ChartType)}
+                options={chartTypeOptions}
+              />
+            </div>
+          )}
+        </div>
         {showEmptyData ? (
           <EmptyData
             message={emptyDataProps?.message || "No hay datos disponibles"}

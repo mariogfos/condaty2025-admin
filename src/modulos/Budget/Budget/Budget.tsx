@@ -11,6 +11,7 @@ import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
   perPage: 20,
@@ -32,7 +33,7 @@ const amountCell = ({ item }: { item: any }) => {
   return item?.amount || item?.penalty_amount ? (
     <FormatBsAlign value={item.amount} alignRight={true} />
   ) : (
-    '-/-'
+    "-/-"
   );
 };
 
@@ -168,23 +169,22 @@ const Budget = () => {
 
   const fields = useMemo(
     () => ({
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       name: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Nombre',
+        rules: ["required"],
+        api: "ae",
+        label: "Nombre",
         list: {},
       },
       start_date: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha Inicio',
-
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Inicio",
       },
       end_date: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Fecha Fin',
+        rules: ["required"],
+        api: "ae",
+        label: "Fecha Fin",
       },
       category_id: {
         rules: ["required"],
@@ -194,55 +194,58 @@ const Budget = () => {
         filter: {
           label: "Subcategoría",
           options: getCategoryOptionsForFilter,
-          width: '200px',
+          width: "200px",
         },
       },
       period: {
-        rules: ['required'],
-        api: 'ae',
-        label: 'Periodo',
+        rules: ["required"],
+        api: "ae",
+        label: "Periodo",
         list: { onRender: (props: any) => formatPeriod(props.item.period) },
         filter: {
-          label: 'Periodo',
+          label: "Periodo",
           options: () => getPeriodOptions(true),
-          width: '150px',
+          width: "150px",
         },
       },
       status: {
         rules: [],
         api: "ae*",
         label: (
-          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
             Estado
           </span>
         ),
         list: { onRender: renderStatusCell },
         filter: {
-          label: 'Estado',
+          label: "Estado",
           options: () => getStatusOptions(true),
-          width: '150px',
+          width: "150px",
         },
       },
       amount: {
-        rules: ['required', 'number'],
-        api: 'ae',
-        label: 'Monto',
-        style: { textAlign: 'right', justifyContent: 'flex-end' },
+        rules: ["required", "number"],
+        api: "ae",
+        label: "Monto",
+        style: { textAlign: "right", justifyContent: "flex-end" },
         list: {
           onRender: amountCell,
         },
       },
       user_id: {
-        api: 'e',
-        label: 'Creado por',
+        api: "e",
+        label: "Creado por",
         list: false,
-        onRender: (props: any) => getFullName(props.item?.user) || 'Sistema',
+        onRender: (props: any) => getFullName(props.item?.user) || "Sistema",
       },
       approved: {
-        api: 'e',
-        label: 'Aprobado por',
+        api: "e",
+        label: "Aprobado por",
         list: false,
-        onRender: (props: any) => getFullName(props.item?.approved) || 'Pendiente',
+        onRender: (props: any) =>
+          getFullName(props.item?.approved) || "Pendiente",
       },
     }),
     []
@@ -313,6 +316,14 @@ const Budget = () => {
       }
     }
   }, [data, loaded, showToast]);
+  const onNotif = useCallback((e: any) => {
+    if (e.event == "change-budget") {
+      reLoad();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEvent("onNotif", onNotif);
 
   const { setStore, store } = useAuth();
   useEffect(() => {

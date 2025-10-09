@@ -188,6 +188,20 @@ export const validRule = (
         ? `Debe ser menor o igual a ${param[0]}`
         : "";
     },
+    lessOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) > Number(compareValue)
+        ? `No puede ser mayor que ${param[1] || param[0]}`
+        : "";
+    },
+    greaterOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) < Number(compareValue)
+        ? `No puede ser menor que ${param[1] || param[0]}`
+        : "";
+    },
     googleMapsLink: () =>
       !/^https:\/\/(www\.)?(google\.(com|es|com\.mx|.*)\/maps\/(place|search|dir)\/|maps\.app\.goo\.gl\/)/.test(
         value

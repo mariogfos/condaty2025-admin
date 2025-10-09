@@ -132,7 +132,6 @@ const _getDateTimeStrMes = (
   // console.log(dateStr);
   // console.log(esFormatoISO8601(dateStr), utc);
   if (esFormatoISO8601(dateStr) || utc) {
-    console.log("Entro");
     const fechaLocal: any = convertirFechaUTCaLocal(dateStr);
     dateStr = fechaLocal
       .toISOString()
