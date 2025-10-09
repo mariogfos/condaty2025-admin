@@ -63,19 +63,18 @@ const RenderView = (props: any) => {
                 )}
                 h={191}
                 w={191}
-                style={{ borderRadius: '50%' }}
+                style={{ borderRadius: "50%" }}
                 name={getFullName(item)}
               />
-              
+
               <p className={styles.ownerName}>{getFullName(item)}</p>
-              
             </div>
             <section className={styles.infoSection}>
               <div className={styles.infoSection_details}>
                 <p>Carnet de identidad</p>
                 <p>{item?.ci || "No disponible"}</p>
               </div>
-             {/*  <div className={styles.infoSection_details}>
+              {/*  <div className={styles.infoSection_details}>
                 <p>Tipo de residente</p>
                 <p>{item?.ci || "No disponible"}</p>
               </div> */}
@@ -122,11 +121,17 @@ const RenderView = (props: any) => {
               </>
             </section>
           </div>
-          
+
           {client?.pivot?.status === "W" && (
             <div className={styles.boxButtons}>
-              <Button onClick={() =>  openModal("X")} className={styles.btnSecondary} variant="secondary">Rechazar Solicitud</Button>
-              <Button onClick={() => openModal("A")}>Aprobar Solicitud</Button>
+              <Button
+                onClick={() => openModal("X")}
+                className={styles.btnSecondary}
+                variant="secondary"
+              >
+                Rechazar solicitud
+              </Button>
+              <Button onClick={() => openModal("A")}>Aprobar solicitud</Button>
             </div>
           )}
         </DataModal>

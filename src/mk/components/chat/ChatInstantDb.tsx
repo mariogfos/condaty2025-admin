@@ -46,8 +46,6 @@ export default function ChatInstantDb() {
   const [notifAudio, setNotifAudio] = useState(true);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  console.log("user del chat");
-  console.log(usersChat);
 
   useEffect(() => {
     if (
@@ -74,7 +72,9 @@ export default function ChatInstantDb() {
   const [lastMsg, setLastMsg] = useState(null);
   const [countMsg, setCountMsg]: any = useState({});
   useEffect(() => {
-    const messages: any[] = Array.isArray(chats?.messages) ? chats.messages : [];
+    const messages: any[] = Array.isArray(chats?.messages)
+      ? chats.messages
+      : [];
 
     if (messages.length === 0) {
       setCountMsg({});
@@ -84,7 +84,9 @@ export default function ChatInstantDb() {
 
     let cM: any = {};
     messages.forEach((m: any) => {
-      const idUser = (m.roomId as string).replace("--", "").replace(user.id, "");
+      const idUser = (m.roomId as string)
+        .replace("--", "")
+        .replace(user.id, "");
       cM = { ...cM, [idUser]: { ...cM[idUser], msg: m } };
       if (idUser !== roomGral) {
         if (m.sender === user.id || m.read_at) return;
@@ -226,7 +228,10 @@ export default function ChatInstantDb() {
           <div
             onClick={handleOpenHeaderProfile}
             style={{
-              cursor: typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1 ? "pointer" : "default"
+              cursor:
+                typeSearch !== roomGral && typeSearch.indexOf("chatBot") === -1
+                  ? "pointer"
+                  : "default",
             }}
           >
             <div>
@@ -253,11 +258,11 @@ export default function ChatInstantDb() {
                   }
                   src={getUrlImages(
                     "/ADM-" +
-                    currentRoom?.value
-                      .replace("--", "")
-                      .replace(user.id, "") +
-                    ".webp?d=" +
-                    new Date().getTime()
+                      currentRoom?.value
+                        .replace("--", "")
+                        .replace(user.id, "") +
+                      ".webp?d=" +
+                      new Date().getTime()
                   )}
                   w={40}
                   h={40}
@@ -455,11 +460,11 @@ const ChatContactItem = ({
         <div
           className="truncate"
           style={{
-            color: "var(--cWhiteV1)", /* corregido: cerramos el paréntesis */
+            color: "var(--cWhiteV1)" /* corregido: cerramos el paréntesis */,
             display: "flex",
             gap: "4px",
-            minWidth: 0,             /* necesario para ellipsis dentro de flex */
-            overflow: "hidden",      /* evita desbordes */
+            minWidth: 0 /* necesario para ellipsis dentro de flex */,
+            overflow: "hidden" /* evita desbordes */,
           }}
         >
           {typing?.active?.find((e: any) => e.userapp_id == u.id)?.name ? (

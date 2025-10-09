@@ -191,6 +191,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           error={errors}
           placeholder="Seleccione las unidades"
           multiSelect={true}
+          filter={true}
         />
       )}
       <TextArea

@@ -16,6 +16,7 @@ import {
   IconNotification,
   IconNewPublication,
   IconAmbulance,
+  IconBalance,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -57,10 +58,6 @@ const Notifications = () => {
 
       const actValue = messageData.act || messageData.info?.act;
       const level = messageData.level || messageData.info?.level;
-
-      console.log("messageData:", messageData);
-      console.log("actValue:", actValue);
-      console.log("level:", level);
 
       if (actValue === "newContent") {
         return (
@@ -161,7 +158,8 @@ const Notifications = () => {
         );
       }
 
-      if (actValue === "newVoucher" || actValue === "newPayment") {
+      //if (actValue === "newVoucher" || actValue === "newPayment") {
+      if (actValue === "admins") {
         return (
           <div
             style={{
@@ -174,6 +172,23 @@ const Notifications = () => {
             }}
           >
             <IconPaymentCommitment color="var(--cWhite)" />
+          </div>
+        );
+      }
+
+      if (actValue === "change-budget") {
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: messageData.info.status === 'A' ? "var(--cSuccess)" : "var(--cError)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconBalance color="var(--cWhite)" />
           </div>
         );
       }
