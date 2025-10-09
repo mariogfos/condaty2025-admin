@@ -51,7 +51,9 @@ const HomePage = () => {
 
   // Modal de contenidos (RenderView)
   const [openContentRender, setOpenContentRender] = useState(false);
-  const [selectedContentId, setSelectedContentId] = useState<number | null>(null);
+  const [selectedContentId, setSelectedContentId] = useState<number | null>(
+    null
+  );
   const [selectedContentData, setSelectedContentData] = useState<any>(null);
 
   const handleOpenContentRenderView = (id: number, data?: any) => {
@@ -134,13 +136,16 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={`${styles.itemRow}`} onClick={() => {
-              // if (userCan("payments", "C") == false) {
-              //   return showToast("No tiene permisos para aceptar pagos", "error");
-              // }
-              setDataPayment(data);
-              setOpenPayment(true);
-            }}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          // if (userCan("payments", "C") == false) {
+          //   return showToast("No tiene permisos para aceptar pagos", "error");
+          // }
+          setDataPayment(data);
+          setOpenPayment(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -164,11 +169,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -186,10 +187,13 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={`${styles.itemRow}`} onClick={() => {
-              setSelectedReservationId(data.id);
-              setOpenReservation(true);
-            }}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          setSelectedReservationId(data.id);
+          setOpenReservation(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
@@ -213,11 +217,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -231,16 +231,19 @@ const HomePage = () => {
       : ownerData?.email || "";
 
     return (
-      <div className={styles.itemRow} onClick={() => {
-              if (userCan("owners", "C") == false) {
-                return showToast(
-                  "No tiene permisos para aceptar cuentas pre-registradas",
-                  "error"
-                );
-              }
-              setDataOwner(ownerData);
-              setOpenActive(true);
-            }}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          if (userCan("owners", "C") == false) {
+            return showToast(
+              "No tiene permisos para aceptar cuentas pre-registradas",
+              "error"
+            );
+          }
+          setDataOwner({ ...ownerData, type_owner: data?.type });
+          setOpenActive(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           <Avatar
             hasImage={ownerData.has_image}
@@ -262,6 +265,16 @@ const HomePage = () => {
         <div className={styles.itemActionContainer}>
           <button
             className={styles.itemActionButton}
+            onClick={() => {
+              if (userCan("owners", "C") == false) {
+                return showToast(
+                  "No tiene permisos para aceptar cuentas pre-registradas",
+                  "error"
+                );
+              }
+              setDataOwner({ ...ownerData, type_owner: data.type });
+              setOpenActive(true);
+            }}
           >
             Revisar
           </button>
@@ -300,7 +313,9 @@ const HomePage = () => {
     const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
-    let levelTextIndicator = ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] || ALERT_LEVEL_LABELS[1];
+    let levelTextIndicator =
+      ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] ||
+      ALERT_LEVEL_LABELS[1];
     if (data.level === 2) {
       levelClass = styles.levelMedium;
     } else if (data.level === 3 || data.level > 2) {
@@ -310,7 +325,7 @@ const HomePage = () => {
 
     // Determinar si podemos intentar cargar una imagen de avatar
     // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
-  const canDisplayAvatarImage = !!dataSource?.id;
+    const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
 
     if (canDisplayAvatarImage) {
@@ -326,10 +341,13 @@ const HomePage = () => {
     }
 
     return (
-      <div className={styles.itemRow} onClick={() => {
-        setSelectedAlert(data);
-        setOpenAlert(true);
-      }}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          setSelectedAlert(data);
+          setOpenAlert(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
@@ -351,10 +369,7 @@ const HomePage = () => {
         </div>
         <div className={styles.itemTextInfo}>
           <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span 
-            className={styles.itemSecondaryText} 
-            title={secondaryText}
-          >
+          <span className={styles.itemSecondaryText} title={secondaryText}>
             {truncatedSecondaryText}
           </span>
           <span className={styles.itemDateText}>

@@ -354,6 +354,7 @@ const FormElement = memo(
               ext={_field.ext || ["pdf", "doc", "docx", "xls", "xlsx"]}
               item={item}
               setError={setError}
+              maxSize={_field.maxSize}
             />
           </LeftRigthElement>
         );

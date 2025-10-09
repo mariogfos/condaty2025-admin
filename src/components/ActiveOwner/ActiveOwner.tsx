@@ -20,7 +20,6 @@ const ActiveOwner = ({
   const { store, showToast, user } = useAuth();
   const [formState, setFormState]: any = useState({});
   const [errors, setErrors] = useState({});
-  // const [ldpto, setLdpto] = useState([]);
   const client = data?.clients?.find(
     (item: any) => item?.id === user?.client_id
   );
@@ -33,25 +32,15 @@ const ActiveOwner = ({
     "/dptos",
     "GET",
     {
-      fullType: "PR",
+      fullType: data?.type_owner == "T" ? "PR" : "PH",
     },
     true
   );
 
-  // useEffect(() => {
-  //   const lista =
-  //     dptos?.data?.map((item: any) => ({
-  //       id: item?.id,
-  //       nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
-  //     })) || [];
-  //   setLdpto(lista);
-  // }, [dptos?.data]);
   const getLDptos = () => {
-    console.log(dptos?.data, "ALLALALLA");
     const lista =
       dptos?.data?.map((item: any) => ({
         id: item?.id,
-        // nro: store?.UnitsType + " " + item?.nro + " - " + item?.description,
         nro: `${store?.UnitsType} ${item?.nro} ${
           item?.description ? "- " + item?.description : ""
         }`,
@@ -96,7 +85,8 @@ const ActiveOwner = ({
     } else {
       params = { id: data?.id, dpto_id: formState.dpto_id, confirm: "A" };
     }
-
+    // console.log(params);
+    // return;
     const { data: dataResident, error } = await execute(
       "/activeRegister",
       "POST",
@@ -113,7 +103,6 @@ const ActiveOwner = ({
       reLoad();
     } else {
       showToast(error?.data?.message || error?.message, "error");
-      console.log("error:", error);
     }
   };
   return (
@@ -139,7 +128,7 @@ const ActiveOwner = ({
           <div>
             <Select
               label="Selecciona la unidad"
-              // placeholder={"Número de " + store.UnitsType}
+              multiSelect={data?.type_owner == "H" ? true : false}
               name="dpto_id"
               required={true}
               value={formState.dpto_id}
