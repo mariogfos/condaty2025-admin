@@ -325,13 +325,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad
     );
-    console.log(selectedUnit);
     const ownerId = selectedUnit?.titular?.id;
     if (!ownerId) {
       setIsSubmitting(false);
       return;
     }
-    console.log("entro asdsd");
+
     let startTime = "";
     const sortedSelectedPeriods = [...selectedPeriods];
     if (sortedSelectedPeriods.length > 0) {
@@ -349,6 +348,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         `Reserva de ${selectedAreaDetails?.title || "área"}`,
       start_time: startTime,
       periods: sortedSelectedPeriods,
+      dpto_id: selectedUnit?.id,
     };
     try {
       const response = await execute(
