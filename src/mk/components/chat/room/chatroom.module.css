@@ -174,7 +174,7 @@
   border-radius: 8px;
   margin: 16px 0 0 0;
   /* padding: 16px; */
-  height: 96px;
+  /* height: 96px; */
   background-color: var(--cWhiteV2);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
@@ -250,11 +250,13 @@
   border: none;
   width: 100%;
   height: 100%;
+  max-height: none;
   padding: 16px;
-    padding-bottom: 48px; /* Espacio para los botones abajo */
+  padding-bottom: 48px; /* Espacio para los botones abajo */
   border-radius: 8px;
-  line-height: 1.4;
+  line-height: 24px;
   white-space: pre-line;
+  overflow-y: auto;
   resize: none;
   outline: none;
   background-color: transparent;

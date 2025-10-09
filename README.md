@@ -10,7 +10,7 @@ npm run devssaa equpo a login
 yarn dev11sas
 # orsaaa
 pnpm devaaaaaa
-# ors
+# orsaaa
 
 bun devaas
 ```
