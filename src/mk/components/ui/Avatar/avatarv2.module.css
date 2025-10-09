@@ -1,0 +1,42 @@
+.avatar {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .avatarImageWrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--cWhiteV1);
+  }
+  
+  .avatarImageWrapper > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .progressBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(90deg); /* Inicia desde la parte inferior central */
+  }
+  
+  .backgroundCircle {
+    fill: none;
+    stroke: var(--cBlack); /* Color de fondo de la barra */
+  }
+  
+  .foregroundCircle {
+    fill: none;
+    stroke: var(--cPrimary); /* Color de la barra de progreso */
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease; /* Animación suave */
+  }
+  

@@ -1,0 +1,46 @@
+.absPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background-color: #1a1a1a; /* color oscuro, ajusta según tu tema */
+    color: #ffffff;
+  }
+  
+  .flexCenter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .logo {
+    color: #ff6b6b; /* ajusta el color según tu tema */
+  }
+  
+  .spinDot {
+    animation: spin 1s linear infinite;
+    text-align: center;
+  }
+  
+  .text {
+    font-weight: normal;
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .bold {
+    font-weight: bold;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }

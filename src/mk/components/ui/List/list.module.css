@@ -1,0 +1,12 @@
+.list {
+  & > div {
+    color: var(--cWhite);
+    & :hover {
+      /* background-color: var(--cBlackV1); */
+    }
+    & > div > div > div > div {
+      /* titulo */
+      color: var(--cWhite);
+    }
+  }
+}

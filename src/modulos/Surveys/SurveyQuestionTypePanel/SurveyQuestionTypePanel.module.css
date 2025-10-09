@@ -1,0 +1,63 @@
+.surveyQuestionTypePanel {
+  display: flex;
+  padding: var(--spM);
+  background-color: var(--cBlackV1);
+  border-radius: var(--bRadius);
+  flex-direction: column;
+  gap: var(--spM);
+  & > section {
+    display: flex;
+    gap: var(--spS);
+  }
+}
+
+.surveyQuestionHeader {
+  display: flex;
+  justify-content: space-between;
+  & > div > h2 {
+    color: var(--cWhite);
+    font-size: var(--sL);
+  }
+  & > div > p {
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+  }
+}
+.questionTypeOption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spS);
+  flex-direction: column;
+  padding: var(--spM);
+  border: 1px solid var(--cBlackV3);
+  background-color: var(--cHover);
+  border-radius: var(--bRadiusS);
+  cursor: pointer;
+  width: 100%;
+}
+
+.questionTypeOption:hover {
+  border: 1px solid var(--cWhiteV1);
+}
+
+.icon {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.textContainer {
+  display: flex;
+  align-self: flex-start;
+  flex-direction: column;
+  font-size: var(--sM);
+  font-weight: 500;
+  justify-content: flex-start;
+  gap: var(--spS);
+  & > h3 {
+    color: var(--cWhiteV1);
+  }
+  & > p {
+    color: var(--cWhiteV1);
+    font-size: var(--sS);
+  }
+}

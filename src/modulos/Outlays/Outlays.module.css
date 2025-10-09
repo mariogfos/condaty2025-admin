@@ -1,0 +1,111 @@
+.outlays {
+  padding: 20px;
+  width: 100%;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--cWhite, white);
+}
+
+.subtitle {
+  color: var(--cLightv3, #a0a0a0);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.categoriesButton {
+  border: 1px solid var(--cLightv3, #a0a0a0) !important;
+  color: var(--cLightv3, #a0a0a0) !important;
+  background-color: transparent !important;
+  font-size: 14px;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px; /* Más adecuado para el texto "Categorías" */
+  height: 48px !important; /* Corregido a 48px */
+  min-height: 48px !important;
+  max-height: 48px !important;
+  margin: 0 !important;
+}
+
+.graphButton:hover {
+  opacity: 0.9;
+}
+
+
+.categoriesButton:hover {
+  background-color: rgba(160, 160, 160, 0.1) !important;
+}
+
+.viewButton {
+  color: var(--cInfo, blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  opacity: 0.8;
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .outlays {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .buttonsContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .graphButton, .categoriesButton {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .graphButton {
+    width: 32%;
+  }
+  
+  .categoriesButton {
+    width: 32%;
+  }
+}
+
+
+
+.statusBadge {
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+/* Estilos para cada estado con fondos semitransparentes y texto coloreado
+   Exactamente como en el componente Payments */
+.statusA {
+  background-color: rgba(0, 227, 140, 0.2); /* Verde semitransparente */
+  color: #00e38c; /* Verde brillante */
+}
+
+.statusX {
+  background-color: rgba(218, 93, 93, 0.2); /* Rojo semitransparente */
+  color: #e46055; /* Rojo brillante */
+}

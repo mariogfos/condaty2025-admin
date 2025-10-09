@@ -1,0 +1,45 @@
+.infoCard {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: var(--spS);  
+    border-radius: var(--bRadius);
+    border: 1px solid var(--cBlackV3);
+    gap: var(--spXl);
+    width:177px;
+    min-width: 167px;
+    background-color: var(--cWhiteV3);
+
+  & > div:nth-child(1){
+    color:var(--cBlackV2);
+    font-size: var(--sL);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    & > div > div {
+      cursor: pointer;
+    }
+  }
+  & > div:nth-child(2){
+    color:var(--cWhite);
+    font-size: var(--spXl);
+    text-align: end;
+
+  }
+}
+.infoCardChildren1{
+  color:var(--cBlackV2);
+  font-size: var(--sL);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  & > div > div {
+    cursor: pointer;
+  }
+}
+.tooltip {
+
+  & > span {
+    text-align: left;
+  }
+}

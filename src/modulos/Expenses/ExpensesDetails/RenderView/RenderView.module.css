@@ -1,0 +1,243 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  background-color: var(--cBlackV1);
+  width: 100%;
+  padding: var(--spL);
+  border-radius: var(--bRadiusL);
+}
+
+/* Sección para mostrar el monto total y la fecha */
+.totalAmountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.totalAmount {
+  color: var(--cWhite);
+  font-size: 32px;
+  font-weight: var(--bBold);
+  text-align: center;
+  width: 100%;
+}
+
+.paymentDate {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  text-align: center;
+  width: 100%;
+  margin-top: var(--spS);
+}
+
+/* Separador horizontal */
+.divider {
+  height: 1px;
+  background-color: var(--cWhiteV1);
+  width: 100%;
+  margin: var(--spS) 0;
+  opacity: 0.3;
+}
+
+/* Contenedor para la información detallada */
+.detailsContainer {
+  /* padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  width: 100%; */
+  display: grid;
+
+  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: var(--spL);
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.label {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+}
+
+.value {
+  color: var(--cWhite);
+}
+
+/* Estados con colores específicos */
+.statusPorCobrar {
+  color: #a7a7a7;
+}
+
+.statusEnMora {
+  color: #e97777;
+}
+
+.statusRevisarPago {
+  color: #f8cb65;
+}
+
+.statusCobrado {
+  color: #49c087;
+}
+
+/* Sección de periodos por pagar */
+.periodsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+  margin-top: var(--spM);
+}
+
+.periodsTitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sS);
+  margin-bottom: var(--spS);
+}
+
+/* Tabla de periodos */
+.tableContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusL);
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  width: 100%;
+}
+
+.headerCell {
+  flex: 1;
+  background-color: var(--cBlackV2);
+  color: var(--cWhite);
+  padding: var(--spM);
+  text-align: center;
+  font-size: var(--sM);
+  font-weight: var(--bSemibold);
+  border: 0.5px solid var(--cWhiteV1);
+  border-right: none;
+}
+
+.headerCell:last-child {
+  border-right: 0.5px solid var(--cWhiteV1);
+}
+
+.headerCellLeft {
+  border-top-left-radius: var(--bRadiusL);
+}
+
+.headerCellRight {
+  border-top-right-radius: var(--bRadiusL);
+}
+
+.tableBody {
+  width: 100%;
+}
+
+.tableRow {
+  display: flex;
+  width: 100%;
+}
+
+.tableCell {
+  flex: 1;
+  background-color: var(--cBlackV2);
+  color: var(--cWhiteV1);
+  padding: var(--spL) var(--spM);
+  text-align: center;
+  font-size: var(--sS);
+  border: 0.5px solid var(--cWhiteV1);
+  border-top: none;
+  border-right: none;
+}
+
+.tableCell:last-child {
+  border-right: 0.5px solid var(--cWhiteV1);
+}
+
+.tableLastRow .tableCellLeft {
+  border-bottom-left-radius: var(--bRadiusL);
+}
+
+.tableLastRow .tableCellRight {
+  border-bottom-right-radius: var(--bRadiusL);
+}
+
+/* Total pagado */
+.totalPaid {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  text-align: right;
+  margin-top: var(--spS);
+}
+
+/* Botón de detalles de pago */
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: var(--spL);
+}
+
+.paymentButton {
+  background-color: var(--cPrimary) !important;
+  color: var(--cWhite) !important;
+  font-size: var(--sM) !important;
+  padding: var(--spM) var(--spL) !important;
+  border-radius: var(--bRadius) !important;
+  width: 100%;
+  max-width: 320px;
+  font-weight: var(--bMedium) !important;
+  transition: all 0.2s ease !important;
+}
+
+.paymentButton:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .detailsContainer {
+    padding: 0 var(--spM);
+  }
+
+  .tableHeader,
+  .tableRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .totalAmount {
+    font-size: var(--sXl);
+  }
+
+  .label,
+  .value {
+    font-size: var(--sS);
+  }
+}
+.LabelValue {
+  flex-grow: 1;
+  & > p:nth-child(1) {
+    color: var(--cWhiteV1);
+    font-size: var(--sM);
+    font-weight: 300;
+  }
+  & > p:nth-child(2) {
+    color: var(--cWhite);
+    font-size: var(--sM);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+}

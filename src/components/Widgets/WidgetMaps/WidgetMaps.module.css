@@ -1,0 +1,82 @@
+.WidgetMaps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 12px;
+  position: relative;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+
+  @media (max-width: 1600px) {
+    flex-direction: column;
+  }
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0;
+
+  & > div {
+    margin-top: 0 !important;
+
+    & > p:nth-child(1) {
+      color: white;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    & > p:nth-child(2) {
+      color: #656f78;
+    }
+  }
+
+  @media (min-width: 768px) {
+    width: auto;
+    margin-bottom: 0;
+    align-self: flex-start;
+  }
+
+  @media (max-width: 1441px) {
+    width: 100%;
+  }
+}
+.uruguay {
+  position: relative;
+  width: 100%;
+  /* background-color: #f14; */
+  & div:nth-child(1) {
+    & div {
+      width: 200px;
+      & div {
+        position: relative;
+        width: auto;
+      }
+    }
+  }
+  & div:nth-child(2) {
+    position: absolute;
+    top: 10%;
+    right: 0;
+    width: 50%;
+
+    & > img {
+      /* margin-left: 45px; */
+      margin-top: -50px;
+      width: 100%;
+      height: auto;
+      @media (max-width: 480px) {
+        width: 100px;
+        margin-left: 20px;
+      }
+      @media (min-width: 768px) {
+        width: 190px;
+      }
+    }
+  }
+}

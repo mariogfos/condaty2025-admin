@@ -1,0 +1,27 @@
+.container {
+    position: absolute;
+    top: -1.5rem; /* -top-6 */
+    right: 0;
+    left: 0;
+    overflow: visible;
+  }
+  
+  .wrapper {
+    width: 100%;
+    text-align: center;
+    height: 0.5rem; /* h-2 */
+    font-weight: 600; /* font-semibold */
+    position: absolute; /* absolut */
+  }
+  
+  .iconContainer {
+    margin-left: auto;
+    margin-right: auto;
+    height: 3rem; /* h-12 */
+    width: 3rem; /* w-12 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 50%;
+  }

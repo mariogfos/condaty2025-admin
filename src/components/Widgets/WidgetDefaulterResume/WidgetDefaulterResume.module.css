@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 16px;
+  width: 100%;
+  height: auto; /* Cambio de altura fija a auto */
+  min-height: 78px;
+  position: relative;
+  border: 0.5px solid;
+  border-color: inherit;
+  margin-bottom: 10px; /* Espacio entre widgets cuando estén en columna */
+  transition: all 0.3s ease; /* Transición suave para cambios responsivos */
+  min-width: 230px;
+  width:100%
+}
+
+.contentWrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  min-width: 150px; /* Ancho mínimo para asegurar legibilidad */
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap; /* Permite que el título se envuelva */
+}
+
+.title {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--neutralColor50, white);
+  word-break: break-word; /* Evita desbordamiento de texto */
+}
+
+.amount {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--neutralColor50, white);
+  word-break: break-word; /* Evita desbordamiento de texto */
+}
+
+.iconContainer {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0; /* Evita que el icono se encoja */
+}
+
+/* Si necesitas mantener compatibilidad con el código anterior */
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.units {
+  display: none; /* Ocultamos las unidades ya que no aparecen en el ejemplo */
+}
+
+.emptyUnits {
+  height: 0;
+}
+
+/* Media queries para hacer los widgets responsivos */
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 10px 12px;
+  }
+  
+  .amount {
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 8px 10px;
+  }
+  
+  .amount {
+    font-size: 16px;
+  }
+  
+  .iconContainer {
+    width: 36px;
+    height: 36px;
+  }
+}

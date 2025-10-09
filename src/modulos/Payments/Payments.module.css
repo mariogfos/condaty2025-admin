@@ -1,0 +1,153 @@
+.container {
+  padding: 20px;
+  width: 100%;
+}
+
+.title {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: 5px;
+  color: var(--cWhite);
+}
+
+.subtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  margin-bottom: 20px;
+}
+
+.graphButton {
+  background-color: var(--cBlackV2) !important;
+  color: var(--cWhite) !important;
+  font-size: var(--sM);
+  padding: var(--spS) var(--spL) !important;
+  border-radius: var(--bRadiusM) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 48px !important;
+}
+
+.graphButton:hover {
+  opacity: 0.9;
+}
+
+.categoriesButton {
+  border: 1px solid var(--cWhiteV1) !important;
+  color: var(--cWhiteV1) !important;
+  background-color: transparent !important;
+  font-size: var(--sM);
+  padding: var(--spS) var(--spL) !important;
+  border-radius: var(--bRadius) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  margin: 0 !important;
+}
+
+.categoriesButton:hover {
+  background-color: var(--cHover) !important;
+}
+
+.viewButton {
+  color: var(--cInfo);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  opacity: 0.8;
+}
+
+/* Estilos para la tabla */
+.tableContainer {
+  overflow-x: auto;
+  border-radius: var(--bRadiusS);
+  background-color: var(--cBlackV1);
+}
+
+/* Estilos para responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: var(--sXl);
+  }
+  
+  .buttonsContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .graphButton, .categoriesButton {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .graphButton {
+    width: 32%;
+  }
+  
+  .categoriesButton {
+    width: 32%;
+  }
+}
+
+/* Estilo general para los badges de estado */
+.statusBadge {
+  font-weight: var(--bMedium);
+  padding: 6px var(--spM);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  min-width: 110px;
+  white-space: nowrap;
+}
+
+/* Estilos para cada estado con fondos semitransparentes y texto coloreado */
+.statusP {
+  background-color: var(--accentBg);
+  color: var(--cPrimary);
+}
+
+.statusS {
+  background-color: var(--cHoverWarning);
+  color: var(--cWarning);
+}
+
+.statusR {
+  background-color: var(--cHoverError);
+  color: var(--cError);
+}
+
+.statusE {
+  background-color: var(--cHoverInfo);
+  color: var(--cInfo);
+}
+
+.statusA {
+  background-color: rgba(0, 123, 255, 0.2);
+  color: var(--info);
+}
+
+.statusM {
+  background-color: var(--cMediumAlertHover);
+  color: var(--cMediumAlert);
+}
+
+.statusX {
+  background-color: var(--cHoverError);
+  color: var(--cError);
+}
