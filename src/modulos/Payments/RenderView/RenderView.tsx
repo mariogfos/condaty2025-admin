@@ -24,7 +24,7 @@ interface PaymentDetail {
   paid_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
-  obs?: string; 
+  obs?: string;
   type?: string;
   method?: string;
   voucher?: string;
@@ -479,7 +479,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                     <div className={styles.periodsTableCell}>Concepto</div>
                     <div className={styles.periodsTableCell}>Monto</div>
                     <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>MV</div>
+                    <div className={styles.periodsTableCell}>Mant. Valor</div>
                     <div className={styles.periodsTableCell}>Subtotal</div>
                   </div>
                   <div className={styles.periodsTableBody}>
@@ -503,7 +503,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           <div className={styles.periodsTableCell} data-label="Multa">
                             {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
                           </div>
-                          <div className={styles.periodsTableCell} data-label="MV">
+                          <div className={styles.periodsTableCell} data-label="Mant. Valor">
                             {formatBs(periodo?.debt_dpto?.maintenance_amount || 0)}
                           </div>
                           <div className={styles.periodsTableCell} data-label="Subtotal">
