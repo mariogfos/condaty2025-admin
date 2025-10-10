@@ -24,13 +24,15 @@ type PropsType = {
   colorTitle?: string;
   variant?: string | null;
   zIndex?: number;
+  minWidth?: string | number | null;
+  maxWidth?: string | number | null;
 };
 
 const DataModal = ({
   children,
   onClose,
   open,
-  onSave = (e: any) => { },
+  onSave = (e: any) => {},
   title = "",
   className = "",
   buttonText = "Guardar",
@@ -46,6 +48,8 @@ const DataModal = ({
   colorTitle = "var(--cWhite)",
   variant = null,
   zIndex = 200,
+  minWidth = null,
+  maxWidth = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -65,6 +69,13 @@ const DataModal = ({
       setOpenModal(open);
     }
   }, [open]);
+
+  if (minWidth) {
+    style.minWidth = minWidth;
+  }
+  if (maxWidth) {
+    style.maxWidth = maxWidth;
+  }
   return (
     <div
       style={{ visibility: open ? "visible" : "hidden", zIndex }}
@@ -72,7 +83,6 @@ const DataModal = ({
       onClick={(e) => e.stopPropagation()}
     >
       <main
-        style={style}
         className={
           (openModal ? styles["open"] : "") +
           "  " +
@@ -80,6 +90,7 @@ const DataModal = ({
           " " +
           (variant ? styles[variant] : "")
         }
+        style={style}
       >
         <HeadTitle
           style={{ padding: "0px" }}
