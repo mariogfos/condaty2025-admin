@@ -23,6 +23,7 @@ import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
+import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
@@ -36,6 +37,7 @@ const Notifications = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [openPayment, setOpenPayment] = useState({ open: false, id: null });
+  const [openReservas, setOpenReservas] = useState({ open: false, id: null });
 
   const mod: ModCrudType = {
     modulo: "notifications",
@@ -379,7 +381,8 @@ const Notifications = () => {
         router.push("/users");
       }
       if (parsedMessage?.info?.act === "newReservationAdm") {
-        router.push("/reservas");
+        //router.push("/reservas");
+        setOpenReservas({ open: true, id: parsedMessage.info.id });
       }
       if (parsedMessage?.info?.act === "newContent") {
         router.push("/contents");
@@ -447,6 +450,13 @@ const Notifications = () => {
           open={openPayment.open}
           onClose={() => setOpenPayment({ open: false, id: null })}
           payment_id={openPayment.id || ""}
+        />
+      )}
+      {openReservas.open && (
+        <ReservationDetailModal 
+          open={openReservas.open}
+          onClose={() => setOpenReservas({ open: false, id: null })}
+          reservationId={openReservas.id || ""}
         />
       )}
     </div>
