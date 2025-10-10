@@ -319,7 +319,7 @@ const ChatRoom = ({
   const onKeyUp = (e: any) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
-        setNewMessage(newMessage + '\n');
+        // No hacer nada, el textarea ya maneja el salto de línea
       } else {
         if (newMessage.trim().length > 0 || selectedFiles.length > 0) {
           handleSendMessage();
