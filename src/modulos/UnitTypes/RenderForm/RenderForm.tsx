@@ -113,7 +113,8 @@ const RenderForm = ({
             page: 1,
             fullType: "EXTRA",
           },
-          false
+          false,
+          true
         );
 
         // Acepta distintas formas de respuesta
