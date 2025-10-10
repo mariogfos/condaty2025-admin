@@ -17,6 +17,7 @@ import {
   IconNewPublication,
   IconAmbulance,
   IconBalance,
+  IconCancelReservation,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
@@ -182,7 +183,10 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: messageData.info.status === 'A' ? "var(--cSuccess)" : "var(--cError)",
+              backgroundColor:
+                messageData.info.status === "A"
+                  ? "var(--cSuccess)"
+                  : "var(--cError)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -199,7 +203,7 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: "var(--cAccent)",
+              backgroundColor: "var(--  )",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -223,6 +227,22 @@ const Notifications = () => {
             }}
           >
             <IconUser color="var(--cWhite)" />
+          </div>
+        );
+      }
+      if (actValue === "cancelReservationAdm") {
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: "var(--cError)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconCancelReservation color="var(--cWhite)" />
           </div>
         );
       }
