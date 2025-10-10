@@ -440,6 +440,10 @@ const ChatRoom = ({
                           ? { top: 'calc(100% + 8px)', bottom: 'auto' }
                           : { bottom: 'calc(100% + 8px)', top: 'auto' }),
                       }}
+                      onDragEnter={(e) => e.stopPropagation()}
+                      onDragOver={(e) => e.stopPropagation()}
+                      onDragLeave={(e) => e.stopPropagation()}
+                      onDrop={(e) => e.stopPropagation()}
                     >
                       <EmojiPicker
                         reactionsDefaultOpen={true}
@@ -556,7 +560,13 @@ const ChatRoom = ({
           })}
         </div>
         {selectedFiles.length > 0 && (
-          <div className={styles.previewContainer}>
+          <div 
+            className={styles.previewContainer}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
             <button
               className={styles.closePreviewButton}
               onClick={cancelUpload}
@@ -646,7 +656,14 @@ const ChatRoom = ({
       </div>
 
       {/* Barra inferior de input y botones: queda visible siempre */}
-      <div className={styles.chatInputContainer} aria-busy={isUploading || sending}>
+      <div 
+        className={styles.chatInputContainer} 
+        aria-busy={isUploading || sending}
+        onDragEnter={(e) => e.stopPropagation()}
+        onDragOver={(e) => e.stopPropagation()}
+        onDragLeave={(e) => e.stopPropagation()}
+        onDrop={(e) => e.stopPropagation()}
+      >
         <input
           ref={fileInputRef}
           type="file"
@@ -679,7 +696,14 @@ const ChatRoom = ({
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
-          <div ref={inputEmojiPickerRef} className={styles.inputEmojiPicker}>
+          <div 
+            ref={inputEmojiPickerRef} 
+            className={styles.inputEmojiPicker}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
             <EmojiPicker
               onEmojiClick={handleInputEmojiSelect}
               height={350}
