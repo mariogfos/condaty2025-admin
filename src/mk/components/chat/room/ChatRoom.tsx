@@ -59,7 +59,8 @@ const ChatRoom = ({
   useEffect(() => {
     setShowEmojiPicker(null);
     setNewMessage("");
-    if (roomId.indexOf("chatBot") > -1 && selectedFiles.length > 0) cancelUpload();
+    // Limpiar archivos seleccionados al cambiar de chat
+    if (selectedFiles.length > 0) cancelUpload();
   }, [roomId]);
 
   const cancelUpload = () => {
@@ -615,6 +616,16 @@ const ChatRoom = ({
                         }`}
                         onClick={() => setSelectedPreviewIndex(index)}
                       >
+                        <button
+                          className={styles.removeThumbnailButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(file.id);
+                          }}
+                          title="Eliminar imagen"
+                        >
+                          <IconX color="white" size={12} />
+                        </button>
                         <Image
                           src={file.previewURL}
                           alt={`Miniatura ${index + 1}`}

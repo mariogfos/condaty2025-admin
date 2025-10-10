@@ -468,6 +468,31 @@
   box-shadow: 0 0 0 2px var(--cPrimary);
 }
 
+.removeThumbnailButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+  opacity: 0.8;
+}
+
+.removeThumbnailButton:hover {
+  background-color: var(--cError);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 .navButton {
   position: absolute;
   top: 50%;
