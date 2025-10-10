@@ -690,12 +690,15 @@ const HomePage = () => {
       >
         {renderPreRegistroList()}
       </DataModal>
-      <OwnersRender
-        open={openActive}
-        onClose={() => setOpenActive(false)}
-        item={dataOwner}
-        reLoad={reLoad}
-      />
+      {openActive && (
+        <OwnersRender
+          open={openActive}
+          onClose={() => setOpenActive(false)}
+          item={dataOwner}
+          reLoad={reLoad}
+          execute={execute}
+        />
+      )}
       {openAlert && (
         <AlertsRender
           open={openAlert}
