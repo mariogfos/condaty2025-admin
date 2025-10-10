@@ -405,6 +405,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       buttonCancel="Cancelar"
       buttonText={_formState.id ? 'Actualizar' : 'Crear deuda compartida'}
       title={_formState.id ? 'Editar deuda compartida' : 'Crear deuda compartida'}
+      variant={"mini"}
     >
       <div className={styles.formContainer}>
         <div className={styles.formTextHeader}>

@@ -202,6 +202,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
       onSave={onSave}
       buttonText="Guardar"
       buttonCancel="Cancelar"
+      variant={"mini"}
     >
       <div className={styles.formContainer}>
         {/* Segunda fila - Subcategoría y Unidad */}

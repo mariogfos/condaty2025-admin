@@ -982,6 +982,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         buttonCancel={'Cancelar'}
         buttonText={'Crear ingreso'}
         title={'Crear ingreso'}
+        variant={"mini"}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}

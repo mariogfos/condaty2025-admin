@@ -244,6 +244,7 @@ const RenderForm = ({
       open={open}
       onClose={onClose}
       onSave={onSave}
+      variant={"mini"}
       buttonText={formState?.id ? "Editar condonación" : "Crear condonación"}
     >
       <div style={{ display: "flex", gap: 8 }}>
