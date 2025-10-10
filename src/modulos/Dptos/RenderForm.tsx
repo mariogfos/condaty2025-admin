@@ -179,6 +179,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
+      variant={"mini"}
     >
       <Input
         label="Número de Unidad"
