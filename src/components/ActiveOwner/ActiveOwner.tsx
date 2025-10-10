@@ -137,6 +137,7 @@ const ActiveOwner = ({
               error={errors}
               optionValue="id"
               onChange={handleChangeInput}
+              filter={true}
             />
           </div>
         </div>
