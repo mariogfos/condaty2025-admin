@@ -602,9 +602,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
         if (monthNum != null && yearNum != null) {
           const monthIndex = Math.max(1, Math.min(12, Number(monthNum)));
           const monthName = MONTHS_S[monthIndex] || String(monthNum);
-          return `Periodo: ${monthName} ${yearNum}`;
+          return `${monthName} ${yearNum}`;
         }
-        return 'Periodo: -/-';
+        return '-/-';
       }
       case 2:
         // Reservas: mostrar el nombre del área social
