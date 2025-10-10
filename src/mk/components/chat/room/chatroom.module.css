@@ -158,7 +158,6 @@
   width: auto;
   z-index: 20;
   animation: fadeIn 0.2s ease;
-
   background: transparent;
   border: none;
   border-radius: 0;
@@ -168,13 +167,8 @@
 
 .chatInputContainer {
   position: relative;
-  /* display: flex;
-  gap: 8px;
-  justify-content: space-between; */
   border-radius: 8px;
   margin: 16px 0 0 0;
-  /* padding: 16px; */
-  /* height: 96px; */
   background-color: var(--cWhiteV2);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
@@ -251,16 +245,17 @@
   width: 100%;
   height: 100%;
   max-height: none;
-  padding: 16px;
-  padding-bottom: 48px; /* Espacio para los botones abajo */
+  padding: 16px 16px 0;
+  margin-bottom: 38px;
   border-radius: 8px;
-  line-height: 24px;
+  line-height: 1.4;
   white-space: pre-line;
   overflow-y: auto;
   resize: none;
   outline: none;
   background-color: transparent;
   color: var(--cWhiteV1);
+  transition: height 0.2s ease-out;
 }
 
 .chatInput:focus {
