@@ -248,6 +248,7 @@ const RenderForm = ({
     >
       <div style={{ display: "flex", gap: 8 }}>
         <Select
+          filter={true}
           name="dpto_id"
           label="Unidad"
           options={getUnits()}
