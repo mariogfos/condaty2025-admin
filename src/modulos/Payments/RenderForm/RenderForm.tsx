@@ -509,7 +509,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (debtId && deudas.length > 0) {
       const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
       if (targetDebt) {
-   
+
         const calculatedAmount = getSubtotal(targetDebt);
 
         const newSelectedPeriodo: SelectedPeriodo = {
@@ -878,7 +878,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <span className={styles['header-item']}>Concepto</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Monto</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Multa</span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>MV</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Mant. Valor</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Subtotal</span>
               <span className={styles['header-item']}>Seleccionar</span>
             </div>

@@ -40,22 +40,110 @@ const RenderForm = ({
   action,
   reLoad,
 }: RenderFormProps) => {
-  const [extraFields, setExtraFields] = useState<ExtraField[]>(() => {
-    if (action === "add") return [];
-
-    return (extraData?.fields || [])
-      .filter((field: any) => field.type_id === item.id)
-      .map((field: any) => ({
-        id: field.id,
-        name: field.name,
-        value: field.type || "text",
-      }));
-  });
+  const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
   const [formState, setFormState] = useState({ ...item });
   const [currentErrors, setCurrentErrors] = useState<Record<string, string>>(
     {}
   );
   const { showToast } = useAuth();
+
+  // Sincronizar campos extra al abrir o cuando cambian item/extraData
+  useEffect(() => {
+    if (action === "add") return;
+
+    // Prioriza campos del item (detalle ya cargado), luego extraData.fields por type_id
+    const itemFields =
+      (Array.isArray(item?.fields) && item.fields) ||
+      (Array.isArray(item?.extras?.fields) && item.extras.fields) ||
+      [];
+
+    if (itemFields.length > 0) {
+      const mapped = itemFields.map((field: any) => ({
+        id: field.id,
+        name: field.name,
+        value: field.type || "text",
+      }));
+      setExtraFields(mapped);
+      return;
+    }
+
+    const edFields = Array.isArray(extraData?.fields) ? extraData.fields : [];
+    const fromExtraData = edFields
+      .filter(
+        (field: any) =>
+          field.type_id === item?.id || field.type_id === item?.type_id
+      )
+      .map((field: any) => ({
+        id: field.id,
+        name: field.name,
+        value: field.type || "text",
+      }));
+
+    if (fromExtraData.length > 0) {
+      setExtraFields(fromExtraData);
+    }
+  }, [
+    open,
+    action,
+    item?.id,
+    item?.type_id,
+    item?.fields,
+    item?.extras?.fields,
+    extraData?.fields,
+  ]);
+
+  // Si no hay campos aún, intenta cargar desde la API /types con fullType: "EXTRA"
+  useEffect(() => {
+    const shouldFetch =
+      open &&
+      action !== "add" &&
+      (!Array.isArray(item?.fields) || item.fields.length === 0) &&
+      (!Array.isArray(item?.extras?.fields) || item.extras.fields.length === 0) &&
+      extraFields.length === 0;
+
+    if (!shouldFetch) return;
+
+    const loadExtraFields = async () => {
+      try {
+        const { data: response } = await execute(
+          "/types",
+          "GET",
+          {
+            perPage: -1,
+            page: 1,
+            fullType: "EXTRA",
+          },
+          false
+        );
+
+        // Acepta distintas formas de respuesta
+        const payload = response?.data ?? response ?? {};
+        const fieldsPayload =
+          (Array.isArray(payload?.fields) && payload.fields) ||
+          (Array.isArray(response?.fields) && response.fields) ||
+          [];
+
+        const fetched = fieldsPayload
+          .filter(
+            (field: any) =>
+              field.type_id === item?.id || field.type_id === item?.type_id
+          )
+          .map((field: any) => ({
+            id: field.id,
+            name: field.name,
+            value: field.type || "text",
+          }));
+
+        if (fetched.length > 0) {
+          setExtraFields(fetched);
+        }
+      } catch {
+        // Silencioso: si falla, mantenemos extraFields vacío
+      }
+    };
+
+    loadExtraFields();
+  }, [open, action, item?.id, item?.type_id, item?.fields, item?.extras?.fields, extraFields.length]);
 
   // Limpiar errores cuando se cierre el modal
   useEffect(() => {

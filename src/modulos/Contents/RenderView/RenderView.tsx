@@ -202,6 +202,7 @@ const RenderView = (props: {
                         )}
                         square={true}
                         expandable={true}
+                        expandableIcon={false}
                         objectFit="contain"
                         borderRadius="var(--bRadiusM)"
                         style={{ width: '100%', height: '100%' }}

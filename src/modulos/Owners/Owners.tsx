@@ -8,6 +8,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { lStatusActive } from "@/mk/utils/utils";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
@@ -345,6 +346,7 @@ const Owners = () => {
         label: "Estado",
         list: {
           onRender: ({ item }: any) => {
+            const statusInfo = lStatusActive[item?.status];
             return (
               <span
                 style={{
@@ -354,7 +356,7 @@ const Owners = () => {
                       : "var(--cWhiteV1)",
                 }}
               >
-                {item?.status === "W" ? "Por activar" : "Activo"}
+                {statusInfo?.name || "Desconocido"}
               </span>
             );
           },
