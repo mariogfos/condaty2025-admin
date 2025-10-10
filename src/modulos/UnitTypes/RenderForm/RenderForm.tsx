@@ -266,6 +266,7 @@ const RenderForm = ({
         action === "add" ? "Agregar Tipo de Unidad" : "Editar Tipo de Unidad"
       }
       onSave={handleSubmit}
+      variant={"mini"}
     >
       <Input
         name="name"
