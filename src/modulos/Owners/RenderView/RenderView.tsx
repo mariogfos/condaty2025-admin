@@ -179,7 +179,7 @@ const RenderView = (props: any) => {
           open={openActive}
           onClose={() => setOpenActive(false)}
           typeActive={typeActive}
-          data={item}
+          data={{ ...item, type_owner: data?.type_owner }}
           onCloseOwner={() => onClose()}
           reLoad={() => reLoad && reLoad()}
         />
