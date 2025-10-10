@@ -142,6 +142,10 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
     <FormatBsAlign value={parseFloat(item?.penalty_amount) || 0} alignRight />
   );
 
+  const renderMaintenanceAmountCell = ({ item }: { item: any }) => (
+    <FormatBsAlign value={parseFloat(item?.maintenance_amount) || 0} alignRight />
+  );
+
   const renderBalanceDueCell = ({ item }: { item: any }) => {
     const debtAmount = parseFloat(item?.amount) || 0;
     const penaltyAmount = parseFloat(item?.penalty_amount) || 0;
@@ -210,6 +214,18 @@ const DetailSharedDebts: React.FC<DetailSharedDebtsProps> = ({
         list: {
           onRender: renderPenaltyAmountCell,
           order: 5,
+          sumarize: true,
+        },
+      },
+      maintenance_amount: {
+        rules: [''],
+        api: '',
+        label: (
+          <label style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. Valor</label>
+        ),
+        list: {
+          onRender: renderMaintenanceAmountCell,
+          order: 6,
           sumarize: true,
         },
       },
