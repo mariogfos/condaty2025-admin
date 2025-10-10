@@ -203,7 +203,7 @@ const Notifications = () => {
             style={{
               borderRadius: 50,
               padding: 8,
-              backgroundColor: "var(--  )",
+              backgroundColor: "var(--cAccent)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
