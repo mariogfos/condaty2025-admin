@@ -687,6 +687,7 @@ const HomePage = () => {
         onClose={() => setOpenPreRegistroModal(false)}
         buttonText=""
         buttonCancel=""
+        variant={"mini"}
       >
         {renderPreRegistroList()}
       </DataModal>

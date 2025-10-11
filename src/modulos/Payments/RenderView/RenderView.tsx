@@ -340,6 +340,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             </Button>
           ) : undefined
         }
+        variant={"mini"}
         style={style}
       >
         {item && onDel && item.status === 'P' && item.user && (
