@@ -430,6 +430,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? 'Editar Residente' : 'Nuevo Residente'}
       onSave={onSave}
+      variant={"mini"}
     >
       <div className={styles.fieldSet}>
         <div className={styles.sectionHeader}>
