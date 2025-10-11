@@ -601,6 +601,18 @@ export default RenderView;
       case 0: // Individual
       case 4: // Compartida
         return periodo?.subcategory?.name || '-/-';
+      case 1: { // Expensas: mostrar periodo (MES y AÑO)
+        const monthNumRaw = periodo?.debt_dpto?.debt?.month ?? periodo?.debt_dpto?.shared?.month;
+        const yearNumRaw = periodo?.debt_dpto?.debt?.year ?? periodo?.debt_dpto?.shared?.year;
+
+        const monthIndex = typeof monthNumRaw === 'number' ? monthNumRaw : parseInt(String(monthNumRaw), 10);
+        const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
+
+        if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
+          return `Periodo: ${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
+        }
+        return periodo?.subcategory?.name || '-/-';
+      }
       case 2: // Reservas
         return `Reserva: ${periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}`;
       case 3: // Multa por Cancelación

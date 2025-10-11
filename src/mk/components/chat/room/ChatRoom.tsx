@@ -55,12 +55,16 @@ const ChatRoom = ({
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
   const { sendMessageBot } = useChatProvider({ provider: "kimi" });
+  const draftsRef = useRef<Record<string, string>>({});
+  const prevRoomIdRef = useRef(roomId);
 
   useEffect(() => {
+    draftsRef.current[prevRoomIdRef.current] = newMessage;
     setShowEmojiPicker(null);
-    setNewMessage("");
-    // Limpiar archivos seleccionados al cambiar de chat
+    const restored = draftsRef.current[roomId] || "";
+    setNewMessage(restored);
     if (selectedFiles.length > 0) cancelUpload();
+    prevRoomIdRef.current = roomId;
   }, [roomId]);
 
   useEffect(() => {
@@ -114,6 +118,7 @@ const ChatRoom = ({
     if (!hasText && selectedFiles.length === 0) return;
 
     setNewMessage("");
+    draftsRef.current[roomId] = "";
     typing.inputProps.onBlur();
 
     let msgId = 0;
@@ -576,7 +581,7 @@ const ChatRoom = ({
           })}
         </div>
         {selectedFiles.length > 0 && (
-          <div 
+          <div
             className={styles.previewContainer}
             onDragEnter={(e) => e.stopPropagation()}
             onDragOver={(e) => e.stopPropagation()}
@@ -672,8 +677,8 @@ const ChatRoom = ({
       </div>
 
       {/* Barra inferior de input y botones: queda visible siempre */}
-      <div 
-        className={styles.chatInputContainer} 
+      <div
+        className={styles.chatInputContainer}
         aria-busy={isUploading || sending}
         onDragEnter={(e) => e.stopPropagation()}
         onDragOver={(e) => e.stopPropagation()}
@@ -712,8 +717,8 @@ const ChatRoom = ({
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
-          <div 
-            ref={inputEmojiPickerRef} 
+          <div
+            ref={inputEmojiPickerRef}
             className={styles.inputEmojiPicker}
             onDragEnter={(e) => e.stopPropagation()}
             onDragOver={(e) => e.stopPropagation()}
