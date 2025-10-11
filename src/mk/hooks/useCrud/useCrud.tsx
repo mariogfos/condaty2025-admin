@@ -178,6 +178,7 @@ const useCrud = ({
   const [errors, setErrors]: any = useState({});
 
   const [openImport, setOpenImport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [openList, setOpenList] = useState(true);
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
@@ -452,6 +453,9 @@ const useCrud = ({
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
 
+    if (isExporting) return; // Evitar múltiples clics
+    setIsExporting(true);
+
     const { data: file } = await execute(
       "/" + mod.modulo,
       "GET",
@@ -496,10 +500,13 @@ const useCrud = ({
       } catch (error) {
         // Fallback: si falla la descarga, abrir directamente la URL
         window.location.href = url;
+      } finally {
+        setIsExporting(false);
       }
     } else {
       showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
+      setIsExporting(false);
     }
   };
   const onExportItem = (
