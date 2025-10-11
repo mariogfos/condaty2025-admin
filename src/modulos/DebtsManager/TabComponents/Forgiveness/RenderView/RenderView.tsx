@@ -100,7 +100,8 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
         <div style={{ display: "flex", gap: 16, width: "100%" }}>
           {item?.due_at < new Date().toISOString().split("T")[0] ||
           item?.status == "P" ||
-          item?.status == "S" ? null : (
+          item?.status == "S" ||
+          item?.status == "X" ? null : (
             <Button
               onClick={() => onEdit(item)}
               variant="secondary"
@@ -109,7 +110,9 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
               Editar
             </Button>
           )}
-          {item?.status == "P" || item?.status == "S" ? null : (
+          {item?.status == "P" ||
+          item?.status == "S" ||
+          item?.status == "X" ? null : (
             <Button
               onClick={() => onDel(item)}
               variant="secondary"
