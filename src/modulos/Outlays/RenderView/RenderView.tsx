@@ -150,6 +150,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       title="Detalle del Egreso"
       buttonText=""
       buttonCancel=""
+      variant={"mini"}
     >
       {item && onDel && item.status !== 'X' && (
         <div className={styles.headerActionContainer}>

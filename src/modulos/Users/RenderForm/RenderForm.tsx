@@ -144,6 +144,7 @@ const RenderForm = ({
       onClose={onClose}
       title="Editar administrador"
       onSave={onSave}
+      variant={"mini"}
     >
       <fieldset className={styles.fieldSet}>
         <div>

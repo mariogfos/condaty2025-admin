@@ -169,6 +169,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     []
   );
 
+  // Function: RenderForm (fragmento dentro de validar)
   const validar = useCallback(() => {
     let errs: Errors = {};
 
@@ -216,17 +217,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required', 'greater:0'],
+        rules: ['required', 'positive'],
         key: 'amount',
         errors: errs,
       }),
       'amount'
     );
-    
+
     addError(
       checkRules({
         value: _formState.interest,
-        rules: ['required', 'greater:0'],
+        rules: ['required', 'positive'],
         key: 'interest',
         errors: errs,
       }),
@@ -270,8 +271,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       )
     );
     set_Errors(filteredErrs);
-
-    // Cambiar esta línea para usar filteredErrs en lugar de errs
     return Object.keys(filteredErrs).length === 0;
   }, [_formState]);
 

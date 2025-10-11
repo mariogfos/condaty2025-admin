@@ -90,6 +90,7 @@ const RenderView = ({ open, item, onClose, reLoad }: any) => {
         buttonText=""
         buttonCancel=""
         className={styles.renderView}
+        variant={"mini"}
       >
         <Card>
           <div className={styles.containerFirstSection}>

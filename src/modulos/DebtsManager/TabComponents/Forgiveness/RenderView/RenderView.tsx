@@ -93,7 +93,9 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
     <DataModal
       title="Detalle de condonación"
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+      }}
       buttonText=""
       buttonCancel=""
       buttonExtra={
