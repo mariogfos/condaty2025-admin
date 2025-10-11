@@ -187,10 +187,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
+    // Function: RenderForm (fragmento dentro de validar)
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required'],
+        rules: ['required', 'positive'],
         key: 'amount',
         errors: errs,
       }),
@@ -214,6 +215,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       'dpto_id'
     );
+    // Validación para interés: no negativo (opcional, permite vacío o 0)
+    addError(
+      checkRules({
+        value: _formState.interest,
+        rules: ['positive'],
+        key: 'interest',
+        errors: errs,
+      }),
+      'interest'
+    );
+    addError(
+      checkRules({
+        value: _formState.interest,
+        rules: ['positive'],
+        key: 'interest',
+        errors: errs,
+      }),
+      'interest'
+    );
 
     const filteredErrs = Object.fromEntries(
       Object.entries(errs).filter(
@@ -221,7 +241,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       )
     );
     set_Errors(filteredErrs);
-
     return Object.keys(errs).length === 0;
   }, [_formState]);
 
