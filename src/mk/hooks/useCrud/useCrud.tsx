@@ -211,29 +211,6 @@ const useCrud = ({
     mod?.noWaiting
   );
 
-  // useEffect(() => {
-  //   const load = async () => {
-  //     setLoaded(false);
-  //     let p = params;
-  //     if (store[mod.modulo + "searchBy"]) {
-  //       p = { ...params, searchBy: store[mod.modulo + "searchBy"] };
-  //       setStore({ ...store, [mod.modulo + "searchBy"]: "" });
-  //     }
-  //     const { data, loaded } = await execute(
-  //       "/" + mod.modulo,
-  //       "GET",
-  //       p,
-  //       mod?.noWaiting
-  //     );
-  //     setData(data);
-  //     setLoaded(loaded);
-  //   };
-  //   console.log("useffect inicial uscrud", store, execute);
-  //   if (store) {
-  //     load();
-  //   }
-  // }, [store]);
-
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
     if (_onChange) {
@@ -293,47 +270,49 @@ const useCrud = ({
     initOpen(setOpen, item, "edit");
   }, []);
 
+  const getItemApi = useCallback(async (item: Record<string, any>) => {
+    let searchBy = item.id;
+    if (mod.loadView.key_id) {
+      searchBy = item[mod.loadView.key_id];
+    }
+
+    const { data } = await execute(
+      "/" + mod.modulo,
+      "GET",
+      {
+        page: 1,
+        perPage: 1,
+        fullType: "DET",
+        searchBy: searchBy,
+        ...(mod.loadView !== true ? mod.loadView : {}),
+      },
+      false,
+      mod?.noWaiting
+    );
+    if (data?.success) {
+      return data?.data;
+    }
+    return item;
+  }, []);
+
   const onView = useCallback(async (item: Record<string, any>) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
 
     if (mod.loadView) {
-      let searchBy = item.id;
-      if (mod.loadView.key_id) {
-        searchBy = item[mod.loadView.key_id];
-        // delete mod.loadView.key_id;
-      }
-
-      const { data: view } = await execute(
-        "/" + mod.modulo,
-        "GET",
-        {
-          page: 1,
-          perPage: 1,
-          fullType: "DET",
-          searchBy: searchBy,
-          ...mod.loadView,
-        },
-        false,
-        mod?.noWaiting
-      );
-      // const { data: d, ...rest } = view?.data ?? {};
-      // initOpen(setOpenView, { ...d, ...rest }, "view");
-
-      initOpen(setOpenView, view?.data, "view");
-      return;
+      item = await getItemApi(item);
     }
     initOpen(setOpenView, item, "view");
   }, []);
 
   const onImport = useCallback((e: any) => {
-    // e.stopPropagation();
     if (!userCan(mod.permiso, "C"))
       return showToast("No tiene permisos para importar", "error");
     if (_onImport) {
       _onImport();
     }
   }, []);
+
   const onExist = useCallback(
     async ({ type = "", cols = "id", modulo = "", searchBy = "" }: any) => {
       if (modulo == "") modulo = mod.modulo;
@@ -356,12 +335,17 @@ const useCrud = ({
     []
   );
 
-  const onCloseCrud = () => {
+  const onCloseCrud = (options: Record<string, any> | null = null) => {
     if (!openList) setOpenList(true);
+    if (options) {
+      if (options.beforeClose) options.beforeClose();
+    }
     setOpen(false);
   };
+
   const onCloseView = () => {
     if (!openList) setOpenList(true);
+
     // if (scrollTo>-1)
     setOpenView(false);
   };
@@ -1511,6 +1495,7 @@ const useCrud = ({
               {mod.renderForm ? (
                 mod.renderForm({
                   open: open,
+                  openView: openView,
                   onClose: onCloseCrud,
                   item: formState,
                   setItem: setFormState,
@@ -1524,10 +1509,12 @@ const useCrud = ({
                   onEdit,
                   onDel,
                   onAdd,
+                  onView,
                   action,
                   openList,
                   setOpenList,
                   showToast: showToast,
+                  getItemApi,
                 })
               ) : (
                 <Form

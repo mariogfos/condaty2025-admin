@@ -23,6 +23,8 @@ const RenderForm = ({
   execute,
   extraData,
   reLoad,
+  onView,
+  openView,
 }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
@@ -223,10 +225,14 @@ const RenderForm = ({
     );
 
     if (response?.success === true) {
-      reLoad();
+      // reLoad();
       setItem(formState);
       showToast(response?.message, "success");
-      onClose();
+      if (openView) onClose({ beforeClose: () => onView(item) });
+      else {
+        reLoad();
+        onClose();
+      }
     } else {
       showToast(response?.message, "error");
     }
