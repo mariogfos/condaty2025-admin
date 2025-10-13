@@ -167,7 +167,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       E: 'Efectivo',
       C: 'Cheque',
       Q: 'Pago QR',
-      O: 'Pago en oficina',
+      //O: 'Pago en oficina',
     };
     return typeMap[type] || type;
   };
@@ -610,7 +610,7 @@ export default RenderView;
         const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
 
         if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
-          return `Periodo: ${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
+          return `${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
         }
         return periodo?.subcategory?.name || '-/-';
       }
@@ -625,7 +625,9 @@ export default RenderView;
 
   // Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
-/*     const amount = parseFloat(periodo?.amount) || 0;
-    const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0; */
-  return periodo?.amount;
+  console.log("corecto")
+  const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
+ const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+  const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
+    return amount + penaltyAmount + maintenanceAmount;
   };

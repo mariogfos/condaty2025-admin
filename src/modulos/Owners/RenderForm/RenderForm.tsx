@@ -97,7 +97,6 @@ const UnitModal: React.FC<UnitModalProps> = ({
     onSave({
       dpto_id: parsed,
     });
-
     onClose();
   };
 
@@ -402,6 +401,7 @@ const RenderForm = ({
 
       if (response?.success) {
         reLoad();
+        window.location.reload();
         setItem(response.data);
         showToast(response?.message || 'Operación exitosa', 'success');
         onClose();
@@ -430,6 +430,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? 'Editar Residente' : 'Nuevo Residente'}
       onSave={onSave}
+      variant={"mini"}
     >
       <div className={styles.fieldSet}>
         <div className={styles.sectionHeader}>
