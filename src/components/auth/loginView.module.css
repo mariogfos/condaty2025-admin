@@ -64,17 +64,15 @@
   gap: 1.5rem;
   background-color: rgba(41, 41, 41, 0.94);
   border-radius: 1.875rem;
-  position: relative; /* Añadido por si acaso, para contexto z-index */
-  z-index: 1; /* Asegura que esté al mismo nivel que formCenter si es necesario */
+  position: relative;
+  z-index: 1;
 }
 
-/* Se elimina .logo { display: flex... } ya que no está en formWrapper */
 
 .titleSection {
   color: var(--lightColor);
   text-align: center;
-  margin-bottom: 1.5rem;
-  margin-top: 1rem; /* Añadido para compensar el logo eliminado */
+  margin-top: 1rem; 
 }
 
 .mobileTitle {
@@ -102,7 +100,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+
 }
 
 /* inputContainer sin estilos específicos aquí, se aplican dentro del componente Input/InputPassword */
@@ -112,8 +110,9 @@
 
 .forgotPassword {
   text-align: center;
-  font-size: 0.75rem;
-  color: var(--neutral-50);
+  font-size: 12px;
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
   cursor: pointer;
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
@@ -124,8 +123,8 @@
 .termsContainer {
   width: 100%;
   text-align: center;
-  font-size: 0.625rem;
-  color: var(--lightColor);
+  font-size: 12px;
+  color: var(--cWhite);
   opacity: 0.7;
   margin-top: 1rem;
   line-height: 1.3;

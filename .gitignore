@@ -12,24 +12,21 @@
 
 # testing
 /coverage
-
 # next.js
 /.next/
 /out/
+
+*.log*
 
 # production
 /build
 .env*
 .env.development
+.env.production
 # misc
 .DS_Store
 *.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
 # .env*
@@ -48,3 +45,11 @@ next-env.d.ts
 .devdbrc
 .env.development
 package-lock.json
+.env.development
+.env.production
+
+WARP.md
+
+# Ignore code scanner and editor settings
+/.vscode/
+/.scannerwork/

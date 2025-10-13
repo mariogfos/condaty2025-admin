@@ -7,6 +7,7 @@ type PropsType = {
   setSel: Function;
   val?: string;
   text?: string;
+  variant?: "default" | "rounded"; // Nueva prop para la variación
 };
 const TabsButtons = ({
   sel,
@@ -14,14 +15,26 @@ const TabsButtons = ({
   setSel,
   val = "value",
   text = "text",
+  variant = "default", // Valor por defecto
 }: PropsType) => {
+  const containerClass = variant === "rounded"
+    ? styles.tabsButtonRounded
+    : styles.tabsButton;
+
+  const buttonClass = (isSelected: boolean) => {
+    if (variant === "rounded") {
+      return isSelected ? styles.selectedRounded : styles.buttonRounded;
+    }
+    return isSelected ? styles.selected : "";
+  };
+
   return (
-    <div className={styles.tabsButton}>
+    <div className={containerClass}>
       {tabs.map((tab: any, i: number) => (
         <button
           key={tab[val] + i}
           onClick={() => setSel(tab[val])}
-          className={sel == tab[val] ? styles["selected"] : ""}
+          className={buttonClass(sel == tab[val])}
         >
           {tab[text]}
           {tab.numero > 0 && <span>{tab.numero}</span>}

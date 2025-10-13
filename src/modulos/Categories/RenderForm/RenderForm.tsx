@@ -149,6 +149,7 @@ const CategoryForm = memo(
         buttonCancel="Cancelar"
         onSave={handleSave}
         className={styles.formModalContent}
+        variant={"mini"}
       >
         <div className={styles.formContainer2}>
           {isSubcategoryMode && (

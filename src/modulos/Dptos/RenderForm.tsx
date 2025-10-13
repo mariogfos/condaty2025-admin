@@ -110,13 +110,13 @@ const RenderForm = ({
     });
     errs = checkRules({
       value: formState.expense_amount,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "expense_amount",
       errors: errs,
     });
     errs = checkRules({
       value: formState.dimension,
-      rules: ["required"],
+      rules: ["required", "positive"],
       key: "dimension",
       errors: errs,
     });
@@ -179,6 +179,7 @@ const RenderForm = ({
       onClose={onClose}
       title={formState.id ? "Editar unidad" : "Nueva unidad"}
       onSave={onSave}
+      variant={"mini"}
     >
       <Input
         label="Número de Unidad"
@@ -187,6 +188,7 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
+        disabled={!!formState.id}
       />
 
       <Select
@@ -197,6 +199,7 @@ const RenderForm = ({
         onChange={handleChange}
         error={errors}
         required={true}
+        disabled={!!formState.id}
       />
       <div style={{ display: "flex", gap: 12 }}>
         <Input
@@ -256,7 +259,7 @@ const RenderForm = ({
                 onChange={handleChange}
                 />}
               />
-            
+
 
           </div>
           {enabledFields[field.id] && (

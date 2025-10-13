@@ -81,16 +81,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
     const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
     const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
 
-    // Verificar si el owner ya tiene una unidad asignada (array con elementos)
-    if (selectedOwner?.dpto && Array.isArray(selectedOwner.dpto) && selectedOwner.dpto.length > 0) {
-      setSelectedOwnerForTransfer(selectedOwner);
-      setPendingTransferType(currentChangeType);
-      setOpenTransferModal(true);
-      return;
-    }
-
-    // Si no tiene unidad asignada, proceder normalmente
-    await executeOwnerChange();
+    // Siempre mostrar el modal de confirmación
+    setSelectedOwnerForTransfer(selectedOwner);
+    setPendingTransferType(currentChangeType);
+    setOpenTitular(false);
+    setOpenTransferModal(true);
   };
 
   const executeOwnerChange = async () => {
@@ -147,9 +142,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const confirmTransfer = async () => {
     setOpenTransferModal(false);
-    await executeOwnerChange();
-    setSelectedOwnerForTransfer(null);
-    setPendingTransferType(null);
+    
+    if (isNewOwnerFlow) {
+      // Si viene del flujo de crear nuevo, abrir el formulario
+      setIsNewOwnerFlow(false);
+      setOpenOwnerForm(true);
+    } else {
+      // Si viene del flujo de cambiar existente, ejecutar el cambio
+      await executeOwnerChange();
+      setSelectedOwnerForTransfer(null);
+      setPendingTransferType(null);
+    }
   };
 
   const handleOpenDependentProfile = (owner_id: string) => {
@@ -172,9 +175,23 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [openTransferModal, setOpenTransferModal] = useState(false);
   const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
   const [pendingTransferType, setPendingTransferType] = useState<"H" | "T" | null>(null);
+  const [isNewOwnerFlow, setIsNewOwnerFlow] = useState(false);
 
   const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
     if (action === 'new') {
+      // Si ya existe un propietario/residente, mostrar modal de confirmación
+      if ((type === 'H' && datas?.homeowner) || (type === 'T' && datas?.tenant)) {
+        setCurrentChangeType(type);
+        const existingOwner = type === 'H' ? datas?.homeowner : datas?.tenant;
+        setSelectedOwnerForTransfer(existingOwner);
+        setPendingTransferType(type);
+        setIsNewOwnerFlow(true);
+        setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
+        setNewIsResident(type === 'T');
+        setOpenTransferModal(true);
+        return;
+      }
+      
       setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
       setNewIsResident(type === 'T');
       setOpenOwnerForm(true);
@@ -215,7 +232,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           isHomeowner ? "Propietario liberado" : "Residente desvinculado",
           "success"
         );
-        reLoad({extradata: true});
+        reLoad({ extraData: true });
         setOpenDelTitular(false);
         setCurrentRemovalType(null);
       } else {
@@ -344,6 +361,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           }`}
           open={openTitular}
           onSave={onSave}
+          variant={"mini"}
           onClose={() => {
             setOpenTitular(false);
             setCurrentChangeType(null);
@@ -372,10 +390,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   currentChangeType === "H"
                     ? extra.homeowners || []
                     : extra.tenants || [];
-                return list.map((owner: any) => ({
-                  ...owner,
-                  name: `${getFullName(owner)}`,
-                }));
+                return list.map((owner: any) => {
+              const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
+              const dptoLabel =
+                Array.isArray(owner?.dpto) && owner.dpto.length > 0
+                  ? ` - Unidad ${owner.dpto[0]?.nro ?? ""}`
+                  : "";
+              return {
+                ...owner,
+                name: `${getFullName(owner)}${ciLabel}${dptoLabel}`,
+              };
+            });
               })()}
               optionLabel="name"
               optionValue="id"
@@ -387,7 +412,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Modales de Historial */}
         {openTitularHist && (
           <HistoryOwnership
-            ownershipData={datas?.tenantHist || []}
+            ownershipData={datas?.titularHist || datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
           />
@@ -443,10 +468,8 @@ const DashDptos = ({ id }: DashDptosProps) => {
               type_owner: newOwnerType,
               dptos: datas?.data?.id ? [{
                 dpto_id: datas.data.id,
-                will_live_in_unit: newIsResident,
                 dpto_nro: datas.data.nro,
               }] : [],
-              will_live_in_unit: newIsResident,
               _disabled: false,
               _emailDisabled: false
             }}
@@ -537,8 +560,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setOpenTransferModal(false);
               setSelectedOwnerForTransfer(null);
               setPendingTransferType(null);
+              setIsNewOwnerFlow(false);
             }}
-            buttonText="Transferir"
+            buttonText={isNewOwnerFlow ? "Continuar" : "Transferir"}
           >
             <p style={{
               textAlign: 'start',
@@ -546,7 +570,12 @@ const DashDptos = ({ id }: DashDptosProps) => {
               lineHeight: '1.5',
               padding: '0 10px'
             }}>
-              Se quitará a este {pendingTransferType === "H" ? "propietario" : "residente"} {getFullName(selectedOwnerForTransfer)} de la unidad {selectedOwnerForTransfer.dpto?.[0]?.nro || selectedOwnerForTransfer.dpto?.[0]?.description || 'N/A'} y será transferido a la unidad actual.
+              {pendingTransferType === "H" 
+                ? "¿Estás seguro de realizar esta transferencia?"
+                : selectedOwnerForTransfer?.dpto && Array.isArray(selectedOwnerForTransfer.dpto) && selectedOwnerForTransfer.dpto.length > 0
+                  ? `Se quitará a este residente ${getFullName(selectedOwnerForTransfer)} de la unidad ${selectedOwnerForTransfer.dpto?.[0]?.nro || selectedOwnerForTransfer.dpto?.[0]?.description || 'N/A'} y será transferido a la unidad actual.`
+                  : "¿Estás seguro de realizar esta transferencia?"
+              }
             </p>
           </DataModal>
         )}

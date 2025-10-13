@@ -2,7 +2,7 @@ import useAxios from "@/mk/hooks/useAxios";
 import { useEvent } from "@/mk/hooks/useEvents";
 import { useCallback, useState } from "react";
 
-export type Provider = "chatgpt" | "deepseek";
+export type Provider = "chatgpt" | "deepseek" | "kimi";
 
 export type ChatMessage = {
   role: string;

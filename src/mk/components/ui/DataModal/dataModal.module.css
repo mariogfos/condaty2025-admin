@@ -24,11 +24,11 @@
     transition: all 0.3s;
     width: 85%;
     max-height: calc(100% - 50px);
-    padding: var(--spXl);
+    padding: var(--spL);
     gap: var(--spS);
-    @media (width>768px) {
+    /* @media (width>768px) {
       width: 50%;
-    }
+    } */
     &.open {
       opacity: 1;
       transform: translateY(0);
@@ -46,9 +46,10 @@
     }
 
     &.mini {
-      @media (width>768px) {
+      width: 50%;
+      /* @media (width>768px) {
         width: 30%;
-      }
+      } */
     }
     & > .head-title > span {
       cursor: pointer;

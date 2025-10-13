@@ -58,14 +58,14 @@
   --cWhiteV1: #a7a7a7;
   --cWhiteV2: #414141;
   --cWhiteV3: #818181;
-  --cWhiteV4: #D9D9D9;
+  --cWhiteV4: #d9d9d9;
   --cBlack: #212121;
   --cBlackV1: #292929;
   --cBlackV2: #333536;
   --cBlackV3: #393c3f;
   --cHover: #ffffff0d;
   --cHoverAccent: #f5822033;
-  --cHoveTablePdf: #7979791A;
+  --cHoveTablePdf: #7979791a;
   --cHoverBigSidebar: #1f2d27;
   --cHightAlertHover: #ff5b4d33;
   --cMediumAlertHover: #f37f3d33;
@@ -74,7 +74,7 @@
   /* Paleta acciones o estados */
   --cError: #e46055;
   --cSuccess: #34a853;
-  --cInfo: #4285FA;
+  --cInfo: #4285fa;
   --cWarning: #e9b01e;
   --cHoverSuccess: #00af9033;
   --cHoverInfo: #596376;
@@ -95,7 +95,7 @@
   --cCompl1: #ffdd7f;
   --cCompl2: #a2faa3;
   --cCompl3: #b382d9;
-  --cCompl4: #A9CCE3;
+  --cCompl4: #a9cce3;
   --cCompl5: #f7b267;
   --cCompl6: #ff7f51;
   --cCompl7: #6cd16d;
@@ -103,22 +103,21 @@
   --cCompl9: #5ab0e9;
 
   /*Paleta de Hover*/
-  --cHoverCompl1: #FAFAFA1A;
-  --cHoverCompl2: #00AF9033;
-  --cHoverCompl3: #39ACEC33;
-  --cHoverCompl4: #E1C15133;
-  --cHoverCompl5: #F37F3D33;
-  --cHoverCompl6: #B382D933;
-  --cHoverCompl7: #A9CCE333;
-  --cHoverCompl8: #F7B26733;
-  --cHoverCompl9: #FF7F5133;
-  --cHoverCompl10: #00E38C0D;
-  --cHoverCompl11: #DA5D5D33;
-  --cHoverBlack: #212121CC;
+  --cHoverCompl1: #fafafa1a;
+  --cHoverCompl2: #00af9033;
+  --cHoverCompl3: #39acec33;
+  --cHoverCompl4: #e1c15133;
+  --cHoverCompl5: #f37f3d33;
+  --cHoverCompl6: #b382d933;
+  --cHoverCompl7: #a9cce333;
+  --cHoverCompl8: #f7b26733;
+  --cHoverCompl9: #ff7f5133;
+  --cHoverCompl10: #00e38c0d;
+  --cHoverCompl11: #da5d5d33;
+  --cHoverBlack: #212121cc;
   --cHoverBlackv2: #33353633;
-  --cHoverUnread: #18F6620F;
-
-
+  --cHoverUnread: #18f6620f;
+  --cHoverModal: rgba(0, 0, 0, 0.75); /* 75% de opacidad para Modales */
   /* Paleta de colores Random */
   --cRandom1: #a2d2bf;
   --cRandom2: #a9cce3;
@@ -429,4 +428,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .bottomLine {
   border-bottom: 1px solid var(--cWhiteV1);
+}
+
+/* Estilos para emojis de Twemoji */
+img.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+/* Ajustes específicos para reacciones en chat */
+.reactionBubble img.emoji {
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: middle;
+}
+
+/* Ajustes para el botón de emoji en mensajes */
+.emojiIcon img.emoji {
+  height: 1.4em;
+  width: 1.4em;
+  vertical-align: middle;
 }

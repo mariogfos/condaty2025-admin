@@ -1,27 +1,56 @@
-import styles from "./Alerts.module.css";
-import useCrudUtils from "../shared/useCrudUtils";
-import { useMemo, useState } from "react";
-import { StatusBadge } from "@/components/Widgets/StatusBadge/StatusBadge";
-import NotAccess from "@/components/layout/NotAccess/NotAccess";
-import useCrud from "@/mk/hooks/useCrud/useCrud";
-import { getFullName, getUrlImages } from "@/mk/utils/string";
-import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { IconAdmin, IconAlert2, IconAlert3, IconGroup, IconGuard } from "@/components/layout/icons/IconsBiblioteca";
-import { WidgetDashCard } from "@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
-import { getDateTimeStrMesShort } from "@/mk/utils/date";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import RenderView from "./RenderView/RenderView";
-import { getAlertLevelText, ALERT_LEVELS, getAlertLevelInfo, ALERT_LEVEL_OPTIONS, ALERT_LEVEL_LABELS } from "./alertConstants";
-import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
+import styles from './Alerts.module.css';
+import useCrudUtils from '../shared/useCrudUtils';
+import { useMemo, useState } from 'react';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
+import NotAccess from '@/components/layout/NotAccess/NotAccess';
+import useCrud from '@/mk/hooks/useCrud/useCrud';
+import { getFullName, getUrlImages } from '@/mk/utils/string';
+import { Avatar } from '@/mk/components/ui/Avatar/Avatar';
+import {
+  IconAdmin,
+  IconAlert2,
+  IconAlert3,
+  IconGroup,
+  IconGuard,
+} from '@/components/layout/icons/IconsBiblioteca';
+import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
+import { getDateTimeStrMesShort } from '@/mk/utils/date';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import RenderView from './RenderView/RenderView';
+import {
+  getAlertLevelText,
+  ALERT_LEVELS,
+  getAlertLevelInfo,
+  ALERT_LEVEL_OPTIONS,
+  ALERT_LEVEL_LABELS,
+} from './alertConstants';
+import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 
 const paramsInitial = {
   perPage: 20,
   page: 1,
-  fullType: "L",
-  searchBy: "",
+  fullType: 'L',
+  searchBy: '',
 };
 
 export { getAlertLevelText };
+
+const DescriptionCell = ({ description }: { description: string }) => {
+  return (
+    <div
+      title={description}
+      style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        maxWidth: '100%',
+        width: '100%',
+      }}
+    >
+      {description}
+    </div>
+  );
+};
 
 const Alerts = () => {
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
@@ -31,10 +60,10 @@ const Alerts = () => {
   }>({});
 
   const mod = {
-    modulo: "alerts",
-    singular: "alerta",
-    plural: "",
-    permiso: "alerts",
+    modulo: 'alerts',
+    singular: 'alerta',
+    plural: '',
+    permiso: 'alerts',
     extraData: true,
     hideActions: { edit: true, del: true, add: true },
     export: true,
@@ -48,61 +77,66 @@ const Alerts = () => {
   };
   const { setStore } = useAuth();
 
+
+
   const getPeriodOptions = () => [
-    { id: "ALL", name: "Todos" },
-    { id: "d", name: "Hoy" },
-    { id: "ld", name: "Ayer" },
-    { id: "w", name: "Esta semana" },
-    { id: "lw", name: "Semana anterior" },
-    { id: "m", name: "Este mes" },
-    { id: "lm", name: "Mes anterior" },
-    { id: "y", name: "Este año" },
-    { id: "ly", name: "Año anterior" },
-    { id: "custom", name: "Personalizado" },
+    { id: 'ALL', name: 'Todos' },
+    { id: 'd', name: 'Hoy' },
+    { id: 'ld', name: 'Ayer' },
+    { id: 'w', name: 'Esta semana' },
+    { id: 'lw', name: 'Semana anterior' },
+    { id: 'm', name: 'Este mes' },
+    { id: 'lm', name: 'Mes anterior' },
+    { id: 'y', name: 'Este año' },
+    { id: 'ly', name: 'Año anterior' },
+    { id: 'custom', name: 'Personalizado' },
   ];
 
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "created_at" && value === "custom") {
+    if (opt === 'created_at' && value === 'custom') {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
       return { filterBy: currentFilters };
     }
 
-    if (value === "" || value === null || value === undefined) {
+    if (value === '' || value === null || value === undefined) {
       delete currentFilters[opt];
     } else {
       currentFilters[opt] = value;
     }
     return { filterBy: currentFilters };
   };
+  const renderDescriptionCell = (props: any) => {
+    const description = props?.item?.descrip || '';
+    return <DescriptionCell description={description} />;
+  };
+
 
   const renderGuardInfo = ({ item }: { item: any }) => {
     let entityToDisplay = null;
-    let avatarTypePrefix = "";
+    let avatarTypePrefix = '';
     const isPanic = item?.level === ALERT_LEVELS.PANIC;
 
     if (isPanic) {
       if (item.owner) {
         entityToDisplay = item.owner;
-        avatarTypePrefix = "OWNER-";
+        avatarTypePrefix = 'OWNER-';
       } else if (item.guardia) {
         entityToDisplay = item.guardia;
-        avatarTypePrefix = "GUARD-";
+        avatarTypePrefix = 'GUARD-';
       }
     } else if (item.guardia) {
-        entityToDisplay = item.guardia;
-        avatarTypePrefix = "GUARD-";
-      } else if (item.owner) {
-        entityToDisplay = item.owner;
-        avatarTypePrefix = "OWNER-";
-      }
+      entityToDisplay = item.guardia;
+      avatarTypePrefix = 'GUARD-';
+    } else if (item.owner) {
+      entityToDisplay = item.owner;
+      avatarTypePrefix = 'OWNER-';
+    }
 
-    const fullName = entityToDisplay
-      ? getFullName(entityToDisplay)
-      : "Información no disponible";
+    const fullName = entityToDisplay ? getFullName(entityToDisplay) : 'Información no disponible';
     const ci = entityToDisplay?.ci;
     const entityId = entityToDisplay?.id;
     const updatedAt = entityToDisplay?.updated_at;
@@ -112,32 +146,21 @@ const Alerts = () => {
         ? getUrlImages(`/${avatarTypePrefix}${entityId}.webp?d=${updatedAt}`)
         : null;
 
-
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {avatarSrc ? (
-          <Avatar
-            hasImage={1}
-            src={avatarSrc}
-            name={fullName}
-          />
+          <Avatar hasImage={1} src={avatarSrc} name={fullName} />
         ) : (
           <Avatar
             name={
-              fullName && fullName !== "Información no disponible"
-                ? fullName.substring(0, 1)
-                : "?"
+              fullName && fullName !== 'Información no disponible' ? fullName.substring(0, 1) : '?'
             }
           />
         )}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <p style={{ margin: 0, fontWeight: 500, color: "var(--cWhite, #fafafa)" }}>
-            {fullName}
-          </p>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <p style={{ margin: 0, fontWeight: 500, color: 'var(--cWhite, #fafafa)' }}>{fullName}</p>
           {ci && (
-            <span style={{ fontSize: "11px", color: "var(--cWhiteV1, #a7a7a7)" }}>
-              CI: {ci}
-            </span>
+            <span style={{ fontSize: '11px', color: 'var(--cWhiteV1, #a7a7a7)' }}>CI: {ci}</span>
           )}
         </div>
       </div>
@@ -167,12 +190,12 @@ const Alerts = () => {
         api: '',
         label: 'Fecha de creación',
         list: {
-          width: '20%',
+          width: 300,
           onRender: formatCreatedAt,
         },
         filter: {
-          key: "created_at",
-          label: "Periodo",
+          key: 'created_at',
+          label: 'Periodo',
           options: getPeriodOptions,
         },
       },
@@ -181,7 +204,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Informador',
         list: {
-          width: '26%',
+          width: 330,
           onRender: renderGuardInfo,
         },
         form: { type: 'text' },
@@ -190,9 +213,13 @@ const Alerts = () => {
       level: {
         rules: ['required'],
         api: 'ae',
-        label: <span style={{ display: 'block', width: '100%' }}>Grupo de alerta</span>,
+        label: (
+          <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>
+            Grupo de alerta
+          </span>
+        ),
         list: {
-          width: '12%',
+          width: 250,
           onRender: renderAlertLevel,
         },
         form: { type: 'select', options: ALERT_LEVEL_OPTIONS },
@@ -209,7 +236,7 @@ const Alerts = () => {
         api: 'ae',
         label: 'Descripción',
         list: {
-          width: '42%',
+          onRender: renderDescriptionCell,
         },
         form: { type: 'text' },
       },
@@ -217,17 +244,7 @@ const Alerts = () => {
     []
   );
 
-  const {
-    userCan,
-    List,
-    onSearch,
-    searchs,
-    onEdit,
-    onDel,
-    reLoad,
-    data,
-    onFilter,
-  } = useCrud({
+  const { userCan, List, onSearch, searchs, onEdit, onDel, reLoad, data, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
@@ -242,7 +259,7 @@ const Alerts = () => {
     onDel,
   });
 
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
+  if (!userCan(mod.permiso, 'R')) return <NotAccess />;
   return (
     <div>
       <h1 className={styles.dashboardTitle}>Alertas</h1>
@@ -269,6 +286,7 @@ const Alerts = () => {
               />
             }
             className={styles.widgetResumeCard}
+            style={{ maxWidth: '16%', width: '100%' }}
           />
           <WidgetDashCard
             title={`Para ${ALERT_LEVEL_LABELS[ALERT_LEVELS.LOW]}`}

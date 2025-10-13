@@ -10,7 +10,6 @@ import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import RenderDel from "./RenderDel/RenderDel";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-
 import { IconIngresos } from "@/components/layout/icons/IconsBiblioteca";
 import DateRangeFilterModal from "@/components/DateRangeFilterModal/DateRangeFilterModal";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
@@ -38,15 +37,15 @@ const renderSubcategoryCell = (props: any) => {
   }
 };
 
-const renderTypeCell = (props: any) => {
-  const typeMap: Record<string, string> = {
+const renderMethodCell = (props: any) => {
+  const methodMap: Record<string, string> = {
     T: "Transferencia bancaria",
     E: "Efectivo",
     C: "Cheque",
     Q: "Pago QR",
     O: "Pago en oficina",
   };
-  return <div>{typeMap[props.item.type] || props.item.type}</div>;
+  return <div>{methodMap[props.item.method] || props.item.method}</div>;
 };
 
 interface StatusConfig {
@@ -165,7 +164,7 @@ const Payments = () => {
     { id: "custom", name: "Personalizado" },
   ];
 
-  const getPaymentTypeOptions = () => [
+  const getPaymentMethodOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "T", name: "Transferencia bancaria" },
     { id: "E", name: "Efectivo" },
@@ -217,43 +216,43 @@ const Payments = () => {
           onRender: renderDptosCell,
         },
       },
-      category_id: {
-        rules: ["required"],
-        api: "ae",
-        label: "Categoría",
-        form: {
-          type: "select",
-          optionsExtra: "categories",
-          placeholder: "Seleccione una categoría",
-        },
-        list: {
-          onRender: renderCategoryCell,
-        },
-        filter: {
-          label: "Categoría",
-          options: (extraData: any) => {
-            const categories = extraData?.categories || []; //esto?
-            const categoryOptions = categories.map((category: any) => ({
-              id: category.id,
-              name: category.name,
-            }));
-            return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
-          },
-        },
-      },
-      subcategory_id: {
-        rules: ["required"],
-        label: "Subcategoría",
-        form: {
-          type: "select",
-          disabled: (formState: { category_id: any }) => !formState.category_id,
-          options: () => [],
-        },
-        list: {
-          onRender: renderSubcategoryCell,
-        },
-      },
-      type: {
+      // category_id: {
+      //   rules: ["required"],
+      //   api: "ae",
+      //   label: "Categoría",
+      //   form: {
+      //     type: "select",
+      //     optionsExtra: "categories",
+      //     placeholder: "Seleccione una categoría",
+      //   },
+      //   list: {
+      //     onRender: renderCategoryCell,
+      //   },
+      //   filter: {
+      //     label: "Categoría",
+      //     options: (extraData: any) => {
+      //       const categories = extraData?.categories || []; //esto?
+      //       const categoryOptions = categories.map((category: any) => ({
+      //         id: category.id,
+      //         name: category.name,
+      //       }));
+      //       return [{ id: "ALL", name: "Todos" }, ...categoryOptions];
+      //     },
+      //   },
+      // },
+      // subcategory_id: {
+      //   rules: ["required"],
+      //   label: "Subcategoría",
+      //   form: {
+      //     type: "select",
+      //     disabled: (formState: { category_id: any }) => !formState.category_id,
+      //     options: () => [],
+      //   },
+      //   list: {
+      //     onRender: renderSubcategoryCell,
+      //   },
+      // },
+      method: {
         rules: ["required"],
         api: "ae",
         label: "Forma de pago",
@@ -266,12 +265,12 @@ const Payments = () => {
           ],
         },
         list: {
-          onRender: renderTypeCell,
+          onRender: renderMethodCell,
         },
         filter: {
           label: "Forma de pago",
 
-          options: getPaymentTypeOptions,
+          options: getPaymentMethodOptions,
         },
       },
 

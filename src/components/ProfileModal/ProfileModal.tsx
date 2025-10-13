@@ -34,6 +34,8 @@ interface ProfileModalProps {
   edit?: boolean;
   del?: boolean;
   type?: string;
+  zIndex?: number;
+  setOnLogout?: (value: boolean) => void;
 }
 interface FormState {
   id?: string | number;
@@ -49,6 +51,7 @@ interface FormState {
   password?: string;
   pinned?: number;
   code?: string;
+  has_image?: number; // Agregar has_image
 }
 interface ErrorState {
   [key: string]: string;
@@ -91,8 +94,10 @@ const ProfileModal = ({
   edit = true,
   del = true,
   type,
+  zIndex,
+  setOnLogout,
 }: ProfileModalProps) => {
-  const { user, getUser, showToast, userCan } = useAuth();
+  const { user, getUser, showToast, userCan, logout } = useAuth();
   const { execute } = useAxios();
   const [formState, setFormState] = useState<FormState>({});
   const [errors, setErrors] = useState<ErrorState>({});
@@ -102,7 +107,7 @@ const ProfileModal = ({
   const [openDel, setOpenDel] = useState(false);
   const client = user?.clients?.filter(
     (item: ClientItem) => item?.id === user?.client_id
-  )[0];
+  )?.[0];
   const getIconType = () => {
     if (type === "admin") {
       return <IconAdmin color={"var(--cSuccess)"} size={16} />;
@@ -169,9 +174,9 @@ const ProfileModal = ({
         last_name: data?.data[0]?.last_name,
         mother_last_name: data?.data[0]?.mother_last_name,
         phone: data?.data[0]?.phone,
-        avatar: data?.data[0]?.avatar,
         address: data?.data[0]?.address,
         email: data?.data[0]?.email,
+        has_image: parseInt(data?.data[0]?.has_image) || 0,
       });
     }
   }, [openEdit, data]);
@@ -201,6 +206,8 @@ const ProfileModal = ({
       onClose();
       if (reLoad) reLoad();
       reLoadDet();
+    } else if (data?.success == false) {
+      showToast(data?.message || "Error al eliminar " + profileRole, "error");
     }
   };
 
@@ -220,6 +227,26 @@ const ProfileModal = ({
   const deletePerm = userCan("users", "D");
   const editPerm = userCan("users", "U");
 
+  // Verificar si el usuario puede editar este perfil específico
+  const canEditThisProfile = () => {
+    if (type === "admin") {
+      // Para administradores, solo pueden editar su propio perfil
+      return editPerm && user?.id === data?.data[0]?.id;
+    }
+    // Para otros tipos de usuarios, usar el permiso general
+    return editPerm;
+  };
+
+  // Verificar si el usuario puede eliminar este perfil específico
+  const canDeleteThisProfile = () => {
+    if (type === "admin") {
+      // Para administradores, solo pueden eliminar su propio perfil
+      return deletePerm && user?.id === data?.data[0]?.id;
+    }
+    // Para otros tipos de usuarios, usar el permiso general
+    return deletePerm;
+  };
+
   return (
     open && (
       <DataModal
@@ -230,13 +257,13 @@ const ProfileModal = ({
         variant="V2"
         buttonText=""
         buttonCancel=""
-
+        zIndex={zIndex}
       >
         <div className={styles.ProfileModal}>
           <section>
             <h1>{title}</h1>
             <div>
-              {edit && editPerm && (
+              {edit && canEditThisProfile() && (
                 <button
                   type="button"
                   onClick={() => setOpenEdit(true)}
@@ -255,7 +282,7 @@ const ProfileModal = ({
                   <IconEdit className="" size={24} color={'var(--cWhite)'} />
                 </button>
               )}
-              {del && deletePerm && (
+              {del && canDeleteThisProfile() && (
                 <button
                   type="button"
                   style={{
@@ -301,14 +328,17 @@ const ProfileModal = ({
               <div>
                 <div>
                   <Avatar
+                    expandable={true}
+                    expandableZIndex={10002}
+                    expandableIcon={false}
                     hasImage={1}
                     src={getUrlImages(urlImages)}
-                    name={getFullName(data?.data[0])}
+                    name={getFullName(data?.data[0], 'NSLM')}
                     w={191}
                     h={191}
                   />
                   <div>
-                    <span> {getFullName(data?.data[0])}</span>
+                    <span> {getFullName(data?.data[0], 'NSLM')}</span>
                     <span>{profileRole}</span>
                   </div>
                 </div>
@@ -318,9 +348,8 @@ const ProfileModal = ({
                 <div>
                   {IconType}
                   {data?.data[0]?.dpto?.[0]?.nro && type === 'owner'
-                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${
-                        data?.data[0]?.dpto?.[0]?.nro || '-/-'
-                      }`
+                    ? `${data?.data[0]?.dpto?.[0]?.type.name} ${data?.data[0]?.dpto?.[0]?.nro || '-/-'
+                    }`
                     : profileRole}
                 </div>
                 <div>
@@ -383,7 +412,7 @@ const ProfileModal = ({
               <div style={{ marginTop: 16 }}>Sin datos para mostrar</div>
             </WidgetBase>
 
-            {user.id === data?.data[0]?.id && (
+            {user?.id === data?.data[0]?.id && (
               <WidgetBase title={'Datos de acceso'} variant={'V1'} titleStyle={{ fontSize: 16 }}>
                 <div style={{ marginTop: 10 }} className="bottomLine" />
 
@@ -436,25 +465,27 @@ const ProfileModal = ({
               </WidgetBase>
             )}
           </section>
-          <div style={{display: 'flex', justifyContent: 'flex-start'}}>
-            <Button
-              onClick={() => {
-                setOpenAuthModal(true);
-                setAuthType('logout');
-              }}
-              style={{
-                backgroundColor: 'transparent',
-                color: 'var(--cError)',
-                border: 'none',
-                padding: '0px 0px',
-                width: 'auto',
-                minWidth: 'auto',
-                textDecorationLine: 'underline',
-              }}
-            >
-              Cerrar Sesión
-            </Button>
-          </div>
+          {user?.id === data?.data[0]?.id && setOnLogout && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <Button
+                onClick={() => {
+                  onClose();
+                  setOnLogout(true);
+                }}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--cError)',
+                  border: 'none',
+                  padding: '0px 0px',
+                  width: 'auto',
+                  minWidth: 'auto',
+                  textDecorationLine: 'underline',
+                }}
+              >
+                Cerrar Sesión
+              </Button>
+            </div>
+          )}
         </div>
         {openAuthModal && (
           <Authentication
@@ -511,6 +542,7 @@ const ProfileModal = ({
             buttonText="Eliminar"
             buttonCancel="Cancelar"
             onSave={onDel}
+            variant={"mini"}
           >
             <div>
               <p style={{ fontSize: 'var(--sL)' }}>

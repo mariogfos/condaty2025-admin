@@ -3,12 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import DataModal from '@/mk/components/ui/DataModal/DataModal';
 import { getFullName } from '@/mk/utils/string';
-import {
-  MONTHS_S,
-  formatToDayDDMMYYYY,
-  getDateStrMesShort,
-  getDateTimeStrMesShort,
-} from '@/mk/utils/date';
+import { MONTHS_S, formatToDayDDMMYYYY } from '@/mk/utils/date';
 import EmptyData from '@/components/NoData/EmptyData';
 import Select from '@/mk/components/forms/Select/Select';
 import TextArea from '@/mk/components/forms/TextArea/TextArea';
@@ -28,6 +23,11 @@ interface Dpto {
   holder?: 'H' | 'T';
   homeowner?: any;
   tenant?: any;
+  type?: {
+    id?: string | number;
+    name?: string;
+    description?: string;
+  };
   titular?: {
     owner?: {
       id?: string | number;
@@ -61,10 +61,48 @@ interface Deuda {
   id: string | number;
   amount?: number;
   penalty_amount?: number;
+  status?: string;
+  debt_id?: string | null;
+  dpto_id?: number;
+  payment_id?: string | null;
+  shared_id?: string | null;
+  type?: number;
+  maintenance_amount?: string | null;
+  begin_at?: string;
+  due_at?: string;
+  description?: string;
+  penalty_reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
+  reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
   debt?: {
     month?: number;
     year?: number;
-    type?: number;
+    method?: number;
     description?: string;
     due_at?: string;
     status?: string;
@@ -82,7 +120,7 @@ interface Deuda {
         description?: string;
       };
     };
-    reservation_penalty?: {
+    penalty_reservation?: {
       id?: string;
       debt_id?: string;
       area_id?: string;
@@ -96,6 +134,16 @@ interface Deuda {
         description?: string;
       };
     };
+  } | null;
+  shared?: {
+    id?: string;
+    year?: number;
+    month?: number;
+    type?: number;
+    begin_at?: string;
+    due_at?: string;
+    description?: string;
+    amount_type?: string;
   };
 }
 
@@ -106,7 +154,6 @@ interface SelectedPeriodo {
 
 interface FormState {
   paid_at?: string;
-  payment_method?: string;
   file?: string | null;
   filename?: string | null;
   ext?: string | null;
@@ -115,10 +162,14 @@ interface FormState {
   subcategory_id?: string | number;
   subcategories?: Subcategory[];
   isSubcategoryLocked?: boolean;
-  type?: string;
+  isCategoryLocked?: boolean;
+  isAmountLocked?: boolean;
+  method?: string;
   voucher?: string;
   obs?: string;
   amount?: number | string;
+  type?: string;
+  owner_id?: string | number;
 }
 
 interface Errors {
@@ -127,11 +178,12 @@ interface Errors {
   dpto_id?: string;
   category_id?: string;
   subcategory_id?: string;
-  type?: string;
+  method?: string;
   voucher?: string;
   amount?: string;
   file?: string;
   paid_at?: string;
+  type?: string;
   [key: string]: string | undefined;
 }
 
@@ -144,6 +196,7 @@ interface RenderFormProps {
   execute: (...args: any[]) => Promise<any>;
   showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
   reLoad: () => void;
+  debtId?: string | number;
 }
 
 const RenderForm: React.FC<RenderFormProps> = ({
@@ -154,18 +207,32 @@ const RenderForm: React.FC<RenderFormProps> = ({
   execute,
   showToast,
   reLoad,
+  debtId,
 }) => {
   const [formState, setFormState] = useState<FormState>(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    const isCategoryLocked = item?.isCategoryLocked || false;
+    const isSubcategoryLocked = item?.isSubcategoryLocked || false;
+    const isAmountLocked = item?.isAmountLocked || false;
+    console.log('item', item?.amount);
 
     return {
-      ...(item || {}),
-      paid_at: item?.paid_at || formattedDate,
-      payment_method: item?.payment_method || '',
+      paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
+      type: item?.type || '',
       file: item?.file || null,
       filename: item?.filename || null,
       ext: item?.ext || null,
+      dpto_id: item?.dpto_id || '',
+      category_id: item?.category_id || '',
+      subcategory_id: item?.subcategory_id || '',
+      subcategories: [],
+      isCategoryLocked,
+      isSubcategoryLocked,
+      isAmountLocked,
+      method: item?.method || '',
+      voucher: item?.voucher || '',
+      obs: item?.obs || '',
+      amount: item?.amount || '',
+      owner_id: item?.owner_id || '',
     };
   });
   const [errors, setErrors] = useState<Errors>({});
@@ -177,22 +244,35 @@ const RenderForm: React.FC<RenderFormProps> = ({
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
   const [toast] = useState<{
     msg: string;
-    type: 'info' | 'success' | 'error' | 'warning';
+    method: 'info' | 'success' | 'error' | 'warning';
   }>({
     msg: '',
-    type: 'info',
+    method: 'info',
   });
   const { store } = useAuth();
 
+
+  const typeOptions = [
+    { id: 'T', name: 'Todas las deudas' },
+    { id: 'E', name: 'Expensas' },
+    { id: 'R', name: 'Reservas' },
+    { id: 'F', name: 'Condonación' },
+   // { id: 'P', name: 'Plan de pago' },
+    { id: 'O', name: 'Otras deudas' },
+    { id: 'I', name: 'Pago directo' },
+    { id: 'M', name: 'Multas' },
+  ];
+
+
+  const showCategoryFields = formState.type === 'I';
+
+  const isDebtBasedPayment = Boolean(formState.type && formState.type !== 'I');
+
   const isExpensasWithoutDebt =
-    formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-    deudas.length === 0 &&
-    !isLoadingDeudas;
+    formState.type === 'E' && deudas.length === 0 && !isLoadingDeudas;
 
   const isReservationsWithoutDebt =
-    formState.subcategory_id === extraData?.client_config?.cat_reservations &&
-    deudas.length === 0 &&
-    !isLoadingDeudas;
+    formState.type === 'R' && deudas.length === 0 && !isLoadingDeudas;
 
   const isDebtBasedCategory =
     formState.subcategory_id === extraData?.client_config?.cat_expensas ||
@@ -205,7 +285,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         return {
           id: dpto.nro,
           name:
-            store.UnitsType +
+            dpto?.type?.name +
             ' ' +
             dpto.nro +
             ' - ' +
@@ -215,25 +295,20 @@ const RenderForm: React.FC<RenderFormProps> = ({
           dpto_id: dpto.id,
         };
       }),
-    [extraData?.dptos, store.UnitsType]
+    [extraData?.dptos, store.Unitstype]
   );
 
   const lastLoadedDeudas = useRef<string>('');
   const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx'];
 
   const getDeudas = useCallback(
-    async (nroDpto: string | number) => {
-      if (!nroDpto) return;
+    async (nroDpto: string | number, paymentmethod: string) => {
+      if (!nroDpto || !paymentmethod || paymentmethod === 'I') return;
+
       const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === nroDpto);
       const realDptoId = selectedDpto?.id;
-      const subcatId = formState.subcategory_id;
-      if (!realDptoId || !subcatId) return;
-      let fullType = 'PDD';
-      if (subcatId === extraData?.client_config?.cat_expensas) {
-        fullType = 'ED';
-      } else if (subcatId === extraData?.client_config?.cat_reservations) {
-        fullType = 'RD';
-      }
+
+      if (!realDptoId) return;
 
       setIsLoadingDeudas(true);
       try {
@@ -241,10 +316,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
           '/payments',
           'GET',
           {
-            perPage: -1,
-            page: 1,
-            fullType,
-            searchBy: realDptoId,
+            fullType: 'DEBT',
+            dptoId: realDptoId,
+            type: paymentmethod,
           },
           false,
           true
@@ -270,14 +344,45 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setIsLoadingDeudas(false);
       }
     },
-    [
-      execute,
-      extraData?.dptos,
-      formState.subcategory_id,
-      extraData?.client_config?.cat_expensas,
-      extraData?.client_config?.cat_reservations,
-    ]
+    [execute, extraData?.dptos]
   );
+
+  useEffect(() => {
+    if (extraData?.categories && formState.category_id && showCategoryFields) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(formState.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [extraData?.categories, formState.category_id, showCategoryFields]);
+
+  useEffect(() => {
+    if (
+      open &&
+      item &&
+      item.category_id &&
+      item.subcategory_id &&
+      extraData?.categories &&
+      showCategoryFields
+    ) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(item.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [open, item, extraData?.categories, showCategoryFields]);
 
   useEffect(() => {
     if (!open) {
@@ -287,6 +392,12 @@ const RenderForm: React.FC<RenderFormProps> = ({
 
     if (!isInitialized && open) {
       setIsInitialized(true);
+
+      if (item && item.dpto_id && item.type && item.type !== 'I') {
+        const deudasKey = `${item.dpto_id}_${item.type}`;
+        lastLoadedDeudas.current = deudasKey;
+        getDeudas(item.dpto_id, item.type);
+      }
     }
 
     return () => {
@@ -297,21 +408,17 @@ const RenderForm: React.FC<RenderFormProps> = ({
         setPeriodoTotal(0);
       }
     };
-  }, [open]);
+  }, [open, item, getDeudas]);
 
   useEffect(() => {
-    const isExpensasSelected = formState.subcategory_id === extraData?.client_config?.cat_expensas;
-    const isReservationsSelected =
-      formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
-    // Consultar deudas si se selecciona expensas o reservas
-    if (formState.dpto_id && (isExpensasSelected || isReservationsSelected)) {
-      const deudasKey = `${formState.dpto_id}_${formState.subcategory_id}`;
-      if (deudasKey !== lastLoadedDeudas.current) {
+    if (formState.dpto_id && formState.type && formState.type !== 'I') {
+      const deudasKey = `${formState.dpto_id}_${formState.type}`;
+      if (deudasKey !== lastLoadedDeudas.current || deudas.length === 0) {
         lastLoadedDeudas.current = deudasKey;
         setSelectedPeriodo([]);
         setPeriodoTotal(0);
-        getDeudas(formState.dpto_id);
+        getDeudas(formState.dpto_id, formState.type);
       }
     } else {
       if (deudas.length > 0 || isLoadingDeudas) {
@@ -321,62 +428,108 @@ const RenderForm: React.FC<RenderFormProps> = ({
         lastLoadedDeudas.current = '';
       }
     }
+  }, [formState.dpto_id, formState.type, getDeudas, deudas.length]);
+
+  useEffect(() => {
+    if (
+      showCategoryFields &&
+      (!item || (!formState.isCategoryLocked && !formState.isSubcategoryLocked))
+    ) {
+      let newSubcategories: Subcategory[] = [];
+      let newSubcategoryId: string | number = '';
+      let lockSubcategory = false;
+
+      if (formState.category_id && extraData?.categories) {
+        const selectedCategory = extraData.categories.find(
+          (category: Category) => String(category.id) === String(formState.category_id)
+        );
+
+        if (selectedCategory?.hijos) {
+          newSubcategories = selectedCategory.hijos || [];
+
+          const catExpensasChild = newSubcategories.find(
+            (hijo: Subcategory) =>
+              String(hijo.id) === String(extraData?.client_config?.cat_expensas)
+          );
+          const catReservationsChild = newSubcategories.find(
+            (hijo: Subcategory) =>
+              String(hijo.id) === String(extraData?.client_config?.cat_reservations)
+          );
+
+          if (catExpensasChild) {
+            newSubcategoryId = extraData.client_config.cat_expensas;
+            lockSubcategory = true;
+          } else if (catReservationsChild) {
+            newSubcategoryId = extraData.client_config.cat_reservations;
+            lockSubcategory = true;
+          }
+        }
+      }
+
+      setFormState((prev: FormState) => {
+
+        if (item && (prev.isCategoryLocked || prev.isSubcategoryLocked)) {
+          return {
+            ...prev,
+            subcategories: newSubcategories,
+
+          };
+        }
+
+
+        if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
+          setDeudas([]);
+          setSelectedPeriodo([]);
+          setPeriodoTotal(0);
+          lastLoadedDeudas.current = '';
+        }
+
+        return {
+          ...prev,
+          subcategories: newSubcategories,
+          subcategory_id:
+            prev.subcategory_id !== newSubcategoryId || !prev.category_id
+              ? newSubcategoryId
+              : prev.subcategory_id,
+          isSubcategoryLocked: lockSubcategory,
+        };
+      });
+    }
   }, [
-    formState.dpto_id,
-    formState.subcategory_id,
+    formState.category_id,
+    extraData?.categories,
     extraData?.client_config?.cat_expensas,
-    extraData?.client_config?.cat_reservations,
-    getDeudas,
+    item,
+    formState.isCategoryLocked,
+    formState.isSubcategoryLocked,
+    showCategoryFields,
   ]);
 
   useEffect(() => {
-    let newSubcategories: Subcategory[] = [];
-    let newSubcategoryId: string | number = '';
-    let lockSubcategory = false;
+    if (debtId && deudas.length > 0) {
+      const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
+      if (targetDebt) {
 
-    if (formState.category_id && extraData?.categories) {
-      const selectedCategory = extraData.categories.find(
-        (category: Category) => category.id === formState.category_id
-      );
+        const calculatedAmount = getSubtotal(targetDebt);
 
-      if (selectedCategory?.hijos) {
-        newSubcategories = selectedCategory.hijos || [];
+        const newSelectedPeriodo: SelectedPeriodo = {
+          id: targetDebt.id,
+          amount: calculatedAmount
+        };
 
-        // Buscar si la subcategoría es cat_expensas o cat_reservations
-        const catExpensasChild = newSubcategories.find(
-          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_expensas
-        );
-        const catReservationsChild = newSubcategories.find(
-          (hijo: Subcategory) => hijo.id === extraData?.client_config?.cat_reservations
-        );
-        if (catExpensasChild) {
-          newSubcategoryId = extraData.client_config.cat_expensas;
-          lockSubcategory = true;
-        } else if (catReservationsChild) {
-          newSubcategoryId = extraData.client_config.cat_reservations;
-          lockSubcategory = true;
+        setSelectedPeriodo([newSelectedPeriodo]);
+        setPeriodoTotal(calculatedAmount);
+
+
+        if (formState.isAmountLocked) {
+          setFormState(prev => ({
+            ...prev,
+            amount: calculatedAmount.toFixed(2)
+          }));
         }
       }
     }
-
-    setFormState((prev: FormState) => {
-      if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
-        setDeudas([]);
-        setSelectedPeriodo([]);
-        setPeriodoTotal(0);
-        lastLoadedDeudas.current = '';
-      }
-      return {
-        ...prev,
-        subcategories: newSubcategories,
-        subcategory_id:
-          prev.subcategory_id !== newSubcategoryId || !prev.category_id
-            ? newSubcategoryId
-            : prev.subcategory_id,
-        isSubcategoryLocked: lockSubcategory,
-      };
-    });
-  }, [formState.category_id, extraData?.categories, extraData?.client_config?.cat_expensas]);
+  }, [debtId, deudas, formState.isAmountLocked]);
 
   const handleChangeInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -385,20 +538,143 @@ const RenderForm: React.FC<RenderFormProps> = ({
       if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
         newValue = e.target.checked ? 'Y' : 'N';
       }
-      setFormState((prev: FormState) => ({
-        ...prev,
-        [name]: newValue,
-      }));
+
+
+      if (name === 'type') {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          [name]: newValue,
+          category_id: '',
+          subcategory_id: '',
+          subcategories: [],
+        }));
+        setDeudas([]);
+        setSelectedPeriodo([]);
+        setPeriodoTotal(0);
+        lastLoadedDeudas.current = '';
+        if (newValue && newValue !== 'I' && formState.dpto_id) {
+
+          setTimeout(() => {
+            const deudasKey = `${formState.dpto_id}_${newValue}`;
+            lastLoadedDeudas.current = deudasKey;
+            if (formState.dpto_id) {
+              getDeudas(formState.dpto_id, newValue as string);
+            }
+          }, 0);
+        }
+      } else {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          [name]: newValue,
+        }));
+      }
     },
-    []
+    [formState.dpto_id, getDeudas]
   );
 
+  const getDebtType = (type: number) => {
+    switch (type) {
+      case 0:
+        return 'Individual';
+      case 1:
+        return 'Expensas';
+      case 2:
+        return 'Reservas';
+      case 3:
+        return 'Multa por Cancelación';
+      case 4:
+        return 'Compartida';
+      case 5:
+        return 'Condonación';
+      default:
+        return 'Desconocido';
+    }
+  };
+
+  const getConceptByType = (periodo: Deuda) => {
+    const type = periodo?.type;
+
+    switch (type) {
+      case 1: {
+        // Expensas: mostrar periodo (MES y YEAR) usando MONTHS_S indexado desde 1
+        const monthNum = periodo?.debt?.month ?? periodo?.shared?.month;
+        const yearNum = periodo?.debt?.year ?? periodo?.shared?.year;
+        if (monthNum != null && yearNum != null) {
+          const monthIndex = Math.max(1, Math.min(12, Number(monthNum)));
+          const monthName = MONTHS_S[monthIndex] || String(monthNum);
+          return `${monthName} ${yearNum}`;
+        }
+        return '-/-';
+      }
+      case 2:
+        // Reservas: mostrar el nombre del área social
+        return `Reserva: ${
+          periodo?.debt?.reservation?.area?.title ||
+          periodo?.reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 3:
+        // Multa por Cancelación
+        return `Multa por Cancelación: ${
+          periodo?.debt?.penalty_reservation?.area?.title ||
+          periodo?.penalty_reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 0:
+      case 4:
+        // Individual o Compartida: usar descripción
+        return periodo?.description || '-/-';
+      default:
+        // Fallback
+        return (
+          periodo?.description ||
+          periodo?.shared?.description ||
+          periodo?.debt?.description ||
+          '-/-'
+        );
+    }
+  };
+
+  const getSubtotal = (periodo: Deuda) => {
+    const amount = parseFloat(String(periodo?.amount)) || 0;
+    const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
+    const maintenanceAmount = parseFloat(String(periodo?.maintenance_amount)) || 0;
+
+    let total;
+
+    if (periodo.debt?.method === 3) {
+      total = penaltyAmount + maintenanceAmount;
+    } else {
+
+      total = amount + penaltyAmount + maintenanceAmount;
+    }
+
+
+    return Math.round(total * 100) / 100;
+  };
+
+  const handleSelectAllPeriodos = useCallback(() => {
+    if (selectedPeriodo.length === deudas.length) {
+
+      setSelectedPeriodo([]);
+      setPeriodoTotal(0);
+    } else {
+
+      const allPeriodos = deudas.map(periodo => ({
+        id: periodo.id,
+        amount: getSubtotal(periodo)
+      }));
+
+      const totalAmount = allPeriodos.reduce((sum, item) => sum + item.amount, 0);
+      const roundedTotal = Math.round(totalAmount * 100) / 100;
+
+      setSelectedPeriodo(allPeriodos);
+      setPeriodoTotal(roundedTotal);
+    }
+  }, [deudas, selectedPeriodo.length]);
+
   const handleSelectPeriodo = useCallback((periodo: Deuda) => {
-    // Para multas (type 3), solo usar penalty_amount, para otros casos usar amount + penalty_amount
-    const subtotal =
-      periodo.debt?.type === 3
-        ? Number(periodo.penalty_amount ?? 0)
-        : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0);
+    const subtotal = getSubtotal(periodo);
 
     setSelectedPeriodo(prev => {
       const exists = prev.some(item => item.id === periodo.id);
@@ -411,41 +687,46 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
 
       const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
-      setPeriodoTotal(newTotal);
+
+      const roundedTotal = Math.round(newTotal * 100) / 100;
+      setPeriodoTotal(roundedTotal);
 
       return newSelectedPeriodos;
     });
   }, []);
 
   const validar = useCallback(() => {
-    // 1. Inicia un objeto de errores vacío.
     const err: Errors = {};
+    if (!formState.type) {
+      err.type = 'Este campo es requerido';
+    }
 
-    // Validación general: No se puede pagar si no hay deuda.
+
     if (isExpensasWithoutDebt) {
       err.general = 'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
     }
     if (isReservationsWithoutDebt) {
       err.general = 'No se puede registrar un pago de reservas cuando no hay deudas pendientes';
     }
-
-    // Validación de período seleccionado (para expensas y reservas)
-    if (isDebtBasedCategory && deudas?.length > 0 && selectedPeriodo.length === 0) {
+    if (isDebtBasedPayment && deudas?.length > 0 && selectedPeriodo.length === 0) {
       err.selectedPeriodo = 'Debe seleccionar al menos una deuda para pagar';
     }
 
-    // Validaciones de campos individuales
     if (!formState.dpto_id) {
       err.dpto_id = 'Este campo es requerido';
     }
-    if (!formState.category_id) {
-      err.category_id = 'Este campo es requerido';
+
+    if (showCategoryFields) {
+      if (!formState.category_id) {
+        err.category_id = 'Este campo es requerido';
+      }
+      if (!formState.subcategory_id) {
+        err.subcategory_id = 'Este campo es requerido';
+      }
     }
-    if (!formState.subcategory_id) {
-      err.subcategory_id = 'Este campo es requerido';
-    }
-    if (!formState.type) {
-      err.type = 'Este campo es requerido';
+
+    if (!formState.method) {
+      err.method = 'Este campo es requerido';
     }
     if (!formState.voucher) {
       err.voucher = 'Este campo es requerido';
@@ -453,8 +734,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
     }
 
-    // Validación del monto (solo si no es una categoría basada en deudas con deudas)
-    if (!isDebtBasedCategory || deudas?.length === 0) {
+    if (!isDebtBasedPayment || deudas?.length === 0) {
       if (!formState.amount) {
         err.amount = 'Este campo es requerido';
       }
@@ -476,55 +756,58 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
-    // 3. Al final, actualiza el estado con TODOS los errores encontrados.
+
     setErrors(err);
 
-    // 4. Retorna true solo si el objeto de errores está vacío.
     return Object.keys(err).length === 0;
   }, [
     formState,
     deudas,
     isExpensasWithoutDebt,
     isReservationsWithoutDebt,
-    isDebtBasedCategory,
+    isDebtBasedPayment,
     selectedPeriodo,
-    extraData?.client_config?.cat_expensas,
-    extraData?.client_config?.cat_reservations,
+    showCategoryFields,
     setErrors,
   ]);
 
   const _onSavePago = useCallback(async () => {
-    if (!validar()) {
-      if (
-        isExpensasWithoutDebt ||
-        isReservationsWithoutDebt ||
-        (isDebtBasedCategory && deudas.length > 0 && selectedPeriodo.length === 0)
-      ) {
-        showToast('Por favor revise los errores', 'error');
+    const isValid = validar();
+    if (!isValid) {
+      if (errors.general) {
+        showToast(errors.general, 'error');
       } else {
         showToast('Por favor revise los campos marcados', 'warning');
       }
       return;
     }
 
-    const selectedDpto = extraData?.dptos.find(
-      (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
-    );
-    const titular = getTitular(selectedDpto);
-    const owner_id = titular?.id;
+    let owner_id = formState.owner_id;
+
+    if (!owner_id) {
+      const selectedDpto = extraData?.dptos.find(
+        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
+      );
+      const titular = getTitular(selectedDpto);
+      owner_id = titular?.id;
+    }
 
     let params: any = {
       paid_at: formState.paid_at,
-      type: formState.type,
+      method: formState.method,
       file: formState.file,
       voucher: formState.voucher,
       obs: formState.obs,
-      category_id: formState.subcategory_id,
       nro_id: formState.dpto_id,
       owner_id: owner_id,
+      type: formState.type,
     };
 
-    if (isDebtBasedCategory && selectedPeriodo.length > 0) {
+    if (showCategoryFields) {
+      params.subcategory_id = formState.subcategory_id;
+    }
+
+    if (isDebtBasedPayment && selectedPeriodo.length > 0) {
       params = {
         ...params,
         asignados: selectedPeriodo,
@@ -558,7 +841,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
   }, [
     formState,
-    extraData?.client_config?.cat_expensas,
     extraData?.dptos,
     selectedPeriodo,
     periodoTotal,
@@ -570,8 +852,9 @@ const RenderForm: React.FC<RenderFormProps> = ({
     showToast,
     isExpensasWithoutDebt,
     isReservationsWithoutDebt,
-    isDebtBasedCategory,
+    isDebtBasedPayment,
     deudas,
+    showCategoryFields,
   ]);
 
   const onCloseModal = useCallback(() => {
@@ -589,9 +872,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
           <p className={styles['no-deudas-message']}>
             No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de{' '}
-            {formState.subcategory_id === extraData?.client_config?.cat_expensas
+            {formState.type === 'E'
               ? 'expensas'
-              : 'reservas'}
+              : formState.type === 'R'
+              ? 'reservas'
+              : 'este tipo'}
             .
           </p>
         </div>
@@ -600,35 +885,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       return (
         <div className={styles['deudas-container']}>
           <div className={styles['deudas-title-row']}>
-            <p className={styles['deudas-title']}>
-              Seleccione las{' '}
-              {formState.subcategory_id === extraData?.client_config?.cat_expensas
-                ? 'expensas'
-                : 'reservas'}{' '}
-              a pagar:
-            </p>
+            <p className={styles['deudas-title']}>Seleccione las deudas a pagar:</p>
             <button
               type="button"
               className={styles['select-all-container']}
-              onClick={() => {
-                if (selectedPeriodo.length === deudas.length) {
-                  setSelectedPeriodo([]);
-                  setPeriodoTotal(0);
-                } else {
-                  const allPeriodos: SelectedPeriodo[] = deudas.map(periodo => ({
-                    id: periodo.id,
-                    amount:
-                      periodo.debt?.type === 3
-                        ? Number(periodo.penalty_amount ?? 0)
-                        : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0),
-                  }));
-
-                  const totalAmount = allPeriodos.reduce((sum, item) => sum + item.amount, 0);
-
-                  setSelectedPeriodo(allPeriodos);
-                  setPeriodoTotal(totalAmount);
-                }
-              }}
+              onClick={handleSelectAllPeriodos}
             >
               <span className={styles['select-all-text']}>Pagar todo</span>
               {selectedPeriodo.length === deudas.length ? (
@@ -640,37 +901,14 @@ const RenderForm: React.FC<RenderFormProps> = ({
           </div>
 
           <div className={styles['deudas-table']}>
-            <div
-              className={`${styles['deudas-header']} ${
-                formState.subcategory_id === extraData?.client_config?.cat_reservations
-                  ? styles['deudas-header-reservations-simple']
-                  : ''
-              }`}
-            >
-              {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
-                <>
-                  <span className={styles['header-item']}>Fecha</span>
-                  <span className={styles['header-item']}>Concepto</span>
-                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
-                    Total
-                  </span>
-                  <span className={styles['header-item']}>Seleccionar</span>
-                </>
-              ) : (
-                <>
-                  <span className={styles['header-item']}>Periodo</span>
-                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
-                    Monto
-                  </span>
-                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
-                    Multa
-                  </span>
-                  <span className={`${styles['header-item']} ${styles['header-amount']}`}>
-                    SubTotal
-                  </span>
-                  <span className={styles['header-item']}>Seleccionar</span>
-                </>
-              )}
+            <div className={styles['deudas-header']}>
+              <span className={styles['header-item']}>Tipo</span>
+              <span className={styles['header-item']}>Concepto</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Monto</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Multa</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Mant. Valor</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Subtotal</span>
+              <span className={styles['header-item']}>Seleccionar</span>
             </div>
 
             {deudas.map(periodo => (
@@ -687,60 +925,25 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   textAlign: 'inherit',
                 }}
               >
-                <div
-                  className={`${styles['deuda-row']} ${
-                    formState.subcategory_id === extraData?.client_config?.cat_reservations
-                      ? styles['deuda-row-reservations-simple']
-                      : ''
-                  }`}
-                >
-                  {formState.subcategory_id === extraData?.client_config?.cat_reservations ? (
-                    <>
-                      <div className={styles['deuda-cell']}>
-                        {periodo.debt?.type === 3
-                          ? formatToDayDDMMYYYY(periodo.debt?.reservation_penalty?.date_at) || '-/-'
-                          : formatToDayDDMMYYYY(periodo.debt?.reservation?.date_at) || '-/-'}
-                      </div>
-                      <div className={styles['deuda-cell']}>
-                        {periodo.debt?.type === 3
-                          ? `Multa: Cancelación del área ${
-                              periodo.debt?.reservation_penalty?.area?.title || '-/-'
-                            }`
-                          : periodo.debt?.reservation?.area?.title || '-/-'}
-                      </div>
-                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                        {'Bs ' +
-                          formatNumber(
-                            periodo.debt?.type === 3
-                              ? Number(periodo.penalty_amount ?? 0)
-                              : Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
-                          )}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className={styles['deuda-cell']}>
-                        {periodo.debt &&
-                        typeof periodo.debt === 'object' &&
-                        periodo.debt.month !== undefined &&
-                        periodo.debt.year !== undefined
-                          ? `${MONTHS_S[periodo.debt.month] ?? '?'}/${periodo.debt.year ?? '?'}`
-                          : '-/-'}
-                      </div>
-                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                        {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
-                      </div>
-                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                        {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
-                      </div>
-                      <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
-                        {'Bs ' +
-                          formatNumber(
-                            Number(periodo.amount ?? 0) + Number(periodo.penalty_amount ?? 0)
-                          )}
-                      </div>
-                    </>
-                  )}
+                <div className={styles['deuda-row']}>
+                  <div className={styles['deuda-cell']}>
+                    {getDebtType(periodo.type || 0)}
+                  </div>
+                  <div className={styles['deuda-cell']}>
+                    {getConceptByType(periodo)}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.maintenance_amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(getSubtotal(periodo))}
+                  </div>
 
                   <div className={`${styles['deuda-cell']} ${styles['deuda-check']}`}>
                     {selectedPeriodo.some(item => item.id === periodo.id) ? (
@@ -761,12 +964,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
     }
   }, [
     formState.dpto_id,
+    formState.type,
     isLoadingDeudas,
     deudas,
     selectedPeriodo.length,
     periodoTotal,
-    extraData?.client_config?.cat_expensas,
-    formState.subcategory_id,
     handleSelectPeriodo,
   ]);
 
@@ -780,6 +982,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         buttonCancel={'Cancelar'}
         buttonText={'Crear ingreso'}
         title={'Crear ingreso'}
+        variant={"mini"}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}
@@ -814,36 +1017,60 @@ const RenderForm: React.FC<RenderFormProps> = ({
             </div>
           </div>
 
+          {/* Nuevo select de tipo de pago */}
           <div className={styles.section}>
-            <div className={styles['input-row']}>
-              <div className={styles['input-half']}>
-                <Select
-                  name="category_id"
-                  label="Categoría"
-                  value={formState.category_id}
-                  onChange={handleChangeInput}
-                  options={extraData?.categories || []}
-                  error={errors}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
-                />
-              </div>
-              <div className={styles['input-half']}>
-                <Select
-                  name="subcategory_id"
-                  label="Subcategoría"
-                  value={formState.subcategory_id}
-                  onChange={handleChangeInput}
-                  options={formState.subcategories || []}
-                  error={errors}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
-                  disabled={formState.isSubcategoryLocked}
-                />
+            <div className={styles['input-container']}>
+              <Select
+                name="type"
+                label="Tipo"
+                required={true}
+                value={formState.type}
+                onChange={handleChangeInput}
+                options={typeOptions}
+                error={errors}
+                optionLabel="name"
+                optionValue="id"
+              />
+            </div>
+          </div>
+
+          {/* Mostrar categoría y subcategoría solo para pago directo */}
+          {showCategoryFields && (
+            <div className={styles.section}>
+              <div className={styles['input-row']}>
+                <div className={styles['input-half']}>
+                  <Select
+                    name="category_id"
+                    label="Categoría"
+                    value={formState.category_id}
+                    onChange={handleChangeInput}
+                    options={extraData?.categories || []}
+                    error={errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={formState.isCategoryLocked}
+                  />
+                </div>
+                <div className={styles['input-half']}>
+                  <Select
+                    name="subcategory_id"
+                    label="Subcategoría"
+                    value={formState.subcategory_id}
+                    onChange={handleChangeInput}
+                    options={formState.subcategories || []}
+                    error={errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={formState.isSubcategoryLocked}
+                  />
+                </div>
               </div>
             </div>
+          )}
+
+          <div className={styles.section}>
             <div>
               <div className={styles['payment-section']}>
                 <div className={styles['input-row']}>
@@ -856,19 +1083,19 @@ const RenderForm: React.FC<RenderFormProps> = ({
                         handleChangeInput(e);
                       }}
                       value={
-                        isDebtBasedCategory && deudas?.length > 0 ? periodoTotal : formState.amount
+                        isDebtBasedPayment && deudas?.length > 0 ? periodoTotal.toFixed(2) : formState.amount
                       }
                       required={true}
                       error={errors}
-                      disabled={isDebtBasedCategory}
+                      disabled={isDebtBasedPayment || formState.isAmountLocked}
                       maxLength={20}
                     />
                   </div>
                   <div className={styles['input-half']}>
                     <Select
-                      name="type"
+                      name="method"
                       label="Forma de pago"
-                      value={formState.type}
+                      value={formState.method}
                       onChange={handleChangeInput}
                       options={[
                         { id: 'Q', name: 'Pago QR' },
@@ -886,8 +1113,8 @@ const RenderForm: React.FC<RenderFormProps> = ({
                 </div>
               </div>
 
-              {(formState.subcategory_id === extraData?.client_config?.cat_expensas ||
-                formState.subcategory_id === extraData?.client_config?.cat_reservations) && (
+              {/* Mostrar deudas solo para tipos basados en deudas */}
+              {isDebtBasedPayment && (
                 <div>
                   {deudasContent}
                   {errors.selectedPeriodo && (
@@ -897,6 +1124,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
                   )}
                 </div>
               )}
+
               {/* Sección de subir comprobante */}
               <div className={styles['upload-section']}>
                 <UploadFile

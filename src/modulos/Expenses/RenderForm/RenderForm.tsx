@@ -141,7 +141,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
   }, [client.type_dpto, extraData?.dptos]); //esto?
 
   return (
-    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave}>
+    <DataModal open={open} onClose={onClose} title="Crear Expensa" onSave={onSave} variant={"mini"}>
       <Select
         label="Año"
         name="year"
@@ -191,6 +191,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           error={errors}
           placeholder="Seleccione las unidades"
           multiSelect={true}
+          filter={true}
         />
       )}
       <TextArea
