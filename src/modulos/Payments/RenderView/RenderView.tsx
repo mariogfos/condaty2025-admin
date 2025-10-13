@@ -625,7 +625,9 @@ export default RenderView;
 
   // Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
+  console.log("corecto")
   const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
+ const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
   const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
-    return amount + maintenanceAmount;
+    return amount + penaltyAmount + maintenanceAmount;
   };
