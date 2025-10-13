@@ -125,6 +125,7 @@ const RenderView = ({ open, onClose, item, onDel, onEdit }: any) => {
           )}
         </div>
       }
+      variant={"mini"}
     >
       <div style={{ display: "flex", gap: 12, flexDirection: "column" }}>
         <p
