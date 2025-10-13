@@ -610,7 +610,7 @@ export default RenderView;
         const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
 
         if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
-          return `Periodo: ${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
+          return `${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
         }
         return periodo?.subcategory?.name || '-/-';
       }
