@@ -215,20 +215,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       'dpto_id'
     );
-    // Validación para interés: no negativo (opcional, permite vacío o 0)
+    // Validación para interés: positivo y máximo 100
     addError(
       checkRules({
         value: _formState.interest,
-        rules: ['positive'],
-        key: 'interest',
-        errors: errs,
-      }),
-      'interest'
-    );
-    addError(
-      checkRules({
-        value: _formState.interest,
-        rules: ['positive'],
+        rules: ['positive', 'less:100'],
         key: 'interest',
         errors: errs,
       }),
