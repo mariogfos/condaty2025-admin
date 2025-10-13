@@ -24,7 +24,7 @@ interface PaymentDetail {
   paid_at?: string;
   concept?: string[];
   category?: { padre?: { name?: string } };
-  obs?: string; 
+  obs?: string;
   type?: string;
   method?: string;
   voucher?: string;
@@ -167,7 +167,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
       E: 'Efectivo',
       C: 'Cheque',
       Q: 'Pago QR',
-      O: 'Pago en oficina',
+      //O: 'Pago en oficina',
     };
     return typeMap[type] || type;
   };
@@ -340,6 +340,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
             </Button>
           ) : undefined
         }
+        variant={"mini"}
         style={style}
       >
         {item && onDel && item.status === 'P' && item.user && (
@@ -479,7 +480,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                     <div className={styles.periodsTableCell}>Concepto</div>
                     <div className={styles.periodsTableCell}>Monto</div>
                     <div className={styles.periodsTableCell}>Multa</div>
-                    <div className={styles.periodsTableCell}>MV</div>
+                    <div className={styles.periodsTableCell}>Mant. Valor</div>
                     <div className={styles.periodsTableCell}>Subtotal</div>
                   </div>
                   <div className={styles.periodsTableBody}>
@@ -503,7 +504,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                           <div className={styles.periodsTableCell} data-label="Multa">
                             {formatBs(periodo?.debt_dpto?.penalty_amount || 0)}
                           </div>
-                          <div className={styles.periodsTableCell} data-label="MV">
+                          <div className={styles.periodsTableCell} data-label="Mant. Valor">
                             {formatBs(periodo?.debt_dpto?.maintenance_amount || 0)}
                           </div>
                           <div className={styles.periodsTableCell} data-label="Subtotal">
@@ -601,6 +602,18 @@ export default RenderView;
       case 0: // Individual
       case 4: // Compartida
         return periodo?.subcategory?.name || '-/-';
+      case 1: { // Expensas: mostrar periodo (MES y AÑO)
+        const monthNumRaw = periodo?.debt_dpto?.debt?.month ?? periodo?.debt_dpto?.shared?.month;
+        const yearNumRaw = periodo?.debt_dpto?.debt?.year ?? periodo?.debt_dpto?.shared?.year;
+
+        const monthIndex = typeof monthNumRaw === 'number' ? monthNumRaw : parseInt(String(monthNumRaw), 10);
+        const yearNum = typeof yearNumRaw === 'number' ? yearNumRaw : parseInt(String(yearNumRaw), 10);
+
+        if (Number.isFinite(monthIndex) && Number.isFinite(yearNum) && monthIndex >= 1 && monthIndex <= 12) {
+          return `${MONTHS_ES[monthIndex - 1]} ${yearNum}`;
+        }
+        return periodo?.subcategory?.name || '-/-';
+      }
       case 2: // Reservas
         return `Reserva: ${periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}`;
       case 3: // Multa por Cancelación
@@ -612,7 +625,9 @@ export default RenderView;
 
   // Función para calcular el subtotal incluyendo mantenimiento de valor
 const getSubtotal = (periodo: any) => {
-/*     const amount = parseFloat(periodo?.amount) || 0;
-    const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0; */
-  return periodo?.amount;
+  console.log("corecto")
+  const amount = parseFloat(periodo?.debt_dpto?.amount) || 0;
+ const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+  const maintenanceAmount = parseFloat(periodo?.debt_dpto?.maintenance_amount) || 0;
+    return amount + penaltyAmount + maintenanceAmount;
   };

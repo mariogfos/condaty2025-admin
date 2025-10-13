@@ -98,13 +98,15 @@ const CategoryCard = memo(
             >
               <IconEdit size={24} />
             </button>
-            <button
-              className={`${styles.actionButton} ${styles.deleteButton}`}
-              onClick={handleDeleteClick}
-              aria-label={`Eliminar ${item.name}`}
-            >
-              <IconTrash size={24} />
-            </button>
+            {!hasSubcategories && (
+              <button
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                onClick={handleDeleteClick}
+                aria-label={`Eliminar ${item.name}`}
+              >
+                <IconTrash size={24} />
+              </button>
+            )}
           </div>
         </div>
         {isAccordionOpen && (

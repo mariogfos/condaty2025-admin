@@ -13,16 +13,16 @@
 }
 
 .headerSubtitle {
+  margin-top: 4px;
   font-size: 14px;
   color: var(--cWhiteV1);
-  margin-bottom: 1rem;
 }
 
 .formContainer {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+
   background-color: #333536;
   padding: 1rem;
   border-radius: 1rem;
@@ -48,10 +48,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 0.625rem;
+
   align-self: stretch;
   position: relative;
-  margin-bottom: 2rem;
 }
 
 .qrPreviewContainer > div {
@@ -114,7 +113,6 @@
 .sectionContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   width: 100%;
 }
 

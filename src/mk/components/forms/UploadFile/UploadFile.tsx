@@ -13,6 +13,7 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { resizeImage } from "@/mk/utils/images";
 import ImageEditor from "./ImageEditor";
 import { getUrlImages } from "@/mk/utils/string";
+import { number } from "motion";
 
 interface PropsType extends PropsTypeInputBase {
   ext: string[];
@@ -46,10 +47,10 @@ export const UploadFile = ({
     }
     // Verificar si value tiene información de documento
     if (value && typeof value === 'object') {
-      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx')) {
+      if (value.existing && (value.ext === 'pdf' || value.ext === 'doc' || value.ext === 'docx' || value.ext === 'xls' || value.ext === 'xlsx')) {
         return true;
       }
-      if (value.ext && ['pdf', 'doc', 'docx'].includes(value.ext) && value.file !== "delete") {
+      if (value.ext && ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(value.ext) && value.file !== "delete") {
         return true;
       }
     }
@@ -90,33 +91,62 @@ export const UploadFile = ({
     });
   };
 
+  const resetFileInput = () => {
+    const input = document.getElementById(props.name) as HTMLInputElement | null;
+    if (input) input.value = "";
+  };
+
   const onChangeFile = async (e: any) => {
+    // limpiar error previo
     props.setError({ ...props.error, [props.name]: "" });
+
     try {
-      let file: any = null;
-      if (e.dataTransfer) file = e.dataTransfer.files[0];
-      else file = e.target.files[0];
+      let file: File | null = null;
+      if (e?.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        file = e.dataTransfer.files[0];
+      } else if (e?.target && e.target.files && e.target.files[0]) {
+        file = e.target.files[0];
+      }
+
+      if (!file) {
+        // nada seleccionado
+        return;
+      }
+
+      // Guardar (opcional): no confiar en este estado para validación inmediata
       setSelectedFiles(file);
 
-      if (
-        !props.ext.includes(
-          file.name
-            .toLowerCase()
-            .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2)
-        )
-      ) {
-        props.setError({ ...props.error, [props.name]: "" });
+      // extensíon
+      const fileExt = file.name
+        .toLowerCase()
+        .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2);
+
+      // validar extensión
+      if (!props.ext.includes(fileExt)) {
+        props.setError({ ...props.error, [props.name]: "Extensión no permitida" });
         setSelectedFiles({});
+        resetFileInput();
         showToast("Solo se permiten archivos " + props.ext.join(", "), "error");
         return;
       }
-      if (
-        ["jpg", "png", "webp", "jpeg", "gif"].includes(
-          file.name
-            .toLowerCase()
-            .slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2)
-        )
-      ) {
+
+      // validar tamaño (usa bytes)
+      const maxSizeMB = Number(props.maxSize ?? 5); // por si viene como string
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+      if (typeof file.size === "number") {
+        if (file.size > maxSizeBytes) {
+          props.setError({ ...props.error, [props.name]: `El archivo supera ${maxSizeMB} MB` });
+          setSelectedFiles({});
+          resetFileInput();
+          showToast(`El archivo supera el límite de ${maxSizeMB} MB`, "error");
+          return;
+        }
+      }
+
+      // Si es imagen: procesar/resize (pero la validación ya se hizo sobre file.size)
+      if (["jpg", "png", "webp", "jpeg", "gif"].includes(fileExt)) {
+
         const image: any = await resizeImage(file, 720, 1024, 0.7);
         let base64String = image.replace("data:", "").replace(/^.+,/, "");
         base64String = encodeURIComponent(base64String);
@@ -127,25 +157,43 @@ export const UploadFile = ({
             value: { ext: "webp", file: base64String },
           },
         });
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          const partes = file.name.split(".");
-          let base64String = e.target.result
-            .replace("data:", "")
-            .replace(/^.+,/, "");
-          base64String = encodeURIComponent(base64String);
-          onChange({
-            target: {
-              name: props.name,
-              value: { ext: partes[partes.length - 1], file: base64String },
-            },
-          });
-        };
-        reader.readAsDataURL(file);
+        return;
       }
+
+      // Para otros archivos (pdf, doc, xls...) usamos FileReader y validamos también el tamaño del base64 por si file.size no existía.
+      const reader = new FileReader();
+      reader.onload = (ev: any) => {
+        const result = ev.target.result as string; // data:...;base64,AAAA...
+        // extraer base64 pura
+        const base64Only = result.replace(/^data:[^;]+;base64,/, "");
+        // estimación bytes desde base64
+        const padding = (base64Only.endsWith("==") ? 2 : base64Only.endsWith("=") ? 1 : 0);
+        const estBytes = Math.ceil((base64Only.length * 3) / 4) - padding;
+
+        // si file.size no estaba definido, usamos la estimación
+        if (typeof file.size !== "number" && props.maxSize && estBytes > maxSizeBytes) {
+          props.setError({ ...props.error, [props.name]: `El archivo supera ${maxSizeMB} MB` });
+          setSelectedFiles({});
+          resetFileInput();
+          showToast(`El archivo supera el límite de ${maxSizeMB} MB`, "error");
+          return;
+        }
+
+        // si file.size existía ya lo validamos antes, aquí procedemos normalmente
+        const partes = file.name.split(".");
+        let base64String = base64Only;
+        base64String = encodeURIComponent(base64String);
+        onChange({
+          target: {
+            name: props.name,
+            value: { ext: partes[partes.length - 1], file: base64String },
+          },
+        });
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       setSelectedFiles({});
+      resetFileInput();
       onChange({
         target: {
           name: props.name,
@@ -266,7 +314,7 @@ export const UploadFile = ({
             <span>{props.ext.join(", ")}</span>
           </div>
         ) : (
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", minWidth: "250px" }}>
             {/* Mostrar imagen editada o seleccionada */}
             {(editedImage ||
               selectedFiles?.type?.startsWith("image/") ||
@@ -294,13 +342,13 @@ export const UploadFile = ({
               />
             ) : selectedFiles.type === "application/pdf" ? (
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name}</span>
               </>
             ) : hasExistingDocument() && !(value && typeof value === 'object' && value.file === "delete") ? (
               /* Mostrar documento existente solo si no está marcado para eliminar */
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{getExistingDocumentName()}</span>
                 {getExistingDocumentUrl() && (
                   <div style={{ marginTop: '8px' }}>
@@ -319,15 +367,15 @@ export const UploadFile = ({
                   </div>
                 )}
               </>
-            ) : value && typeof value === 'object' && ['pdf', 'doc', 'docx'].includes(value.ext) ? (
+            ) : value && typeof value === 'object' && ["pdf", "doc", "docx", "xls", "xlsx",].includes(value.ext) ? (
               /* Mostrar documento cargado */
               <>
-                <IconPDF size={80} color={"var(--cWhite)"} />
+                <IconDocs size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name || "Documento cargado"}</span>
               </>
             ) : (
               <>
-                <IconDocs size={80} color={"var(--cWhite)"} />
+                <IconImage size={80} color={"var(--cWhite)"} />
                 <span>{selectedFiles.name || "Archivo seleccionado"}</span>
               </>
             )}

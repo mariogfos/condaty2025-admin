@@ -1,4 +1,5 @@
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { Image } from "@/mk/components/ui/Image/Image";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
 import { getDateTimeStrMesShort } from "@/mk/utils/date";
@@ -30,6 +31,7 @@ const RenderView = (props: {
   onOpenComments?: (contentId: number, contentData: any) => void;
   selectedContentData?: any;
   contentId?: number;
+  showActions?: boolean;
 }) => {
   const { data } = props?.item || {};
   const { showToast } = useAuth();
@@ -168,18 +170,22 @@ const RenderView = (props: {
               <p className={styles.text}>Para: Todos</p>
             </div>
             <div className={styles.headerRight}>
-              <button
-                className={styles.actionButton}
-                onClick={handleEdit}
-              >
-                <IconEdit size={24} />
-              </button>
-              <button
-                className={styles.actionButton}
-                onClick={handleDelete}
-              >
-                <IconTrash size={24} />
-              </button>
+              {(props.showActions ?? true) && (
+                <>
+                  <button
+                    className={styles.actionButton}
+                    onClick={handleEdit}
+                  >
+                    <IconEdit size={24} />
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={handleDelete}
+                  >
+                    <IconTrash size={24} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
           <Br />
@@ -189,12 +195,17 @@ const RenderView = (props: {
                 hasImages() ? (
                   <div>
                     <div className={styles.imageWrapper}>
-                      <img
+                      <Image
                         alt="Imagen de la publicación"
-                        className={styles.image}
                         src={getUrlImages(
                           '/CONT-' + currentData.id + '-' + currentData.images[indexVisible]?.id + '.webp' + '?' + currentData?.updated_at
                         )}
+                        square={true}
+                        expandable={true}
+                        expandableIcon={false}
+                        objectFit="contain"
+                        borderRadius="var(--bRadiusM)"
+                        style={{ width: '100%', height: '100%' }}
                       />
                     </div>
                     {currentData?.images?.length > 1 && (

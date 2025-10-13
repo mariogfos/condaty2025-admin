@@ -64,7 +64,7 @@ const DebtsManager = () => {
     { value: "individual", text: "Individuales" },
     { value: "shared", text: "Compartidas" },
     { value: "forgiveness", text: "Condonaciones" },
-    { value: "payment_plans", text: "Planes de pago" },
+    // { value: "payment_plans", text: "Planes de pago" },
   ];
 
   const goToCategories = () => {

@@ -179,13 +179,27 @@ export const validRule = (
     number: () =>
       !value ? "" : !/^[0-9.,-]+$/.test(value) ? "No es un número válido" : "",
     integer: () =>
-      !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
+      !/^[0-9]+$/.test(value) ? "No es un número entero válido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
     less: () => {
       // console.log("rule less:", value, param);
       return Number(value) > Number(param[0])
         ? `Debe ser menor o igual a ${param[0]}`
+        : "";
+    },
+    lessOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) > Number(compareValue)
+        ? `No puede ser mayor que ${param[1] || param[0]}`
+        : "";
+    },
+    greaterOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) < Number(compareValue)
+        ? `No puede ser menor que ${param[1] || param[0]}`
         : "";
     },
     googleMapsLink: () =>

@@ -7,17 +7,6 @@ const Events = () => {
   const [typeSearch, setTypeSearch] = useState("A");
   return (
     <div>
-      {/* <div>
-        <TabsButtons
-          tabs={[
-            { value: "A", text: "Administrador" },
-            // { value: "M", text: "Métricas" },
-          ]}
-          sel={typeSearch}
-          setSel={setTypeSearch}
-        />
-      </div> */}
-
       {typeSearch === "A" && <EventsAdmin />}
       {/* {typeSearch === "M" && <EventsDashboard />} */}
     </div>

@@ -13,14 +13,17 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import { Avatar } from "../../ui/Avatar/Avatar";
+import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
 import { getDateStrMes } from "@/mk/utils/date";
+import { EmojiText } from "@/mk/hooks/useEmojiRenderer";
 
 interface SelectedFile {
   file: File;
   previewURL: string;
+  id: string;
 }
 
 type ChatRoomPropsType = {
@@ -52,39 +55,88 @@ const ChatRoom = ({
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
   const { sendMessageBot } = useChatProvider({ provider: "kimi" });
+  const draftsRef = useRef<Record<string, string>>({});
+  const prevRoomIdRef = useRef(roomId);
 
   useEffect(() => {
+    draftsRef.current[prevRoomIdRef.current] = newMessage;
     setShowEmojiPicker(null);
-    setNewMessage("");
-    if (roomId.indexOf("chatBot") > -1 && selectedFile) cancelUpload();
+    const restored = draftsRef.current[roomId] || "";
+    setNewMessage(restored);
+    if (selectedFiles.length > 0) cancelUpload();
+    prevRoomIdRef.current = roomId;
   }, [roomId]);
 
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    // Obtener altura de línea
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight, 10);
+    const maxHeight = lineHeight * 10;
+
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${newHeight}px`;
+
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [newMessage]);
+
   const cancelUpload = () => {
-    if (selectedFile) {
-      URL.revokeObjectURL(selectedFile.previewURL);
-      setSelectedFile(null);
-      fileInputRef.current?.value && (fileInputRef.current.value = "");
-      setIsUploading(false);
+    selectedFiles.forEach(file => {
+      URL.revokeObjectURL(file.previewURL);
+    });
+    setSelectedFiles([]);
+    fileInputRef.current?.value && (fileInputRef.current.value = "");
+    setIsUploading(false);
+  };
+
+  const removeFile = (id: string) => {
+    const fileToRemove = selectedFiles.find(f => f.id === id);
+    const indexToRemove = selectedFiles.findIndex(f => f.id === id);
+    if (fileToRemove) {
+      URL.revokeObjectURL(fileToRemove.previewURL);
+      setSelectedFiles(prev => {
+        const updated = prev.filter(f => f.id !== id);
+        // Ajustar el índice seleccionado si es necesario
+        if (indexToRemove === selectedPreviewIndex && updated.length > 0) {
+          setSelectedPreviewIndex(Math.max(0, selectedPreviewIndex - 1));
+        } else if (selectedPreviewIndex >= updated.length && updated.length > 0) {
+          setSelectedPreviewIndex(updated.length - 1);
+        } else if (updated.length === 0) {
+          setSelectedPreviewIndex(0);
+        }
+        return updated;
+      });
     }
   };
 
   const handleSendMessage = async () => {
     const messageText = newMessage;
     const hasText = messageText.trim().length > 0;
-    if (!hasText && !selectedFile) return;
+    if (!hasText && selectedFiles.length === 0) return;
 
     setNewMessage("");
+    draftsRef.current[roomId] = "";
     typing.inputProps.onBlur();
 
     let msgId = 0;
-    if (selectedFile) {
+    if (selectedFiles.length > 0) {
       setIsUploading(true);
-      msgId = await sendMessage(
-        messageText,
-        roomId,
-        user?.id,
-        selectedFile.file
-      );
+      // Enviar cada imagen como un mensaje separado
+      for (const selectedFile of selectedFiles) {
+        msgId = await sendMessage(
+          selectedFiles.length === 1 ? messageText : "",
+          roomId,
+          user?.id,
+          selectedFile.file
+        );
+      }
+      // Enviar el texto después de las imágenes si hay múltiples imágenes
+      if (selectedFiles.length > 1 && hasText) {
+        msgId = await sendMessage(messageText, roomId, user?.id);
+      }
       cancelUpload();
     } else {
       msgId = await sendMessage(messageText, roomId, user?.id);
@@ -136,22 +188,75 @@ const ChatRoom = ({
   let renderDate = false;
   let lastSender = "";
 
-  const [selectedFile, setSelectedFile] = React.useState<SelectedFile | null>(
-    null
-  );
+  const [selectedFiles, setSelectedFiles] = React.useState<SelectedFile[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const { previewURL } = selectedFile || {};
+  const [selectedPreviewIndex, setSelectedPreviewIndex] = React.useState(0);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (roomId.indexOf("chatBot") > -1) {
       e.target.value = "";
       return;
     }
-    const file = e.target.files?.[0];
-    if (file) {
-      const previewURL = URL.createObjectURL(file);
-      setSelectedFile({ file, previewURL });
+    const files = e.target.files;
+    if (files) {
+      const newFiles: SelectedFile[] = Array.from(files).map(file => ({
+        file,
+        previewURL: URL.createObjectURL(file),
+        id: `${Date.now()}-${Math.random()}`
+      }));
+      setSelectedFiles(prev => {
+        const updated = [...prev, ...newFiles];
+        setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
+        return updated;
+      });
+    }
+  };
+
+  // Drag and Drop handlers
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (roomId.indexOf("chatBot") === -1) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (roomId.indexOf("chatBot") > -1) {
+      return;
+    }
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+      const newFiles: SelectedFile[] = imageFiles.map(file => ({
+        file,
+        previewURL: URL.createObjectURL(file),
+        id: `${Date.now()}-${Math.random()}`
+      }));
+      setSelectedFiles(prev => {
+        const updated = [...prev, ...newFiles];
+        setSelectedPreviewIndex(prev.length); // Seleccionar la primera nueva imagen
+        return updated;
+      });
     }
   };
 
@@ -160,6 +265,7 @@ const ChatRoom = ({
   const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const inputEmojiPickerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const reactionEmojiPickerRef = useRef<HTMLDivElement>(null);
 
   const handleEmojiClick = (msg: any) => {
     if (!msg) {
@@ -218,9 +324,9 @@ const ChatRoom = ({
   const onKeyUp = (e: any) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
-        setNewMessage(newMessage + '\n');
+        // No hacer nada, el textarea ya maneja el salto de línea
       } else {
-        if (newMessage.trim().length > 0 || selectedFile) {
+        if (newMessage.trim().length > 0 || selectedFiles.length > 0) {
           handleSendMessage();
         }
       }
@@ -249,8 +355,72 @@ const ChatRoom = ({
     };
   }, [showInputEmojiPicker]);
 
+  // Navegación con teclado en el preview de imágenes
+  useEffect(() => {
+    if (selectedFiles.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && selectedPreviewIndex > 0) {
+        e.preventDefault();
+        setSelectedPreviewIndex(selectedPreviewIndex - 1);
+      } else if (e.key === 'ArrowRight' && selectedPreviewIndex < selectedFiles.length - 1) {
+        e.preventDefault();
+        setSelectedPreviewIndex(selectedPreviewIndex + 1);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelUpload();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        if (selectedFiles.length > 0) {
+          removeFile(selectedFiles[selectedPreviewIndex].id);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedFiles, selectedPreviewIndex]);
+
+  // Cerrar SOLO el picker de reacciones al hacer clic fuera (igual que el input)
+  useEffect(() => {
+    const handleClickOutsideReaction = (event: MouseEvent) => {
+      if (
+        reactionEmojiPickerRef.current &&
+        !reactionEmojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(null);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutsideReaction);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideReaction);
+    };
+  }, [showEmojiPicker]);
+
   return (
-    <div className={styles.chatRoomContainer}>
+    <div
+      className={styles.chatRoomContainer}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Overlay de drag and drop */}
+      {isDragging && (
+        <div className={styles.dragOverlay}>
+          <div className={styles.dragContent}>
+            <IconImage size={64} color="var(--cPrimary)" />
+            <p>Suelta la imagen aquí</p>
+          </div>
+        </div>
+      )}
+
       {/* Área de mensajes con overlay relativo */}
       <div className={styles.messagesArea}>
         <div className={styles.chatMsgContainer} ref={chatRef}>
@@ -282,26 +452,29 @@ const ChatRoom = ({
                     msgRefs.current[msg.id] = el;
                   }}
                 >
-                  {/* Emoji Picker anclado al mensaje que lo invoca */}
                   {showEmojiPicker?.id === msg.id && (
                     <div
                       className={styles.emojiPicker}
+                      ref={reactionEmojiPickerRef}
                       style={{
                         ...(showEmojiPicker?.placeBelow
                           ? { top: 'calc(100% + 8px)', bottom: 'auto' }
                           : { bottom: 'calc(100% + 8px)', top: 'auto' }),
                       }}
+                      onDragEnter={(e) => e.stopPropagation()}
+                      onDragOver={(e) => e.stopPropagation()}
+                      onDragLeave={(e) => e.stopPropagation()}
+                      onDrop={(e) => e.stopPropagation()}
                     >
                       <EmojiPicker
                         reactionsDefaultOpen={true}
                         onReactionClick={handleEmojiSelect}
                         onEmojiClick={handleEmojiSelect}
                         height={320}
-                        emojiStyle={EmojiStyle.NATIVE}
-                        style={{
-                          backgroundColor: 'var(--cWhite)',
-                          border: '1px solid #E8E8E8',
-                        }}
+                        emojiStyle={EmojiStyle.APPLE}
+                        theme={Theme.DARK}
+                        // @ts-ignore
+                        locale="es"
                       />
                       <IconX size={10} color="black" onClick={() => handleEmojiClick(null)} />
                     </div>
@@ -322,7 +495,7 @@ const ChatRoom = ({
                   <div className={styles.messageBubble}>
                     {msg.sender !== user.id && (
                       <div className={styles.emojiIcon} onClick={() => handleEmojiClick(msg)}>
-                        😊
+                        <EmojiText>😊</EmojiText>
                       </div>
                     )}
                     {isGroup && msg.sender !== user.id && lastSender !== msg.sender && (
@@ -336,11 +509,19 @@ const ChatRoom = ({
                       }}
                     >
                       {msg['$files'].length > 0 && (
-                        <a target="_blank" href={msg['$files'][0].url}>
-                          <img src={msg['$files'][0].url} width={'100%'} alt="" />
-                        </a>
+                        <Image
+                          src={msg['$files'][0].url}
+                          alt="Imagen adjunta"
+                          w={250}
+                          expandable={true}
+                          expandableIcon={false}
+                          expandableZIndex={10002}
+                          square={true}
+                          style={{ width: '100%', height: 'auto', maxWidth: '250px' }}
+                          objectFit="cover"
+                        />
                       )}
-                      {msg.text}
+                      <EmojiText>{msg.text}</EmojiText>
                     </div>
                   </div>
                   <div
@@ -386,7 +567,7 @@ const ChatRoom = ({
                                 g.users.includes(String(user.id)) ? styles.myReaction : ''
                               }`}
                             >
-                              <span>{g.emoji}</span>
+                              <EmojiText>{g.emoji}</EmojiText>
                               <span>{g.count}</span>
                             </span>
                           ))}
@@ -399,20 +580,116 @@ const ChatRoom = ({
             );
           })}
         </div>
-        {previewURL && (
-          <div className={styles.previewContainer}>
-            <IconX color="red" onClick={() => cancelUpload()} />
-            <img src={previewURL} alt="Preview" />
+        {selectedFiles.length > 0 && (
+          <div
+            className={styles.previewContainer}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closePreviewButton}
+              onClick={cancelUpload}
+              title="Cerrar vista previa (ESC)"
+            >
+              <IconX color="white" size={24} />
+            </button>
+            <div className={styles.previewContent}>
+              {/* Vista previa grande */}
+              <div className={styles.mainPreview}>
+                <div className={styles.imageCounter}>
+                  {selectedPreviewIndex + 1} / {selectedFiles.length}
+                </div>
+
+                {/* Botón anterior */}
+                {selectedFiles.length > 1 && selectedPreviewIndex > 0 && (
+                  <button
+                    className={styles.navButton + ' ' + styles.navPrev}
+                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex - 1)}
+                    title="Imagen anterior"
+                  >
+                    ‹
+                  </button>
+                )}
+
+                {/* Botón siguiente */}
+                {selectedFiles.length > 1 && selectedPreviewIndex < selectedFiles.length - 1 && (
+                  <button
+                    className={styles.navButton + ' ' + styles.navNext}
+                    onClick={() => setSelectedPreviewIndex(selectedPreviewIndex + 1)}
+                    title="Siguiente imagen"
+                  >
+                    ›
+                  </button>
+                )}
+
+                <Image
+                  src={selectedFiles[selectedPreviewIndex].previewURL}
+                  alt="Vista previa principal"
+                  w={600}
+                  h={400}
+                  square={true}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  objectFit="contain"
+                />
+              </div>
+
+              {/* Carrusel de miniaturas */}
+              {selectedFiles.length > 1 && (
+                <div className={styles.thumbnailCarousel}>
+                  <div className={styles.thumbnailGrid}>
+                    {selectedFiles.map((file, index) => (
+                      <div
+                        key={file.id}
+                        className={`${styles.thumbnailItem} ${
+                          index === selectedPreviewIndex ? styles.thumbnailSelected : ''
+                        }`}
+                        onClick={() => setSelectedPreviewIndex(index)}
+                      >
+                        <button
+                          className={styles.removeThumbnailButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(file.id);
+                          }}
+                          title="Eliminar imagen"
+                        >
+                          <IconX color="white" size={12} />
+                        </button>
+                        <Image
+                          src={file.previewURL}
+                          alt={`Miniatura ${index + 1}`}
+                          w={80}
+                          h={80}
+                          square={true}
+                          style={{ width: '100%', height: '100%' }}
+                          objectFit="cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
       {/* Barra inferior de input y botones: queda visible siempre */}
-      <div className={styles.chatInputContainer} aria-busy={isUploading || sending}>
+      <div
+        className={styles.chatInputContainer}
+        aria-busy={isUploading || sending}
+        onDragEnter={(e) => e.stopPropagation()}
+        onDragOver={(e) => e.stopPropagation()}
+        onDragLeave={(e) => e.stopPropagation()}
+        onDrop={(e) => e.stopPropagation()}
+      >
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
+          multiple
           onChange={handleFileSelect}
           style={{ display: 'none' }}
         />
@@ -440,13 +717,20 @@ const ChatRoom = ({
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
-          <div ref={inputEmojiPickerRef} className={styles.inputEmojiPicker}>
+          <div
+            ref={inputEmojiPickerRef}
+            className={styles.inputEmojiPicker}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
             <EmojiPicker
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
-              emojiStyle={EmojiStyle.GOOGLE}
-              style={{ backgroundColor: 'var(--cWhite)' }}
+              emojiStyle={EmojiStyle.APPLE}
+              theme={Theme.DARK}
             />
           </div>
         )}

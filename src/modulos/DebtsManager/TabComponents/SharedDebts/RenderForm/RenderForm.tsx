@@ -169,6 +169,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     []
   );
 
+  // Function: RenderForm (fragmento dentro de validar)
   const validar = useCallback(() => {
     let errs: Errors = {};
 
@@ -216,12 +217,23 @@ const RenderForm: React.FC<RenderFormProps> = ({
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required'],
+        rules: ['required', 'positive'],
         key: 'amount',
         errors: errs,
       }),
       'amount'
     );
+
+    addError(
+      checkRules({
+        value: _formState.interest,
+        rules: ['required', 'positive'],
+        key: 'interest',
+        errors: errs,
+      }),
+      'interest'
+    );
+
     addError(
       checkRules({
         value: _formState.category_id,
@@ -259,8 +271,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       )
     );
     set_Errors(filteredErrs);
-
-    // Cambiar esta línea para usar filteredErrs en lugar de errs
     return Object.keys(filteredErrs).length === 0;
   }, [_formState]);
 
@@ -394,6 +404,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       buttonCancel="Cancelar"
       buttonText={_formState.id ? 'Actualizar' : 'Crear deuda compartida'}
       title={_formState.id ? 'Editar deuda compartida' : 'Crear deuda compartida'}
+      variant={"mini"}
     >
       <div className={styles.formContainer}>
         <div className={styles.formTextHeader}>
@@ -424,6 +435,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           <div className={styles.formRow}>
             <div className={styles.formField}>
               <Select
+                filter={true}
                 label="Unidades"
                 name="dpto_id"
                 value={_formState.dpto_id}
@@ -480,7 +492,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               value={_formState.interest}
               onChange={handleChangeInput}
               type="number"
-              min="0"
+              min={0}
               max="100"
               error={_errors}
               placeholder="0.00"

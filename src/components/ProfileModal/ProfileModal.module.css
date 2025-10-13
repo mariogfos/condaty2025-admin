@@ -69,7 +69,7 @@
       margin-top: 56px;
       margin-right: 32px;
       color: var(--cWhite);
-      width: 250px;
+      align-items: flex-end;
       & > div {
         display: flex;
         align-items: center;

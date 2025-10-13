@@ -9,7 +9,7 @@ import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
-  { id: "A", name: "Todos" },
+  { id: "A", name: "Guardias y residentes" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
 ];
@@ -19,10 +19,12 @@ const Documents = () => {
 
   const mod = {
     modulo: "documents",
-    singular: "Documento",
-    plural: "Documentos",
+    singular: "documento",
+    plural: "documentos",
     permiso: "",
+    titleAdd: "Nuevo",
     extraData: true,
+    textSaveButtom: "Subir documento",
     loadView: {
       fullType: "DET",
     },
@@ -52,9 +54,9 @@ const Documents = () => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Nombre",
+        label: "Nombre del documento",
         form: { type: "text" },
-        list: {},
+        list: { width: "280" },
       },
       ext: {
         rules: [],
@@ -62,22 +64,23 @@ const Documents = () => {
         label: "Extensión",
         list: false,
       },
+      
+      for_to: {
+        rules: ["required"],
+        api: "ae*",
+        label: "Visible para",
+        form: { type: "select", options: lOptions },
+        list: { width: "280" },
+        filter: {
+          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
+        },
+      },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
-        form: { type: "text" },
+        form: { type: "textArea" },
         list: {},
-      },
-      for_to: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Destino",
-        form: { type: "select", options: lOptions },
-        list: false,
-        filter: {
-          options: () => lOptions,
-        },
       },
       doc: {
         rules: ["required"],
@@ -86,6 +89,7 @@ const Documents = () => {
         form: {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
+          maxSize: 30,
           style: { width: "100%" },
         },
         onRender: ({ item }: any) => {

@@ -257,7 +257,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     { id: 'E', name: 'Expensas' },
     { id: 'R', name: 'Reservas' },
     { id: 'F', name: 'Condonación' },
-    { id: 'P', name: 'Plan de pago' },
+   // { id: 'P', name: 'Plan de pago' },
     { id: 'O', name: 'Otras deudas' },
     { id: 'I', name: 'Pago directo' },
     { id: 'M', name: 'Multas' },
@@ -509,7 +509,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
     if (debtId && deudas.length > 0) {
       const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
       if (targetDebt) {
-   
+
         const calculatedAmount = getSubtotal(targetDebt);
 
         const newSelectedPeriodo: SelectedPeriodo = {
@@ -595,15 +595,43 @@ const RenderForm: React.FC<RenderFormProps> = ({
     const type = periodo?.type;
 
     switch (type) {
-      case 0: // Individual
-      case 4: // Compartida
+      case 1: {
+        // Expensas: mostrar periodo (MES y YEAR) usando MONTHS_S indexado desde 1
+        const monthNum = periodo?.debt?.month ?? periodo?.shared?.month;
+        const yearNum = periodo?.debt?.year ?? periodo?.shared?.year;
+        if (monthNum != null && yearNum != null) {
+          const monthIndex = Math.max(1, Math.min(12, Number(monthNum)));
+          const monthName = MONTHS_S[monthIndex] || String(monthNum);
+          return `${monthName} ${yearNum}`;
+        }
+        return '-/-';
+      }
+      case 2:
+        // Reservas: mostrar el nombre del área social
+        return `Reserva: ${
+          periodo?.debt?.reservation?.area?.title ||
+          periodo?.reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 3:
+        // Multa por Cancelación
+        return `Multa por Cancelación: ${
+          periodo?.debt?.penalty_reservation?.area?.title ||
+          periodo?.penalty_reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 0:
+      case 4:
+        // Individual o Compartida: usar descripción
         return periodo?.description || '-/-';
-      case 2: // Reservas
-        return `Reserva: ${periodo?.debt?.reservation?.area?.title || periodo?.reservation?.area?.title || '-/-'}`;
-      case 3: // Multa por Cancelación
-        return `Multa por Cancelación: ${periodo?.debt?.penalty_reservation?.area?.title || periodo?.penalty_reservation?.area?.title || '-/-'}`;
       default:
-        return periodo?.description || periodo?.shared?.description || periodo?.debt?.description || '-/-';
+        // Fallback
+        return (
+          periodo?.description ||
+          periodo?.shared?.description ||
+          periodo?.debt?.description ||
+          '-/-'
+        );
     }
   };
 
@@ -878,7 +906,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
               <span className={styles['header-item']}>Concepto</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Monto</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Multa</span>
-              <span className={`${styles['header-item']} ${styles['header-amount']}`}>MV</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Mant. Valor</span>
               <span className={`${styles['header-item']} ${styles['header-amount']}`}>Subtotal</span>
               <span className={styles['header-item']}>Seleccionar</span>
             </div>
@@ -954,6 +982,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
         buttonCancel={'Cancelar'}
         buttonText={'Crear ingreso'}
         title={'Crear ingreso'}
+        variant={"mini"}
       >
         <div className={styles['income-form-container']}>
           {/* Fecha de pago */}

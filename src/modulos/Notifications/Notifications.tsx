@@ -16,11 +16,14 @@ import {
   IconNotification,
   IconNewPublication,
   IconAmbulance,
+  IconBalance,
+  IconCancelReservation,
 } from "@/components/layout/icons/IconsBiblioteca";
 import useCrudUtils from "../shared/useCrudUtils";
 import RenderItem from "../shared/RenderItem";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
+import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
 import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
@@ -34,6 +37,7 @@ const Notifications = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [openPayment, setOpenPayment] = useState({ open: false, id: null });
+  const [openReservas, setOpenReservas] = useState({ open: false, id: null });
 
   const mod: ModCrudType = {
     modulo: "notifications",
@@ -57,10 +61,6 @@ const Notifications = () => {
 
       const actValue = messageData.act || messageData.info?.act;
       const level = messageData.level || messageData.info?.level;
-
-      console.log("messageData:", messageData);
-      console.log("actValue:", actValue);
-      console.log("level:", level);
 
       if (actValue === "newContent") {
         return (
@@ -161,7 +161,8 @@ const Notifications = () => {
         );
       }
 
-      if (actValue === "newVoucher" || actValue === "newPayment") {
+      //if (actValue === "newVoucher" || actValue === "newPayment") {
+      if (actValue === "admins") {
         return (
           <div
             style={{
@@ -174,6 +175,26 @@ const Notifications = () => {
             }}
           >
             <IconPaymentCommitment color="var(--cWhite)" />
+          </div>
+        );
+      }
+
+      if (actValue === "change-budget") {
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor:
+                messageData.info.status === "A"
+                  ? "var(--cSuccess)"
+                  : "var(--cError)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconBalance color="var(--cWhite)" />
           </div>
         );
       }
@@ -208,6 +229,22 @@ const Notifications = () => {
             }}
           >
             <IconUser color="var(--cWhite)" />
+          </div>
+        );
+      }
+      if (actValue === "cancelReservationAdm") {
+        return (
+          <div
+            style={{
+              borderRadius: 50,
+              padding: 8,
+              backgroundColor: "var(--cError)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconCancelReservation color="var(--cWhite)" />
           </div>
         );
       }
@@ -344,7 +381,8 @@ const Notifications = () => {
         router.push("/users");
       }
       if (parsedMessage?.info?.act === "newReservationAdm") {
-        router.push("/reservas");
+        //router.push("/reservas");
+        setOpenReservas({ open: true, id: parsedMessage.info.id });
       }
       if (parsedMessage?.info?.act === "newContent") {
         router.push("/contents");
@@ -412,6 +450,13 @@ const Notifications = () => {
           open={openPayment.open}
           onClose={() => setOpenPayment({ open: false, id: null })}
           payment_id={openPayment.id || ""}
+        />
+      )}
+      {openReservas.open && (
+        <ReservationDetailModal 
+          open={openReservas.open}
+          onClose={() => setOpenReservas({ open: false, id: null })}
+          reservationId={openReservas.id || ""}
         />
       )}
     </div>

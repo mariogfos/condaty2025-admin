@@ -332,6 +332,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
         buttonText=""
         buttonCancel=""
         style={{ width: "739px", maxWidth: "80%" }}
+        variant={"mini"}
       >
         <LoadingScreen
           onlyLoading={Object.keys(reservationDetail).length === 0 && open}

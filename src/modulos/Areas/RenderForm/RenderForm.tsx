@@ -143,7 +143,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
         showToast("Seleccione el modo de reserva", "error");
         return;
       }
-      if (formState?.available_days.length <= 0) {
+      if (formState?.available_days?.length <= 0) {
         showToast("Seleccione los días y periodos disponibles", "error");
         return;
       }

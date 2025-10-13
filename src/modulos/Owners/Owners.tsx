@@ -8,6 +8,7 @@ import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import NotAccess from "@/components/layout/NotAccess/NotAccess";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
+import { lStatusActive } from "@/mk/utils/utils";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import UnlinkModal from "../shared/UnlinkModal/UnlinkModal";
@@ -22,6 +23,8 @@ import KeyValue from "@/mk/components/ui/KeyValue/KeyValue";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import Select from "@/mk/components/forms/Select/Select";
 import RenderForm from "../Owners/RenderForm/RenderForm";
+import ActiveOwner from "@/components/ActiveOwner/ActiveOwner";
+import RenderView from "./RenderView/RenderView";
 
 const paramsInitial = {
   perPage: 20,
@@ -90,13 +93,13 @@ const Owners = () => {
   };
 
   const mod: ModCrudType = {
-    modulo: 'owners',
-    singular: 'Residente',
-    plural: 'Residentes',
+    modulo: "owners",
+    singular: "Residente",
+    plural: "Residentes",
     filter: true,
     export: true,
     import: false,
-    permiso: '',
+    permiso: "",
     hideActions: {
       edit: true,
       del: true,
@@ -110,18 +113,25 @@ const Owners = () => {
       onConfirm?: Function;
       extraData?: Record<string, any>;
       reLoad?: any;
-    }) => (
-      <ProfileModal
-        open={props?.open}
-        onClose={props?.onClose}
-        dataID={props?.item?.id}
-        type={'owner'}
-        title="Perfil de Residente"
-        edit={false}
-        reLoad={props?.reLoad}
-      />
-    ),
-    renderDel: (props: { open: boolean; onClose: any; item: Record<string, any> }) => {
+    }) =>
+      props?.item.status === "W" && props?.item.type_owner !== "Dependiente" ? (
+        <RenderView {...props} />
+      ) : (
+        <ProfileModal
+          open={props?.open}
+          onClose={props?.onClose}
+          dataID={props?.item?.id}
+          type={"owner"}
+          title="Perfil de Residente"
+          edit={false}
+          reLoad={props?.reLoad}
+        />
+      ),
+    renderDel: (props: {
+      open: boolean;
+      onClose: any;
+      item: Record<string, any>;
+    }) => {
       return (
         <UnlinkModal
           open={props.open}
@@ -190,13 +200,13 @@ const Owners = () => {
   };
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: 'e' },
+      id: { rules: [], api: "e" },
       ci: {
-        rules: ['required', 'ci'],
-        api: 'ae',
-        label: 'Carnet de identidad',
+        rules: ["required", "ci"],
+        api: "ae",
+        label: "Carnet de identidad",
         form: {
-          type: 'text',
+          type: "text",
           onBlur: onBlurCi,
           disabled: onDisbled,
           required: true,
@@ -205,8 +215,8 @@ const Owners = () => {
       },
 
       fullName: {
-        api: 'ae',
-        label: 'Nombre',
+        api: "ae",
+        label: "Nombre",
         form: false,
         onRender: (item: any) => {
           const residente = item?.item;
@@ -214,19 +224,21 @@ const Owners = () => {
           const cedulaIdentidad = residente?.ci;
 
           return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Avatar
                 hasImage={residente?.has_image}
-                src={getUrlImages('/OWNER-' + residente?.id + '.webp?d=' + residente?.updated_at)}
+                src={getUrlImages(
+                  "/OWNER-" + residente?.id + ".webp?d=" + residente?.updated_at
+                )}
                 name={nombreCompleto}
               />
               <div>
-                {' '}
+                {" "}
                 <p
                   style={{
-                    marginBottom: '2px',
+                    marginBottom: "2px",
                     fontWeight: 500,
-                    color: 'var(--cWhite, #fafafa)',
+                    color: "var(--cWhite, #fafafa)",
                   }}
                 >
                   {nombreCompleto}
@@ -235,25 +247,25 @@ const Owners = () => {
                 {cedulaIdentidad && (
                   <span
                     style={{
-                      fontSize: '11px',
-                      color: 'var(--cWhiteV1, #a7a7a7)',
-                      display: 'block',
-                      marginBottom: '4px',
+                      fontSize: "11px",
+                      color: "var(--cWhiteV1, #a7a7a7)",
+                      display: "block",
+                      marginBottom: "4px",
                     }}
                   >
                     CI: {cedulaIdentidad}
                   </span>
                 )}
                 {/* Estado de Administrador Principal (si aplica) */}
-                {residente?.is_main == 'M' && (
+                {residente?.is_main == "M" && (
                   <span
                     style={{
-                      color: 'var(--cSuccess)',
+                      color: "var(--cSuccess)",
                       fontSize: 10,
-                      backgroundColor: '#00af900D',
-                      padding: '2px 4px',
+                      backgroundColor: "#00af900D",
+                      padding: "2px 4px",
                       borderRadius: 4,
-                      display: 'inline-block',
+                      display: "inline-block",
                     }}
                   >
                     Administrador principal
@@ -267,12 +279,12 @@ const Owners = () => {
       },
 
       name: {
-        openTag: { style: { display: 'flex' } },
-        rules: ['required', 'alpha'],
-        api: 'ae',
-        label: 'Primer nombre',
+        openTag: { style: { display: "flex" } },
+        rules: ["required", "alpha"],
+        api: "ae",
+        label: "Primer nombre",
         form: {
-          type: 'text',
+          type: "text",
           disabled: onDisbled,
           required: true,
         },
@@ -281,10 +293,10 @@ const Owners = () => {
       middle_name: {
         closeTag: true,
         rules: [],
-        api: 'ae',
-        label: 'Segundo nombre',
+        api: "ae",
+        label: "Segundo nombre",
         form: {
-          type: 'text',
+          type: "text",
           disabled: onDisbled,
         },
         list: false,
@@ -292,14 +304,14 @@ const Owners = () => {
       last_name: {
         openTag: {
           style: {
-            display: 'flex',
+            display: "flex",
           },
         },
-        rules: ['required', 'alpha'],
-        api: 'ae',
-        label: 'Apellido paterno',
+        rules: ["required", "alpha"],
+        api: "ae",
+        label: "Apellido paterno",
         form: {
-          type: 'text',
+          type: "text",
           disabled: onDisbled,
           required: true,
         },
@@ -307,40 +319,62 @@ const Owners = () => {
       },
       mother_last_name: {
         closeTag: true,
-        rules: [''],
-        api: 'ae',
-        label: 'Apellido materno',
+        rules: [""],
+        api: "ae",
+        label: "Apellido materno",
         form: {
-          type: 'text',
+          type: "text",
           disabled: onDisbled,
         },
         list: false,
       },
       type_owner: {
-        rules: [''],
-        api: '',
-        label: 'Tipo',
+        rules: [""],
+        api: "",
+        label: "Tipo",
         list: {},
         filter: {
-          label: 'Tipo de residente',
-          width: '180px',
+          label: "Tipo",
+          width: "180px",
 
           options: getTypefilter,
         },
       },
+      status: {
+        rules: [""],
+        api: "",
+        label: "Estado",
+        list: {
+          onRender: ({ item }: any) => {
+            const statusInfo = lStatusActive[item?.status];
+            return (
+              <span
+                style={{
+                  color:
+                    item?.status === "W"
+                      ? "var(--cWarning)"
+                      : "var(--cWhiteV1)",
+                }}
+              >
+                {statusInfo?.name || "Desconocido"}
+              </span>
+            );
+          },
+        },
+      },
 
       email: {
-        rules: ['required', 'email'],
-        api: 'a',
-        label: 'Correo electrónico',
+        rules: ["required", "email"],
+        api: "a",
+        label: "Correo electrónico",
         list: {},
       },
       phone: {
-        rules: ['number', 'max:10'],
-        api: 'ae',
-        label: 'Celular',
+        rules: ["number", "max:10"],
+        api: "ae",
+        label: "Celular",
         form: {
-          type: 'text',
+          type: "text",
           disabled: onDisbled,
         },
         list: {},
@@ -378,32 +412,46 @@ const Owners = () => {
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.style}>
-      <div style={{ display: 'flex', gap: '12px' }}>
-        <WidgetDashCard
+      <div style={{ display: "flex", gap: "12px" }}>
+{/*         <WidgetDashCard
           title="Residentes Totales"
           data={String(extraData?.totals ?? 0)}
-          style={{ maxWidth: '250px' }}
+          style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson2
-              color={!extraData?.totals || extraData?.totals === 0 ? 'var(--cWhiteV1)' : 'var(--cWhite)'}
+              color={
+                !extraData?.totals || extraData?.totals === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWhite)"
+              }
               style={{
-                backgroundColor: !extraData?.totals || extraData?.totals === 0 ? 'var(--cHover)' : 'var(--cHoverCompl1)',
+                backgroundColor:
+                  !extraData?.totals || extraData?.totals === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl1)",
               }}
               circle
               size={18}
             />
           }
-        />
+        /> */}
 
         <WidgetDashCard
           title="Propietarios"
           data={String(extraData?.homeowners ?? extraData?.owners ?? 0)}
-          style={{ maxWidth: '250px' }}
+          style={{ maxWidth: "250px" }}
           icon={
             <IconOwner
-              color={!extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cWhiteV1)' : 'var(--cSuccess)'}
+              color={
+                !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cSuccess)"
+              }
               style={{
-                backgroundColor: !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0 ? 'var(--cHover)' : 'var(--cHoverCompl2)',
+                backgroundColor:
+                  !extraData?.homeowners || (extraData?.homeowners ?? 0) === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl2)",
               }}
               circle
               size={18}
@@ -414,12 +462,19 @@ const Owners = () => {
         <WidgetDashCard
           title="Residentes"
           data={String(extraData?.tenants ?? 0)}
-          style={{ maxWidth: '250px' }}
+          style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={!extraData?.tenants || extraData?.tenants === 0 ? 'var(--cWhiteV1)' : 'var(--cInfo)'}
+              color={
+                !extraData?.tenants || extraData?.tenants === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cInfo)"
+              }
               style={{
-                backgroundColor: !extraData?.tenants || extraData?.tenants === 0 ? 'var(--cHover)' : 'var(--cHoverCompl3)',
+                backgroundColor:
+                  !extraData?.tenants || extraData?.tenants === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl3)",
               }}
               circle
               size={18}
@@ -430,12 +485,19 @@ const Owners = () => {
         <WidgetDashCard
           title="Dependientes"
           data={String(extraData?.dependents ?? 0)}
-          style={{ maxWidth: '250px' }}
+          style={{ maxWidth: "250px" }}
           icon={
             <IconHomePerson
-              color={!extraData?.dependents || extraData?.dependents === 0 ? 'var(--cWhiteV1)' : 'var(--cWarning)'}
+              color={
+                !extraData?.dependents || extraData?.dependents === 0
+                  ? "var(--cWhiteV1)"
+                  : "var(--cWarning)"
+              }
               style={{
-                backgroundColor: !extraData?.dependents || extraData?.dependents === 0 ? 'var(--cHover)' : 'var(--cHoverCompl4)',
+                backgroundColor:
+                  !extraData?.dependents || extraData?.dependents === 0
+                    ? "var(--cHover)"
+                    : "var(--cHoverCompl4)",
               }}
               circle
               size={18}

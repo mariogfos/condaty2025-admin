@@ -10,8 +10,9 @@ npm run devssaa equpo a login
 yarn dev11sas
 # orsaaa
 pnpm devaaaaaa
-# ors
-bun devaassxx
+# orsaaa
+
+bun devaas
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

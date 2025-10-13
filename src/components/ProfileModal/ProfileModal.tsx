@@ -333,12 +333,12 @@ const ProfileModal = ({
                     expandableIcon={false}
                     hasImage={1}
                     src={getUrlImages(urlImages)}
-                    name={getFullName(data?.data[0])}
+                    name={getFullName(data?.data[0], 'NSLM')}
                     w={191}
                     h={191}
                   />
                   <div>
-                    <span> {getFullName(data?.data[0])}</span>
+                    <span> {getFullName(data?.data[0], 'NSLM')}</span>
                     <span>{profileRole}</span>
                   </div>
                 </div>
@@ -542,6 +542,7 @@ const ProfileModal = ({
             buttonText="Eliminar"
             buttonCancel="Cancelar"
             onSave={onDel}
+            variant={"mini"}
           >
             <div>
               <p style={{ fontSize: 'var(--sL)' }}>

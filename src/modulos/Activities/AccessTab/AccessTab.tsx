@@ -143,11 +143,10 @@ const AccessesTab: React.FC<AccessesTabProps> = ({
         label: "Visitante",
         list: {
           onRender: (props: any) => {
-            let user =
-              props?.item.type === "O"
-                ? props?.item?.owner
-                : props?.item?.visit;
-            let prefix = props?.item.type === "O" ? "/OWNER-" : "/VISIT-";
+            let user = props?.item?.visit
+              ? props?.item?.visit
+              : props?.item?.owner;
+            let prefix = props?.item?.visit ? "/VISIT-" : "/OWNER-";
 
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

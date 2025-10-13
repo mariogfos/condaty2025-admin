@@ -92,12 +92,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
       responsive: 'desktop',
       onRender:areaInfoCell
     },
-    {
-      key: 'reserved_by',
-      label: 'Reservado por',
-      responsive: 'desktop',
 
-    },
     {
       key: 'reservation_date',
       label: 'Fecha de reserva',

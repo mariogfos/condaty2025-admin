@@ -196,7 +196,7 @@ const Forgiveness = () => {
     <div className={`${styles.Forgiveness}`}>
       <div className={styles.listContainer}>
         <List
-          height={"calc(100vh - 490px)"}
+          height={"calc(100vh - 580px)"}
           emptyMsg="Lista de morosos vacía. Una vez las cuotas corran, los"
           emptyLine2="residentes con pagos atrasados los verás aquí."
           emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
