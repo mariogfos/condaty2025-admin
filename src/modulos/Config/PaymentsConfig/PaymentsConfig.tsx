@@ -18,8 +18,10 @@ const PaymentsConfig = ({
 
   return (
     <div className={styles.paymentsContainer}>
+      
       <div>
         <p className={styles.headerSubtitle}>
+          <h1 className={styles.mainTitle}>Cuentos de pago</h1>
           Configura los métodos de pagos con los cuales los residentes podrán pagar sus cuotas,
           deudas y demás transacciones del condominio
         </p>
@@ -40,29 +42,28 @@ const PaymentsConfig = ({
               <UploadFile
                 name="avatarQr"
                 onChange={onChange}
-                value={
-                  (() => {
-                    const isObj = typeof formState?.avatarQr === "object" && formState?.avatarQr !== null;
-                    if (isObj) return formState?.avatarQr;
+                value={(() => {
+                  const isObj =
+                    typeof formState?.avatarQr === 'object' && formState?.avatarQr !== null;
+                  if (isObj) return formState?.avatarQr;
 
-                    const normalizeHasImage = (v: any) => v === 1 || v === "1" || v === true;
-                    const hasFlag =
-                      "has_image_qr" in (formState || {}) ||
-                      "has_image_q" in (formState || {}) ||
-                      "qr_has_image" in (formState || {});
-                    const hasQrImage = normalizeHasImage(
-                      (formState as any)?.has_image_qr ??
+                  const normalizeHasImage = (v: any) => v === 1 || v === '1' || v === true;
+                  const hasFlag =
+                    'has_image_qr' in (formState || {}) ||
+                    'has_image_q' in (formState || {}) ||
+                    'qr_has_image' in (formState || {});
+                  const hasQrImage = normalizeHasImage(
+                    (formState as any)?.has_image_qr ??
                       (formState as any)?.has_image_q ??
                       (formState as any)?.qr_has_image
-                    );
+                  );
 
-                    if (hasFlag && !hasQrImage) return undefined;
+                  if (hasFlag && !hasQrImage) return undefined;
 
-                    return formState?.id
-                      ? getUrlImages("/PAYMENTQR-" + formState?.id + ".webp?" + formState?.updated_at)
-                      : undefined;
-                  })()
-                }
+                  return formState?.id
+                    ? getUrlImages('/PAYMENTQR-' + formState?.id + '.webp?' + formState?.updated_at)
+                    : undefined;
+                })()}
                 setError={setErrors}
                 error={errors}
                 img={true}
@@ -160,10 +161,7 @@ const PaymentsConfig = ({
         </div>
 
         <div className={styles.saveButtonContainer}>
-          <Button
-            className={`${styles.saveButton} `}
-            onClick={onSave}
-          >
+          <Button className={`${styles.saveButton} `} onClick={onSave}>
             Guardar datos
           </Button>
         </div>
