@@ -107,7 +107,7 @@ const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
       });
       errors = checkRules({
         value: formState?.penalty_fee,
-        rules: ["required", "number", "positive", "less:500"],
+        rules: ["required", "number", "positive", "less:100"],
         key: "penalty_fee",
         errors,
       });
