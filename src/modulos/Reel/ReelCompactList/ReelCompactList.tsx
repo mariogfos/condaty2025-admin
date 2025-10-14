@@ -96,24 +96,29 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
               <section className={styles.newsContentBody}>
                 <div className={styles.newsTextContent}>
                   <h3 className={styles.newsTitle}>{item.title}</h3>
-                  <div>
-                    <p className={styles.newsDescription}>
-                      {item.isDescriptionExpanded || item.description?.length <= 100
-                        ? item.description
-                        : `${item.description?.substring(0, 100)}...`}
-                    </p>
-                    {item.description?.length > 100 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleDescription(item.id, items, () => {});
-                        }}
-                        className={styles.seeMoreButton}
-                      >
-                        {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
-                      </button>
-                    )}
-                  </div>
+                  {
+                    item.description
+                    ?
+                      <div>
+                        <p className={styles.newsDescription}>
+                          {item.isDescriptionExpanded || item.description?.length <= 100
+                            ? item.description
+                            : `${item.description?.substring(0, 100)}...`}
+                        </p>
+                        {item.description?.length > 100 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleDescription(item.id, items, () => {});
+                            }}
+                            className={styles.seeMoreButton}
+                          >
+                            {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                          </button>
+                        )}
+                      </div>
+                    : <p className={styles.newsDescription}>Sin descripción</p>
+                  }
                 </div>
                 <div className={styles.newsMediaContent}>
                   {item.images && item.images.length > 0 && (
