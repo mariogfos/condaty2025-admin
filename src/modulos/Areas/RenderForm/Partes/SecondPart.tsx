@@ -575,6 +575,7 @@ const SecondPart = ({
             setOpenModal({ open: false, edit: false });
           }}
           onSave={onSaveAddWeekday}
+          variant={"mini"}
         >
           <p className={styles.title}>Periodo de disponibilidad</p>
           <div style={{ display: "flex", gap: 12 }}>

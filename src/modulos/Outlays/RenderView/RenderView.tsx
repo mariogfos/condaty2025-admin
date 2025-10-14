@@ -128,6 +128,8 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
         title="Información del Egreso"
         buttonText=""
         buttonCancel=""
+        minWidth={860}
+        maxWidth={980}
       >
         <div className={styles.container}>
           <div className={styles.messageContainer}>
@@ -150,9 +152,8 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
       title="Detalle del Egreso"
       buttonText=""
       buttonCancel=""
-      variant={"mini"}
-      minWidth={480}
-      maxWidth={720}
+      minWidth={860}
+      maxWidth={980}
     >
       {item && onDel && item.status !== 'X' && (
         <div className={styles.headerActionContainer}>
@@ -268,6 +269,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
                 );
                 window.open(imageUrl, '_blank');
               }}
+              style={{ width: '100%' }}
             >
               Ver comprobante
             </Button>

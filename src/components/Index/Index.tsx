@@ -643,7 +643,7 @@ const HomePage = () => {
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
                   tooltip={true}
-                  tooltipTitle="Cantidad total de residentes registrados. Los residentes son los usuarios que viven en el condominio."
+                  tooltipTitle="Cantidad total de residentes activos. Los residentes son los usuarios que viven en el condominio."
                   tooltipColor="var(--cWhiteV1)"
                   tooltipPosition="left"
                   tooltipWidth={500}
