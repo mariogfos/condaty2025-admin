@@ -17,6 +17,47 @@ const DefaulterConfig = ({
   errors,
   onSave,
 }: DefaulterConfigProps) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (value === '' || value === '-') {
+      onChange(e);
+      return;
+    }
+
+    const numericValue = parseFloat(value);
+
+    if (isNaN(numericValue)) {
+      return;
+    }
+
+    if (numericValue < 0) {
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: '0'
+        }
+      };
+      onChange(syntheticEvent);
+      return;
+    }
+
+    if (name === 'penalty_percent' && numericValue > 100) {
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: '100'
+        }
+      };
+      onChange(syntheticEvent);
+      return;
+    }
+
+    onChange(e);
+  };
+
   return (
     <div className={styles.defaulterContainer}>
       <div>
@@ -53,8 +94,9 @@ const DefaulterConfig = ({
               error={errors}
               required
               value={formState?.soft_limit}
-              onChange={onChange}
+              onChange={handleInputChange}
               maxLength={2}
+              min={0}
             />
           </div>
         </div>
@@ -84,8 +126,9 @@ const DefaulterConfig = ({
               error={errors}
               required
               value={formState?.hard_limit}
-              onChange={onChange}
+              onChange={handleInputChange}
               maxLength={2}
+              min={0}
             />
           </div>
         </div>
@@ -117,8 +160,9 @@ const DefaulterConfig = ({
               error={errors}
               required
               value={formState?.penalty_limit}
-              onChange={onChange}
+              onChange={handleInputChange}
               maxLength={2}
+              min={0}
             />
           </div>
         </div>
@@ -151,8 +195,10 @@ const DefaulterConfig = ({
                 error={errors}
                 required
                 value={formState?.penalty_percent}
-                onChange={onChange}
+                onChange={handleInputChange}
                 maxLength={3}
+                min={0}
+                max={100}
               />
               {(formState?.penalty_percent ||
                 formState?.penalty_percent != 0) && (
@@ -166,7 +212,6 @@ const DefaulterConfig = ({
           <button
             className={`${styles.saveButton}`}
             onClick={onSave}
-            // disabled={Object.keys(validationErrors).length > 0}
           >
             Guardar datos
           </button>
