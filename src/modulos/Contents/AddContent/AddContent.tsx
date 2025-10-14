@@ -205,12 +205,15 @@ const AddContent = ({
         errors,
       });
     }
-    errors = checkRules({
-      value: formState?.description,
-      rules: ["required"],
-      key: "description",
-      errors,
-    });
+    // Solo validar description como requerido si es Post (isType == "P")
+    if (formState?.isType == "P") {
+      errors = checkRules({
+        value: formState?.description,
+        rules: ["required"],
+        key: "description",
+        errors,
+      });
+    }
     setErrors(errors);
     return errors;
   };
