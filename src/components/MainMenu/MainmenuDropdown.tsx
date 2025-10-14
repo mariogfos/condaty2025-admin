@@ -1,154 +1,137 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import styles from './mainmenu.module.css';
-import { IconArrowDown, IconArrowUp } from '../layout/icons/IconsBiblioteca';
-import { usePathname, useSearchParams } from 'next/navigation';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import styles from "./mainmenu.module.css";
+import { IconArrowDown, IconArrowUp } from "../layout/icons/IconsBiblioteca";
+
+interface MenuItem {
+  href: string;
+  label: string;
+  bage?: number;
+}
 
 interface MainmenuDropdownProps {
   label: string;
   icon: React.ReactNode;
-  items: { href: string; label: string; bage?: number | any }[];
+  items: MenuItem[];
   collapsed?: boolean;
-  setSideBarOpen?: (open: boolean) => void; // Asegurar que este sea una función opcional
+  isOpen?: boolean;
+  onToggle?: () => void;
+  setSideBarOpen?: (open: boolean) => void;
 }
 
-const MainmenuDropdown: React.FC<MainmenuDropdownProps> = ({
-  label,
-  icon,
-  items,
-  collapsed,
-  setSideBarOpen,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isRouteActive, setIsRouteActive] = useState(false);
+const Badge: React.FC = () => (
+  <span
+    style={{
+      height: 8,
+      width: 8,
+      backgroundColor: "var(--cError)",
+      borderRadius: "50%",
+      display: "inline-block",
+    }}
+  />
+);
+
+const MainmenuDropdown = ({
+  label, icon, items,
+  collapsed = false,
+  isOpen = false, onToggle,
+  setSideBarOpen }: MainmenuDropdownProps) => {
   const pathname = usePathname();
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
-  const type = searchParams?.get('type');
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-  const hasItemWithBadge = items.some(item => item.bage && item.bage > 0);
-  // Manejo del click fuera del dropdown para cerrarlo SOLO si está colapsado
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const type = searchParams?.get("type");
+
+  const hasItemWithBadge = useMemo(
+    () => items.some((item) => Number(item.bage) > 0),
+    [items]
+  );
+
+  // Función para validar si la ruta actual coincide con el href del item
+  const validatePathname = useCallback(
+    (item: MenuItem) => {
+      if (pathname === item.href) return true;
+
+      if (pathname === "/categories") {
+        if (item.href === "/payments" && type === "I") return true;
+        if (item.href === "/outlays" && type === "E") return true;
+      }
+
+      if (item.href === "/units" && pathname?.startsWith("/dashDpto/")) {
+        return true;
+      }
+
+      return false;
+    },
+    [pathname, type]
+  );
+
+  // Verificar si alguna ruta del dropdown está activa
+  const isRouteActive = useMemo(
+    () => items.some((item) => validatePathname(item)),
+    [items, validatePathname]
+  );
+
+  const handleLinkClick = useCallback(() => {
+    setSideBarOpen?.(false);
+  }, [setSideBarOpen]);
+
+  // Cerrar el dropdown al hacer clic afuera
   useEffect(() => {
     if (!collapsed) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        isOpen
       ) {
-        setIsOpen(false);
+        onToggle?.();
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [collapsed]);
 
-  // Verifica si la ruta está activa para gestionar el estado del dropdown
-  useEffect(() => {
-    const isActive = items.some(
-      item =>
-        pathname === item.href ||
-        (pathname === '/categories' && item.href === '/payments') ||
-        (item.href === '/units' && pathname?.startsWith('/dashDpto/'))
-    );
-    setIsRouteActive(isActive);
-
-    if (!isActive) {
-      setIsOpen(false); // Cierra el dropdown si la ruta no está activa
-    }
-  }, [pathname, items]);
-
-  // Maneja el clic en los enlaces para cerrar el dropdown y sidebar
-  const handleLinkClick = () => {
-    if (collapsed) {
-      setIsOpen(false); // Cierra el dropdown si está colapsado
-    }
-
-    if (setSideBarOpen) {
-      setSideBarOpen(false); // Cierra el sidebar
-    }
-  };
-
-  const validatePathname = (item: any) => {
-    if (pathname === item.href) {
-      return true;
-    }
-    if (
-      pathname === '/categories' &&
-      item.href === '/payments' &&
-      type === 'I'
-    ) {
-      return true;
-    }
-    if (
-      pathname === '/categories' &&
-      item.href === '/outlays' &&
-      type === 'E'
-    ) {
-      return true;
-    }
-    if (item.href === '/units' && pathname?.startsWith('/dashDpto/')) {
-      return true;
-    }
-    return false;
-  };
-
-  // Cierra el dropdown automáticamente si el menú principal se colapsa
-  useEffect(() => {
-    if (collapsed) {
-      setIsOpen(false);
-    }
-  }, [collapsed]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [collapsed, isOpen, onToggle]);
 
   return (
     <div
       ref={dropdownRef}
-      className={`${styles.menuDropdown} ${isOpen ? styles.isOpen : ''} ${
-        collapsed ? styles.collapsed : ''
-      } ${isRouteActive ? styles.isRouteActive : ''}`}
+      className={[
+        styles.menuDropdown,
+        isOpen && styles.isOpen,
+        collapsed && styles.collapsed,
+        isRouteActive && styles.isRouteActive,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div onClick={toggleDropdown}>
-        <div>
+      <div onClick={onToggle} className={styles.dropdownHeader}>
+        <div className={styles.dropdownLabel}>
           {icon}
           {!collapsed && <p>{label}</p>}
-          {hasItemWithBadge && (
-            <p
-              style={{
-                height: 8,
-                width: 8,
-                backgroundColor: 'var(--cError)',
-                borderRadius: '50%',
-              }}
-            />
-          )}
+          {hasItemWithBadge && <Badge />}
         </div>
-        {!collapsed && (!isOpen ? <IconArrowDown /> : <IconArrowUp />)}
+        {!collapsed && (isOpen ? <IconArrowUp /> : <IconArrowDown />)}
       </div>
 
       {isOpen && (
-        <div>
-          {items.map((item, index) => (
+        <div className={styles.dropdownContent}>
+          {items.map((item) => (
             <Link
-              key={index}
+              key={item.href}
               href={item.href}
-              className={validatePathname(item) ? styles.active : ''}
-              onClick={handleLinkClick} // Llama a handleLinkClick para cerrar
-              style={{ display: 'flex', gap: 4 }}
+              onClick={handleLinkClick}
+              className={[
+                validatePathname(item) && styles.active,
+                styles.dropdownItem,
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               {item.label}
-              {item.bage > 0 && (
-                <p
-                  style={{
-                    height: 8,
-                    width: 8,
-                    backgroundColor: 'var(--cError)',
-                    borderRadius: '50%',
-                  }}
-                />
-              )}
+              {Number(item.bage) > 0 && <Badge />}
             </Link>
           ))}
         </div>

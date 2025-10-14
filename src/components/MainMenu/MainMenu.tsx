@@ -44,6 +44,12 @@ const MainMenu = ({
     (item: any) => item?.id === user?.client_id
   )[0];
   // const [bage, setBage]: any = useState({});
+  // Control del menú abierto
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const handleToggle = (label: string) => {
+    setOpenMenu((prev) => (prev === label ? null : label));
+  };
 
   const pathname = usePathname();
 
@@ -122,9 +128,12 @@ const MainMenu = ({
               { href: "/budget", label: "Presupuestos" },
               { href: "/expenses", label: "Expensas" },
               { href: "/defaulters", label: "Morosos" },
+              { href: "/debts_manager", label: "Deudas" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Finanzas"}
+            onToggle={() => handleToggle("Finanzas")}
           />
           <MainmenuDropdown
             label="Administración"
@@ -132,13 +141,15 @@ const MainMenu = ({
             items={[
               // { href: "/dptos", label: UnitsType[client?.type_dpto] + "s" },
               { href: "/units", label: "Unidades" },
-              { href: "/areas" , label: "Áreas sociales"},
+              { href: "/areas", label: "Áreas sociales" },
               { href: "/activities", label: "Accesos" },
               { href: "/documents", label: "Documentos" },
               { href: "/configs", label: "Configuración" },
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Administración"}
+            onToggle={() => handleToggle("Administración")}
           />
           <MainmenuDropdown
             label="Usuarios"
@@ -153,6 +164,8 @@ const MainMenu = ({
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Usuarios"}
+            onToggle={() => handleToggle("Usuarios")}
           />
 
           <MainmenuDropdown
@@ -166,6 +179,8 @@ const MainMenu = ({
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Comunicación"}
+            onToggle={() => handleToggle("Comunicación")}
           />
 
           {/* <MainmenuItem
@@ -201,6 +216,8 @@ const MainMenu = ({
             ]}
             collapsed={collapsed}
             setSideBarOpen={setSideBarOpen}
+            isOpen={openMenu === "Vigilancia y seguridad"}
+            onToggle={() => handleToggle("Vigilancia y seguridad")}
           />
 
           {/* <MainmenuItem

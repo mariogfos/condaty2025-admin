@@ -1,18 +1,9 @@
 "use client";
-import { getUrlImages } from "@/mk/utils/string";
+
 import React, { useEffect, useState } from "react";
 import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
-// import { useRouter } from "next/router";
-import { formatNumber } from "@/mk/utils/numbers";
-import Input from "@/mk/components/forms/Input/Input";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import {
-  IconArrowDown,
-  IconCamera,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
-import Select from "@/mk/components/forms/Select/Select";
+
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
@@ -124,15 +115,24 @@ const Config = () => {
     if (typeSearch === "M") {
       errors = checkRules({
         value: formState.soft_limit,
-        rules: ["required"],
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
         key: "soft_limit",
         errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.hard_limit,
-        rules: ["required"],
+        rules: ["required", "greaterOrEqual:soft_limit,Pre-aviso"],
         key: "hard_limit",
         errors,
+        data: formState,
+      });
+      errors = checkRules({
+        value: formState.penalty_limit,
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
+        key: "penalty_limit",
+        errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.penalty_percent,
@@ -200,8 +200,9 @@ const Config = () => {
     if (data?.success === true) {
       showToast("Datos guardados", "success");
       setErrors({});
-      // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
-      reLoad();
+
+      // Forzar recarga completa de la página
+      window.location.reload();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);

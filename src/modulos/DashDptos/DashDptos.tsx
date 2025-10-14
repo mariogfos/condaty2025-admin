@@ -21,13 +21,19 @@ import AccessTable from "./AccessTable/AccessTable";
 import ReservationsTable from "./ReservationsTable/ReservationsTable";
 import TitleRender from "./TitleRender/TitleRender";
 import { setParamsCrud } from "@/mk/utils/utils";
+import {
+  TableSkeleton,
+  WidgetSkeleton,
+} from "@/mk/components/ui/Skeleton/Skeleton";
+import OwnersRenderForm from "../Owners/RenderForm/RenderForm";
+
 
 interface DashDptosProps {
   id: string | number;
 }
 
 const DashDptos = ({ id }: DashDptosProps) => {
-  const { showToast, setStore } = useAuth();
+  const { showToast } = useAuth();
   const router = useRouter();
   const [openTitular, setOpenTitular] = useState(false);
   const [openPerfil, setOpenPerfil] = useState(false);
@@ -40,6 +46,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
   const [idPerfil, setIdPerfil] = useState<string | null>(null);
   const [openDel, setOpenDel] = useState(false);
   const [openDelTitular, setOpenDelTitular] = useState(false);
+  const [currentRemovalType, setCurrentRemovalType] = useState<
+    "H" | "T" | null
+  >(null);
   const [openProfileModal, setOpenProfileModal] = useState(false);
   const [selectedDependentId, setSelectedDependentId] = useState<string | null>(
     null
@@ -48,6 +57,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
     data: dashData,
     reLoad,
     execute,
+    loaded,
   } = useAxios("/dptos", "GET", {
     fullType: "DET",
     dpto_id: id,
@@ -56,39 +66,92 @@ const DashDptos = ({ id }: DashDptosProps) => {
 
   const datas = dashData?.data || {};
 
-  // const locationParams = (path: string, key: string, value: string) => {
-  //   setStore({
-  //     [key]: value,
-  //   });
-  //   router.push(path);
-  // };
+  const [currentChangeType, setCurrentChangeType] = useState<"H" | "T" | null>(
+    null
+  );
 
   const onSave = async () => {
-    if (!formState.owner_id) {
+    if (!formState.owner_id || !currentChangeType) {
       setErrorsT({ owner_id: "Este campo es obligatorio" });
       return;
     }
 
+    // Buscar el owner seleccionado en la lista
+    const extra = dashData?.extraData ?? {};
+    const list: any[] = currentChangeType === "H" ? extra.homeowners || [] : extra.tenants || [];
+    const selectedOwner = list.find((owner: any) => String(owner.id) === String(formState.owner_id));
+
+    // Siempre mostrar el modal de confirmación
+    setSelectedOwnerForTransfer(selectedOwner);
+    setPendingTransferType(currentChangeType);
+    setOpenTitular(false);
+    setOpenTransferModal(true);
+  };
+
+  const executeOwnerChange = async () => {
     try {
+      // Determinar current_dpto_id basado en selectedOwnerForTransfer
+      let currentDptoId = null;
+      if (selectedOwnerForTransfer && pendingTransferType === "T" && selectedOwnerForTransfer.dpto?.[0]?.id ) {
+        currentDptoId = selectedOwnerForTransfer.dpto[0].id;
+      }
+
+      const payload = {
+        owner_id: formState.owner_id,
+        dpto_id: id,
+        type: currentChangeType,
+        ...(selectedOwnerForTransfer?.dpto?.length > 0 && { current_dpto_id: currentDptoId }),
+        ...(currentChangeType === "H" ? { is_resident: "N" } : {}),
+      };
+
       const { data: response } = await execute(
-        "/dptos-change-titular",
+        "/dptos-change-owner",
         "POST",
-        {
-          owner_id: formState.owner_id,
-          dpto_id: id,
-        }
+        payload
       );
 
       if (response?.success) {
-        showToast("Titular actualizado", "success");
+        showToast(
+          `${
+            currentChangeType === "H" ? "Propietario" : "Residente"
+          } actualizado`,
+          "success"
+        );
         setOpenTitular(false);
         setErrorsT({});
-        reLoad();
+        setCurrentChangeType(null);
+        reLoad({ extraData: true });
       } else {
-        showToast(response?.message || "Error al actualizar titular", "error");
+        showToast(
+          response?.message ||
+            `Error al actualizar ${
+              currentChangeType === "H" ? "propietario" : "residente"
+            }`,
+          "error"
+        );
       }
     } catch (error) {
-      showToast("Error al actualizar titular", error);
+      showToast(
+        `Error al actualizar ${
+          currentChangeType === "H" ? "propietario" : "residente"
+        }`,
+        error
+      );
+    }
+  };
+
+  const confirmTransfer = async () => {
+    setOpenTransferModal(false);
+    
+    if (isNewOwnerFlow) {
+      // Si viene del flujo de crear nuevo, abrir el formulario
+      setIsNewOwnerFlow(false);
+      setOpenOwnerForm(true);
+    } else {
+      // Si viene del flujo de cambiar existente, ejecutar el cambio
+      await executeOwnerChange();
+      setSelectedOwnerForTransfer(null);
+      setPendingTransferType(null);
     }
   };
 
@@ -106,27 +169,84 @@ const DashDptos = ({ id }: DashDptosProps) => {
     }
   };
 
-  const onTitular = () => {
-    if (!datas?.data?.homeowner) {
+  const [openOwnerForm, setOpenOwnerForm] = useState(false);
+  const [newOwnerType, setNewOwnerType] = useState<'Propietario' | 'Residente'>('Propietario');
+  const [newIsResident, setNewIsResident] = useState<boolean>(false);
+  const [openTransferModal, setOpenTransferModal] = useState(false);
+  const [selectedOwnerForTransfer, setSelectedOwnerForTransfer] = useState<any>(null);
+  const [pendingTransferType, setPendingTransferType] = useState<"H" | "T" | null>(null);
+  const [isNewOwnerFlow, setIsNewOwnerFlow] = useState(false);
+
+  const onTitular = (type: "H" | "T", action?: 'new' | 'change') => {
+    if (action === 'new') {
+      // Si ya existe un propietario/residente, mostrar modal de confirmación
+      if ((type === 'H' && datas?.homeowner) || (type === 'T' && datas?.tenant)) {
+        setCurrentChangeType(type);
+        const existingOwner = type === 'H' ? datas?.homeowner : datas?.tenant;
+        setSelectedOwnerForTransfer(existingOwner);
+        setPendingTransferType(type);
+        setIsNewOwnerFlow(true);
+        setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
+        setNewIsResident(type === 'T');
+        setOpenTransferModal(true);
+        return;
+      }
+      
+      setNewOwnerType(type === 'H' ? 'Propietario' : 'Residente');
+      setNewIsResident(type === 'T');
+      setOpenOwnerForm(true);
+      return;
+    }
+
+    if (type === "T" && !datas?.homeowner) {
       showToast(
-        "No se puede asignar un titular a esta casa porque no existe un propietario registrado.",
+        "No se puede asignar un residente a esta unidad porque no existe un propietario registrado.",
         "error"
       );
       return;
     }
+    setCurrentChangeType(type);
     setOpenTitular(true);
   };
 
+  const handleRemoveTitularClick = (type: "H" | "T") => {
+    setCurrentRemovalType(type);
+    setOpenDelTitular(true);
+  };
+
   const removeTitular = async () => {
-    const { data } = await execute("/dptos-remove-titular", "POST", {
-      dpto_id: datas?.data?.id,
-    });
-    if (data?.success) {
-      showToast("Titular eliminado", "success");
-      reLoad();
-      setOpenDelTitular(false);
-    } else {
-      showToast(data?.message || "Error al eliminar titular", "error");
+    try {
+      if (!currentRemovalType) return;
+
+      const isHomeowner = currentRemovalType === "H";
+      const payload = {
+        owner_id: isHomeowner ? datas?.data?.homeowner?.id : datas?.tenant?.id,
+        dpto_id: datas?.data?.id,
+        type: currentRemovalType,
+      };
+
+      const { data } = await execute("/dptos-release-owner", "POST", payload);
+
+      if (data?.success) {
+        showToast(
+          isHomeowner ? "Propietario liberado" : "Residente desvinculado",
+          "success"
+        );
+        reLoad({ extraData: true });
+        setOpenDelTitular(false);
+        setCurrentRemovalType(null);
+      } else {
+        showToast(
+          data?.message ||
+            `Error al ${
+              isHomeowner ? "liberar propietario" : "desvincular residente"
+            }`,
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("Error al procesar la solicitud", "error");
     }
   };
 
@@ -138,15 +258,19 @@ const DashDptos = ({ id }: DashDptosProps) => {
       />
       <section>
         <div className={styles.firtsPanel}>
-          <UnitInfo
-            datas={datas}
-            onEdit={() => setOpenEdit(true)}
-            onDelete={() => setOpenDel(true)}
-            onTitular={onTitular}
-            onRemoveTitular={() => setOpenDelTitular(true)}
-            onOpenDependentProfile={handleOpenDependentProfile}
-            onOpenTitularHist={() => setOpenTitularHist(true)}
-          />
+          {!loaded ? (
+            <WidgetSkeleton />
+          ) : (
+            <UnitInfo
+              datas={datas}
+              onEdit={() => setOpenEdit(true)}
+              onDelete={() => setOpenDel(true)}
+              onTitular={onTitular}
+              onRemoveTitular={handleRemoveTitularClick}
+              onOpenDependentProfile={handleOpenDependentProfile}
+              onOpenTitularHist={() => setOpenTitularHist(true)}
+            />
+          )}
 
           <WidgetBase
             title={
@@ -163,7 +287,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accountContent}>
-              <PaymentsTable payments={datas?.payments} />
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <PaymentsTable payments={datas?.payments} />
+              )}
             </div>
           </WidgetBase>
         </div>
@@ -171,7 +299,11 @@ const DashDptos = ({ id }: DashDptosProps) => {
         <div className={styles.secondPanel}>
           {/* Historial de Accesos - Tabla */}
           <WidgetBase
-            subtitle={"+" + datas.accessCount + " accesos nuevos este mes"}
+            subtitle={
+              loaded
+                ? "+" + datas.accessCount + " accesos nuevos este mes"
+                : "Cargando..."
+            }
             title={
               <TitleRender
                 title="Historial de accesos"
@@ -179,16 +311,17 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   setParamsCrud("accesses", "searchBy", datas?.data?.nro);
                   router.push("/activities");
                 }}
-                // onClick={() =>
-                //   router.push(`/activities?search_by=${datas?.data?.nro}`)
-                // }
               />
             }
             variant="V1"
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.accessContent}>
-              <AccessTable access={datas?.access} titular={datas?.titular} />
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <AccessTable access={datas?.access} />
+              )}
             </div>
           </WidgetBase>
 
@@ -201,37 +334,49 @@ const DashDptos = ({ id }: DashDptosProps) => {
                   setParamsCrud("reservations", "searchBy", datas?.data?.nro);
                   router.push("/reservas");
                 }}
-                // onClick={() =>
-                //   router.push(`/reservas?search_by=${datas?.data?.nro}`)
-                // }
               />
             }
             subtitle={
-              "+" + datas.reservationsCount + " reservas nuevas este mes"
+              loaded
+                ? "+" + datas.reservationsCount + " reservas nuevas este mes"
+                : "Cargando..."
             }
             variant="V1"
             style={{ flex: 1, minWidth: "300px" }}
           >
             <div className={styles.reservationsContent}>
-              <ReservationsTable
-                reservations={datas?.reservations}
-                titular={datas?.titular}
-              />
+              {!loaded ? (
+                <TableSkeleton />
+              ) : (
+                <ReservationsTable reservations={datas?.reservations} />
+              )}
             </div>
           </WidgetBase>
         </div>
 
         {/* Modales */}
         <DataModal
-          title="Cambiar de titular"
+          title={`Seleccionar ${
+            currentChangeType === "H" ? "propietario" : "residente"
+          }`}
           open={openTitular}
           onSave={onSave}
-          onClose={() => setOpenTitular(false)}
+          variant={"mini"}
+          onClose={() => {
+            setOpenTitular(false);
+            setCurrentChangeType(null);
+            setFormState((prev: { owner_id?: string }) => ({
+              ...prev,
+              owner_id: "",
+            }));
+          }}
           buttonText="Guardar"
         >
           <div className={styles.modalContent}>
             <Select
-              placeholder="Selecciona al nuevo titular"
+              placeholder={`Selecciona al nuevo ${
+                currentChangeType === "H" ? "propietario" : "residente"
+              }`}
               name="owner_id"
               error={errorsT.owner_id}
               required={true}
@@ -239,10 +384,24 @@ const DashDptos = ({ id }: DashDptosProps) => {
               onChange={(e) =>
                 setFormState({ ...formState, owner_id: e.target.value })
               }
-              options={(datas?.owners || []).map((owner: any) => ({
+              options={(() => {
+                const extra = dashData?.extraData ?? {};
+                const list: any[] =
+                  currentChangeType === "H"
+                    ? extra.homeowners || []
+                    : extra.tenants || [];
+                return list.map((owner: any) => {
+              const ciLabel = owner?.ci ? ` - C.I. ${owner.ci}` : "";
+              const dptoLabel =
+                Array.isArray(owner?.dpto) && owner.dpto.length > 0
+                  ? ` - Unidad ${owner.dpto[0]?.nro ?? ""}`
+                  : "";
+              return {
                 ...owner,
-                name: `${getFullName(owner)}`,
-              }))}
+                name: `${getFullName(owner)}${ciLabel}${dptoLabel}`,
+              };
+            });
+              })()}
               optionLabel="name"
               optionValue="id"
               filter={true}
@@ -253,7 +412,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
         {/* Modales de Historial */}
         {openTitularHist && (
           <HistoryOwnership
-            ownershipData={datas?.titularHist || []}
+            ownershipData={datas?.titularHist || datas?.tenantHist || []}
             open={openTitularHist}
             close={() => setOpenTitularHist(false)}
           />
@@ -266,10 +425,6 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setOpenComprobante(false);
               setIdPago(null);
             }}
-            // item={datas.payments?.find(
-            //   (pago: any) => pago?.payment?.id === idPago
-            // )?.payment || {}}
-            // id={idPago}
             extraData={datas}
             payment_id={idPago}
           />
@@ -283,9 +438,9 @@ const DashDptos = ({ id }: DashDptosProps) => {
               setIdPerfil(null);
             }}
             item={
-              idPerfil === datas?.titular?.id
-                ? datas?.titular
-                : datas?.titular?.dependientes?.find(
+              idPerfil === datas?.tenant?.id
+                ? datas?.tenant
+                : datas?.tenant?.dependientes?.find(
                     (dep: any) => dep.owner_id === idPerfil
                   )?.owner || {}
             }
@@ -300,6 +455,39 @@ const DashDptos = ({ id }: DashDptosProps) => {
             item={datas?.data}
             reLoad={reLoad}
             extraData={dashData?.extraData}
+          />
+        )}
+        {openOwnerForm && (
+          <OwnersRenderForm
+            open={openOwnerForm}
+            onClose={() => setOpenOwnerForm(false)}
+            item={{
+              ci: '',
+              name: '',
+              last_name: '',
+              type_owner: newOwnerType,
+              dptos: datas?.data?.id ? [{
+                dpto_id: datas.data.id,
+                dpto_nro: datas.data.nro,
+              }] : [],
+              _disabled: false,
+              _emailDisabled: false
+            }}
+            setItem={(newItem: any) => {
+            }}
+            execute={execute as (endpoint: string, method: string, data: any, showLoader?: boolean, silent?: boolean) => Promise<{ data?: any }>}
+            extraData={{
+              ...dashData?.extraData,
+              dptosForH: dashData?.extraData?.dptosForH || [],
+              dptosForT: dashData?.extraData?.dptosForT || []
+            }}
+            reLoad={() => {
+              reLoad({ extraData: true });
+              setOpenOwnerForm(false);
+            }}
+            defaultIsResident={newIsResident}
+            disableUnitEditing={true}
+            disableTypeEditing={true}
           />
         )}
         {openDel && (
@@ -321,14 +509,30 @@ const DashDptos = ({ id }: DashDptosProps) => {
         )}
         {openDelTitular && (
           <DataModal
-            title="Eliminar titular"
+            title={
+              currentRemovalType === "H"
+                ? "Liberar residencia"
+                : "Desvincular residente"
+            }
             open={openDelTitular}
             onSave={removeTitular}
             variant={"mini"}
-            onClose={() => setOpenDelTitular(false)}
-            buttonText="Eliminar"
+            onClose={() => {
+              setOpenDelTitular(false);
+              setCurrentRemovalType(null);
+            }}
+            buttonText={currentRemovalType === "H" ? "Liberar" : "Desvincular"}
           >
-            <p>¿Estás seguro de que quieres eliminar este titular?</p>
+            <p style={{
+
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
+              {currentRemovalType === "H"
+                ? "¿Estás seguro de liberar la residencia del propietario? Recuerda que al realizar esta acción el usuario seguirá siendo propietario más no residente en la unidad?"
+                : "¿Estás seguro que quieres desvincular al residente? Recuerda que si realizas esta acción la unidad quedará sin residente?"}
+            </p>
           </DataModal>
         )}
 
@@ -343,8 +547,37 @@ const DashDptos = ({ id }: DashDptosProps) => {
             title="Perfil del Dependiente"
             titleBack="Volver a la Unidad"
             type="owner"
-            reLoad={reLoad}
+            reLoad={() => reLoad({ extraData: true })}
           />
+        )}
+        {openTransferModal && selectedOwnerForTransfer && (
+          <DataModal
+            title="Confirmar transferencia"
+            open={openTransferModal}
+            onSave={confirmTransfer}
+            variant={"mini"}
+            onClose={() => {
+              setOpenTransferModal(false);
+              setSelectedOwnerForTransfer(null);
+              setPendingTransferType(null);
+              setIsNewOwnerFlow(false);
+            }}
+            buttonText={isNewOwnerFlow ? "Continuar" : "Transferir"}
+          >
+            <p style={{
+              textAlign: 'start',
+              margin: '16px 0',
+              lineHeight: '1.5',
+              padding: '0 10px'
+            }}>
+              {pendingTransferType === "H" 
+                ? "¿Estás seguro de realizar esta transferencia?"
+                : selectedOwnerForTransfer?.dpto && Array.isArray(selectedOwnerForTransfer.dpto) && selectedOwnerForTransfer.dpto.length > 0
+                  ? `Se quitará a este residente ${getFullName(selectedOwnerForTransfer)} de la unidad ${selectedOwnerForTransfer.dpto?.[0]?.nro || selectedOwnerForTransfer.dpto?.[0]?.description || 'N/A'} y será transferido a la unidad actual.`
+                  : "¿Estás seguro de realizar esta transferencia?"
+              }
+            </p>
+          </DataModal>
         )}
       </section>
     </div>

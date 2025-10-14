@@ -1,11 +1,11 @@
-'use client';
-import React, { useEffect, useState } from 'react';
+"use client";
+import React, { useEffect, useState } from "react";
 
-import { MONTHS_S_GRAPH, getDateStrMes, getNow } from '@/mk/utils/date';
+import { MONTHS_S_GRAPH, getDateStrMes, getNow } from "@/mk/utils/date";
 
-import styles from './WidgetGrafBalance.module.css';
-import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
-import { ChartType } from '@/mk/components/ui/Graphs/GraphsTypes';
+import styles from "./WidgetGrafBalance.module.css";
+import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
+import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
 
 interface BalanceData {
   inicial: number[];
@@ -15,12 +15,12 @@ interface BalanceData {
 }
 
 interface IngresoItem {
-  ingresos: number;
+  amount: number;
   mes: number;
 }
 
 interface EgresoItem {
-  egresos: number;
+  amount: number;
   mes: number;
 }
 
@@ -41,12 +41,12 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   saldoInicial = 0,
   ingresos,
   egresos,
-  chartTypes = ['bar', 'line'],
+  chartTypes = ["bar", "line"],
   h = 350,
   title,
   subtitle,
   className,
-  periodo = '',
+  periodo = "",
   exportando = false,
 }: PropsType) => {
   const [balance, setBalance] = useState<BalanceData>({
@@ -81,17 +81,17 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
     };
 
     if (ingresos) {
-      ingresos.forEach(item => {
+      ingresos.forEach((item) => {
         if (item.mes >= 1 && item.mes <= 12) {
-          fullYearData.ingresos[item.mes - 1] += Number(item.ingresos);
+          fullYearData.ingresos[item.mes - 1] += Number(item.amount);
         }
       });
     }
 
     if (egresos) {
-      egresos.forEach(item => {
+      egresos.forEach((item) => {
         if (item.mes >= 1 && item.mes <= 12) {
-          fullYearData.egresos[item.mes - 1] += Number(item.egresos);
+          fullYearData.egresos[item.mes - 1] += Number(item.amount);
         }
       });
     }
@@ -114,7 +114,7 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
       saldos: [...fullYearData.saldos],
     };
 
-    if (periodo === 'ly') {
+    if (periodo === "ly") {
       displayMeses = MONTHS_S_GRAPH.slice();
       displayBalanceData = {
         inicial: fullYearData.inicial.slice(0, 12),
@@ -122,10 +122,10 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         egresos: fullYearData.egresos.slice(0, 12),
         saldos: fullYearData.saldos.slice(0, 12),
       };
-    } else if (periodo.startsWith('c:')) {
-      const [startDateStr, endDateStr] = periodo.substring(2).split(',');
-      const startDate = new Date(startDateStr + 'T00:00:00');
-      const endDate = new Date(endDateStr + 'T00:00:00');
+    } else if (periodo.startsWith("c:")) {
+      const [startDateStr, endDateStr] = periodo.substring(2).split(",");
+      const startDate = new Date(startDateStr + "T00:00:00");
+      const endDate = new Date(endDateStr + "T00:00:00");
 
       const startMonthIndex = startDate.getMonth();
       const endMonthIndex = endDate.getMonth();
@@ -148,9 +148,9 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
           saldos: fullYearData.saldos.slice(startMonthIndex, endMonthIndex + 1),
         };
       }
-    } else if (periodo === 'm' || periodo === 'lm') {
+    } else if (periodo === "m" || periodo === "lm") {
       const targetDate = new Date();
-      if (periodo === 'lm') {
+      if (periodo === "lm") {
         targetDate.setMonth(targetDate.getMonth() - 1);
       }
       const targetMonthIndex = targetDate.getMonth();
@@ -201,25 +201,25 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
   const formattedTodayDate = getDateStrMes(today);
 
   return (
-    <div className={`${styles.container} ${className || ''}`}>
+    <div className={`${styles.container} ${className || ""}`}>
       <p
-        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ""}`}
       >
         {subtitle ||
           `Este es un resumen general de los ingresos, egresos y el saldo a favor al ${formattedTodayDate}`}
       </p>
-      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
-        {title || 'Resumen general'}
+      <p className={`${styles.title} ${exportando ? styles.exportando : ""}`}>
+        {title || "Resumen general"}
       </p>
 
       <GraphBase
         data={{
           labels: meses,
           values: [
-            { name: 'Saldo inicial', values: balance.inicial },
-            { name: 'Ingresos', values: balance.ingresos },
-            { name: 'Egresos', values: balance.egresos },
-            { name: 'Saldo Acumulado', values: balance.saldos },
+            { name: "Saldo inicial", values: balance.inicial },
+            { name: "Ingresos", values: balance.ingresos },
+            { name: "Egresos", values: balance.egresos },
+            { name: "Saldo Acumulado", values: balance.saldos },
           ],
         }}
         chartTypes={chartTypes}
@@ -227,10 +227,10 @@ const WidgetGrafBalance: React.FC<PropsType> = ({
         options={{
           height: h,
           colors: [
-            'var(--cCompl1)',
-            'var(--cCompl7)',
-            'var(--cCompl8)',
-            'var(--cCompl9)',
+            "var(--cCompl1)",
+            "var(--cCompl7)",
+            "var(--cCompl8)",
+            "var(--cCompl9)",
           ],
           chart: {
             legend: {

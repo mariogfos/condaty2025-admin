@@ -90,8 +90,8 @@ const UploadFileMultiple = ({
 
     let newE: any = {};
     if (id == 0) {
+      // Imagen nueva sin guardar
       act = "";
-
       const newI: any = [];
       imgs.map((it: any, i: number) => {
         if (i !== parseInt(indice) && (value[name + i] || it.id != 0)) {
@@ -99,11 +99,17 @@ const UploadFileMultiple = ({
           if (value[name + i]) newE[name + (newI.length - 1)] = value[name + i];
         }
       });
-      newI.push({ id: 0 });
+      if (newI.length < maxFiles) {
+        newI.push({ id: 0 });
+      }
       setValue(newE);
       setImgs(newI);
     } else {
-      if (value[name + indice]?.file == "delete") act = "";
+      // Imagen existente - marcar para eliminación
+      if (value[name + indice]?.file == "delete") {
+        // Si ya está marcada para eliminar, restaurar
+        act = "";
+      }
       newE = {
         ...value,
         [name + indice]: { file: act, ext: "webp", id },
@@ -151,16 +157,15 @@ const UploadFileMultiple = ({
           border: "1px solid var(--cWhiteV2)",
           backgroundColor: "var(--cWhiteV2)",
           padding: "var(--sM)",
+          paddingTop: "24px", // Agregar padding-top para el label
           borderRadius: "var(--bRadius)",
           position: "relative",
+          marginBottom: "var(--spL)",
         }}
       >
         <label>
           {props.label || "Puede subir hasta " + maxFiles + " imágenes"}
         </label>
-        {/* {JSON.stringify(imgs)}----
-        {JSON.stringify(Object.keys(value).length)}----
-        {images.length}---{maxFiles} */}
         {imgs.map((it: any, i: number) => (
           <div
             key={"img-" + i + it.id}
@@ -175,7 +180,6 @@ const UploadFileMultiple = ({
             <UploadFileM
               {...props}
               className="v2"
-              // autoOpen={imgs.length > 1 && !it.id}
               editor={editor}
               sizePreview={sizePreview}
               value={value[name + i]?.file || false}

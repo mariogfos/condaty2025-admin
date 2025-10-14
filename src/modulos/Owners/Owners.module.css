@@ -1,9 +1,11 @@
 
 
 .renderView {
-    & > div  {  
-         display: flex; 
-         padding:var(--spL); 
+  min-width: 800px;
+  margin-bottom: 0 !important;
+    & > div  {
+         display: flex;
+         padding:var(--spL);
          gap: var(--spL);
          align-items: center;
          @media (max-width: 750px) {
@@ -15,56 +17,31 @@
            justify-content: center;
            align-items: center;
            gap: var(--spL);
-           
+
          }
          & > section {
            padding: var(--spM);
-           background-color: var(--cBlackV1);
            border-radius: 8px;
-           
-           width:500px;
- 
-           
+           width:50%;
+
            & > div {
              display: flex;
-             margin-bottom: 16px;
+             flex-direction: column;
+             justify-self: start;
              font-size: var(--sL);
              font-size: var(--sM);
              & > p:nth-child(odd) {
-               flex: 1;
+               padding-bottom: 3px;
                color: var(--cWhiteV1);
-               
+
              }
              & > p:nth-child(even) {
-               flex: 1;
-               text-align: right;
                color: var(--cWhite);
              }
            }
          }
        }
    }
-
-   .fieldSet {
-    width: 100%;
-    /* background-color: aqua !important; */
-    padding: var(--spM);
-    display: flex;
-    flex-direction: column;
-    border-bottom: 0.5px solid var(--cWhiteV1);
-    border-top: 0.5px solid var(--cWhiteV1);
-    gap: var(--spL);
-    & > div {
-      gap:var(--spL)
-    }
-    & > div:nth-child(1) > div:nth-child(1){
-      color:var(--cWhite);
-      font-size: var(--sL);
-      font-weight: var(--bBold);
-      margin-bottom: var(--spL);
-  
-    }
-  }
 
 /* Estilos para la "etiqueta" de Titular/Dependiente */
 .residentTypeBadge {
@@ -113,6 +90,69 @@
   width: 100%;
 }
 
+.boxContent {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spM);
+  background-color: var(--cBlackV1);
+  border: .5px solid var(--cWhiteV1);
+  border-radius: var(--bRadius);
+  justify-content: space-between;
+}
+
+.boxButtons {
+  display: flex;
+  gap: var(--spM);
+  justify-content: center;
+  border-top: .5px solid var(--cWhiteV1);
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-top: var(--spM);
+}
+
+.btnSecondary {
+  width: 60%;
+}
+
+.avatarOwner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spM);
+  margin: 0 auto;
+}
+
+.ownerName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cWhite);
+  text-align: center;
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spS);
+  border: .5px solid var(--cWhiteV1);
+  border-radius: var(--bRadius);
+  width: 50%;
+  padding-bottom: 4px;
+}
+
+.infoSection_details {
+  border-bottom: .5px solid var(--cWhiteV1);
+  padding-bottom: 8px;
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.statusActive {
+  color: var(--accentColor) !important;
+}
+
 .widgetResumeCard {
   width: 216px !important;
   height: 72px;
@@ -157,4 +197,3 @@
   font-size: 14px;
   color: var(--cWhite);
 }
-

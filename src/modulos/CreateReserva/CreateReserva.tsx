@@ -106,7 +106,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
   const getCalendar = useCallback(
     async (date?: any) => {
       setLoadingCalendar(true);
-      const ownerId = selectedUnit?.titular?.owner_id;
+      const ownerId = selectedUnit?.titular?.id;
       const { data } = await execute(
         "/reservations-calendar",
         "GET",
@@ -117,7 +117,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
             ownerId ||
             extraData?.dptos?.find(
               (u: any) => String(u.id) === formState.unidad
-            )?.titular?.owner_id,
+            )?.titular?.id,
         },
         false,
         true
@@ -325,11 +325,12 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
     const selectedUnit = extraData?.dptos.find(
       (u: any) => String(u.id) === formState.unidad
     );
-    const ownerId = selectedUnit?.titular?.owner_id;
+    const ownerId = selectedUnit?.titular?.id;
     if (!ownerId) {
       setIsSubmitting(false);
       return;
     }
+
     let startTime = "";
     const sortedSelectedPeriods = [...selectedPeriods];
     if (sortedSelectedPeriods.length > 0) {
@@ -347,6 +348,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
         `Reserva de ${selectedAreaDetails?.title || "área"}`,
       start_time: startTime,
       periods: sortedSelectedPeriods,
+      dpto_id: selectedUnit?.id,
     };
     try {
       const response = await execute(
@@ -494,6 +496,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       options={unidadesOptions()}
                       onChange={handleChange}
                       error={errors}
+                      filter
                     />
                   </div>
                 </div>
@@ -847,16 +850,16 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       <Avatar
                         src={getUrlImages(
                           `/OWNER-${
-                            selectedUnit?.titular?.owner_id
+                            selectedUnit?.titular?.id
                           }.webp?d=${Date.now().toString()}`
                         )}
-                        name={getFullName(selectedUnit?.titular?.owner)}
+                        name={getFullName(selectedUnit?.titular)}
                         w={40}
                         h={40}
                       />
                       <div className={styles.ownerText}>
                         <span className={styles.ownerName}>
-                          {getFullName(selectedUnit?.titular?.owner)}
+                          {getFullName(selectedUnit?.titular)}
                         </span>
                         <span className={styles.ownerUnit}>
                           Unidad {selectedUnit?.nro}

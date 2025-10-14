@@ -19,7 +19,7 @@ import LoadingScreen from '@/mk/components/ui/LoadingScreen/LoadingScreen';
 import { WidgetDashCard } from '@/components/Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard';
 import DateRangeFilterModal from '@/components/DateRangeFilterModal/DateRangeFilterModal';
 import FormatBsAlign from '@/mk/utils/FormatBsAlign';
-import { StatusBadge } from '@/components/Widgets/StatusBadge/StatusBadge';
+import { StatusBadge } from '@/components/StatusBadge/StatusBadge';
 
 const renderUnitCell = ({ item }: { item: any }) => (
   <div>{item?.dpto?.nro}</div>
@@ -53,6 +53,7 @@ const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) =
     R: { color: 'var(--cMediumAlert)', bgColor: 'var(--cMediumAlertHover)' }, // Rechazado
     E: { color: 'var(--cWhite)', bgColor: 'var(--cHoverCompl1)' }, // Por defecto
     M: { color: 'var(--cError)', bgColor: 'var(--cHoverError)' }, // En mora
+    F: { color: 'var(--cInfo)', bgColor: 'var(--cHoverCompl3)' }, // Finalizado
   };
 
   const displayStatus = getDisplayStatus(item);
@@ -97,11 +98,13 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
       case 'A':
         return { text: 'Por cobrar', code: 'A' };
       case 'P':
-        return { text: 'Cobrado', code: 'P' };
+        return { text: 'Cobrada', code: 'P' };
       case 'S':
         return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
+      case 'F':
+        return { text: 'Condonada', code: 'F' };
       default:
         return { text: item.status || "Desconocido", code: item.status || "" };
     }
@@ -175,6 +178,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
     page: 1,
     perPage: 20,
     debt_id: data.id,
+    type: 1,
   };
 
   const fields = useMemo(() => {
@@ -274,7 +278,8 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
             return [
               { id: 'ALL', name: 'Todos' },
               { id: 'A', name: 'Por cobrar' },
-              { id: 'P', name: 'Cobrado' },
+              { id: 'P', name: 'Cobrada' },
+              { id: 'F', name: 'Condonada' },
               { id: 'S', name: 'Por confirmar' },
               { id: 'M', name: 'En mora' },
             ];

@@ -76,6 +76,7 @@ export type ModCrudType = {
   titleAdd?: string;
   titleEdit?: string;
   titleDel?: string;
+  textSaveButtom?: string;
 };
 
 export type TypeRenderForm = {
@@ -177,6 +178,7 @@ const useCrud = ({
   const [errors, setErrors]: any = useState({});
 
   const [openImport, setOpenImport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [openList, setOpenList] = useState(true);
   const [open, setOpen] = useState(false);
   const [openView, setOpenView] = useState(false);
@@ -209,29 +211,6 @@ const useCrud = ({
     params,
     mod?.noWaiting
   );
-
-  // useEffect(() => {
-  //   const load = async () => {
-  //     setLoaded(false);
-  //     let p = params;
-  //     if (store[mod.modulo + "searchBy"]) {
-  //       p = { ...params, searchBy: store[mod.modulo + "searchBy"] };
-  //       setStore({ ...store, [mod.modulo + "searchBy"]: "" });
-  //     }
-  //     const { data, loaded } = await execute(
-  //       "/" + mod.modulo,
-  //       "GET",
-  //       p,
-  //       mod?.noWaiting
-  //     );
-  //     setData(data);
-  //     setLoaded(loaded);
-  //   };
-  //   console.log("useffect inicial uscrud", store, execute);
-  //   if (store) {
-  //     load();
-  //   }
-  // }, [store]);
 
   const onChange = useCallback((e: any) => {
     let value = e.target.value;
@@ -292,47 +271,49 @@ const useCrud = ({
     initOpen(setOpen, item, "edit");
   }, []);
 
+  const getItemApi = useCallback(async (item: Record<string, any>) => {
+    let searchBy = item.id;
+    if (mod.loadView.key_id) {
+      searchBy = item[mod.loadView.key_id];
+    }
+
+    const { data } = await execute(
+      "/" + mod.modulo,
+      "GET",
+      {
+        page: 1,
+        perPage: 1,
+        fullType: "DET",
+        searchBy: searchBy,
+        ...(mod.loadView !== true ? mod.loadView : {}),
+      },
+      false,
+      mod?.noWaiting
+    );
+    if (data?.success) {
+      return data?.data;
+    }
+    return item;
+  }, []);
+
   const onView = useCallback(async (item: Record<string, any>) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
 
     if (mod.loadView) {
-      let searchBy = item.id;
-      if (mod.loadView.key_id) {
-        searchBy = item[mod.loadView.key_id];
-        // delete mod.loadView.key_id;
-      }
-
-      const { data: view } = await execute(
-        "/" + mod.modulo,
-        "GET",
-        {
-          page: 1,
-          perPage: 1,
-          fullType: "DET",
-          searchBy: searchBy,
-          ...mod.loadView,
-        },
-        false,
-        mod?.noWaiting
-      );
-      // const { data: d, ...rest } = view?.data ?? {};
-      // initOpen(setOpenView, { ...d, ...rest }, "view");
-
-      initOpen(setOpenView, view?.data, "view");
-      return;
+      item = await getItemApi(item);
     }
     initOpen(setOpenView, item, "view");
   }, []);
 
   const onImport = useCallback((e: any) => {
-    // e.stopPropagation();
     if (!userCan(mod.permiso, "C"))
       return showToast("No tiene permisos para importar", "error");
     if (_onImport) {
       _onImport();
     }
   }, []);
+
   const onExist = useCallback(
     async ({ type = "", cols = "id", modulo = "", searchBy = "" }: any) => {
       if (modulo == "") modulo = mod.modulo;
@@ -355,12 +336,17 @@ const useCrud = ({
     []
   );
 
-  const onCloseCrud = () => {
+  const onCloseCrud = (options: Record<string, any> | null = null) => {
     if (!openList) setOpenList(true);
+    if (options) {
+      if (options.beforeClose) options.beforeClose();
+    }
     setOpen(false);
   };
+
   const onCloseView = () => {
     if (!openList) setOpenList(true);
+
     // if (scrollTo>-1)
     setOpenView(false);
   };
@@ -400,7 +386,7 @@ const useCrud = ({
     if (response?.success) {
       onCloseCrud();
       setOpenDel(false);
-      reLoad(null, mod?.noWaiting);
+      reLoad(params, mod?.noWaiting);
       showToast(mod.saveMsg?.[action] || response?.message, "success");
     } else {
       showToast(response?.message, "error");
@@ -466,6 +452,10 @@ const useCrud = ({
   ) => {
     if (!userCan(mod.permiso, "R"))
       return showToast("No tiene permisos para visualizar", "error");
+
+    if (isExporting) return; // Evitar múltiples clics
+    setIsExporting(true);
+
     const { data: file } = await execute(
       "/" + mod.modulo,
       "GET",
@@ -481,13 +471,42 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+
     if (file?.success) {
-      window.open(getUrlImages("/" + file.data.path)); // Abrir directamente en lugar de usar callback
-      callBack(getUrlImages("/" + file.data.path)); // Mantener callback por compatibilidad
+      const url = getUrlImages("/" + (file.data?.path || ""));
+      // Intentar derivar un nombre de archivo desde el path; si no, usar por defecto
+      const suggestedName = (() => {
+        const path = String(file.data?.path || "");
+        const base = path.split("/").pop();
+        if (base && base.trim().length > 0) return base;
+        const ext = (type ?? "pdf").toLowerCase();
+        return `listado-${mod.modulo}.${ext}`;
+      })();
+
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobUrl);
+        callBack(url); // Mantener callback por compatibilidad
+      } catch (error) {
+        // Fallback: si falla la descarga, abrir directamente la URL
+        window.location.href = url;
+      } finally {
+        setIsExporting(false);
+      }
     } else {
       showToast("Hubo un error al exportar el archivo", "error");
-      showToast("Hubo un error al exportar el archivo", "error");
       logError("Error onExport:", file);
+      setIsExporting(false);
     }
   };
   const onExportItem = (
@@ -518,6 +537,7 @@ const useCrud = ({
       false,
       mod?.noWaiting
     );
+    // console.log('extradata get Estradata', extraData);
     setExtraData(extraData?.data);
   };
   // useEffect(() => {
@@ -826,10 +846,14 @@ const useCrud = ({
         title={
           (action == "add" ? mod.titleAdd : mod.titleEdit) + " " + mod.singular
         }
+        // textSaveButtom por defecto "Guardar" o "Actualizar" segun action en mod.textSaveButtom
         buttonText={
-          action == "add" ? mod.titleAdd + " " + mod.singular : "Actualizar"
+          action == "add"
+            ? mod?.textSaveButtom
+              ? mod?.textSaveButtom
+              : "Guardar"
+            : "Actualizar"
         }
-        buttonCancel=""
         onSave={(e) =>
           onConfirm
             ? onConfirm(formStateForm, setErrorForm)
@@ -841,7 +865,7 @@ const useCrud = ({
             display: "flex",
             width: "100%",
             flexWrap: "wrap",
-            gap: 8,
+
             justifyContent: "space-between",
           }}
         >
@@ -925,25 +949,8 @@ const useCrud = ({
 
   const FilterResponsive = ({ filters, onChange, breakPoint }: any) => {
     const isBreak = useMediaQuery("(max-width: " + breakPoint + "px)");
-    let maxLabelWidth = 0;
-    if (filters && filters.length > 0 && typeof document !== "undefined") {
-      const span = document.createElement("span");
-      span.style.visibility = "hidden";
-      span.style.position = "absolute";
-      span.style.fontSize = "var(--sL, 16px)";
-      span.style.fontWeight = "var(--bMedium, 500)";
-      span.style.fontFamily = 'var(--fPrimary, "Roboto", sans-serif)';
-      span.style.whiteSpace = "nowrap";
-      document.body.appendChild(span);
-      filters.forEach((f: any) => {
-        span.innerText = f.label;
-        if (span.offsetWidth > maxLabelWidth) {
-          maxLabelWidth = span.offsetWidth;
-        }
-      });
-      document.body.removeChild(span);
-    }
-    const selectWidth = (maxLabelWidth > 0 ? maxLabelWidth + 70 : 180) + "px";
+
+    const selectWidth = "auto";
 
     const BreakFilter = () => {
       const [open, setOpen] = useState(false);
@@ -980,6 +987,8 @@ const useCrud = ({
                   onChange={onChange}
                   options={f.options || []}
                   value={filterSel[f.key] || ""}
+                  optionLabel={f?.optionLabel}
+                  optionValue={f?.optionValue}
                   error={false}
                   style={{
                     ...(filterSel[f.key] &&
@@ -997,7 +1006,6 @@ const useCrud = ({
         </>
       );
     };
-
     return (
       <>
         {isBreak ? (
@@ -1012,6 +1020,8 @@ const useCrud = ({
                 onChange={onChange}
                 options={f.options || []}
                 value={filterSel[f.key] || ""}
+                optionLabel={f?.optionLabel}
+                optionValue={f?.optionValue}
                 style={{
                   width: selectWidth,
                   minWidth: selectWidth,
@@ -1191,7 +1201,7 @@ const useCrud = ({
     let hideEdit = mod.hideActions?.edit;
     let hideDel = mod.hideActions?.del;
     if (mod?.onHideActions) {
-      const h = mod.onHideActions(item);
+      const h = mod?.onHideActions(item);
       hideEdit = h?.hideEdit;
       hideDel = h?.hideDel;
     }
@@ -1290,12 +1300,14 @@ const useCrud = ({
           const colF: any = {
             key,
             label: field.filter?.label ?? field.list?.label ?? field.label,
-            width: field.filter?.width ?? field.list.width ?? "300px",
+            width: field.filter?.width ?? field.list?.width ?? "auto",
             order:
               field.filter?.order ?? field?.list?.order ?? field?.order ?? 1000,
             options: field.filter?.extraData
               ? extraData[field.filter?.extraData]
               : field.filter?.options(extraData) ?? field.form.options ?? [],
+            optionLabel: field?.filter?.optionLabel,
+            optionValue: field?.filter?.optionValue,
           };
           lFilter.push(colF);
           lFilter.sort((a: any, b: any) => a.order - b.order);
@@ -1306,7 +1318,7 @@ const useCrud = ({
           responsive: "",
           label: field.list.label ?? field.label,
           className: field.list.className ?? "",
-          width: field.list.width,
+          width: field.list?.width,
           onRender: _onRender(field, true),
           order: field.list.order ?? field.order ?? 1000,
           style: field.list.style ?? field.style ?? {},
@@ -1343,7 +1355,7 @@ const useCrud = ({
       emptyContent = props.onRenderEmpty();
     } else if (
       (params?.filterBy && params?.filterBy.length > 0) ||
-      (searchs && Object.keys(searchs).length > 0)
+      (searchs && searchs.searchBy)
     ) {
       emptyContent = (
         <EmptyData
@@ -1490,6 +1502,7 @@ const useCrud = ({
               {mod.renderForm ? (
                 mod.renderForm({
                   open: open,
+                  openView: openView,
                   onClose: onCloseCrud,
                   item: formState,
                   setItem: setFormState,
@@ -1503,10 +1516,12 @@ const useCrud = ({
                   onEdit,
                   onDel,
                   onAdd,
+                  onView,
                   action,
                   openList,
                   setOpenList,
                   showToast: showToast,
+                  getItemApi,
                 })
               ) : (
                 <Form

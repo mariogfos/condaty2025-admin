@@ -15,7 +15,7 @@ import Link from "next/link";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import Dropdown from "@/mk/components/ui/Dropdown/Dropdown";
 import { useEvent } from "@/mk/hooks/useEvents";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type PropsType = {
   isTablet: boolean;
@@ -56,15 +56,49 @@ const Header = ({
     { name: "Permisos", route: "/rolesabilities" },
   ];
   const onNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount((old) => old + 1);
   }, []);
   const onResetNotif = useCallback((data: any) => {
-    console.log("nueva counter", data);
+    // console.log("nueva counter", data);
     setCount(0);
   }, []);
-  useEvent("onResetNotif", onResetNotif);
+  useEvent("onReset", onResetNotif);
   useEvent("onNotif", onNotif);
+
+  // const onOpenChat = useCallback((e: any) => {
+  //   setCountChat(0);
+  // }, []);
+
+  // useEvent("onOpenChat", onOpenChat);
+
+  const { dispatch: openChat } = useEvent("onOpenChat");
+  const [countChat, setCountChat] = useState(0);
+  const onChat = useCallback(
+    (e: any) => {
+      setCountChat((old) => old + 1);
+    },
+    [user?.id]
+  );
+
+  useEvent("onChatNewMsg", onChat);
+
+  const checkNotif = async () => {
+    let notifId = 0;
+    try {
+      notifId = parseInt(localStorage.getItem("notifId") || "0");
+    } catch (error) {
+      notifId = 0;
+    }
+    if (notifId < user?.notifId) {
+      setCount((old) => old + 1);
+    }
+  };
+  useEffect(() => {
+    if (count == 0) checkNotif();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const Title = () => {
     return (
       <div className={styles["header-title"]}>
@@ -103,16 +137,29 @@ const Header = ({
   };
 
   const Round = ({ icon, href, onClick, bage }: any) => {
+    if (href)
+      return (
+        <div className={styles.notificationContainer}>
+          <Link onClick={onClick} href={href || "#"}>
+            <div className={styles.notificationIcon}>
+              {icon}
+              {bage > 0 && (
+                <div className={styles.notificationBadge}>{bage || 0}</div>
+              )}
+            </div>
+          </Link>
+        </div>
+      );
     return (
       <div className={styles.notificationContainer}>
-        <Link onClick={onClick} href={href || "#"}>
+        <div onClick={onClick}>
           <div className={styles.notificationIcon}>
             {icon}
-            {bage > 0 && href == "/notifications" && (
+            {bage > 0 && (
               <div className={styles.notificationBadge}>{bage || 0}</div>
             )}
           </div>
-        </Link>
+        </div>
       </div>
     );
   };
@@ -122,7 +169,7 @@ const Header = ({
       <div>
         <div style={{ cursor: "pointer" }}>
           <Avatar
-            hasImage={user.has_image}
+            hasImage={1}
             name={getFullName(user)}
             h={40}
             w={40}
@@ -130,7 +177,6 @@ const Header = ({
               "/ADM-" + user?.id + ".webp?d=" + user?.updated_at
             )}
             onClick={() => {
-              console.log("click");
               setStore({ ...store, openProfileModal: true });
             }}
 
@@ -140,8 +186,6 @@ const Header = ({
       </div>
     );
   };
-
-  const { dispatch: openChat } = useEvent("onOpenChat");
 
   if (isTablet)
     return (
@@ -202,7 +246,11 @@ const Header = ({
         <Round icon={<IconSetting color="var(--cWhiteV1)" />} href="/configs" />
         <Round
           icon={<IconMessage color="var(--cSuccess)" />}
-          onClick={openChat}
+          onClick={(e: any) => {
+            openChat(e);
+            setCountChat(0);
+          }}
+          bage={countChat}
         />
         {/* <Dropdown
           trigger={

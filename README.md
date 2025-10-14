@@ -5,13 +5,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash AZHHaaa
-npm run devssaa equpo a1
+npm run devssaa equpo a login
 # or
 yarn dev11sas
 # orsaaa
 pnpm devaaaaaa
-# ors
-bun devaa
+# orsaaa
+
+bun devaas
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

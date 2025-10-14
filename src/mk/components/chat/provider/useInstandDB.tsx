@@ -48,7 +48,7 @@ const useInstandDB = (): useInstantDbType => {
   const [rooms, setRooms]: any = useState([
     {
       value: roomGral,
-      text: "Grupo General",
+      text: "Grupo Admin",
       closeRoom: "GENERAL",
       isGroup: true,
       newMsg: 0,
@@ -56,35 +56,45 @@ const useInstandDB = (): useInstantDbType => {
     },
   ]);
 
-  const onChatCloseRoom = useCallback(async (payload: any) => {
-    if (payload.indexOf("chatBot") > -1) {
-      const del: any[] = [];
-      const query = {
-        messages: {
-          $: {
-            where: {
-              roomId: payload,
+  const onChatCloseRoom = useCallback(
+    async (payload: any) => {
+      if (payload.indexOf("chatBot") > -1) {
+        const del: any[] = [];
+        const query = {
+          messages: {
+            $: {
+              where: {
+                and: [{ roomId: payload }, { client_id: user.client_id }],
+              },
             },
           },
-        },
-      };
-      const { data: _chats } = await db.queryOnce(query);
-      _chats.messages.forEach((e: any) => {
-        del.push(db.tx.messages[e.id].delete());
-      });
+        };
+        const { data: _chats } = await db.queryOnce(query);
+        _chats.messages.forEach((e: any) => {
+          del.push(db.tx.messages[e.id].delete());
+        });
 
-      if (del.length > 0) db.transact(del);
-    }
-  }, []);
+        if (del.length > 0) db.transact(del);
+      }
+    },
+    [user.client_id]
+  );
   useEvent("onChatCloseRoom", onChatCloseRoom);
 
-  const onChatSendMsg = useCallback(async (payload: any) => {
-    if (payload?.roomId.indexOf("chatBot") > -1) {
-      await db.transact(
-        db.tx.chatbot[id()].update({ ...payload, status: "N" })
-      );
-    }
-  }, []);
+  const onChatSendMsg = useCallback(
+    async (payload: any) => {
+      if (payload?.roomId.indexOf("chatBot") > -1) {
+        await db.transact(
+          db.tx.chatbot[id()].update({
+            ...payload,
+            status: "N",
+            client_id: user.client_id,
+          })
+        );
+      }
+    },
+    [user.client_id]
+  );
 
   useEvent("onChatSendMsg", onChatSendMsg);
 
@@ -172,9 +182,15 @@ const useInstandDB = (): useInstantDbType => {
     messages: {
       $: {
         where: {
-          or: [
-            { roomId: roomGral },
-            { roomId: { $like: "%" + user.id + "%" } },
+          and: [
+            { client_id: user.client_id },
+            {
+              or: [
+                { roomId: roomGral },
+
+                { roomId: { $like: "%" + user.id + "%" } },
+              ],
+            },
           ],
         },
       },
@@ -275,6 +291,7 @@ const useInstandDB = (): useInstantDbType => {
           sender: userId || user.id,
           roomId,
           created_at: now,
+          client_id: user.client_id,
         };
         await db.transact(db.tx.messages[_id].update(msg));
         if (file) {
@@ -361,13 +378,13 @@ const useInstandDB = (): useInstantDbType => {
       chats,
       user,
       usersChat: [
-        { id: roomGral, name: "Grupo General", isGroup: true },
-        { id: "chatBot", name: "Soporte", isBot: true },
+        { id: roomGral, name: "Grupo Admin", isGroup: true },
+        // { id: "chatBot", name: "Soporte", isBot: true },
         ...(usersChat?.data ?? []),
       ],
       uniquePresence: [
         ...(uniquePresence || []),
-        { name: "Soporte", userapp_id: "chatBot", peerId: "chatBot" },
+        // { name: "Soporte", userapp_id: "chatBot", peerId: "chatBot" },
       ],
       rooms,
       me,

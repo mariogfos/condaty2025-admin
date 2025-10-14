@@ -25,6 +25,7 @@ export interface PropsTypeInputBase {
   ref?: any;
   prefix?: string;
   suffix?: string;
+  maxSize?: number; // in MB
 }
 
 interface PropsType extends PropsTypeInputBase {

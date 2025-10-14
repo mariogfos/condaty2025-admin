@@ -202,7 +202,13 @@ const Reserva = () => {
       status_reservation: {
         rules: ["required"],
         api: "ae",
-        label: <span style={{ display: "block", width: "100%", textAlign: "center" }}>Estado</span>,
+        label: (
+          <span
+            style={{ display: "block", width: "100%", textAlign: "center" }}
+          >
+            Estado
+          </span>
+        ),
         form: {
           type: "select",
           options: [
@@ -261,13 +267,10 @@ const Reserva = () => {
                 backgroundColor: "var(--cHoverCompl1)",
                 color: "var(--cWhite)",
               },
-           
-            
             };
             const currentStatus = status ? statusMap[status] : null;
 
             return (
-              
               <StatusBadge
                 backgroundColor={
                   currentStatus
@@ -280,8 +283,6 @@ const Reserva = () => {
               >
                 {currentStatus ? currentStatus.label : "Estado desconocido"}
               </StatusBadge>
-            
-           
             );
           },
         },
@@ -365,6 +366,7 @@ const Reserva = () => {
         emptyMsg="Sin reservas pendientes. cuando los residentes comiencen"
         emptyLine2="a solicitar reservas de áreas sociales lo verás reflejado aquí."
         emptyIcon={<IconCalendar size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={1130}
       />
       <DateRangeFilterModal
         open={openCustomFilter}

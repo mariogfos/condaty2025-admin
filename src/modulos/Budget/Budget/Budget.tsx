@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useCrud, { ModCrudType } from "@/mk/hooks/useCrud/useCrud";
-import NotAccess from "@/components/auth/NotAccess/NotAccess";
 import styles from "./Budget.module.css";
-import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
 import Button from "@/mk/components/forms/Button/Button";
 import SendBudgetApprovalModal from "../ApprovalModal/BudgetApprovalModal";
@@ -13,6 +10,8 @@ import RenderView from "./RenderView/RenderView"; // <- Agregar import
 import { IconCategories } from "@/components/layout/icons/IconsBiblioteca";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import FormatBsAlign from "@/mk/utils/FormatBsAlign";
+import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
   perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
@@ -29,6 +28,13 @@ const formatPeriod = (periodCode: string): string => {
     Y: "Anual",
   };
   return map[periodCode] || periodCode;
+};
+const amountCell = ({ item }: { item: any }) => {
+  return item?.amount || item?.penalty_amount ? (
+    <FormatBsAlign value={item.amount} alignRight={true} />
+  ) : (
+    "-/-"
+  );
 };
 
 interface StatusConfig {
@@ -96,12 +102,6 @@ const getPeriodOptions = (addDefault = false) => [
   { id: "Y", name: "Anual" },
 ];
 
-const getTypeOptions = (addDefault = false) => [
-  ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
-  { id: "F", name: "Fijo" },
-  { id: "V", name: "Variable" },
-];
-
 const getStatusOptions = (addDefault = false) => [
   ...(addDefault ? [{ id: "ALL", name: "Todos" }] : []),
   { id: "D", name: "Borrador" },
@@ -126,10 +126,8 @@ const Budget = () => {
 
   const handleHideActions = (item: any) => {
     if (item?.status === "D") {
-      // Borrador: mostrar tanto editar como eliminar
       return { hideEdit: false, hideDel: false, hideAdd: false };
     } else {
-      // Todos los demás estados: solo eliminar
       return { hideEdit: true, hideDel: false, hideAdd: false };
     }
   };
@@ -150,7 +148,7 @@ const Budget = () => {
         del: "Presupuesto eliminado con éxito",
       },
       renderForm: (props: any) => <RenderForm {...props} />,
-      renderView: (props: any) => <RenderView {...props} />, // <- Agregar renderView
+      renderView: (props: any) => <RenderView {...props} />,
       onHideActions: handleHideActions,
     }),
     []
@@ -169,7 +167,6 @@ const Budget = () => {
     []
   );
 
-  // Mantener los fields para la lista - ESTO ES IMPORTANTE
   const fields = useMemo(
     () => ({
       id: { rules: [], api: "e" },
@@ -177,31 +174,25 @@ const Budget = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: {}, // Para mostrar en la lista
+        list: {},
       },
       start_date: {
         rules: ["required"],
         api: "ae",
         label: "Fecha Inicio",
-        list: {
-          onRender: (props: any) => getDateStrMes(props.item.start_date),
-        },
       },
       end_date: {
         rules: ["required"],
         api: "ae",
         label: "Fecha Fin",
-        list: {
-          onRender: (props: any) => getDateStrMes(props.item.end_date),
-        },
       },
       category_id: {
         rules: ["required"],
         api: "ae",
-        label: "SubCategoría",
+        label: "Subcategoría",
         list: { onRender: (props: any) => props.item.category?.name || "N/A" },
         filter: {
-          label: "SubCategoría",
+          label: "Subcategoría",
           options: getCategoryOptionsForFilter,
           width: "200px",
         },
@@ -220,7 +211,13 @@ const Budget = () => {
       status: {
         rules: [],
         api: "ae*",
-        label: "Estado",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
+            Estado
+          </span>
+        ),
         list: { onRender: renderStatusCell },
         filter: {
           label: "Estado",
@@ -232,8 +229,9 @@ const Budget = () => {
         rules: ["required", "number"],
         api: "ae",
         label: "Monto",
+        style: { textAlign: "right", justifyContent: "flex-end" },
         list: {
-          onRender: (props: any) => `Bs ${formatNumber(props.item.amount)}`,
+          onRender: amountCell,
         },
       },
       user_id: {
@@ -303,7 +301,7 @@ const Budget = () => {
       mod,
       fields,
       getFilter: handleGetFilter,
-      extraButtons: [sendToApprovalButton], // <- Mover el botón de vuelta aquí
+      extraButtons: [sendToApprovalButton],
     });
 
   useEffect(() => {
@@ -318,6 +316,14 @@ const Budget = () => {
       }
     }
   }, [data, loaded, showToast]);
+  const onNotif = useCallback((e: any) => {
+    if (e.event == "change-budget") {
+      reLoad();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEvent("onNotif", onNotif);
 
   const { setStore, store } = useAuth();
   useEffect(() => {
@@ -332,6 +338,7 @@ const Budget = () => {
         emptyMsg="Lista de presupuesto vacía. Una vez crees los items "
         emptyLine2="para tu presupuesto, los verás aquí."
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
+        filterBreakPoint={1700}
       />
 
       {/* Eliminar el botón de aquí */}

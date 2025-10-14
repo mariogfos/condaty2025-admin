@@ -9,9 +9,9 @@ import RenderView from "./RenderView/RenderView";
 import { IconDocs } from "@/components/layout/icons/IconsBiblioteca";
 
 const lOptions = [
+  { id: "A", name: "Guardias y residentes" },
   { id: "O", name: "Residentes" },
   { id: "G", name: "Guardias" },
-  { id: "A", name: "Todos" },
 ];
 
 const Documents = () => {
@@ -19,13 +19,16 @@ const Documents = () => {
 
   const mod = {
     modulo: "documents",
-    singular: "Documento",
-    plural: "Documentos",
+    singular: "documento",
+    plural: "documentos",
     permiso: "",
+    titleAdd: "Nuevo",
     extraData: true,
+    textSaveButtom: "Subir documento",
     loadView: {
       fullType: "DET",
     },
+    filter: true,
     export: true,
     renderView: (props: {
       open: boolean;
@@ -51,9 +54,9 @@ const Documents = () => {
       name: {
         rules: ["required"],
         api: "ae",
-        label: "Nombre",
+        label: "Nombre del documento",
         form: { type: "text" },
-        list: {},
+        list: { width: "280" },
       },
       ext: {
         rules: [],
@@ -61,37 +64,32 @@ const Documents = () => {
         label: "Extensión",
         list: false,
       },
+      
+      for_to: {
+        rules: ["required"],
+        api: "ae*",
+        label: "Visible para",
+        form: { type: "select", options: lOptions },
+        list: { width: "280" },
+        filter: {
+          options: () => [{ id: "ALL", name: "Todos" }, ...lOptions],
+        },
+      },
       descrip: {
         rules: ["required"],
         api: "ae*",
         label: "Descripción",
-        form: { type: "text" },
+        form: { type: "textArea" },
         list: {},
       },
-      for_to: {
-        rules: ["required"],
-        api: "ae*",
-        label: "Destino",
-        form: { type: "select", options: lOptions },
-        list: false,
-      },
-      // position: {
-      //   rules: ["required"],
-      //   api: "ae*",
-      //   label: "Posición",
-      //   form: {
-      //     type: "text",
-      //     label: "Introduce un número del 0 al 5 para ordenar el documento",
-      //   },
-      //   list:false
-      // },
       doc: {
-        rules: ["required*a"],
+        rules: ["required"],
         api: "ae*",
         label: "Archivo",
         form: {
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
+          maxSize: 30,
           style: { width: "100%" },
         },
         onRender: ({ item }: any) => {

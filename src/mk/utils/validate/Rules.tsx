@@ -153,14 +153,20 @@ export const validRule = (
         : "",
     min: () => (value?.length < param[0] ? `min ${param[0]} caracteres` : ""),
     max: () => (value?.length > param[0] ? `max ${param[0]} caracteres` : ""),
-    email: () => (!/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : ""),
+    email: () =>
+      !value ? "" : !/\S+@\S+\.\S+/.test(value) ? "No es un correo válido" : "",
     textDash: () =>
       //permmitir acentos, guiones, guiones bajos, y espacios
       !/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s-]+$/.test(value)
         ? "No es un texto válido"
         : "",
     alpha: () =>
-      !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value) ? "No es un texto válido" : "",
+      !value
+        ? "" // si está vacío, no valida nada (lo controla required)
+        : !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+$/.test(value)
+        ? "No es un texto válido"
+        : "",
+
     noSpaces: () => (!/^\S+$/.test(value) ? "No debe tener espacios" : ""),
     date: () => {
       const [year, month, day] = value.split("-").map(Number);
@@ -171,19 +177,29 @@ export const validRule = (
       return date < now ? "Debe ser una fecha mayor a la actual" : "";
     },
     number: () =>
-      value === "" || value === null
-        ? ""
-        : !/^[0-9.,-]+$/.test(value)
-        ? "No es un número valido"
-        : "",
+      !value ? "" : !/^[0-9.,-]+$/.test(value) ? "No es un número válido" : "",
     integer: () =>
-      !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
+      !/^[0-9]+$/.test(value) ? "No es un número entero válido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
     less: () => {
       // console.log("rule less:", value, param);
       return Number(value) > Number(param[0])
         ? `Debe ser menor o igual a ${param[0]}`
+        : "";
+    },
+    lessOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) > Number(compareValue)
+        ? `No puede ser mayor que ${param[1] || param[0]}`
+        : "";
+    },
+    greaterOrEqual: () => {
+      const compareValue = formState[param[0]];
+      if (!compareValue) return "";
+      return Number(value) < Number(compareValue)
+        ? `No puede ser menor que ${param[1] || param[0]}`
         : "";
     },
     googleMapsLink: () =>

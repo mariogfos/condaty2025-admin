@@ -121,7 +121,6 @@
 
 .modalContent {
   width: 100%;
-  padding: 1rem;
 }
 
 .titleContainer {
@@ -145,6 +144,15 @@
   font-size: var(--sM);
   font-weight: 500;
   transition: color 0.2s;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  z-index: 0;
 }
 
 .viewMore:hover {
@@ -223,7 +231,6 @@
   margin-top: 1rem;
   height: auto;
   overflow: visible;
-  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -311,11 +318,6 @@
   border-bottom: 1px solid var(--light-v3);
 }
 
-.visitsList {
-  overflow-y: auto;
-  height: calc(100% - 2rem);
-}
-
 .visitRow {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -369,7 +371,6 @@
   background-color: #a7a7a725;
 }
 
-/* AGREGAR - Estilos para scroll personalizado */
 .accountList::-webkit-scrollbar,
 .visitsList::-webkit-scrollbar {
   width: 6px;
@@ -420,12 +421,7 @@
     width: max-content;
   }
 }
-.br {
-  height: 1px;
-  width: 100%;
-  background-color: var(--cWhiteV1);
-  margin: 1rem 0;
-}
+
 .LabelValue {
   flex-grow: 1;
   & > p:nth-child(1) {
@@ -491,10 +487,15 @@
 .infoValue {
   color: var(--cWhite);
   font-size: var(--sL);
-  font-weight: 600;
+  font-weight: var(--bMedium);
 }
 
 .titularDropdown {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -669,8 +670,10 @@
   justify-content: center;
 }
 
-/* Estilos para el menú de 3 puntos */
 .menuDots {
+  background: transparent;
+  border: none;
+  font: inherit;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -712,6 +715,10 @@
 }
 
 .menuItem {
+  background: transparent;
+  border: none;
+  font: inherit;
+  text-align: inherit;
   list-style: none;
   width: 100%;
   display: flex;
@@ -727,4 +734,10 @@
 .menuItem:hover {
   background-color: var(--cFillSidebar);
   color: var(--cWhite);
+}
+.text-center-del{
+  margin-top: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+  
 }

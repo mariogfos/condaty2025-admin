@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import PaymentRenderView from '../../../Payments/RenderView/RenderView';
 import { formatBs } from '@/mk/utils/numbers';
+import { getTitular } from '@/mk/utils/adapters';
 
 const RenderView = (props: {
   open: boolean;
@@ -51,6 +52,8 @@ const RenderView = (props: {
         return { text: 'Por confirmar', code: 'S' };
       case 'M':
         return { text: 'En mora', code: 'M' };
+      case 'F':
+        return { text: 'Condonada', code: 'F' };
       default:
         return { text: item.status || 'Desconocido', code: item.status || '' };
     }
@@ -62,6 +65,7 @@ const RenderView = (props: {
     S: 'var(--cWarning)',
     P: 'var(--cSuccess)',
     E: 'var(--cInfo)',
+    F: 'var(--cInfo)',
   };
 
   type InfoBlockProps = {
@@ -86,6 +90,7 @@ const RenderView = (props: {
       </div>
     );
   };
+  const titular = getTitular(item.dpto);
 
   return (
     <>
@@ -122,7 +127,7 @@ const RenderView = (props: {
 
               <InfoBlock label="Fecha de plazo" value={getDateStrMes(item?.debt?.due_at)} />
 
-              <InfoBlock label="Titular" value={getFullName(item?.dpto?.titular?.owner) || '-/-'} />
+              <InfoBlock label="Titular" value={getFullName(titular) || '-/-'} />
             </div>
 
             <div className={styles.detailsColumn}>
@@ -184,7 +189,7 @@ const RenderView = (props: {
             </>
           )}
 
-       
+
         </div>
       </DataModal>
       {/* Modal de detalles de pago */}

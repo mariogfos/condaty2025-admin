@@ -1,0 +1,367 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  color: var(--cWhite);
+  font-family: var(--fPrimary);
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.formTextHeaderP{
+  padding-bottom: var(--spM);
+}
+
+.formField {
+  flex: 1;
+}
+
+.formFieldEmpty {
+  flex: 1;
+}
+
+.advancedSectionCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  border-radius: var(--bRadiusS);
+}
+
+.advancedToggleCompact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advancedOptionsCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.interestFieldCompact {
+  width: 200px;
+  max-width: 100%;
+}
+
+.checkboxRowCompact {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.checkboxItemCompact {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.advancedSectionCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid var(--cWhiteV2);
+  border-radius: var(--bRadiusM);
+  background-color: var(--cBlackV1);
+}
+
+.advancedToggleCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.advancedDescriptionCentered {
+  font-size: var(--sS);
+  color: var(--cWhiteV1);
+  margin: 0;
+  line-height: 1.4;
+  font-weight: var(--bRegular);
+  text-align: center;
+  max-width: 400px;
+}
+
+.advancedOptionsCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.interestFieldCentered {
+  width: 300px;
+  max-width: 100%;
+}
+
+.checkboxGridCentered {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+  border: 1px solid var(--cWhiteV3);
+  border-radius: var(--bRadiusM);
+  background-color: var(--cBlackV2);
+  justify-items: center;
+}
+
+.checkboxItemCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 16px;
+  border-radius: var(--bRadiusS);
+  background-color: var(--cBlackV1);
+  border: 1px solid var(--cWhiteV3);
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 280px;
+}
+
+.checkboxItemCentered:hover {
+  border-color: var(--cWhiteV1);
+  background-color: var(--cBlackV2);
+}
+
+.checkboxDescriptionCentered {
+  font-size: var(--sXs);
+  color: var(--cWhite);
+  margin: 0;
+  line-height: 1.3;
+  font-weight: var(--bRegular);
+  opacity: 0.85;
+  text-align: center;
+}
+
+.descriptionField {
+
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .formContainer {
+    gap: 12px;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .advancedSectionCentered {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .advancedSectionCompact {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .checkboxGridCentered {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .checkboxRowCompact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .interestFieldCentered {
+    width: 100%;
+  }
+
+  .interestFieldCompact {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .formContainer {
+    gap: 10px;
+  }
+
+  .formRow {
+    gap: 10px;
+  }
+
+  .advancedSectionCentered {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .advancedSectionCompact {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .checkboxGridCentered {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .checkboxRowCompact {
+    gap: 6px;
+  }
+
+  .checkboxItemCentered {
+    padding: 12px;
+  }
+
+  .advancedDescriptionCentered,
+  .checkboxDescriptionCentered {
+    font-size: var(--sXs);
+    line-height: 1.2;
+  }
+}
+
+.checkboxItemCentered:hover .checkboxDescriptionCentered {
+  opacity: 1;
+  color: var(--cWhite);
+  transition: all 0.2s ease;
+}
+
+.advancedToggleCentered:hover .advancedDescriptionCentered {
+  color: var(--cWhite);
+  transition: color 0.2s ease;
+}
+
+.advancedOptionsCentered {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.advancedOptionsCompact {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advancedSection {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bRadiusS);
+  overflow: hidden;
+
+}
+
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+
+.advancedLabel {
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  color: var(--cWhite);
+}
+
+.advancedArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--cWhiteV1);
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.advancedArrowOpen {
+  transform: rotate(180deg);
+}
+
+.advancedOptions {
+  padding: 12px 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  min-height: 45px;
+}
+
+.tooltipIcon {
+  color: var(--cWhiteV1);
+  cursor: help;
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.tooltipIcon:hover {
+  color: var(--cWhite);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkboxGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .checkboxItem {
+    min-height: 40px;
+  }
+}

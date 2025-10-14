@@ -16,21 +16,23 @@
   }
 }
 .chatContainer {
-  max-width: 810px;
+  max-width: 50%;
   width: 75%;
   height: 100vh;
   background-color: var(--cBlackV2);
   position: absolute;
   top: 0;
-  right: -1085px;
+  right: -50%;
   transition: right 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
   z-index: 10000;
+  pointer-events: none;
   &.close {
     right: 0px;
+    pointer-events: auto;
   }
 }
 .chatHeader {

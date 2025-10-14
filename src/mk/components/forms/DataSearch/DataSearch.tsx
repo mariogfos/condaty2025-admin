@@ -60,7 +60,7 @@ const DataSearch = ({
 
   return (
     <div style={{ position: "relative" }}>
-      <Tooltip title={searchMsg}>
+      <Tooltip title={searchMsg} fullWidth={true}>
         <Input
           name={name}
           className={styles.dataSearch + " " + className}

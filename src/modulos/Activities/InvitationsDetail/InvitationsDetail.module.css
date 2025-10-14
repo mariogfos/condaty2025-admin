@@ -85,7 +85,7 @@
   color: var(--cWarning) !important;
 }
 .statusCompleted {
-  color: var(--cWhiteV1) !important;
+  color: var(--cWhite) !important;
 }
 
 .sectionTitle {

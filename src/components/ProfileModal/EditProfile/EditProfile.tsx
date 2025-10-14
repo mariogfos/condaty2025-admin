@@ -1,10 +1,9 @@
 import Input from "@/mk/components/forms/Input/Input";
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./EditProfile.module.css";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import {
-  IconCamera,
   IconImage,
 } from "@/components/layout/icons/IconsBiblioteca";
 import { getFullName, getUrlImages } from "@/mk/utils/string";
@@ -12,7 +11,6 @@ import Button from "@/mk/components/forms/Button/Button";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import useAxios from "@/mk/hooks/useAxios";
-
 const EditProfile = ({
   open,
   onClose,
@@ -28,15 +26,13 @@ const EditProfile = ({
   type,
 }: any) => {
   const [preview, setPreview] = useState<string | null>(null);
-  const { getUser, showToast } = useAuth();
+  const { showToast } = useAuth();
   const { execute } = useAxios();
 
   const getAvatarUrl = () => {
-    // Si hay una vista previa (al subir nueva imagen), usamos esa
     if (preview) {
       return preview;
     }
-    // Si no, generamos la URL con la función getUrlImages
     return getUrlImages(urlImages);
   };
   const onChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +55,6 @@ const EditProfile = ({
         let base64String = result.replace("data:", "").replace(/^.+,/, "");
         base64String = encodeURIComponent(base64String);
         setPreview(result);
-        // onChange({ ...formState, avatar:{ file: base64String ,ext:'webp' }});
         setFormState({
           ...formState,
           avatar: { file: base64String, ext: "webp" },
@@ -69,7 +64,6 @@ const EditProfile = ({
     } catch (error) {
       console.error(error);
       setPreview(null);
-      // onChange({ ...formState, avatar: { file:'',ext:'' } });
       setFormState({
         ...formState,
         avatar: { file: "", ext: "" },
@@ -81,42 +75,34 @@ const EditProfile = ({
     let errs: any = {};
     errs = checkRules({
       value: formState.name,
-      rules: ["required", "alpha"],
+      rules: ["required", "alpha", "noSpaces"],
       key: "name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.middle_name,
-      rules: ["alpha"],
+      rules: ["alpha", "noSpaces"],
       key: "middle_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.last_name,
-      rules: ["required", "alpha"],
+      rules: ["required", "alpha", "noSpaces"],
       key: "last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.mother_last_name,
-      rules: ["alpha"],
+      rules: ["alpha", "noSpaces"],
       key: "mother_last_name",
       errors: errs,
     });
     errs = checkRules({
       value: formState.phone,
-      rules: ["required", "numeric", "min:8"],
+      rules: ["numeric", "min:8"],
       key: "phone",
       errors: errs,
     });
-    if (type !== "homeOwner" && type !== "owner") {
-      errs = checkRules({
-        value: formState.address,
-        rules: ["required", "min:5"],
-        key: "address",
-        errors: errs,
-      });
-    }
     setErrors(errs);
     return errs;
   };
@@ -143,8 +129,8 @@ const EditProfile = ({
 
     if (data?.success) {
       showToast("Perfil actualizado exitosamente", "success");
-      reLoad && reLoad();
-      reLoadList && reLoadList();
+      reLoad?.();
+      reLoadList?.();
       onClose();
     } else {
       console.error("error:", err);
@@ -159,7 +145,6 @@ const EditProfile = ({
       onClose={onClose}
       buttonText=""
       buttonCancel=""
-      // style={{minWidth:600}}
     >
       <div className={styles.EditProfile}>
         <section>
@@ -214,6 +199,7 @@ const EditProfile = ({
               value={formState.middle_name}
               required={false}
               onChange={onChange}
+              error={errors}
             />
             <Input
               label="Apellido paterno"
@@ -230,6 +216,7 @@ const EditProfile = ({
               value={formState.mother_last_name}
               required={false}
               onChange={onChange}
+              error={errors}
             />
             <Input
               label="Carnet de identidad"
@@ -243,7 +230,8 @@ const EditProfile = ({
             <Input
               label="Teléfono"
               name="phone"
-              type="text"
+              type="number"
+              required={false}
               value={formState.phone}
               onChange={onChange}
               error={errors}
@@ -253,6 +241,7 @@ const EditProfile = ({
             <Input
               label="Dirección"
               name="address"
+              required={false}
               type="text"
               value={formState.address}
               onChange={onChange}

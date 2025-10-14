@@ -11,6 +11,12 @@ const exceptions: Record<string, string> = {
   especímenes: "espécimen",
   yérsey: "yérseys",
   yérseys: "yérsey",
+  locales: "local",
+  local: "locales",
+  garajes: "garaje",
+  garaje: "garajes",
+  almacenes: "almacén",
+  almacén: "almacenes",
   // Palabras invariables (mismo singular y plural)
   crisis: "crisis",
   tesis: "tesis",
@@ -233,4 +239,21 @@ export const getInitials = (name = "", lastName = "") => {
   const firstInitial = name?.charAt(0)?.toUpperCase() || "";
   const lastInitial = lastName?.charAt(0)?.toUpperCase() || "";
   return `${firstInitial}${lastInitial}`;
+};
+
+/**
+ * Trunca un texto a un número máximo de caracteres
+ * @param text - El texto a truncar
+ * @param maxLength - Número máximo de caracteres (default: 30)
+ * @param ellipsis - Texto a agregar al final si se trunca (default: "...")
+ * @returns El texto truncado con ellipsis si excede maxLength
+ */
+export const truncateText = (
+  text: string,
+  maxLength: number = 30,
+  ellipsis: string = "..."
+): string => {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + ellipsis;
 };
