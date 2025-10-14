@@ -111,7 +111,11 @@ const RenderView = (props: {
       >
         <div className={styles.container}>
           <div className={styles.headerSection}>
-            <div className={styles.totalAmount}>{formatBs(item?.amount)}</div>
+            <div className={styles.totalAmount}>{formatBs(
+              (parseFloat(item?.amount || '0') || 0) +
+              (parseFloat(item?.maintenance_amount || '0') || 0) +
+              (parseFloat(item?.penalty_amount || '0') || 0)
+            )}</div>
             <div className={styles.paymentDate}>{getDateStrMes(item?.paid_at) || '-/-'}</div>
           </div>
 
