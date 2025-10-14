@@ -13,7 +13,7 @@ import {
 } from "@/components/layout/icons/IconsBiblioteca";
 import { SendEmoticonType, SendMessageType } from "../chat-types";
 
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import { Avatar } from "../../ui/Avatar/Avatar";
 import { Image } from "../../ui/Image/Image";
 import { useChatProvider } from "../chatBot/useChatProvider";
@@ -55,12 +55,33 @@ const ChatRoom = ({
 }: ChatRoomPropsType) => {
   const [newMessage, setNewMessage] = useState("");
   const { sendMessageBot } = useChatProvider({ provider: "kimi" });
+  const draftsRef = useRef<Record<string, string>>({});
+  const prevRoomIdRef = useRef(roomId);
 
   useEffect(() => {
+    draftsRef.current[prevRoomIdRef.current] = newMessage;
     setShowEmojiPicker(null);
-    setNewMessage("");
-    if (roomId.indexOf("chatBot") > -1 && selectedFiles.length > 0) cancelUpload();
+    const restored = draftsRef.current[roomId] || "";
+    setNewMessage(restored);
+    if (selectedFiles.length > 0) cancelUpload();
+    prevRoomIdRef.current = roomId;
   }, [roomId]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    // Obtener altura de línea
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight, 10);
+    const maxHeight = lineHeight * 10;
+
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${newHeight}px`;
+
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [newMessage]);
 
   const cancelUpload = () => {
     selectedFiles.forEach(file => {
@@ -92,30 +113,39 @@ const ChatRoom = ({
   };
 
   const handleSendMessage = async () => {
+    // No permitir enviar si está subiendo imágenes
+    if (isUploading) return;
+    
     const messageText = newMessage;
     const hasText = messageText.trim().length > 0;
     if (!hasText && selectedFiles.length === 0) return;
 
     setNewMessage("");
+    draftsRef.current[roomId] = "";
     typing.inputProps.onBlur();
 
     let msgId = 0;
     if (selectedFiles.length > 0) {
       setIsUploading(true);
-      // Enviar cada imagen como un mensaje separado
-      for (const selectedFile of selectedFiles) {
-        msgId = await sendMessage(
-          selectedFiles.length === 1 ? messageText : "",
-          roomId,
-          user?.id,
-          selectedFile.file
-        );
+      try {
+        // Enviar cada imagen como un mensaje separado
+        for (const selectedFile of selectedFiles) {
+          msgId = await sendMessage(
+            selectedFiles.length === 1 ? messageText : "",
+            roomId,
+            user?.id,
+            selectedFile.file
+          );
+        }
+        // Enviar el texto después de las imágenes si hay múltiples imágenes
+        if (selectedFiles.length > 1 && hasText) {
+          msgId = await sendMessage(messageText, roomId, user?.id);
+        }
+      } catch (error) {
+        console.error("Error al enviar mensaje con imagen:", error);
+      } finally {
+        cancelUpload();
       }
-      // Enviar el texto después de las imágenes si hay múltiples imágenes
-      if (selectedFiles.length > 1 && hasText) {
-        msgId = await sendMessage(messageText, roomId, user?.id);
-      }
-      cancelUpload();
     } else {
       msgId = await sendMessage(messageText, roomId, user?.id);
     }
@@ -243,6 +273,7 @@ const ChatRoom = ({
   const msgRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const inputEmojiPickerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const reactionEmojiPickerRef = useRef<HTMLDivElement>(null);
 
   const handleEmojiClick = (msg: any) => {
     if (!msg) {
@@ -301,7 +332,7 @@ const ChatRoom = ({
   const onKeyUp = (e: any) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
-        setNewMessage(newMessage + '\n');
+        // No hacer nada, el textarea ya maneja el salto de línea
       } else {
         if (newMessage.trim().length > 0 || selectedFiles.length > 0) {
           handleSendMessage();
@@ -337,6 +368,12 @@ const ChatRoom = ({
     if (selectedFiles.length === 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // No interceptar si el usuario está escribiendo en el textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+        return;
+      }
+
       if (e.key === 'ArrowLeft' && selectedPreviewIndex > 0) {
         e.preventDefault();
         setSelectedPreviewIndex(selectedPreviewIndex - 1);
@@ -360,8 +397,28 @@ const ChatRoom = ({
     };
   }, [selectedFiles, selectedPreviewIndex]);
 
+  // Cerrar SOLO el picker de reacciones al hacer clic fuera (igual que el input)
+  useEffect(() => {
+    const handleClickOutsideReaction = (event: MouseEvent) => {
+      if (
+        reactionEmojiPickerRef.current &&
+        !reactionEmojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(null);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutsideReaction);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideReaction);
+    };
+  }, [showEmojiPicker]);
+
   return (
-    <div 
+    <div
       className={styles.chatRoomContainer}
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
@@ -377,7 +434,7 @@ const ChatRoom = ({
           </div>
         </div>
       )}
-      
+
       {/* Área de mensajes con overlay relativo */}
       <div className={styles.messagesArea}>
         <div className={styles.chatMsgContainer} ref={chatRef}>
@@ -409,15 +466,19 @@ const ChatRoom = ({
                     msgRefs.current[msg.id] = el;
                   }}
                 >
-                  {/* Emoji Picker anclado al mensaje que lo invoca */}
                   {showEmojiPicker?.id === msg.id && (
                     <div
                       className={styles.emojiPicker}
+                      ref={reactionEmojiPickerRef}
                       style={{
                         ...(showEmojiPicker?.placeBelow
                           ? { top: 'calc(100% + 8px)', bottom: 'auto' }
                           : { bottom: 'calc(100% + 8px)', top: 'auto' }),
                       }}
+                      onDragEnter={(e) => e.stopPropagation()}
+                      onDragOver={(e) => e.stopPropagation()}
+                      onDragLeave={(e) => e.stopPropagation()}
+                      onDrop={(e) => e.stopPropagation()}
                     >
                       <EmojiPicker
                         reactionsDefaultOpen={true}
@@ -425,10 +486,9 @@ const ChatRoom = ({
                         onEmojiClick={handleEmojiSelect}
                         height={320}
                         emojiStyle={EmojiStyle.APPLE}
-                        style={{
-                          backgroundColor: 'var(--cWhite)',
-                          border: '1px solid #E8E8E8',
-                        }}
+                        theme={Theme.DARK}
+                        // @ts-ignore
+                        locale="es"
                       />
                       <IconX size={10} color="black" onClick={() => handleEmojiClick(null)} />
                     </div>
@@ -463,7 +523,7 @@ const ChatRoom = ({
                       }}
                     >
                       {msg['$files'].length > 0 && (
-                        <Image 
+                        <Image
                           src={msg['$files'][0].url}
                           alt="Imagen adjunta"
                           w={250}
@@ -535,8 +595,14 @@ const ChatRoom = ({
           })}
         </div>
         {selectedFiles.length > 0 && (
-          <div className={styles.previewContainer}>
-            <button 
+          <div
+            className={styles.previewContainer}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
+            <button
               className={styles.closePreviewButton}
               onClick={cancelUpload}
               title="Cerrar vista previa (ESC)"
@@ -549,10 +615,10 @@ const ChatRoom = ({
                 <div className={styles.imageCounter}>
                   {selectedPreviewIndex + 1} / {selectedFiles.length}
                 </div>
-                
+
                 {/* Botón anterior */}
                 {selectedFiles.length > 1 && selectedPreviewIndex > 0 && (
-                  <button 
+                  <button
                     className={styles.navButton + ' ' + styles.navPrev}
                     onClick={() => setSelectedPreviewIndex(selectedPreviewIndex - 1)}
                     title="Imagen anterior"
@@ -560,10 +626,10 @@ const ChatRoom = ({
                     ‹
                   </button>
                 )}
-                
+
                 {/* Botón siguiente */}
                 {selectedFiles.length > 1 && selectedPreviewIndex < selectedFiles.length - 1 && (
-                  <button 
+                  <button
                     className={styles.navButton + ' ' + styles.navNext}
                     onClick={() => setSelectedPreviewIndex(selectedPreviewIndex + 1)}
                     title="Siguiente imagen"
@@ -571,9 +637,9 @@ const ChatRoom = ({
                     ›
                   </button>
                 )}
-                
-                <Image 
-                  src={selectedFiles[selectedPreviewIndex].previewURL} 
+
+                <Image
+                  src={selectedFiles[selectedPreviewIndex].previewURL}
                   alt="Vista previa principal"
                   w={600}
                   h={400}
@@ -582,21 +648,31 @@ const ChatRoom = ({
                   objectFit="contain"
                 />
               </div>
-              
+
               {/* Carrusel de miniaturas */}
               {selectedFiles.length > 1 && (
                 <div className={styles.thumbnailCarousel}>
                   <div className={styles.thumbnailGrid}>
                     {selectedFiles.map((file, index) => (
-                      <div 
-                        key={file.id} 
+                      <div
+                        key={file.id}
                         className={`${styles.thumbnailItem} ${
                           index === selectedPreviewIndex ? styles.thumbnailSelected : ''
                         }`}
                         onClick={() => setSelectedPreviewIndex(index)}
                       >
-                        <Image 
-                          src={file.previewURL} 
+                        <button
+                          className={styles.removeThumbnailButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(file.id);
+                          }}
+                          title="Eliminar imagen"
+                        >
+                          <IconX color="white" size={12} />
+                        </button>
+                        <Image
+                          src={file.previewURL}
                           alt={`Miniatura ${index + 1}`}
                           w={80}
                           h={80}
@@ -615,7 +691,14 @@ const ChatRoom = ({
       </div>
 
       {/* Barra inferior de input y botones: queda visible siempre */}
-      <div className={styles.chatInputContainer} aria-busy={isUploading || sending}>
+      <div
+        className={styles.chatInputContainer}
+        aria-busy={isUploading}
+        onDragEnter={(e) => e.stopPropagation()}
+        onDragOver={(e) => e.stopPropagation()}
+        onDragLeave={(e) => e.stopPropagation()}
+        onDrop={(e) => e.stopPropagation()}
+      >
         <input
           ref={fileInputRef}
           type="file"
@@ -634,27 +717,35 @@ const ChatRoom = ({
           onKeyDown={typing.inputProps.onKeyDown}
           onKeyUp={onKeyUp}
           ref={textareaRef}
+          disabled={isUploading}
         />
 
-        {/* Overlay de loading mientras se envía o carga */}
-        {(isUploading || sending) && (
+        {/* Overlay de loading mientras se sube imagen */}
+        {isUploading && (
           <div className={styles.loadingOverlay}>
             <div className={styles.loader} />
             <span className={styles.loadingText}>
-              {isUploading ? 'Subiendo imagen...' : 'Enviando...'}
+              Subiendo imagen...
             </span>
           </div>
         )}
 
         {/* Selector de emojis para el input */}
         {showInputEmojiPicker && (
-          <div ref={inputEmojiPickerRef} className={styles.inputEmojiPicker}>
+          <div
+            ref={inputEmojiPickerRef}
+            className={styles.inputEmojiPicker}
+            onDragEnter={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.stopPropagation()}
+            onDragLeave={(e) => e.stopPropagation()}
+            onDrop={(e) => e.stopPropagation()}
+          >
             <EmojiPicker
               onEmojiClick={handleInputEmojiSelect}
               height={350}
               width={300}
               emojiStyle={EmojiStyle.APPLE}
-              style={{ backgroundColor: 'var(--cWhite)' }}
+              theme={Theme.DARK}
             />
           </div>
         )}
@@ -663,7 +754,7 @@ const ChatRoom = ({
           <IconEmoji
             color="var(--cBlackV1)"
             onClick={() => {
-              if (!sending && !isUploading) {
+              if (!isUploading) {
                 setShowInputEmojiPicker(!showInputEmojiPicker);
               }
             }}
@@ -671,8 +762,8 @@ const ChatRoom = ({
             style={{
               padding: '4px',
               backgroundColor: 'var(--cWhiteV1)',
-              opacity: isUploading || sending ? 0.5 : 1,
-              pointerEvents: isUploading || sending ? 'none' : 'auto',
+              opacity: isUploading ? 0.5 : 1,
+              pointerEvents: isUploading ? 'none' : 'auto',
             }}
             reverse={true}
             title="Emojis"
@@ -682,7 +773,7 @@ const ChatRoom = ({
             <IconImage
               color="var(--cBlackV1)"
               onClick={() => {
-                if (!sending && !isUploading) {
+                if (!isUploading) {
                   fileInputRef.current?.click();
                 }
               }}
@@ -690,8 +781,8 @@ const ChatRoom = ({
               style={{
                 padding: '4px',
                 backgroundColor: 'var(--cWhiteV1)',
-                opacity: isUploading || sending ? 0.5 : 1,
-                pointerEvents: isUploading || sending ? 'none' : 'auto',
+                opacity: isUploading ? 0.5 : 1,
+                pointerEvents: isUploading ? 'none' : 'auto',
               }}
               title="Adjuntar imagen"
             />
@@ -700,14 +791,14 @@ const ChatRoom = ({
           <IconSend
             color="var(--cBlackV1)"
             onClick={() => {
-              if (!sending && !isUploading) handleSendMessage();
+              if (!isUploading) handleSendMessage();
             }}
             circle={true}
             reverse={true}
             style={{
               padding: '4px',
               backgroundColor: 'var(--cAccent)',
-              opacity: isUploading || sending ? 0.65 : 1,
+              opacity: isUploading ? 0.65 : 1,
             }}
             title="Enviar mensaje"
           />

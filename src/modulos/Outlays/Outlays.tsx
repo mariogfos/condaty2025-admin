@@ -133,7 +133,7 @@ const Outlays = () => {
           options: getPeriodOptions,
         },
       },
-/*       // <- Agregar campo de tipo después de date_at
+      /*       // <- Agregar campo de tipo después de date_at
       expense_type: {
         rules: [],
         api: "e",

@@ -138,6 +138,7 @@ const ReservaModal = ({ open, onClose, reservaData, onApprove, onCancel }: any) 
         onClose={onClose}
         buttonText="" // Oculta botones por defecto
         buttonCancel="" // Oculta botones por defecto
+        variant={"mini"}
 
       >
         {/* Cabecera personalizada */}

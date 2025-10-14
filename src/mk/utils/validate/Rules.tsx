@@ -179,7 +179,7 @@ export const validRule = (
     number: () =>
       !value ? "" : !/^[0-9.,-]+$/.test(value) ? "No es un número válido" : "",
     integer: () =>
-      !/^[0-9]+$/.test(value) ? "No es un número entero valido" : "",
+      !/^[0-9]+$/.test(value) ? "No es un número entero válido" : "",
     positive: () => (value < 0 ? "Debe ser número positivo " : ""),
     greater: () => (value <= param[0] ? `Debe ser mayor` : ""),
     less: () => {

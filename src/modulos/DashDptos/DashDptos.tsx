@@ -361,6 +361,7 @@ const DashDptos = ({ id }: DashDptosProps) => {
           }`}
           open={openTitular}
           onSave={onSave}
+          variant={"mini"}
           onClose={() => {
             setOpenTitular(false);
             setCurrentChangeType(null);

@@ -542,6 +542,7 @@ const ProfileModal = ({
             buttonText="Eliminar"
             buttonCancel="Cancelar"
             onSave={onDel}
+            variant={"mini"}
           >
             <div>
               <p style={{ fontSize: 'var(--sL)' }}>

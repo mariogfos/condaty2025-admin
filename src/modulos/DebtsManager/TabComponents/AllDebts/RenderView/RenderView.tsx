@@ -356,6 +356,7 @@ const RenderView: React.FC<RenderViewProps> = ({
         title="Detalle de deuda"
         buttonText=""
         buttonCancel=""
+        variant="mini"
       >
         <LoadingScreen onlyLoading={Object.keys(debtDetail).length === 0} type="CardSkeleton">
           <div className={styles.content}>

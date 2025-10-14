@@ -23,6 +23,8 @@ const RenderForm = ({
   execute,
   extraData,
   reLoad,
+  onView,
+  openView,
 }: any) => {
   const [formState, setFormState]: any = useState({
     ...item,
@@ -223,10 +225,14 @@ const RenderForm = ({
     );
 
     if (response?.success === true) {
-      reLoad();
+      // reLoad();
       setItem(formState);
       showToast(response?.message, "success");
-      onClose();
+      if (openView) onClose({ beforeClose: () => onView(item) });
+      else {
+        reLoad();
+        onClose();
+      }
     } else {
       showToast(response?.message, "error");
     }
@@ -244,10 +250,12 @@ const RenderForm = ({
       open={open}
       onClose={onClose}
       onSave={onSave}
+      variant={"mini"}
       buttonText={formState?.id ? "Editar condonación" : "Crear condonación"}
     >
       <div style={{ display: "flex", gap: 8 }}>
         <Select
+          filter={true}
           name="dpto_id"
           label="Unidad"
           options={getUnits()}

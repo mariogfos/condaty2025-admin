@@ -14,7 +14,7 @@ import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { useEvent } from "@/mk/hooks/useEvents";
 
 const paramsInitial = {
-  perPage: 20,
+  perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -340,6 +340,9 @@ const Budget = () => {
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={1700}
       />
+
+      {/* Eliminar el botón de aquí */}
+
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

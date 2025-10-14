@@ -1,3 +1,4 @@
+// Function: WidgetList
 import React, { Fragment } from "react";
 import styles from "./WidgetList.module.css"; // Asegúrate que el path sea correcto
 import EmptyData from "@/components/NoData/EmptyData";
@@ -61,6 +62,7 @@ export const WidgetList = ({
             centered={true}
             className={styles.widgetListEmptyContainer}
             size={48}
+            singleLine={true}
           />
         )}
       </div>

@@ -107,6 +107,7 @@ const RenderView = (props: {
             : undefined
         }
         buttonCancel=""
+        variant={"mini"}
       >
         <div className={styles.container}>
           <div className={styles.headerSection}>

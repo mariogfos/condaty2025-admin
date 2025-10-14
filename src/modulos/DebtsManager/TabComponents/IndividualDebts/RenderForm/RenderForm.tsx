@@ -187,10 +187,11 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }
     }
 
+    // Function: RenderForm (fragmento dentro de validar)
     addError(
       checkRules({
         value: _formState.amount,
-        rules: ['required'],
+        rules: ['required', 'positive'],
         key: 'amount',
         errors: errs,
       }),
@@ -214,6 +215,16 @@ const RenderForm: React.FC<RenderFormProps> = ({
       }),
       'dpto_id'
     );
+    // Validación para interés: positivo y máximo 100
+    addError(
+      checkRules({
+        value: _formState.interest,
+        rules: ['positive', 'less:100'],
+        key: 'interest',
+        errors: errs,
+      }),
+      'interest'
+    );
 
     const filteredErrs = Object.fromEntries(
       Object.entries(errs).filter(
@@ -221,7 +232,6 @@ const RenderForm: React.FC<RenderFormProps> = ({
       )
     );
     set_Errors(filteredErrs);
-
     return Object.keys(errs).length === 0;
   }, [_formState]);
 
@@ -352,6 +362,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
       buttonCancel="Cancelar"
       buttonText={_formState.id ? 'Actualizar' : 'Crear deuda individual'}
       title={_formState.id ? 'Editar deuda individual' : 'Crear deuda individual'}
+      variant={"mini"}
     >
       <div className={styles.formContainer}>
         <div className={styles.formTextHeader}>

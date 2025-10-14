@@ -496,6 +496,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                       options={unidadesOptions()}
                       onChange={handleChange}
                       error={errors}
+                      filter
                     />
                   </div>
                 </div>
@@ -965,7 +966,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     onClick={prevStep}
                     disabled={isSubmitting}
                   >
-                    Atras
+                    Atrás
                   </button>
                 )}
                 {currentStep === 1 && (

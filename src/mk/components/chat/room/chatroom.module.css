@@ -158,7 +158,6 @@
   width: auto;
   z-index: 20;
   animation: fadeIn 0.2s ease;
-
   background: transparent;
   border: none;
   border-radius: 0;
@@ -168,13 +167,8 @@
 
 .chatInputContainer {
   position: relative;
-  /* display: flex;
-  gap: 8px;
-  justify-content: space-between; */
   border-radius: 8px;
   margin: 16px 0 0 0;
-  /* padding: 16px; */
-  height: 96px;
   background-color: var(--cWhiteV2);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
@@ -250,15 +244,18 @@
   border: none;
   width: 100%;
   height: 100%;
-  padding: 16px;
-    padding-bottom: 48px; /* Espacio para los botones abajo */
+  max-height: none;
+  padding: 16px 16px 0;
+  margin-bottom: 38px;
   border-radius: 8px;
   line-height: 1.4;
   white-space: pre-line;
+  overflow-y: auto;
   resize: none;
   outline: none;
   background-color: transparent;
   color: var(--cWhiteV1);
+  transition: height 0.2s ease-out;
 }
 
 .chatInput:focus {
@@ -466,6 +463,31 @@
 .thumbnailSelected {
   border-color: var(--cPrimary) !important;
   box-shadow: 0 0 0 2px var(--cPrimary);
+}
+
+.removeThumbnailButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+  opacity: 0.8;
+}
+
+.removeThumbnailButton:hover {
+  background-color: var(--cError);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .navButton {

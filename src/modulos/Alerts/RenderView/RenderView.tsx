@@ -257,8 +257,10 @@ const RenderView = (props: RenderViewProps) => {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const [item, setItem] = useState(props?.item || null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getItemApi = async () => {
+    setIsLoading(true);
     const { data } = await execute(
       "/alerts",
       "GET",
@@ -267,6 +269,7 @@ const RenderView = (props: RenderViewProps) => {
       true
     );
     if (data?.success === true) setItem(data?.data?.data || null);
+    setIsLoading(false);
   };
   useEffect(() => {
     getItemApi();
@@ -296,7 +299,7 @@ const RenderView = (props: RenderViewProps) => {
     item.level === ALERT_LEVELS.PANIC || item.level === ALERT_LEVELS.HIGH;
   const isAttended = Boolean(item.date_at);
   const isPanicLevel = item.level === 4;
-  const showActionButton = !isAttended && isPanicLevel;
+  const showActionButton = !isLoading && !isAttended && isPanicLevel;
 
   // User data
   const informer =

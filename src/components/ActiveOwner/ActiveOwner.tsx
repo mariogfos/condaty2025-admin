@@ -112,6 +112,7 @@ const ActiveOwner = ({
       title={typeActive === "X" ? "Rechazar solicitud" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
+      variant={"mini"}
     >
       {typeActive === "A" ? (
         <div className={styles.activeContainer}>
@@ -137,6 +138,7 @@ const ActiveOwner = ({
               error={errors}
               optionValue="id"
               onChange={handleChangeInput}
+              filter={true}
             />
           </div>
         </div>
