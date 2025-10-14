@@ -53,3 +53,6 @@ WARP.md
 # Ignore code scanner and editor settings
 /.vscode/
 /.scannerwork/
+
+# env 
+.env.development
