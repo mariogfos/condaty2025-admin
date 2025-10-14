@@ -69,6 +69,8 @@ const DateRangeFilterModal: React.FC<Props> = ({
       onClose={onClose}
       buttonText={buttonText}
       buttonCancel={buttonCancel}
+      minWidth={360}
+      maxWidth={680}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <Input

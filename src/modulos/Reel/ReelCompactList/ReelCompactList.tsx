@@ -98,11 +98,11 @@ const ReelCompactList: React.FC<ReelCompactListProps> = ({
                   <h3 className={styles.newsTitle}>{item.title}</h3>
                   <div>
                     <p className={styles.newsDescription}>
-                      {item.isDescriptionExpanded || item.description.length <= 100
+                      {item.isDescriptionExpanded || item.description?.length <= 100
                         ? item.description
-                        : `${item.description.substring(0, 100)}...`}
+                        : `${item.description?.substring(0, 100)}...`}
                     </p>
-                    {item.description.length > 100 && (
+                    {item.description?.length > 100 && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

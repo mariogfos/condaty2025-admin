@@ -238,6 +238,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         title="Detalle de Ingreso"
         buttonText=""
         buttonCancel=""
+        minWidth={480}
+        maxWidth={1024}
       >
         {/* Necesario por lo childres solicitados por le datamodal, manejo del null exeption en item */}
         <></>
@@ -342,6 +344,8 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
         }
         variant={"mini"}
         style={style}
+        minWidth={480}
+        maxWidth={1024}
       >
         {item && onDel && item.status === 'P' && item.user && (
           <div className={styles.headerActionContainer}>

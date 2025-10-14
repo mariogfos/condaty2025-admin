@@ -237,7 +237,7 @@ const Layout = ({ children }: any) => {
             setStore({ openProfileModal: false });
           }}
           dataID={user?.id}
-          titleBack="Volver atras"
+          titleBack="Volver atrás"
           type="admin"
           del={false}
           setOnLogout={setOnLogout}
@@ -253,7 +253,8 @@ const Layout = ({ children }: any) => {
           }}
           buttonText="Cerrar sesión"
           buttonCancel="Cancelar"
-          variant={"mini"}
+          minWidth={360}
+          maxWidth={680}
           onSave={() => logout()}
         >
           <p className={styles.modalLogout}>

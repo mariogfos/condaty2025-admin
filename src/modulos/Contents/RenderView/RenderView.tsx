@@ -162,6 +162,7 @@ const RenderView = (props: {
         title={'Detalle de la publicación'}
         buttonText=""
         buttonCancel=""
+        variant={"mini"}
       >
         <div className={styles.container}>
           <div className={styles.header}>
