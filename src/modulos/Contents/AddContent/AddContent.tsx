@@ -49,18 +49,18 @@ const AddContent = ({
         avatarData[`avatar${index}`] = {
           file: "",
           id: img.id,
-          ext: img.ext || "webp"
+          ext: img.ext || "webp",
         };
       });
       initialState.avatar = avatarData;
     }
 
     // Manejar documentos existentes
-    if (action === "edit" && item?.type === 'D' && item?.url) {
+    if (action === "edit" && item?.type === "D" && item?.url) {
       initialState.file = {
-        ext: item.url || 'pdf',
-        file: '', // Archivo existente
-        existing: true
+        ext: item.url || "pdf",
+        file: "", // Archivo existente
+        existing: true,
       };
     }
 
@@ -92,7 +92,7 @@ const AddContent = ({
         avatarData[`avatar${index}`] = {
           file: "",
           id: img.id,
-          ext: img.ext || "webp"
+          ext: img.ext || "webp",
         };
       });
       setFormState((prev: any) => ({ ...prev, avatar: avatarData }));
@@ -122,7 +122,7 @@ const AddContent = ({
           type: "I",
           url: null,
           file: null,
-          avatar: formState?.avatar
+          avatar: formState?.avatar,
         });
       }
       if (formState?.isType == "N") {
@@ -131,7 +131,7 @@ const AddContent = ({
           type: "I",
           url: null,
           file: null,
-          avatar: formState?.avatar
+          avatar: formState?.avatar,
         });
       }
     }
@@ -195,12 +195,6 @@ const AddContent = ({
         errors,
         data: formState,
       });
-      errors = checkRules({
-        value: formState?.description,
-        rules: ["required"],
-        key: "description",
-        errors,
-      });
     }
 
     if (formState?.type == "V") {
@@ -211,7 +205,12 @@ const AddContent = ({
         errors,
       });
     }
-
+    errors = checkRules({
+      value: formState?.description,
+      rules: ["required"],
+      key: "description",
+      errors,
+    });
     setErrors(errors);
     return errors;
   };
@@ -291,28 +290,28 @@ const AddContent = ({
               <CardContent title="Tipo de publicación">
                 <div className={styles.radioContainer}>
                   <Radio
-                    checked={formState?.isType == 'N'}
+                    checked={formState?.isType == "N"}
                     label="Noticia"
                     subtitle="Ideal para informar con mayor detalle sobre un acontecimiento importante."
-                    onChange={() => setFormState({ ...formState, isType: 'N' })}
-                    disabled={action == 'edit'}
-                    containerStyle={{ backgroundColor: 'transparent' }}
+                    onChange={() => setFormState({ ...formState, isType: "N" })}
+                    disabled={action == "edit"}
+                    containerStyle={{ backgroundColor: "transparent" }}
                     className={styles.customRadio}
                   />
                   <Radio
-                    checked={formState?.isType == 'P'}
+                    checked={formState?.isType == "P"}
                     label="Post"
                     subtitle="Publicación más informal, ideal para publicar eventos cotidianos."
-                    onChange={() => setFormState({ ...formState, isType: 'P' })}
-                    disabled={action == 'edit'}
-                    containerStyle={{ backgroundColor: 'transparent' }}
+                    onChange={() => setFormState({ ...formState, isType: "P" })}
+                    disabled={action == "edit"}
+                    containerStyle={{ backgroundColor: "transparent" }}
                     className={styles.customRadio}
                   />
                 </div>
                 <Br />
               </CardContent>
 
-              {formState?.isType == 'N' && (
+              {formState?.isType == "N" && (
                 <Input
                   name="title"
                   label="Titulo de la publicación"
@@ -339,71 +338,71 @@ const AddContent = ({
                 <div className={styles.contentTypeContainer}>
                   <TagContents
                     icon={<IconGallery size={16} />}
-                    isActive={formState.type == 'I'}
+                    isActive={formState.type == "I"}
                     text="Contenido multimedia"
                     onClick={() =>
                       setFormState({
                         ...formState,
-                        type: 'I',
+                        type: "I",
                         url: null,
                         file: null,
                       })
                     }
-                    disabled={action == 'edit'}
+                    disabled={action == "edit"}
                   />
-                  {formState.isType == 'P' && (
+                  {formState.isType == "P" && (
                     <>
                       <TagContents
-                        isActive={formState.type == 'V'}
+                        isActive={formState.type == "V"}
                         icon={<IconVideo size={16} />}
-                        text={'Video'}
+                        text={"Video"}
                         onClick={() =>
                           setFormState({
                             ...formState,
-                            type: 'V',
+                            type: "V",
                             file: null,
                             avatar: null,
                           })
                         }
-                        disabled={action == 'edit'}
+                        disabled={action == "edit"}
                       />
                       <TagContents
-                        isActive={formState.type == 'D'}
+                        isActive={formState.type == "D"}
                         icon={<IconDocs size={16} />}
                         text="Documento"
                         onClick={() =>
                           setFormState({
                             ...formState,
-                            type: 'D',
+                            type: "D",
                             url: null,
                             avatar: null,
                           })
                         }
-                        disabled={action == 'edit'}
+                        disabled={action == "edit"}
                       />
                     </>
                   )}
                 </div>
 
-                {formState?.type == 'I' && (
+                {formState?.type == "I" && (
                   <div className={styles.uploadContainer}>
                     <UploadFileMultiple
                       name="avatar"
                       value={formState?.avatar || {}}
                       onChange={handleChangeInput}
-                      label={'Subir imagen, jpg, png o webp'}
+                      label={"Subir imagen, jpg, png o webp"}
                       error={errors}
-                      ext={['jpg', 'png', 'jpeg', 'webp']}
+                      ext={["jpg", "png", "jpeg", "webp"]}
                       setError={setErrors}
                       img={true}
                       maxFiles={10}
-                      prefix={'CONT'}
+                      prefix={"CONT"}
                       images={formState?.images || []}
                       item={formState}
                     />
                   </div>
                 )}
-                {formState?.type == 'V' && (
+                {formState?.type == "V" && (
                   <div className={styles.uploadContainer}>
                     <Input
                       name="url"
@@ -414,15 +413,15 @@ const AddContent = ({
                     />
                   </div>
                 )}
-                {formState?.type == 'D' && (
+                {formState?.type == "D" && (
                   <div className={styles.uploadContainer}>
                     <UploadFile
-                      name={'file'}
+                      name={"file"}
                       value={formState?.file}
                       onChange={handleChangeInput}
-                      label={'Subir documento'}
+                      label={"Subir documento"}
                       error={errors}
-                      ext={['pdf']}
+                      ext={["pdf"]}
                       setError={setErrors}
                       item={formState}
                     />
@@ -435,14 +434,20 @@ const AddContent = ({
               <Button variant="secondary" onClick={onClose}>
                 Cancelar
               </Button>
-              <Button onClick={onSave}>{formState?.id ? 'Actualizar' : 'Publicar'}</Button>
+              <Button onClick={onSave}>
+                {formState?.id ? "Actualizar" : "Publicar"}
+              </Button>
             </div>
           </div>
 
           <div className={styles.containerPreview}>
             <p>Vista previa</p>
             <div>
-              <Preview formState={formState} extraData={extraData} action={action} />
+              <Preview
+                formState={formState}
+                extraData={extraData}
+                action={action}
+              />
             </div>
           </div>
         </div>
