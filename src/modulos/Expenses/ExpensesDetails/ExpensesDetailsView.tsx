@@ -44,6 +44,11 @@ const renderAmountCell = ({ item }: { item: any }) => (
 const renderPenaltyAmountCell = ({ item }: { item: any }) => (
   <FormatBsAlign value={item?.penalty_amount} alignRight />
 );
+const renderMaintenanceAmountCell = ({ item }: { item: any }) => (
+  <FormatBsAlign value={item?.maintenance_amount} alignRight />
+);
+
+
 
 const renderStatusCell = ({ item }: { item: any }, getDisplayStatus: Function) => {
   const statusConfig: { [key: string]: { color: string; bgColor: string } } = {
@@ -183,97 +188,91 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
 
   const fields = useMemo(() => {
     return {
-      id: { rules: [], api: "e" },
+      id: { rules: [], api: 'e' },
       unit: {
-        rules: [""],
-        api: "",
-        label: "Unidad",
+        rules: [''],
+        api: '',
+        label: 'Unidad',
         list: {
           onRender: renderUnitCell,
         },
       },
       address: {
-        rules: [""],
-        api: "",
-        label: "Dirección",
+        rules: [''],
+        api: '',
+        label: 'Dirección',
         list: {
           onRender: renderAddressCell,
         },
       },
       paid_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha de pago",
+        rules: [''],
+        api: '',
+        label: 'Fecha de pago',
         list: {
           onRender: renderPaidAtCell,
         },
         filter: {
-          key: "paid_at",
-          label: "Periodo",
+          key: 'paid_at',
+          label: 'Periodo',
           options: getPeriodOptions,
         },
       },
       due_at: {
-        rules: [""],
-        api: "",
-        label: "Fecha de plazo",
+        rules: [''],
+        api: '',
+        label: 'Fecha de plazo',
         list: {
           onRender: renderDueAtCell,
         },
       },
       amount: {
-        rules: ["required"],
-        api: "e",
-        label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Expensa
-          </span>
-        ),
+        rules: ['required'],
+        api: 'e',
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Expensa</span>,
         list: {
           onRender: renderAmountCell,
         },
         form: {
-          type: "text",
-          label: "Monto",
+          type: 'text',
+          label: 'Monto',
         },
       },
       obs: {
-        rules: ["required"],
-        api: "e",
-        label: "Motivo del cambio",
+        rules: ['required'],
+        api: 'e',
+        label: 'Motivo del cambio',
         form: {
-          type: "text",
-          label: "Motivo del cambio",
+          type: 'text',
+          label: 'Motivo del cambio',
         },
       },
       penalty_amount: {
-        rules: [""],
-        api: "",
-        label: (
-          <span style={{ display: "block", textAlign: "right", width: "100%" }}>
-            Multa
-          </span>
-        ),
+        rules: [''],
+        api: '',
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Multa</span>,
         list: {
           onRender: renderPenaltyAmountCell,
         },
       },
+      maintenance_amount: {
+        rules: [''],
+        api: '',
+        label: <span style={{ display: 'block', textAlign: 'right', width: '100%' }}>Mant. de valor</span>,
+        list: {
+          onRender: renderMaintenanceAmountCell,
+        },
+      },
       status: {
-        rules: [""],
-        api: "",
-        label: (
-          <span
-            style={{ display: "block", textAlign: "center", width: "100%" }}
-          >
-            Estado
-          </span>
-        ),
+        rules: [''],
+        api: '',
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%' }}>Estado</span>,
         list: {
           onRender: (props: any) => renderStatusCell(props, getDisplayStatus),
         },
         filter: {
-          label: "Estado",
-          width: "278px",
+          label: 'Estado',
+          width: '278px',
           options: () => {
             return [
               { id: 'ALL', name: 'Todos' },
@@ -284,7 +283,7 @@ const ExpensesDetails = ({ data, setOpenDetail }: any) => {
               { id: 'M', name: 'En mora' },
             ];
           },
-          optionLabel: "name",
+          optionLabel: 'name',
         },
       },
     };

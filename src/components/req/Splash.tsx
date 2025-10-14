@@ -8,7 +8,7 @@ const Splash = () => {
         <IconLogo className={styles.logo} size={156} />
         <div className={styles.spinDot}>.</div>
         <div className={styles.text}>
-         <span className={styles.bold}>Tecnologia,</span> que une{" "}
+         <span className={styles.bold}>Tecnología,</span> que une{" "}
           <span className={styles.bold}>vecinos</span>
         </div>
       </div>

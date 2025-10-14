@@ -966,7 +966,7 @@ const CreateReserva = ({ extraData, setOpenList, onClose, reLoad }: any) => {
                     onClick={prevStep}
                     disabled={isSubmitting}
                   >
-                    Atras
+                    Atrás
                   </button>
                 )}
                 {currentStep === 1 && (

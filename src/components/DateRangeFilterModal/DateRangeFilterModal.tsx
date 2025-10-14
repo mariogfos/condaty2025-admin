@@ -64,11 +64,13 @@ const DateRangeFilterModal: React.FC<Props> = ({
   return (
     <DataModal
       open={open}
-      title="Seleccionar Rango de Fechas"
+      title="Seleccionar rango de fechas"
       onSave={handleSave}
       onClose={onClose}
       buttonText={buttonText}
       buttonCancel={buttonCancel}
+      minWidth={360}
+      maxWidth={480}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <Input

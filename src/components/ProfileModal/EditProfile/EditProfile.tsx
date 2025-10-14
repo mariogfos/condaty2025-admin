@@ -145,6 +145,8 @@ const EditProfile = ({
       onClose={onClose}
       buttonText=""
       buttonCancel=""
+      minWidth={480}
+      maxWidth={960}
     >
       <div className={styles.EditProfile}>
         <section>
