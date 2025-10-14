@@ -176,7 +176,23 @@ const Defaulters = () => {
           ),
         },
       },
-
+      mv: {
+        rules: [],
+        api: "ae",
+        label: (
+          <span
+            style={{ display: "block", textAlign: "right", width: "100%" }}
+            title="Total de mantenimiento de valor"
+          >
+            Mant. Valor
+          </span>
+        ),
+        list: {
+          onRender: (props: { item: { mv: number } }) => (
+            <FormatBsAlign value={props?.item?.mv} alignRight />
+          ),
+        },
+      },
       total: {
         rules: [],
         api: "ae",
@@ -217,19 +233,21 @@ const Defaulters = () => {
   interface Totals {
     porCobrarExpensa: number;
     porCobrarMulta: number;
+    porCobrarMv: number;
   }
 
   const calculatedTotals = useMemo(() => {
     if (!data?.data || data.data.length === 0) {
-      return { porCobrarExpensa: 0, porCobrarMulta: 0 };
+      return { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 };
     }
     const totals = data.data.reduce(
-      (acc: Totals, item: { expensa: number; multa: number }) => {
+      (acc: Totals, item: { expensa: number; multa: number; mv: number }) => {
         acc.porCobrarExpensa += item.expensa || 0;
         acc.porCobrarMulta += item.multa || 0;
+        acc.porCobrarMv += item.mv || 0;
         return acc;
       },
-      { porCobrarExpensa: 0, porCobrarMulta: 0 }
+      { porCobrarExpensa: 0, porCobrarMulta: 0, porCobrarMv: 0 }
     );
     return totals;
   }, [data?.data]);
@@ -239,12 +257,15 @@ const Defaulters = () => {
         extraData?.porCobrarExpensa || calculatedTotals.porCobrarExpensa,
       porCobrarMulta:
         extraData?.porCobrarMulta || calculatedTotals.porCobrarMulta,
+      porCobrarMv:
+        extraData?.porCobrarMv || calculatedTotals.porCobrarMv,
     }),
     [
       extraData?.porCobrarExpensa,
       extraData?.porCobrarMulta,
       calculatedTotals.porCobrarExpensa,
       calculatedTotals.porCobrarMulta,
+      calculatedTotals.porCobrarMv,
     ]
   );
   const handleRowClick = (item: any) => {
@@ -254,6 +275,7 @@ const Defaulters = () => {
   const renderRightPanel = useCallback(() => {
     const expensaColor = "var(--cCompl5)";
     const multaColor = "var(--cCompl3)";
+    const mvColor = "var(--cCompl4)";
 
     return (
       <div className={styles.rightPanel}>
@@ -289,12 +311,22 @@ const Defaulters = () => {
               textColor="white"
               style={{ width: "100%", borderColor: "var(--cCompl3)" }}
             />
+            <WidgetDefaulterResume
+              title={"Mantenimiento de valor"}
+              amount={`Bs ${formatNumber(finalTotals.porCobrarMv)}`}
+              pointColor={"var(--cCompl4)"}
+              icon={<IconMultas size={26} color={"var(--cCompl4)"} />}
+              iconBorderColor="var(--cCompl4)"
+              backgroundColor={"var(--cHoverCompl7)"}
+              textColor="white"
+              style={{ width: "100%", borderColor: "var(--cCompl4)" }}
+            />
           </section>
         </div>
         <div className={styles.graphPanel}>
           <GraphBase
             data={{
-              labels: ["Expensas", "Multas"],
+              labels: ["Expensas", "Multas", "Mant. Valor"],
               values: [
                 {
                   name: "Expensas",
@@ -304,6 +336,10 @@ const Defaulters = () => {
                   name: "Multas",
                   values: [finalTotals.porCobrarMulta],
                 },
+                {
+                  name: "Mant. Valor",
+                  values: [finalTotals.porCobrarMv],
+                }
               ],
             }}
             chartTypes={["donut"]}
@@ -311,7 +347,7 @@ const Defaulters = () => {
             options={{
               subtitle: "",
               label: "Total de morosidad general entre expensas y multas",
-              colors: [expensaColor, multaColor],
+              colors: [expensaColor, multaColor, mvColor],
               height: "380px",
               width: "100%",
               centerText: "Total",
