@@ -15,7 +15,7 @@
     "axios": "^1.12.0",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.2",
-    "next": "^15.2.4",
+    "next": "^15.5.4",
     "react": "^19.1.0",
     "react-apexcharts": "^1.7.0",
     "react-day-picker": "^9.6.7",
