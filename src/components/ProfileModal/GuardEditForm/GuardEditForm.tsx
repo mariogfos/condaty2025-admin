@@ -272,7 +272,8 @@ const GuardEditForm: React.FC<GuardEditFormProps> = ({
       buttonCancel="Cancelar"
       buttonText={formState.id ? "Actualizar" : "Guardar"}
       title={formState.id ? "Editar Guardia" : "Nuevo guardia"}
-      variant={"mini"}
+      minWidth={560}
+      maxWidth={860}
     >
       <div className={styles['guard-form-container']}>
         {/* Sección de imagen */}
