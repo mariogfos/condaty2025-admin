@@ -21,7 +21,7 @@
 # production
 /build
 .env*
-.env.development
+/.env.development
 .env.production
 # misc
 .DS_Store
@@ -43,10 +43,10 @@ next-env.d.ts
 
 #custom
 .devdbrc
-.env.development
+/.env.development
 package-lock.json
-.env.development
-.env.production
+/.env.development
+/.env.production
 
 WARP.md
 
@@ -55,4 +55,4 @@ WARP.md
 /.scannerwork/
 
 # env 
-.env.development
+/.env.development

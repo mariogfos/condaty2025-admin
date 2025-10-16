@@ -137,12 +137,12 @@ const CategoryCard = memo(
                       <div className={styles.subcategoryRow}>
                         <div className={styles.subcategoryNameContainer}>
                           <span className={styles.subcategoryName}>
-                            {subcat.name || 'Sin nombre'}
+                            {subcat.name || '-/-'}
                           </span>
                         </div>
                         <div className={styles.subcategoryDescContainer}>
                           <span className={styles.subcategoryDesc}>
-                            {subcat.description || 'Sin descripción'}
+                            {subcat.description || '-/-'}
                           </span>
                         </div>
                         <div className={styles.subcategoryActions}>
