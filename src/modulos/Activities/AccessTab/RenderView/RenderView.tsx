@@ -124,6 +124,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         title="Detalle del acceso"
         buttonText=""
         buttonCancel=""
+        variant={"mini"}
       >
         <LoadingScreen
           onlyLoading={Object.keys(accessDetail).length === 0}
