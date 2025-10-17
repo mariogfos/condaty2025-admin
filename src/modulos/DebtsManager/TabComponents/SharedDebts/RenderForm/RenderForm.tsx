@@ -387,10 +387,7 @@ const RenderForm: React.FC<RenderFormProps> = ({
           (getFullName(dptoItem?.titular) || 'Sin titular') +
           ' - ' +
           dptoItem.nro +
-          ' ' +
-          UnitsType['_' + client?.type_dpto] +
-          ' ' +
-          dptoItem.description,
+          (dptoItem.description ? ' - ' + dptoItem.description : ''),
       };
     });
     setLdpto(lista);
