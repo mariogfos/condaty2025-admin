@@ -137,7 +137,7 @@ const Budget = () => {
       modulo: "budgets",
       singular: "Presupuesto",
       plural: "Presupuestos",
-      permiso: "",
+      permiso: "budgets",
       extraData: true,
       filter: true,
       export: true,

@@ -17,7 +17,7 @@ const mod = {
   modulo: "reservations",
   singular: "Reserva Pendiente", // Cambiado para claridad
   plural: "Reservas Pendientes", // Cambiado para claridad
-  permiso: "", // Asegúrate que el permiso sea correcto
+  permiso: "reservations", // Asegúrate que el permiso sea correcto
   extraData: true,
   hideActions: { edit: true, del: true, add: true }, // Ocultar acciones por defecto en esta vista
   renderView: (props: any) => <ReservationDetailModal {...props} />,

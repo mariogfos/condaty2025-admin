@@ -30,7 +30,7 @@ const Guards = () => {
     singular: "guardia",
     plural: "Guardias",
     filter: true,
-    permiso: "",
+    permiso: "guards",
     export: true,
     titleAdd: "Nuevo",
     //import: true,

@@ -30,7 +30,7 @@ const Users = () => {
     singular: "personal",
     plural: "personal administrativo",
     filter: true,
-    permiso: "",
+    permiso: "users",
     export: true,
     titleAdd: "Nuevo",
     // import: true,
