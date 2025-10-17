@@ -127,7 +127,7 @@ const Payments = () => {
     modulo: "payments",
     singular: "Ingreso",
     plural: "Ingresos",
-    permiso: "",
+    permiso: "payments",
     extraData: true,
     renderForm: RenderForm,
 
@@ -150,7 +150,8 @@ const Payments = () => {
       del: "Ingreso anulado con éxito",
     },
   };
-
+  const { userCan } = useAuth();
+if (!userCan(mod.permiso, "R")) return <NotAccess />;
   const getPeriodOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "d", name: "Hoy" },
@@ -356,14 +357,13 @@ const Payments = () => {
     </Button>,
   ];
 
-  const { userCan, List, onFilter } = useCrud({
+  const { List, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
     getFilter: handleGetFilter,
   });
-  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
     <div className={styles.container}>
       <List

@@ -85,7 +85,7 @@ const HomeOwners = () => {
     modulo: "homeowners",
     singular: "Propietario",
     plural: "Propietarios",
-    permiso: "",
+    permiso: "owners",
     export: true,
     import: true,
     hideActions: {

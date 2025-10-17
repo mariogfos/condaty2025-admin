@@ -110,7 +110,7 @@ const Binnacle = () => {
     modulo: "guardnews",
     singular: "Bitácora",
     plural: "Bitácoras",
-    permiso: "",
+    permiso: "guardlogs",
     extraData: true,
     filter: true,
     hideActions: { edit: true, del: true, add: true },

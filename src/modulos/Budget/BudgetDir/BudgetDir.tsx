@@ -126,7 +126,7 @@ const mod: ModCrudType = {
   modulo: "budgets",
   singular: "Presupuesto",
   plural: "Presupuestos",
-  permiso: "",
+  permiso: "budgets",
   extraData: true,
   hideActions: {
     add: true,
