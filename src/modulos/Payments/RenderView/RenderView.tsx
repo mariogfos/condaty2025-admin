@@ -294,28 +294,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
     anuladoPorDisplay = getFullName(item.canceled_by);
   }
 
-  let infoBlockContent;
-  if (item.user) {
-    infoBlockContent = (
-      <div className={styles.infoBlock}>
-        <span className={styles.infoLabel}>Registrado por</span>
-        <span className={styles.infoValue}>{registradoPorDisplay}</span>
-      </div>
-    );
-  } else {
-    infoBlockContent = (
-      <>
-        <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>{aprobadoLabel}</span>
-          <span className={styles.infoValue}>-/-</span>
-        </div>
-        <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>Registrado por</span>
-          <span className={styles.infoValue}>-/-</span>
-        </div>
-      </>
-    );
-  }
+  let infoBlockContent = null;
 
   return (
     <>
@@ -420,18 +399,28 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                     <span className={styles.infoLabel}>Anulado por</span>
                     <span className={styles.infoValue}>{anuladoPorDisplay}</span>
                   </div>
-                  <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Registrado por</span>
-                    <span className={styles.infoValue}>{registradoPorDisplay}</span>
-                  </div>
+                  {item.user && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Registrado por</span>
+                      <span className={styles.infoValue}>{registradoPorDisplay}</span>
+                    </div>
+                  )}
                 </>
-              ) : item.confirmed_by ? (
-                <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>{aprobadoLabel}</span>
-                  <span className={styles.infoValue}>{aprobadoPorDisplay}</span>
-                </div>
               ) : (
-                infoBlockContent
+                <>
+                  {item.confirmed_by && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>{aprobadoLabel}</span>
+                      <span className={styles.infoValue}>{aprobadoPorDisplay}</span>
+                    </div>
+                  )}
+                  {item.user && (
+                    <div className={styles.infoBlock}>
+                      <span className={styles.infoLabel}>Registrado por</span>
+                      <span className={styles.infoValue}>{registradoPorDisplay}</span>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className={styles.infoBlock}>
@@ -620,8 +609,16 @@ export default RenderView;
         }
         return periodo?.subcategory?.name || '-/-';
       }
-      case 2: // Reservas
-        return `Reserva: ${periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}`;
+      case 2: { // Reservas
+        const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+        const areaTitle = periodo?.debt_dpto?.reservation?.area?.title || '-/-';
+
+        if (penaltyAmount > 0) {
+          return `Multa: ${areaTitle}`;
+        } else {
+          return `Reserva: ${areaTitle}`;
+        }
+      }
       case 3: // Multa por Cancelación
         return `Multa por Cancelación: ${periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || '-/-'}`;
       default:
