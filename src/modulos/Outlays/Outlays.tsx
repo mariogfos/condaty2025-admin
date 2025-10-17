@@ -52,7 +52,7 @@ const Outlays = () => {
     plural: "Egresos",
     filter: true,
     export: true,
-    permiso: "",
+    permiso: "outlays",
     extraData: true,
     renderForm: RenderForm,
     titleAdd: "Nuevo",

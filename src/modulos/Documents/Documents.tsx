@@ -21,7 +21,7 @@ const Documents = () => {
     modulo: "documents",
     singular: "documento",
     plural: "documentos",
-    permiso: "",
+    permiso: "documents",
     titleAdd: "Nuevo",
     extraData: true,
     textSaveButtom: "Subir documento",

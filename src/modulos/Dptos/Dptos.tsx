@@ -115,7 +115,7 @@ const Dptos = () => {
     singular: "",
     plural: "",
     filter: true,
-    permiso: "",
+    permiso: "units",
     export: true,
     extraData: true,
     import: false,
