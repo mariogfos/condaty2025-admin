@@ -355,18 +355,19 @@ const ProfileModal = ({
                 )}
 
                 {/* Para owner y homeOwner mostrar departamento donde vive */}
-                {data?.data[0]?.dpto?.[0]?.nro && (
+                {/* {data?.data[0]?.dpto?.[0]?.nro && (
                   <div>
                     {IconType}
                     {`${data?.data[0]?.dpto?.[0]?.type?.name || 'Unidad'} ${data?.data[0]?.dpto?.[0]?.nro}`} 
                   </div>
-                )}
+                )} */}
 
                 {/* Para owner y homeOwner mostrar lista de departamentos que posee en UNA sola línea */}
                 {data?.data[0]?.dptos && data?.data[0]?.dptos?.length > 0 && (
                   <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                    {/* <IconHousing size={20} color={'var(--cWhiteV1)'} /> */}
                     {IconType}
+                    <strong>Propietario de</strong>
                     {data?.data[0]?.dptos?.map((dpto: any) => `${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`).join(', ')}
                   </div>
                 )}
@@ -407,13 +408,14 @@ const ProfileModal = ({
                 <div>Dirección</div>
                 <div>
                   {(() => {
-                    if (type === 'owner') {
+                    if (type == 'owner') {
                       const hasDescription = data?.data[0]?.dpto[0]?.description;
                       const hasNro = data?.data[0]?.dpto[0]?.nro;
-                      if (!hasDescription || !hasNro) {
+                      if (!hasDescription && !hasNro) {
                         return '-/-';
                       }
-                      return data.data[0].dpto[0].description;
+                      return data?.data[0]?.dpto[0]?.type?.name + ' ' + data?.data[0]?.dpto[0]?.nro + 
+                      (hasDescription ? ' - ' + data?.data[0]?.dpto[0]?.description : '');
                     }
                     return data?.data[0]?.address || '-/-';
                   })()}
