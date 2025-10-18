@@ -92,7 +92,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     } else if (confirm == "Y") {
       status = "Por entrar";
     } else {
-      status = "Denegado";
+      status = "Rechazado";
     }
     return status;
   };
@@ -241,8 +241,8 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                       }}
                     >
                       {confirm == "G" || item?.rejected_guard_id !== null
-                        ? "Por el guardia"
-                        : "Por el residente"}
+                        ? "Guardia"
+                        : "Residente"}
                     </span>
                   </div>
                 )}
@@ -300,9 +300,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                   <span className={styles.infoValue}>{obs_out || "-/-"}</span>
                 </div>
-                {item?.obs_confirm !== null && (
+                
+                {item?.rejected_guard_id !== null ? (
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Observación</span>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm !== 'N' ? 'Motivo de aprobación' : 'Motivo de rechazo'}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {item?.obs_confirm}
+                    </span>
+                  </div>
+                ) : (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm === 'N' ? 'Motivo de rechazo' : null}
+                    </span>
                     <span className={styles.infoValue}>
                       {item?.obs_confirm}
                     </span>
