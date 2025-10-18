@@ -413,7 +413,7 @@ const Owners = () => {
   return (
     <div className={styles.style}>
       <div style={{ display: "flex", gap: "12px" }}>
-{/*         <WidgetDashCard
+        {/*         <WidgetDashCard
           title="Residentes Totales"
           data={String(extraData?.totals ?? 0)}
           style={{ maxWidth: "250px" }}
@@ -498,6 +498,22 @@ const Owners = () => {
                   !extraData?.dependents || extraData?.dependents === 0
                     ? "var(--cHover)"
                     : "var(--cHoverCompl4)",
+              }}
+              circle
+              size={18}
+            />
+          }
+        />
+
+        <WidgetDashCard
+          title="Por activar"
+          data={String(extraData?.pendingOwnersCount ?? 0)}
+          style={{ maxWidth: "250px" }}
+          icon={
+            <IconHomePerson
+              color={"var(--cWhite)"}
+              style={{
+                backgroundColor: "var(--cHover)",
               }}
               circle
               size={18}
