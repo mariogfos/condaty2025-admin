@@ -362,13 +362,15 @@ const Outlays = () => {
     >
       Categorías
     </Button>,
-    <Button
-      key="budget-button"
-      onClick={() => setOpenModal(true)}
-      className={styles.categoriesButton}
-    >
-      Ejecutar
-    </Button>,
+    
+    // <Button
+    //   key="budget-button"
+    //   onClick={() => setOpenModal(true)}
+    //   className={styles.categoriesButton}>
+    // >
+    //   Ejecutar
+    // </Button>,
+
   ];
   const {
     userCan,
