@@ -33,7 +33,7 @@ const Defaulters = () => {
     modulo: "defaulters",
     singular: "Moroso",
     plural: "Morosos",
-    permiso: "",
+    permiso: "defaulters",
     extraData: true,
     hideActions: {
       view: true,

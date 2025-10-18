@@ -26,7 +26,7 @@ const renderUnitCell = ({ item }: { item: any }) => (
 );
 
 const renderAddressCell = ({ item }: { item: any }) => (
-  <div>{item?.dpto?.description}</div>
+  <div>{item?.dpto?.description || "-/-"}</div>
 );
 
 const renderPaidAtCell = ({ item }: { item: any }) => (

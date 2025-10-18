@@ -12,6 +12,7 @@ import Br from "@/components/Detail/Br";
 import ItemList from "@/mk/components/ui/ItemList/ItemList";
 import { IconExpand } from "@/components/layout/icons/IconsBiblioteca";
 import ModalAccessExpand from "../ModalAccessExpand/ModalAccessExpand";
+import { it } from "date-fns/locale";
 
 interface AccessRenderViewProps {
   open: boolean;
@@ -116,6 +117,9 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   const getTaxiData = () => {
     return accesses?.filter((item: any) => item.taxi == "C");
   };
+
+  console.log(item?.rejected_guard_id);
+
   return (
     <>
       <DataModal
@@ -124,6 +128,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
         title="Detalle del acceso"
         buttonText=""
         buttonCancel=""
+        variant={"mini"}
       >
         <LoadingScreen
           onlyLoading={Object.keys(accessDetail).length === 0}
@@ -220,20 +225,21 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 </div>
                 {item?.type == "C" && (
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>Tipo de aprobación</span>
+                    <span className={styles.infoLabel}>{confirm == "N" ? 'Rechazado por' : 'Aprobado por'} </span>
                     <span
                       className={styles.infoValue}
                       style={{
                         color:
-                          confirm == "G"
+                          confirm == "G" || item?.rejected_guard_id !== null 
                             ? "var(--cMediumAlert)"
                             : "var(--cSuccess)",
                       }}
                     >
-                      {confirm == "G" ? "Por el guardia" : "Por el residente"}
+                      {confirm == "G" || item?.rejected_guard_id !== null ? "Por el guardia" : "Por el residente"}
                     </span>
                   </div>
                 )}
+               
               </div>
 
               <div className={styles.detailsColumn}>
@@ -284,6 +290,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                   <span className={styles.infoValue}>{obs_out || "-/-"}</span>
                 </div>
+                {item?.obs_confirm !== null && (
+                 <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}>
+                    Observación
+                  </span>
+                  <span className={styles.infoValue}>{item?.obs_confirm}</span>
+                </div>
+                )}
               </div>
             </section>
             {getAcomData()?.length > 0 && (

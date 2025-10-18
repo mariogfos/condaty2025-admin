@@ -609,8 +609,16 @@ export default RenderView;
         }
         return periodo?.subcategory?.name || '-/-';
       }
-      case 2: // Reservas
-        return `Reserva: ${periodo?.debt_dpto?.debt?.reservation?.area?.title || '-/-'}`;
+      case 2: { // Reservas
+        const penaltyAmount = parseFloat(periodo?.debt_dpto?.penalty_amount) || 0;
+        const areaTitle = periodo?.debt_dpto?.reservation?.area?.title || '-/-';
+
+        if (penaltyAmount > 0) {
+          return `Multa: ${areaTitle}`;
+        } else {
+          return `Reserva: ${areaTitle}`;
+        }
+      }
       case 3: // Multa por Cancelación
         return `Multa por Cancelación: ${periodo?.debt_dpto?.debt?.reservation_penalty?.area?.title || '-/-'}`;
       default:

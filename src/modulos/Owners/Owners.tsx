@@ -99,7 +99,7 @@ const Owners = () => {
     filter: true,
     export: true,
     import: false,
-    permiso: "",
+    permiso: "owners",
     hideActions: {
       edit: true,
       del: true,

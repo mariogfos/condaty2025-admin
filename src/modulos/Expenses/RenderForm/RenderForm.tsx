@@ -131,10 +131,7 @@ const RenderForm = ({ open, onClose, item, setItem, execute, extraData, user, re
           (getFullName(item?.titular) || 'Sin titular') +
           ' - ' +
           item.nro +
-          ' ' +
-          UnitsType['_' + client.type_dpto] +
-          ' ' +
-          item.description,
+          (item.description ? ' - ' + item.description : ''),
       };
     });
     setLdpto(lista);

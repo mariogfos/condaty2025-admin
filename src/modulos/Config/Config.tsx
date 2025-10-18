@@ -12,18 +12,21 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
   const [preview, setPreview]: any = useState(null);
   const [previewQr, setPreviewQr]: any = useState(null);
-  const { user, showToast, getUser }: any = useAuth();
+  const { user, showToast, getUser, userCan }: any = useAuth();
   const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
   const [imageError, setImageError] = useState(false);
   // const router = useRouter();
-
+  if (!userCan('settings', 'R')) {
+    return <NotAccess />;
+  }
   const {
     data: client_config,
     reLoad,
