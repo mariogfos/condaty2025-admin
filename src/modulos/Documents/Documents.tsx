@@ -86,7 +86,9 @@ const Documents = () => {
         rules: ["required"],
         api: "ae*",
         label: "Archivo",
+        prefix: 'DOC-',
         form: {
+          onchange: '',
           type: "fileUpload",
           ext: ["pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png"],
           maxSize: 30,
