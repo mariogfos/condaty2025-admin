@@ -283,7 +283,7 @@ const ProfileModal = ({
                   <IconEdit className="" size={24} color={'var(--cWhite)'} />
                 </button>
               )}
-              {del && canDeleteThisProfile() && (
+              {del && canDeleteThisProfile() && type === 'guard' && (
                 <button
                   type="button"
                   style={{
@@ -555,7 +555,7 @@ const ProfileModal = ({
             )}
           </>
         )}
-        {openDel && (
+        {openDel && type === 'guard' && (
           <DataModal
             title={`Eliminar ${profileRole.toLocaleLowerCase()}`}
             open={openDel}
