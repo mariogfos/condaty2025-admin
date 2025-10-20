@@ -377,7 +377,11 @@ const Owners = () => {
           type: "text",
           disabled: onDisbled,
         },
-        list: {},
+        list: {
+          onRender: ({item}: any) => {
+            return item?.phone || "-/-";
+          },
+        },
       },
     };
   }, []);
