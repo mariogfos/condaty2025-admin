@@ -60,6 +60,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     confirm,
     owner,
     accesses,
+    begin_at,
     plate,
   } = accessDetail;
 
@@ -91,7 +92,7 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
     } else if (confirm == "Y") {
       status = "Por entrar";
     } else {
-      status = "Denegado";
+      status = "Rechazado";
     }
     return status;
   };
@@ -117,8 +118,6 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
   const getTaxiData = () => {
     return accesses?.filter((item: any) => item.taxi == "C");
   };
-
-  console.log(item?.rejected_guard_id);
 
   return (
     <>
@@ -195,10 +194,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
-                    Hora y fecha de ingreso
+                    {item?.type == "C" && confirm == "N"
+                      ? "Hora y fecha de petición"
+                      : "  Hora y fecha de ingreso"}
                   </span>
                   <span className={styles.infoValue}>
-                    {getDateTimeStrMesShort(in_at) || "-/-"}
+                    {item?.type == "C" && confirm == "N"
+                      ? getDateTimeStrMesShort(begin_at) || "-/-"
+                      : getDateTimeStrMesShort(in_at) || "-/-"}
                   </span>
                 </div>
                 {item?.type !== "O" && (
@@ -225,21 +228,24 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 </div>
                 {item?.type == "C" && (
                   <div className={styles.infoBlock}>
-                    <span className={styles.infoLabel}>{confirm == "N" ? 'Rechazado por' : 'Aprobado por'} </span>
+                    <span className={styles.infoLabel}>
+                      {confirm == "N" ? "Rechazado por" : "Aprobado por"}{" "}
+                    </span>
                     <span
                       className={styles.infoValue}
                       style={{
                         color:
-                          confirm == "G" || item?.rejected_guard_id !== null 
+                          confirm == "G" || item?.rejected_guard_id !== null
                             ? "var(--cMediumAlert)"
                             : "var(--cSuccess)",
                       }}
                     >
-                      {confirm == "G" || item?.rejected_guard_id !== null ? "Por el guardia" : "Por el residente"}
+                      {confirm == "G" || item?.rejected_guard_id !== null
+                        ? "Guardia"
+                        : "Residente"}
                     </span>
                   </div>
                 )}
-               
               </div>
 
               <div className={styles.detailsColumn}>
@@ -264,10 +270,14 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                 )}
                 <div className={styles.infoBlock}>
                   <span className={styles.infoLabel}>
-                    Hora y fecha de salida
+                    {item?.type == "C" && confirm == "N"
+                      ? "Hora y fecha de rechazo"
+                      : "  Hora y fecha de salida"}
                   </span>
                   <span className={styles.infoValue}>
-                    {getDateTimeStrMesShort(out_at) || "-/-"}
+                    {item?.type == "C" && confirm == "N"
+                      ? getDateTimeStrMesShort(confirm_at) || "-/-"
+                      : getDateTimeStrMesShort(out_at) || "-/-"}
                   </span>
                 </div>
 
@@ -290,13 +300,25 @@ const RenderView: React.FC<AccessRenderViewProps> = ({
                   </span>
                   <span className={styles.infoValue}>{obs_out || "-/-"}</span>
                 </div>
-                {item?.obs_confirm !== null && (
-                 <div className={styles.infoBlock}>
-                  <span className={styles.infoLabel}>
-                    Observación
-                  </span>
-                  <span className={styles.infoValue}>{item?.obs_confirm}</span>
-                </div>
+                
+                {item?.rejected_guard_id !== null ? (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm !== 'N' ? 'Motivo de aprobación' : 'Motivo de rechazo'}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {item?.obs_confirm}
+                    </span>
+                  </div>
+                ) : (
+                  <div className={styles.infoBlock}>
+                    <span className={styles.infoLabel}>
+                      {item?.confirm === 'N' ? 'Motivo de rechazo' : null}
+                    </span>
+                    <span className={styles.infoValue}>
+                      {item?.obs_confirm}
+                    </span>
+                  </div>
                 )}
               </div>
             </section>
