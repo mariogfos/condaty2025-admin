@@ -205,9 +205,9 @@ const Defaulters = () => {
           </span>
         ),
         list: {
-          onRender: (props: { item: { expensa: number; multa: number } }) => (
+          onRender: (props: { item: { expensa: number; multa: number; mv: number } }) => (
             <FormatBsAlign
-              value={props?.item?.expensa + props?.item?.multa}
+              value={props?.item?.expensa + props?.item?.multa + props?.item?.mv}
               alignRight
             />
           ),
