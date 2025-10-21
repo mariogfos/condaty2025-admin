@@ -37,7 +37,7 @@ const ActiveOwner = ({
       perPage: -1,
       fullType: data?.type_owner == "T" ? "PR" : "PH",
     },
-    false
+    true
   );
 
   const getLDptos = () => {
