@@ -44,7 +44,7 @@ const ActiveOwner = ({
     const lista =
       dptos?.data?.map((item: any) => ({
         id: item?.id,
-        nro: `${store?.UnitsType} ${item?.nro} ${
+        nro: `${item?.type?.name} ${item?.nro} ${
           item?.description ? "- " + item?.description : ""
         }`,
       })) || [];

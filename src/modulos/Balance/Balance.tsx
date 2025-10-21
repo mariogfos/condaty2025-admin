@@ -321,7 +321,7 @@ const BalanceGeneral: React.FC = () => {
     const map = new Map();
     (finanzas?.data?.ingresosHist ?? []).forEach((item: any) => {
       if (!map.has(item.categ_id)) {
-        map.set(item.categ_id, { name: item.categoria, total: 0 });
+        map.set(item.categ_id, { name: item.name, total: 0 });
       }
       map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
     });
@@ -331,7 +331,7 @@ const BalanceGeneral: React.FC = () => {
     const map = new Map();
     (finanzas?.data?.egresosHist ?? []).forEach((item: any) => {
       if (!map.has(item.categ_id)) {
-        map.set(item.categ_id, { name: item.categoria, total: 0 });
+        map.set(item.categ_id, { name: item.name, total: 0 });
       }
       map.get(item.categ_id).total += parseFloat(item.amount ?? 0);
     });
@@ -398,7 +398,7 @@ const BalanceGeneral: React.FC = () => {
           } else {
             acc.push({
               id: item.categ_id,
-              name: item.categoria,
+              name: item.name,
               total: parseFloat(item.amount ?? 0),
             });
           }
@@ -421,7 +421,7 @@ const BalanceGeneral: React.FC = () => {
           } else {
             acc.push({
               id: item.categ_id,
-              name: item.categoria,
+              name: item.name,
               total: parseFloat(item.amount ?? 0),
             });
           }
