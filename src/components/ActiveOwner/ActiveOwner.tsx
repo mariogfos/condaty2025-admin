@@ -8,6 +8,7 @@ import { getFullName } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import styles from "./ActiveOwner.module.css";
+import page from "@/app/areas/page";
 
 const ActiveOwner = ({
   open,
@@ -32,6 +33,8 @@ const ActiveOwner = ({
     "/dptos",
     "GET",
     {
+      page: 1,
+      perPage: -1,
       fullType: data?.type_owner == "T" ? "PR" : "PH",
     },
     true
