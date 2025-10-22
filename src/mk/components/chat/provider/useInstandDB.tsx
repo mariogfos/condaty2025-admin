@@ -11,7 +11,7 @@ import { initSocket } from "../../notif/provider/useNotifInstandDB";
 let initToken = false;
 const roomGral: string = process.env
   .NEXT_PUBLIC_PUSHER_BEAMS_INTEREST_PREFIX as string;
-let db: any = initSocket();
+let db: any = await initSocket();
 
 let room: any = db.room("chat", roomGral);
 let token: null | string = null;
