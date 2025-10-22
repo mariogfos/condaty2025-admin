@@ -76,21 +76,15 @@ const RenderView: React.FC<RenderViewProps> = ({
 
 
   const getStatusText = (status: string, dueDate?: string) => {
-    console.log("llega entra");
-    console.log("status", status);
-    console.log("dueDate", dueDate);
-
     let finalStatus = status;
+
+    // Obtener fecha actual solo como string YYYY-MM-DD
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = dueDate;
 
-    const due = dueDate ? new Date(dueDate) : null;
-    if (due) {
-      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
-    }
-
-    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
-    if (due && today > due && status === 'A') {
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && status === 'A') {
       finalStatus = 'M';
     }
 
@@ -119,15 +113,14 @@ const RenderView: React.FC<RenderViewProps> = ({
 
   const getStatusConfig = (status: string, dueDate?: string) => {
     let finalStatus = status;
-    today.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparación precisa
 
-    const due = dueDate ? new Date(dueDate) : null;
-    if (due) {
-      due.setHours(0, 0, 0, 0); // Normalizar a medianoche
-    }
+    // Obtener fecha actual solo como string YYYY-MM-DD
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const dueAtString = dueDate;
 
-    // Solo marcar en mora si la fecha actual es MAYOR que la fecha de vencimiento
-    if (due && today > due && status === 'A') {
+    // Solo marcar en mora si la fecha de vencimiento es MENOR que hoy (no igual)
+    if (dueAtString && dueAtString < todayString && status === 'A') {
       finalStatus = 'M';
     }
 
