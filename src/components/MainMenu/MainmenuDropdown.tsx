@@ -130,8 +130,10 @@ const MainmenuDropdown = ({
                 .filter(Boolean)
                 .join(" ")}
             >
+              <div className={styles.contentWithBadge}>
               {item.label}
               {Number(item.bage) > 0 && <Badge />}
+              </div>
             </Link>
           ))}
         </div>
