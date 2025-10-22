@@ -153,6 +153,10 @@ const Layout = ({ children }: any) => {
         showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
       }
 
+      if (e.event == "admins" && e.payload.act == "newVoucher") {
+        showToast("¡Revisa tus ingresos, tienes un nuevo comprobante de pago!", "info");
+      }
+
       if (
         e.event == "alerts" &&
         e.payload?.level == 4 &&
