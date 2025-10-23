@@ -524,14 +524,18 @@ const Reel = () => {
                   // Layout para noticias (texto e imagen lado a lado)
                   <section className={styles.newsContentBody}>
                     <div className={styles.newsTextContent}>
-                      <h2 className={styles.newsTitle}>{item.title}</h2>
+                      <h2 className={styles.newsTitle}>{item?.title}</h2>
                       <div>
-                        <p className={styles.newsDescription}>
-                          {item.isDescriptionExpanded || item.description.length <= 200
-                            ? item.description
-                            : `${item.description.substring(0, 200)}...`}
-                        </p>
-                        {item.description.length > 200 && (
+                        {
+                          item.description
+                            ? <p className={styles.newsDescription}>
+                                {item?.isDescriptionExpanded || item?.description?.length <= 200
+                                  ? item?.description
+                                  : `${item?.description?.substring(0, 200)}...`}
+                              </p>
+                            : <p className={styles.newsDescription}>Sin descripción</p>
+                        }
+                        {item?.description?.length > 200 && (
                           <button
                             onClick={() => handleToggleDescription(item.id)}
                             className={styles.seeMoreButton}
@@ -544,7 +548,7 @@ const Reel = () => {
                               display: 'block',
                             }}
                           >
-                            {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                            {item?.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
                           </button>
                         )}
                       </div>
@@ -591,14 +595,14 @@ const Reel = () => {
                 ) : (
                   // Layout normal para posts
                   <section className={styles.contentBody}>
-                    {item.description && (
+                    {item?.description && (
                       <div>
                         <p className={styles.contentDescription}>
-                          {item.isDescriptionExpanded || item.description.length <= 150
-                            ? item.description
-                            : `${item.description.substring(0, 150)}...`}
+                          {item?.isDescriptionExpanded || item?.description?.length <= 150
+                            ? item?.description
+                            : `${item?.description?.substring(0, 150)}...`}
                         </p>
-                        {item.description.length > 150 && (
+                        {item?.description?.length > 150 && (
                           <button
                             onClick={() => handleToggleDescription(item.id)}
                             className={styles.seeMoreButton}
@@ -611,7 +615,7 @@ const Reel = () => {
                               display: 'block',
                             }}
                           >
-                            {item.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                            {item?.isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
                           </button>
                         )}
                       </div>
@@ -627,9 +631,9 @@ const Reel = () => {
 
                 <footer className={styles.contentFooter}>
                   <div className={styles.contentStats}>
-                    <div className={`${styles.statDisplay} ${item.liked ? styles.liked : ''}`}>
-                      <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
-                      <span>{item.likes}</span>
+                    <div className={`${styles.statDisplay} ${item?.liked ? styles.liked : ''}`}>
+                      <IconLike color={item?.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                      <span>{item?.likes}</span>
                     </div>
                     <div className={styles.statDisplay}>
                       <IconComment color={'var(--cWhiteV1)'} size={20} />
@@ -641,12 +645,12 @@ const Reel = () => {
 
                   <div className={styles.contentActions}>
                     <button
-                      className={`${styles.actionButton} ${item.liked ? styles.liked : ''}`}
+                      className={`${styles.actionButton} ${item?.liked ? styles.liked : ''}`}
                       onClick={() => handleLike(item.id)}
-                      aria-pressed={!!item.liked}
+                      aria-pressed={!!item?.liked}
                       aria-label={`Me gusta esta publicación`}
                     >
-                      <IconLike color={item.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
+                      <IconLike color={item?.liked ? 'var(--cAccent)' : 'var(--cWhiteV1)'} size={20} />
                       <span>Apoyar</span>
                     </button>
                     <button

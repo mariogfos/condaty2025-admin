@@ -146,7 +146,7 @@ const RenderView = (props: any) => {
           <div className={styles.detailsColumn}>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}>Estado</span>
-              <div style={{color: statusConfig.color}}>
+              <div style={{ color: statusConfig.color }}>
                 {statusConfig.label}
               </div>
             </div>

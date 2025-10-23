@@ -115,7 +115,7 @@ const Dptos = () => {
     singular: "",
     plural: "",
     filter: true,
-    permiso: "",
+    permiso: "units",
     export: true,
     extraData: true,
     import: false,
@@ -273,11 +273,9 @@ const Dptos = () => {
             // const homeowner = props?.item?.homeowner;
             // const person = tenant ? tenant : homeowner;
             const hasLived = props?.item?.dpto_owners?.length > 0;
-
-            if (!tenant && !hasLived) {
+            if (!tenant || !hasLived) {
               return <div className={styles.noTitular}>Sin residente</div>;
             }
-
             const personId = tenant?.id;
             const updatedAt = tenant?.updated_at || tenant?.updatedAt || "";
 

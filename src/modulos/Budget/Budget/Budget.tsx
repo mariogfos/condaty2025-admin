@@ -12,9 +12,10 @@ import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import FormatBsAlign from "@/mk/utils/FormatBsAlign";
 import { useEvent } from "@/mk/hooks/useEvents";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
 const paramsInitial = {
-  perPage: 20,
+  perPage: 20, // <- Cambiado de 20 a -1 para cargar todos los registros
   page: 1,
   fullType: "L",
   searchBy: "",
@@ -137,7 +138,7 @@ const Budget = () => {
       modulo: "budgets",
       singular: "Presupuesto",
       plural: "Presupuestos",
-      permiso: "",
+      permiso: "budgets",
       extraData: true,
       filter: true,
       export: true,
@@ -303,7 +304,7 @@ const Budget = () => {
       getFilter: handleGetFilter,
       extraButtons: [sendToApprovalButton],
     });
-
+  if (!userCan(mod.permiso, "R")) return <NotAccess />;
   useEffect(() => {
     if (loaded && data) {
       if (
@@ -340,6 +341,9 @@ const Budget = () => {
         emptyIcon={<IconCategories size={80} color="var(--cWhiteV1)" />}
         filterBreakPoint={1700}
       />
+
+      {/* Eliminar el botón de aquí */}
+
       <SendBudgetApprovalModal
         open={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

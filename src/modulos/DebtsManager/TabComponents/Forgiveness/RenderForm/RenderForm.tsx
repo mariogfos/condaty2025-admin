@@ -96,7 +96,7 @@ const RenderForm = ({
     }
     return extraData?.units?.map((unit: any) => ({
       id: unit.id,
-      name: unit.nro + " - " + unit.description,
+      name: unit.nro + (unit.description ? " - " + unit.description : ""),
     }));
   };
 

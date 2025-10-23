@@ -841,6 +841,7 @@ const useCrud = ({
 
     return (
       <DataModal
+        variant={'mini'}
         open={open}
         onClose={() => onClose()}
         title={

@@ -20,7 +20,7 @@ const mod: ModCrudType = {
   modulo: "roles",
   singular: "rol",
   plural: "roles",
-  permiso: "",
+  permiso: "roles",
   extraData: true,
   onHideActions: (item: any) => {
     return {

@@ -10,7 +10,6 @@ import { useAuth } from "@/mk/contexts/AuthProvider";
 import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 import BudgetApprovalView from "./RenderView/BudgetDirApprovalModal";
 
-
 const paramsInitial = {
   perPage: 20,
   page: 1,
@@ -127,7 +126,7 @@ const mod: ModCrudType = {
   modulo: "budgets",
   singular: "Presupuesto",
   plural: "Presupuestos",
-  permiso: "",
+  permiso: "budgets",
   extraData: true,
   hideActions: {
     add: true,
@@ -204,7 +203,9 @@ const BudgetDir = () => {
         rules: [],
         api: "ae*",
         label: (
-          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+          <span
+            style={{ display: "block", textAlign: "center", width: "100%" }}
+          >
             Estado
           </span>
         ),

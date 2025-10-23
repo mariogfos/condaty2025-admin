@@ -30,7 +30,7 @@ const Areas = () => {
     modulo: "areas",
     singular: "área social",
     plural: "áreas sociales",
-    permiso: "",
+    permiso: "areas",
     extraData: false,
     renderView: (props: {
       open: boolean;

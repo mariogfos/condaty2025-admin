@@ -251,8 +251,8 @@ const Authentication = ({
       buttonText={modalButtonText}
       buttonCancel=""
       disabled={isDisabled}
-      variant={"mini"}
-
+      minWidth={480}
+      maxWidth={600}
     >
       {formState?.pinned === 0 ? (
         <div>Se enviará un código de verificación a tu correo electrónico.</div>

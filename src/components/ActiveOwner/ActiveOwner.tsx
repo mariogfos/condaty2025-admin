@@ -8,6 +8,7 @@ import { getFullName } from "@/mk/utils/string";
 import React, { useEffect, useState } from "react";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import styles from "./ActiveOwner.module.css";
+import page from "@/app/areas/page";
 
 const ActiveOwner = ({
   open,
@@ -32,6 +33,8 @@ const ActiveOwner = ({
     "/dptos",
     "GET",
     {
+      page: 1,
+      perPage: -1,
       fullType: data?.type_owner == "T" ? "PR" : "PH",
     },
     true
@@ -41,7 +44,7 @@ const ActiveOwner = ({
     const lista =
       dptos?.data?.map((item: any) => ({
         id: item?.id,
-        nro: `${store?.UnitsType} ${item?.nro} ${
+        nro: `${item?.type?.name} ${item?.nro} ${
           item?.description ? "- " + item?.description : ""
         }`,
       })) || [];
@@ -112,6 +115,7 @@ const ActiveOwner = ({
       title={typeActive === "X" ? "Rechazar solicitud" : "Asignar unidad"}
       buttonText="Guardar"
       onClose={onClose}
+      variant={"mini"}
     >
       {typeActive === "A" ? (
         <div className={styles.activeContainer}>

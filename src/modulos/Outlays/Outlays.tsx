@@ -52,7 +52,7 @@ const Outlays = () => {
     plural: "Egresos",
     filter: true,
     export: true,
-    permiso: "",
+    permiso: "outlays",
     extraData: true,
     renderForm: RenderForm,
     titleAdd: "Nuevo",
@@ -133,7 +133,7 @@ const Outlays = () => {
           options: getPeriodOptions,
         },
       },
-/*       // <- Agregar campo de tipo después de date_at
+      /*       // <- Agregar campo de tipo después de date_at
       expense_type: {
         rules: [],
         api: "e",
@@ -362,13 +362,15 @@ const Outlays = () => {
     >
       Categorías
     </Button>,
-    <Button
-      key="budget-button"
-      onClick={() => setOpenModal(true)}
-      className={styles.categoriesButton}
-    >
-      Ejecutar
-    </Button>,
+    
+    // <Button
+    //   key="budget-button"
+    //   onClick={() => setOpenModal(true)}
+    //   className={styles.categoriesButton}>
+    // >
+    //   Ejecutar
+    // </Button>,
+
   ];
   const {
     userCan,

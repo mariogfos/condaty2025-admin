@@ -19,7 +19,7 @@ const mod = {
   modulo: "reservations",
   singular: "reserva",
   plural: "reservas",
-  permiso: "",
+  permiso: "reservations",
   extraData: true,
   hideActions: { edit: true, del: true },
   renderForm: (props: any) => <CreateReserva {...props} />,

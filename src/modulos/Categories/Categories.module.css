@@ -57,6 +57,8 @@
   gap: 8px;
   flex-shrink: 0;
   margin-left: auto;
+  min-width: 72px; /* 32px (botón) + 8px (gap) + 32px (botón) = 72px */
+  justify-content: flex-end;
 }
 .editButton:hover,
 .editButtonSub:hover {
@@ -240,7 +242,7 @@
 .subcategoryDescContainer {
   flex: 1;
   min-width: 0;
-  padding: 0 4px;
+  padding: 0;
   display: flex;
   align-items: center;
 }

@@ -31,7 +31,6 @@
   & > div:nth-child(1) {
     & > svg {
       cursor: pointer;
-      /* background-color: aqua; */
       height: 80px;
     }
   }
@@ -68,7 +67,7 @@
     text-decoration: none;
     color: var(--cWhiteV1);
     font-weight: var(--bMedium);
-    font-size: var(--sL);
+    font-size: var(--sM);
     display: flex;
     align-items: center;
     gap: var(--spS);
@@ -77,14 +76,12 @@
   }
 
   & > a:hover {
-    /* background-color: var(--cBlackV1); */
-    background-color: rgba(33, 37, 41, 0.5);
+    background-color: var(--cBlackV1);
   }
 
   & > a.active {
     background-color: var(--cHoverBigSidebar);
     border: 0.5px solid var(--cBigSidebar);
-    /* background-color: rgba(33, 37, 41, 0.5); */
     color: var(--cWhite);
   }
 
@@ -105,7 +102,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* //border: 1px solid var(--cBlack); */
 
   &:hover {
     background-color: rgba(33, 37, 41, 0.5);
@@ -144,14 +140,9 @@
   }
 
   &.isRouteActive {
-    /* background-color: rgba(33, 37, 41, 0.5); */
     background-color: var(--cHoverBigSidebar);
     color: white;
     border:0.5px solid var(--cBigSidebar);
-  }
-
-  &.isOpen > div:nth-child(1) {
-    /* background-color: var(--cBigSidebar); */
   }
 
   &.collapsed > div:nth-child(1) {
@@ -210,7 +201,6 @@
     }
 
     & > a:hover {
-      /* background-color: rgba(245, 149, 28, 0.2); */
       background-color: var(--cAccent);
       color: var(--cBlack);
     }
@@ -218,7 +208,12 @@
     & > a.active,
     & > a.active:hover {
       background-color: var(--cBigSidebar);
-      /* background-color: rgba(245, 149, 28, 0.2); */
     }
   }
+}
+
+.contentWithBadge{
+  display: flex;
+  align-items: center;
+  gap: var(--spS);
 }

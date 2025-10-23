@@ -116,7 +116,9 @@ const renderAmountCell = (props: any) => (
 );
 
 const Payments = () => {
+  // IMPORTANTE: Todos los hooks deben llamarse ANTES de cualquier return condicional
   const router = useRouter();
+  const { userCan, setStore, store } = useAuth();
   const [openCustomFilter, setOpenCustomFilter] = useState(false);
   const [customDateErrors, setCustomDateErrors] = useState<{
     startDate?: string;
@@ -127,7 +129,7 @@ const Payments = () => {
     modulo: "payments",
     singular: "Ingreso",
     plural: "Ingresos",
-    permiso: "",
+    permiso: "payments",
     extraData: true,
     renderForm: RenderForm,
 
@@ -150,7 +152,6 @@ const Payments = () => {
       del: "Ingreso anulado con éxito",
     },
   };
-
   const getPeriodOptions = () => [
     { id: "ALL", name: "Todos" },
     { id: "d", name: "Hoy" },
@@ -320,7 +321,7 @@ const Payments = () => {
     }
   };
 
-  const { setStore, store } = useAuth();
+  // Configurar el título del store
   useEffect(() => {
     setStore({ ...store, title: "Ingresos" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -356,14 +357,17 @@ const Payments = () => {
     </Button>,
   ];
 
-  const { userCan, List, onFilter } = useCrud({
+  const { List, onFilter } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
     getFilter: handleGetFilter,
   });
+
+  // Verificación de permisos DESPUÉS de todos los hooks
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
+
   return (
     <div className={styles.container}>
       <List

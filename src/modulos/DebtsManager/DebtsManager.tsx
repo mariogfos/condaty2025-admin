@@ -22,7 +22,11 @@ const DebtsManager = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [activeSummaryCard, setActiveSummaryCard] = useState("por_cobrar");
   const [currentExtraData, setCurrentExtraData] = useState<any>(null);
-  const { setStore, store } = useAuth();
+  const { setStore, store, userCan } = useAuth();
+
+  if (!userCan('debts', 'R')) {
+    return <NotAccess />;
+  }
 
   useEffect(() => {
     setStore({ ...store, title: "" });

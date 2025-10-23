@@ -113,6 +113,9 @@ const ChatRoom = ({
   };
 
   const handleSendMessage = async () => {
+    // No permitir enviar si está subiendo imágenes
+    if (isUploading) return;
+    
     const messageText = newMessage;
     const hasText = messageText.trim().length > 0;
     if (!hasText && selectedFiles.length === 0) return;
@@ -124,20 +127,25 @@ const ChatRoom = ({
     let msgId = 0;
     if (selectedFiles.length > 0) {
       setIsUploading(true);
-      // Enviar cada imagen como un mensaje separado
-      for (const selectedFile of selectedFiles) {
-        msgId = await sendMessage(
-          selectedFiles.length === 1 ? messageText : "",
-          roomId,
-          user?.id,
-          selectedFile.file
-        );
+      try {
+        // Enviar cada imagen como un mensaje separado
+        for (const selectedFile of selectedFiles) {
+          msgId = await sendMessage(
+            selectedFiles.length === 1 ? messageText : "",
+            roomId,
+            user?.id,
+            selectedFile.file
+          );
+        }
+        // Enviar el texto después de las imágenes si hay múltiples imágenes
+        if (selectedFiles.length > 1 && hasText) {
+          msgId = await sendMessage(messageText, roomId, user?.id);
+        }
+      } catch (error) {
+        console.error("Error al enviar mensaje con imagen:", error);
+      } finally {
+        cancelUpload();
       }
-      // Enviar el texto después de las imágenes si hay múltiples imágenes
-      if (selectedFiles.length > 1 && hasText) {
-        msgId = await sendMessage(messageText, roomId, user?.id);
-      }
-      cancelUpload();
     } else {
       msgId = await sendMessage(messageText, roomId, user?.id);
     }
@@ -360,6 +368,12 @@ const ChatRoom = ({
     if (selectedFiles.length === 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // No interceptar si el usuario está escribiendo en el textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+        return;
+      }
+
       if (e.key === 'ArrowLeft' && selectedPreviewIndex > 0) {
         e.preventDefault();
         setSelectedPreviewIndex(selectedPreviewIndex - 1);
@@ -679,7 +693,7 @@ const ChatRoom = ({
       {/* Barra inferior de input y botones: queda visible siempre */}
       <div
         className={styles.chatInputContainer}
-        aria-busy={isUploading || sending}
+        aria-busy={isUploading}
         onDragEnter={(e) => e.stopPropagation()}
         onDragOver={(e) => e.stopPropagation()}
         onDragLeave={(e) => e.stopPropagation()}
@@ -703,14 +717,15 @@ const ChatRoom = ({
           onKeyDown={typing.inputProps.onKeyDown}
           onKeyUp={onKeyUp}
           ref={textareaRef}
+          disabled={isUploading}
         />
 
-        {/* Overlay de loading mientras se envía o carga */}
-        {(isUploading || sending) && (
+        {/* Overlay de loading mientras se sube imagen */}
+        {isUploading && (
           <div className={styles.loadingOverlay}>
             <div className={styles.loader} />
             <span className={styles.loadingText}>
-              {isUploading ? 'Subiendo imagen...' : 'Enviando...'}
+              Subiendo imagen...
             </span>
           </div>
         )}
@@ -739,7 +754,7 @@ const ChatRoom = ({
           <IconEmoji
             color="var(--cBlackV1)"
             onClick={() => {
-              if (!sending && !isUploading) {
+              if (!isUploading) {
                 setShowInputEmojiPicker(!showInputEmojiPicker);
               }
             }}
@@ -747,8 +762,8 @@ const ChatRoom = ({
             style={{
               padding: '4px',
               backgroundColor: 'var(--cWhiteV1)',
-              opacity: isUploading || sending ? 0.5 : 1,
-              pointerEvents: isUploading || sending ? 'none' : 'auto',
+              opacity: isUploading ? 0.5 : 1,
+              pointerEvents: isUploading ? 'none' : 'auto',
             }}
             reverse={true}
             title="Emojis"
@@ -758,7 +773,7 @@ const ChatRoom = ({
             <IconImage
               color="var(--cBlackV1)"
               onClick={() => {
-                if (!sending && !isUploading) {
+                if (!isUploading) {
                   fileInputRef.current?.click();
                 }
               }}
@@ -766,8 +781,8 @@ const ChatRoom = ({
               style={{
                 padding: '4px',
                 backgroundColor: 'var(--cWhiteV1)',
-                opacity: isUploading || sending ? 0.5 : 1,
-                pointerEvents: isUploading || sending ? 'none' : 'auto',
+                opacity: isUploading ? 0.5 : 1,
+                pointerEvents: isUploading ? 'none' : 'auto',
               }}
               title="Adjuntar imagen"
             />
@@ -776,14 +791,14 @@ const ChatRoom = ({
           <IconSend
             color="var(--cBlackV1)"
             onClick={() => {
-              if (!sending && !isUploading) handleSendMessage();
+              if (!isUploading) handleSendMessage();
             }}
             circle={true}
             reverse={true}
             style={{
               padding: '4px',
               backgroundColor: 'var(--cAccent)',
-              opacity: isUploading || sending ? 0.65 : 1,
+              opacity: isUploading ? 0.65 : 1,
             }}
             title="Enviar mensaje"
           />

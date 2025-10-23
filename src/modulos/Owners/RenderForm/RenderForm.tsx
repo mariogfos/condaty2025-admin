@@ -241,7 +241,7 @@ const RenderForm = ({
 
   const validate = () => {
     let errors: any = {};
-    const requiredFields = ['ci', 'name', 'last_name'];
+    const requiredFields = ['ci', 'name', 'last_name', 'email', 'type_owner'];
     requiredFields.forEach(field => {
       errors = checkRules({
         value: formState[field],
@@ -255,6 +255,7 @@ const RenderForm = ({
       errors.dpto_id = 'required';
     }
 
+    // Aplicar regla específica para CI
     errors = checkRules({
       value: formState.ci,
       rules: ['ci'],
@@ -262,11 +263,20 @@ const RenderForm = ({
       errors,
     });
 
-    if (formState.email) {
+    // Aplicar reglas específicas para email
+    errors = checkRules({
+      value: formState.email,
+      rules: ['required', 'email'],
+      key: 'email',
+      errors,
+    });
+
+    // Aplicar regla específica para teléfono si tiene valor
+    if (formState.phone) {
       errors = checkRules({
-        value: formState.email,
-        rules: ['email'],
-        key: 'email',
+        value: formState.phone,
+        rules: ['phone'],
+        key: 'phone',
         errors,
       });
     }
@@ -370,7 +380,20 @@ const RenderForm = ({
     const validationErrors = validate();
     if (hasErrors(validationErrors)) {
       setErrors(validationErrors);
-      showToast('Por favor corrija los errores en el formulario', 'error');
+
+      const missingFields = [];
+      if (validationErrors.ci) missingFields.push('CI');
+      if (validationErrors.name) missingFields.push('Nombre');
+      if (validationErrors.last_name) missingFields.push('Apellido');
+      if (validationErrors.email) missingFields.push('Correo electrónico');
+      if (validationErrors.type_owner) missingFields.push('Tipo de residente');
+      if (validationErrors.dpto_id) missingFields.push('Unidad');
+
+      const message = missingFields.length > 0
+        ? `Faltan los siguientes campos: ${missingFields.join(', ')}`
+        : 'Por favor corrija los errores en el formulario';
+
+      showToast(message, 'error');
       return;
     }
 
@@ -454,7 +477,7 @@ const RenderForm = ({
           disabled={formState._disabled}
         />
         <Input
-          label="Celular"
+          label="Celular (Opcional)"
           name="phone"
           value={formState.phone || ''}
           onChange={handleChange}
@@ -473,6 +496,7 @@ const RenderForm = ({
           onChange={handleChange}
           onBlur={onBlurEmail}
           error={errors}
+          required
           disabled={formState._emailDisabled}
         />
         <Select

@@ -68,7 +68,7 @@ const RenderView = (props: {
       buttonText=""
       buttonCancel=""
       className={styles.renderView}
-      style={{ width: '40%' }}
+      variant={'mini'}
     >
       <Card>
         <section>

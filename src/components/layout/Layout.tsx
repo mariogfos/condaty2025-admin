@@ -153,6 +153,10 @@ const Layout = ({ children }: any) => {
         showToast("¡Revisa tu muro, tienes un nuevo comunicado!", "info");
       }
 
+      if (e.event == "admins" && e.payload.act == "newVoucher") {
+        showToast("¡Revisa tus ingresos, tienes un nuevo comprobante de pago!", "info");
+      }
+
       if (
         e.event == "alerts" &&
         e.payload?.level == 4 &&
@@ -237,7 +241,7 @@ const Layout = ({ children }: any) => {
             setStore({ openProfileModal: false });
           }}
           dataID={user?.id}
-          titleBack="Volver atras"
+          titleBack="Volver atrás"
           type="admin"
           del={false}
           setOnLogout={setOnLogout}
@@ -253,7 +257,8 @@ const Layout = ({ children }: any) => {
           }}
           buttonText="Cerrar sesión"
           buttonCancel="Cancelar"
-          variant={"mini"}
+          minWidth={360}
+          maxWidth={680}
           onSave={() => logout()}
         >
           <p className={styles.modalLogout}>

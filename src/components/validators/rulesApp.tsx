@@ -175,6 +175,26 @@ export const validCi: ValidFunctionType = (value, param) => {
   return value.length < min || value.length > max || isNaN(value) ? error : "";
 };
 
+export const validPhone: ValidFunctionType = (value, param) => {
+  if (!value) return ""; // Si está vacío, no valida (lo controla required si es necesario)
+
+  let [min, max]: any = param;
+  if (!min) min = 7;
+  if (!max) max = 10;
+
+  // Verificar que solo contenga dígitos
+  if (!/^\d+$/.test(value)) {
+    return "El teléfono debe contener solo números";
+  }
+
+  // Verificar longitud
+  if (value.length < min || value.length > max) {
+    return `El teléfono debe tener entre ${min} y ${max} dígitos`;
+  }
+
+  return "";
+};
+
 export const validOptionsSurvey: ValidFunctionType = (value, param, field) => {
   let error: string = "";
   let min = 1;
