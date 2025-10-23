@@ -23,6 +23,11 @@ import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
+import {
+  RESERVATION_STATUS_CONFIG,
+  getUpdatedReservationStatus,
+  type ReservationStatus
+} from "../constants/reservationConstants";
 
 interface ReservationItem {
   id?: string | number;
@@ -47,7 +52,7 @@ interface ReservationItem {
   reason?: string;
   start_time?: string;
   end_time?: string;
-  status?: "W" | "A" | "X" | "C" | "F";
+  status?: ReservationStatus;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
@@ -64,14 +69,6 @@ interface ReservationDetailModalProps {
   reservationId?: string | number | null;
   reLoad?: () => void;
 }
-
-const statusMap: any = {
-  W: { label: "Por confirmar", class: styles.statusW },
-  A: { label: "Reservado", class: styles.statusA },
-  X: { label: "Rechazado", class: styles.statusX },
-  C: { label: "Cancelado", class: styles.statusC },
-  F: { label: "Completado", class: styles.statusF },
-};
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
   open,
@@ -180,29 +177,15 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
     }
   };
 
-  const getStatusInfo = (status?: "W" | "A" | "X" | "C" | "F") => {
-    let currentStatus = status;
+  const getStatusInfo = (status?: ReservationStatus) => {
+    // Usar la función utilitaria para obtener el estado actualizado
+    const currentStatus = getUpdatedReservationStatus(
+      status,
+      reservationDetail?.date_end,
+      reservationDetail?.end_time
+    );
 
-    // Validar que tenemos los datos necesarios antes de crear la fecha
-    let dateEnd = "";
-    try {
-      if (reservationDetail?.date_end && reservationDetail?.end_time) {
-        const dateEndObj = new Date(reservationDetail.date_end + "T" + reservationDetail.end_time);
-        if (!isNaN(dateEndObj.getTime())) {
-          dateEnd = dateEndObj.toISOString().split(".")[0];
-        }
-      }
-    } catch (error) {
-      console.error("Error parsing date:", error);
-      dateEnd = "";
-    }
-
-    // Solo cambiar el status si tenemos una fecha válida
-    if (currentStatus === "A" && dateEnd && dateEnd < new Date().toISOString().split(".")[0]) {
-      currentStatus = "F";
-    }
-
-    return currentStatus ? statusMap[currentStatus] : null;
+    return currentStatus ? RESERVATION_STATUS_CONFIG[currentStatus] : null;
   };
 
   // --- Handlers de Acción ---
