@@ -24,6 +24,20 @@ const DptoConfig = ({
   const [existLogo, setExistLogo] = useState(false);
   const [existAvatar, setExistAvatar] = useState(false);
   const [bookingRequiresPayment, setBookingRequiresPayment] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+
+  // Efecto para inicializar el estado del switch basado en payment_time_limit SOLO una vez
+  useEffect(() => {
+    // Solo ejecutar una vez cuando se cargan los datos del client-config
+    if (formState?.payment_time_limit !== undefined && !initialLoadDone) {
+      if (Number(formState.payment_time_limit) > 0) {
+        setBookingRequiresPayment(true);
+      } else {
+        setBookingRequiresPayment(false);
+      }
+      setInitialLoadDone(true);
+    }
+  }, [formState?.payment_time_limit, initialLoadDone]);
 
   // Manejar el cambio del switch localmente
   const handleSwitchChange = ({ target: { name, value } }: any) => {
@@ -36,6 +50,12 @@ const DptoConfig = ({
         onChange({ target: { name: "payment_time_limit", value: "" } });
       }
     }
+  };
+
+  // Manejar cambios en el input de tiempo límite con validación
+  const handleTimeChange = (e: any) => {
+    // Simplemente actualizar el formState, sin afectar el switch
+    onChange(e);
   };
 
   return (
@@ -326,7 +346,7 @@ const DptoConfig = ({
               name="payment_time_limit"
               error={errors}
               value={formState?.payment_time_limit || ''}
-              onChange={onChange}
+              onChange={handleTimeChange}
               className="dark-input"
               min="1"
               max="60"
