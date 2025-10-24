@@ -270,7 +270,14 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
                 </span>
               </div>
             )}
-            
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Concepto</span>
+              <span className={styles.infoValue}>
+                {((item.description || '-/-').match(/.{1,20}/g) || []).map((line, idx) => (
+                  <span key={idx}>{line}</span>
+                ))}
+              </span>
+            </div>
           </div>
         </section>
 
