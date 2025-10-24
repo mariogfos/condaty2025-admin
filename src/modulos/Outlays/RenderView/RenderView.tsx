@@ -146,6 +146,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     }
   };
 
+const imageUrl = getUrlImages(
+                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()
+                  }`
+                );
+                window.open(imageUrl, '_blank');
+
   if (!item) {
     return (
       <DataModal
