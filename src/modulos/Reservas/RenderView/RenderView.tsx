@@ -334,19 +334,30 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
             </div>
           ) : (
             <div className={styles.modalContent}>
-              {reservationDetail.status === "A" && (
-                <p
-                  onClick={() => setOpenModalCancel(true)}
-                  style={{
-                    color: "var(--cError)",
-                    textAlign: "right",
-                    textDecorationLine: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancelar reserva
-                </p>
-              )}
+              {(() => {
+                // Obtener el estado actualizado para la lógica de cancelación
+                const updatedStatus = getUpdatedReservationStatus(
+                  reservationDetail.status,
+                  reservationDetail?.date_end,
+                  reservationDetail?.end_time
+                );
+
+                // Solo mostrar cancelar si está en estado "A" (Reservado)
+                // pero NO si ya se completó automáticamente (cambió a "F")
+                return updatedStatus === "A" && (
+                  <p
+                    onClick={() => setOpenModalCancel(true)}
+                    style={{
+                      color: "var(--cError)",
+                      textAlign: "right",
+                      textDecorationLine: "underline",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancelar reserva
+                  </p>
+                );
+              })()}
 
               <div className={styles.reservationBlock}>
                 <div className={styles.requesterSection}>
@@ -395,7 +406,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = memo(({
                         </span>
                         <div
                           className={`${styles.statusBadge} ${
-                            currentStatus ? currentStatus.class : styles.statusUnknown
+                            currentStatus ? styles[currentStatus.class] : styles.statusUnknown
                           }`}
                         >
                           {currentStatus ? currentStatus.label : "Estado desconocido"}

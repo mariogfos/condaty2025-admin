@@ -280,44 +280,41 @@
   border-radius: 4px;
   font-size: 14px;
 }
+
+/* W: Por confirmar (Amarillo) */
 .statusW {
-  background-color: var(--cHoverWarning); /* Fondo amarillo suave */
-  color: var(--cWarning); /* Texto amarillo */
+  background-color: var(--cHoverWarning);
+  color: var(--cWarning);
 }
 
-/* N: Rechazado (Rojo) */
-.statusN {
-  /* Asume que tienes variables para error/danger */
-  background-color: var(--cHoverError); /* Fondo rojo suave */
-  color: var(--cError); /* Texto rojo */
+/* A: Reservado (Verde) */
+.statusA {
+  background-color: var(--cHoverSuccess);
+  color: var(--cSuccess);
 }
 
-/* X: Cancelado (Gris Oscuro o Rojo suave) */
+/* X: Rechazado (Rojo) */
 .statusX {
-  background-color: var(--cHoverCompl5);
-  color: var(--cMediumAlert);
-}
-.statusC {
   background-color: var(--cHoverError);
   color: var(--cError);
 }
-.statusUnknown {
-  background-color: var(
-    --cHoverLight,
-    rgba(248, 249, 250, 0.5)
-  ); /* Fondo gris muy suave */
-  color: var(--cLightDark, rgb(108, 117, 125)); /* Texto gris oscuro */
-  border: 1px solid var(--cLightDark, rgb(200, 200, 200)); /* Borde opcional */
+
+/* C: Cancelado (Gris/Naranja) */
+.statusC {
+  background-color: var(--cHoverCompl5);
+  color: var(--cMediumAlert);
 }
+
+/* F: Completado (Azul/Blanco) */
 .statusF {
   background-color: var(--cHoverCompl1);
   color: var(--cWhite);
 }
 
-/* A: Disponible (Azul) */
-.statusA {
-  background-color: var(--cHoverSuccess); /* Fondo azul suave */
-  color: var(--cSuccess); /* Texto azul */
+.statusUnknown {
+  background-color: var(--cHoverLight, rgba(248, 249, 250, 0.5));
+  color: var(--cLightDark, rgb(108, 117, 125));
+  border: 1px solid var(--cLightDark, rgb(200, 200, 200));
 }
 
 .areaSeparator {
