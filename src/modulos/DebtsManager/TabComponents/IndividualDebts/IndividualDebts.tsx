@@ -213,7 +213,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
   const handleGetFilter = (opt: string, value: string, oldFilterState: any) => {
     const currentFilters = { ...(oldFilterState?.filterBy || {}) };
 
-    if (opt === "created_at" && value === "custom") {
+    if (opt === "due_at" && value === "custom") {
       setCustomDateErrors({});
       setOpenCustomFilter(true);
       delete currentFilters[opt];
@@ -522,7 +522,7 @@ const IndividualDebts: React.FC<IndividualDebtsProps> = ({
             return;
           }
           const customDateFilterString = `${startDate},${endDate}`;
-          onFilter('created_at', customDateFilterString);
+          onFilter('due_at', customDateFilterString);
           setOpenCustomFilter(false);
           setCustomDateErrors({});
         }}
