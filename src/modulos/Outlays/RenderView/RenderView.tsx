@@ -111,6 +111,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     };
     return statusMap[status] || status;
   };
+  
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: '', subCategoryName: '' };
@@ -120,10 +121,16 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     if (status === 'X') return styles.statusCancelled;
     return '';
   };
+
   const handleAnularClick = () => {
     if (item && onDel) {
       onDel(item);
     }
+  };
+
+  const openFileInNewTab = (path: string) => {
+    const fileUrl = getUrlImages(path);
+    window.open(fileUrl, '_blank');
   };
 
   const handleGenerateReceipt = async () => {
@@ -138,19 +145,12 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     );
     
     if (file?.success === true && file?.data?.path) {
-      const receiptUrl = getUrlImages('/' + file.data.path);
-      window.open(receiptUrl, '_blank');
+      openFileInNewTab('/' + file.data.path);
       showToast('Nota de egreso generado con éxito.', 'success');
     } else {
       showToast(error?.data?.message || 'No se pudo generar la nota de egreso.', 'error');
     }
   };
-
-const imageUrl = getUrlImages(
-                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()
-                  }`
-                );
-                window.open(imageUrl, '_blank');
 
   if (!item) {
     return (
@@ -303,18 +303,12 @@ const imageUrl = getUrlImages(
             <Button
               variant="secondary"
               className={styles.voucherButton}
-              onClick={() => {
-                const imageUrl = getUrlImages(
-                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()
-                  }`
-                );
-                window.open(imageUrl, '_blank');
-              }}
-              style={{ width: '100%' }}
+              onClick={
+                ()=> openFileInNewTab(`/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()}`)
+              }
             >
               Ver comprobante
             </Button>
-          
           )}
         </div>
       </div>
