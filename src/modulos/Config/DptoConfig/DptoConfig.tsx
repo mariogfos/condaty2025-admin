@@ -32,8 +32,8 @@ const DptoConfig = ({
       setBookingRequiresPayment(isEnabled);
 
       // Si se desactiva, limpiar el campo paymentTimeLimit
-      if (!isEnabled && formState?.paymentTimeLimit) {
-        onChange({ target: { name: "paymentTimeLimit", value: "" } });
+      if (!isEnabled && formState?.payment_time_limit) {
+        onChange({ target: { name: "payment_time_limit", value: "" } });
       }
     }
   };
@@ -323,9 +323,9 @@ const DptoConfig = ({
             <Input
               type="number"
               label="Tiempo límite para pago (minutos)"
-              name="paymentTimeLimit"
+              name="payment_time_limit"
               error={errors}
-              value={formState?.paymentTimeLimit || ''}
+              value={formState?.payment_time_limit || ''}
               onChange={onChange}
               className="dark-input"
               min="1"
