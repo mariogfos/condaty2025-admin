@@ -368,8 +368,8 @@ const ProfileModal = ({
                    {/* <IconHousing size={20} color={'var(--cWhiteV1)'} /> */}
                     {IconType}
                     <div>
-                      <strong>Propietario de: </strong>
-                      {data?.data[0]?.dptos?.map((dpto: any) => `${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`).join(', ')}</div>
+                      <strong>Propietario de:</strong>
+                      {data?.data[0]?.dptos?.map((dpto: any) => ` ${dpto?.type?.name || 'Unidad'} ${dpto?.nro}`).join(', ')}</div>
                     </div>
                 )}
 
