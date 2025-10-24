@@ -113,7 +113,7 @@ const UnitInfo = ({
       <div className={styles.cardHeader}>
         <div>
           <p className={styles.title}>
-            {datas?.data?.type.name} {datas?.data?.nro}
+            {datas?.data?.type?.name} {datas?.data?.nro}
           </p>
           <p className={styles.subtitle}>{datas?.data?.description}</p>
         </div>
