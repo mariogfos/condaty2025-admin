@@ -281,28 +281,52 @@
   font-size: 14px;
 }
 
-/* W: Por confirmar (Amarillo) */
+/* W: Por confirmar reserva (Amarillo) */
 .statusW {
   background-color: var(--cHoverWarning);
   color: var(--cWarning);
 }
 
-/* A: Reservado (Verde) */
+/* A: Pendiente de pago (Azul) */
 .statusA {
+  background-color: var(--cHoverInfo);
+  color: var(--cInfo);
+}
+
+/* Q: Por confirmar pago (Amarillo claro) */
+.statusQ {
+  background-color: #FFF3CD;
+  color: #856404;
+}
+
+/* N: Reservado sin pago (Gris) */
+.statusN {
+  background-color: #E2E3E5;
+  color: #383D41;
+}
+
+/* L: Reservado con pago (Verde) */
+.statusL {
   background-color: var(--cHoverSuccess);
   color: var(--cSuccess);
 }
 
-/* X: Rechazado (Rojo) */
-.statusX {
+/* R: Reserva rechazada (Rojo) */
+.statusR {
   background-color: var(--cHoverError);
   color: var(--cError);
 }
 
-/* C: Cancelado (Gris/Naranja) */
+/* C: Reserva cancelada manual (Gris/Naranja) */
 .statusC {
   background-color: var(--cHoverCompl5);
   color: var(--cMediumAlert);
+}
+
+/* T: Reserva cancelada automática (Rojo claro) */
+.statusT {
+  background-color: #F8D7DA;
+  color: #721C24;
 }
 
 /* F: Completado (Azul/Blanco) */
