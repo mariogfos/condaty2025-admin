@@ -281,58 +281,58 @@
   font-size: 14px;
 }
 
-/* W: Por confirmar reserva (Amarillo) */
+/* W: Esperando confirmación (Amarillo) */
 .statusW {
-  background-color: var(--cHoverWarning);
-  color: var(--cWarning);
+  background-color: #E9B01E33;
+  color: #E9B01E;
 }
 
-/* A: Pendiente de pago (Azul) */
+/* A: Pago pendiente (Amarillo) */
 .statusA {
-  background-color: var(--cHoverInfo);
-  color: var(--cInfo);
+  background-color: #E9B01E33;
+  color: #E9B01E;
 }
 
-/* Q: Por confirmar pago (Amarillo claro) */
+/* Q: Pago por confirmar (Amarillo) */
 .statusQ {
-  background-color: #FFF3CD;
-  color: #856404;
+  background-color: #E9B01E33;
+  color: #E9B01E;
 }
 
-/* N: Reservado sin pago (Gris) */
+/* N: Reservado (sin pago) (Verde) */
 .statusN {
-  background-color: #E2E3E5;
-  color: #383D41;
+  background-color: #00E38C33;
+  color: #00E38C;
 }
 
-/* L: Reservado con pago (Verde) */
+/* L: Reservado (pagado) (Verde) */
 .statusL {
-  background-color: var(--cHoverSuccess);
-  color: var(--cSuccess);
+  background-color: #00E38C33;
+  color: #00E38C;
 }
 
 /* R: Reserva rechazada (Rojo) */
 .statusR {
-  background-color: var(--cHoverError);
-  color: var(--cError);
+  background-color: #E4605533;
+  color: #E46055;
 }
 
-/* C: Reserva cancelada manual (Gris/Naranja) */
+/* C: Cancelada por usuario (Rojo) */
 .statusC {
-  background-color: var(--cHoverCompl5);
-  color: var(--cMediumAlert);
+  background-color: #E4605533;
+  color: #E46055;
 }
 
-/* T: Reserva cancelada automática (Rojo claro) */
+/* T: Cancelada automática (Rojo) */
 .statusT {
-  background-color: #F8D7DA;
-  color: #721C24;
+  background-color: #E4605533;
+  color: #E46055;
 }
 
-/* F: Completado (Azul/Blanco) */
+/* F: Finalizada (Verde) */
 .statusF {
-  background-color: var(--cHoverCompl1);
-  color: var(--cWhite);
+  background-color: #00E38C33;
+  color: #00E38C;
 }
 
 .statusUnknown {
