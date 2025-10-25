@@ -283,55 +283,55 @@
 
 /* W: Esperando confirmación (Amarillo) */
 .statusW {
-  background-color: #FDF2D1;
+  background-color: #E9B01E33;
   color: #E9B01E;
 }
 
 /* A: Pago pendiente (Amarillo) */
 .statusA {
-  background-color: #FDF2D1;
+  background-color: #E9B01E33;
   color: #E9B01E;
 }
 
 /* Q: Pago por confirmar (Amarillo) */
 .statusQ {
-  background-color: #FDF2D1;
+  background-color: #E9B01E33;
   color: #E9B01E;
 }
 
 /* N: Reservado (sin pago) (Verde) */
 .statusN {
-  background-color: #E6F9F2;
+  background-color: #00E38C33;
   color: #00E38C;
 }
 
 /* L: Reservado (pagado) (Verde) */
 .statusL {
-  background-color: #E6F9F2;
+  background-color: #00E38C33;
   color: #00E38C;
 }
 
 /* R: Reserva rechazada (Rojo) */
 .statusR {
-  background-color: #FDEAEA;
+  background-color: #E4605533;
   color: #E46055;
 }
 
 /* C: Cancelada por usuario (Rojo) */
 .statusC {
-  background-color: #FDEAEA;
+  background-color: #E4605533;
   color: #E46055;
 }
 
 /* T: Cancelada automática (Rojo) */
 .statusT {
-  background-color: #FDEAEA;
+  background-color: #E4605533;
   color: #E46055;
 }
 
 /* F: Finalizada (Verde) */
 .statusF {
-  background-color: #E6F9F2;
+  background-color: #00E38C33;
   color: #00E38C;
 }
 

@@ -5,55 +5,55 @@ export type ReservationStatus = "W" | "A" | "Q" | "N" | "L" | "R" | "C" | "T" | 
 export const RESERVATION_STATUS_CONFIG = {
   W: {
     label: "Esperando confirmación",
-    backgroundColor: "#FDF2D1",
+    backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusW"
   },
   A: {
     label: "Pago pendiente",
-    backgroundColor: "#FDF2D1",
+    backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusA"
   },
   Q: {
     label: "Pago por confirmar",
-    backgroundColor: "#FDF2D1",
+    backgroundColor: "#E9B01E33",
     color: "#E9B01E",
     class: "statusQ"
   },
   N: {
     label: "Reservado (sin pago)",
-    backgroundColor: "#E6F9F2",
+    backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusN"
   },
   L: {
     label: "Reservado (pagado)",
-    backgroundColor: "#E6F9F2",
+    backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusL"
   },
   R: {
     label: "Reserva rechazada",
-    backgroundColor: "#FDEAEA",
+    backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusR"
   },
   C: {
     label: "Cancelada por usuario",
-    backgroundColor: "#FDEAEA",
+    backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusC"
   },
   T: {
     label: "Cancelada automática",
-    backgroundColor: "#FDEAEA",
+    backgroundColor: "#E4605533",
     color: "#E46055",
     class: "statusT"
   },
   F: {
     label: "Finalizada",
-    backgroundColor: "#E6F9F2",
+    backgroundColor: "#00E38C33",
     color: "#00E38C",
     class: "statusF"
   }
