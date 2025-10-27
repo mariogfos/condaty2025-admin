@@ -5,7 +5,11 @@ import { getFullName, getUrlImages } from '@/mk/utils/string';
 import Button from '@/mk/components/forms/Button/Button';
 import { formatToDayDDMMYYYYHHMM } from '@/mk/utils/date';
 import styles from './RenderView.module.css';
+import useAxios from '@/mk/hooks/useAxios';
+import { useAuth } from '@/mk/contexts/AuthProvider';
 import { formatBs } from '@/mk/utils/numbers';
+import { da } from 'date-fns/locale';
+import { data } from 'motion/react-client';
 interface Category {
   id: number | string;
   name: string;
@@ -47,6 +51,8 @@ interface DetailOutlayProps {
 }
 const RenderView: React.FC<DetailOutlayProps> = memo(props => {
   const { open, onClose, extraData, item, onDel } = props;
+  const { execute } = useAxios();
+  const { showToast } = useAuth();
 
   const paymentMethodMap: Record<string, string> = {
     T: 'Transferencia bancaria',
@@ -55,7 +61,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     E: 'Efectivo',
     C: 'Cheque',
   };
-
+  
   const getPaymentMethodText = (type: string): string => {
     return paymentMethodMap[type] || type;
   };
@@ -105,6 +111,7 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     };
     return statusMap[status] || status;
   };
+  
   const { categoryName, subCategoryName } = item
     ? getCategoryNames()
     : { categoryName: '', subCategoryName: '' };
@@ -114,9 +121,34 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
     if (status === 'X') return styles.statusCancelled;
     return '';
   };
+
   const handleAnularClick = () => {
     if (item && onDel) {
       onDel(item);
+    }
+  };
+
+  const openFileInNewTab = (path: string) => {
+    const fileUrl = getUrlImages(path);
+    window.open(fileUrl, '_blank');
+  };
+
+  const handleGenerateReceipt = async () => {
+    showToast('Generando nota de egreso...', 'info');
+
+    const { data: file, error } = await execute(
+      '/payment-nota',
+      'POST',
+      { id: item?.id },
+      false,
+      true
+    );
+    
+    if (file?.success === true && file?.data?.path) {
+      openFileInNewTab('/' + file.data.path);
+      showToast('Nota de egreso generado con éxito.', 'success');
+    } else {
+      showToast(error?.data?.message || 'No se pudo generar la nota de egreso.', 'error');
     }
   };
 
@@ -256,25 +288,29 @@ const RenderView: React.FC<DetailOutlayProps> = memo(props => {
         </section>
 
         <hr className={styles.sectionDivider} />
-
-        {item.ext && (
-          <div className={styles.voucherButtonContainer}>
+       
+        <div className={styles.voucherButtonContainer}>
+          <Button
+            variant="secondary"
+            className={styles.voucherButton}
+            style={{ marginRight : item.ext ? 8 : 0 }}
+            onClick={handleGenerateReceipt}
+          >
+            Descargar nota de egreso
+          </Button>
+        
+          {item.ext && (
             <Button
               variant="secondary"
               className={styles.voucherButton}
-              onClick={() => {
-                const imageUrl = getUrlImages(
-                  `/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()
-                  }`
-                );
-                window.open(imageUrl, '_blank');
-              }}
-              style={{ width: '100%' }}
+              onClick={
+                ()=> openFileInNewTab(`/EXPENSE-${item.id}.${item.ext}?d=${item.updated_at || Date.now()}`)
+              }
             >
               Ver comprobante
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </DataModal>
   );
