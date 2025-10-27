@@ -5,24 +5,32 @@ import NotAccess from "../auth/NotAccess/NotAccess";
 import styles from "./index.module.css";
 import { WidgetDashCard } from "../Widgets/WidgetsDashboard/WidgetDashCard/WidgetDashCard";
 import { formatNumber } from "@/mk/utils/numbers";
-import { getDateStrMes, getDateTimeStrMes, getNow } from "@/mk/utils/date";
+import { getDateTimeStrMes } from "@/mk/utils/date";
 import WidgetBase from "../Widgets/WidgetBase/WidgetBase";
 import WidgetGraphResume from "../Widgets/WidgetsDashboard/WidgetGraphResume/WidgetGraphResume";
-import WidgetCalculatePenalty from "../Widgets/WidgetsDashboard/WidgetCalculatePenalty/WidgetCalculatePenalty";
 import { WidgetList } from "../Widgets/WidgetsDashboard/WidgetList/WidgetList";
-import { getFullName } from "@/mk/utils/string";
+import { getFullName, getUrlImages, truncateText } from "@/mk/utils/string";
 import OwnersRender from "@/modulos/Owners/RenderView/RenderView";
 import PaymentRender from "@/modulos/Payments/RenderView/RenderView";
 import ReservationDetailModal from "@/modulos/Reservas/RenderView/RenderView";
+import AlertsRender from "@/modulos/Alerts/RenderView/RenderView";
+import { ALERT_LEVEL_LABELS } from "@/modulos/Alerts/alertConstants";
 import {
   IconBriefCaseMoney,
   IconEgresos,
+  IconGraphics,
   IconIngresos,
   IconWallet,
+  IconAlerts,
+  IconReservedAreas,
+  IconPagos,
+  IconGroup2,
 } from "../layout/icons/IconsBiblioteca";
 import WidgetContentsResume from "../Widgets/WidgetsDashboard/WidgetContentsResume/WidgetContentsResume";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
-import { getUrlImages } from "@/mk/utils/string";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
+import EmptyData from "@/components/NoData/EmptyData";
+import ContentRenderView from "@/modulos/Contents/RenderView/RenderView";
 
 const paramsInitial = {
   fullType: "L",
@@ -30,13 +38,35 @@ const paramsInitial = {
 };
 
 const HomePage = () => {
-  const { store, setStore, userCan, showToast, user } = useAuth();
+  const { store, setStore, userCan, showToast } = useAuth();
   const [openActive, setOpenActive] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
   const [dataOwner, setDataOwner]: any = useState({});
   const [dataPayment, setDataPayment]: any = useState({});
   const [openReservation, setOpenReservation] = useState(false);
   const [selectedReservationId, setSelectedReservationId]: any = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [selectedAlert, setSelectedAlert]: any = useState(null);
+  const [openPreRegistroModal, setOpenPreRegistroModal] = useState(false);
+
+  // Modal de contenidos (RenderView)
+  const [openContentRender, setOpenContentRender] = useState(false);
+  const [selectedContentId, setSelectedContentId] = useState<number | null>(
+    null
+  );
+  const [selectedContentData, setSelectedContentData] = useState<any>(null);
+
+  const handleOpenContentRenderView = (id: number, data?: any) => {
+    setSelectedContentId(id);
+    setSelectedContentData(data || null);
+    setOpenContentRender(true);
+  };
+
+  const handleCloseContentRenderView = () => {
+    setOpenContentRender(false);
+    setSelectedContentId(null);
+    setSelectedContentData(null);
+  };
 
   useEffect(() => {
     setStore({
@@ -48,16 +78,31 @@ const HomePage = () => {
     data: dashboard,
     reLoad,
     loaded,
+    execute,
   } = useAxios("/dashboard", "GET", {
     ...paramsInitial,
   });
 
-  const today = getNow();
-  const formattedDate = `Resumen ala fecha actual, ${getDateStrMes(today)}`;
+  const today = new Date();
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+  const formattedDate = `Resumen del mes de ${meses[today.getMonth()]}`;
   let balance: any =
     Number(dashboard?.data?.TotalIngresos) -
     Number(dashboard?.data?.TotalEgresos);
-  const balanceMessage = balance > 0 ? "Saldo a favor" : "Saldo en contra";
+  const balanceMessage = balance > 0 ? "Balance a favor" : "Balance en contra";
 
   const paymentProps: any = {
     open: openPayment,
@@ -91,10 +136,20 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          // if (userCan("payments", "C") == false) {
+          //   return showToast("No tiene permisos para aceptar pagos", "error");
+          // }
+          setDataPayment(data);
+          setOpenPayment(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
+              hasImage={data.owner.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
               )}
@@ -114,18 +169,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-            onClick={() => {
-              // if (userCan("payments", "C") == false) {
-              //   return showToast("No tiene permisos para aceptar pagos", "error");
-              // }
-              setDataPayment(data);
-              setOpenPayment(true);
-            }}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -134,7 +178,7 @@ const HomePage = () => {
   const reservasList = (data: any) => {
     const imageUrl = data?.owner;
     const primaryText = getFullName(data?.owner);
-    const secondaryText = `Área: ${data?.area?.title || "No especificada"}`;
+    const secondaryText = `${data?.area?.title || "No especificada"}`;
     const ownerInitials = primaryText
       ?.split(" ")
       .map((n) => n[0])
@@ -143,10 +187,17 @@ const HomePage = () => {
       .toUpperCase();
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={`${styles.itemRow}`}
+        onClick={() => {
+          setSelectedReservationId(data.id);
+          setOpenReservation(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {imageUrl ? (
             <Avatar
+              hasImage={data.owner.has_image}
               src={getUrlImages(
                 `/OWNER-${data.owner.id}.webp?d=${data.owner.updated_at}`
               )}
@@ -166,15 +217,7 @@ const HomePage = () => {
           <span className={styles.itemSecondaryText}>{secondaryText}</span>
         </div>
         <div className={styles.itemActionContainer}>
-          <button
-            className={styles.itemActionButton}
-            onClick={() => {
-              setSelectedReservationId(data.id);
-              setOpenReservation(true);
-            }}
-          >
-            Revisar
-          </button>
+          <button className={styles.itemActionButton}>Revisar</button>
         </div>
       </div>
     );
@@ -188,9 +231,22 @@ const HomePage = () => {
       : ownerData?.email || "";
 
     return (
-      <div className={styles.itemRow}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          if (userCan("owners", "C") == false) {
+            return showToast(
+              "No tiene permisos para aceptar cuentas pre-registradas",
+              "error"
+            );
+          }
+          setDataOwner({ ...ownerData, type_owner: data?.type });
+          setOpenActive(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           <Avatar
+            hasImage={ownerData.has_image}
             src={getUrlImages(
               `/OWNER-${ownerData.id}.webp?d=${ownerData.updated_at}`
             )}
@@ -216,7 +272,7 @@ const HomePage = () => {
                   "error"
                 );
               }
-              setDataOwner(ownerData);
+              setDataOwner({ ...ownerData, type_owner: data.type });
               setOpenActive(true);
             }}
           >
@@ -229,61 +285,75 @@ const HomePage = () => {
 
   const alertasList = (data: any) => {
     const hasGuard = !!data?.guardia; // Verifica si el objeto guardia existe y no es nulo
-    const hasOwner = !!data?.owner;   // Verifica si el objeto owner existe y no es nulo
+    const hasOwner = !!data?.owner; // Verifica si el objeto owner existe y no es nulo
 
     let dataSource = null; // Contendrá el objeto guardia o owner
-    let entityType = "";   // Será "GUARD" o "OWNER"
+    let entityType = ""; // Será "GUARD" o "OWNER"
     let primaryText = "Alerta del Sistema"; // Texto por defecto
 
     if (hasGuard) {
-        dataSource = data.guardia;
-        entityType = "GUARD";
-        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto guardia
+      dataSource = data.guardia;
+      entityType = "GUARD";
+      primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto guardia
     } else if (hasOwner) {
-        dataSource = data.owner;
-        entityType = "OWNER";
-        primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
+      dataSource = data.owner;
+      entityType = "OWNER";
+      primaryText = getFullName(dataSource); // Asume que getFullName puede manejar el objeto owner
     }
     // Si ni guardia ni owner están presentes, primaryText permanece "Alerta del Sistema"
 
     const userInitials = primaryText
-        ?.split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase();
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
 
     const secondaryText = data.descrip || "Sin descripción";
+    const truncatedSecondaryText = truncateText(secondaryText, 35);
 
     let levelClass = styles.levelLow;
-    let levelTextIndicator = "Nivel bajo";
+    let levelTextIndicator =
+      ALERT_LEVEL_LABELS[data.level as keyof typeof ALERT_LEVEL_LABELS] ||
+      ALERT_LEVEL_LABELS[1];
     if (data.level === 2) {
-        levelClass = styles.levelMedium;
-        levelTextIndicator = "Nivel medio";
-    } else if (data.level === 3 || data.level > 2) { // Mayor que 2 también es alto
-        levelClass = styles.levelHigh;
-        levelTextIndicator = "Nivel alto";
+      levelClass = styles.levelMedium;
+    } else if (data.level === 3 || data.level > 2) {
+      // Mayor que 2 también es alto
+      levelClass = styles.levelHigh;
     }
 
     // Determinar si podemos intentar cargar una imagen de avatar
     // Intentamos cargar si dataSource (guardia u owner) está presente y tiene un id.
-    const canDisplayAvatarImage = dataSource && dataSource.id;
+    const canDisplayAvatarImage = !!dataSource?.id;
     let avatarImageUrl = null;
 
     if (canDisplayAvatarImage) {
-        // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
-        // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
-        const updatedAtTimestamp = dataSource.updated_at || dataSource.updatedAt || new Date().toISOString();
-        avatarImageUrl = getUrlImages(`/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`);
+      // El campo 'updated_at' podría tener diferentes nombres (updated_at vs updatedAt) o estar ausente.
+      // Usar una marca de tiempo actual como fallback si no está disponible para asegurar la invalidación de caché.
+      const updatedAtTimestamp =
+        dataSource.updated_at ||
+        dataSource.updatedAt ||
+        new Date().toISOString();
+      avatarImageUrl = getUrlImages(
+        `/${entityType}-${dataSource.id}.webp?d=${updatedAtTimestamp}`
+      );
     }
 
     return (
-      <div className={styles.itemRowAlert}>
+      <div
+        className={styles.itemRow}
+        onClick={() => {
+          setSelectedAlert(data);
+          setOpenAlert(true);
+        }}
+      >
         <div className={styles.itemImageContainer}>
           {canDisplayAvatarImage && avatarImageUrl ? (
             <Avatar
+              hasImage={dataSource.has_image}
               src={avatarImageUrl} // URL construida dinámicamente
-              name={primaryText}    // El componente Avatar debería manejar el fallback a iniciales si src falla
+              name={primaryText} // El componente Avatar debería manejar el fallback a iniciales si src falla
               w={40}
               h={40}
               className={styles.itemImage}
@@ -292,13 +362,16 @@ const HomePage = () => {
             // Fallback si no hay un usuario específico (guardia u owner) asociado,
             // o si dataSource no tiene un ID, o si avatarImageUrl es null.
             <div className={styles.itemImagePlaceholder}>
-              {userInitials || "!"} {/* Iniciales para "Alerta del Sistema" o si primaryText está vacío */}
+              {userInitials || "!"}{" "}
+              {/* Iniciales para "Alerta del Sistema" o si primaryText está vacío */}
             </div>
           )}
         </div>
         <div className={styles.itemTextInfo}>
           <span className={styles.itemPrimaryText}>{primaryText}</span>
-          <span className={styles.itemSecondaryText}>{secondaryText}</span>
+          <span className={styles.itemSecondaryText} title={secondaryText}>
+            {truncatedSecondaryText}
+          </span>
           <span className={styles.itemDateText}>
             {getDateTimeStrMes(data.created_at)}
           </span>
@@ -310,6 +383,18 @@ const HomePage = () => {
             {levelTextIndicator}
           </div>
         </div>
+      </div>
+    );
+  };
+
+  const renderPreRegistroList = () => {
+    return (
+      <div className={styles.preRegistroListContainer}>
+        {dashboard?.data?.porActivar?.map((item: any, index: number) => (
+          <div key={item?.id ?? index} className={styles.preRegistroItem}>
+            {registroList(item)}
+          </div>
+        ))}
       </div>
     );
   };
@@ -336,13 +421,28 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/payments")}
                   icon={
                     <IconIngresos
-                      color={"var(--cAccent)"}
-                      style={{ backgroundColor: "var(--cHoverSuccess)" }}
+                      color={
+                        !dashboard?.data?.TotalIngresos ||
+                        dashboard?.data?.TotalIngresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cSuccess)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalIngresos ||
+                          dashboard?.data?.TotalIngresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverCompl2)",
+                      }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Dinero total que entra a las cuentas del condominio. Principalmente por cuotas de expensas, alquiler de áreas comunes, intereses bancarios, multas y otros aportes."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={437}
                 />
                 <WidgetDashCard
                   title="Egresos"
@@ -350,13 +450,28 @@ const HomePage = () => {
                   onClick={() => (window.location.href = "/outlays")}
                   icon={
                     <IconEgresos
-                      color={"var(--cError)"}
-                      style={{ backgroundColor: "var(--cHoverError)" }}
+                      color={
+                        !dashboard?.data?.TotalEgresos ||
+                        dashboard?.data?.TotalEgresos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cError)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.TotalEgresos ||
+                          dashboard?.data?.TotalEgresos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverError)",
+                      }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Pagos o salidas de dinero del condominio para cubrir gastos operativos y de mantenimiento. Incluye servicios básicos, personal, reparaciones, seguros, administración, impuestos y otros costos."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={556}
                 />
                 <WidgetDashCard
                   title={balanceMessage}
@@ -370,27 +485,55 @@ const HomePage = () => {
                   }
                   icon={
                     <IconBriefCaseMoney
-                      color={"var(--cInfo)"}
-                      style={{ backgroundColor: "var(--cHoverInfo)" }}
+                      color={
+                        !balance || balance === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cInfo)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !balance || balance === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverCompl3)",
+                      }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Monto acumulado proveniente de la diferencia entre ingresos y egresos del condominio"
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={486}
                 />
                 <WidgetDashCard
                   title="Cartera vencida"
                   data={"Bs. " + formatNumber(dashboard?.data?.morosos)}
-                  onClick={() => (window.location.href = "/defaultersview")}
+                  onClick={() => (window.location.href = "/defaulters")}
                   icon={
                     <IconWallet
-                      color={"var(--cAlert)"}
-                      style={{ backgroundColor: "var(--cHoverAlert)" }}
+                      color={
+                        !dashboard?.data?.morosos ||
+                        dashboard?.data?.morosos === 0
+                          ? "var(--cWhiteV1)"
+                          : "var(--cMediumAlert)"
+                      }
+                      style={{
+                        backgroundColor:
+                          !dashboard?.data?.morosos ||
+                          dashboard?.data?.morosos === 0
+                            ? "var(--cHover)"
+                            : "var(--cHoverCompl5)",
+                      }}
                       circle
-                      size={38}
+                      size={16}
                     />
                   }
                   className={styles.widgetResumeCard}
+                  tooltip={true}
+                  tooltipTitle="Deudas pendientes de pago al condominio que han superado la fecha límite. Principalmente expensas impagas, multas o recargos vencidos. Su gestión es crucial para la liquidez del condominio."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipWidth={500}
                 />
               </div>
             </WidgetBase>
@@ -400,21 +543,38 @@ const HomePage = () => {
               {" "}
               {/* Nuevo contenedor para mantenerlos juntos si es necesario */}
               <div className={styles.widgetGraphResumeContainer}>
-                <WidgetGraphResume
-                  saldoInicial={dashboard?.data?.saldoInicial}
-                  ingresos={dashboard?.data?.ingresosHist}
-                  egresos={dashboard?.data?.egresosHist}
-                  periodo="y"
-                />
+                <div className={styles.graphAndLegendWrapper}>
+                  <WidgetGraphResume
+                    saldoInicial={dashboard?.data?.saldoInicial}
+                    ingresos={dashboard?.data?.ingresosHist}
+                    egresos={dashboard?.data?.egresosHist}
+                    periodo="y"
+                    showEmptyData={
+                      !dashboard?.data?.ingresosHist ||
+                      !dashboard?.data?.egresosHist ||
+                      (dashboard?.data?.ingresosHist?.length === 0 &&
+                        dashboard?.data?.egresosHist?.length === 0)
+                    }
+                    emptyDataProps={{
+                      message:
+                        "Gráfica financiera sin datos. verás la evolución del control financiero a medida ",
+                      line2: "que tengas movimiento financiero.",
+                      h: 300,
+                      icon: <IconGraphics size={80} />,
+                    }}
+                  />
+                </div>
               </div>
               <section className={styles.fourWidgetSection}>
                 <div className={styles.widgetRow}>
                   <WidgetList
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
-                    title="Solicitudes de pago"
+                    title="Revisiones de pago"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/payments")}
-                    emptyListMessage="No hay solicitudes de pago por revisar"
+                    emptyListMessage="No hay pagos por revisar. Una vez los residentes"
+                    emptyListLine2="comiencen a pagar sus deudas se mostrarán aquí."
+                    emptyListIcon={<IconPagos size={32} />}
                     data={dashboard?.data?.porConfirmar}
                     renderItem={pagosList}
                   />
@@ -423,7 +583,9 @@ const HomePage = () => {
                     title="Alertas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/alerts")}
-                    emptyListMessage="No hay alertas"
+                    emptyListMessage="No existe ningún tipo de alerta. Cuando un guardia o"
+                    emptyListLine2="residente registre una se mostrará aquí."
+                    emptyListIcon={<IconAlerts size={32} />}
                     data={dashboard?.data?.alertas}
                     renderItem={alertasList}
                   />
@@ -434,7 +596,9 @@ const HomePage = () => {
                     title="Solicitudes de Reservas"
                     viewAllText="Ver todas"
                     onViewAllClick={() => (window.location.href = "/reservas")}
-                    emptyListMessage="No hay solicitudes de reserva pendientes"
+                    emptyListMessage="Sin solicitudes de reserva. Una vez los residentes"
+                    emptyListLine2="comiencen a reservar las áreas se mostrarán aquí."
+                    emptyListIcon={<IconReservedAreas size={32} />}
                     data={dashboard?.data?.porReservar}
                     renderItem={reservasList}
                   />
@@ -442,8 +606,10 @@ const HomePage = () => {
                     className={`${styles.widgetAlerts} ${styles.widgetGrow}`}
                     title="Pre-registro"
                     viewAllText="Ver todos"
-                    onViewAllClick={() => (window.location.href = "/owners")}
-                    emptyListMessage="No hay cuentas por activar"
+                    onViewAllClick={() => setOpenPreRegistroModal(true)}
+                    emptyListMessage="No se encontró ninguna cuenta de pre-registro,"
+                    emptyListLine2="cuando un usuario se auto-registre se mostrará aquí."
+                    emptyListIcon={<IconGroup2 size={32} />}
                     data={dashboard?.data?.porActivar}
                     renderItem={registroList}
                   />
@@ -467,43 +633,93 @@ const HomePage = () => {
                 <WidgetDashCard
                   title="Administradores"
                   data={formatNumber(dashboard?.data?.adminsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de administradores registrados en el condominio. Los administradores gestionan y supervisan el sistema."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
+                  tooltipWidth={500}
                 />
                 <WidgetDashCard
                   title="Residentes"
                   data={formatNumber(dashboard?.data?.ownersCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de residentes activos. Los residentes son los usuarios que viven en el condominio."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
+                  tooltipWidth={500}
                 />
                 <WidgetDashCard
                   title="Guardias"
                   data={formatNumber(dashboard?.data?.guardsCount, 0)}
-                  // style={{ flexGrow: 1, flexBasis: 0 }}
+                  tooltip={true}
+                  tooltipTitle="Cantidad total de guardias registrados. Los guardias son responsables de la seguridad y el control de accesos."
+                  tooltipColor="var(--cWhiteV1)"
+                  tooltipPosition="left"
+                  tooltipWidth={500}
                 />
               </div>
             </WidgetBase>
 
             <div className={styles.widgetContents}>
-              <WidgetContentsResume data={dashboard?.data?.posts} />
+              <WidgetContentsResume
+                onOpenRenderView={handleOpenContentRenderView}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <OwnersRender
-        open={openActive}
-        onClose={() => setOpenActive(false)}
-        item={dataOwner}
-        reLoad={reLoad}
-      />
       {openPayment && <PaymentRender {...paymentProps} />}
-      <ReservationDetailModal
-        open={openReservation}
-        onClose={() => {
-          setOpenReservation(false);
-          setSelectedReservationId(null);
-        }}
-        reservationId={selectedReservationId}
-        reLoad={() => reLoad()}
+      {openReservation && (
+        <ReservationDetailModal
+          open={openReservation}
+          onClose={() => {
+            setOpenReservation(false);
+            setSelectedReservationId(null);
+          }}
+          reservationId={selectedReservationId}
+          reLoad={() => reLoad()}
+        />
+      )}
+      <DataModal
+        open={openPreRegistroModal}
+        title="Lista completa de pre-registros"
+        onClose={() => setOpenPreRegistroModal(false)}
+        buttonText=""
+        buttonCancel=""
+        variant={"mini"}
+      >
+        {renderPreRegistroList()}
+      </DataModal>
+      {openActive && (
+        <OwnersRender
+          open={openActive}
+          onClose={() => setOpenActive(false)}
+          item={dataOwner}
+          reLoad={reLoad}
+          execute={execute}
+        />
+      )}
+      {openAlert && (
+        <AlertsRender
+          open={openAlert}
+          onClose={() => {
+            setOpenAlert(false);
+            setSelectedAlert(null);
+          }}
+          item={selectedAlert}
+          reLoad={() => reLoad()}
+        />
+      )}
+
+      {/* Modal de detalle de contenidos: ocultar editar/eliminar en dashboard */}
+      <ContentRenderView
+        open={openContentRender}
+        onClose={handleCloseContentRenderView}
+        item={{ data: selectedContentData }}
+        contentId={selectedContentId || undefined}
+        selectedContentData={selectedContentData || undefined}
+        showActions={false}
       />
     </>
   );

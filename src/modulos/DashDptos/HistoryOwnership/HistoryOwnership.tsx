@@ -7,7 +7,7 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
 import DataSearch from "@/mk/components/forms/DataSearch/DataSearch";
 import EmptyData from "@/components/NoData/EmptyData";
-
+import { IconHomePerson2 } from "@/components/layout/icons/IconsBiblioteca";
 
 interface HistoryOwnershipProps {
   ownershipData: any[];
@@ -15,24 +15,21 @@ interface HistoryOwnershipProps {
   close: () => void;
 }
 
-const modRe = {
-  modulo: "owners",
-  singular: "residente",
-  permiso: "residentes",
-  plural: "residentes",
-  avatarPrefix: "OWNER",
-};
-
-const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps) => {
-  const [openPerfil, setOpenPerfil] = useState(false);
-  const [idPerfil, setIdPerfil] = useState<string | null>(null);
-  const [dataOw, setDataOw] = useState<any>(null);
+const HistoryOwnership = ({
+  ownershipData,
+  open,
+  close,
+}: HistoryOwnershipProps) => {
+  const [setDataOw] = useState<any>(null);
   const [filteredData, setFilteredData] = useState(ownershipData);
 
   const handleSearch = (searchTerm: string) => {
-    const filtered = ownershipData.filter(titular => 
-      searchTerm === "" || 
-      getFullName(titular?.owner).toUpperCase().includes(searchTerm.toUpperCase())
+    const filtered = ownershipData.filter(
+      (titular) =>
+        searchTerm === "" ||
+        getFullName(titular?.owner)
+          .toUpperCase()
+          .includes(searchTerm.toUpperCase())
     );
     setFilteredData(filtered);
   };
@@ -47,36 +44,38 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
     >
       <div className={styles.container}>
         <p className={styles.description}>
-          Estás visualizando una lista completa de todos los titulares
-          y sus respectivos dependientes que esta unidad ha tenido
-          hasta la fecha.
+          Estás visualizando una lista completa de todos los titulares y sus
+          respectivos dependientes que esta unidad ha tenido hasta la fecha.
         </p>
-
-        <div className={styles.searchWrapper}>
-          <DataSearch
-            name="search"
-            setSearch={handleSearch}
-            value=""
-            textButton="Buscar"
-          />
-        </div>
+        {filteredData.length > 0 && (
+          <div className={styles.searchWrapper}>
+            <DataSearch
+              name="search"
+              setSearch={handleSearch}
+              value=""
+              textButton="Buscar"
+            />
+          </div>
+        )}
 
         <div className={styles.titularesList}>
           {filteredData.length === 0 ? (
-            <EmptyData message="No existe historial de titulares" />
+            <EmptyData
+              message="No existe historial de titulares"
+              icon={<IconHomePerson2 size={40} color="var(--cWhiteV1)" />}
+            />
           ) : (
             filteredData.map((titular, index) => (
-              <div
-                key={index}
+              <button
+                key={titular?.owner_id}
                 className={styles.titularCard}
                 onClick={() => {
-                  setIdPerfil(titular?.owner_id);
-                  setOpenPerfil(true);
                   setDataOw({});
                 }}
               >
                 <div className={styles.titularInfo}>
                   <Avatar
+                    hasImage={titular?.owner?.has_image}
                     src={getUrlImages(
                       `/OWNER-${titular?.owner?.id}.webp?d=${titular?.owner?.updated_at}`
                     )}
@@ -100,27 +99,11 @@ const HistoryOwnership = ({ ownershipData, open, close }: HistoryOwnershipProps)
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>
       </div>
-{/*
-      {openPerfil && idPerfil && (
-        <ViewPerfil
-          id={idPerfil}
-          open={openPerfil}
-          onClose={() => {
-            setOpenPerfil(false);
-            setIdPerfil(null);
-          }}
-          setData={setDataOw}
-          viewOptions={false}
-          data={dataOw}
-          mod={modRe}
-        />
-      )}
-    */}
     </DataModal>
   );
 };

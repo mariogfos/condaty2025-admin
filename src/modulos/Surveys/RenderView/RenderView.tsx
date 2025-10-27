@@ -1,7 +1,6 @@
-
 import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import { useAuth } from "@/mk/contexts/AuthProvider";
-import useScreenSize from "@/mk/hooks/useScreenSize";
+// import useScreenSize from "@/mk/hooks/useScreenSize";
 
 const RenderView = (props: {
   open: boolean;
@@ -12,7 +11,7 @@ const RenderView = (props: {
   extraData?: any;
 }) => {
   const { user } = useAuth();
-  const { isTablet } = useScreenSize();
+  // const { isTablet } = useScreenSize();
   const edit = () => {
     props.onEdit && props.onEdit(props.item);
     props.onClose();
@@ -27,8 +26,9 @@ const RenderView = (props: {
       buttonCancel=""
       // fullScreen={isTablet}
       // eslint-disable-next-line react/no-children-prop
-      fullScreen={true} children={undefined}    >
-     
+      fullScreen={true}
+    >
+      {null}
     </DataModal>
   );
 };

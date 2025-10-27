@@ -71,6 +71,7 @@ const RenderView: React.FC<RenderViewProps> = ({
       title=""
       buttonText=""
       buttonCancel=""
+      variant={"mini"}
     >
       <div className={styles.container}>
         <div className={styles.iconHeader}>

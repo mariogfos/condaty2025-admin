@@ -148,4 +148,5 @@ export interface ApiHomeowner {
     available?: string[];      // Slots disponibles (cuando pides fecha)
     reservations?: boolean;    // Si se permite reservar en la fecha pedida
     message?: string;          // Mensaje asociado a 'reservations'
+    unavailable?: string[];     // Slots no disponibles (cuando pides fecha)
 }

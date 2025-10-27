@@ -1,462 +1,149 @@
-/* Añadir estos estilos a RenderView.module.css */
+/* RenderView.module.css */
+
 .container {
-    padding: 20px;
-    background-color: var(--cBlackV2);
-    border-radius: var(--bRadiusS);
-    border: 0.5px solid var(--cWhiteV1);
-    & > section {
-      display: flex;
-      flex-direction: column;
-      border-bottom: var(--cWhiteV1);
-      border-width: 1px;
-      padding: var(--spL);
-      justify-content: center;
-      align-items: center;
-    };
-    & > section:nth-child(1){
-      & > div:nth-child(2){
-      color:var(--cWhite);
-      
-        }
-        border-bottom: 1px solid var(--cWhiteV1);
-       }
-    & > section:nth-child(2){
-      /* background-color: #48bb78; */
-      border-bottom: 1px solid var(--cWhiteV1);
-      display: flex;
-      justify-content: space-between;
-      flex-direction: row;
-      align-items: flex-start;
-      & > div > div{
-        /* background-color: #ed8936; */
-        /* height: ; */
-        display: flex;
-        flex-direction: column ;
-        /* gap: var(--spL); */
-        justify-content: center;
-        /* & > div{
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-        } */
-
-        /* justify-content: center;
-        align-items: center; */
-        
-      }
-      display: flex;
-       }
-     & > section:nth-child(3){
-      marginTop:var(--spS);
-     }     
-    
-  }
-  .textsDiv{
-    display: flex;
-    flex-direction: column;
-    max-width: 250px;
-    color: var(--cWhiteV1);
-    & > div:nth-child(2) {
-      color:var(--cWhite);
-    }
-    margin-bottom: var(--spL);
-}
-
-.companionList {
+  background-color: var(--cBlackV2);
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spXS);
-  text-align: right;
-}
-
-.companionItem {
+  padding: var(--spL);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
   color: var(--cWhite);
-  font-size: var(--fsS);
+  border-radius: var(--bRadiusS);
+  border: 0.5px solid var(--cWhiteV1);
+  min-width: 600px; /* Ajusta este valor según tus necesidades */
 }
 
-  
-  .iconHeader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spXs);
+  /* padding-bottom: var(--spL); */
+  text-align: center;
+}
 
-  .qrIcon {
-    width: 40px;
-    height: 40px;
-    color: var(--light-v1);
+.amountDisplay {
+  color: var(--cWhite);
+  font-size: 16px; /* Ajustado para nombres */
+  font-weight: 500;
+}
+
+.dateDisplay {
+  color: var(--cWhiteV1);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+  margin: var(--spS) 0;
+}
+
+/* LÓGICA DE CENTRADO APLICADA */
+.detailsSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 68px;
+  width: 100%;
+  padding: var(--spL) 0;
+  box-sizing: border-box;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  text-align: left;
+  /* min-width: 280px; */
+  /* max-width: 380px; IMPORTANTE: Esto limita el ancho */
+  flex: 1;
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  font-weight: var(--bRegular);
+  font-weight: 400;
+  text-align: left;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-align: left;
+}
+
+.infoValue span {
+  /* Estilo para los acompañantes */
+  line-height: 1.4;
+  min-width: 0;
+  text-align: left;
+  color: var(--cWhite);
+}
+
+/* Estilos Responsive */
+@media (max-width: var(--responsive-tablet)) {
+  .container {
+    padding: var(--spL);
+    gap: var(--spM);
+    min-width: unset;
   }
-  
-  .invitationTitle {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--light-v1);
+  .headerSection {
+    padding-bottom: var(--spM);
   }
-  
-  .invitationStatus {
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 4px 12px;
-    border-radius: 16px;
-    display: inline-block;
-    margin: 0 auto;
-    margin-bottom: 16px;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
+  .amountDisplay {
+    font-size: 22px;
   }
-  
-  .statusActive {
-    background-color: rgba(72, 187, 120, 0.2);
-    color: #48bb78;
-    border: 1px solid rgba(72, 187, 120, 0.3);
+  .dateDisplay {
+    font-size: var(--sS);
   }
-  
-  .statusCancelled {
-    background-color: rgba(245, 101, 101, 0.2);
-    color: #f56565;
-    border: 1px solid rgba(245, 101, 101, 0.3);
+  .sectionDivider {
+    margin: var(--spXs) 0;
   }
-  
-  .statusExpired {
-    background-color: rgba(237, 137, 54, 0.2);
-    color: #ed8936;
-    border: 1px solid rgba(237, 137, 54, 0.3);
+  .detailsSection {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spL);
+    padding: var(--spM) 0;
   }
-  
-  .divider {
-    height: 1px;
+
+  .detailsColumn {
     width: 100%;
-    background-color: var(--light-v3);
-    opacity: 0.3;
-    margin: 16px 0;
-  }
-  
-  .detailsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  
-  .detailRow {
-    display: flex;
-    align-items: flex-start;
-  }
-  
-  .label {
-    flex: 0 0 50%;
-    text-align: right;
-    padding-right: 16px;
-    font-weight: 500;
-    color: var(--primary);
-  }
-  
-  .value {
-    flex: 0 0 60%;
-    color: var(--light-v3);
-  }
-  
-  .guestsHeader {
-    margin-top: 16px;
-    margin-bottom: 8px;
-  }
-  
-  .guestsTitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--light-v1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 8px;
-  }
-  
-  .guestsList {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    padding-right: 8px;
-    margin-bottom: 16px;
-  }
-  
-  .guestItem {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    gap: var(--spM);
   }
-  
-  .guestName {
-    font-weight: 500;
-    color: var(--light-v2);
-  }
-  
-  .guestStatus {
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  
-  .guestAccessed {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--accent);
-  }
-  
-  .guestNotAccessed {
-    color: var(--light-v3);
-    font-style: italic;
-  }
-  
-  .accessInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .accessEntry {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--accent);
-  }
-  
-  .accessExit {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--error);
-  }
-  
-  .accessIcon {
-    color: var(--accent);
-  }
-  
-  .exitIcon {
-    color: var(--error);
-  }
-  
-  .actionContainer {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 20px;
-  }
-  
-  .qrButton {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  .qrButton:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .cancelButton {
-    background-color: transparent;
-    color: var(--error);
-    border: 1px solid var(--error);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  .cancelButton:hover {
-    background-color: var(--error);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .buttonIcon {
-    margin-right: 4px;
-  }
-  
-  /* Animation for the icon */
-  @keyframes qrPulse {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.8;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-  
-  .iconCircle {
-    animation: qrPulse 2s infinite ease-in-out;
-  }
-  
-  /* Scrollbar styling for the guests list */
-  .guestsList::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .guestsList::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-  }
-  
-  .guestsList::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-  }
-  
-  .guestsList::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 600px) {
-    .detailRow {
-      flex-direction: column;
-    }
-    
-    .label, .value {
-      flex: 1 0 100%;
-      text-align: left;
-      padding: 0;
-      margin-bottom: 4px;
-    }
-    
-    .guestItem {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    
-    .actionContainer {
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .qrButton, .cancelButton {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-/* Estilos específicos para AccessRenderView */
-.accessTitle {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: var(--light-v1);
-  }
-  
-  .typeTag {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--light-v2);
-  }
-  
-  .typeTagQR {
-    background-color: rgba(66, 153, 225, 0.2);
-    color: #4299e1;
-  }
-  
-  .statusWaiting {
-    color: #ed8936;
-    font-style: italic;
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-  }
-  
-  .statusWaiting::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #ed8936;
-    margin-right: 6px;
-    animation: pulse 1.5s infinite;
-  }
-  
-  .statusRejected {
-    color: var(--error);
-    font-weight: 500;
-  }
-  
-  .statusRejected::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--error);
-    margin-right: 6px;
-  }
-  
-  /* Estilos para iconos específicos de acceso */
-  .accessIcon {
-    width: 40px;
-    height: 40px;
-    color: var(--light-v1);
-  }
-  
-  /* Modificación para mejorar diseño en tablas */
-  .typeIconContainer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
 
-  .typeIcon {
-    width: 16px;
-    height: 16px;
-    color: var(--light-v1);
+  .infoBlock {
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
   }
-  
-  .typeName {
-    font-size: 0.875rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--light-v2);
+  .infoLabel,
+  .infoValue,
+  .infoValue span {
+    text-align: center;
   }
-  
-  @keyframes pulse {
-    0% {
-      opacity: 0.4;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0.4;
-    }
-  }
+}
+.listContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spM);
+  width: 100%;
+}

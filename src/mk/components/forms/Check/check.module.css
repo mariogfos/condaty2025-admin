@@ -1,7 +1,7 @@
 .check {
   & > label {
     display: flex;
-    gap: var(--spM);
+    gap: var(--spXs);
     cursor: pointer;
     align-items: center;
     & > input[type="checkbox"] {

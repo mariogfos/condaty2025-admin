@@ -1,20 +1,30 @@
-export default function GraphAdapterBar(data:any, options:any, oDef: any = {}) {
+export default function GraphAdapterBar(
+  data: any,
+  options: any,
+  oDef: any = {}
+) {
   const xLabels = data.labels;
 
   const o = {
     chart: {
       ...oDef.chart,
-      type: "bar",
+      type: 'bar',
       stacked: options.stacked || false,
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        borderRadiusApplication: 'end',
+      },
     },
     xaxis: {
       categories: xLabels,
       labels: {
         style: {
-          colors: "#FFFFFF",
-          fontSize: "12px",
-          fontWeight: 400,
-          fontFamily: "Poppins, Arial,",
+          colors: '#A7A7A7',
+          fontSize: '16px',
+          fontWeight: 500,
+          fontFamily: 'Roboto, Arial,',
         },
       },
     },
@@ -30,7 +40,7 @@ export default function GraphAdapterBar(data:any, options:any, oDef: any = {}) {
     e.values.forEach((e1: any) => {
       d1.push(Number(e1));
     });
-    d.push({ data: d1, name: e.name || "" });
+    d.push({ data: d1, name: e.name || '' });
   });
   return { options: o, data: d };
 }

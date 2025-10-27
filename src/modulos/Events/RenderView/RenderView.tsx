@@ -59,8 +59,8 @@ const RenderView = (props: {
     0: incomplete = 0,
   } = props?.item?.metrics?.gender || {};
   const allGendersCountZero = m === 0 && f === 0 && x === 0 && incomplete === 0;
-  const { withQr, withoutQr, newAff } = props?.item;
-  const allQrsCountZero = withQr === 0 && withoutQr === 0 && newAff === 0;
+  const { withQR, withoutQR, newAff } = props?.item;
+  const allQRsCountZero = withQR === 0 && withoutQR === 0 && newAff === 0;
 
   const header: any = [
     {
@@ -124,11 +124,11 @@ const RenderView = (props: {
       };
       setSexGraphData(newSexGraphData);
 
-      const { withQr, withoutQr, newAff } = data;
+      const { withQR, withoutQR, newAff } = data;
       const assistLabels = ["Con QR", "Sin QR", "Nuevos registros"];
       const assistValues = [
-        { name: "Con QR", values: [withQr] },
-        { name: "Sin QR", values: [withoutQr] },
+        { name: "Con QR", values: [withQR] },
+        { name: "Sin QR", values: [withoutQR] },
         { name: "Nuevos registros", values: [newAff] },
       ];
       const newAssistGraphData: any = {
@@ -417,7 +417,7 @@ const RenderView = (props: {
                     />
                   }
                   title="Registrados con QR"
-                  value={formatNumber(data?.withQr, 0)}
+                  value={formatNumber(data?.withQR, 0)}
                 />
                 <StatsCard
                   icon={
@@ -433,7 +433,7 @@ const RenderView = (props: {
                     />
                   }
                   title="Registrados sin QR"
-                  value={formatNumber(data?.withoutQr, 0)}
+                  value={formatNumber(data?.withoutQR, 0)}
                 />
                 <StatsCard
                   icon={
@@ -517,7 +517,7 @@ const RenderView = (props: {
                 {/* <WidgetDonut
                   title={""}
                   emptyTitle={"No hay estadísticas"}
-                  allCountZero={allQrsCountZero}
+                  allCountZero={allQRsCountZero}
                   graphData={assistGraphData}
                   style={{ width: "50%", marginTop: 0 }}
                 /> */}

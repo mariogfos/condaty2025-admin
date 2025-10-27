@@ -21,7 +21,11 @@ type PropsType = {
   iconClose?: boolean;
   disabled?: boolean;
   style?: CSSProperties;
-  variant?: string;
+  colorTitle?: string;
+  variant?: string | null;
+  zIndex?: number;
+  minWidth?: string | number | null;
+  maxWidth?: string | number | null;
 };
 
 const DataModal = ({
@@ -40,7 +44,12 @@ const DataModal = ({
   fullScreen = false,
   iconClose = true,
   disabled = false,
-  variant = "V1",
+  //colorTitle = 'var(--cAccent)',
+  colorTitle = "var(--cWhite)",
+  variant = null,
+  zIndex = 200,
+  minWidth = null,
+  maxWidth = null,
 }: PropsType) => {
   const [openModal, setOpenModal] = useState(false);
 
@@ -60,36 +69,55 @@ const DataModal = ({
       setOpenModal(open);
     }
   }, [open]);
+
+  if (minWidth) {
+    style.minWidth = minWidth;
+  }
+  if (maxWidth) {
+    style.maxWidth = maxWidth;
+  }
   return (
     <div
-      style={{ visibility: open ? "visible" : "hidden" }}
+      style={{ visibility: open ? "visible" : "hidden", zIndex }}
       className={styles.dataModal}
       onClick={(e) => e.stopPropagation()}
     >
       <main
-        style={style}
         className={
           (openModal ? styles["open"] : "") +
           "  " +
           (fullScreen ? styles["full"] : "") +
           " " +
-          (variant === "V2" ? styles["V2"] : "")
+          (variant ? styles[variant] : "")
         }
+        style={style}
       >
         <HeadTitle
-          title={title}
+          style={{ padding: "0px" }}
+          title={fullScreen ? title : ""}
+          customTitle={
+            !fullScreen ? <p style={{ fontSize: 24 }}>{title}</p> : ""
+          }
           left={fullScreen && iconClose ? null : false}
           onBack={() => _close(false)}
           right={
             iconClose &&
-            !fullScreen && <IconX className="" onClick={() => _close(false)} />
+            !fullScreen && (
+              <IconX
+                className=""
+                size={40}
+                onClick={() => _close(false)}
+                circle
+                style={{ backgroundColor: "transparent", padding: "0px" }}
+              />
+            )
           }
           colorBack={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
-          colorTitle={variant === "V2" ? "var(--cAccent)" : "var(--cWhite)"}
+          colorTitle={!fullScreen ? colorTitle : "var(--cAccent)"}
         />
-        <div className={styles.headerDivider} />
+        {!fullScreen && <div className={styles.headerDivider} />}
         <section className={className}>{children}</section>
-        {(buttonText != "" || buttonCancel != "") && (
+        {(buttonText != "" || buttonCancel != "" || buttonExtra) && (
           <footer>
             {buttonText != "" && (
               <Button

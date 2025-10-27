@@ -7,6 +7,8 @@ import DataModal from "@/mk/components/ui/DataModal/DataModal";
 import Pagination from "@/mk/components/ui/Pagination/Pagination";
 import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import styles from "./HistoryPayments.module.css";
+import { IconPagos } from "@/components/layout/icons/IconsBiblioteca";
+
 
 interface HistoryPaymentsProps {
   paymentsData: any[];
@@ -17,7 +19,6 @@ interface HistoryPaymentsProps {
 const getStatus = (status: string) => {
   const statusMap: Record<string, string> = {
     A: "Por Pagar",
-    E: "Por subir comprobante",
     P: "Pagado",
     S: "Por confirmar",
     M: "Moroso",
@@ -112,7 +113,7 @@ const HistoryPayments = ({
                   )}
                   <div className={styles.cell}>
                     {pago?.payment?.type === "Q"
-                      ? "Qr"
+                      ? "QR"
                       : pago?.payment?.type === "T"
                       ? "Transferencia"
                       : pago?.payment?.type === "O"
@@ -133,7 +134,7 @@ const HistoryPayments = ({
 
               {paginatedData.length === 0 && (
                 <div className={styles.emptyState}>
-                  <EmptyData message="No hay registros de pagos" />
+                  <EmptyData message="No hay registros de pagos" icon={<IconPagos size={40} color="var(--cWhiteV1)" />} />
                 </div>
               )}
             </div>

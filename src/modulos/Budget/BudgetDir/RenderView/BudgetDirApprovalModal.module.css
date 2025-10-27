@@ -1,50 +1,262 @@
-/* components/budgets/SendBudgetApprovalModal.module.css */
-.contentContainer {
-    display: flex;
+.container {
+  background-color: var(--cBlackV2);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spXl);
+  gap: var(--spL);
+  font-family: var(--fPrimary);
+  box-sizing: border-box;
+  color: var(--cWhite);
+  border-radius: var(--bRadiusS);
+  border: 1px solid var(--cWhiteV1);
+  min-width: 600px;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spXs);
+  text-align: center;
+}
+
+.createdBy {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  line-height: 1.1;
+}
+
+.userRole {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  line-height: 1.5;
+  font-weight: var(--bRegular);
+}
+
+.sectionDivider {
+  width: 100%;
+  border: none;
+  height: 0;
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.detailsSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spXl, 48px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spL);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spXs);
+  text-align: left;
+  max-width: 280px;
+}
+
+.infoLabel {
+  color: var(--cWhiteV1);
+  font-size: var(--sL);
+  font-weight: var(--bRegular);
+  font-family: Roboto, sans-serif;
+  text-align: left;
+}
+
+.infoValue {
+  color: var(--cWhite);
+  font-size: var(--sL);
+  font-weight: var(--bMedium);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-align: left;
+  font-family: Roboto, sans-serif;
+}
+
+.periodsDetailsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spM);
+}
+
+.periodsDetailsHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.periodsDetailsTitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  font-weight: var(--bRegular);
+  margin: 0;
+  padding-left: var(--spXs);
+}
+
+.periodsTableWrapper {
+  width: 100%;
+  border: 0.5px solid var(--cWhiteV1);
+  border-radius: var(--bRadiusM);
+  overflow: hidden;
+}
+
+.periodsTable {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.periodsTableHeader,
+.periodsTableRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 100%;
+  align-items: stretch;
+}
+
+.periodsTableHeader {
+  background-color: var(--cBlackV2);
+  color: var(--cWhite);
+  font-family: Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.periodsTableBody .periodsTableRow:not(:last-child) {
+  border-bottom: 0.5px solid var(--cWhiteV2);
+}
+
+.periodsTableCell {
+  display: flex;
+  align-items: center;
+  height: 55px;
+  padding: 0 1rem;
+  text-align: left;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid var(--cWhiteV2);
+}
+
+.periodsTableBody .periodsTableCell {
+  height: 63px;
+  font-size: 14px;
+}
+
+.periodsTableHeader .periodsTableCell {
+  color: var(--cWhite);
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: var(--cBlackV2);
+  height: 55px;
+}
+
+.periodsTableBody .periodsTableRow {
+  border-top: 0.5px solid var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(odd) .periodsTableCell {
+  background-color: var(--cWhiteV2);
+  color: var(--cWhiteV1);
+}
+
+.periodsTableBody .periodsTableRow:nth-child(even) .periodsTableCell {
+  background-color: var(--cHoverCompl1);
+  color: var(--cWhiteV1);
+}
+
+.periodsTableCell[data-label='Subtotal'] {
+  justify-content: flex-end;
+  text-align: right;
+  font-weight: 500;
+  color: var(--cWhite) !important;
+}
+
+.periodsTableHeader .periodsTableCell:nth-child(3) {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+/* Eliminar estas clases ya que usamos los botones del DataModal */
+/*
+.actionButtonsContainer {
+  display: flex;
+  gap: var(--spM);
+  width: 100%;
+  margin-top: var(--spL);
+}
+
+.rejectButton,
+.confirmButton {
+  flex: 1;
+  padding: var(--spM) var(--spL);
+  font-size: var(--sM);
+  font-weight: var(--bMedium);
+  border-radius: var(--bRadiusS);
+  text-align: center;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.2s ease;
+  border: none;
+  color: var(--cWhite);
+}
+
+.rejectButton {
+  background-color: var(--cError);
+}
+
+.confirmButton {
+  background-color: var(--cSuccess);
+}
+*/
+
+.rejectButton:hover,
+.confirmButton:hover {
+  filter: brightness(1.15);
+}
+
+.rejectButton:active,
+.confirmButton:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: var(--responsive-tablet)) {
+  .container {
+    padding: var(--spL);
+    gap: var(--spM);
+  }
+
+  .detailsSection {
     flex-direction: column;
-    gap: var(--spM, 1rem); /* Espacio entre párrafos */
-    padding-bottom: var(--spL, 1.5rem); /* Espacio antes de los botones */
+    align-items: center;
+    gap: var(--spL);
   }
-  
-  .contentContainer p {
-    margin: 0;
-    line-height: 1.5;
-    color: var(--White); /* Ajusta el color si es necesario */
-  }
-  
-  .contentContainer strong {
-    font-weight: 600; /* O el peso que uses para énfasis */
-  }
-  
-  .actionButtonsContainer {
-    display: flex;
-    justify-content: flex-end; /* Alinea botones a la derecha */
-    gap: var(--spM, 1rem); /* Espacio entre botones */
-    padding-top: var(--spM, 1rem); /* Espacio sobre los botones */
-    border-top: 1px solid var(--cSeparator, #eee); /* Línea separadora opcional */
-  }
-  
-  /* Opcional: si quieres que los botones ocupen espacio equitativo */
-  /* .cancelButton,
-  .confirmButton {
-    flex-grow: 1;
-  } */
 
-
-  .secondaryActionButton { /* Botón 'Volver' o 'No cancelar' */
-    flex-grow: 1; /* Ocupa 1 parte del espacio flexible */
-    flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
-    /* Puedes añadir otros estilos si son necesarios */
-  }
-  
-  .primaryActionButton { /* Botón 'Confirmar cancelación' o 'Sí, cancelar' */
-    flex-grow: 2; /* Ocupa 2 partes del espacio flexible (el doble que el secundario) */
-    flex-basis: 0; /* Ayuda a que flex-grow funcione sobre el espacio libre */
-  }
-  .divider {
-    height: 0.5px;
+  .detailsColumn {
     width: 100%;
-    background-color: var(--cWhiteV1);
-    margin-bottom: var(--spM, 12px);
+    align-items: center;
   }
-  
+
+  .infoBlock {
+    max-width: 90%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .actionButtonsContainer {
+    flex-direction: column;
+  }
+}

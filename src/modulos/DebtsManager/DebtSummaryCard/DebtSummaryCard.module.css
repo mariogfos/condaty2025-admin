@@ -1,0 +1,43 @@
+.card {
+
+  border-radius: var(--bRadius);
+  padding: var(--spL);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--cBlackV1);
+  border: 1px solid var(--cWhiteV2);
+}
+
+
+
+.header {
+  margin-bottom: var(--spM);
+}
+
+.title {
+  font-size: var(--sS);
+  font-weight: var(--bSemiBold);
+  color: var(--cAccent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spS);
+}
+
+.amount {
+  font-size: var(--sXL);
+  font-weight: var(--bBold);
+  color: var(--cWhite);
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}
+
+.count {
+  font-size: var(--sM);
+  color: var(--cWhiteV1);
+  text-shadow: 1px 1px 2px var(--cBlackV3);
+}

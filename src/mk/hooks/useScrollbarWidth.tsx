@@ -12,11 +12,13 @@ const useScrollbarWidth = (ref: any) => {
   }, [ref]);
 
   useEffect(() => {
-    calculateScrollbarWidth();
+    setTimeout(() => {
+      calculateScrollbarWidth();
+    }, 10);
 
     window.addEventListener("resize", calculateScrollbarWidth);
     return () => window.removeEventListener("resize", calculateScrollbarWidth);
-  }, [calculateScrollbarWidth]);
+  }, [calculateScrollbarWidth, ref]);
 
   return scrollbarWidth;
 };

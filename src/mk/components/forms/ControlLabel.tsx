@@ -13,6 +13,7 @@ export interface PropsTypeInputBase {
   readOnly?: boolean;
   className?: string;
   style?: CSSProperties;
+  styleInput?: CSSProperties;
   onChange?: (e: any) => void;
   onBlur?: (() => void) | ((e: any) => void);
   onFocus?: () => void;
@@ -22,6 +23,9 @@ export interface PropsTypeInputBase {
   onKeyDown?: (e: any) => void;
   maxLength?: number;
   ref?: any;
+  prefix?: string;
+  suffix?: string;
+  maxSize?: number; // in MB
 }
 
 interface PropsType extends PropsTypeInputBase {
@@ -30,29 +34,39 @@ interface PropsType extends PropsTypeInputBase {
 
 const ControlLabel = (props: PropsType) => {
   const label: any = useMemo(() => {
-    if (props.required && props.label) return props.label + " *";
+    if (props.required === false && props.label) return props.label + " (opc)";
     return props.label;
   }, [props.label, props.required]);
 
   return (
     <div
-      className={
-        props.className +
-        " " +
-        (props.error?.[props.name] && stylesInput.error) +
-        " " +
-        (props.error?.[props.name] && stylesTextArea.error)
-      }
-      style={props.style}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
     >
-      {props.iconLeft && <span>{props.iconLeft}</span>}
-      <div>
-        {props.children}
-        {props.label && <label htmlFor={props.name}>{label}</label>}
+      <div
+        className={
+          props.className +
+          " " +
+          (props.error?.[props.name] && stylesInput.error) +
+          " " +
+          (props.error?.[props.name] && stylesTextArea.error)
+        }
+        style={props.style}
+      >
+        {props.iconLeft && <span>{props.iconLeft}</span>}
+        {props.prefix && <span>{props.prefix}</span>}
+        <div>
+          {props.children}
+          {props.label && <label htmlFor={props.name}>{label}</label>}
+        </div>
+        {props.iconRight && <span>{props.iconRight}</span>}
+        {props.suffix && <span>{props.suffix}</span>}
       </div>
-      {props.iconRight && <span>{props.iconRight}</span>}
       {!props.error ? null : (
-        <p className={stylesInput.error}>{props.error[props.name] || null}</p>
+        <p className={stylesInput.error}>{props.error[props.name] || " "}</p>
       )}
     </div>
   );

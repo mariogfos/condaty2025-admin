@@ -10,26 +10,20 @@ import ThirdPart from "./Partes/ThirdPart";
 import { IconArrowLeft } from "@/components/layout/icons/IconsBiblioteca";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import { useAuth } from "@/mk/contexts/AuthProvider";
+import FourPart from "./Partes/FourPart";
+import DataModal from "@/mk/components/ui/DataModal/DataModal";
 
-const RenderForm = ({
-  onClose,
-  open,
-  item,
-  setItem,
-  // errors,
-  extraData,
-  user,
-  execute,
-  openList,
-  setOpenList,
-  // setErrors,
-  reLoad,
-  action,
-}: any) => {
-  const [formState, setFormState]: any = useState({ ...item });
+const RenderForm = ({ onClose, item, execute, setOpenList, reLoad }: any) => {
+  const [formState, setFormState]: any = useState({
+    ...item,
+    booking_mode: item?.booking_mode || "day",
+    has_price: item?.price ? "S" : "N",
+  });
   const { showToast } = useAuth();
   const [level, setLevel] = useState(1);
   const [errors, setErrors]: any = useState({});
+  const [openComfirm, setOpenComfirm] = useState(false);
+
   useEffect(() => {
     setOpenList(false);
   }, []);
@@ -43,6 +37,14 @@ const RenderForm = ({
 
   const validateLevel1 = () => {
     let errors: any = {};
+
+    errors = checkRules({
+      value: formState?.avatar,
+      rules: ["requiredImageMultiple"],
+      key: "avatar",
+      errors,
+      data: formState,
+    });
 
     errors = checkRules({
       value: formState?.title,
@@ -59,7 +61,7 @@ const RenderForm = ({
     });
     errors = checkRules({
       value: formState?.max_capacity,
-      rules: ["required", "max:5"],
+      rules: ["required", "number", "max:5", "integer"],
       key: "max_capacity",
       errors,
     });
@@ -75,38 +77,42 @@ const RenderForm = ({
   };
   const validateLevel2 = () => {
     let errors: any = {};
-    errors = checkRules({
-      value: formState?.price,
-      rules: ["max:10"],
-      key: "price",
-      errors,
-    });
+
     if (formState?.booking_mode === "hour") {
       errors = checkRules({
         value: formState?.max_reservations_per_day,
-        rules: ["required", "max:5"],
+        rules: ["required", "integer", "less:20", `less:${formState?.max_reservations_per_week}`],
         key: "max_reservations_per_day",
         errors,
+        data: formState
       });
     }
     errors = checkRules({
       value: formState?.max_reservations_per_week,
-      rules: ["required", "max:5"],
+      rules: ["required", "integer", "less:140"],
       key: "max_reservations_per_week",
       errors,
     });
-    errors = checkRules({
-      value: formState?.min_cancel_hours,
-      rules: ["required", "max:2"],
-      key: "min_cancel_hours",
-      errors,
-    });
-    errors = checkRules({
-      value: formState?.penalty_fee,
-      rules: ["required", "max:5"],
-      key: "penalty_fee",
-      errors,
-    });
+    if (formState?.has_price == "S") {
+      errors = checkRules({
+        value: formState?.price,
+        rules: ["required", "number", "positive", "less:10000", "greater:0"],
+        key: "price",
+        errors,
+      });
+      errors = checkRules({
+        value: formState?.min_cancel_hours,
+        rules: ["required", "less:200", "integer"],
+        key: "min_cancel_hours",
+        errors,
+      });
+      errors = checkRules({
+        value: formState?.penalty_fee,
+        rules: ["required", "number", "positive", "less:100"],
+        key: "penalty_fee",
+        errors,
+      });
+    }
     setErrors(errors);
     return errors;
   };
@@ -124,18 +130,6 @@ const RenderForm = ({
       key: "cancellation_policy",
       errors,
     });
-    errors = checkRules({
-      value: formState?.approval_response_hours,
-      rules: ["required", "max:3"],
-      key: "approval_response_hours",
-      errors,
-    });
-    // errors = checkRules({
-    //   value: formState?.penalty_or_debt_restriction,
-    //   rules: ["required"],
-    //   key: "penalty_or_debt_restriction",
-    //   errors,
-    // })
     setErrors(errors);
     return errors;
   };
@@ -143,10 +137,6 @@ const RenderForm = ({
   const onNext = () => {
     if (level === 1) {
       if (hasErrors(validateLevel1())) return;
-      if (!formState?.avatar && !formState.id) {
-        showToast("Debe seleccionar una imagen", "error");
-        return;
-      }
     }
     if (level === 2) {
       if (hasErrors(validateLevel2())) return;
@@ -154,19 +144,22 @@ const RenderForm = ({
         showToast("Seleccione el modo de reserva", "error");
         return;
       }
-      if (formState?.available_days.length <= 0) {
+      if (formState?.available_days?.length <= 0) {
         showToast("Seleccione los días y periodos disponibles", "error");
         return;
       }
     }
     if (level === 3) {
       if (hasErrors(validateLevel3())) return;
+    }
+    if (level == 4) {
       onSave();
       return;
     }
     setLevel(level + 1);
   };
   const onSave = async () => {
+    setOpenList(true);
     let method = formState.id ? "PUT" : "POST";
     const { data } = await execute(
       "/areas" + (formState.id ? "/" + formState.id : ""),
@@ -190,10 +183,12 @@ const RenderForm = ({
         penalty_or_debt_restriction: formState?.penalty_or_debt_restriction,
         booking_mode: formState?.booking_mode,
         max_reservations_per_day: formState?.max_reservations_per_day,
+        reservation_duration: parseFloat(formState?.reservation_duration),
+        is_free: formState?.has_price == "S" ? "X" : "A",
       }
     );
 
-    if (data?.success == true) {
+    if (data?.success) {
       onClose();
       reLoad();
       showToast(data.message, "success");
@@ -201,9 +196,17 @@ const RenderForm = ({
       showToast(data.message, "error");
     }
   };
+
+  const _onClose = () => {
+    if (level == 4) {
+      setOpenComfirm(true);
+      return;
+    }
+    onClose();
+  };
   return (
     <div className={styles.RenderForm}>
-      <HeaderBack label="Volver a lista de áreas sociales" onClick={onClose} />
+      <HeaderBack label="Volver a lista de áreas sociales" onClick={_onClose} />
       <div
         style={{
           width: "800px",
@@ -214,7 +217,7 @@ const RenderForm = ({
         }}
       >
         <p style={{ fontSize: 24, fontWeight: 600 }}>Creación de área social</p>
-        <StepProgressBar currentStep={level} totalSteps={3} />
+        <StepProgressBar currentStep={level} totalSteps={4} />
         <Card>
           {level === 1 && (
             <FirstPart
@@ -239,6 +242,7 @@ const RenderForm = ({
               formState={formState}
             />
           )}
+          {level === 4 && <FourPart item={formState} />}
           <div
             style={{
               display: "flex",
@@ -266,95 +270,24 @@ const RenderForm = ({
               Continuar
             </Button>
           </div>
-          {/* <Input
-            label="Días disponibles"
-            name="available_days"
-            value={formState?.available_days}
-            onChange={handleChange}
-            error={errors}
-          />  
-          <Input
-            label="Es gratis"
-            name="is_free"
-            value={formState?.is_free}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Duración máxima de reserva"
-            name="max_booking_duration"
-            value={formState?.max_booking_duration}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Restricciones especiales"
-            name="special_restrictions"
-            value={formState?.special_restrictions}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Reglas de uso"
-            name="usage_rules"
-            value={formState?.usage_rules}
-            onChange={handleChange}
-            error={errors}
-          />
-     
-          <Input
-            label="Aprobación automática disponible"
-            name="auto_approval_available"
-            value={formState?.auto_approval_available}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Cancelable"
-            name="cancellable"
-            value={formState?.cancellable}
-            onChange={handleChange}
-            error={errors}
-          />
-   
-          <Input
-            label="Penalización por cancelación tardía"
-            name="late_cancellation_penalty"
-            value={formState?.late_cancellation_penalty}
-            onChange={handleChange}
-            error={errors}
-          />
-
-          <Input
-            label="Habilitar encuesta"
-            name="enable_survey"
-            value={formState?.enable_survey}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Plantilla de encuesta"
-            name="survey_template"
-            value={formState?.survey_template}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar en el calendario"
-            name="show_in_calendar"
-            value={formState?.show_in_calendar}
-            onChange={handleChange}
-            error={errors}
-          />
-          <Input
-            label="Mostrar disponibilidad en tiempo real"
-            name="show_real_time_availability"
-            value={formState?.show_real_time_availability}
-            onChange={handleChange}
-            error={errors}
-          /> */}
         </Card>
       </div>
+      {openComfirm && (
+        <DataModal
+          title="Volver a lista de áreas sociales"
+          open={openComfirm}
+          onClose={() => setOpenComfirm(false)}
+          onSave={() => onClose()}
+          buttonText="Volver"
+          buttonCancel="Continuar creación"
+        >
+          <p>
+            ¿Seguro que quieres volver? Recuerda que si realizas esta acción,
+            los cambios que has cargado en todos los pasos se eliminarán y el
+            área social no será creada
+          </p>
+        </DataModal>
+      )}
     </div>
   );
 };

@@ -1,3 +1,6 @@
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
+import { fontWeight } from 'html2canvas/dist/types/css/property-descriptors/font-weight';
+
 const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
   const xLabels: any = [];
   let totalRadial = 0;
@@ -9,36 +12,41 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "50%",
+          size: '50%',
           labels: {
             show: true,
+            value: {
+              color: 'var(--cWhite)',
+              formatter: function (val: any) {
+                // return formatNumber(totalRadial) + " Bs";
+                return val !== 0 ? formatBs(Number(val)) : '';
+              },
+            },
             total: {
               show: true,
-              label: options?.centerText || "Total",
-              fontSize: "16px",
-              color: "#00E38C",
+              label: options?.centerText || 'Total',
+              fontSize: '16px',
+              color: '#00E38C',
               formatter: function () {
-                return totalRadial + " Bs";
-              }
-            }
-          }
+                return formatBs(totalRadial);
+              },
+            },
+          },
         },
       },
     },
     dataLabels: {
       ...oDef.dataLabels,
       formatter: function (val: any, opts: any) {
-        
-        if (val !== 0) return Number(val).toFixed(1) + "%";
-        
+        if (val !== 0) return Number(val).toFixed(2) + '%';
       },
       style: {
-        fontSize: "16px",
-        color: "#000",
+        fontSize: '16px',
+        fontWeight: 'var(--bMedium)',
       },
       background: {
         enabled: true,
-        foreColor: "#000",
+        foreColor: 'var(--cWhiteV2)',
         padding: 4,
         borderRadius: 2,
 
@@ -57,19 +65,33 @@ const GraphAdapterDonut = (data: any, options: any, oDef: any = {}) => {
         top: 1,
         left: 1,
         blur: 1,
-        color: "#000",
+        color: '#000',
         opacity: 0.45,
       },
     },
     labels: xLabels,
     tooltip: {
       ...oDef.tooltip,
-      y: {
-        formatter: function (val: any) {
-          // return val + " %";
-          return val.toFixed(1);
+      custom: function ({ series, seriesIndex, dataPointIndex, w }: any) {
+        const seriesName = w.globals.seriesNames[seriesIndex] || w.globals.labels[seriesIndex];
+        const value = series[seriesIndex];
+        // Obtener el color de la serie
+        const color = w.globals.colors[seriesIndex] || '#A7A7A7';
 
-        },
+        return `
+          <div style="padding: 12px; background: rgba(255, 255, 255, 0.95); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 160px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${color};"></span>
+              <div style="font-weight: 600; color: #333; font-size: 14px;">${seriesName}</div>
+            </div>
+            <div style="margin-left: 20px;">
+              <div style="color: #666; font-size: 12px; margin-bottom: 2px;">Monto:</div>
+              <div style="font-weight: bold; color: #000; font-size: 16px;">${formatBs(
+                value
+              )}</div>
+            </div>
+          </div>
+        `;
       },
     },
   };
