@@ -387,7 +387,7 @@ const RenderView: React.FC<DetailPaymentProps> = memo(props => {
                 </span>
               </div>
               <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}>Forma de pago</span>
+                <span className={styles.infoLabel}>Método de pago</span>
                 <span className={styles.infoValue}>{getPaymentType(item.method || '')}</span>
               </div>
               <div className={styles.infoBlock}>
