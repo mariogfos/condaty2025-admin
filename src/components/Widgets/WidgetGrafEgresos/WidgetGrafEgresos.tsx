@@ -7,8 +7,10 @@ import styles from './WidgetGrafEgresos.module.css';
 
 interface Transaction {
   mes: number;
-  categoria: string;
-  egresos: string;
+  name: string;
+  amount: string;
+  categ_id: string;
+  category_id: string;
 }
 
 interface FormattedValue {
@@ -79,18 +81,18 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
       const categoryTotals: { [key: string]: number } = {};
 
       egresosHist.forEach(transaction => {
-        if (!categoryTotals[transaction.categoria]) {
-          categoryTotals[transaction.categoria] = 0;
+        if (!categoryTotals[transaction.name]) {
+          categoryTotals[transaction.name] = 0;
         }
-        categoryTotals[transaction.categoria] += parseFloat(
-          transaction.egresos || '0'
+        categoryTotals[transaction.name] += parseFloat(
+          transaction.amount || '0'
         );
       });
 
-      for (const categoria in categoryTotals) {
+      for (const name in categoryTotals) {
         pieData.push({
-          name: categoria,
-          values: [categoryTotals[categoria]],
+          name: name,
+          values: [categoryTotals[name]],
         });
       }
 
@@ -101,10 +103,10 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
     egresosHist.forEach(transaction => {
-      if (!groupedTransactions[transaction.categoria]) {
-        groupedTransactions[transaction.categoria] = [];
+      if (!groupedTransactions[transaction.name]) {
+        groupedTransactions[transaction.name] = [];
       }
-      groupedTransactions[transaction.categoria].push(transaction);
+      groupedTransactions[transaction.name].push(transaction);
     });
 
     for (const categoria in groupedTransactions) {
@@ -118,7 +120,7 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
         );
         formattedValues.push(
           matchingTransaction
-            ? parseFloat(matchingTransaction.egresos || '0')
+            ? parseFloat(matchingTransaction.amount || '0')
             : 0
         );
       });

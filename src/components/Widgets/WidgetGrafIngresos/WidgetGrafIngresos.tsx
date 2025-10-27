@@ -6,8 +6,10 @@ import styles from './WidgetGrafIngresos.module.css';
 
 interface Transaction {
   mes: number;
-  categoria: string;
-  ingresos: string;
+  name: string;
+  amount: string;
+  categ_id: string;
+  category_id: string;
 }
 
 interface FormattedValue {
@@ -80,18 +82,18 @@ const WidgetGrafIngresos = ({
       const categoryTotals: { [key: string]: number } = {};
 
       ingresosHist.forEach(transaction => {
-        if (!categoryTotals[transaction.categoria]) {
-          categoryTotals[transaction.categoria] = 0;
+        if (!categoryTotals[transaction.name]) {
+          categoryTotals[transaction.name] = 0;
         }
-        categoryTotals[transaction.categoria] += parseFloat(
-          transaction.ingresos || '0'
+        categoryTotals[transaction.name] += parseFloat(
+          transaction.amount || '0'
         );
       });
 
-      for (const categoria in categoryTotals) {
+      for (const name in categoryTotals) {
         pieData.push({
-          name: categoria,
-          values: [categoryTotals[categoria]],
+          name: name,
+          values: [categoryTotals[name]],
         });
       }
 
@@ -102,10 +104,10 @@ const WidgetGrafIngresos = ({
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
     ingresosHist.forEach(transaction => {
-      if (!groupedTransactions[transaction.categoria]) {
-        groupedTransactions[transaction.categoria] = [];
+      if (!groupedTransactions[transaction.name]) {
+        groupedTransactions[transaction.name] = [];
       }
-      groupedTransactions[transaction.categoria].push(transaction);
+      groupedTransactions[transaction.name].push(transaction);
     });
 
     for (const categoria in groupedTransactions) {
@@ -120,7 +122,7 @@ const WidgetGrafIngresos = ({
         );
         formattedValues.push(
           matchingTransaction
-            ? parseFloat(matchingTransaction.ingresos || '0')
+            ? parseFloat(matchingTransaction.amount || '0')
             : 0
         );
       });
