@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@instantdb/admin": "^0.21.22",
-    "@instantdb/react": "^0.17.31",
+    "@instantdb/admin": "^0.17.12",
+    "@instantdb/react": "^0.21.22",
     "@mlc-ai/web-llm": "^0.2.78",
     "axios": "^1.12.0",
     "date-fns": "^4.1.0",
