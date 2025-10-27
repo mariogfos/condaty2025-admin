@@ -45,10 +45,11 @@
 .widgetContents {
   width: 100%;
   display: flex;
-  flex: 1;
+  flex-grow: 1;
+  /* overflow: hidden; */
 }
 .summaryWidgetEqualHeight {
-  height: 162px;
+  /* height: 162px; */
 }
 
 .fourWidgetSection {
@@ -205,12 +206,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0;
-}
-.itemRowAlert {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
+  cursor: pointer;
 }
 
 .itemImageContainer {
@@ -258,11 +254,15 @@
 }
 
 .itemSecondaryText {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Limita a 1 líneas */
+  -webkit-box-orient: vertical; /* Necesario para el truncado multilinea */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word; /* Más natural para truncar palabras */
   font-weight: 400;
   font-size: 14px;
-  color: #a7a7a7;
-  white-space: normal;
-  overflow: hidden;
+  color: var(--cWhiteV1);
 }
 .itemDateText {
   font-weight: 400;
@@ -292,7 +292,7 @@
 .itemActionButton {
   font-weight: 400;
   font-size: 12px;
-  color: #00e38c;
+  color: var(--cWhite);
   text-decoration: underline;
   background-color: transparent;
   border: none;
@@ -309,4 +309,53 @@
   .rightColumn {
     width: 100%;
   }
+}
+
+.preRegistroListContainer {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.preRegistroItem {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--darkv1);
+  border-radius: 0.5rem;
+  border: 1px solid var(--cBorderTransparent);
+}
+
+.preRegistroItem:last-child {
+  margin-bottom: 0;
+}
+
+.preRegistroItem .itemRow {
+  margin: 0;
+  padding: 0;
+}
+
+.legendContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legendItem span {
+  color: var(--cWhite);
+  font-size: 14px;
 }

@@ -1,10 +1,7 @@
 .roles {
   width: 100%;
-  /* position: relative;
-  padding-left: var(--spL);
-  padding-right: var(--spL);
-  padding-bottom: 70px; */
 }
+
 .renderViewContent {
   padding-top: var(--spL);
   padding-bottom: var(--spL);
@@ -14,9 +11,11 @@
   justify-content: center;
   align-items: center;
 }
+
 .truncatedText {
   display: -webkit-box;
   -webkit-line-clamp: 5;
+  line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -28,93 +27,121 @@
   position: relative;
   margin-top: 12px;
 }
+
 .container {
   display: flex;
   flex-direction: column;
-
   align-items: center;
+}
 
-  & > div {
-    font-size: 14px;
-    
-    color: var(--cWhiteV1);
-    border-radius: 16px;
-    padding: 12px;
-  }
-  /* &.renderViewImage {
-    display: flex;
-    justify-content: center;
+.container > div {
+  font-size: 14px;
+  color: var(--cWhiteV1);
+  border-radius: 16px;
+  padding: 12px;
+}
 
-    & > div {
-      display: flex;
-      position: absolute;
-      justify-content: center;
-      margin-top: 12px;
-      width: 100%;
-      gap: 24px;
-    }
-  } */
+.container > section {
+  width: 100%;
+  margin-top: 12px;
+}
 
-  & > section {
-    width: 100%;
-    margin-top: 12px;
-    /* background-color: red;   */
-    & > div:nth-child(1) {
-      display: flex;
-      gap: 16px;
-      & > div {
-        flex: 1;
-        background-color: var(--cHover);
-        border-radius: 8px;
-        padding: 8px 0px;
-        & > p:nth-child(1) {
-          text-align: center;
-        }
-        & > p:nth-child(2) {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: var(--cBlackV2);
-        }
-      }
-    }
-    & > h2 {
-      font-size: var(--sM);
-      color: var(--cWhite);
-      margin: var(--spM) 0px;
-    }
-  }
+.container > section > div:nth-child(1) {
+  display: flex;
+  gap: 16px;
+}
+
+.container > section > div:nth-child(1) > div {
+  flex: 1;
+  background-color: var(--cHover);
+  border-radius: 8px;
+  padding: 8px 0px;
+}
+
+.container > section > div:nth-child(1) > div > p:nth-child(1) {
+  text-align: center;
+}
+
+.container > section > div:nth-child(1) > div > p:nth-child(2) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--cBlackV2);
+}
+
+.container > section > h2 {
+  font-size: var(--sM);
+  color: var(--cWhite);
+  margin: var(--spM) 0px;
 }
 
 .reactionsSection {
-  
   margin-top: 12px;
-  /* background-color: yellow;   */
-  & > div:nth-child(1) {
-    display: flex;
-    gap: 16px;
-    color: var(--cWhiteV1);
+}
 
-    & > div {
-      flex: 1;
-      background-color: var(--cHover);
-      border-radius: 8px;
-      padding: 8px 0px;
-      & > div:nth-child(1) {
-        text-align: center;
-        color: var(--cWhiteV1);
-      }
-      & > div:nth-child(2) {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: var(--cWhiteV);
-      }
-    }
-  }
-  & > h2 {
-    font-size: var(--sM);
-    color: var(--cWhite);
-    margin: var(--spM) 0px;
-  }
+.reactionsSection > div:nth-child(1) {
+  display: flex;
+  gap: 16px;
+  color: var(--cWhiteV1);
+}
+
+.reactionsSection > div:nth-child(1) > div {
+  flex: 1;
+  background-color: var(--cHover);
+  border-radius: 8px;
+  padding: 8px 0px;
+}
+
+.reactionsSection > div:nth-child(1) > div > div:nth-child(1) {
+  text-align: center;
+  color: var(--cWhiteV1);
+}
+
+.reactionsSection > div:nth-child(1) > div > div:nth-child(2) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--cWhiteV);
+}
+
+.reactionsSection > h2 {
+  font-size: var(--sM);
+  color: var(--cWhite);
+  margin: var(--spM) 0px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--cWhite);
+  margin: 0 0 16px 0;
+}
+
+.contentContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.contentDescription {
+  color: var(--cWhiteV1);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  max-width: 99%;
+  white-space: normal;
+  min-width: 0;
+  width: 99%;
+  flex-shrink: 1;
 }

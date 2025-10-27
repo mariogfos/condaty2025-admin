@@ -28,11 +28,3 @@
      /* max-width: 500px; */ /* Ejemplo para limitar ancho de las tabs */
      margin-bottom: var(--spL); /* Espacio debajo de las tabs */
   }
-  
-  
-  /* Estilo para el div que envuelve el contenido de la pestaña activa (<Reserva /> o <ReservaPending />) */
-  .tabContent {
-    margin-top: var(--spL); /* Espacio entre las pestañas y la lista */
-  }
-  
-  /* Puedes añadir más estilos específicos que necesites para este layout */

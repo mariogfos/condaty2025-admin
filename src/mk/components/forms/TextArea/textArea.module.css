@@ -10,16 +10,15 @@
   border-radius: var(--bRadius);
   padding-left: var(--spM);
   padding-right: var(--spM);
-  padding-bottom: var(--spS);
   padding-top: var(--spL);
   border: var(--bWidth) solid var(--cBlackV2);
   font-size: var(--sM);
   resize: none;
-  /* margin-bottom: calc(var(--spS) * 3); */
-  margin-bottom: calc(var(--spL));
+  /* margin-top: calc(var(--spM)); */
   position: relative;
   & > div > textarea::placeholder {
     color: var(--cWhiteV1);
+    font-size: var(--sL);
   }
   & > span {
     flex-shrink: 1;
@@ -36,7 +35,7 @@
       left: 0;
       top: 0;
       transition: all 0.3s;
-      font-size: var(--sM);
+      font-size: var(--sL);
       color: var(--cWhiteV1);
       /* background-color: var(--cWhite); */
       padding-left: var(--spXs);
@@ -45,7 +44,7 @@
     & textarea:focus + label,
     & textarea:not(:placeholder-shown) + label,
     & textarea[placeholder]:not([placeholder=""]) + label {
-      top: -10px;
+      top: -8px;
       left: -4px;
       font-size: var(--sS);
       transform: translateY(-28%);
@@ -62,6 +61,7 @@
       padding: 0;
       margin: 0;
       color: var(--cWhite);
+      margin-top: 8px;
       resize: none;
     }
   }
@@ -91,7 +91,11 @@
 }
 .charCounter {
   /* flex: 1; */
+  position: absolute;
+
+  right: 0;
+  bottom: -2px;
   font-size: 0.875rem; /* Tamaño de texto */
-  color: #6c757d; /* Color neutro */
+  color: var(--cWhite); /* Color neutro */
   text-align: right; /* Alineación a la derecha */
 }

@@ -6,7 +6,7 @@ const GraphAdapterPie = (data: any, options: any, oDef: any = {}) => {
 
   const xLabels: any = [];
   let totalRadial = 0;
-  
+
   data.values.forEach((v: any) => {
     if (v && v.name) {
       xLabels.push(v.name);
@@ -27,7 +27,7 @@ const GraphAdapterPie = (data: any, options: any, oDef: any = {}) => {
       },
       style: {
         fontSize: "16px",
-        color: "#000",
+        color: "#A7A7A7",
       },
       background: {
         enabled: true,
@@ -59,7 +59,7 @@ const GraphAdapterPie = (data: any, options: any, oDef: any = {}) => {
 
   const d: any = [];
   const d1: any = [];
-  
+
   data.values.forEach((e: any) => {
     // Validar que e.values exista y sea un array
     if (e && e.values && Array.isArray(e.values)) {

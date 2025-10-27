@@ -1,132 +1,311 @@
-// @ts-nocheck
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client";
+'use client';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import DataModal from '@/mk/components/ui/DataModal/DataModal';
+import { getFullName } from '@/mk/utils/string';
+import { MONTHS_S, formatToDayDDMMYYYY } from '@/mk/utils/date';
+import EmptyData from '@/components/NoData/EmptyData';
+import Select from '@/mk/components/forms/Select/Select';
+import TextArea from '@/mk/components/forms/TextArea/TextArea';
+import Input from '@/mk/components/forms/Input/Input';
+import { IconCheckOff, IconCheckSquare } from '@/components/layout/icons/IconsBiblioteca';
+import Toast from '@/mk/components/ui/Toast/Toast';
+import { useAuth } from '@/mk/contexts/AuthProvider';
+import styles from './RenderForm.module.css';
+import { UploadFile } from '@/mk/components/forms/UploadFile/UploadFile';
+import { formatBs, formatNumber } from '@/mk/utils/numbers';
+import { getTitular } from '@/mk/utils/adapters';
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
-import DataModal from "@/mk/components/ui/DataModal/DataModal";
-import { getFullName } from "@/mk/utils/string";
-import { MONTHS_S } from "@/mk/utils/date";
-import EmptyData from "@/components/NoData/EmptyData";
-import Select from "@/mk/components/forms/Select/Select";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import Input from "@/mk/components/forms/Input/Input";
-import {
-  IconArrowDown,
-  IconCheckOff,
-  IconCheckSquare,
-  IconDocs,
-  IconPDF,
-} from "@/components/layout/icons/IconsBiblioteca";
-import { ToastType } from "@/mk/hooks/useToast";
-import Toast from "@/mk/components/ui/Toast/Toast";
-import { UnitsType } from "@/mk/utils/utils";
-import { useAuth } from "@/mk/contexts/AuthProvider";
-import styles from "./RenderForm.module.css";
-import { UploadFile } from "@/mk/components/forms/UploadFile/UploadFile";
-import { formatNumber } from "@/mk/utils/numbers";
+interface Dpto {
+  id: string | number;
+  nro: string;
+  description: string;
+  holder?: 'H' | 'T';
+  homeowner?: any;
+  tenant?: any;
+  type?: {
+    id?: string | number;
+    name?: string;
+    description?: string;
+  };
+  titular?: {
+    owner?: {
+      id?: string | number;
+      name?: string;
+      [key: string]: unknown;
+    };
+  };
+}
+interface Category {
+  id: string | number;
+  name: string;
+  hijos?: Subcategory[];
+}
 
-const RenderForm = ({
+interface Subcategory {
+  id: string | number;
+  name: string;
+}
+
+interface ClientConfig {
+  cat_expensas: string | number;
+  cat_reservations: string | number;
+}
+
+interface ExtraData {
+  dptos: Dpto[];
+  categories: Category[];
+  client_config: ClientConfig;
+}
+interface Deuda {
+  id: string | number;
+  amount?: number;
+  penalty_amount?: number;
+  status?: string;
+  debt_id?: string | null;
+  dpto_id?: number;
+  payment_id?: string | null;
+  shared_id?: string | null;
+  type?: number;
+  maintenance_amount?: string | null;
+  begin_at?: string;
+  due_at?: string;
+  description?: string;
+  penalty_reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
+  reservation?: {
+    id?: string;
+    debt_id?: string;
+    area_id?: string;
+    date_at?: string;
+    date_end?: string;
+    paid_at?: string | null;
+    created_at?: string;
+    area?: {
+      id?: string;
+      title?: string;
+      description?: string;
+    };
+  };
+  debt?: {
+    month?: number;
+    year?: number;
+    method?: number;
+    description?: string;
+    due_at?: string;
+    status?: string;
+    reservation?: {
+      id?: string;
+      debt_id?: string;
+      area_id?: string;
+      date_at?: string;
+      date_end?: string;
+      paid_at?: string | null;
+      created_at?: string;
+      area?: {
+        id?: string;
+        title?: string;
+        description?: string;
+      };
+    };
+    penalty_reservation?: {
+      id?: string;
+      debt_id?: string;
+      area_id?: string;
+      date_at?: string;
+      date_end?: string;
+      paid_at?: string | null;
+      created_at?: string;
+      area?: {
+        id?: string;
+        title?: string;
+        description?: string;
+      };
+    };
+  } | null;
+  shared?: {
+    id?: string;
+    year?: number;
+    month?: number;
+    type?: number;
+    begin_at?: string;
+    due_at?: string;
+    description?: string;
+    amount_type?: string;
+  };
+}
+
+interface SelectedPeriodo {
+  id: string | number;
+  amount: number;
+}
+
+interface FormState {
+  paid_at?: string;
+  file?: string | null;
+  filename?: string | null;
+  ext?: string | null;
+  dpto_id?: string | number;
+  category_id?: string | number;
+  subcategory_id?: string | number;
+  subcategories?: Subcategory[];
+  isSubcategoryLocked?: boolean;
+  isCategoryLocked?: boolean;
+  isAmountLocked?: boolean;
+  method?: string;
+  voucher?: string;
+  obs?: string;
+  amount?: number | string;
+  type?: string;
+  owner_id?: string | number;
+}
+
+interface Errors {
+  general?: string;
+  selectedPeriodo?: string;
+  dpto_id?: string;
+  category_id?: string;
+  subcategory_id?: string;
+  method?: string;
+  voucher?: string;
+  amount?: string;
+  file?: string;
+  paid_at?: string;
+  type?: string;
+  [key: string]: string | undefined;
+}
+
+interface RenderFormProps {
+  open: boolean;
+  onClose: () => void;
+  item?: FormState;
+  onSave?: () => void;
+  extraData: ExtraData;
+  execute: (...args: any[]) => Promise<any>;
+  showToast: (msg: string, type: 'info' | 'success' | 'error' | 'warning') => void;
+  reLoad: () => void;
+  debtId?: string | number;
+}
+
+const RenderForm: React.FC<RenderFormProps> = ({
   open,
   onClose,
   item,
-  onSave,
   extraData,
   execute,
   showToast,
   reLoad,
-  user,
+  debtId,
 }) => {
-  const [_formState, _setFormState] = useState(() => {
-    // Obtener la fecha actual en formato YYYY-MM-DD
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
+  const [formState, setFormState] = useState<FormState>(() => {
+    const isCategoryLocked = item?.isCategoryLocked || false;
+    const isSubcategoryLocked = item?.isSubcategoryLocked || false;
+    const isAmountLocked = item?.isAmountLocked || false;
+    console.log('item', item?.amount);
 
     return {
-      ...(item || {}),
-      // Si no hay fecha en 'item', usa la fecha actual
-      paid_at: (item && item.paid_at) || formattedDate,
-      payment_method: (item && item.payment_method) || "",
-      file: (item && item.file) || null,
-      filename: (item && item.filename) || null,
-      ext: (item && item.ext) || null,
+      paid_at: item?.paid_at || new Date().toISOString().split('T')[0],
+      type: item?.type || '',
+      file: item?.file || null,
+      filename: item?.filename || null,
+      ext: item?.ext || null,
+      dpto_id: item?.dpto_id || '',
+      category_id: item?.category_id || '',
+      subcategory_id: item?.subcategory_id || '',
+      subcategories: [],
+      isCategoryLocked,
+      isSubcategoryLocked,
+      isAmountLocked,
+      method: item?.method || '',
+      voucher: item?.voucher || '',
+      obs: item?.obs || '',
+      amount: item?.amount || '',
+      owner_id: item?.owner_id || '',
     };
   });
-  const [_errors, set_Errors] = useState({});
+  const [errors, setErrors] = useState<Errors>({});
 
-  const [deudas, setDeudas] = useState([]);
-  const [selectedPeriodo, setSelectedPeriodo] = useState([]);
-  const [selecPeriodoTotal, setSelectPeriodoTotal] = useState(0);
+  const [deudas, setDeudas] = useState<Deuda[]>([]);
+  const [selectedPeriodo, setSelectedPeriodo] = useState<SelectedPeriodo[]>([]);
+  const [periodoTotal, setPeriodoTotal] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoadingDeudas, setIsLoadingDeudas] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: ToastType }>({
-    msg: "",
-    type: "info",
+  const [toast] = useState<{
+    msg: string;
+    method: 'info' | 'success' | 'error' | 'warning';
+  }>({
+    msg: '',
+    method: 'info',
   });
   const { store } = useAuth();
 
-  // Verificamos si estamos en el caso de expensas sin deudas
+
+  const typeOptions = [
+    { id: 'T', name: 'Todas las deudas' },
+    { id: 'E', name: 'Expensas' },
+    { id: 'R', name: 'Reservas' },
+    { id: 'F', name: 'Condonación' },
+   // { id: 'P', name: 'Plan de pago' },
+    { id: 'O', name: 'Otras deudas' },
+    { id: 'I', name: 'Pago directo' },
+    { id: 'M', name: 'Multas' },
+  ];
+
+
+  const showCategoryFields = formState.type === 'I';
+
+  const isDebtBasedPayment = Boolean(formState.type && formState.type !== 'I');
+
   const isExpensasWithoutDebt =
-    _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-    deudas?.length === 0 &&
-    !isLoadingDeudas &&
-    _formState.dpto_id;
+    formState.type === 'E' && deudas.length === 0 && !isLoadingDeudas;
+
+  const isReservationsWithoutDebt =
+    formState.type === 'R' && deudas.length === 0 && !isLoadingDeudas;
+
+  const isDebtBasedCategory =
+    formState.subcategory_id === extraData?.client_config?.cat_expensas ||
+    formState.subcategory_id === extraData?.client_config?.cat_reservations;
 
   const lDptos = useMemo(
     () =>
-      extraData?.dptos.map((dpto) => {
+      extraData?.dptos.map((dpto: Dpto) => {
+        const titular = getTitular(dpto);
         return {
           id: dpto.nro,
           name:
-            store.UnitsType +
-            " " +
+            dpto?.type?.name +
+            ' ' +
             dpto.nro +
-            " - " +
+            ' - ' +
             dpto.description +
-            " - " +
-            getFullName(dpto.titular?.owner),
+            ' - ' +
+            getFullName(titular ?? {}),
           dpto_id: dpto.id,
         };
       }),
-    [extraData?.dptos]
+    [extraData?.dptos, store.Unitstype]
   );
 
-  const lastLoadedDeudas = useRef("");
-
-  const client = useMemo(() => {
-    return (
-      user.clients?.find((item) => item.id === user.client_id) || {
-        id: 0,
-        type_dpto: "D",
-      }
-    );
-  }, [user]);
-
-  const exten = ["jpg", "pdf", "png", "jpeg", "doc", "docx"];
-
-  const tipo = {
-    D: "Departamento",
-    C: "Casa",
-    L: "Lote",
-    O: "Oficina",
-    _D: "Piso",
-    _C: "Calle",
-    _L: "Calle/Mz",
-    _O: "Piso",
-  };
+  const lastLoadedDeudas = useRef<string>('');
+  const exten = ['jpg', 'pdf', 'png', 'jpeg', 'doc', 'docx'];
 
   const getDeudas = useCallback(
-    async (nroDpto) => {
-      if (!nroDpto) return;
+    async (nroDpto: string | number, paymentmethod: string) => {
+      if (!nroDpto || !paymentmethod || paymentmethod === 'I') return;
 
-      const selectedDpto = extraData?.dptos.find(
-        (dpto) => dpto.nro === nroDpto
-      );
+      const selectedDpto = extraData?.dptos.find(dpto => dpto.nro === nroDpto);
       const realDptoId = selectedDpto?.id;
 
       if (!realDptoId) return;
@@ -134,28 +313,33 @@ const RenderForm = ({
       setIsLoadingDeudas(true);
       try {
         const { data } = await execute(
-          "/payments",
-          "GET",
+          '/payments',
+          'GET',
           {
-            perPage: -1,
-            page: 1,
-            fullType: "PDD",
-            searchBy: realDptoId,
+            fullType: 'DEBT',
+            dptoId: realDptoId,
+            type: paymentmethod,
           },
           false,
           true
         );
 
         if (data?.success) {
-          const deudasArray = data?.data?.deudas || [];
-          setDeudas(deudasArray);
-          if (deudasArray.length === 0) {
+          const deudasArray: Deuda[] = data?.data?.deudas || [];
+
+          const deudasArrayOrdenado = deudasArray.toSorted(
+            (a, b) =>
+              (a.debt?.year ?? 0) - (b.debt?.year ?? 0) ||
+              (a.debt?.month ?? 0) - (b.debt?.month ?? 0)
+          );
+          setDeudas(deudasArrayOrdenado);
+          if (deudasArrayOrdenado.length === 0) {
             setSelectedPeriodo([]);
-            setSelectPeriodoTotal(0);
+            setPeriodoTotal(0);
           }
         }
       } catch (err) {
-        console.error("Error al obtener deudas:", err);
+        console.error(err);
       } finally {
         setIsLoadingDeudas(false);
       }
@@ -163,7 +347,43 @@ const RenderForm = ({
     [execute, extraData?.dptos]
   );
 
-  // Inicialización y limpieza
+  useEffect(() => {
+    if (extraData?.categories && formState.category_id && showCategoryFields) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(formState.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [extraData?.categories, formState.category_id, showCategoryFields]);
+
+  useEffect(() => {
+    if (
+      open &&
+      item &&
+      item.category_id &&
+      item.subcategory_id &&
+      extraData?.categories &&
+      showCategoryFields
+    ) {
+      const selectedCategory = extraData.categories.find(
+        (cat: Category) => String(cat.id) === String(item.category_id)
+      );
+
+      if (selectedCategory?.hijos) {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          subcategories: selectedCategory.hijos || [],
+        }));
+      }
+    }
+  }, [open, item, extraData?.categories, showCategoryFields]);
+
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
@@ -172,519 +392,720 @@ const RenderForm = ({
 
     if (!isInitialized && open) {
       setIsInitialized(true);
+
+      if (item && item.dpto_id && item.type && item.type !== 'I') {
+        const deudasKey = `${item.dpto_id}_${item.type}`;
+        lastLoadedDeudas.current = deudasKey;
+        getDeudas(item.dpto_id, item.type);
+      }
     }
 
     return () => {
       if (!open) {
         setDeudas([]);
-        _setFormState({});
+        setFormState({});
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
+        setPeriodoTotal(0);
       }
     };
-  }, [open]);
+  }, [open, item, getDeudas]);
 
-  // Efecto específico para cargar deudas cuando cambia dpto_id
-  // --- NUEVO useEffect para dpto_id / subcategory_id (Carga de Deudas) ---
   useEffect(() => {
-    console.log(
-      "Effect dpto/subcat:",
-      _formState.dpto_id,
-      _formState.subcategory_id
-    ); // Debug
 
-    const isExpensasSelected =
-      _formState.subcategory_id === extraData?.client_config?.cat_expensas;
-
-    if (_formState.dpto_id && isExpensasSelected) {
-      // Si es expensas y hay dpto, intentar cargar deudas
-      const deudasKey = `${_formState.dpto_id}_${_formState.subcategory_id}`;
-      if (deudasKey !== lastLoadedDeudas.current) {
-        console.log("Cargando deudas para:", deudasKey); // Debug
+    if (formState.dpto_id && formState.type && formState.type !== 'I') {
+      const deudasKey = `${formState.dpto_id}_${formState.type}`;
+      if (deudasKey !== lastLoadedDeudas.current || deudas.length === 0) {
         lastLoadedDeudas.current = deudasKey;
-        // Importante resetear selección al cargar NUEVAS deudas para una unidad
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
-        getDeudas(_formState.dpto_id);
+        setPeriodoTotal(0);
+        getDeudas(formState.dpto_id, formState.type);
       }
     } else {
-      // Si no es expensas o no hay dpto_id, limpiar las deudas
       if (deudas.length > 0 || isLoadingDeudas) {
-        // Evita limpieza innecesaria
-        console.log("Limpiando deudas"); // Debug
         setDeudas([]);
         setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
-        lastLoadedDeudas.current = "";
+        setPeriodoTotal(0);
+        lastLoadedDeudas.current = '';
       }
     }
+  }, [formState.dpto_id, formState.type, getDeudas, deudas.length]);
+
+  useEffect(() => {
+    if (
+      showCategoryFields &&
+      (!item || (!formState.isCategoryLocked && !formState.isSubcategoryLocked))
+    ) {
+      let newSubcategories: Subcategory[] = [];
+      let newSubcategoryId: string | number = '';
+      let lockSubcategory = false;
+
+      if (formState.category_id && extraData?.categories) {
+        const selectedCategory = extraData.categories.find(
+          (category: Category) => String(category.id) === String(formState.category_id)
+        );
+
+        if (selectedCategory?.hijos) {
+          newSubcategories = selectedCategory.hijos || [];
+
+          const catExpensasChild = newSubcategories.find(
+            (hijo: Subcategory) =>
+              String(hijo.id) === String(extraData?.client_config?.cat_expensas)
+          );
+          const catReservationsChild = newSubcategories.find(
+            (hijo: Subcategory) =>
+              String(hijo.id) === String(extraData?.client_config?.cat_reservations)
+          );
+
+          if (catExpensasChild) {
+            newSubcategoryId = extraData.client_config.cat_expensas;
+            lockSubcategory = true;
+          } else if (catReservationsChild) {
+            newSubcategoryId = extraData.client_config.cat_reservations;
+            lockSubcategory = true;
+          }
+        }
+      }
+
+      setFormState((prev: FormState) => {
+
+        if (item && (prev.isCategoryLocked || prev.isSubcategoryLocked)) {
+          return {
+            ...prev,
+            subcategories: newSubcategories,
+
+          };
+        }
+
+
+        if (prev.subcategory_id !== newSubcategoryId || !prev.category_id) {
+          setDeudas([]);
+          setSelectedPeriodo([]);
+          setPeriodoTotal(0);
+          lastLoadedDeudas.current = '';
+        }
+
+        return {
+          ...prev,
+          subcategories: newSubcategories,
+          subcategory_id:
+            prev.subcategory_id !== newSubcategoryId || !prev.category_id
+              ? newSubcategoryId
+              : prev.subcategory_id,
+          isSubcategoryLocked: lockSubcategory,
+        };
+      });
+    }
   }, [
-    // Dependencias CLAVE:
-    _formState.dpto_id,
-    _formState.subcategory_id,
+    formState.category_id,
+    extraData?.categories,
     extraData?.client_config?.cat_expensas,
-    getDeudas, // Es estable por useCallback
+    item,
+    formState.isCategoryLocked,
+    formState.isSubcategoryLocked,
+    showCategoryFields,
   ]);
 
   useEffect(() => {
-    let newSubcategories = [];
-    let newSubcategoryId = ""; // Por defecto, resetea la subcategoría seleccionada
-    let lockSubcategory = false;
+    if (debtId && deudas.length > 0) {
+      const targetDebt = deudas.find(deuda => String(deuda.id) === String(debtId));
+      if (targetDebt) {
 
-    if (_formState.category_id && extraData?.categories) {
-      const selectedCategory = extraData.categories.find(
-        (category) => category.id === _formState.category_id
-      );
+        const calculatedAmount = getSubtotal(targetDebt);
 
-      if (selectedCategory && selectedCategory.hijos) {
-        newSubcategories = selectedCategory.hijos || [];
+        const newSelectedPeriodo: SelectedPeriodo = {
+          id: targetDebt.id,
+          amount: calculatedAmount
+        };
 
-        // ¿Es el caso de auto-selección de expensas?
-        const catExpensasChild = newSubcategories.find(
-          (hijo) => hijo.id === extraData?.client_config?.cat_expensas
-        );
+        setSelectedPeriodo([newSelectedPeriodo]);
+        setPeriodoTotal(calculatedAmount);
 
-        if (catExpensasChild) {
-          newSubcategoryId = extraData.client_config.cat_expensas; // Auto-seleccionar
-          lockSubcategory = true;
+
+        if (formState.isAmountLocked) {
+          setFormState(prev => ({
+            ...prev,
+            amount: calculatedAmount.toFixed(2)
+          }));
         }
       }
     }
+  }, [debtId, deudas, formState.isAmountLocked]);
 
-    // Actualiza el estado preservando los demás campos existentes
-    _setFormState((prev) => {
-      // Si la subcategoría va a cambiar (de ID o a ''), resetea las deudas/selección
-      // O si la categoría se está limpiando
-      if (prev.subcategory_id !== newSubcategoryId || !_formState.category_id) {
-        setDeudas([]);
-        setSelectedPeriodo([]);
-        setSelectPeriodoTotal(0);
-        lastLoadedDeudas.current = ""; // Permite recargar deudas si se vuelve a seleccionar expensas
+  const handleChangeInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value, type } = e.target;
+      let newValue: string | number | boolean = value;
+      if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
+        newValue = e.target.checked ? 'Y' : 'N';
       }
 
-      // Devuelve el nuevo estado completo
-      return {
-        ...prev,
-        subcategories: newSubcategories,
-        // Solo actualiza subcategory_id si es diferente al valor actual O si se limpia la categoría
-        subcategory_id:
-          prev.subcategory_id !== newSubcategoryId || !_formState.category_id
-            ? newSubcategoryId
-            : prev.subcategory_id,
-        isSubcategoryLocked: lockSubcategory,
-      };
-    });
-  }, [
-    // Dependencias CLAVE: Solo estas deben estar aquí
-    _formState.category_id,
-    extraData?.categories,
-    extraData?.client_config?.cat_expensas,
-    // NO incluir _formState.dpto_id aquí
-  ]);
-  // --- FIN DEL NUEVO useEffect para category_id ---
 
-  // Handler para cambio de campos del formulario
-  const handleChangeInput = useCallback((e) => {
-    const { name, value, type } = e.target;
+      if (name === 'type') {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          [name]: newValue,
+          category_id: '',
+          subcategory_id: '',
+          subcategories: [],
+        }));
+        setDeudas([]);
+        setSelectedPeriodo([]);
+        setPeriodoTotal(0);
+        lastLoadedDeudas.current = '';
+        if (newValue && newValue !== 'I' && formState.dpto_id) {
 
-    const newValue =
-      type === "checkbox" ? (e.target.checked ? "Y" : "N") : value;
+          setTimeout(() => {
+            const deudasKey = `${formState.dpto_id}_${newValue}`;
+            lastLoadedDeudas.current = deudasKey;
+            if (formState.dpto_id) {
+              getDeudas(formState.dpto_id, newValue as string);
+            }
+          }, 0);
+        }
+      } else {
+        setFormState((prev: FormState) => ({
+          ...prev,
+          [name]: newValue,
+        }));
+      }
+    },
+    [formState.dpto_id, getDeudas]
+  );
 
-    _setFormState((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  }, []);
+  const getDebtType = (type: number) => {
+    switch (type) {
+      case 0:
+        return 'Individual';
+      case 1:
+        return 'Expensas';
+      case 2:
+        return 'Reservas';
+      case 3:
+        return 'Multa por Cancelación';
+      case 4:
+        return 'Compartida';
+      case 5:
+        return 'Condonación';
+      default:
+        return 'Desconocido';
+    }
+  };
 
-  // Handler para selección de períodos de deuda
-  const handleSelectPeriodo = useCallback((periodo) => {
-    // El subtotal ya contiene la suma del monto + multa
-    const subtotal = Number(periodo.amount) + Number(periodo.penalty_amount);
+  const getConceptByType = (periodo: Deuda) => {
+    const type = periodo?.type;
 
-    setSelectedPeriodo((prev) => {
-      const exists = prev.some((item) => item.id === periodo.id);
+    switch (type) {
+      case 1: {
+        // Expensas: mostrar periodo (MES y YEAR) usando MONTHS_S indexado desde 1
+        const monthNum = periodo?.debt?.month ?? periodo?.shared?.month;
+        const yearNum = periodo?.debt?.year ?? periodo?.shared?.year;
+        if (monthNum != null && yearNum != null) {
+          const monthIndex = Math.max(1, Math.min(12, Number(monthNum)));
+          const monthName = MONTHS_S[monthIndex] || String(monthNum);
+          return `${monthName} ${yearNum}`;
+        }
+        return '-/-';
+      }
+      case 2:
+        // Reservas: mostrar el nombre del área social
+        return `Reserva: ${
+          periodo?.debt?.reservation?.area?.title ||
+          periodo?.reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 3:
+        // Multa por Cancelación
+        return `Multa por Cancelación: ${
+          periodo?.debt?.penalty_reservation?.area?.title ||
+          periodo?.penalty_reservation?.area?.title ||
+          '-/-'
+        }`;
+      case 0:
+      case 4:
+        // Individual o Compartida: usar descripción
+        return periodo?.description || '-/-';
+      default:
+        // Fallback
+        return (
+          periodo?.description ||
+          periodo?.shared?.description ||
+          periodo?.debt?.description ||
+          '-/-'
+        );
+    }
+  };
+
+  const getSubtotal = (periodo: Deuda) => {
+    const amount = parseFloat(String(periodo?.amount)) || 0;
+    const penaltyAmount = parseFloat(String(periodo?.penalty_amount)) || 0;
+    const maintenanceAmount = parseFloat(String(periodo?.maintenance_amount)) || 0;
+
+    let total;
+
+    if (periodo.debt?.method === 3) {
+      total = penaltyAmount + maintenanceAmount;
+    } else {
+
+      total = amount + penaltyAmount + maintenanceAmount;
+    }
+
+
+    return Math.round(total * 100) / 100;
+  };
+
+  const handleSelectAllPeriodos = useCallback(() => {
+    if (selectedPeriodo.length === deudas.length) {
+
+      setSelectedPeriodo([]);
+      setPeriodoTotal(0);
+    } else {
+
+      const allPeriodos = deudas.map(periodo => ({
+        id: periodo.id,
+        amount: getSubtotal(periodo)
+      }));
+
+      const totalAmount = allPeriodos.reduce((sum, item) => sum + item.amount, 0);
+      const roundedTotal = Math.round(totalAmount * 100) / 100;
+
+      setSelectedPeriodo(allPeriodos);
+      setPeriodoTotal(roundedTotal);
+    }
+  }, [deudas, selectedPeriodo.length]);
+
+  const handleSelectPeriodo = useCallback((periodo: Deuda) => {
+    const subtotal = getSubtotal(periodo);
+
+    setSelectedPeriodo(prev => {
+      const exists = prev.some(item => item.id === periodo.id);
 
       let newSelectedPeriodos;
       if (exists) {
-        // Quitar si ya existe
-        newSelectedPeriodos = prev.filter((item) => item.id !== periodo.id);
+        newSelectedPeriodos = prev.filter(item => item.id !== periodo.id);
       } else {
-        // Agregar si no existe
         newSelectedPeriodos = [...prev, { id: periodo.id, amount: subtotal }];
       }
 
-      // Recalcular el total basado en los períodos seleccionados
-      const newTotal = newSelectedPeriodos.reduce(
-        (sum, item) => sum + item.amount,
-        0
-      );
-      setSelectPeriodoTotal(newTotal);
+      const newTotal = newSelectedPeriodos.reduce((sum, item) => sum + item.amount, 0);
+
+      const roundedTotal = Math.round(newTotal * 100) / 100;
+      setPeriodoTotal(roundedTotal);
 
       return newSelectedPeriodos;
     });
   }, []);
 
-  // Manejadores de eventos para arrastrar y soltar
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      try {
-        if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
-
-        const droppedFile = e.dataTransfer.files[0];
-        const fileExtension =
-          droppedFile.name.split(".").pop()?.toLowerCase() || "";
-
-        if (!exten.includes(fileExtension)) {
-          alert("Solo se permiten archivos " + exten.join(", "));
-          return;
-        }
-
-        _setFormState((prev) => ({
-          ...prev,
-          ext: fileExtension,
-          file: droppedFile.name,
-        }));
-      } catch (error) {
-        console.error("Error al procesar el archivo:", error);
-      }
-    },
-    [exten]
-  );
-
-  const handleDragLeave = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  // Validación del formulario (usa set_Errors interno)
   const validar = useCallback(() => {
-    let err = {}; // Usa un objeto local para acumular errores
+    const err: Errors = {};
+    if (!formState.type) {
+      err.type = 'Este campo es requerido';
+    }
 
-    // Si es expensas sin deudas, bloqueamos completamente el guardado
+
     if (isExpensasWithoutDebt) {
-      err.general =
-        "No se puede registrar un pago de expensas cuando no hay deudas pendientes";
-      set_Errors(err); // Actualiza el estado INTERNO de errores
-      return false; // Indica que la validación falló
+      err.general = 'No se puede registrar un pago de expensas cuando no hay deudas pendientes';
+    }
+    if (isReservationsWithoutDebt) {
+      err.general = 'No se puede registrar un pago de reservas cuando no hay deudas pendientes';
+    }
+    if (isDebtBasedPayment && deudas?.length > 0 && selectedPeriodo.length === 0) {
+      err.selectedPeriodo = 'Debe seleccionar al menos una deuda para pagar';
     }
 
-    // Si es expensas con deudas pero ninguna seleccionada, también bloqueamos
-    if (
-      _formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-      deudas?.length > 0 &&
-      selectedPeriodo.length === 0
-    ) {
-      err.general = "Debe seleccionar al menos una deuda para pagar";
-      set_Errors(err); // Actualiza el estado INTERNO de errores
-      return false; // Indica que la validación falló
+    if (!formState.dpto_id) {
+      err.dpto_id = 'Este campo es requerido';
     }
 
-    // Validaciones básicas siempre presentes
-    if (!_formState.dpto_id) {
-      err.dpto_id = "Este campo es requerido";
-    }
-    if (!_formState.category_id) {
-      err.category_id = "Este campo es requerido";
-    }
-    if (!_formState.subcategory_id) {
-      err.subcategory_id = "Este campo es requerido";
-    }
-    if (!_formState.type) {
-      err.type = "Este campo es requerido";
-    }
-    if (!_formState.voucher) {
-      err.voucher = "Este campo es requerido";
-    } else if (!/^\d{1,10}$/.test(_formState.voucher)) {
-      // Expresión regular para validar número de 1 a 10 dígitos
-      err.voucher = "Debe contener solo números (máximo 10 dígitos)";
-    }
-
-    // Validación de Monto (solo si NO es expensas con deudas)
-    if (
-      _formState.subcategory_id !== extraData?.client_config?.cat_expensas ||
-      deudas?.length === 0
-    ) {
-      if (!_formState.amount) {
-        err.amount = "Este campo es requerido";
+    if (showCategoryFields) {
+      if (!formState.category_id) {
+        err.category_id = 'Este campo es requerido';
       }
-      // Puedes añadir más validaciones para amount si es necesario (ej: > 0)
+      if (!formState.subcategory_id) {
+        err.subcategory_id = 'Este campo es requerido';
+      }
     }
 
-    // Validación de archivo
-    if (!_formState.file) {
-      err.file = "El comprobante es requerido";
+    if (!formState.method) {
+      err.method = 'Este campo es requerido';
+    }
+    if (!formState.voucher) {
+      err.voucher = 'Este campo es requerido';
+    } else if (!/^\d{1,10}$/.test(formState.voucher)) {
+      err.voucher = 'Debe contener solo números (máximo 10 dígitos)';
     }
 
-    // Validación de fecha de pago
-    if (!_formState.paid_at) {
-      err.paid_at = "Este campo es requerido";
+    if (!isDebtBasedPayment || deudas?.length === 0) {
+      if (!formState.amount) {
+        err.amount = 'Este campo es requerido';
+      }
+    }
+
+    if (!formState.file) {
+      err.file = 'El comprobante es requerido';
+    }
+
+    if (!formState.paid_at) {
+      err.paid_at = 'Este campo es requerido';
     } else {
-      // Validar que la fecha no sea futura
-      const selectedDate = new Date(_formState.paid_at + "T00:00:00"); // Asegura comparar solo fecha
+      const selectedDate = new Date(formState.paid_at + 'T00:00:00');
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Resetear la hora para comparar solo fechas
+      today.setHours(0, 0, 0, 0);
 
       if (selectedDate > today) {
-        err.paid_at = "No se permiten fechas futuras";
+        err.paid_at = 'No se permiten fechas futuras';
       }
     }
 
-    set_Errors(err); // Actualiza el estado INTERNO de errores con todos los encontrados
-    return Object.keys(err).length === 0; // Devuelve true si NO hay errores
+
+    setErrors(err);
+
+    return Object.keys(err).length === 0;
   }, [
-    _formState, // Depende del estado del formulario
-    deudas, // Depende de las deudas cargadas
-    isExpensasWithoutDebt, // Depende de la variable calculada
-    selectedPeriodo, // Depende de los periodos seleccionados
-    extraData?.client_config?.cat_expensas, // Depende de la config
-    set_Errors, // Depende del setter de errores INTERNO
+    formState,
+    deudas,
+    isExpensasWithoutDebt,
+    isReservationsWithoutDebt,
+    isDebtBasedPayment,
+    selectedPeriodo,
+    showCategoryFields,
+    setErrors,
   ]);
 
-  // Función para guardar el pago (usa set_Errors interno)
   const _onSavePago = useCallback(async () => {
-    if (!validar()) {
-      // Los mensajes específicos de error ya se muestran en la validación
-      // showToast(...) ya no es necesario aquí para esos casos específicos.
-      // Solo nos aseguramos de no continuar si la validación falla.
-      if (
-        isExpensasWithoutDebt ||
-        (_formState.subcategory_id === extraData?.client_config?.cat_expensas &&
-          deudas?.length > 0 &&
-          selectedPeriodo.length === 0)
-      ) {
-        showToast(_errors.general || "Por favor revise los errores", "error"); // Muestra el error general si existe
+    const isValid = validar();
+    if (!isValid) {
+      if (errors.general) {
+        showToast(errors.general, 'error');
       } else {
-        showToast("Por favor revise los campos marcados", "warning");
+        showToast('Por favor revise los campos marcados', 'warning');
       }
       return;
     }
 
-    // 2. Obtener owner_id (sin cambios)
-    const selectedDpto = extraData?.dptos.find(
-      (dpto) => dpto.nro === _formState.dpto_id
-    );
-    const owner_id = selectedDpto?.titular?.owner?.id;
+    let owner_id = formState.owner_id;
 
-    // 3. Construir payload (sin cambios, pero verifica la lógica)
+    if (!owner_id) {
+      const selectedDpto = extraData?.dptos.find(
+        (dpto: Dpto) => String(dpto.nro) === String(formState.dpto_id)
+      );
+      const titular = getTitular(selectedDpto);
+      owner_id = titular?.id;
+    }
+
     let params: any = {
-      // Usa 'any' o una interfaz más específica
-      paid_at: _formState.paid_at,
-      type: _formState.type,
-      file: _formState.file,
-      voucher: _formState.voucher,
-      obs: _formState.obs,
-      category_id: _formState.subcategory_id, // Envía la subcategoría
-      nro_id: _formState.dpto_id, // Parece que nro_id es el nro del dpto
+      paid_at: formState.paid_at,
+      method: formState.method,
+      file: formState.file,
+      voucher: formState.voucher,
+      obs: formState.obs,
+      nro_id: formState.dpto_id,
       owner_id: owner_id,
+      type: formState.type,
     };
 
-    // Ajusta el payload si es un pago de expensa con deudas seleccionadas
-    if (
-      extraData?.client_config?.cat_expensas === _formState.subcategory_id &&
-      selectedPeriodo.length > 0
-    ) {
+    if (showCategoryFields) {
+      params.subcategory_id = formState.subcategory_id;
+    }
+
+    if (isDebtBasedPayment && selectedPeriodo.length > 0) {
       params = {
         ...params,
-        asignados: selectedPeriodo, // Array de {id, amount} de las deudas seleccionadas
-        amount: selecPeriodoTotal, // El total calculado
+        asignados: selectedPeriodo,
+        amount: periodoTotal,
       };
     } else {
-      // Si no es expensas, usa el monto ingresado manualmente
       params = {
         ...params,
-        amount: parseFloat(_formState.amount || "0"),
+        amount: parseFloat(String(formState.amount || '0')),
       };
     }
 
-    // 4. Ejecutar la llamada a la API (sin cambios)
     try {
-      console.log("Enviando datos:", params);
-      // Asume que 'execute' viene de las props y es para guardar/crear
-      const { data, error } = await execute("/payments", "POST", params);
-      console.log("data", JSON.stringify(data));
-      console.log("aqui arriba esta lo que devuelve la api");
-      // 5. Manejar la respuesta
+      const { data, error } = await execute('/payments', 'POST', params);
+
       if (data?.success) {
-        showToast("Pago agregado con éxito", "success");
-        console.log("si entra");
-        reLoad(); // Recarga la lista en el componente padre (Payments)
-        onClose(); // Cierra el modal
+        showToast('Pago agregado con éxito', 'success');
+        reLoad();
+        onClose();
       } else {
-        // Si la API devuelve success:false o hay un error estructurado
-        console.error("Error al guardar el pago:", error || data?.message);
-        showToast(
-          error?.message || data?.message || "Error al guardar el pago",
-          "error"
-        );
-        // Intenta establecer los errores de validación del backend si existen
+        showToast(error?.message || data?.message || 'Error al guardar el pago', 'error');
+
         if (error?.data?.errors) {
-          set_Errors(error.data.errors); // Actualiza el estado INTERNO de errores
+          setErrors(error.data.errors);
         } else if (data?.errors) {
-          set_Errors(data.errors); // Si vienen en data.errors
+          setErrors(data.errors);
         }
       }
-    } catch (err) {
-      // Captura errores de red u otros errores inesperados
-
-      showToast("Error inesperado al guardar el pago", "error");
+    } catch (error) {
+      console.error(error);
     }
   }, [
-    // Dependencias: todas las variables/estados/props que usa la función
-    _formState,
-    extraData?.client_config?.cat_expensas,
-    extraData?.dptos, // Añadido porque se usa para buscar owner_id
+    formState,
+    extraData?.dptos,
     selectedPeriodo,
-    selecPeriodoTotal,
-    validar, // Depende de la función validar (que ya está con useCallback)
+    periodoTotal,
+    validar,
     execute,
     reLoad,
     onClose,
-    set_Errors, // Depende del setter de errores INTERNO
+    setErrors,
     showToast,
-    isExpensasWithoutDebt, // Variable calculada, pero depende de estado
-    deudas, // Añadido porque se usa en la validación y lógica condicional
+    isExpensasWithoutDebt,
+    isReservationsWithoutDebt,
+    isDebtBasedPayment,
+    deudas,
+    showCategoryFields,
   ]);
 
-  // Handler para cerrar el modal
   const onCloseModal = useCallback(() => {
     onClose();
   }, [onClose]);
 
+  const deudasContent = useMemo(() => {
+    if (!formState.dpto_id) {
+      return <EmptyData message="Seleccione una unidad para ver deudas" h={200} />;
+    } else if (isLoadingDeudas) {
+      return <EmptyData message="Cargando deudas..." h={200} />;
+    } else if (deudas.length === 0) {
+      return (
+        <div className={styles['no-deudas-container']}>
+          <EmptyData message="Esta unidad no tiene deudas pendientes" h={200} />
+          <p className={styles['no-deudas-message']}>
+            No se encontraron deudas pendientes para esta unidad. No se puede registrar un pago de{' '}
+            {formState.type === 'E'
+              ? 'expensas'
+              : formState.type === 'R'
+              ? 'reservas'
+              : 'este tipo'}
+            .
+          </p>
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles['deudas-container']}>
+          <div className={styles['deudas-title-row']}>
+            <p className={styles['deudas-title']}>Seleccione las deudas a pagar:</p>
+            <button
+              type="button"
+              className={styles['select-all-container']}
+              onClick={handleSelectAllPeriodos}
+            >
+              <span className={styles['select-all-text']}>Pagar todo</span>
+              {selectedPeriodo.length === deudas.length ? (
+                <IconCheckSquare className={`${styles['check-icon']} ${styles.selected}`} />
+              ) : (
+                <IconCheckOff className={styles['check-icon']} />
+              )}
+            </button>
+          </div>
+
+          <div className={styles['deudas-table']}>
+            <div className={styles['deudas-header']}>
+              <span className={styles['header-item']}>Tipo</span>
+              <span className={styles['header-item']}>Concepto</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Monto</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Multa</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Mant. Valor</span>
+              <span className={`${styles['header-item']} ${styles['header-amount']}`}>Subtotal</span>
+              <span className={styles['header-item']}>Seleccionar</span>
+            </div>
+
+            {deudas.map(periodo => (
+              <button
+                type="button"
+                key={String(periodo.id)}
+                onClick={() => handleSelectPeriodo(periodo)}
+                className={styles['deuda-item']}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  width: '100%',
+                  textAlign: 'inherit',
+                }}
+              >
+                <div className={styles['deuda-row']}>
+                  <div className={styles['deuda-cell']}>
+                    {getDebtType(periodo.type || 0)}
+                  </div>
+                  <div className={styles['deuda-cell']}>
+                    {getConceptByType(periodo)}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.penalty_amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(Number(periodo.maintenance_amount ?? 0))}
+                  </div>
+                  <div className={`${styles['deuda-cell']} ${styles['amount-cell']}`}>
+                    {'Bs ' + formatNumber(getSubtotal(periodo))}
+                  </div>
+
+                  <div className={`${styles['deuda-cell']} ${styles['deuda-check']}`}>
+                    {selectedPeriodo.some(item => item.id === periodo.id) ? (
+                      <IconCheckSquare className={`${styles['check-icon']} ${styles.selected}`} />
+                    ) : (
+                      <IconCheckOff className={styles['check-icon']} />
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className={styles['total-container']}>
+            <p>Total a pagar: {formatBs(periodoTotal)}</p>
+          </div>
+        </div>
+      );
+    }
+  }, [
+    formState.dpto_id,
+    formState.type,
+    isLoadingDeudas,
+    deudas,
+    selectedPeriodo.length,
+    periodoTotal,
+    handleSelectPeriodo,
+  ]);
+
   return (
     <>
-      <Toast toast={toast} showToast={showToast} />
+      <Toast toast={toast as any} showToast={showToast} />
       <DataModal
         open={open}
         onClose={onCloseModal}
         onSave={_onSavePago}
-        buttonCancel={"Cancelar"}
-        buttonText={"Registrar ingreso"}
-        disabled={
-          isExpensasWithoutDebt ||
-          (_formState.subcategory_id ===
-            extraData?.client_config?.cat_expensas &&
-            deudas?.length > 0 &&
-            selectedPeriodo.length === 0)
-        }
-        title={"Nuevo ingreso"}
+        buttonCancel={'Cancelar'}
+        buttonText={'Crear ingreso'}
+        title={'Crear ingreso'}
+        minWidth={680}
+        maxWidth={860}        
       >
-        <div className={styles["income-form-container"]}>
+        <div className={styles['income-form-container']}>
           {/* Fecha de pago */}
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
+            <div className={styles['input-container']}>
               <Input
                 type="date"
                 name="paid_at"
-                label="Fecha de pago"
+                label="Seleccionar fecha"
                 required={true}
-                value={_formState.paid_at || ""}
+                value={formState.paid_at || ''}
                 onChange={handleChangeInput}
-                error={_errors}
-                max={new Date().toISOString().split("T")[0]} // Impide seleccionar fechas futuras
+                error={errors}
+                max={new Date().toISOString().split('T')[0]}
+                min={new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
               />
             </div>
           </div>
 
           <div className={styles.section}>
-            <div className={styles["input-container"]}>
+            <div className={styles['input-container']}>
               <Select
                 name="dpto_id"
-                label="Unidad"
+                label="Seleccionar Unidad"
                 required={true}
-                value={_formState.dpto_id}
+                value={formState.dpto_id}
                 onChange={handleChangeInput}
                 options={lDptos}
-                error={_errors}
+                error={errors}
                 filter={true}
               />
             </div>
           </div>
 
+          {/* Nuevo select de tipo de pago */}
           <div className={styles.section}>
-            {/* Categoría y Subcategoría en una misma fila */}
-            <div className={styles["input-row"]}>
-              <div className={styles["input-half"]}>
-                <Select
-                  name="category_id"
-                  label="Categoría"
-                  value={_formState.category_id}
-                  onChange={handleChangeInput}
-                  options={extraData?.categories || []}
-                  error={_errors}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
-                />
-              </div>
-              <div className={styles["input-half"]}>
-                <Select
-                  name="subcategory_id"
-                  label="Subcategoría"
-                  value={_formState.subcategory_id}
-                  onChange={handleChangeInput}
-                  options={_formState.subcategories || []}
-                  error={_errors}
-                  required
-                  optionLabel="name"
-                  optionValue="id"
-                  disabled={_formState.isSubcategoryLocked}
-                />
+            <div className={styles['input-container']}>
+              <Select
+                name="type"
+                label="Tipo"
+                required={true}
+                value={formState.type}
+                onChange={handleChangeInput}
+                options={typeOptions}
+                error={errors}
+                optionLabel="name"
+                optionValue="id"
+              />
+            </div>
+          </div>
+
+          {/* Mostrar categoría y subcategoría solo para pago directo */}
+          {showCategoryFields && (
+            <div className={styles.section}>
+              <div className={styles['input-row']}>
+                <div className={styles['input-half']}>
+                  <Select
+                    name="category_id"
+                    label="Categoría"
+                    value={formState.category_id}
+                    onChange={handleChangeInput}
+                    options={extraData?.categories || []}
+                    error={errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={formState.isCategoryLocked}
+                  />
+                </div>
+                <div className={styles['input-half']}>
+                  <Select
+                    name="subcategory_id"
+                    label="Subcategoría"
+                    value={formState.subcategory_id}
+                    onChange={handleChangeInput}
+                    options={formState.subcategories || []}
+                    error={errors}
+                    required
+                    optionLabel="name"
+                    optionValue="id"
+                    disabled={formState.isSubcategoryLocked}
+                  />
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Mostramos las siguientes secciones SOLO si NO es expensas sin deudas */}
-
-            <>
-              {/* Sección de monto y medio de pago */}
-              <div className={styles["payment-section"]}>
-                <div className={styles["input-row"]}>
-                  <div className={styles["input-half"]}>
+          <div className={styles.section}>
+            <div>
+              <div className={styles['payment-section']}>
+                <div className={styles['input-row']}>
+                  <div className={styles['input-half']}>
                     <Input
                       type="currency"
                       name="amount"
                       label="Monto del ingreso"
-                      onChange={(e) => {
+                      onChange={e => {
                         handleChangeInput(e);
                       }}
                       value={
-                        _formState.subcategory_id ===
-                          extraData?.client_config?.cat_expensas &&
-                        deudas?.length > 0
-                          ? selecPeriodoTotal
-                          : _formState.amount
+                        isDebtBasedPayment && deudas?.length > 0 ? periodoTotal.toFixed(2) : formState.amount
                       }
                       required={true}
-                      error={_errors}
-                      disabled={
-                        _formState.subcategory_id ===
-                          extraData?.client_config?.cat_expensas &&
-                        deudas?.length > 0
-                      }
-                      maxLength={20} // Asegurar límite de 10 caracteres
+                      error={errors}
+                      disabled={isDebtBasedPayment || formState.isAmountLocked}
+                      maxLength={20}
                     />
                   </div>
-                  <div className={styles["input-half"]}>
+                  <div className={styles['input-half']}>
                     <Select
-                      name="type"
+                      name="method"
                       label="Forma de pago"
-                      value={_formState.type}
+                      value={formState.method}
                       onChange={handleChangeInput}
                       options={[
-                        { id: "Q", name: "Pago QR" },
-                        { id: "T", name: "Transferencia bancaria" },
-                        { id: "E", name: "Efectivo" },
-                        { id: "C", name: "Cheque" },
-                        { id: "O", name: "Pago en oficina" },
+                        { id: 'Q', name: 'Pago QR' },
+                        { id: 'T', name: 'Transferencia bancaria' },
+                        { id: 'E', name: 'Efectivo' },
+                        { id: 'C', name: 'Cheque' },
+                        { id: 'O', name: 'Pago en oficina' },
                       ]}
-                      error={_errors}
+                      error={errors}
                       required
                       optionLabel="name"
                       optionValue="id"
@@ -693,239 +1114,83 @@ const RenderForm = ({
                 </div>
               </div>
 
+              {/* Mostrar deudas solo para tipos basados en deudas */}
+              {isDebtBasedPayment && (
+                <div>
+                  {deudasContent}
+                  {errors.selectedPeriodo && (
+                    <div className={styles['error-message']} style={{ color: 'red', marginTop: 8 }}>
+                      {errors.selectedPeriodo}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Sección de subir comprobante */}
-              <div className={styles["upload-section"]}>
-                <p className={styles["section-title"]}>Subir comprobante</p>
+              <div className={styles['upload-section']}>
                 <UploadFile
                   name="file"
                   ext={exten}
-                  value={_formState.file ? { file: _formState.file } : ""}
+                  value={formState.file ? { file: formState.file } : ''}
                   onChange={handleChangeInput}
                   img={true}
-                  sizePreview={{ width: "40%", height: "auto" }}
-                  error={_errors}
-                  setError={set_Errors}
+                  sizePreview={{ width: '40%', height: 'auto' }}
+                  error={errors}
+                  setError={setErrors}
                   required={true}
                   placeholder="Cargar un archivo o arrastrar y soltar"
                 />
               </div>
 
-              {/* Sección de código de comprobante */}
-              <div className={styles["voucher-section"]}>
-                <div className={styles["voucher-input"]}>
+              <div className={styles['voucher-section']}>
+                <div className={styles['voucher-input']}>
                   <Input
                     type="text"
                     label="Ingresar el número del comprobante"
                     name="voucher"
-                    onChange={(e) => {
-                      // Solo permitir números y limitar a 10 dígitos
-                      const value = e.target.value
-                        .replace(/[^0-9]/g, "")
-                        .substring(0, 10);
+                    onChange={e => {
+                      const value = e.target.value.replace(/\D/g, '').substring(0, 10);
                       const newEvent = {
                         ...e,
-                        target: { ...e.target, name: "voucher", value },
+                        target: { ...e.target, name: 'voucher', value },
                       };
                       handleChangeInput(newEvent);
-
-                      // Mostrar un mensaje de error inmediato si se ingresan caracteres no permitidos
                       if (e.target.value !== value) {
                         showToast(
-                          "El número de comprobante solo puede contener números (máximo 10 dígitos)",
-                          "warning"
+                          'El número de comprobante solo puede contener números (máximo 10 dígitos)',
+                          'warning'
                         );
                       }
                     }}
-                    value={_formState.voucher || ""}
-                    error={_errors}
+                    value={formState.voucher || ''}
+                    error={errors}
                     maxLength={10}
                     required
                   />
                 </div>
               </div>
-              {/* Sección para mostrar deudas cuando es categoría de expensas */}
-              {_formState.subcategory_id ===
-                extraData?.client_config?.cat_expensas && (
-                <>
-                  {!_formState.dpto_id ? (
-                    <EmptyData
-                      message="Seleccione una unidad para ver deudas"
-                      h={200}
-                    />
-                  ) : isLoadingDeudas ? (
-                    <EmptyData message="Cargando deudas..." h={200} />
-                  ) : deudas?.length === 0 ? (
-                    // Aquí es donde queremos modificar el mensaje
-                    <div className={styles["no-deudas-container"]}>
-                      <EmptyData
-                        message="Esta unidad no tiene deudas pendientes"
-                        h={200}
-                      />
-                      <p className={styles["no-deudas-message"]}>
-                        No se encontraron deudas pendientes para esta unidad. No
-                        se puede registrar un pago de expensas.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className={styles["deudas-container"]}>
-                      <div className={styles["deudas-title-row"]}>
-                        <p className={styles["deudas-title"]}>
-                          Seleccione las expensas a pagar:
-                        </p>
-                        <div
-                          className={styles["select-all-container"]}
-                          onClick={() => {
-                            // Si todas están seleccionadas, deseleccionar todas
-                            if (selectedPeriodo.length === deudas.length) {
-                              setSelectedPeriodo([]);
-                              setSelectPeriodoTotal(0);
-                            }
-                            // Si no todas están seleccionadas, seleccionar todas
-                            else {
-                              const allPeriodos = deudas.map((periodo) => ({
-                                id: periodo.id,
-                                amount:
-                                  Number(periodo.amount) +
-                                  Number(periodo.penalty_amount),
-                              }));
 
-                              const totalAmount = allPeriodos.reduce(
-                                (sum, item) => sum + item.amount,
-                                0
-                              );
-
-                              setSelectedPeriodo(allPeriodos);
-                              setSelectPeriodoTotal(totalAmount);
-                            }
-                          }}
-                        >
-                          <span className={styles["select-all-text"]}>
-                            Pagar todo
-                          </span>
-                          {selectedPeriodo.length === deudas.length ? (
-                            <IconCheckSquare
-                              className={`${styles["check-icon"]} ${styles.selected}`}
-                            />
-                          ) : (
-                            <IconCheckOff className={styles["check-icon"]} />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={styles["deudas-table"]}>
-                        <div className={styles["deudas-header"]}>
-                          <span className={styles["header-item"]}>Periodo</span>
-                          <span className={styles["header-item"]}>Monto</span>
-                          <span className={styles["header-item"]}>Multa</span>
-                          <span className={styles["header-item"]}>
-                            SubTotal
-                          </span>
-                          <span className={styles["header-item"]}>
-                            Seleccionar
-                          </span>
-                        </div>
-
-                        {deudas.map((periodo) => (
-                          <div
-                            key={String(periodo.id)}
-                            onClick={() => handleSelectPeriodo(periodo)}
-                            className={styles["deuda-item"]}
-                          >
-                            {/* Asegúrate de que este div tenga 5 hijos directos */}
-                            <div className={styles["deuda-row"]}>
-                              {/* 1. Celda Periodo */}
-                              <div className={styles["deuda-cell"]}>
-                                {periodo.debt &&
-                                typeof periodo.debt === "object" &&
-                                periodo.debt.month &&
-                                periodo.debt.year
-                                  ? `${MONTHS_S[periodo.debt.month] ?? "?"}/${
-                                      periodo.debt.year ?? "?"
-                                    }`
-                                  : "N/A"}
-                              </div>
-
-                              {/* 2. Celda Monto (¡ESTA FALTABA!) */}
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " + Number(periodo.amount ?? 0).toFixed(2)}{" "}
-                                {/* Muestra el monto base */}
-                              </div>
-
-                              {/* 3. Celda Multa */}
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " +
-                                  Number(periodo.penalty_amount ?? 0).toFixed(
-                                    2
-                                  )}{" "}
-                                {/* Muestra la multa */}
-                              </div>
-
-                              {/* 4. Celda SubTotal */}
-                              <div className={styles["deuda-cell"]}>
-                                {"Bs " +
-                                  (
-                                    Number(periodo.amount ?? 0) +
-                                    Number(periodo.penalty_amount ?? 0)
-                                  ).toFixed(2)}{" "}
-                                {/* Calcula y muestra subtotal */}
-                              </div>
-
-                              {/* 5. Celda Seleccionar (Checkbox) */}
-                              {/* Puedes aplicar ambas clases si ayuda o solo deuda-check si ya centra */}
-                              <div
-                                className={`${styles["deuda-cell"]} ${styles["deuda-check"]}`}
-                              >
-                                {selectedPeriodo.some(
-                                  (item) => item.id === periodo.id
-                                ) ? (
-                                  <IconCheckSquare
-                                    className={`${styles["check-icon"]} ${styles.selected}`}
-                                  />
-                                ) : (
-                                  <IconCheckOff
-                                    className={styles["check-icon"]}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className={styles["total-container"]}>
-                        <p>
-                          Total a pagar: {formatNumber(selecPeriodoTotal, 2)}{" "}
-                          Bs.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Sección de descripción */}
-              <div className={styles["obs-section"]}>
-                <p className={styles["section-title"]}>
-                  Indica una descripción para este ingreso
-                </p>
-                <div className={styles["obs-input"]}>
+              <div className={styles['obs-section']}>
+                <div className={styles['obs-input']}>
                   <TextArea
-                    label="Descripción"
+                    label="Observaciones"
                     name="obs"
-                    onChange={(e) => {
-                      // Limitar a 500 caracteres
-                      const value = e.target.value.substring(0, 500);
+                    onChange={e => {
+                      const value = e.target.value.substring(0, 250);
                       const newEvent = {
                         ...e,
-                        target: { ...e.target, name: "obs", value },
+                        target: { ...e.target, name: 'obs', value },
                       };
                       handleChangeInput(newEvent);
                     }}
-                    value={_formState.obs}
-                    maxLength={500}
+                    value={formState.obs}
+                    required={false}
+                    maxLength={250}
+                    error={errors}
                   />
                 </div>
               </div>
-            </>
+            </div>
           </div>
         </div>
       </DataModal>

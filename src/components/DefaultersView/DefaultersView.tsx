@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import styles from "./DefaultersView.module.css";
-import WidgetDefaulterResume from "../Widgets/WidgetDefaulterResume/WidgetDefaulterResume";
-import useAxios from "@/mk/hooks/useAxios";
+import styles from "./Defaulters.module.css";
 import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
 import { MONTHS_S } from "@/mk/utils/date";
 import { getFullName } from "@/mk/utils/string";
@@ -12,7 +10,7 @@ import { IconExport } from "../../components/layout/icons/IconsBiblioteca";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 
-const DefaultersView = () => {
+const Defaulters = () => {
   const { setStore } = useAuth();
 
   // Definir opciones para los filtros
@@ -35,7 +33,7 @@ const DefaultersView = () => {
     modulo: "defaulters",
     singular: "Moroso",
     plural: "Morosos",
-    permiso: "",
+    permiso: "defaulters",
     extraData: true,
     hideActions: {
       view: true,
@@ -138,8 +136,13 @@ const DefaultersView = () => {
 
   // Botones adicionales para la tabla
   const extraButtons = [
-    <div key="export-button" onClick={exportar} className={styles.exportButton}>
-      <IconExport size={32} />
+    <div
+      key="export-button"
+      onClick={exportar}
+      className={styles.exportButton}
+      role="button"
+    >
+      <IconExport size={30} />
     </div>,
   ];
 
@@ -241,7 +244,6 @@ const DefaultersView = () => {
               width: 350,
             }}
           />
-        
         </div>
 
         <div className={styles.listContainer}>
@@ -252,4 +254,4 @@ const DefaultersView = () => {
   );
 };
 
-export default DefaultersView;
+export default Defaulters;

@@ -1,14 +1,16 @@
-"use client";
-import React from "react";
-import { MONTHS_S } from "@/mk/utils/date";
-import GraphBase from "@/mk/components/ui/Graphs/GraphBase";
-import { ChartType } from "@/mk/components/ui/Graphs/GraphsTypes";
-import styles from "./WidgetGrafEgresos.module.css";
+'use client';
+import React from 'react';
+import { MONTHS_S_GRAPH } from '@/mk/utils/date';
+import GraphBase from '@/mk/components/ui/Graphs/GraphBase';
+import { ChartType } from '@/mk/components/ui/Graphs/GraphsTypes';
+import styles from './WidgetGrafEgresos.module.css';
 
 interface Transaction {
   mes: number;
-  categoria: string;
-  egresos: string;
+  name: string;
+  amount: string;
+  categ_id: string;
+  category_id: string;
 }
 
 interface FormattedValue {
@@ -16,63 +18,110 @@ interface FormattedValue {
   values: number[];
 }
 
+interface PieChartValue {
+  name: string;
+  values: number[];
+}
+
 type PropsType = {
-  egresos: Transaction[];
+  egresos: Transaction[] | undefined;
   chartTypes?: ChartType[];
   h?: number | string;
   title?: string;
   subtitle?: string;
   className?: string;
+  periodo?: string;
+  exportando?: boolean;
 };
 
 const WidgetGrafEgresos: React.FC<PropsType> = ({
   egresos,
-  chartTypes = ["bar", "pie"],
-  h = "auto",
+  chartTypes = ['bar', 'pie'],
+  h = 'auto',
   title,
   subtitle,
   className,
+  periodo,
+  exportando,
 }) => {
-  const getMonths = (data: Transaction[] | undefined) => {
-    const uniqueMonths = data?.reduce(
-      (acc: string[], curr) =>
-        acc.includes(MONTHS_S[curr.mes - 1])
-          ? acc
-          : [...acc, MONTHS_S[curr.mes - 1]],
-      []
+  const getMonths = (
+    data: Transaction[] | undefined,
+    currentPeriodo?: string
+  ) => {
+    if (!data || data.length === 0) return [];
+
+    // Si el filtro es año anterior, mostrar SIEMPRE los 12 meses
+    if (currentPeriodo === 'ly') {
+      return MONTHS_S_GRAPH.slice();
+    }
+    // Si el filtro es anual actual, mostrar desde el primer mes con datos hasta el último
+    if (currentPeriodo === 'y') {
+      const mesesConDatos = data.map(t => t.mes - 1);
+      if (mesesConDatos.length === 0) return [];
+      const minMes = Math.min(...mesesConDatos);
+      const maxMes = Math.max(...mesesConDatos);
+      return MONTHS_S_GRAPH.slice(minMes, maxMes + 1);
+    }
+    // Para otros filtros, deduce los meses a partir de los datos
+    const monthIndexes = Array.from(new Set(data.map(t => t.mes - 1))).sort(
+      (a, b) => a - b
     );
-    return uniqueMonths || [];
+    return monthIndexes.map(index => MONTHS_S_GRAPH[index]);
   };
 
   const getValuesEgresos = (
-    egresosHist: Transaction[] | undefined
-  ): FormattedValue[] => {
+    egresosHist: Transaction[] | undefined,
+    chartType: ChartType,
+    months: string[]
+  ): FormattedValue[] | PieChartValue[] => {
     if (!egresosHist || egresosHist.length === 0) return [];
 
-    let values: FormattedValue[] = [];
+    if (chartType === 'pie' || chartType === 'donut') {
+      const pieData: PieChartValue[] = [];
+      const categoryTotals: { [key: string]: number } = {};
+
+      egresosHist.forEach(transaction => {
+        if (!categoryTotals[transaction.name]) {
+          categoryTotals[transaction.name] = 0;
+        }
+        categoryTotals[transaction.name] += parseFloat(
+          transaction.amount || '0'
+        );
+      });
+
+      for (const name in categoryTotals) {
+        pieData.push({
+          name: name,
+          values: [categoryTotals[name]],
+        });
+      }
+
+      return pieData;
+    }
+
+    const values: FormattedValue[] = [];
     const groupedTransactions: { [key: string]: Transaction[] } = {};
 
-    egresosHist.forEach((transaction) => {
-      if (!groupedTransactions[transaction.categoria]) {
-        groupedTransactions[transaction.categoria] = [];
+    egresosHist.forEach(transaction => {
+      if (!groupedTransactions[transaction.name]) {
+        groupedTransactions[transaction.name] = [];
       }
-      groupedTransactions[transaction.categoria].push(transaction);
+      groupedTransactions[transaction.name].push(transaction);
     });
-
-    const uniqueMonths = Array.from(
-      new Set(egresosHist.map((transaction) => transaction.mes))
-    );
 
     for (const categoria in groupedTransactions) {
       const transactions = groupedTransactions[categoria];
       const formattedValues: number[] = [];
 
-      uniqueMonths.forEach((month) => {
+      months.forEach(monthName => {
+        const monthNumber = MONTHS_S_GRAPH.indexOf(monthName) + 1;
         const matchingTransaction = transactions.find(
-          (transaction) => transaction.mes === month
+          transaction => transaction.mes === monthNumber
         );
         formattedValues.push(
-          matchingTransaction ? parseFloat(matchingTransaction.egresos) : 0
+          matchingTransaction
+            ? parseFloat(matchingTransaction.amount || '0')
+            : 0
         );
       });
 
@@ -82,27 +131,35 @@ const WidgetGrafEgresos: React.FC<PropsType> = ({
     return values;
   };
 
+  const primaryChartType = chartTypes[0] || 'bar';
+  const monthLabels = getMonths(egresos, periodo);
+
   return (
-    <div className={`${styles.container} ${className || ""}`}>
-      <p className={styles.title}>{title || "Resumen de egresos"}</p>
-      <p className={styles.subtitle}>
+    <div className={`${styles.container} ${className || ''}`}>
+      <p
+        className={`${styles.subtitle} ${exportando ? styles.exportando : ''}`}
+      >
         {subtitle ||
-          "Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías"}
+          'Aquí veras un resumen de todos los gastos distribuidos en las diferentes categorías'}
       </p>
+      <p className={`${styles.title} ${exportando ? styles.exportando : ''}`}>
+        {title || 'Resumen de Egresos'}
+      </p>
+
       <GraphBase
         data={{
-          labels: getMonths(egresos),
-          values: getValuesEgresos(egresos),
+          labels: monthLabels,
+          values: getValuesEgresos(egresos, primaryChartType, monthLabels),
         }}
-        downloadPdf
+        //downloadPdf
         chartTypes={chartTypes}
         options={{
-          title: "",
-          subtitle: "",
-          label: "",
-          // stacked: true,
+          title: '',
+          subtitle: '',
+          label: '',
           height: h,
         }}
+        exportando={exportando}
       />
     </div>
   );

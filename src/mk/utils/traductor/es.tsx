@@ -21,7 +21,7 @@ const idioma: any = {
   view: "ver",
   save: "guardar",
   cancel: "cancelar",
-  search: "buscar",
+  search: "Buscar",
   all: "todos",
   active: "activo",
   inactive: "inactivo",

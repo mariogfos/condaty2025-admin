@@ -1,0 +1,134 @@
+.container {
+  width: 100%;
+}
+
+.title {
+  font-size: var(--sXxl);
+  font-weight: var(--bSemibold);
+  margin-bottom: var(--spL);
+  color: var(--cWhite);
+}
+
+.subtitle {
+  color: var(--cWhiteV1);
+  font-size: var(--sM);
+  margin-bottom: 20px;
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spL);
+  flex-wrap: wrap;
+}
+
+.exportButton {
+  background-color: var(--cBlackV2);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  padding: var(--spS);
+  border-radius: var(--bRadiusS);
+  cursor: pointer;
+}
+
+.rightPanel {
+  width: 40%;
+  display: flex;
+  /* height: fit-content; */
+  height: calc(100vh - 333px);
+  overflow-y: auto;
+  flex-direction: column;
+  padding-left: var(--spL);
+  padding-right: var(--spL);
+  background-color: var(--cBlackV1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: var(--bRadius);
+  border: 0.5px solid var(--cWhiteV1);
+  & > div:nth-child(1) {
+    margin-bottom: var(--spL);
+    display: flex;
+    font-size: var(--spL);
+    margin-top: var(--spL);
+    width: 100%;
+    color: var(--cWhite);
+  }
+  & > div:nth-child(2) {
+    width: 100%;
+    display: flex;
+  }
+  & > div > section:nth-child(1) {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    flex: 1;
+  }
+}
+.widgetResumeCard {
+  margin-bottom: var(--spL);
+}
+.graphPanel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 380px;
+}
+
+.widgetsPanel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Media queries para hacer el panel de widgets responsivo */
+@media screen and (max-width: 992px) {
+  .widgetsPanel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .widgetsPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .rightPanel {
+    flex-direction: column;
+  }
+
+  .graphPanel {
+    width: 100%;
+  }
+}
+/* Media queries para dispositivos móviles */
+@media (max-width: 1200px) {
+  .rightPanel {
+    width: 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .rightPanel {
+    width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rightPanel {
+    width: 100%;
+    padding-left: 0;
+    margin-top: var(--spL);
+  }
+}
+
+.widgetsPanel {
+  & > section:nth-child(1) {
+    /* background-color: aquamarine; */
+    @media screen and (max-width: 800px) {
+      flex-wrap: wrap;
+    }
+  }
+}

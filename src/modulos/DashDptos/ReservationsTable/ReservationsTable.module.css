@@ -1,0 +1,27 @@
+.areaInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.areaTitle {
+  color: var(--cWhite);
+  margin: 0;
+}
+
+.areaDescription {
+  color: var(--cWhiteV1);
+  margin: 0;
+  font-size: var(--sS);
+}
+
+.reservationDate {
+  color: var(--cWhiteV1);
+  margin: 0;
+}
+
+.reservationTime {
+  color: var(--cWhiteV1);
+  margin: 0;
+  font-size: var(--sS);
+}

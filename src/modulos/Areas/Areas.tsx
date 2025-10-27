@@ -1,38 +1,46 @@
 "use client";
 import useCrud from "@/mk/hooks/useCrud/useCrud";
 import NotAccess from "@/components/auth/NotAccess/NotAccess";
-import { useMemo, useState } from "react";
-import { useAuth } from "@/mk/contexts/AuthProvider";
+import { useEffect, useMemo, useState } from "react";
 import RenderForm from "./RenderForm/RenderForm";
 import RenderView from "./RenderView/RenderView";
 import Button from "@/mk/components/forms/Button/Button";
 import MaintenanceModal from "./MaintenanceModal/MaintenanceModal";
+import { Avatar } from "@/mk/components/ui/Avatar/Avatar";
+import { getUrlImages } from "@/mk/utils/string";
+import { useAuth } from "@/mk/contexts/AuthProvider";
+import { StatusBadge } from "@/components/StatusBadge/StatusBadge";
 
 const paramsInitial = {
   perPage: 20,
   page: 1,
   fullType: "L",
   searchBy: "",
+  extraData: true,
+};
+const statusColor: any = {
+  A: { color: "var(--cSuccess)", background: "var(--cHoverCompl2)" },
+  X: { color: "var(--cError)", background: "var(--cHoverError)" },
 };
 
 const Areas = () => {
   const [openMaintenance, setOpenMaintenance] = useState(false);
+  const { store, setStore } = useAuth();
   const mod = {
     modulo: "areas",
     singular: "área social",
     plural: "áreas sociales",
-    permiso: "",
+    permiso: "areas",
     extraData: false,
-    //   hideActions: { edit: true, del: true, add: true },
     renderView: (props: {
       open: boolean;
       onClose: any;
       item: Record<string, any>;
+      reLoad: any;
       setOpenList: any;
       openList: boolean;
       extraData: any;
     }) => <RenderView {...props} />,
-    // loadView: { fullType: "DET" },
     renderForm: (props: {
       item: any;
       setItem: any;
@@ -75,7 +83,30 @@ const Areas = () => {
         rules: ["required"],
         api: "ae",
         label: "Nombre",
-        list: true,
+        onRender: ({ item }: any) => (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Avatar
+              w={40}
+              h={40}
+              name={item.title}
+              src={getUrlImages(
+                "/AREA-" +
+                  item?.id +
+                  "-" +
+                  item?.images?.[0]?.id +
+                  ".webp" +
+                  "?" +
+                  item?.updated_at
+              )}
+            />
+            <p style={{ color: "var(--cWhite)", fontWeight: 500 }}>
+              {item.title}
+            </p>
+          </div>
+        ),
+        list: {
+          width: "400px",
+        },
         form: { type: "text" },
       },
       description: {
@@ -256,17 +287,30 @@ const Areas = () => {
       status: {
         rules: [""],
         api: "",
-        label: "Estado",
+        label: <span style={{ display: 'block', textAlign: 'center', width: '100%'}}>Estado</span>,
         list: {
-          width: "220px",
+          width: "120px",
         },
         onRender: (props: any) => {
           let status = "";
           if (props?.item?.status === "A") status = "Activa";
           if (props?.item?.status === "X") status = "Inactiva";
-          if (props?.item?.status === "M") status = "En mantenimiento";
 
-          return status;
+          return (
+            <StatusBadge
+              backgroundColor={statusColor[props?.item?.status]?.background}
+              color={statusColor[props?.item?.status]?.color}
+            >
+              {status}
+            </StatusBadge>
+          );
+        },
+        filter: {
+          options: () => [
+            { id: "ALL", name: "Todos" },
+            { id: "A", name: "Activa" },
+            { id: "X", name: "Inactiva" },
+          ],
         },
       },
     }),
@@ -282,24 +326,32 @@ const Areas = () => {
       Poner en mantenimiento
     </Button>,
   ];
-  const { userCan, List, reLoad, data } = useCrud({
+  const { userCan, List, reLoad, data, extraData } = useCrud({
     paramsInitial,
     mod,
     fields,
     extraButtons,
   });
-
+  useEffect(() => {
+    setStore({ ...store, title: "Áreas sociales" });
+  }, []);
   if (!userCan(mod.permiso, "R")) return <NotAccess />;
   return (
-    <div
-    //  className={styles.style}
-    >
-      <List />
+    <div>
+      <List
+        height={"calc(100vh - 350px)"}
+        //   emptyMsg="¡Sin áreas sociales! Una vez registres las diferentes áreas"
+        //   emptyLine2="del condominio las verás aquí."
+        //   emptyIcon={<IconDepartment2 size={80} color="var(--cWhiteV1)"
+        //    />
+        // }
+      />
+
       {openMaintenance && (
         <MaintenanceModal
           open={openMaintenance}
           onClose={() => setOpenMaintenance(false)}
-          areas={data?.data}
+          areas={extraData?.areas}
         />
       )}
     </div>

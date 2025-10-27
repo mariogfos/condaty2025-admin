@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import TableFinance from "./TableFinance/TableFinance";
-import t from "../../mk/utils/traductor";
-
 interface PropType {
   subcategoriasE: any;
   subcategoriasI: any;
@@ -18,43 +16,41 @@ const TableResumenGeneral = ({
   title2,
   saldoInicial,
 }: PropType) => {
-  const [formatedData, setFormatedData]: any = useState([]);
+  const [formattedData, setFormattedData]: any = useState([]);
   const [total, setTotal]: any = useState(0);
-
   useEffect(() => {
     let totalEgresos = 0;
     let totalIngresos = 0;
-
     subcategoriasE?.map((subcategoria: any) => {
       totalEgresos += Number(subcategoria.amount);
     });
     subcategoriasI?.map((subcategoria: any) => {
       totalIngresos += Number(subcategoria.amount);
     });
-    // totalIngresos =
-    //   Number(ingresos?.total_amount) + Number(ingresos?.total_penaltyAmount) ||
-    //   0;
-
-    setFormatedData([
+    setFormattedData([
       { name: "Saldo Inicial", amount: saldoInicial, sub: [] },
-      { name: "Ingresos", amount: totalIngresos, sub: [] },
-      { name: "Egresos", amount: totalEgresos, sub: [] },
-      { name: "Saldo", amount: totalIngresos - totalEgresos, sub: [] },
+      { name: "Total de Ingresos", amount: totalIngresos, sub: [] },
+      { name: "Total de Egresos", amount: totalEgresos, sub: [] },
+      {
+        name: "Total de diferencia entre ingresos y egresos",
+        amount: totalIngresos - totalEgresos,
+        sub: [],
+      },
     ]);
     setTotal(totalIngresos - totalEgresos + Number(saldoInicial));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subcategoriasE, subcategoriasI]);
-
   return (
     <TableFinance
-      data={formatedData}
+      data={formattedData}
       title={title}
       title2={title2}
-      total={total || 0}
+      total={total ?? 0}
       color={`${total < 0 ? "text-error " : "text-accent"}`}
       titleTotal={titleTotal}
       variant="summary"
+      tooltip="Monto total de ingresos y egresos detallado por categorias y subcategorias."
     />
   );
 };
-
 export default TableResumenGeneral;

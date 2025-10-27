@@ -1,18 +1,9 @@
 "use client";
-import { getUrlImages } from "@/mk/utils/string";
+
 import React, { useEffect, useState } from "react";
 import styles from "./Config.module.css";
 import useAxios from "@/mk/hooks/useAxios";
-// import { useRouter } from "next/router";
-import { formatNumber } from "@/mk/utils/numbers";
-import Input from "@/mk/components/forms/Input/Input";
-import TextArea from "@/mk/components/forms/TextArea/TextArea";
-import {
-  IconArrowDown,
-  IconCamera,
-} from "@/components/layout/icons/IconsBiblioteca";
-import Button from "@/mk/components/forms/Button/Button";
-import Select from "@/mk/components/forms/Select/Select";
+
 import { useAuth } from "@/mk/contexts/AuthProvider";
 import DefaulterConfig from "./DefaulterConfig/DefaulterConfig";
 import PaymentsConfig from "./PaymentsConfig/PaymentsConfig";
@@ -21,18 +12,21 @@ import TabsButtons from "@/mk/components/ui/TabsButton/TabsButtons";
 import { checkRules, hasErrors } from "@/mk/utils/validate/Rules";
 import LoadingScreen from "@/mk/components/ui/LoadingScreen/LoadingScreen";
 import UnitsType from "../UnitTypes/UnitsTypes";
+import NotAccess from "@/components/layout/NotAccess/NotAccess";
 
 const Config = () => {
   const [formState, setFormState]: any = useState({});
   const [errorImage, setErrorImage] = useState(false);
   const [preview, setPreview]: any = useState(null);
   const [previewQr, setPreviewQr]: any = useState(null);
-  const { user, showToast, getUser }: any = useAuth();
+  const { user, showToast, getUser, userCan }: any = useAuth();
   const [errors, setErrors]: any = useState({});
   const [typeSearch, setTypeSearch] = useState("C");
   const [imageError, setImageError] = useState(false);
   // const router = useRouter();
-
+  if (!userCan('settings', 'R')) {
+    return <NotAccess />;
+  }
   const {
     data: client_config,
     reLoad,
@@ -124,15 +118,24 @@ const Config = () => {
     if (typeSearch === "M") {
       errors = checkRules({
         value: formState.soft_limit,
-        rules: ["required"],
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
         key: "soft_limit",
         errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.hard_limit,
-        rules: ["required"],
+        rules: ["required", "greaterOrEqual:soft_limit,Pre-aviso"],
         key: "hard_limit",
         errors,
+        data: formState,
+      });
+      errors = checkRules({
+        value: formState.penalty_limit,
+        rules: ["required", "lessOrEqual:hard_limit,Bloqueo"],
+        key: "penalty_limit",
+        errors,
+        data: formState,
       });
       errors = checkRules({
         value: formState.penalty_percent,
@@ -143,7 +146,6 @@ const Config = () => {
     }
 
     if (typeSearch === "P") {
-      // Si hay error con la imagen, se valida que el avatarQr sea obligatorio
       if (errorImage) {
         errors = checkRules({
           value: formState.avatarQr,
@@ -201,12 +203,13 @@ const Config = () => {
     if (data?.success === true) {
       showToast("Datos guardados", "success");
       setErrors({});
-      // Aquí puedes realizar otras acciones como redirigir o refrescar datos.
-      reLoad();
+
+      // Forzar recarga completa de la página
+      window.location.reload();
     } else {
       showToast(error?.data?.message || error?.message, "error");
       console.log("error:", error);
-      setErrors(error?.data?.errors);
+      // setErrors(error?.data?.errors);
     }
   };
 
@@ -229,7 +232,7 @@ const Config = () => {
       //     : client_config?.data[0]?.client?.updated_at,
     });
   }, [client_config?.data]);
-  console.log(formState);
+  // console.log(formState);
 
   return (
     <div className={styles.Config}>

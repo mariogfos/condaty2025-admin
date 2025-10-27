@@ -8,6 +8,8 @@ import Layout from "@/components/layout/Layout";
 import { Metadata, Viewport } from "next";
 import ChatInstantDb from "@/mk/components/chat/ChatInstantDb";
 import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
+import { ImageModalProvider } from "@/contexts/ImageModalContext";
+// import { ReactScan } from "@/mk/utils/reactscan/ReactScan";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -20,8 +22,8 @@ import NotifInstantDb from "@/mk/components/notif/ActiveNotificationDB";
 // });
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Default App Name",
-  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Default Description",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "Condaty",
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Cantady",
   other: {
     google: "notranslate",
   },
@@ -41,21 +43,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body cz-shortcut-listen="false">
+      {/* <ReactScan /> */}
+      <body cz-shortcut-listen="true">
         <AxiosInstanceProvider interceptors={axiosInterceptors}>
           <AuthProvider>
-            <NotifInstantDb />
-            <div
-              id="portal-root"
-              style={{
-                position: "absolute",
-                overflow: "visible",
-                zIndex: 9999,
-                width: "100%",
-              }}
-            ></div>
-            <Layout>{children}</Layout>
-            {/* <ChatInstantDb /> */}
+            <ImageModalProvider>
+              <NotifInstantDb />
+              <div
+                id="portal-root"
+                style={{
+                  position: "absolute",
+                  overflow: "visible",
+                  zIndex: 9999,
+                  width: "100%",
+                }}
+              ></div>
+              <Layout>{children}</Layout>
+              <ChatInstantDb />
+            </ImageModalProvider>
           </AuthProvider>
         </AxiosInstanceProvider>
       </body>

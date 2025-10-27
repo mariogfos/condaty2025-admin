@@ -34,27 +34,28 @@ const Authentication = ({
   const [isDisabled, setIsDisabled] = useState(false);
   const [oldEmail, setOldEmail] = useState("");
 
-  const modalTitle = formState.pinned === 0
-  ? type === "M"
-    ? "Cambiar correo"
-    : "Cambiar contraseña"
-  : formState.pinned === 1
-  ? "Código de verificación"
-  : `Cambiar ${type === "M" ? "correo" : "contraseña"}`;
+  const modalTitle =
+    formState.pinned === 0
+      ? type === "M"
+        ? "Cambiar correo"
+        : "Cambiar contraseña"
+      : formState.pinned === 1
+      ? "Código de verificación"
+      : `Cambiar ${type === "M" ? "correo" : "contraseña"}`;
 
-  const modalButtonText = formState.pinned === 0
-  ? "Obtener código"
-  : formState.pinned === 1
-  ? "Continuar"
-  : type === "M"
-  ? "Cambiar correo"
-  : "Cambiar contraseña";
+  const modalButtonText =
+    formState.pinned === 0
+      ? "Obtener código"
+      : formState.pinned === 1
+      ? "Continuar"
+      : type === "M"
+      ? "Cambiar correo"
+      : "Cambiar contraseña";
   useEffect(() => {
     setErrors({});
     setFormState({ newPassword: null, pinned: 0 });
-  
   }, [open]);
- 
+
   const validateCode = () => {
     let errors: any = {};
     // if (!formState.code)
@@ -136,7 +137,7 @@ const Authentication = ({
     const { data, error } = await execute(url, "POST", param);
 
     if (data?.success == true) {
-      showToast(data.message, "success");
+      showToast(data.message + " - Operación exitosa", "success");
       setFormState({ pinned: 0, code: "", newEmail: "", password: "" });
       setErrors({});
       getUser();
@@ -149,7 +150,9 @@ const Authentication = ({
   // console.log(type,'tyyype')
 
   const onGetCode = async () => {
-    const { data, error } = await execute("/adm-getpin", "POST", {type:'email'});
+    const { data, error } = await execute("/adm-getpin", "POST", {
+      type: "email",
+    });
     if (data?.success == true) {
       showToast("Código enviado a su correo", "success");
       setFormState({ ...formState, email: data.email, pinned: 1, code: "" });
@@ -163,10 +166,10 @@ const Authentication = ({
   const handleChange = (e: any) => {
     let value = e.target.value;
 
-     // Si el campo es de tipo password, eliminar los espacios en blanco
-  if (e.target.name === "password" || e.target.name === "passwordRepeat") {
-    value = value.replace(/\s+/g, ""); 
-  }
+    // Si el campo es de tipo password, eliminar los espacios en blanco
+    if (e.target.name === "password" || e.target.name === "passwordRepeat") {
+      value = value.replace(/\s+/g, "");
+    }
     if (e.target.type == "checkbox") {
       value = e.target.checked ? "Y" : "N";
     }
@@ -177,14 +180,15 @@ const Authentication = ({
       setIsDisabled(false);
       return;
     }
-    const { data: response } = await execute("/adm-exist", "GET", {
+    const { data: response } = await execute("/users", "GET", {
       searchBy: formState.newEmail,
+      fullType: "EXIST",
       type: "email",
       cols: "id,email",
     });
     setIsDisabled(false);
     setOldEmail(formState.newEmail);
-    if (response?.data != null && response?.data.email !== user.email) {
+    if (response?.data?.data?.id) {
       setIsDisabled(true);
       setErrors({ newEmail: "El email ya existe" });
       return;
@@ -202,66 +206,148 @@ const Authentication = ({
     onClose();
     setErrors({});
   };
-  const inputCodeValidation = () => {  
+  const inputCodeValidation = () => {
     let err = {};
-    if(formState.pinned === 1){
-      if (!formState.code)
-       { err = { ...err, code: "Ingresa el código de verificación enviado a tu correo electrónico" }};
-      if (formState.code?.length != 4)
-        {err = { ...err, code: "El código de verificación debe tener 4 dígitos" }}
-      else { setFormState({ ...formState, pinned: 2 }) }; 
+    if (formState.pinned === 1) {
+      if (!formState.code) {
+        err = {
+          ...err,
+          code: "Ingresa el código de verificación enviado a tu correo electrónico",
+        };
+      }
+      if (formState.code?.length != 4) {
+        err = {
+          ...err,
+          code: "El código de verificación debe tener 4 dígitos",
+        };
+      } else {
+        setFormState({ ...formState, pinned: 2 });
+      }
       if (Object.keys(err).length > 0) {
         setErrors(err);
         return;
       }
-      }
-   }
-  
+    }
+  };
+
   const _onSave = () => {
     if (formState.pinned === 0) {
       onGetCode();
-    } 
-    if(formState.pinned === 1){
-      inputCodeValidation();
-      
     }
-    if(formState.pinned === 2){
+    if (formState.pinned === 1) {
+      inputCodeValidation();
+    }
+    if (formState.pinned === 2) {
       // onChangePass();
       onChangeData();
-      
     }
-    
-   
-  }
+  };
   return (
     <DataModal
       open={open}
-      title={ modalTitle }
+      title={modalTitle}
       onClose={_onClose}
-      onSave={ _onSave }
+      onSave={_onSave}
       buttonText={modalButtonText}
       buttonCancel=""
       disabled={isDisabled}
+      minWidth={480}
+      maxWidth={600}
     >
       {formState?.pinned === 0 ? (
         <div>Se enviará un código de verificación a tu correo electrónico.</div>
       ) : formState?.pinned === 1 ? (
-        <div>
-        <div  style={{marginBottom:16,marginTop:16}}>Ingresa el código de 4 dígitos que te enviamos a tu correo electrónico. Una vez validado, se actualizará tu  {type == "M" ? "correo" : "contraseña"}</div>
-        <div style={{display:"flex",justifyContent:"center"}}>
-          <InputCode
-            label=""
-            type="text"
-            name="code"
-            error={errors}
-            required={true}
-            value={formState?.code}
-            setCode={setCode}
-          ></InputCode>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '20px 0',
+          gap: '24px'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            maxWidth: '400px',
+            lineHeight: '1.5',
+            fontSize: '16px',
+            color: 'var(--cWhite)'
+          }}>
+            <h3 style={{
+              margin: '0 0 16px 0',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: 'var(--cWhite)'
+            }}>
+              Código de verificación
+            </h3>
+            <p style={{ margin: 0, color: 'var(--cWhiteV1)' }}>
+              Ingresa el código de 4 dígitos que te enviamos a tu correo
+              electrónico. Una vez validado, se actualizará tu{" "}
+              {type == "M" ? "correo" : "contraseña"}
+            </p>
           </div>
-          </div>):(
-            <>
-            {type == "M" ? (
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%'
+          }}>
+            <div style={{
+              background: 'var(--cBlackV1)',
+              padding: '24px',
+              borderRadius: '12px',
+              border: '1px solid var(--cWhiteV2)',
+              minWidth: '280px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                color: 'var(--cWhiteV1)',
+                textAlign: 'center',
+                marginBottom: '8px'
+              }}>
+                Código de verificación
+              </div>
+
+              <InputCode
+                label=""
+                type="text"
+                name="code"
+                error={errors}
+                required={true}
+                value={formState?.code}
+                setCode={setCode}
+              />
+
+
+
+              {errors?.code && (
+                <div style={{
+                  color: 'var(--cError)',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }}>
+                  {errors.code}
+                </div>
+              )}
+
+              <div style={{
+                fontSize: '12px',
+                color: 'var(--cWhiteV1)',
+                textAlign: 'center',
+                marginTop: '8px'
+              }}>
+                ¿No recibiste el código? Revisa tu bandeja de spam
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {type == "M" ? (
             <Input
               label="Correo nuevo"
               type="text"
@@ -275,22 +361,27 @@ const Authentication = ({
             />
           ) : (
             <>
-            <InputPassword
-              value={formState.password}
-              error={errors}
-              required={true}
-              onChange={handleChange}
-              name="password"
-              nameRepeat="passwordRepeat"
-              onChangeRepeat={handleChange}
-              repeatPasswordValue={formState.passwordRepeat}
-              repeatPassword={true}
-              label="Contraseña nueva"
-            />
-            <div> Si tu contraseña se guarda exitosamente debes volver a iniciar sesión </div>
+              <InputPassword
+                value={formState.password}
+                error={errors}
+                required={true}
+                onChange={handleChange}
+                name="password"
+                nameRepeat="passwordRepeat"
+                onChangeRepeat={handleChange}
+                repeatPasswordValue={formState.passwordRepeat}
+                repeatPassword={true}
+                label="Contraseña nueva"
+              />
+              <div>
+                {" "}
+                Si tu contraseña se guarda exitosamente debes volver a iniciar
+                sesión{" "}
+              </div>
             </>
-          )}   
-          </>)}
+          )}
+        </>
+      )}
     </DataModal>
   );
 };
